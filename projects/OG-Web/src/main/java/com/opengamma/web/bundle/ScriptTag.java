@@ -6,7 +6,6 @@
 package com.opengamma.web.bundle;
 
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +74,7 @@ public class ScriptTag {
     buf.append("<script src=\"");
     WebBundlesUris uris = new WebBundlesUris(_data);
     buf.append(uris.bundle(DeployMode.PROD, bundle.getId()));
+    buf.append("?" + BuildData.getBuildStamp());
     buf.append("\"></script>");
     return buf.toString();
   }

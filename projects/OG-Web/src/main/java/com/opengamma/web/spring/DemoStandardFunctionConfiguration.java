@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExchangeDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
@@ -27,6 +28,7 @@ import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurface
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
+import com.opengamma.financial.analytics.model.future.FuturesPricingDefaults;
 import com.opengamma.financial.analytics.model.futureoption.EquityFutureOptionBlackLognormalDefaults;
 import com.opengamma.financial.analytics.model.futureoption.EquityFutureOptionSurfaceCalculationMethodDefaults;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
@@ -66,6 +68,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
     addEquityDividendYieldFuturesDefaults(functions);
     addEquityForwardDefaults(functions);
+    addEquityFuturePricingDefaults(functions);
     addEquityIndexOptionBlackVolatilitySurfaceDefaults(functions);
     addEquityFutureOptionBlackVolatilitySurfaceDefaults(functions);
     addEquityOptionDefaults(functions);
@@ -78,10 +81,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
-    i.setCurveConfiguration("model/cds", "ISDAAUDCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAAUDCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -98,10 +102,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo cadCurrencyInfo() {
     final CurrencyInfo i = super.cadCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveCADConfig");
-    i.setCurveConfiguration("model/cds", "ISDACADCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDACADCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     return i;
   }
 
@@ -117,10 +122,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo eurCurrencyInfo() {
     final CurrencyInfo i = super.eurCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
-    i.setCurveConfiguration("model/cds", "ISDAEURCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAEURCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
     i.setSurfaceName("model/swaption", "DEFAULT");
     i.setCubeName(null, "BLOOMBERG");
@@ -131,10 +137,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo gbpCurrencyInfo() {
     final CurrencyInfo i = super.gbpCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveGBPConfig");
-    i.setCurveConfiguration("model/cds", "ISDAGBPCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAGBPCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -159,18 +166,19 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo jpyCurrencyInfo() {
     final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
-    i.setCurveConfiguration("model/cds", "ISDAJPYCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAJPYCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     return i;
   }
 
   @Override
   protected CurrencyInfo krwCurrencyInfo() {
     final CurrencyInfo i = super.krwCurrencyInfo();
-    i.setCurveConfiguration(null, "DefaultCashCurveKRWConfig");
-    i.setCurveName(null, "Cash");
+    i.setCurveConfiguration(null, "SingleCurveKRWConfig");
+    i.setCurveName(null, "Forward");
     return i;
   }
 
@@ -202,10 +210,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo usdCurrencyInfo() {
     final CurrencyInfo i = super.usdCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
-    i.setCurveConfiguration("model/cds", "ISDAUSDCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAUSDCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setSurfaceName("model/bondfutureoption", "BBG");
     i.setSurfaceName("model/futureoption", "BBG");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
@@ -231,10 +240,17 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyPairInfo eurJpyCurrencyPairInfo() {
     final CurrencyPairInfo i = super.eurJpyCurrencyPairInfo();
-    i.setSurfaceName(null, "TULLETT");
+    i.setSurfaceName(null, "DEFAULT");
     return i;
   }
 
+  @Override
+  protected CurrencyPairInfo jpyKrwCurrencyPairInfo() {
+    final CurrencyPairInfo i = super.jpyKrwCurrencyPairInfo();
+    i.setSurfaceName(null, "DEFAULT");
+    return i;
+  }
+  
   @Override
   protected CurrencyPairInfo usdAudCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdAudCurrencyPairInfo();
@@ -295,7 +311,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyPairInfo usdJpyCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
-    i.setSurfaceName(null, "TULLETT");
+    i.setSurfaceName(null, "DEFAULT");
     return i;
   }
 
@@ -378,6 +394,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerTickerDefaults.class.getName(), equityForwardCurvePerTickerDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerExchangeDefaults.class.getName(), equityForwardCurvePerExchangeDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults.class.getName(), equityForwardCurvePerCurrencyDefaults));
+  }
+  
+  protected void addEquityFuturePricingDefaults(final List<FunctionConfiguration> functionConfigs) {
+    final List<String> defaults = Arrays.asList(PriorityClass.NORMAL.name(), CalculationPropertyNamesAndValues.MARK_TO_MARKET_METHOD);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FuturesPricingDefaults.class.getName(), defaults));
   }
 
   protected void addEquityIndexOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {

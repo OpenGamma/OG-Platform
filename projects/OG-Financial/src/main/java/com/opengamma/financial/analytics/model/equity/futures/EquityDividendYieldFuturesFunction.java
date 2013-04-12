@@ -92,7 +92,6 @@ public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
         final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
     final Double spotUnderlyer = getSpot(inputs);
     Double dividendYield = timeSeriesBundle.get(MarketDataRequirementNames.DIVIDEND_YIELD, getSpotAssetId(security)).getTimeSeries().getLatestValue();
-    dividendYield /= 100.0;
     final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs, fundingCurveName, curveConfigName);

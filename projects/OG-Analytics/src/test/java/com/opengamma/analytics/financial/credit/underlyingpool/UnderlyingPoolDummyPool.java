@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.credit.underlyingpool;
 import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -53,11 +52,6 @@ public class UnderlyingPoolDummyPool {
   private static final DebtSeniority[] debtSeniority = new DebtSeniority[numberOfObligors];
   private static final RestructuringClause[] restructuringClause = new RestructuringClause[numberOfObligors];
 
-  private static final CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
-  private static final double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
-
-  private static final ISDACurve[] yieldCurve = new ISDACurve[numberOfObligors];
-
   private static final double[] obligorNotionals = {10000000.0, 10000000.0, 10000000.0, 5000000.0, 12000000.0 };
   private static final double[] obligorCoupons = {100.0, 100.0, 100.0, 500.0, 25.0 };
   private static final double[] obligorRecoveryRates = {0.36, 0.40, 0.25, 0.76, 0.15 };
@@ -70,13 +64,8 @@ public class UnderlyingPoolDummyPool {
 
   private static final CreditSpreadTenors[] obligorCreditSpreadTenors = {CreditSpreadTenors._3Y, CreditSpreadTenors._5Y, CreditSpreadTenors._7Y, CreditSpreadTenors._10Y };
 
-  private static final double[] times = {0.0 };
-  private static final double[] rates = {0.0 };
-  private static final ISDACurve obligorYieldCurve = new ISDACurve("IR_CURVE", times, rates, 0.0);
-  private static final ISDACurve[] obligorYieldCurves = {obligorYieldCurve, obligorYieldCurve, obligorYieldCurve, obligorYieldCurve, obligorYieldCurve };
-
   private static final String[] obligorTickers = {"MSFT", "IBM", "BT", "BARC", "NOM" };
-  private static final String[] obligorShortName = {"Microsoft", "International Business Machine", "British Telecom", "Barclays", "Nomura" };
+  private static final String[] obligorShortName = {"Microsoft", "International Business Machines", "British Telecom", "Barclays", "Nomura" };
   private static final String[] obligorREDCode = {"ABC123", "XYZ321", "123ABC", "XXX999", "AAA111" };
 
   private static final CreditRating[] obligorCompositeRating = {CreditRating.AA, CreditRating.AA, CreditRating.AA, CreditRating.AA, CreditRating.AA };
@@ -138,28 +127,37 @@ public class UnderlyingPoolDummyPool {
 
       // Assign the weight of obligor i in the index
       obligorWeights[i] = obligorIndexWeights[i];
+    }
+  }
 
-      yieldCurve[i] = obligorYieldCurves[i];
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Assign the credit spread tenors
+  public static final CreditSpreadTenors[] assignCreditSpreadTenors() {
+
+    CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
+
+    for (int m = 0; m < numberOfTenors; m++) {
+      creditSpreadTenors[m] = obligorCreditSpreadTenors[m];
     }
 
-    // Assign the credit spread tenors
-    for (int j = 0; j < numberOfTenors; j++) {
-      creditSpreadTenors[j] = obligorCreditSpreadTenors[j];
-    }
+    return creditSpreadTenors;
+  }
 
-    // Assign the term structure of credit spreads for each obligor
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Assign the credit spread term structures for each obligor in the underlying pool
+  public static final double[][] assignCreditSpreadTermStructures() {
+
+    double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
+
     for (int i = 0; i < numberOfObligors; i++) {
       for (int j = 0; j < numberOfTenors; j++) {
         spreadTermStructures[i][j] = (j + 1) * 100.0 + (i + 1) * 100.0;
-
-        if (outputResults) {
-          System.out.print(spreadTermStructures[i][j] + "\t");
-        }
-      }
-      if (outputResults) {
-        System.out.println();
       }
     }
+
+    return spreadTermStructures;
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -170,20 +168,17 @@ public class UnderlyingPoolDummyPool {
     // Initialise the obligors in the pool
     initialiseObligorsInPool();
 
-    // Call the pool constructor
+    // Call the UnderlyingPool constructor
     final UnderlyingPool underlyingPool = new UnderlyingPool(
         poolName,
         obligors,
         currency,
         debtSeniority,
         restructuringClause,
-        creditSpreadTenors,
-        spreadTermStructures,
         notionals,
         coupons,
         recoveryRates,
-        obligorWeights,
-        yieldCurve);
+        obligorWeights);
 
     return underlyingPool;
   }

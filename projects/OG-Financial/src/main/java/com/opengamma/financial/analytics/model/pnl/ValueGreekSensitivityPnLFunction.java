@@ -127,7 +127,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next())
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta")
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta")
         .get();
     final ValueSpecification resultSpecification = new ValueSpecification(ValueRequirementNames.PNL_SERIES, positionSpec, properties);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
@@ -177,7 +177,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     results.add(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     return results;
   }
@@ -206,7 +206,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     results.add(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     return results;

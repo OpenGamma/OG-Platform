@@ -28,7 +28,6 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
   protected List<RepositoryConfigurationSource> initSources() {
     final List<RepositoryConfigurationSource> sources = super.initSources();
     final RepositoryConfiguration configuration = new RepositoryConfiguration();
-    configuration.addFunctions(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("ParRate")));
     configuration.addFunctions(new ParameterizedFunctionConfiguration(FXOptionBlackSurfaceDefaults.class.getName(), Arrays.asList(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
         LINEAR_EXTRAPOLATOR, "USD", "EUR", "DEFAULT")));
     sources.add(new SimpleRepositoryConfigurationSource(configuration));

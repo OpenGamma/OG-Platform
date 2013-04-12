@@ -30,7 +30,10 @@ public interface ViewComputationResultModel extends ViewResultModel {
    * Gets a mapping from each value specification in the results to the set of original requirements that it satisfies.
    * 
    * @return the mapping of each value specification to the set of original requirements that it satisfies, not null
+   * @deprecated This data structure is not tremendously useful as it is the union of all compiled calculation configurations; it is better to listen for the view compilation notification and use the
+   *             information from there
    */
+  @Deprecated
   Map<ValueSpecification, Set<ValueRequirement>> getRequirementToSpecificationMapping();
 
   // TODO: The requirement to specification mapping is not part of the result, but the original compiled view definition.

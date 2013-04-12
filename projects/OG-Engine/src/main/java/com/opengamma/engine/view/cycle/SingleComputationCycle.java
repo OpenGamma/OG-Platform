@@ -13,10 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -34,11 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.cache.ViewComputationCache;
@@ -62,7 +57,6 @@ import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.resource.EngineResource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
@@ -160,7 +154,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
 
-  private InMemoryViewComputationResultModel constructTemplateResultModel() {
+  protected InMemoryViewComputationResultModel constructTemplateResultModel() {
     final InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     result.setViewCycleId(getCycleId());
     result.setViewProcessId(getViewProcessId());
@@ -246,7 +240,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return _executionOptions;
   }
 
-  private ExecutionLogModeSource getLogModeSource() {
+  protected ExecutionLogModeSource getLogModeSource() {
     return _viewProcessContext.getExecutionLogModeSource();
   }
 
@@ -321,20 +315,27 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return response;
   }
 
-  //--------------------------------------------------------------------------
-  // REVIEW jonathan 2011-03-18 -- The following comment should be given some sort of 'listed' status for preservation :-)
-  // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
+  protected static ComputedValueResult createComputedValueResult(final ValueSpecification valueSpec, final Object calculatedValue, final DependencyNodeJobExecutionResult jobExecutionResult) {
+    if (jobExecutionResult == null) {
+      return new ComputedValueResult(valueSpec, calculatedValue, AggregatedExecutionLog.EMPTY, null, null, null);
+    } else {
+      final CalculationJobResultItem jobResultItem = jobExecutionResult.getJobResultItem();
+      return new ComputedValueResult(valueSpec,
+          calculatedValue,
+          jobExecutionResult.getAggregatedExecutionLog(),
+          jobExecutionResult.getComputeNodeId(),
+          jobResultItem.getMissingInputs(),
+          jobResultItem.getResult());
+    }
+  }
 
   /**
-   * Synchronously runs the cycle.
+   * Prepares the cycle for execution, organising the caches and copying any values salvaged from a previous cycle.
    * 
    * @param previousCycle the previous cycle from which a delta cycle should be performed, or null to perform a full cycle
    * @param marketDataSnapshot the market data snapshot with which to execute the cycle, not null
-   * @param calcJobResultExecutorService the executor to use for streaming calculation job result consumption, not null
-   * @throws InterruptedException if the thread is interrupted while waiting for the computation cycle to complete. Execution of any outstanding jobs will be cancelled, but {@link #release()} still
-   *           must be called.
    */
-  public void execute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot, final ExecutorService calcJobResultExecutorService) throws InterruptedException {
+  public void preExecute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot) {
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
       throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
@@ -347,15 +348,33 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     if (previousCycle != null) {
       computeDelta(previousCycle);
     }
+  }
 
+  /**
+   * Completes the execution cycle.
+   */
+  public void postExecute() {
+    completeResultModel();
+    _state = ViewCycleState.EXECUTED;
+  }
+
+  // REVIEW jonathan 2011-03-18 -- The following comment should be given some sort of 'listed' status for preservation :-)
+  // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
+
+  /**
+   * Synchronously runs the cycle.
+   * 
+   * @param calcJobResultExecutorService the executor to use for streaming calculation job result consumption, not null
+   * @throws InterruptedException if the thread is interrupted while waiting for the computation cycle to complete. Execution of any outstanding jobs will be cancelled, but {@link #release()} still
+   *           must be called.
+   */
+  public void execute(final ExecutorService calcJobResultExecutorService) throws InterruptedException {
     final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
     final CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
     Future<?> resultStreamConsumerJobInProgress;
     try {
       resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
-
       final LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
-
       for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
         final DependencyGraph depGraph;
@@ -364,7 +383,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
         futures.add(future);
       }
-
       while (!futures.isEmpty()) {
         final Future<?> future = futures.poll();
         try {
@@ -388,12 +406,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
         }
       }
-
       _endTime = Instant.now();
     } finally {
       calculationJobResultStreamConsumer.terminate();
     }
-
     // Wait for calculationJobResultStreamConsumer to finish
     try {
       if (resultStreamConsumerJobInProgress != null) {
@@ -402,9 +418,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     } catch (final ExecutionException e) {
       Thread.currentThread().interrupt();
     }
-
-    completeResultModel();
-    _state = ViewCycleState.EXECUTED;
   }
 
   /**
@@ -505,7 +518,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private ViewComputationCache getComputationCache(final String calcConfigName) {
+  protected ViewComputationCache getComputationCache(final String calcConfigName) {
     return _cachesByCalculationConfiguration.get(calcConfigName);
   }
 
@@ -596,26 +609,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     getResultModel().setCalculationDuration(getDuration());
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Processes the results from one or more calculation jobs.
-   * <p>
-   * This generates a fragment result immediately from the given results, and also adds the values to the full result model.
-   * 
-   * @param results the execution results, not null
-   */
-  /*package*/void calculationJobsCompleted(final List<ExecutionResult> results) {
-    try {
-      final ViewComputationResultModel fragmentResult = processExecutionResults(results);
-      if (fragmentResult != null) {
-        notifyFragmentCompleted(fragmentResult);
-      }
-    } catch (final Exception e) {
-      s_logger.error("Error processing results after calculation jobs completed: " + results, e);
-    }
-  }
-
-  private void notifyFragmentCompleted(final ViewComputationResultModel fragmentResult) {
+  protected void notifyFragmentCompleted(final ViewComputationResultModel fragmentResult) {
     try {
       _cycleFragmentResultListener.resultAvailable(fragmentResult);
     } catch (final Exception e) {
@@ -623,74 +617,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private ViewComputationResultModel processExecutionResults(final List<ExecutionResult> calculationJobResults) {
-    final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
-    for (final ExecutionResult calculationJobResult : calculationJobResults) {
-      processExecutionResult(calculationJobResult, fragmentResultModel, getResultModel());
-    }
-    return !fragmentResultModel.getAllResults().isEmpty() ? fragmentResultModel : null;
-  }
-
-  private void processExecutionResult(final ExecutionResult executionResult, final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
-    final String calcConfigurationName = executionResult.getResult().getSpecification().getCalcConfigName();
-    final DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
-    final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
-    final String computeNodeId = executionResult.getResult().getComputeNodeId();
-    final Iterator<CalculationJobResultItem> itrResultItem = executionResult.getResult().getResultItems().iterator();
-    final Iterator<DependencyNode> itrNode = executionResult.getNodes().iterator();
-    Map<ValueSpecification, Set<ValueRequirement>> allTerminalOutputs = depGraph.getTerminalOutputs();
-    Map<ValueSpecification, Set<ValueRequirement>> processedTerminalOutputs = Maps.newHashMapWithExpectedSize(allTerminalOutputs.size());
-    while (itrResultItem.hasNext()) {
-      assert itrNode.hasNext();
-      final CalculationJobResultItem jobResultItem = itrResultItem.next();
-      final DependencyNode node = itrNode.next();
-      final Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
-      for (final ValueSpecification inputValueSpec : node.getInputValues()) {
-        final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
-        if (nodeResult == null) {
-          // Market data
-          continue;
-        }
-        inputLogs.add(nodeResult.getAggregatedExecutionLog());
-      }
-      final ExecutionLogMode executionLogMode = getLogModeSource().getLogMode(node);
-      final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
-      final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
-      final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
-      for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
-        processedTerminalOutputs.put(terminalOutput, allTerminalOutputs.get(terminalOutput));
-        jobExecutionResultCache.put(terminalOutput, jobExecutionResult);
-      }
-    }
-    fragmentResultModel.addRequirements(processedTerminalOutputs);
-    fullResultModel.addRequirements(processedTerminalOutputs);
-    for (final Pair<ValueSpecification, Object> value : computationCache.getValues(processedTerminalOutputs.keySet(), CacheSelectHint.allShared())) {
-      final ValueSpecification valueSpec = value.getFirst();
-      final Object calculatedValue = value.getSecond();
-      if (calculatedValue != null) {
-        final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResultCache.get(valueSpec));
-        fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-        fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-      }
-    }
-  }
-
-  private ComputedValueResult createComputedValueResult(final ValueSpecification valueSpec, final Object calculatedValue, final DependencyNodeJobExecutionResult jobExecutionResult) {
-    if (jobExecutionResult == null) {
-      return new ComputedValueResult(valueSpec, calculatedValue, AggregatedExecutionLog.EMPTY, null, null, null);
-    } else {
-      final CalculationJobResultItem jobResultItem = jobExecutionResult.getJobResultItem();
-      return new ComputedValueResult(valueSpec,
-          calculatedValue,
-          jobExecutionResult.getAggregatedExecutionLog(),
-          jobExecutionResult.getComputeNodeId(),
-          jobResultItem.getMissingInputs(),
-          jobResultItem.getResult());
-    }
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Returns the dependency graph used by this cycle for the given calculation configuration.
    * 
@@ -805,7 +731,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     setNodeState(node, NodeStateFlag.SUPPRESSED);
   }
 
-  private DependencyNodeJobExecutionResultCache getJobExecutionResultCache(final String calcConfigName) {
+  protected DependencyNodeJobExecutionResultCache getJobExecutionResultCache(final String calcConfigName) {
     return _jobResultCachesByCalculationConfiguration.get(calcConfigName);
   }
 

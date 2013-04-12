@@ -17,6 +17,10 @@ $.register_module({
              */
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
             blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
+            /** validation_handler is passed to each form via thier submit or submit_new, 
+             *  The form api's submit listener in each form attempts to sumbit the form
+             *  If an error exists the message is displayed otherwise the form is closed
+             */ 
             var validation_handler = function (result) {
                 if(result.error) {
                     og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
@@ -27,7 +31,7 @@ $.register_module({
                 complete(result);
             };
             constructor.load = function () {
-                // security type tells which type of form to load
+                // security type specifies which form to create
                 if (config.details) {
                     title = 'Edit Trade', submit = 'Update';
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
@@ -55,7 +59,7 @@ $.register_module({
                     if (typeof acc[val] === 'undefined') constructor.clear();
                     else return acc[val];
                     }, window);
-                if(inner) {
+                if (inner) {
                     form_wrapper = new inner(config);
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }

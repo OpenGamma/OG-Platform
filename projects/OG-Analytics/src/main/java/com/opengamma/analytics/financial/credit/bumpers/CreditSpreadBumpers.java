@@ -25,7 +25,7 @@ public class CreditSpreadBumpers {
 
   public double[] getBumpedCreditSpreads(final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
-    double[] bumpedCreditSpreads = new double[marketSpreads.length];
+    final double[] bumpedCreditSpreads = new double[marketSpreads.length];
 
     // Calculate the bumped spreads
 
@@ -49,7 +49,7 @@ public class CreditSpreadBumpers {
 
   public double[] getBumpedCreditSpreads(final double[] marketSpreads, final int spreadTenorToBump, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
-    double[] bumpedCreditSpreads = Arrays.copyOf(marketSpreads, marketSpreads.length);
+    final double[] bumpedCreditSpreads = Arrays.copyOf(marketSpreads, marketSpreads.length);
 
     // Calculate the bumped spreads
 

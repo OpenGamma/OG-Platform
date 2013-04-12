@@ -36,6 +36,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -121,6 +122,11 @@ public class FinancialSecurityTypes {
    * The Corporate Bond security type.
    */
   public static final ObjectComputationTargetType<CorporateBondSecurity> CORPORATE_BOND_SECURITY = ObjectComputationTargetType.of(CorporateBondSecurity.class);
+
+  /**
+   * The credit default swap option security type.
+   */
+  public static final ObjectComputationTargetType<CreditDefaultSwapOptionSecurity> CREDIT_DEFAULT_SWAP_OPTION_SECURITY = ObjectComputationTargetType.of(CreditDefaultSwapOptionSecurity.class);
 
   /**
    * The Energy Future Option security type.

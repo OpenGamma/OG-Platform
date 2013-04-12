@@ -22,10 +22,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * A Fudge builder for {@link CreditDefaultSwapIndexSecurity}.
+ * A Fudge builder for {@link CreditDefaultSwapIndexDefinitionSecurity}.
  */
-@FudgeBuilderFor(CreditDefaultSwapIndexSecurity.class)
-public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<CreditDefaultSwapIndexSecurity> {
+@FudgeBuilderFor(CreditDefaultSwapIndexDefinitionSecurity.class)
+public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<CreditDefaultSwapIndexDefinitionSecurity> {
   
   /** Field name. */
   public static final String VERSION_FLD = "version";
@@ -41,13 +41,13 @@ public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   public static final String COMPONENTS_FLD = "components";
  
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CreditDefaultSwapIndexSecurity object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CreditDefaultSwapIndexDefinitionSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     CDSIndexSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
-  public static void toFudgeMsg(FudgeSerializer serializer, CreditDefaultSwapIndexSecurity security, final MutableFudgeMsg msg) {
+  public static void toFudgeMsg(FudgeSerializer serializer, CreditDefaultSwapIndexDefinitionSecurity security, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, security, msg);
     addToMessage(msg, VERSION_FLD, security.getVersion());
     addToMessage(msg, SERIES_FLD, security.getSeries());
@@ -62,13 +62,13 @@ public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   }
 
   @Override
-  public CreditDefaultSwapIndexSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    CreditDefaultSwapIndexSecurity security = new CreditDefaultSwapIndexSecurity();
+  public CreditDefaultSwapIndexDefinitionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    CreditDefaultSwapIndexDefinitionSecurity security = new CreditDefaultSwapIndexDefinitionSecurity();
     CDSIndexSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, security);
     return security;
   }
 
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, CreditDefaultSwapIndexSecurity security) {
+  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, CreditDefaultSwapIndexDefinitionSecurity security) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, security);
     
     List<FudgeField> termsFields = msg.getAllByName(TERMS_FLD);

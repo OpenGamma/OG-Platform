@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.lang.ref.WeakReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,35 +19,32 @@ import com.google.common.base.Supplier;
 
   private static final Logger s_logger = LoggerFactory.getLogger(BuildFractionEstimate.class);
 
-  private final DependencyGraphBuilder _builder;
+  private final WeakReference<DependencyGraphBuilder> _builder;
   private long _maxRemaining;
 
   public BuildFractionEstimate(final DependencyGraphBuilder builder) {
-    _builder = builder;
-  }
-
-  private DependencyGraphBuilder getBuilder() {
-    return _builder;
+    _builder = new WeakReference<DependencyGraphBuilder>(builder);
   }
 
   @Override
   public Double get() {
-    if (getBuilder().isCancelled()) {
+    final DependencyGraphBuilder builder = _builder.get();
+    if ((builder == null) || builder.isCancelled()) {
       return 1d;
     }
     // Note that this will break for big jobs that are > 2^63 steps. Is this a limit that can be reasonably hit?
     // Loose synchronization okay; this is only a guesstimate
-    final long completed = getBuilder().getCompletedSteps();
-    long scheduled = getBuilder().getScheduledSteps();
+    final long completed = builder.getCompletedSteps();
+    long scheduled = builder.getScheduledSteps();
     if ((scheduled <= 0) || (completed <= 0)) {
       return 0d;
     }
     while (completed >= scheduled) {
-      if (getBuilder().isGraphBuilt()) {
+      if (builder.isGraphBuilt()) {
         return 1d;
       } else {
         // spin and have another go; scheduled steps will eventually increase
-        scheduled = getBuilder().getScheduledSteps();
+        scheduled = builder.getScheduledSteps();
         if (scheduled <= 0) {
           // 2^63 overflow
           return 0d;
@@ -53,7 +52,7 @@ import com.google.common.base.Supplier;
       }
     }
     s_logger.info("Completed {} of {} scheduled steps", completed, scheduled);
-    getBuilder().reportStateSize();
+    builder.reportStateSize();
     // TODO: What can we do based on sampling the counters available and applying knowledge of typical graph shapes? Don't want anything too heavyweight.
     final long remaining = scheduled - completed;
     if (remaining > _maxRemaining) {

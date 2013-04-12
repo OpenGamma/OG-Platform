@@ -8,21 +8,34 @@ package com.opengamma.financial.security.cds;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Immutable set of {@link CreditDefaultSwapIndexComponent} that represents the CreditDefaultSwapIndexSecurity components
+ * Immutable set of {@link CreditDefaultSwapIndexComponent} that
+ * represents the CreditDefaultSwapIndexDefinitionSecurity components
  * <p>
- * It uses a comparator based on the ObligorCode of each components as suppose to natural ordering of weight and name
+ * It uses a comparator based on the ObligorCode of each components
+ * as opposed to natural ordering of weight and name.
+ * <p>
+ * Note that ideally we would use a Map keyed on RED code with values
+ * of the components, sorted by the values. However, standard maps
+ * are sorted by kets so would not be usable. Instead this class
+ * maintains a Map to ensure each RED code only appears once and
+ * a sorted set of the components.
+ * </p>
  * 
  */
 public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwapIndexComponent>, Serializable {
@@ -31,118 +44,149 @@ public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwap
   private static final long serialVersionUID = 1L;
   
   /**
-   * Comparator to use for sorting
+   * Comparator to use for sorting if one is not specified by client
    */
-  private static final Comparator<CreditDefaultSwapIndexComponent> s_obligorComparator = new CDSIndexComponentObligorComparator();
+  private static final Comparator<CreditDefaultSwapIndexComponent> DEFAULT_COMPARATOR = new CDSIndexComponentObligorComparator();
     
   /**
    * The set of cdsIndex components.
    */
   private final ImmutableSortedSet<CreditDefaultSwapIndexComponent> _components;
+
+  /**
+   * The map of the current red codes.
+   */
+  private final Map<ExternalId, CreditDefaultSwapIndexComponent> _redCodeMapping;
   
   /**
    * Creates a cdsIndex components bundle from a set of cdsIndex component.
    * 
-   * @param tenors  the set of tenors, assigned, not null
+   * @param components  the set of components assigned, not null
    */
-  private CDSIndexComponentBundle(ImmutableSortedSet<CreditDefaultSwapIndexComponent> components) {
-    _components = components;
+  private CDSIndexComponentBundle(Iterable<CreditDefaultSwapIndexComponent> components) {
+    this(components, DEFAULT_COMPARATOR);
   }
-      
+
   /**
-   * Obtains a {@link CDSIndexComponentBundle} from a {@link CreditDefaultSwapIndexComponent}.
-   * 
-   * @param component  the cdsindex component to warp in the bundle, not null
-   * @return the cdsIndex components bundle, not null
+   * Creates a cdsIndex components bundle from a set of cdsIndex
+   * component and a comparator.
+   *
+   * @param components  the set of components assigned, not null
    */
-  public static CDSIndexComponentBundle of(CreditDefaultSwapIndexComponent component) {
-    ArgumentChecker.notNull(component, "component");
-    return new CDSIndexComponentBundle(ImmutableSortedSet.of(component));
+  private CDSIndexComponentBundle(Iterable<CreditDefaultSwapIndexComponent> components,
+                                  Comparator<? super CreditDefaultSwapIndexComponent> comparator) {
+    ArgumentChecker.notEmpty(components, "components");
+    ArgumentChecker.noNulls(components, "components");
+    ArgumentChecker.notNull(comparator, "comparator");
+
+    _components = ImmutableSortedSet.copyOf(comparator, deduplicate(components));
+    _redCodeMapping = Maps.uniqueIndex(_components, new Function<CreditDefaultSwapIndexComponent, ExternalId>() {
+      @Override
+      public ExternalId apply(CreditDefaultSwapIndexComponent input) {
+        return input.getObligorRedCode();
+      }
+    });
   }
-  
-  /**
-   * Obtains a {@link CDSIndexComponentBundle} from a collection of CreditDefaultSwapIndexComponents.
-   * 
-   * @param components  the collection of components, no nulls, not null
-   * @return the cdsIndex components bundle, not null
-   */
-  public static CDSIndexComponentBundle of(Iterable<CreditDefaultSwapIndexComponent> components) {
-    return create(components);
+
+  private static Iterable<CreditDefaultSwapIndexComponent> deduplicate(Iterable<CreditDefaultSwapIndexComponent> components) {
+
+    Map<ExternalId, CreditDefaultSwapIndexComponent> redCodeMapping = Maps.newHashMap();
+
+    for (CreditDefaultSwapIndexComponent component : components) {
+      redCodeMapping.put(component.getObligorRedCode(), component);
+    }
+
+    return redCodeMapping.values();
   }
-  
+
   /**
-   * Obtains a {@link CDSIndexComponentBundle} from an array of CreditDefaultSwapIndexComponents.
-   * 
+   * Obtains a {@link CDSIndexComponentBundle} from an array of
+   * CreditDefaultSwapIndexComponents.
+   *
    * @param components  an array of components, no nulls, not null
    * @return the cdsIndex components bundle, not null
    */
   public static CDSIndexComponentBundle of(CreditDefaultSwapIndexComponent... components) {
     return create(Arrays.asList(components));
   }
-  
+
   /**
-   * Obtains an {@link CDSIndexComponentBundle} from a collection of {@link CreditDefaultSwapIndexComponent}.
+   * Obtains a {@link CDSIndexComponentBundle} from a collection of
+   * CreditDefaultSwapIndexComponents.
+   *
+   * @param components  the collection of components, no nulls, not null
+   * @return the cdsIndex components bundle, not null
+   */
+  public static CDSIndexComponentBundle of(Iterable<CreditDefaultSwapIndexComponent> components) {
+    return create(components);
+  }
+
+  /**
+   * Obtains an {@link CDSIndexComponentBundle} from a collection of
+   * {@link CreditDefaultSwapIndexComponent}.
    * 
    * @param components  the collection of components
    * @return the bundle, not null
    */
   private static CDSIndexComponentBundle create(Iterable<CreditDefaultSwapIndexComponent> components) {
-    ArgumentChecker.notEmpty(components, "components");
-    ArgumentChecker.noNulls(components, "components");
-    return new CDSIndexComponentBundle(ImmutableSortedSet.copyOf(s_obligorComparator, components));
+    return new CDSIndexComponentBundle(components);
   }
   
   //-------------------------------------------------------------------------
   /**
-   * Gets the set of {@link CreditDefaultSwapIndexComponent} in the cdsIndex components bundle.
+   * Gets the set of {@link CreditDefaultSwapIndexComponent} in the cdsIndex
+   * components bundle.
    * 
-   * @return the tenor set, unmodifiable, not null
+   * @return the components, unmodifiable, not null
    */
-  public Set<CreditDefaultSwapIndexComponent> getComponents() {
+  public Iterable<CreditDefaultSwapIndexComponent> getComponents() {
     return _components;
   }
   
-  //-------------------------------------------------------------------------
   /**
-   * Returns a new {@link CDSIndexComponentBundle} with the specified {@link CreditDefaultSwapIndexComponent} added. This instance is immutable and unaffected by this method call.
-   * 
-   * @param component the cdsindex component to add to the returned bundle, not null
+   * Returns a new {@link CDSIndexComponentBundle} with the specified
+   * {@link CreditDefaultSwapIndexComponent}s added. This instance is immutable
+   * and unaffected by this method call.
+   *
+   * @param components the identifiers to add to the returned bundle, not null
    * @return the new bundle, not null
    */
-  public CDSIndexComponentBundle withCDSIndexComponent(final CreditDefaultSwapIndexComponent component) {
-    ArgumentChecker.notNull(component, "component");
-    final Set<CreditDefaultSwapIndexComponent> components = new HashSet<>(_components);
-    if (components.add(component) == false) {
-      return this;
-    }
-    return create(components);
+  public CDSIndexComponentBundle withCDSIndexComponents(final CreditDefaultSwapIndexComponent... components) {
+    return withCDSIndexComponents(Arrays.asList(components));
   }
 
   /**
-   * Returns a new {@link CDSIndexComponentBundle} with the specified {@link CreditDefaultSwapIndexComponent}s added. This instance is immutable and unaffected by this method call.
+   * Returns a new {@link CDSIndexComponentBundle} with the specified
+   * {@link CreditDefaultSwapIndexComponent}s added. This instance is immutable
+   * and unaffected by this method call.
    * 
    * @param components the identifiers to add to the returned bundle, not null
    * @return the new bundle, not null
    */
   public CDSIndexComponentBundle withCDSIndexComponents(final Iterable<CreditDefaultSwapIndexComponent> components) {
-    ArgumentChecker.notNull(components, "components");
-    final Set<CreditDefaultSwapIndexComponent> toAdd = ImmutableSortedSet.copyOf(components);
-    final Set<CreditDefaultSwapIndexComponent> latest = new HashSet<CreditDefaultSwapIndexComponent>(_components);
-    if (latest.addAll(toAdd) == false) {
-      return this;
+
+    final Set<CreditDefaultSwapIndexComponent> updatedComponents = Sets.newLinkedHashSet(_components);
+
+    for (CreditDefaultSwapIndexComponent component : components) {
+
+      if (!component.equals(_redCodeMapping.get(component.getObligorRedCode()))) {
+        updatedComponents.add(component);
+      }
     }
-    return create(latest);
+
+    return new CDSIndexComponentBundle(updatedComponents, _components.comparator());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a new bundle using a custom comparator for ordering. Primarily useful for display.
+   * Returns a new bundle using a custom comparator for ordering. Primarily
+   * useful for display.
    * 
    * @param comparator comparator specifying how to order the ExternalIds
    * @return the new copy of the bundle, ordered by the comparator
    */
   public CDSIndexComponentBundle withCustomIdOrdering(final Comparator<CreditDefaultSwapIndexComponent> comparator) {
-    return new CDSIndexComponentBundle(ImmutableSortedSet.orderedBy(comparator).addAll(_components).build());
+    return new CDSIndexComponentBundle(_components, comparator);
   }
 
   //-------------------------------------------------------------------------
@@ -195,7 +239,5 @@ public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwap
     public int compare(final CreditDefaultSwapIndexComponent left, final CreditDefaultSwapIndexComponent right) {
       return left.getObligorRedCode().compareTo(right.getObligorRedCode());
     }
-    
   }
-
 }

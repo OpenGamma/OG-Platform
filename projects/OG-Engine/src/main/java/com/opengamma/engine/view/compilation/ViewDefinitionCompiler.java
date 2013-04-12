@@ -310,19 +310,23 @@ public final class ViewDefinitionCompiler {
     protected void compile() {
       s_logger.info("Performing full compilation");
       SpecificRequirementsCompiler.execute(getContext());
-      PortfolioCompiler.executeFull(getContext(), getResolutions());
+      PortfolioCompiler.executeFull(getContext(), getResolutions(), null);
     }
 
   }
 
-  private abstract static class IncrementalCompilationTask extends CompilationTask {
+  private static class IncrementalCompilationTask extends CompilationTask {
 
     private final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> _previousGraphs;
+    private final Set<UniqueId> _unchangedNodes;
+    private final Set<UniqueId> _changedPositions;
 
     protected IncrementalCompilationTask(final ViewCompilationContext context, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions, final Set<UniqueId> unchangedNodes) {
       super(context, resolutions);
       _previousGraphs = previousGraphs;
+      _unchangedNodes = unchangedNodes;
+      _changedPositions = changedPositions;
     }
 
     @Override
@@ -339,39 +343,17 @@ public final class ViewDefinitionCompiler {
           }
         }
       }
-    }
-
-  }
-
-  private static class IncrementalCompilationTaskFullResolve extends IncrementalCompilationTask {
-
-    protected IncrementalCompilationTaskFullResolve(final ViewCompilationContext context, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-      super(context, previousGraphs, resolutions);
-    }
-
-    @Override
-    public void compile() {
-      super.compile();
-      PortfolioCompiler.executeFull(getContext(), getResolutions());
-    }
-
-  }
-
-  private static class IncrementalCompilationTaskPartialResolve extends IncrementalCompilationTask {
-
-    private final Set<UniqueId> _changedPositions;
-
-    protected IncrementalCompilationTaskPartialResolve(final ViewCompilationContext context, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions) {
-      super(context, previousGraphs, resolutions);
-      _changedPositions = changedPositions;
-    }
-
-    @Override
-    public void compile() {
-      super.compile();
-      PortfolioCompiler.executeIncremental(getContext(), getResolutions(), _changedPositions);
+      if (_unchangedNodes != null) {
+        s_logger.info("Adding portfolio requirements with unchanged node set");
+        PortfolioCompiler.execute(getContext(), getResolutions(), null, _unchangedNodes);
+        s_logger.debug("Dependency graph(s) built");
+      } else if (_changedPositions != null) {
+        s_logger.info("Adding portfolio requirements with changed position set");
+        PortfolioCompiler.execute(getContext(), getResolutions(), _changedPositions, null);
+        s_logger.debug("Dependency graph(s) built");
+      } else {
+        s_logger.info("No additional portfolio requirements needed");
+      }
     }
 
   }
@@ -384,17 +366,10 @@ public final class ViewDefinitionCompiler {
 
   public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
       final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions) {
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions, final Set<UniqueId> unchangedNodes) {
     s_logger.info("Incremental compile of {} for use at {}", viewDefinition.getName(), valuationTime);
-    return new IncrementalCompilationTaskPartialResolve(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection), previousGraphs, resolutions,
-        changedPositions);
-  }
-
-  public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
-      final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-    s_logger.info("Incremental compile of {} for use at {}", viewDefinition.getName(), valuationTime);
-    return new IncrementalCompilationTaskFullResolve(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection), previousGraphs, resolutions);
+    return new IncrementalCompilationTask(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection), previousGraphs, resolutions,
+        changedPositions, unchangedNodes);
   }
 
   public static CompiledViewDefinitionWithGraphsImpl compile(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,

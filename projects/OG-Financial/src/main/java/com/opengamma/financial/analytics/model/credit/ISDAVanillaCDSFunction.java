@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
@@ -55,6 +56,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Abstract class for cds functions that require ISDA and spread curves.
@@ -88,11 +90,8 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
     LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 
-    // get the market spread bump to apply to all tenors
-    final Object spreadObject = inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
-    final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) spreadObject;
-    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, SpreadCurveFunctions.BUCKET_TENORS);
-    final double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates); // get spread for this cds
+    final String quoteConventionString = desiredValue.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION);
+    final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(quoteConventionString);
 
     // get the isda curve
     final Object isdaObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
@@ -101,7 +100,14 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
     }
     final ISDADateCurve isdaCurve = (ISDADateCurve) isdaObject;
 
+    final ZonedDateTime startDate = DateUtils.getUTCDate(cds.getStartDate().getYear(), cds.getStartDate().getMonth().getValue(), cds.getStartDate().getDayOfMonth());
+
     cds = IMMDateGenerator.cdsModifiedForIMM(now, cds);
+
+    final Object spreadObject = inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
+    final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) spreadObject;
+    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, SpreadCurveFunctions.BUCKET_TENORS);
+    final double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, isdaCurve, startDate); // get spread for this cds
 
     Object cs01 = compute(now, cds, spreads, isdaCurve, bucketDates);
 
@@ -121,6 +127,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
         .withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
         .withAny(ISDAFunctionConstants.ISDA_IMPLEMENTATION)
+        .withAny(ISDAFunctionConstants.CDS_QUOTE_CONVENTION)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .get();
     return Collections.singleton(new ValueSpecification(_valueRequirement, target.toSpecification(), properties));

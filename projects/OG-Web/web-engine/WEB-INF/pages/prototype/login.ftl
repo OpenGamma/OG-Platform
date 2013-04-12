@@ -20,7 +20,7 @@ ${ogScript.print('og_common.js', false)}
 ${ogScript.print('og_admin.js', false)}
 <!--${ogScript.print('og_analytics2.js', false)}-->
 <script type="text/javascript">
-  $('.OG-login button').on('click', function () {
+  $('.OG-login button').focus().on('click', function () {
       return window.location = '/jax/bundles/fm/prototype/analytics2.ftl', false;
   });
 </script>

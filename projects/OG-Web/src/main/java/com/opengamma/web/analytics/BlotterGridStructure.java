@@ -95,7 +95,8 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     TargetLookup targetLookup = new TargetLookup(getValueMappings(), rows);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
     GridColumnGroup blotterColumns = buildBlotterColumns(_columnMapper, rows);
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, targetLookup);
+    List<GridColumnGroup> analyticsColumns = Collections.emptyList();
+    //List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, targetLookup);
     return new BlotterGridStructure(rows, fixedColumns, blotterColumns, analyticsColumns, rootNode, targetLookup,
                                     _columnMapper, getValueMappings(), _viewDef);
   }
@@ -108,7 +109,8 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     ValueMappings valueMappings = new ValueMappings(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDef, targetLookup);
+    List<GridColumnGroup> analyticsColumns = Collections.emptyList();
+    //List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDef, targetLookup);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
     GridColumnGroup blotterColumns = buildBlotterColumns(_columnMapper, rows);
     return new BlotterGridStructure(rows, fixedColumns, blotterColumns, analyticsColumns, rootNode, targetLookup,

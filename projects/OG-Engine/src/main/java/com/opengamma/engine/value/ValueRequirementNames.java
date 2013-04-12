@@ -159,6 +159,10 @@ public final class ValueRequirementNames {
    */
   public static final String CREDIT_SPREAD_CURVE = "CreditSpreadCurve";
   /**
+   * The bundle of historical time series objects for nodes on a credit spread curve.
+   */
+  public static final String CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES = "Credit Spread Curve Historical Time Series";
+  /**
    * The bundle of historical time series objects for instruments on a curve.
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
@@ -322,19 +326,19 @@ public final class ValueRequirementNames {
    * The second-order change in the value of an instrument if the credit curve is moved by 1 basis point.
    */
   public static final String GAMMA_CS01 = "Gamma CS01";
-  
-  /** 
-   * The bucketed second-order changes in the value of an instrument if the credit curve is moved by 1 basis point. 
+
+  /**
+   * The bucketed second-order changes in the value of an instrument if the credit curve is moved by 1 basis point.
    */
   public static final String BUCKETED_GAMMA_CS01 = "Bucketed Gamma CS01";
-  
+
   /**
-   * The change in the value of an instrument if the recovery rate is moved by one basis point. 
+   * The change in the value of an instrument if the recovery rate is moved by one basis point.
    */
   public static final String RR01 = "RR01";
-  
+
   /**
-   * The change in the value of an instrument if the yield curve is shifted in parallel by one basis point. 
+   * The change in the value of an instrument if the yield curve is shifted in parallel by one basis point.
    */
   public static final String IR01 = "IR01";
 
@@ -342,7 +346,7 @@ public final class ValueRequirementNames {
    * The bucketed changes in the value of an instrument if the interest rate curve is moved by 1 basis point.
    */
   public static final String BUCKETED_IR01 = "Bucketed IR01";
-  
+
   /**
    * The accrued premium for a credit default swap.
    */
@@ -382,7 +386,7 @@ public final class ValueRequirementNames {
    * The jump-to-default.
    */
   public static final String JUMP_TO_DEFAULT = "Jump to Default";
-  
+
   /**
    * The bucketed (CS01) spreads for a credit default swap.
    */
@@ -874,6 +878,14 @@ public final class ValueRequirementNames {
 
   ///// Series Analysis
 
+  /**
+   * A correlation matrix. This should be a labeled matrix with {@link ValueSpecification} labels that indicate the original components.
+   */
+  public static final String CORRELATION_MATRIX = "Correlation Matrix";
+  /**
+   * A covariance matrix. This should be a labeled matrix with {@link ValueSpecification} labels that indicate the original components.
+   */
+  public static final String COVARIANCE_MATRIX = "Covariance Matrix";
   /**
    * The daily profit and loss of a security
    */

@@ -281,7 +281,7 @@ $.register_module({
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
                     if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
                     if (0 === cell.col && grid.state.nodes[has](cell.row))
-                        return og.analytics.node_menu.call(grid, event, cell);
+                        return new og.analytics.NodeMenu(grid, cell, event).display();
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
@@ -389,7 +389,6 @@ $.register_module({
             scrolls = reorder.map(function (idx) {return scrolls[idx];});
             sets = columns.scroll.reduce(function (acc, set) {delete set.columns; return acc.concat(set);}, []);
             columns.scroll = scrolls.reduce(function (acc, col, idx) {
-                if (!col) debugger;
                 var length = acc.length, same_set = length && scrolls[idx - 1].orig_set === col.orig_set, orig_set;
                 if (same_set) return acc[length - 1].columns.push(col), acc;
                 orig_set = sets[col.orig_set];
@@ -634,7 +633,8 @@ $.register_module({
                 .reduce(function (acc, val) {return acc + val;});}, 0);
             if ((remainder = scroll_width - scroll_data_width) <= 0) return;
             meta.columns.widths[meta.columns.widths.length - 1] += remainder;
-            (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
+            if (scroll_cols.length)
+                (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
         Grid.prototype.kill = function () {
@@ -658,7 +658,7 @@ $.register_module({
                 col_indices, cols_len = viewport.cols.length, types = [], result = null,
                 available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
                     !selection.cols.some(function (col) {return !~viewport.cols.indexOf(col);});
-            if (!available) return {data: null, raw: null};
+            if (!available || !grid.data) return {data: null, raw: null};
             row_indices = selection.rows.map(function (row) {return viewport.rows.indexOf(row);});
             col_indices = selection.cols.map(function (col) {return viewport.cols.indexOf(col);});
             result = row_indices.map(function (row_idx) {

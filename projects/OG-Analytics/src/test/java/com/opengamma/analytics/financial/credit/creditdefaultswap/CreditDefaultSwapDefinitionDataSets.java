@@ -54,7 +54,7 @@ public class CreditDefaultSwapDefinitionDataSets {
 
   private static final double NOTIONAL = 10000000.0;
   private static final double RECOVERY_RATE = 0.40;
-  private static final boolean INCLUDE_ACCRUED_PREMIUM = false;
+  private static final boolean INCLUDE_ACCRUED_PREMIUM = true;
   private static final boolean PROTECTION_START = true;
 
   private static final double PAR_SPREAD = 123.0;
@@ -106,6 +106,13 @@ public class CreditDefaultSwapDefinitionDataSets {
         DEBT_SENIORITY, RESTRUCTURING_CLAUSE, CALENDAR, START_DATE, EFFECTIVE_DATE, MATURITY_DATE, stubType,
         COUPON_FREQUENCY, DAY_COUNT, BUSINESS_DAY, IMM_ADJUST_MATURITY_DATE, ADJUST_EFFECTIVE_DATE, ADJUST_MATURITY_DATE,
         NOTIONAL, RECOVERY_RATE, INCLUDE_ACCRUED_PREMIUM, PROTECTION_START, PAR_SPREAD);
+  }
+
+  public static LegacyVanillaCreditDefaultSwapDefinition getLegacyVanillaCreditDefaultSwapDefinitionWithProtectionStart(final boolean protectionStart) {
+    return new LegacyVanillaCreditDefaultSwapDefinition(BUY_SELL_PROTECTION, getObligor1(), getObligor2(), getObligor3(), CURRENCY,
+        DEBT_SENIORITY, RESTRUCTURING_CLAUSE, CALENDAR, START_DATE, EFFECTIVE_DATE, MATURITY_DATE, STUB_TYPE,
+        COUPON_FREQUENCY, DAY_COUNT, BUSINESS_DAY, IMM_ADJUST_MATURITY_DATE, ADJUST_EFFECTIVE_DATE, ADJUST_MATURITY_DATE,
+        NOTIONAL, RECOVERY_RATE, INCLUDE_ACCRUED_PREMIUM, protectionStart, PAR_SPREAD);
   }
 
   public static LegacyVanillaCreditDefaultSwapDefinition getLegacyVanillaCreditDefaultSwapDefinitionWithNotional(final double notional) {

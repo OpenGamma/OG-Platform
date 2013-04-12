@@ -37,9 +37,10 @@ import com.opengamma.util.tuple.Pair;
  * is still ongoing. The pre-order method for a portfolio node sets up an empty requirements container for that node, which is filled up as its children are traversed (if aggregation is specified in
  * the result model definition), and then added to the dependency graph's list of targets in the post-order method for that portfolio node.
  */
-/* package */class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
+/* package */final class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
 
-  private final Set<UniqueId> _limitEvents;
+  private final Set<UniqueId> _includeEvents;
+  private final Set<UniqueId> _excludeEvents;
   private final ViewCalculationConfiguration _calculationConfiguration;
   private final ResultModelDefinition _resultModelDefinition;
   private final DependencyGraphBuilder _builder;
@@ -53,12 +54,13 @@ import com.opengamma.util.tuple.Pair;
       new ConcurrentHashMap<UniqueId, Set<Pair<String, ValueProperties>>>();
 
   public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> limitEvents) {
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
     _calculationConfiguration = calculationConfiguration;
     _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     _builder = builder;
     _resolutions = resolutions;
-    _limitEvents = limitEvents;
+    _includeEvents = includeEvents;
+    _excludeEvents = excludeEvents;
   }
 
   /**
@@ -111,6 +113,12 @@ import com.opengamma.util.tuple.Pair;
    */
   @Override
   public void preOrderOperation(final PortfolioNode node) {
+    // If a sub-set of nodes is to be considered, fail/return quickly
+    if (_excludeEvents != null) {
+      if (_excludeEvents.contains(node.getUniqueId())) {
+        return;
+      }
+    }
 
     // Initialise an empty set of requirements for the current portfolio node
     // This will be filled in as the traversal of this portfolio node's children proceeds, and retrieved during
@@ -145,8 +153,14 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
     // If a sub-set of positions is to be considered, fail/return quickly
-    if ((_limitEvents != null) && !_limitEvents.contains(position.getUniqueId())) {
-      return;
+    if (_includeEvents != null) {
+      if (!_includeEvents.contains(position.getUniqueId())) {
+        return;
+      }
+    } else if (_excludeEvents != null) {
+      if (_excludeEvents.contains(parentNode.getUniqueId())) {
+        return;
+      }
     }
 
     // Get this position's security or return immediately if not available
@@ -230,9 +244,12 @@ import com.opengamma.util.tuple.Pair;
    */
   @Override
   public void postOrderOperation(final PortfolioNode node) {
-
     // Retrieve this portfolio node's value requirements (gathered during traversal of this portfolio node's children)
     final Set<Pair<String, ValueProperties>> nodeRequirements = _nodeRequirements.get(node.getUniqueId());
+    if (nodeRequirements == null) {
+      // Excluded
+      return;
+    }
 
     if (node.getParentNodeId() != null) {
 

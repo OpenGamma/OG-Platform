@@ -592,7 +592,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
 
   //TODO: test on the correctness of the Jacobian matrix in the CurveBuildingBlock's.
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 10;
@@ -610,7 +610,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
       makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " curve construction / USD/JPY 3 unit: " + (endTime - startTime) + " ms");
+    System.out.println("MulticurveBuildingDiscountingDiscountXCcyTest - " + nbTest + " curve construction / USD/JPY 3 unit: " + (endTime - startTime) + " ms");
     // Performance note: Curve construction USD/JPY 3 unit: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 10 sets.
 
     startTime = System.currentTimeMillis();
@@ -618,7 +618,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
       makeCurvesFromDefinitions(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " curve construction / USD/JPY 1 unit: " + (endTime - startTime) + " ms");
+    System.out.println("MulticurveBuildingDiscountingDiscountXCcyTest - " + nbTest + " curve construction / USD/JPY 1 unit: " + (endTime - startTime) + " ms");
     // Performance note: Curve construction USD/JPY 1 unit: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 265 ms for 10 sets.
 
   }
@@ -638,7 +638,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Analyzes the shape of the forward curve.
    */
@@ -658,8 +658,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSC = new MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface>(PSC);
     @SuppressWarnings("unused")
     final MultipleCurrencyParameterSensitivity mqs = MQSC.fromInstrument(swap, multicurves7, blocks7);
-    int t = 0;
-    t++;
+    //    int t = 0;
+    //    t++;
   }
 
   @Test(enabled = false)

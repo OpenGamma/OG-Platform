@@ -40,7 +40,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
    * Has the protection been bought. If false, protection has been sold.
    */
   @PropertyDefinition
-  private boolean _isBuy;
+  private boolean _buy;
 
   /**
    * The protection buyer.
@@ -88,13 +88,13 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
    * The knock-out type.
    */
   @PropertyDefinition
-  private boolean _isKnockOut;
+  private boolean _knockOut;
 
   /**
    * The option type, true if the option is a payer.
    */
   @PropertyDefinition
-  private boolean _isPayer;
+  private boolean _payer;
 
   /**
    * The exercise type.
@@ -119,7 +119,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
       final ZonedDateTime maturityDate, final Currency currency, final Double notional, final Double strike,
       final boolean isKnockOut, final boolean payer, final ExerciseType exerciseType, final ExternalId underlyingId) {
     super(SECURITY_TYPE);
-    setIsBuy(buy);
+    setBuy(buy);
     setProtectionBuyer(protectionBuyer);
     setProtectionSeller(protectionSeller);
     setStartDate(startDate);
@@ -127,8 +127,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     setCurrency(currency);
     setNotional(notional);
     setStrike(strike);
-    setIsKnockOut(isKnockOut);
-    setIsPayer(payer);
+    setKnockOut(isKnockOut);
+    setPayer(payer);
     setExerciseType(exerciseType);
     setUnderlyingId(underlyingId);
   }
@@ -159,8 +159,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 100462844:  // isBuy
-        return isIsBuy();
+      case 97926:  // buy
+        return isBuy();
       case 2087835226:  // protectionBuyer
         return getProtectionBuyer();
       case 769920952:  // protectionSeller
@@ -175,10 +175,10 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         return getNotional();
       case -891985998:  // strike
         return getStrike();
-      case -1177436892:  // isKnockOut
-        return isIsKnockOut();
-      case 2067849291:  // isPayer
-        return isIsPayer();
+      case -384166438:  // knockOut
+        return isKnockOut();
+      case 106443605:  // payer
+        return isPayer();
       case -466331342:  // exerciseType
         return getExerciseType();
       case -771625640:  // underlyingId
@@ -190,8 +190,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 100462844:  // isBuy
-        setIsBuy((Boolean) newValue);
+      case 97926:  // buy
+        setBuy((Boolean) newValue);
         return;
       case 2087835226:  // protectionBuyer
         setProtectionBuyer((ExternalId) newValue);
@@ -214,11 +214,11 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
       case -891985998:  // strike
         setStrike((Double) newValue);
         return;
-      case -1177436892:  // isKnockOut
-        setIsKnockOut((Boolean) newValue);
+      case -384166438:  // knockOut
+        setKnockOut((Boolean) newValue);
         return;
-      case 2067849291:  // isPayer
-        setIsPayer((Boolean) newValue);
+      case 106443605:  // payer
+        setPayer((Boolean) newValue);
         return;
       case -466331342:  // exerciseType
         setExerciseType((ExerciseType) newValue);
@@ -251,7 +251,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CreditDefaultSwapOptionSecurity other = (CreditDefaultSwapOptionSecurity) obj;
-      return JodaBeanUtils.equal(isIsBuy(), other.isIsBuy()) &&
+      return JodaBeanUtils.equal(isBuy(), other.isBuy()) &&
           JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
           JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
@@ -259,8 +259,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(isIsKnockOut(), other.isIsKnockOut()) &&
-          JodaBeanUtils.equal(isIsPayer(), other.isIsPayer()) &&
+          JodaBeanUtils.equal(isKnockOut(), other.isKnockOut()) &&
+          JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
           JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           super.equals(obj);
@@ -271,7 +271,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsBuy());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isBuy());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
@@ -279,8 +279,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsKnockOut());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsPayer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isKnockOut());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     return hash ^ super.hashCode();
@@ -291,24 +291,24 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
    * Gets has the protection been bought. If false, protection has been sold.
    * @return the value of the property
    */
-  public boolean isIsBuy() {
-    return _isBuy;
+  public boolean isBuy() {
+    return _buy;
   }
 
   /**
    * Sets has the protection been bought. If false, protection has been sold.
-   * @param isBuy  the new value of the property
+   * @param buy  the new value of the property
    */
-  public void setIsBuy(boolean isBuy) {
-    this._isBuy = isBuy;
+  public void setBuy(boolean buy) {
+    this._buy = buy;
   }
 
   /**
-   * Gets the the {@code isBuy} property.
+   * Gets the the {@code buy} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isBuy() {
-    return metaBean().isBuy().createProperty(this);
+  public final Property<Boolean> buy() {
+    return metaBean().buy().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -498,24 +498,24 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
    * Gets the knock-out type.
    * @return the value of the property
    */
-  public boolean isIsKnockOut() {
-    return _isKnockOut;
+  public boolean isKnockOut() {
+    return _knockOut;
   }
 
   /**
    * Sets the knock-out type.
-   * @param isKnockOut  the new value of the property
+   * @param knockOut  the new value of the property
    */
-  public void setIsKnockOut(boolean isKnockOut) {
-    this._isKnockOut = isKnockOut;
+  public void setKnockOut(boolean knockOut) {
+    this._knockOut = knockOut;
   }
 
   /**
-   * Gets the the {@code isKnockOut} property.
+   * Gets the the {@code knockOut} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isKnockOut() {
-    return metaBean().isKnockOut().createProperty(this);
+  public final Property<Boolean> knockOut() {
+    return metaBean().knockOut().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -523,24 +523,24 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
    * Gets the option type, true if the option is a payer.
    * @return the value of the property
    */
-  public boolean isIsPayer() {
-    return _isPayer;
+  public boolean isPayer() {
+    return _payer;
   }
 
   /**
    * Sets the option type, true if the option is a payer.
-   * @param isPayer  the new value of the property
+   * @param payer  the new value of the property
    */
-  public void setIsPayer(boolean isPayer) {
-    this._isPayer = isPayer;
+  public void setPayer(boolean payer) {
+    this._payer = payer;
   }
 
   /**
-   * Gets the the {@code isPayer} property.
+   * Gets the the {@code payer} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isPayer() {
-    return metaBean().isPayer().createProperty(this);
+  public final Property<Boolean> payer() {
+    return metaBean().payer().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -606,10 +606,10 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code isBuy} property.
+     * The meta-property for the {@code buy} property.
      */
-    private final MetaProperty<Boolean> _isBuy = DirectMetaProperty.ofReadWrite(
-        this, "isBuy", CreditDefaultSwapOptionSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _buy = DirectMetaProperty.ofReadWrite(
+        this, "buy", CreditDefaultSwapOptionSecurity.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code protectionBuyer} property.
      */
@@ -646,15 +646,15 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _strike = DirectMetaProperty.ofReadWrite(
         this, "strike", CreditDefaultSwapOptionSecurity.class, Double.class);
     /**
-     * The meta-property for the {@code isKnockOut} property.
+     * The meta-property for the {@code knockOut} property.
      */
-    private final MetaProperty<Boolean> _isKnockOut = DirectMetaProperty.ofReadWrite(
-        this, "isKnockOut", CreditDefaultSwapOptionSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _knockOut = DirectMetaProperty.ofReadWrite(
+        this, "knockOut", CreditDefaultSwapOptionSecurity.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      */
-    private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
-        this, "isPayer", CreditDefaultSwapOptionSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _payer = DirectMetaProperty.ofReadWrite(
+        this, "payer", CreditDefaultSwapOptionSecurity.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code exerciseType} property.
      */
@@ -670,7 +670,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "isBuy",
+        "buy",
         "protectionBuyer",
         "protectionSeller",
         "startDate",
@@ -678,8 +678,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         "currency",
         "notional",
         "strike",
-        "isKnockOut",
-        "isPayer",
+        "knockOut",
+        "payer",
         "exerciseType",
         "underlyingId");
 
@@ -692,8 +692,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100462844:  // isBuy
-          return _isBuy;
+        case 97926:  // buy
+          return _buy;
         case 2087835226:  // protectionBuyer
           return _protectionBuyer;
         case 769920952:  // protectionSeller
@@ -708,10 +708,10 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           return _notional;
         case -891985998:  // strike
           return _strike;
-        case -1177436892:  // isKnockOut
-          return _isKnockOut;
-        case 2067849291:  // isPayer
-          return _isPayer;
+        case -384166438:  // knockOut
+          return _knockOut;
+        case 106443605:  // payer
+          return _payer;
         case -466331342:  // exerciseType
           return _exerciseType;
         case -771625640:  // underlyingId
@@ -737,11 +737,11 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code isBuy} property.
+     * The meta-property for the {@code buy} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isBuy() {
-      return _isBuy;
+    public final MetaProperty<Boolean> buy() {
+      return _buy;
     }
 
     /**
@@ -801,19 +801,19 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code isKnockOut} property.
+     * The meta-property for the {@code knockOut} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isKnockOut() {
-      return _isKnockOut;
+    public final MetaProperty<Boolean> knockOut() {
+      return _knockOut;
     }
 
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isPayer() {
-      return _isPayer;
+    public final MetaProperty<Boolean> payer() {
+      return _payer;
     }
 
     /**

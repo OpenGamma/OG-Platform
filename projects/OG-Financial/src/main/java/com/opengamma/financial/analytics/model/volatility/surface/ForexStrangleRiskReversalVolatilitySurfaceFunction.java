@@ -61,12 +61,12 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends ForexVol
       throw new OpenGammaRuntimeException("Could not get " + surfaceRequirement);
     }
     @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
-    final Tenor[] tenors = fxVolatilitySurface.getXs();
+    final VolatilitySurfaceData<Object, Object> fxVolatilitySurface = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
+    final Tenor[] tenors = getTenors(fxVolatilitySurface.getXs());
     Arrays.sort(tenors);
-    final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs();
+    final Pair<Number, FXVolQuoteType>[] quotes = getYs(fxVolatilitySurface.getYs());
     final Number[] deltaValues = getDeltaValues(quotes);
-    final ObjectArrayList<SmileDeltaParameters> smile = new ObjectArrayList<SmileDeltaParameters>();
+    final ObjectArrayList<SmileDeltaParameters> smile = new ObjectArrayList<>();
     final int nSmileValues = deltaValues.length - 1;
     final Set<String> shifts = desiredValue.getConstraints().getValues(VolatilitySurfaceShiftFunction.SHIFT);
     final double shiftMultiplier;
@@ -132,11 +132,28 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends ForexVol
   }
 
   private Number[] getDeltaValues(final Pair<Number, FXVolQuoteType>[] quotes) {
-    final TreeSet<Number> values = new TreeSet<Number>();
+    final TreeSet<Number> values = new TreeSet<>();
     for (final Pair<Number, FXVolQuoteType> pair : quotes) {
       values.add(pair.getFirst());
     }
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
   }
 
+  //TODO why are these next two methods suddenly needed?
+  private Tenor[] getTenors(final Object[] tenors) {
+    final Tenor[] converted = new Tenor[tenors.length];
+    for (int i = 0; i < tenors.length; i++) {
+      converted[i] = (Tenor) tenors[i];
+    }
+    return converted;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Pair<Number, FXVolQuoteType>[] getYs(final Object[] ys) {
+    final Pair<Number, FXVolQuoteType>[] converted = new Pair[ys.length];
+    for (int i = 0; i < ys.length; i++) {
+      converted[i] = (Pair<Number, FXVolQuoteType>) ys[i];
+    }
+    return converted;
+  }
 }

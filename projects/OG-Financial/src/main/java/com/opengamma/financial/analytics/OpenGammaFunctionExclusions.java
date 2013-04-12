@@ -48,6 +48,13 @@ public final class OpenGammaFunctionExclusions {
   public static final String ISDA_LEGACY_CDS_CURVE = "ISDA_LEGACY_CDS_CURVE";
   public static final String ISDA_LEGACY_CDS_PRICING = "ISDA_LEGACY_CDS";
   public static final String INTEREST_RATE_FUTURE_OPTION_HESTON = "INTEREST_RATE_FUTURE_OPTION_HESTON";
+  public static final String ISDA_COMPLIANT_YIELD_CURVE_DEFAULTS = "ISDA_COMPLIANT_YIELD_CURVE";
+  public static final String ISDA_COMPLIANT_CREDIT_CURVE_DEFAULTS = "ISDA_COMPLIANT_CREDIT_CURVE";
+  public static final String ISDA_COMPLIANT_HAZARD_CURVE_DEFAULTS = "ISDA_COMPLIANT_HAZARD_CURVE";
+  public static final String ISDA_COMPLIANT_IR01 = "ISDA_COMPLIANT_IR01";
+  public static final String ISDA_COMPLIANT_CS01 = "ISDA_COMPLIANT_CS01";
+  public static final String ISDA_COMPLIANT_RR01 = "ISDA_COMPLIANT_RR01";
+  public static final String ISDA_COMPLIANT_PRICE = "ISDA_COMPLIANT_PRICE";
   //CSON
 
 }

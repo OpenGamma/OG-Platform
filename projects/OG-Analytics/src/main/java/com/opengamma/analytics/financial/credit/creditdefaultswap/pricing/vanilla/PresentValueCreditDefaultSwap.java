@@ -16,6 +16,8 @@ import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -42,6 +44,9 @@ public class PresentValueCreditDefaultSwap {
 
   private static final int DEFAULT_N_POINTS = 30;
   private final int _numberOfIntegrationSteps;
+
+  private static final double spreadLowerBound = 1e-10;
+  private static final double spreadUpperBound = 1e10;
 
   public PresentValueCreditDefaultSwap() {
     this(DEFAULT_N_POINTS);
@@ -101,6 +106,7 @@ public class PresentValueCreditDefaultSwap {
   // The code for the accrued calc has just been lifted from RiskCare's implementation for now because it exactly reproduces
   // the ISDA model - will replace with a better model in due course
 
+  @Deprecated
   public double calculatePremiumLeg(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
@@ -139,7 +145,6 @@ public class PresentValueCreditDefaultSwap {
 
     // Get the (adjusted) maturity date of the trade
     final ZonedDateTime adjustedMaturityDate = cashflowSchedule.getAdjustedMaturityDate(cds);
-
     final ZonedDateTime startDate = premiumLegSchedule[0];
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -151,9 +156,9 @@ public class PresentValueCreditDefaultSwap {
     // If the valuation date is exactly the adjusted maturity date then simply return zero
 
     /*
-    if (valuationDate.equals(adjustedMaturityDate) || cds.getEffectiveDate().equals(adjustedMaturityDate)) {
-      return 0.0;
-    }
+        if (valuationDate.equals(adjustedMaturityDate) || cds.getEffectiveDate().equals(adjustedMaturityDate)) {
+          return 0.0;
+        }
      */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -289,15 +294,12 @@ public class PresentValueCreditDefaultSwap {
             final double t0 = TimeCalculator.getTimeBetween(offsetAccStartDate, subStartDate, ACT_365) + 0.5 / 365.0;
             final double t1 = TimeCalculator.getTimeBetween(offsetAccStartDate, truncatedDateList[j], ACT_365) + 0.5 / 365.0;
             t = t1 - t0;
-
             final double lambda = Math.log(s0 / s1) / t;
             final double fwdRate = Math.log(df0 / df1) / t;
             final double lambdafwdRate = lambda + fwdRate + 1.0e-50;
 
             thisAccPV = lambda * accRate * s0 * df0 * ((t0 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) - (t1 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) * s1 / s0 * df1 / df0);
-
             myPV += thisAccPV;
-
             s0 = s1;
             df0 = df1;
             subStartDate = truncatedDateList[j];
@@ -370,90 +372,90 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     /*
-    // Calculate the value of the remaining premium and accrual payments (due after valuationDate)
-    for (int i = startCashflowIndex; i < premiumLegSchedule.length; i++) {
+          // Calculate the value of the remaining premium and accrual payments (due after valuationDate)
+          for (int i = startCashflowIndex; i < premiumLegSchedule.length; i++) {
 
-      // Get the beginning and end dates of the current coupon
-      ZonedDateTime accrualStart = premiumLegSchedule[i - 1];
-      ZonedDateTime accrualEnd = premiumLegSchedule[i];
+            // Get the beginning and end dates of the current coupon
+            ZonedDateTime accrualStart = premiumLegSchedule[i - 1];
+            ZonedDateTime accrualEnd = premiumLegSchedule[i];
 
-      //ZonedDateTime offsetAccStartDate = accrualStartDate.plusDays(obsOffset);
-      //ZonedDateTime offsetAccEndDate = accrualEndDate.plusDays(obsOffset);
+            //ZonedDateTime offsetAccStartDate = accrualStartDate.plusDays(obsOffset);
+            //ZonedDateTime offsetAccEndDate = accrualEndDate.plusDays(obsOffset);
 
-      //final double startTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccStartDate, ACT_360);
-      //final double endTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccEndDate, ACT_360);
+            //final double startTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccStartDate, ACT_360);
+            //final double endTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccEndDate, ACT_360);
 
-      //final double[] truncatedTimeline = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, startTime, endTime);
+            //final double[] truncatedTimeline = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, startTime, endTime);
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // Calculate the time between the valuation date (time at which survival probability is unity) and the current cashflow
-      double t = TimeCalculator.getTimeBetween(valuationDate, accrualEnd, ACT_365);
+            // Calculate the time between the valuation date (time at which survival probability is unity) and the current cashflow
+            double t = TimeCalculator.getTimeBetween(valuationDate, accrualEnd, ACT_365);
 
-      // Calculate the discount factor at time t
-      final double discountFactor = yieldCurve.getDiscountFactor(t);
+            // Calculate the discount factor at time t
+            final double discountFactor = yieldCurve.getDiscountFactor(t);
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // If protection starts at the beginning of the period ...
-      if (cds.getProtectionStart()) {
+            // If protection starts at the beginning of the period ...
+            if (cds.getProtectionStart()) {
 
-        // ... Roll all but the last date back by 1/365 of a year
-        if (i < premiumLegSchedule.length - 1) {
-          t -= cds.getProtectionOffset();
-        }
+              // ... Roll all but the last date back by 1/365 of a year
+              if (i < premiumLegSchedule.length - 1) {
+                t -= cds.getProtectionOffset();
+              }
 
-        // This is a bit of a hack - need a more elegant way of dealing with the timing nuances
-        if (i == 1) {
-          accrualStart = accrualStart.minusDays(1);
-        }
+              // This is a bit of a hack - need a more elegant way of dealing with the timing nuances
+              if (i == 1) {
+                accrualStart = accrualStart.minusDays(1);
+              }
 
-        // ... Roll the final maturity date forward by one day
-        if (i == premiumLegSchedule.length - 1) {
-          accrualEnd = accrualEnd.plusDays(1);
-        }
-      }
+              // ... Roll the final maturity date forward by one day
+              if (i == premiumLegSchedule.length - 1) {
+                accrualEnd = accrualEnd.plusDays(1);
+              }
+            }
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // Compute the daycount fraction for the current accrual period
-      final double dcf = cds.getDayCountFractionConvention().getDayCountFraction(accrualStart, accrualEnd);
+            // Compute the daycount fraction for the current accrual period
+            final double dcf = cds.getDayCountFractionConvention().getDayCountFraction(accrualStart, accrualEnd);
 
-      // Calculate the survival probability at the modified time t
-      final double survivalProbability = hazardRateCurve.getSurvivalProbability(t);
+            // Calculate the survival probability at the modified time t
+            final double survivalProbability = hazardRateCurve.getSurvivalProbability(t);
 
-      // Add this discounted cashflow to the running total for the value of the premium leg
-      //presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
+            // Add this discounted cashflow to the running total for the value of the premium leg
+            //presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // Now calculate the accrued leg component if required (need to re-write this code)
+            // Now calculate the accrued leg component if required (need to re-write this code)
 
-      if (cds.getIncludeAccruedPremium()) {
-        final double stepinDiscountFactor = 1.0;
-        int endIndex;
+            if (cds.getIncludeAccruedPremium()) {
+              final double stepinDiscountFactor = 1.0;
+              int endIndex;
 
-        Arrays.sort(accruedLegIntegrationSchedule); //TODO is this extra sorting necessary?
+              Arrays.sort(accruedLegIntegrationSchedule); //TODO is this extra sorting necessary?
 
-        for (endIndex = startIndex; endIndex < accruedLegIntegrationSchedule.length; endIndex++) {
-          if (accruedLegIntegrationSchedule[endIndex] >= t) {
-            break;
-          }
-        }
-        if (endIndex >= accruedLegIntegrationSchedule.length) {
-          endIndex = accruedLegIntegrationSchedule.length - 1;
-        }
-        presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule, yieldCurve, hazardRateCurve, startIndex, endIndex, offsetStepinTime, stepinDiscountFactor);
+              for (endIndex = startIndex; endIndex < accruedLegIntegrationSchedule.length; endIndex++) {
+                if (accruedLegIntegrationSchedule[endIndex] >= t) {
+                  break;
+                }
+              }
+              if (endIndex >= accruedLegIntegrationSchedule.length) {
+                endIndex = accruedLegIntegrationSchedule.length - 1;
+              }
+              presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule, yieldCurve, hazardRateCurve, startIndex, endIndex, offsetStepinTime, stepinDiscountFactor);
 
-      }
+            }
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
     }
-     */
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
+    //     */
+    //
+    //    // ----------------------------------------------------------------------------------------------------------------------------------------
+    //
     return cds.getNotional() * presentValuePremiumLeg;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -579,6 +581,7 @@ public class PresentValueCreditDefaultSwap {
 
   // Method to calculate the contingent leg (replicates the calculation in the ISDA model)
 
+  @Deprecated
   public double calculateContingentLeg(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
@@ -784,6 +787,44 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
+  // Given a points upfront amount, compute the flat par spread implied by this
+  public double calculateParSpreadFlat(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final double upfrontAmount,
+      final ZonedDateTime[] marketTenors,
+      final ISDADateCurve yieldCurve,
+      final PriceType priceType) {
+
+    // 1 x 1 vector to hold the flat spread (term structure)
+    final double[] marketSpreads = new double[1];
+
+    final Function1D<Double, Double> function = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double parSpread) {
+
+        // For this value of the flat spread, compute the upfront amount
+        marketSpreads[0] = parSpread;
+        final double pointsUpfront = calculateUpfrontFlat(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+
+        // Compute the difference between the calculated and input upfront amount
+        final double delta = pointsUpfront - upfrontAmount;
+
+        return delta;
+      }
+    };
+
+    final double parSpreadFlat = new BisectionSingleRootFinder().getRoot(function, spreadLowerBound, spreadUpperBound);
+
+    return parSpreadFlat;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Need to move this function
+
+  // Calculate the upfront amount given a specified spread curve level
   public double calculateUpfrontFlat(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -798,7 +839,7 @@ public class PresentValueCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Vector of time nodes for the hazard rate curve
+    // Vectors of time nodes and spreads for the hazard rate curve (note the sizes of these arrays)
     final double[] times = new double[1];
 
     final double[] spreads = new double[1];
@@ -844,6 +885,7 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
+  @Deprecated
   public double calibrateAndGetPresentValue(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,

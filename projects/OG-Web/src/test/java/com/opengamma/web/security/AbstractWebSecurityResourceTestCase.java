@@ -22,6 +22,8 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.test.AbstractSecurityTestCaseAdapter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.impl.InMemoryOrganizationMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityLoaderRequest;
@@ -47,6 +49,7 @@ public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecuri
   protected WebSecuritiesResource _webSecuritiesResource;
   protected Map<Class<?>, List<FinancialSecurity>> _securities = Maps.newHashMap();
   protected UriInfo _uriInfo;
+  protected OrganizationMaster _orgMaster;
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
@@ -58,12 +61,13 @@ public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecuri
         throw new UnsupportedOperationException("load security not supported");
       }
     };
+    _orgMaster = new InMemoryOrganizationMaster();
     
     HistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     addSecurity(WebResourceTestUtils.getEquitySecurity());
     addSecurity(WebResourceTestUtils.getBondFutureSecurity());
         
-    _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, htsMaster);
+    _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, htsMaster, _orgMaster);
     MockServletContext sc = new MockServletContext("/web-engine", new FileSystemResourceLoader());
     Configuration cfg = FreemarkerOutputter.createConfiguration();
     cfg.setServletContextForTemplateLoading(sc, "WEB-INF/pages");

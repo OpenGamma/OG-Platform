@@ -38,6 +38,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
 
+  @Deprecated
   public ZonedDateTime[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
@@ -76,6 +77,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
 
+  @Deprecated
   public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
       final ZonedDateTime startDate,
@@ -112,6 +114,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // Method to construct a set of timenodes compliant with the ISDA model (adapted from the good RiskCare implementation)
 
+  @Deprecated
   private double[] constructISDACompliantIntegrationSchedule(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,

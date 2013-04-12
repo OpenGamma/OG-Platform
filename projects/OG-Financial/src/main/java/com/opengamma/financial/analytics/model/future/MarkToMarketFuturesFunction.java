@@ -16,13 +16,13 @@ import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureD
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -34,12 +34,12 @@ import com.opengamma.util.money.Currency;
 public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> {
   private static final Logger s_logger = LoggerFactory.getLogger(MarkToMarketFuturesFunction.class);
   /** The calculation method name */
-  public static final String CALCULATION_METHOD_NAME = "MarkToMarket";
+  public static final String CALCULATION_METHOD_NAME = CalculationPropertyNamesAndValues.MARK_TO_MARKET_METHOD;
 
   /**
    * @param valueRequirementName String describes the value requested
    * @param calculator The calculator
-   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param closingPriceField The field name of the historical time series for price, e.g. MarketDataRequirementNames.MARKET_VALUE, "PX_LAST", "Close". Set in *FunctionConfiguration
    * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
    * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
@@ -48,23 +48,18 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
     super(valueRequirementName, calculator, closingPriceField, costOfCarryField, resolutionKey);
   }
   
-  
-  
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<>();
-    // Spot
+    // Historical Price
     final ValueRequirement refPriceReq = getReferencePriceRequirement(context, security);
     if (refPriceReq == null) {
       return null;
     }
     requirements.add(refPriceReq);
+    // Live Price
     requirements.add(getMarketPriceRequirement(security));
-    final ValueRequirement spotAssetRequirement = getSpotAssetRequirement(security);
-    if (spotAssetRequirement != null) {
-      requirements.add(spotAssetRequirement);
-    }
     return requirements;
   }
 
@@ -81,17 +76,23 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
   protected SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
     final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
     final Double marketPrice = getMarketPrice(security, inputs);
-    final Double spotUnderlyer = getSpot(inputs);
-    return new SimpleFutureDataBundle(null, marketPrice, spotUnderlyer, null, null);
+    return new SimpleFutureDataBundle(null, marketPrice, null, null, null);
   }
 
-  /** Requirement of latest market value */
-  private ValueRequirement getMarketPriceRequirement(final Security security) {
+  /**  
+   * @return Requirement of latest market value
+   * @param security FutureSecurity
+   */
+  protected ValueRequirement getMarketPriceRequirement(final Security security) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
   }
 
-  /** Getter for latest market value requirement */
-  private Double getMarketPrice(final Security security, final FunctionInputs inputs) {
+  /**
+   * @return latest market value
+   * @param security FutureSecurity
+   * @param inputs {@link FunctionInputs}
+   */
+  protected Double getMarketPrice(final Security security, final FunctionInputs inputs) {
     final ValueRequirement marketPriceRequirement = getMarketPriceRequirement(security);
     final Object marketPriceObject = inputs.getValue(marketPriceRequirement);
     if (marketPriceObject == null) {

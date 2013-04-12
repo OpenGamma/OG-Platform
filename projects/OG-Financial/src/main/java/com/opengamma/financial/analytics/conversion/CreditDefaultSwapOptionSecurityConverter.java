@@ -81,7 +81,7 @@ public class CreditDefaultSwapOptionSecurityConverter extends FinancialSecurityV
   @Override
   public CreditDefaultSwapOptionDefinition visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    final BuySellProtection buySellProtection = security.isIsBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
+    final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     final Obligor protectionBuyer = DUMMY_OBLIGOR_A;
     final Obligor protectionSeller = DUMMY_OBLIGOR_B;
     final Currency currency = security.getCurrency();
@@ -89,8 +89,8 @@ public class CreditDefaultSwapOptionSecurityConverter extends FinancialSecurityV
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final double notional = security.getNotional();
     final double strike = security.getStrike();
-    final boolean isKnockOut = security.isIsKnockOut();
-    final boolean isPayer = security.isIsPayer();
+    final boolean isKnockOut = security.isKnockOut();
+    final boolean isPayer = security.isPayer();
     final CDSOptionExerciseType optionExerciseType = convertExerciseType(security.getExerciseType());
     final FinancialSecurity underlyingSecurity = (FinancialSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version correction
     final CreditDefaultSwapDefinition underlyingCDS = underlyingSecurity.accept(_underlyingConverter);

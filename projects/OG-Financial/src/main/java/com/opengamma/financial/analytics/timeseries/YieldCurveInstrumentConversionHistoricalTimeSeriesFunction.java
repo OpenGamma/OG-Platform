@@ -109,7 +109,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final Set<ValueRequirement> timeSeriesRequirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> timeSeriesRequirements = new HashSet<>();
     final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final ComputedValue input : inputs.getAllValues()) {

@@ -13,15 +13,14 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.IR01CreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapBucketedIR01Calculator;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
@@ -30,16 +29,17 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 /**
  * 
  */
-public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaCDSFunction {
-  private static final IR01CreditDefaultSwap CALCULATOR = new IR01CreditDefaultSwap();
+public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaIR01CDSFunction {
+  private static final ISDACreditDefaultSwapBucketedIR01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedIR01Calculator();
 
   public StandardVanillaBucketedIR01CDSFunction() {
     super(ValueRequirementNames.BUCKETED_IR01);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValue(final LegacyVanillaCreditDefaultSwapDefinition definition, final ISDADateCurve yieldCurve, final ZonedDateTime[] times,
-      final double[] marketSpreads, final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties) {
+  protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition, final ISDADateCurve yieldCurve, final ZonedDateTime[] times,
+      final double[] marketSpreads, final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties,
+      final FunctionInputs inputs) {
     final Double interestRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)));
     final InterestRateBumpType interestRateBumpType =
         InterestRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)));
@@ -56,38 +56,4 @@ public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaCDSFu
     return Collections.singleton(new ComputedValue(spec, ir01Matrix));
   }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
-    if (requirements == null) {
-      return null;
-    }
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> yieldCurveBumps = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP);
-    if (yieldCurveBumps == null || yieldCurveBumps.size() != 1) {
-      return null;
-    }
-    final Set<String> yieldCurveBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
-    if (yieldCurveBumpTypes == null || yieldCurveBumpTypes.size() != 1) {
-      return null;
-    }
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
-    return requirements;
-  }
-
-  @Override
-  protected ValueProperties.Builder getCommonResultProperties() {
-    return createValueProperties()
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-  }
-
-  @Override
-  protected boolean labelResultWithCurrency() {
-    return true;
-  }
 }

@@ -7,6 +7,9 @@ package com.opengamma.web.analytics;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -17,6 +20,8 @@ import com.opengamma.util.ArgumentChecker;
  * @param <V> The type of viewport created and used by this grid.
  */
 /* package */ abstract class AnalyticsGrid<V extends Viewport> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsGrid.class);
 
   /** Viewports keyed by ID. */
   private final Map<Integer, V> _viewports = Maps.newHashMap();
@@ -67,6 +72,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ V getViewport(int viewportId) {
     V viewport = _viewports.get(viewportId);
     if (viewport == null) {
+      s_logger.debug("Received request for non-existent viewport ID {}", viewportId);
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
     }
     return viewport;
@@ -116,6 +122,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ void deleteViewport(int viewportId) {
     Viewport viewport = _viewports.remove(viewportId);
     if (viewport == null) {
+      s_logger.debug("Received request to delete non-existent viewport ID {}", viewportId);
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
     }
     _viewportListener.viewportDeleted(viewport.getDefinition(), getGridStructure());

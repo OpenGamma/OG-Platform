@@ -8,7 +8,9 @@ package com.opengamma.financial.analytics.timeseries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -102,7 +104,7 @@ public final class HistoricalTimeSeriesFunctionUtils {
   public static ValueRequirement createHTSRequirement(final HistoricalTimeSeriesResolutionResult timeSeries, final String dataField, final ValueProperties constraints) {
     final HistoricalTimeSeriesAdjuster adjuster = timeSeries.getAdjuster();
     final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(timeSeries.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
-    Builder properties = constraints.copy()
+    final Builder properties = constraints.copy()
         .with(DATA_FIELD_PROPERTY, dataField)
         .with(ADJUST_PROPERTY, adjustment);
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
@@ -113,7 +115,7 @@ public final class HistoricalTimeSeriesFunctionUtils {
       final DateConstraint endDate, final boolean includeEnd) {
     final HistoricalTimeSeriesAdjuster adjuster = timeSeries.getAdjuster();
     final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(timeSeries.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
-    Builder properties = htsConstraints(ValueProperties.builder(), startDate, includeStart, endDate, includeEnd)
+    final Builder properties = htsConstraints(ValueProperties.builder(), startDate, includeStart, endDate, includeEnd)
         .with(DATA_FIELD_PROPERTY, dataField)
         .with(ADJUST_PROPERTY, adjustment);
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
@@ -124,27 +126,40 @@ public final class HistoricalTimeSeriesFunctionUtils {
       final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, ComputationTargetType.CURRENCY.specification(currency),
         ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, curveName)
-            .with(DATA_FIELD_PROPERTY, dataField)
-            .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
-            .with(START_DATE_PROPERTY, startDate.toString())
-            .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
-            .with(END_DATE_PROPERTY, endDate.toString())
-            .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+  }
+
+  public static ValueRequirement createCreditSpreadCurveHTSRequirement(final Security security, final String curveName, final String dataField, final String resolutionKey,
+      final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
+    return new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.of(security),
+        ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
   public static ValueRequirement createVolatilitySurfaceHTSRequirement(final UnorderedCurrencyPair currencies, final String surfaceName, final String instrumentType, final String dataField,
       final String resolutionKey, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencies),
         ValueProperties.builder()
-            .with(ValuePropertyNames.SURFACE, surfaceName)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-            .with(DATA_FIELD_PROPERTY, dataField)
-            .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
-            .with(START_DATE_PROPERTY, startDate.toString())
-            .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
-            .with(END_DATE_PROPERTY, endDate.toString())
-            .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
   /**

@@ -26,23 +26,35 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A generic value renaming function. A single instance can be used for changing the name of multiple, mutually
- * exclusive (for a given target) values.
+ * A generic value renaming function. A single instance can be used for changing the name of multiple, mutually exclusive (for a given target) values.
  */
 public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final Set<String> _valueNamesToChange;
   private final String _newValueName;
   private final ComputationTargetType _targetType;
+  private final ValueProperties _additionalConstraints;
 
   /**
    * Constructs an instance.
-   *
-   * @param valueNamesToChange  the set of mutually exclusive value names (for a given target) which the function will change, not null or empty
-   * @param newValueName  the new name for any matching value, not null
-   * @param targetType  the computation target type for which the function will apply, not null
+   * 
+   * @param valueNamesToChange the set of mutually exclusive value names (for a given target) which the function will change, not null or empty
+   * @param newValueName the new name for any matching value, not null
+   * @param targetType the computation target type for which the function will apply, not null
    */
   public ValueRenamingFunction(final Set<String> valueNamesToChange, final String newValueName, final ComputationTargetType targetType) {
+    this(valueNamesToChange, newValueName, targetType, null);
+  }
+
+  /**
+   * Constructs an instance.
+   * 
+   * @param valueNamesToChange the set of mutually exclusive value names (for a given target) which the function will change, not null or empty
+   * @param newValueName the new name for any matching value, not null
+   * @param targetType the computation target type for which the function will apply, not null
+   * @param additionalConstraints additional constraints to set on the origin requirement, null for none
+   */
+  public ValueRenamingFunction(final Set<String> valueNamesToChange, final String newValueName, final ComputationTargetType targetType, final ValueProperties additionalConstraints) {
     ArgumentChecker.notNull(valueNamesToChange, "valueNamesToChange");
     ArgumentChecker.notEmpty(valueNamesToChange, "valueNamesToChange");
     ArgumentChecker.notNull(newValueName, "newValueName");
@@ -50,6 +62,11 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
     _valueNamesToChange = valueNamesToChange;
     _newValueName = newValueName;
     _targetType = targetType;
+    if ((additionalConstraints == null) || ValueProperties.none().equals(additionalConstraints)) {
+      _additionalConstraints = null;
+    } else {
+      _additionalConstraints = additionalConstraints;
+    }
   }
 
   @Override
@@ -86,9 +103,31 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    final ValueProperties constraints;
+    if (_additionalConstraints == null) {
+      constraints = desiredValue.getConstraints();
+    } else {
+      final ValueProperties.Builder constraintsBuilder = desiredValue.getConstraints().copy();
+      for (String constraint : _additionalConstraints.getProperties()) {
+        Set<String> values = _additionalConstraints.getValues(constraint);
+        if (values.isEmpty()) {
+          if (_additionalConstraints.isOptional(constraint)) {
+            constraintsBuilder.withOptional(constraint);
+          } else {
+            constraintsBuilder.withAny(constraint);
+          }
+        } else {
+          constraintsBuilder.with(constraint, values);
+          if (_additionalConstraints.isOptional(constraint)) {
+            constraintsBuilder.withOptional(constraint);
+          }
+        }
+      }
+      constraints = constraintsBuilder.get();
+    }
     for (String possibleInputValueName : _valueNamesToChange) {
-      result.add(new ValueRequirement(possibleInputValueName, desiredValue.getTargetReference(), desiredValue.getConstraints()));
+      result.add(new ValueRequirement(possibleInputValueName, desiredValue.getTargetReference(), constraints));
     }
     return result;
   }
@@ -99,7 +138,7 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {    
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
     if (inputs.size() != 1) {
       final Set<ValueSpecification> result = new HashSet<>();
       for (ValueSpecification spec : inputs.keySet()) {

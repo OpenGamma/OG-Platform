@@ -13,6 +13,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -22,7 +24,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -36,6 +38,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -50,6 +53,10 @@ import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.OrganizationSearchRequest;
+import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.time.Tenor;
@@ -59,13 +66,17 @@ import com.opengamma.util.time.Tenor;
  */
 /*package*/ class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitorSameValueAdapter<Void> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityTemplateModelObjectBuilder.class);
+  
   private final FlexiBean _out;
   private final SecurityMaster _securityMaster;
+  private final OrganizationMaster _organizationMaster;
   
-  SecurityTemplateModelObjectBuilder(final FlexiBean out, final SecurityMaster securityMaster) {
+  SecurityTemplateModelObjectBuilder(final FlexiBean out, final SecurityMaster securityMaster, final OrganizationMaster organizationMaster) {
     super(null);
     _out = out;
     _securityMaster = securityMaster;
+    _organizationMaster = organizationMaster;
   }
   
   private void addFutureSecurityType(final String futureType) {
@@ -225,7 +236,7 @@ import com.opengamma.util.time.Tenor;
   }
   
   @Override
-  public Void visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+  public Void visitCreditDefaultSwapIndexDefinitionSecurity(CreditDefaultSwapIndexDefinitionSecurity security) {
     List<String> tenors = Lists.newArrayList();
     for (Tenor tenor : security.getTerms()) {
       tenors.add(tenor.getPeriod().toString());
@@ -236,6 +247,25 @@ import com.opengamma.util.time.Tenor;
       components.add(component);
     }
     _out.put("components", ImmutableList.copyOf(components));
+    return null;
+  }
+  
+  @Override
+  public Void visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
+    ExternalId underlyingId = security.getUnderlyingId();
+    if (underlyingId != null) {
+      OrganizationSearchRequest request = new OrganizationSearchRequest();
+      if (underlyingId.getScheme().equals(ExternalSchemes.MARKIT_RED_CODE)) {
+        request.setObligorREDCode(underlyingId.getValue());
+        OrganizationSearchResult searchResult = _organizationMaster.search(request);
+        ManageableOrganization organization = searchResult.getSingleOrganization();
+        if (organization != null) {
+          _out.put("underlyingOrganization", organization);
+        }
+      } else {
+        s_logger.warn("{} does not currently support CDSOption underlying lookup based on {}", WebSecuritiesResource.class, underlyingId.getScheme().getName());
+      }
+    }
     return null;
   }
 

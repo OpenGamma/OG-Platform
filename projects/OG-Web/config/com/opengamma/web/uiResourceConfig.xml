@@ -180,6 +180,10 @@
     <fragment>/styles/analytics/og.analytics.OG-analytics-type-menu.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-inplace.css</fragment>
   </bundle>
+  <bundle id="env.css">
+    <fragment>/styles/env/og.env.core.css</fragment>
+    <fragment>/styles/env/og.env.OG-env.css</fragment>
+  </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
     <bundle idref="login.css" />
@@ -276,6 +280,7 @@
     <fragment>/scripts/lib/jsurface3d/jsurface3d.surfaceplane.js</fragment>
     <fragment>/scripts/lib/stats.js</fragment>
     <fragment>/scripts/lib/event.emitter.js</fragment>
+    <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
   </bundle>
   <bundle id="core.js">
       <fragment>/scripts/og/common/og.common.core.js</fragment>
@@ -291,6 +296,7 @@
   <bundle id="api.js">
     <fragment>/scripts/og/api/og.api.text.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
+    <fragment>/scripts/og/api/og.api.fake.js</fragment>
   </bundle>
   <bundle id="util.js">
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
@@ -354,7 +360,7 @@
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.node_menu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.nodemenu.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
@@ -379,6 +385,7 @@
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.security.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.floatingleg.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.fixedleg.js</fragment>
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.cds.js</fragment>
     <!--OTC Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.equityvarianceswapsecurity.js</fragment>
@@ -390,6 +397,14 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
+    <!--CDS Trades-->
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyrecoverylockcdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyvanillacdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardfixedrecoverycdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardrecoverylockcdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardvanillacdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cds.js</fragment>
     <!--Fungible Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
   </bundle>
@@ -437,6 +452,13 @@
     <fragment>/scripts/og/views/og.views.configs.js</fragment>
     <bundle idref="blotter.js" />
   </bundle>
+  <bundle id="env.js">
+    <fragment>/scripts/og/env/og.env.curve.js</fragment>
+    <fragment>/scripts/og/env/og.env.surface.js</fragment>
+    <fragment>/scripts/og/env/og.env.timeseries.js</fragment>
+    <fragment>/scripts/og/env/og.env.timeseries_multiple.js</fragment>
+    <fragment>/scripts/og/views/og.views.env.js</fragment>
+  </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.js</fragment>
   </bundle>
@@ -466,12 +488,10 @@
   </bundle>
   <bundle id="og_analytics2.js">
       <bundle idref="common_analytics.js" />
-      <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
   </bundle>
   <bundle id="og_gadget.js">
       <bundle idref="common_analytics.js" />
-      <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
       <fragment>/scripts/og/views/og.views.gadget.js</fragment>
   </bundle>
 </uiResourceConfig>

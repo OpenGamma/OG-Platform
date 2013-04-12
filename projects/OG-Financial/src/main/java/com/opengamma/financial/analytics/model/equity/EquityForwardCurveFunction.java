@@ -66,6 +66,12 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     return false;
   }
 
+  @Override
+  public boolean canHandleMissingInputs() {
+    // dividend yield may not be available
+    return true;
+  }
+
   /* Spot value of the equity index or name */
   private ValueRequirement getSpotRequirement(final ComputationTarget target) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
@@ -109,6 +115,9 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     // Funding Curve Requirement
     requirements.add(getFundingCurveRequirement(currency, fundingCurveName, curveCalculationConfig));
 
+    // Dividend yield - optional
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
+
     return requirements;
   }
 
@@ -136,11 +145,14 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
       throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
-    // Cost of Carry TODO Dividend treatment - may be able to get this from BORROWING_COST_MID
-    final YieldCurve zeroCostOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"));
+
+    // Cost of Carry - if no dividend yield available set 0 cost of carry
+    final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);
+    final double dividendYield = dividendYieldObject == null ? 0.0 : dividendYieldObject.doubleValue();
+    final YieldCurve costOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(dividendYield, "CostOfCarry"));
 
     // Compute ForwardCurve
-    final ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, zeroCostOfCarryCurve);
+    final ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);
 
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)

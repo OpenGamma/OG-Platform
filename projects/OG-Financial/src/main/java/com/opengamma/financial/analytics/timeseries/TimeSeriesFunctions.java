@@ -27,6 +27,7 @@ public class TimeSeriesFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(CreditSpreadCurveHistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(HistoricalTimeSeriesSecurityFunction.class));
     functions.add(functionConfiguration(HistoricalTimeSeriesLatestPositionProviderIdValueFunction.class));
