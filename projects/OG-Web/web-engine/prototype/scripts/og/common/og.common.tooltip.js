@@ -9,7 +9,7 @@ $.register_module({
         return {
             init: (function () {
                 var tooltip, tooltip_offsets, orientation = '', offsets, height, width, viewport, total_width,
-                    total_height, blurkill = false, tmpl = '<div class="OG-tooltip og-large">{{{tip}}}</div>';
+                    total_height, blurkill = false, tmpl = '<div class="OG-tooltip og-large"></div>';
 
                 var hide_tooltip = function (event) {
                     tooltip.removeAttr('style').removeClass(orientation).hide();
@@ -73,48 +73,55 @@ $.register_module({
 
                 $('[data-tooltip-type=large]').live('click', function (event) {
                     var elem = $(this);
-                    tooltip.removeClass(orientation);
-                    tooltip_offsets = tooltip.offset();
-                    offsets = elem.offset(); width = elem.outerWidth(); height = elem.outerHeight();
-                    viewport = { height: $(window).height(), width: $(window).width() };
-                    total_width = offsets.left + width, total_height = offsets.top + height;
+                    if (elem.attr('data-tooltip') === '') return;
+                    og.api.rest.tooltips.get({'id': elem.attr('data-tooltip')})
+                        .pipe(function (resp) {
+                            tooltip.html(Handlebars.compile(resp.data || resp.message)());
+                            tooltip.removeClass(orientation);
+                            tooltip_offsets = tooltip.offset();
+                            offsets = elem.offset(); width = elem.outerWidth(); height = elem.outerHeight();
+                            viewport = { height: $(window).height(), width: $(window).width() };
+                            total_width = offsets.left + width, total_height = offsets.top + height;
 
-                    setTimeout(function () {
-                        if (blurkill) return;
-                        blurkill = true;
-                        tooltip.blurkill(hide_tooltip);
-                    }, 0);
+                            setTimeout(function () {
+                                if (blurkill) return;
+                                blurkill = true;
+                                tooltip.blurkill(hide_tooltip);
+                            }, 0);
 
-                    // north
-                    if (total_height - tooltip.outerHeight() < 0 && total_width - tooltip.outerWidth() > 0 &&
-                        total_width + tooltip.outerWidth() < viewport.width) return show_tooltip('og-north');
+                            // north
+                            if (total_height - tooltip.outerHeight() < 0 && total_width - tooltip.outerWidth() > 0 &&
+                                total_width + tooltip.outerWidth() < viewport.width) return show_tooltip('og-north');
 
-                    // north east
-                    else if (total_width + tooltip.outerWidth() > viewport.width &&
-                        total_height - tooltip.outerHeight() < 0) return show_tooltip('og-north-east-flip');
+                            // north east
+                            else if (total_width + tooltip.outerWidth() > viewport.width &&
+                                total_height - tooltip.outerHeight() < 0) return show_tooltip('og-north-east-flip');
 
-                    // north west
-                    else if (total_height - tooltip.outerHeight() < 0 && total_width - tooltip.outerWidth() < 0)
-                        return show_tooltip('og-north-west-flip');
+                            // north west
+                            else if (total_height - tooltip.outerHeight() < 0 && total_width - tooltip.outerWidth() < 0)
+                                return show_tooltip('og-north-west-flip');
 
-                    // south
-                    else if (total_height + tooltip.outerHeight() > viewport.height &&
-                        total_width + tooltip.outerWidth() < viewport.width &&
-                        total_width - tooltip.outerWidth() > 0) return show_tooltip('og-south');
+                            // south
+                            else if (total_height + tooltip.outerHeight() > viewport.height &&
+                                total_width + tooltip.outerWidth() < viewport.width &&
+                                total_width - tooltip.outerWidth() > 0) return show_tooltip('og-south');
 
-                    //south east
-                    else if (total_height + tooltip.outerHeight() > viewport.height &&
-                        total_width + tooltip.outerWidth() > viewport.width) return show_tooltip('og-south-east-flip');
+                            //south east
+                            else if (total_height + tooltip.outerHeight() > viewport.height &&
+                                total_width + tooltip.outerWidth() > viewport.width)
+                                    return show_tooltip('og-south-east-flip');
 
-                    // south west
-                    else if (total_height + tooltip.outerHeight() > viewport.height &&
-                        total_width - tooltip.outerWidth() < 0) return show_tooltip('og-south-west-flip');
+                            // south west
+                            else if (total_height + tooltip.outerHeight() > viewport.height &&
+                                total_width - tooltip.outerWidth() < 0) return show_tooltip('og-south-west-flip');
 
-                    // east or west
-                    else {
-                        if (total_width + tooltip.outerWidth() > viewport.width) return show_tooltip('og-east');
-                        else if (total_width + tooltip.outerWidth() < viewport.width) return show_tooltip('og-west');
-                    }
+                            // east or west
+                            else {
+                                if (total_width + tooltip.outerWidth() > viewport.width) return show_tooltip('og-east');
+                                else if (total_width + tooltip.outerWidth() < viewport.width)
+                                    return show_tooltip('og-west');
+                            }
+                    });
                 });
 
                 $(function () {

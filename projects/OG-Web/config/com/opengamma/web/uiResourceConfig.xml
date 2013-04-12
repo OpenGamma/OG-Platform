@@ -317,8 +317,9 @@
     <fragment>/scripts/og/api/og.api.rest.valuerequirementnames.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.viewdefinitions.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.views.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.tooltips.js</fragment>
     <fragment>/scripts/og/api/og.api.fake.js</fragment>
-    <fragment>/scripts/og/api/og.api.tooltip.js</fragment>
+    <fragment>/scripts/og/api/og.api.tooltips.js</fragment>
   </bundle>
   <bundle id="util.js">
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
