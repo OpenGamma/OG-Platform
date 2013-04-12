@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.analytics.blotter;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
 
@@ -111,6 +114,15 @@ import com.opengamma.util.time.Expiry;
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);
+  /** Formatter for decimal numbers, DecimalFormat isn't thread safe. */
+  private static final ThreadLocal<DecimalFormat> s_decimalFormat = new ThreadLocal<DecimalFormat>() {
+    @Override
+    protected DecimalFormat initialValue() {
+      DecimalFormat decimalFormat = new DecimalFormat("#,###.#####");
+      decimalFormat.setParseBigDecimal(true);
+      return decimalFormat;
+    }
+  };
 
   /**
    * For traversing trade and security {@link MetaBean}s and building instances from the data sent from the blotter.
@@ -156,6 +168,9 @@ import com.opengamma.util.time.Expiry;
             SwapLeg.meta().regionId(), regionIdToStringConverter);
 
     s_stringConvert = new StringConvert();
+    s_stringConvert.register(BigDecimal.class, new BigDecimalConverter());
+    s_stringConvert.register(Double.class, new DoubleConverter());
+    s_stringConvert.register(Double.TYPE, new DoubleConverter());
     s_stringConvert.register(Frequency.class, new JodaBeanConverters.FrequencyConverter());
     s_stringConvert.register(Currency.class, new JodaBeanConverters.CurrencyConverter());
     s_stringConvert.register(DayCount.class, new JodaBeanConverters.DayCountConverter());
@@ -213,7 +228,12 @@ import com.opengamma.util.time.Expiry;
    */
   private static final PropertyFilter s_securityTypeFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
 
-
+  /**
+   * @return A thread-local formatter instance set to parse numbers into BigDecimals.
+   */
+  /* package */ static DecimalFormat getDecimalFormat() {
+    return s_decimalFormat.get();
+  }
 
   /* package */ static FinancialSecurity buildSecurity(BeanDataSource data) {
     return buildSecurity(data, ExternalIdBundle.EMPTY);
@@ -369,6 +389,53 @@ import com.opengamma.util.time.Expiry;
   @Override
   public String convertToString(Country country) {
     return country.getCode();
+  }
+}
+
+/**
+ * Converts doubles to strings in simple format (i.e. no scientific notation). Limits to 5DP.
+ */
+/* package */ class DoubleConverter implements StringConverter<Double> {
+
+  @Override
+  public Double convertFromString(Class<? extends Double> cls, String str) {
+    try {
+      return BlotterUtils.getDecimalFormat().parse(str).doubleValue();
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Failed to parse number", e);
+    }
+  }
+
+  @Override
+  public String convertToString(Double value) {
+    return BlotterUtils.getDecimalFormat().format(value);
+  }
+}
+
+/**
+ * Converts big decimals to strings in simple format (i.e. no scientific notation). Limits to 5DP.
+ */
+/* package */ class BigDecimalConverter implements StringConverter<BigDecimal> {
+
+  @Override
+  public BigDecimal convertFromString(Class<? extends BigDecimal> cls, String str) {
+    try {
+      Number number = BlotterUtils.getDecimalFormat().parse(str);
+      // bizarrely if you call setParseBigDecimal(true) on a DecimalFormat it returns a BigDecimal unless the number
+      // is NaN or +/- infinity in which case it returns a Double
+      if (number instanceof BigDecimal) {
+        return (BigDecimal) number;
+      } else {
+        throw new IllegalArgumentException("Failed to parse number as BigDecimal: " + number);
+      }
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Failed to parse number", e);
+    }
+  }
+
+  @Override
+  public String convertToString(BigDecimal value) {
+    return BlotterUtils.getDecimalFormat().format(value);
   }
 }
 
