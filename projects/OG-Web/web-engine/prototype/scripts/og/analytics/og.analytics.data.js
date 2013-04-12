@@ -216,8 +216,8 @@ $.register_module({
                         rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
                         format: viewport.format, log: viewport.log
                     })).pipe(function (result) {
-                        if (!viewport_id) // race condition: viewport was pulled out from under us
-                            return og.dev.warn(data.prefix + result.message);
+                        if (result.meta.url.split('/').pop() !== viewport_id) // race condition: viewport was changed
+                            return og.dev.warn(data.prefix + 'viewport: ' + (result.message || 'race condition'));
                         if (result.error) fire('fatal', data.prefix + result.message);
                     });
                     viewport_version = promise.id;
