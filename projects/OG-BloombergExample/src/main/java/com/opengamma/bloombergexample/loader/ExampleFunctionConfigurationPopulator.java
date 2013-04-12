@@ -21,7 +21,6 @@ import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.aggregation.AggregationFunctions;
 import com.opengamma.financial.analytics.AnalyticsFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
-import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackSurfaceDefaults;
 import com.opengamma.financial.currency.CurrencyFunctions;
 import com.opengamma.financial.property.PropertyFunctions;
@@ -90,8 +89,8 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
     FunctionConfigurationDefinition exampleFunc = new FunctionConfigurationDefinition(EXAMPLE, 
         ImmutableList.of(FINANCIAL, STANDARD, CURVE, CUBE),         
         Collections.<StaticFunctionConfiguration>emptyList(), 
-        ImmutableList.of(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("ParRate")), 
-            new ParameterizedFunctionConfiguration(FXOptionBlackSurfaceDefaults.class.getName(), Arrays.asList(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR, "USD", "EUR", "DEFAULT"))));
+        ImmutableList.of(new ParameterizedFunctionConfiguration(FXOptionBlackSurfaceDefaults.class.getName(), 
+            Arrays.asList(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR, "USD", "EUR", "DEFAULT"))));
     storeFunctionDefinition(exampleFunc);
   }
   
