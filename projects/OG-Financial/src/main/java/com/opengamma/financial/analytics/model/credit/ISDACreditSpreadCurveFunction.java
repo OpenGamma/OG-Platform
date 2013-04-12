@@ -67,10 +67,10 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         String curveName;
         try {
           curveName = "SAMEDAY_" + idName;
-          curveSpecification = CreditFunctionUtils.getCurveSpecification(configSource, now.toLocalDate(), curveName);
+          curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
         } catch (final Exception e) {
           curveName = idName;
-          curveSpecification = CreditFunctionUtils.getCurveSpecification(configSource, now.toLocalDate(), idName);
+          curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), idName);
         }
         final List<Tenor> tenors = new ArrayList<>();
         final List<Double> marketSpreads = new ArrayList<>();
@@ -119,7 +119,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         try {
-          final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(configSource, atZDT.toLocalDate(), curveName);
+          final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
           for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
             if (strip.getCurveNode() instanceof CreditSpreadNode) {
               //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
@@ -132,7 +132,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           //TODO backwards compatibility - remove when upstream functions select the correct prefix
           curveName = Iterables.getOnlyElement(curveNames);
           try {
-            final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(configSource, atZDT.toLocalDate(), curveName);
+            final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
             for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
               if (strip.getCurveNode() instanceof CreditSpreadNode) {
                 //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
