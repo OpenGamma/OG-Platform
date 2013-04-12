@@ -8,20 +8,8 @@ package com.opengamma.util.fudgemsg;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeTypeDictionary;
 
-import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.integer.FastListIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.integer.FastMapIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastListLongDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastMapLongDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateEpochDaysConverter;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.MapZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * Provides a shared singleton {@code FudgeContext} for use throughout OpenGamma.
@@ -59,21 +47,14 @@ public final class OpenGammaFudgeContext {
       fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes();
       
       FudgeTypeDictionary td = fudgeContext.getTypeDictionary();
-      td.registerClassRename("com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries", FastArrayIntDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.fast.integer.FastListIntDoubleTimeSeries", FastListIntDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.fast.integer.FastMapIntDoubleTimeSeries", FastMapIntDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries", FastArrayLongDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries", FastListLongDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.fast.longint.FastMapLongDoubleTimeSeries", FastMapLongDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries", ArrayLocalDateDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries", ListLocalDateDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries", MapLocalDateDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries", ArrayZonedDateTimeDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries", ListZonedDateTimeDoubleTimeSeries.class);
-      td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.MapZonedDateTimeDoubleTimeSeries", MapZonedDateTimeDoubleTimeSeries.class);
-      
-      td.registerClassRename("com.opengamma.util.timeseries.localdate.LocalDateEpochDaysConverter", LocalDateEpochDaysConverter.class);
-      td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter", ZonedDateTimeEpochMillisConverter.class);
+      td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries", ImmutableInstantDoubleTimeSeries.class);
+      td.registerClassRename("com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries", ImmutableInstantDoubleTimeSeries.class);
+      td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries", ImmutableInstantDoubleTimeSeries.class);
+      td.registerClassRename("com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries", ImmutableInstantDoubleTimeSeries.class);
+      td.registerClassRename("com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries", ImmutableLocalDateDoubleTimeSeries.class);
+      td.registerClassRename("com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries", ImmutableLocalDateDoubleTimeSeries.class);
+      td.registerClassRename("com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries", ImmutableLocalDateDoubleTimeSeries.class);
+      td.registerClassRename("com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries", ImmutableLocalDateDoubleTimeSeries.class);
 
       return fudgeContext;
     }
