@@ -66,6 +66,11 @@ public interface PreciseDoubleTimeSeries<T>
   @Override  // override for covariant return type
   PreciseDoubleTimeSeries<T> subSeries(T startTime, T endTime);
 
+  PreciseDoubleTimeSeries<T> subSeriesFast(long startTime, long endTime);
+
+  PreciseDoubleTimeSeries<T> subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd);
+
+  //-------------------------------------------------------------------------
   @Override  // override for covariant return type
   PreciseDoubleTimeSeries<T> head(int numItems);
 

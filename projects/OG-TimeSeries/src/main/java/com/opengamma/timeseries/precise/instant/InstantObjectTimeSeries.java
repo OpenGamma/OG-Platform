@@ -41,8 +41,10 @@ public interface InstantObjectTimeSeries<V>
   @Override  // override for covariant return type
   InstantObjectTimeSeries<V> subSeries(Instant startTime, boolean includeStart, Instant endTime, boolean includeEnd);
 
+  @Override  // override for covariant return type
   InstantObjectTimeSeries<V> subSeriesFast(long startTime, long endTime);
 
+  @Override  // override for covariant return type
   InstantObjectTimeSeries<V> subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd);
 
   @Override  // override for covariant return type

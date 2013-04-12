@@ -30,7 +30,7 @@ public interface InstantDoubleTimeSeries
    * 
    * @return the iterator, not null
    */
-  @Override
+  @Override  // override for covariant return type
   InstantDoubleEntryIterator iterator();
 
   //-------------------------------------------------------------------------
@@ -40,8 +40,10 @@ public interface InstantDoubleTimeSeries
   @Override  // override for covariant return type
   InstantDoubleTimeSeries subSeries(Instant startTime, boolean includeStart, Instant endTime, boolean includeEnd);
 
+  @Override  // override for covariant return type
   InstantDoubleTimeSeries subSeriesFast(long startTime, long endTime);
 
+  @Override  // override for covariant return type
   InstantDoubleTimeSeries subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd);
 
   @Override  // override for covariant return type

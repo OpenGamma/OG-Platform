@@ -27,6 +27,11 @@ public interface PreciseObjectTimeSeries<T, V>
   @Override  // override for covariant return type
   PreciseObjectTimeSeries<T, V> subSeries(T startTime, T endTime);
 
+  PreciseObjectTimeSeries<T, V> subSeriesFast(long startTime, long endTime);
+
+  PreciseObjectTimeSeries<T, V> subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd);
+
+  //-------------------------------------------------------------------------
   @Override  // override for covariant return type
   PreciseObjectTimeSeries<T, V> head(int numItems);
 

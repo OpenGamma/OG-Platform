@@ -31,7 +31,7 @@ public interface LocalDateObjectTimeSeries<V>
    * 
    * @return the iterator, not null
    */
-  @Override
+  @Override  // override for covariant return type
   LocalDateObjectEntryIterator<V> iterator();
 
   //-------------------------------------------------------------------------
@@ -41,10 +41,13 @@ public interface LocalDateObjectTimeSeries<V>
   @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd);
 
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> subSeriesFast(int startTime, int endTime);
 
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
 
+  //-------------------------------------------------------------------------
   @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> head(int numItems);
 
@@ -55,70 +58,26 @@ public interface LocalDateObjectTimeSeries<V>
   LocalDateObjectTimeSeries<V> lag(final int lagCount);
 
   //-------------------------------------------------------------------------
-  /**
-   * Applies a unary operator to each value in the time series.
-   * 
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> operate(UnaryOperator<V> operator);
 
-  /**
-   * Applies a binary operator to each value in the time series.
-   * 
-   * @param other  the single value passed into the binary operator
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> operate(V other, BinaryOperator<V> operator);
 
-  /**
-   * Applies a binary operator to each value in this time series and
-   * another time-series, returning the intersection of times.
-   * 
-   * @param otherTimeSeries  the other time-series, not null
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> operate(DateObjectTimeSeries<?, V> otherTimeSeries, BinaryOperator<V> operator);
 
-  /**
-   * Applies a binary operator to each value in this time series and
-   * another time-series, returning the union of times.
-   * 
-   * @param otherTimeSeries  the other time-series, not null
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> unionOperate(DateObjectTimeSeries<?, V> otherTimeSeries, BinaryOperator<V> operator);
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from this series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> intersectionFirstValue(DateObjectTimeSeries<?, V> other);
 
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> intersectionSecondValue(DateObjectTimeSeries<?, V> other);
 
-  /**
-   * Creates a new time-series combining both series where there are no
-   * overlapping date-times.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   * @throws RuntimeException if there are overlapping date-times
-   */
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> noIntersectionOperation(DateObjectTimeSeries<?, V> other);
 
 }

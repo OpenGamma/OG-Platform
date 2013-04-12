@@ -30,7 +30,7 @@ public interface LocalDateDoubleTimeSeries
    * 
    * @return the iterator, not null
    */
-  @Override
+  @Override  // override for covariant return type
   LocalDateDoubleEntryIterator iterator();
 
   //-------------------------------------------------------------------------
@@ -40,8 +40,10 @@ public interface LocalDateDoubleTimeSeries
   @Override  // override for covariant return type
   LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd);
 
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries subSeriesFast(int startTime, int endTime);
 
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
 
   @Override  // override for covariant return type
@@ -54,41 +56,16 @@ public interface LocalDateDoubleTimeSeries
   LocalDateDoubleTimeSeries lag(final int lagCount);
 
   //-------------------------------------------------------------------------
-  /**
-   * Applies a unary operator to each value in the time series.
-   * 
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries operate(UnaryOperator operator);
 
-  /**
-   * Applies a binary operator to each value in the time series.
-   * 
-   * @param other  the single value passed into the binary operator
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries operate(double other, BinaryOperator operator);
 
-  /**
-   * Applies a binary operator to each value in this time series and
-   * another time-series, returning the intersection of times.
-   * 
-   * @param otherTimeSeries  the other time-series, not null
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries operate(DateDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
 
-  /**
-   * Applies a binary operator to each value in this time series and
-   * another time-series, returning the union of times.
-   * 
-   * @param otherTimeSeries  the other time-series, not null
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries unionOperate(DateDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
 
   //-------------------------------------------------------------------------
