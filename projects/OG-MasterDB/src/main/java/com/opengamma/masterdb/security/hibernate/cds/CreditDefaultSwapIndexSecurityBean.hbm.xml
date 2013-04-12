@@ -3,7 +3,7 @@
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.cds">
-  <class name="CreditDefaultSwapIndexSecurityBean" table="sec_credit_default_swap_index_definition">
+  <class name="CreditDefaultSwapIndexDefinitionSecurityBean" table="sec_credit_default_swap_index_definition">
     <id name="id" column="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
         <param name="sequence_name">sec_hibernate_sequence</param>
@@ -43,7 +43,7 @@
      
   </class>
   
-  <query name="CreditDefaultSwapIndexSecurityBean.one.bySecurityId"><![CDATA[
+  <query name="CreditDefaultSwapIndexDefinitionSecurityBean.one.bySecurityId"><![CDATA[
     from 
       CreditDefaultSwapIndexDefinitionSecurityBean as s
     where
