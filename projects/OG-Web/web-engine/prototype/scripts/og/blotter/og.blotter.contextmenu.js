@@ -20,7 +20,7 @@ $.register_module({
                     var pos_arr = cell.row_value.positionId.split('~'), id = pos_arr[0] + '~' + pos_arr[1];
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: id, id: id}, 
+                            details: data, node:{name: id, id: id}, 
                             handler: function (data) {return og.api.rest.blotter.positions.put(data);},
                             complete : complete_handler
                         });
@@ -32,7 +32,7 @@ $.register_module({
                         nodeId= cell.row_value.nodeId;
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: nodeId, id: nodeId}, 
+                            details: data, node:{name: nodeId, id: nodeId}, 
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                             complete : complete_handler
                         });
@@ -42,7 +42,7 @@ $.register_module({
                 var trade_edit = function () {
                     og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
+                            details: data, node:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                             complete : complete_handler, save_as: true
                         });
@@ -50,7 +50,7 @@ $.register_module({
                 };
                 // addding a new trade needs a node id to append to
                 var trade_insert_node = function () {
-                    new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
+                    new og.blotter.Dialog({node:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                         complete : complete_handler
                     });
