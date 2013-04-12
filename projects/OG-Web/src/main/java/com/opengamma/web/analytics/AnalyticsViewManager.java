@@ -195,6 +195,7 @@ public class AnalyticsViewManager {
   public void deleteView(String viewId) {
     AnalyticsViewClientConnection connection = _viewConnections.remove(viewId);
     if (connection == null) {
+      s_logger.debug("Received request to delete unknown view ID {}", viewId);
       throw new DataNotFoundException("No view found with ID " + viewId);
     }
     s_logger.debug("Closing view with ID {}", viewId);
@@ -210,6 +211,7 @@ public class AnalyticsViewManager {
   public AnalyticsView getView(String viewId) {
     AnalyticsViewClientConnection connection = _viewConnections.get(viewId);
     if (connection == null) {
+      s_logger.debug("Received request for unknown view ID {}", viewId);
       throw new DataNotFoundException("No view found with ID " + viewId);
     }
     return connection.getView();
