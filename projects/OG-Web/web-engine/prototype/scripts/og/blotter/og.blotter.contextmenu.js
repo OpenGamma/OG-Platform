@@ -75,9 +75,14 @@ $.register_module({
                 };
                 var create_portolio = function () {
                     $(this).dialog('close');
-                    og.api.rest.portfolios.put({
-                        name: og.common.util.ui.dialog({return_field_value: 'name'}),
-                        id: 'TODO'
+                    og.api.rest.configs.get({id: og.analytics.url.last.main.viewdefinition}).pipe(function (result){
+                        var portfolio = result.data.template_data.configJSON.data.identifier;
+                        og.api.rest.portfolios.put({
+                            name: og.common.util.ui.dialog({return_field_value: 'name'}),
+                            id: portfolio,
+                            node: cell.row_value.nodeId,
+                            'new': true
+                        });
                     });
                 };
                 var new_porfolio = function () {
@@ -98,7 +103,7 @@ $.register_module({
                 }
                 else if (cell.row in grid.state.nodes || cell.type === 'NODE') {  
                     items.push({name: 'Add Trade', handler: trade_insert_node});
-                    //items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
+                    items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
                     return items;  
                 }
                 // if a cell has a tradeId then edit the trade otherwise it is an empty position
