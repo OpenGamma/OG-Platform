@@ -128,6 +128,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           }
           return requirements;
         } catch (final Exception e) {
+          s_logger.error(e.getMessage());
           //TODO backwards compatibility - remove when upstream functions select the correct prefix
           curveName = Iterables.getOnlyElement(curveNames);
           try {
