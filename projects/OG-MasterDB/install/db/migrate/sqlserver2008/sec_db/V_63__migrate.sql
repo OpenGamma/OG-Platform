@@ -1,4 +1,4 @@
-START TRANSACTION;
+BEGIN TRAN;
 
   -- update the version
   UPDATE sec_schema_version SET version_value='63' WHERE version_key='schema_patch';
