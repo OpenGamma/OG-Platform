@@ -155,6 +155,11 @@
 <listEntry value="com.opengamma.analytics.financial.provider.description.forex"/>
 <listEntry value="com.opengamma.analytics.financial.provider.method"/>
 <listEntry value="com.opengamma.analytics.financial.provider.sensitivity.blackcap"/>
+<listEntry value="com.opengamma.analytics.financial.provider.sensitivity.blackforex"/>
+<listEntry value="com.opengamma.analytics.financial.provider.sensitivity.blackstirfutures"/>
+<listEntry value="com.opengamma.analytics.financial.provider.sensitivity.normalstirfutures"/>
+<listEntry value="com.opengamma.analytics.financial.provider.sensitivity.sabrcap"/>
+<listEntry value="com.opengamma.analytics.financial.provider.sensitivity.sabrstirfutures"/>
 <listEntry value="com.opengamma.analytics.financial.riskfactor"/>
 <listEntry value="com.opengamma.analytics.financial.riskreward"/>
 <listEntry value="com.opengamma.analytics.financial.schedule"/>
