@@ -27,9 +27,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class ISDACompliantPremiumLegScheduleGenerationTest {
+public class ISDAPremiumLegScheduleGeneratorTest {
   private static final GenerateCreditDefaultSwapPremiumLegSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
-  private static final GenerateCreditDefaultSwapPremiumLegScheduleNew CALCULATOR = new GenerateCreditDefaultSwapPremiumLegScheduleNew();
+  private static final ISDAPremiumLegScheduleGenerator CALCULATOR = new ISDAPremiumLegScheduleGenerator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -39,7 +39,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
 
   @Test
   public void regressionTest() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final ZonedDateTime[] deprecatedResult = DEPRECATED_CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     final ZonedDateTime[] result = CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     assertDateArrayEquals(deprecatedResult, result);
@@ -47,7 +47,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
 
   @Test
   public void testStartDateEqualsMaturityDate() {
-    CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithProtectionStart(true);
+    CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithProtectionStart(true);
     cds = cds.withMaturityDate(cds.getEffectiveDate());
     assertDateArrayEquals(new ZonedDateTime[] {cds.getStartDate(), cds.getStartDate().plusDays(1) }, CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
   }
@@ -59,7 +59,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
 
   @Test
   public void testFrontShort() {
-    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTSHORT);
+    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTSHORT);
     cds = new LegacyVanillaCreditDefaultSwapDefinition(cds.getBuySellProtection(),
         cds.getProtectionBuyer(),
         cds.getProtectionSeller(),
@@ -94,7 +94,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
     ZonedDateTime[] actual = CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     assertDateArrayEquals(expected, actual);
     assertDateArrayEquals(expected, DEPRECATED_CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
-    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTSHORT);
+    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTSHORT);
     final BusinessDayConvention bdc = cds.getBusinessDayAdjustmentConvention();
     final Calendar holidays = cds.getCalendar();
     date = new IMMDates(cds.getStartDate().getYear()).getImmDateDecember();
@@ -114,7 +114,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
   public void testFrontShortFirstDateHoliday() {
     final ZonedDateTime startDate = new IMMDates(2008).getImmDateSeptember();
     final ZonedDateTime effectiveDate = startDate.plusDays(1);
-    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTSHORT);
+    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTSHORT);
     cds = new LegacyVanillaCreditDefaultSwapDefinition(cds.getBuySellProtection(),
         cds.getProtectionBuyer(),
         cds.getProtectionSeller(),
@@ -149,7 +149,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
     ZonedDateTime[] actual = CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     assertDateArrayEquals(expected, actual);
     assertDateArrayEquals(expected, DEPRECATED_CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
-    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTSHORT);
+    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTSHORT);
     cds = new LegacyVanillaCreditDefaultSwapDefinition(cds.getBuySellProtection(),
         cds.getProtectionBuyer(),
         cds.getProtectionSeller(),
@@ -190,7 +190,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
 
   @Test
   public void testFrontLong() {
-    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTLONG);
+    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTLONG);
     cds = new LegacyVanillaCreditDefaultSwapDefinition(cds.getBuySellProtection(),
         cds.getProtectionBuyer(),
         cds.getProtectionSeller(),
@@ -225,7 +225,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
     ZonedDateTime[] actual = CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     assertDateArrayEquals(expected, actual);
     assertDateArrayEquals(expected, DEPRECATED_CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
-    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTSHORT);
+    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTSHORT);
     final BusinessDayConvention bdc = cds.getBusinessDayAdjustmentConvention();
     final Calendar holidays = cds.getCalendar();
     date = new IMMDates(cds.getStartDate().getYear()).getImmDateDecember();
@@ -245,7 +245,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
   public void testFrontLongFirstDateHoliday() {
     final ZonedDateTime startDate = new IMMDates(2008).getImmDateSeptember();
     final ZonedDateTime effectiveDate = startDate.plusDays(1);
-    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTLONG);
+    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTLONG);
     cds = new LegacyVanillaCreditDefaultSwapDefinition(cds.getBuySellProtection(),
         cds.getProtectionBuyer(),
         cds.getProtectionSeller(),
@@ -280,7 +280,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
     ZonedDateTime[] actual = CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     assertDateArrayEquals(expected, actual);
     assertDateArrayEquals(expected, DEPRECATED_CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
-    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTLONG);
+    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTLONG);
     cds = new LegacyVanillaCreditDefaultSwapDefinition(cds.getBuySellProtection(),
         cds.getProtectionBuyer(),
         cds.getProtectionSeller(),
@@ -324,7 +324,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
     final ZonedDateTime startDate = new IMMDates(2007).getImmDateJune();
     final ZonedDateTime effectiveDate = startDate.plusDays(1);
     final ZonedDateTime endDate = startDate.plusMonths(1);
-    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithStubType(StubType.FRONTLONG);
+    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTLONG);
     cds = new LegacyVanillaCreditDefaultSwapDefinition(cds.getBuySellProtection(),
         cds.getProtectionBuyer(),
         cds.getProtectionSeller(),
@@ -365,7 +365,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
 
   @Test(enabled = false)
   public void timeBDeprecated() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     int j = 0;
     for (int i = 0; i < 1000000; i++) {
@@ -378,7 +378,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
 
   @Test(enabled = false)
   public void timeARefactored() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     int j = 0;
     for (int i = 0; i < 1000000; i++) {

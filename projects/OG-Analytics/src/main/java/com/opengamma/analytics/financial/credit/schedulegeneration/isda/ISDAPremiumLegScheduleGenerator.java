@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *  Class containing methods to generate the premium leg cash-flow schedule for a CDS (following the market conventions for CDS)
  */
-public class GenerateCreditDefaultSwapPremiumLegScheduleNew {
+public class ISDAPremiumLegScheduleGenerator {
   // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method
   // TODO : Fix the code for the back stubs (is there a better way of handling this than just duplicating code?) - front stubs seem to work okay
   // TODO : Add the code for the first coupons

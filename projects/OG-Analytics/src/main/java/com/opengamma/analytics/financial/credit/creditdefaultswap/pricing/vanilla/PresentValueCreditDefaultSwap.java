@@ -529,6 +529,7 @@ public class PresentValueCreditDefaultSwap {
 
   // If the cleanPrice flag is TRUE then this function is called to calculate the accrued interest between valuationDate and the previous coupon date
 
+  @Deprecated
   public double calculateAccruedInterest(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds) {
