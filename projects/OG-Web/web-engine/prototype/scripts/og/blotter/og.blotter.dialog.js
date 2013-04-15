@@ -99,6 +99,8 @@ $.register_module({
                     form_wrapper = new inner(config);
                     $('.OG-blotter-trade-save').show();
                     $('.ui-dialog-title').html(form_wrapper.title);
+                } else {
+                    og.dev.warn('no form found for ' + str);
                 }
             };
             constructor.create_dialog = function () {
