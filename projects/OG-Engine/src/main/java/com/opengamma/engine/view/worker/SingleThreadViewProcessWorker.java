@@ -36,8 +36,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -177,6 +175,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
   private final boolean _executeGraphs;
+  private final boolean _ignoreCompilationValidity;
 
   /**
    * The changes to the master trigger that must be made during the next cycle.
@@ -208,28 +207,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<ValueSpecification>();
   private final Set<ValueSpecification> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
 
-  /**
-   * Marker for the state of watched targets.
-   */
-  private static enum TargetState {
-    /**
-     * Notification of changes to the target are required, but it must be checked for any changes between when it was last queried and this state was stored. After such a check, the state may be
-     * changed to {@link #WAITING}.
-     */
-    REQUIRED,
-    /**
-     * Notification of changes to the target are required, none have been received, and it will not be checked unless notified. After a change is received, the state may be changed to {@link #CHANGED}
-     * .
-     */
-    WAITING,
-    /**
-     * Notification of changes to the target are required, at least one is pending, and it must now be checked. Before the check is made, the state may be changed to {@link #WAITING}.
-     */
-    CHANGED
-  }
-
-  private ConcurrentMap<ObjectId, TargetState> _changedTargets;
-  private ChangeListener _targetResolverChangeListener;
+  private TargetResolverChangeListener _targetResolverChanges;
 
   private volatile boolean _wakeOnCycleRequest;
   private volatile boolean _cycleRequested;
@@ -296,8 +274,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         _masterCycleTriggerChanges = new RunAsFastAsPossibleTrigger();
       }
     }
-    _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
-    _executeGraphs = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
+    _executeCycles = !executionOptions.getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
+    _executeGraphs = !executionOptions.getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
+    _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
@@ -361,7 +340,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       ViewCycleExecutionOptions executionOptions = null;
       try {
         if (!getExecutionOptions().getExecutionSequence().isEmpty()) {
-          executionOptions = getExecutionOptions().getExecutionSequence().getNext(getExecutionOptions().getDefaultExecutionOptions());
+          executionOptions = getExecutionOptions().getExecutionSequence().poll(getExecutionOptions().getDefaultExecutionOptions());
           s_logger.debug("Next cycle execution options: {}", executionOptions);
         }
         if (executionOptions == null) {
@@ -427,28 +406,32 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       try {
         // Don't query the cache so that the process gets a "compiled" message even if a cached compilation is used
         final CompiledViewDefinitionWithGraphs previous = _latestCompiledViewDefinition;
-        compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
-        if (compiledViewDefinition == null) {
-          s_logger.warn("Job terminated during view compilation");
-          return;
-        }
-        if ((previous == null) || !previous.getCompilationIdentifier().equals(compiledViewDefinition.getCompilationIdentifier())) {
-          if (_changedTargets != null) {
-            // We'll try to register for changes that will wake us up for a cycle if market data is not ticking
-            if (previous != null) {
-              final Set<UniqueId> subscribedIds = new HashSet<UniqueId>(previous.getResolvedIdentifiers().values());
-              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
-                if (!subscribedIds.contains(uid)) {
-                  _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
+        if (_ignoreCompilationValidity && (previous != null)) {
+          compiledViewDefinition = previous;
+        } else {
+          compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
+          if (compiledViewDefinition == null) {
+            s_logger.warn("Job terminated during view compilation");
+            return;
+          }
+          if ((previous == null) || !previous.getCompilationIdentifier().equals(compiledViewDefinition.getCompilationIdentifier())) {
+            if (_targetResolverChanges != null) {
+              // We'll try to register for changes that will wake us up for a cycle if market data is not ticking
+              if (previous != null) {
+                final Set<UniqueId> subscribedIds = new HashSet<UniqueId>(previous.getResolvedIdentifiers().values());
+                for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                  if (!subscribedIds.contains(uid)) {
+                    _targetResolverChanges.watch(uid.getObjectId());
+                  }
+                }
+              } else {
+                for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                  _targetResolverChanges.watch(uid.getObjectId());
                 }
               }
-            } else {
-              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
-                _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
-              }
             }
+            viewDefinitionCompiled(executionOptions, compiledViewDefinition);
           }
-          viewDefinitionCompiled(executionOptions, compiledViewDefinition);
         }
       } catch (final Exception e) {
         final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}", getViewDefinition().getUniqueId(),
@@ -494,6 +477,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             configToComputationTargets.put(graph.getCalculationConfigurationName(), graph.getAllComputationTargets());
             configToTerminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs());
           }
+          if (isTerminated()) {
+            return;
+          }
           cycleStarted(new DefaultViewCycleMetadata(
               cycleReference.get().getUniqueId(),
               marketDataSnapshot.getUniqueId(),
@@ -503,6 +489,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
               singleComputationCycle.getAllCalculationConfigurationNames(),
               configToComputationTargets,
               configToTerminalOutputs));
+          if (isTerminated()) {
+            return;
+          }
           executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
         } catch (final InterruptedException e) {
           // Execution interrupted - don't propagate as failure
@@ -744,39 +733,21 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   }
 
   private void subscribeToTargetResolverChanges() {
-    if (_changedTargets == null) {
-      assert _targetResolverChangeListener == null;
-      final ConcurrentMap<ObjectId, TargetState> changed = new ConcurrentHashMap<ObjectId, TargetState>();
-      _changedTargets = changed;
-      _targetResolverChangeListener = new ChangeListener() {
+    if (_targetResolverChanges == null) {
+      _targetResolverChanges = new TargetResolverChangeListener() {
         @Override
-        public void entityChanged(final ChangeEvent event) {
-          final ObjectId oid = event.getObjectId();
-          TargetState state = changed.get(oid);
-          if (state == null) {
-            return;
-          }
-          if ((state == TargetState.WAITING) || (state == TargetState.REQUIRED)) {
-            if (changed.replace(oid, state, TargetState.CHANGED)) {
-              // If the state changed to anything else, we either don't need the notification or another change message overtook
-              // this one and a cycle has already been triggered.
-              s_logger.info("Received change notification for {}", event.getObjectId());
-              requestCycle();
-              return;
-            }
-          }
+        protected void onChanged() {
+          requestCycle();
         }
       };
-      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().addChangeListener(_targetResolverChangeListener);
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().addChangeListener(_targetResolverChanges);
     }
   }
 
   private void unsubscribeFromTargetResolverChanges() {
-    if (_changedTargets != null) {
-      assert _targetResolverChangeListener != null;
-      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_targetResolverChangeListener);
-      _targetResolverChangeListener = null;
-      _changedTargets = null;
+    if (_targetResolverChanges != null) {
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_targetResolverChanges);
+      _targetResolverChanges = null;
     }
   }
 
@@ -799,7 +770,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     // Note: NOW means NOW as the caller has requested LATEST. We should not be using the valuation time.
     if (vc.getCorrectedTo() == null) {
       if (vc.getVersionAsOf() == null) {
-        subscribeToTargetResolverChanges();
+        if (!_ignoreCompilationValidity) {
+          subscribeToTargetResolverChanges();
+        }
         return vc.withLatestFixed(Instant.now());
       } else {
         vc = vc.withLatestFixed(Instant.now());
@@ -917,7 +890,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     long t = -System.nanoTime();
     // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
     final Set<ComputationTargetReference> toCheck;
-    if (_changedTargets == null) {
+    if (_targetResolverChanges == null) {
       // Change notifications aren't relevant for historical iteration; must recheck all of the resolutions
       toCheck = previousResolutions.keySet();
     } else {
@@ -926,18 +899,14 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
       for (final Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
         final ObjectId oid = previousResolution.getValue().getObjectId();
-        if (_changedTargets.replace(oid, TargetState.CHANGED, TargetState.WAITING)) {
+        if (_targetResolverChanges.isChanged(oid)) {
           // A change was seen on this target
           s_logger.debug("Change observed on {}", oid);
-          toCheck.add(previousResolution.getKey());
-        } else if (_changedTargets.putIfAbsent(oid, TargetState.WAITING) == null) {
-          // We've not been monitoring this target for changes - better start doing so
-          s_logger.debug("Added {} to change observation set", oid);
           toCheck.add(previousResolution.getKey());
         }
         allObjectIds.add(oid);
       }
-      _changedTargets.keySet().retainAll(allObjectIds);
+      _targetResolverChanges.watchOnly(allObjectIds);
       if (toCheck.isEmpty()) {
         s_logger.debug("No resolutions (from {}) to check", previousResolutions.size());
         return null;
@@ -1277,10 +1246,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         if (cached != null) {
           // Only update ours if the one from the cache has a better validity
           if (resolverVersionCorrection.equals(cached.getResolverVersionCorrection())) {
-            _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+            cached = PLAT3249.deepClone(cached);
+            _latestCompiledViewDefinition = cached;
           } else {
             if (!resolverMatch && !valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
-              _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+              cached = PLAT3249.deepClone(cached);
+              _latestCompiledViewDefinition = cached;
             }
           }
         } else {
@@ -1292,7 +1263,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       // Query the cache
       cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
       if (cached != null) {
-        _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+        cached = PLAT3249.deepClone(cached);
+        _latestCompiledViewDefinition = cached;
       }
     }
     return cached;
@@ -1492,14 +1464,15 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   // ViewComputationJob
 
   @Override
-  public synchronized void triggerCycle() {
+  public synchronized boolean triggerCycle() {
     s_logger.debug("Cycle triggered manually");
     _forceTriggerCycle = true;
     notifyAll();
+    return true;
   }
 
   @Override
-  public synchronized void requestCycle() {
+  public synchronized boolean requestCycle() {
     // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
     // high-frequency market data. See how it goes, but we could take into account the recalc periods and apply a
     // heuristic (e.g. only wake up due to market data if max - min < e, for some e) which tries to see whether it's
@@ -1507,9 +1480,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     _cycleRequested = true;
     if (!_wakeOnCycleRequest) {
-      return;
+      return true;
     }
     notifyAll();
+    return true;
   }
 
   @Override

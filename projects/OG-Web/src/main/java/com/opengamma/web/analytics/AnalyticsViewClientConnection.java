@@ -38,9 +38,11 @@ import com.opengamma.util.ArgumentChecker;
  * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
-/* package */ class AnalyticsViewClientConnection /*implements ChangeListener*/ {
+/* package */class AnalyticsViewClientConnection /*implements ChangeListener*/{
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
+
+  private static final ExecutionFlags.ParallelRecompilationMode PARALLEL_RECOMPILATION = ExecutionFlags.ParallelRecompilationMode.PARALLEL_EXECUTION;
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
@@ -59,12 +61,12 @@ import com.opengamma.util.ArgumentChecker;
    * @param marketDataSpecRepo For looking up sources of market data
    * @param snapshotMaster For looking up snapshots
    */
-  /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
-                                              AggregatedViewDefinition aggregatedViewDef, ViewClient viewClient,
-                                              AnalyticsView view,
-                                              NamedMarketDataSpecificationRepository marketDataSpecRepo,
-                                              MarketDataSnapshotMaster snapshotMaster,
-                                              List<AutoCloseable> listeners) {
+  /* package */AnalyticsViewClientConnection(ViewRequest viewRequest,
+      AggregatedViewDefinition aggregatedViewDef, ViewClient viewClient,
+      AnalyticsView view,
+      NamedMarketDataSpecificationRepository marketDataSpecRepo,
+      MarketDataSnapshotMaster snapshotMaster,
+      List<AutoCloseable> listeners) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
@@ -79,7 +81,7 @@ import com.opengamma.util.ArgumentChecker;
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
     ViewCycleExecutionOptions defaultOptions = ViewCycleExecutionOptions.builder().setValuationTime(viewRequest.getValuationTime()).setMarketDataSpecifications(actualMarketDataSpecs)
         .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection()).create();
-    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().get());
+    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().parallelCompilation(PARALLEL_RECOMPILATION).get());
     _listeners = listeners;
     // this recalcs periodically or when market data changes. might need to give
     // the user the option to specify the behaviour
@@ -113,7 +115,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Connects to the engine in order to start receiving results. This should only be called once.
    */
-  /* package */ void start() {
+  /* package */void start() {
     _viewClient.setResultListener(new Listener());
     _viewClient.setViewCycleAccessSupported(true);
     _viewClient.setResultMode(ViewResultMode.FULL_THEN_DELTA);
@@ -128,7 +130,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Disconects from the engine and releases all resources. This should only be called once.
    */
-  /* package */ void close() {
+  /* package */void close() {
     try {
       _viewClient.detachFromViewProcess();
       _viewClient.shutdown();
@@ -148,7 +150,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @return The view to which this object sends data received from the engine.
    */
-  /* package */ AnalyticsView getView() {
+  /* package */AnalyticsView getView() {
     return _view;
   }
 

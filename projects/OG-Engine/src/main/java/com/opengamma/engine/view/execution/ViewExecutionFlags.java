@@ -10,7 +10,7 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * Represents options which can apply to a {@link ViewExecutionOptions} instance. These are not necessarily mutually compatible; incorrect combinations may result in execution errors or unexpected
- * behaviour.
+ * behavior.
  */
 @PublicAPI
 public enum ViewExecutionFlags {
@@ -53,6 +53,55 @@ public enum ViewExecutionFlags {
    * execution at a later date.
    */
   FETCH_MARKET_DATA_ONLY,
+
+  /**
+   * Indicates whether changes to a view definition, portfolio, or any other data that would invalidate a compilation, should be ignored.
+   */
+  IGNORE_COMPILATION_VALIDITY,
+
+  /**
+   * Indicates whether view cycles should continue with a previous view compilation until the new compilation has occurred. The new compilation will occur in parallel to execution of the previous
+   * compilation result. Execution will begin as soon as possible. The execution of the previous compilation result will be allowed to continue until the first result is available from the new
+   * compilation.
+   * <p>
+   * Normal operation is to cease execution until everything has been recompiled - this mode of operation is to support classes of view client that can tolerate receiving data for a potentially
+   * out-of-date configuration. This flag can give the observed behavior of the a process being slow to respond to change notifications but then acting very quickly on them.
+   * <p>
+   * This can't be used with {@link #PARALLEL_RECOMPILATION_DEFERRED_EXECUTION} or {@link #PARALLEL_RECOMPILATION_IMMEDIATE_EXECUTION} and uses the most resources of the three modes. If there are
+   * sufficient resources such that the previous and new computation can be executed concurrently, it may present results for the new compilation sooner than the other modes. If there are not
+   * sufficient resources, it may present results for the new compilation later than the other modes.
+   * <p>
+   * This flag has no effect if {@link #IGNORE_COMPILATION_VALIDITY} is set.
+   */
+  PARALLEL_RECOMPILATION_AND_EXECUTION,
+
+  /**
+   * Indicates whether view cycles should continue with a previous view compilation until the new compilation has occurred. The new compilation will occur in parallel to execution of the previous
+   * compilation result. If a previous compilation is already executing, it will be allowed to complete before execution of the new compilation begins.
+   * <p>
+   * Normal operation is to cease execution until everything has been recompiled - this mode of operation is to support classes of view client that can tolerate receiving data for a potentially
+   * out-of-date configuration. This flag can give the observed behavior of the a process being slow to respond to change notifications but then acting very quickly on them.
+   * <p>
+   * This can't be used with {@link #PARALLEL_RECOMPILATION_AND_EXECUTION} or {@link #PARALLEL_RECOMPILATION_IMMEDIATE_EXECUTION} and uses the least resources of the three modes. This will typically
+   * present results for the new compilation later than the {@code PARALLEL_RECOMPILATION_IMMEDIATE_EXECUTION} mode.
+   * <p>
+   * This flag has no effect if {@link #IGNORE_COMPILATION_VALIDITY} is set.
+   */
+  PARALLEL_RECOMPILATION_DEFERRED_EXECUTION,
+
+  /**
+   * Indicates whether view cycles should continue with a previous view compilation until the new compilation has occurred. The new compilation will occur in parallel to execution of the previous
+   * compilation result. If a previous compilation is already executing it will be aborted so that resources are available for the new execution.
+   * <p>
+   * Normal operation is to cease execution until everything has been recompiled - this mode of operation is to support classes of view client that can tolerate receiving data for a potentially
+   * out-of-date configuration. This flag can give the observed behavior of the a process being slow to respond to change notifications but then acting very quickly on them.
+   * <p>
+   * This can't be used with {@link #PARALLEL_RECOMPILATION_AND_EXECUTION} or {@link #PARALLEL_RECOMPILATION_DEFERRED_EXECUTION}. This will typically present results for the new compilation sooner
+   * than the {@code PARALLEL_RECOMPILATION_DEFERRED_EXECUTION} mode but may consume more resources depending on the cost of (and ability of other system components) aborting the previous execution.
+   * <p>
+   * This flag has no effect if {@link #IGNORE_COMPILATION_VALIDITY} is set.
+   */
+  PARALLEL_RECOMPILATION_IMMEDIATE_EXECUTION,
 
   /**
    * Indicates that the results should be stored in batch database.

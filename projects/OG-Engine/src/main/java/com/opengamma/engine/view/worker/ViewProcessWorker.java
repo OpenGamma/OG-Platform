@@ -16,14 +16,18 @@ public interface ViewProcessWorker {
   /**
    * Triggers the next cycle in the execution sequence. The cycle will always be triggered regardless of the time since the previous one. To throttle cycle rates according to the view definition use
    * {@link #requestCycle}.
+   * 
+   * @return true if the trigger cycle request was respected, false if it was not
    */
-  void triggerCycle();
+  boolean triggerCycle();
 
   /**
    * Requests the next cycle in the execution sequence. The request will be ignored if the view definition includes throttles that limit the cycle execution rate. To ignore such throttles and execute
    * the cycle regardless use {@link #triggerCycle}.
+   * 
+   * @return true if the cycle request was respected, false if it was not
    */
-  void requestCycle();
+  boolean requestCycle();
 
   /**
    * Notifies the job of an updated view definition.
