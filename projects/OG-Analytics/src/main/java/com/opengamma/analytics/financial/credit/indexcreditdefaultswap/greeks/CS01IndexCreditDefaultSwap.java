@@ -21,6 +21,8 @@ public class CS01IndexCreditDefaultSwap {
 
   // TODO : Implement the bump and re-price code
 
+  // TODO : Add function to bump a subset of obligors specified by the user
+
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by a parallel bump of each point on the spread curve - bump is applied simultaneously to all obligors
