@@ -8,8 +8,9 @@ package com.opengamma.master.historicaltimeseries.impl;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -42,16 +43,16 @@ public final class RandomTimeSeriesGenerator {
    * @return the time-series, not null
    */
   public static LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate startDate, int numDays) {
-    MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate current = startDate;
-    tsMap.putDataPoint(current, Math.random());
-    while (tsMap.size() < numDays) {
+    bld.put(current, Math.random());
+    while (bld.size() < numDays) {
       if (isWeekday(current)) {
-        tsMap.putDataPoint(current, Math.random());
+        bld.put(current, Math.random());
       }
       current = current.plusDays(1);
     }
-    return tsMap;
+    return bld.build();
   }
 
   /**

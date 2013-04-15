@@ -7,7 +7,6 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,9 +41,10 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 
@@ -287,7 +287,7 @@ public class InMemoryHistoricalTimeSeriesMaster
       if (_store.get(objectId) == null) {
         throw new DataNotFoundException("Historical time-series not found: " + objectId);
       }
-      existingSeries = new ArrayLocalDateDoubleTimeSeries();
+      existingSeries = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
     }
 
     // Filter points by date range and max points to return 
@@ -300,7 +300,7 @@ public class InMemoryHistoricalTimeSeriesMaster
 
     final ManageableHistoricalTimeSeries result = new ManageableHistoricalTimeSeries();
     result.setUniqueId(objectId.atLatestVersion());
-    result.setTimeSeries(subSeries.toLocalDateDoubleTimeSeries());
+    result.setTimeSeries(subSeries);
     result.setVersionInstant(now);
     result.setCorrectionInstant(now);
     return result;
@@ -316,10 +316,10 @@ public class InMemoryHistoricalTimeSeriesMaster
 
     final LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
     if (existingSeries != null) {
-      if (series.getEarliestTime().isBefore(existingSeries.getLatestTime())) {
+      if (existingSeries.size() > 0 && series.getEarliestTime().isBefore(existingSeries.getLatestTime())) {
         throw new IllegalArgumentException("Unable to add time-series as dates overlap");
       }
-      LocalDateDoubleTimeSeries newSeries = existingSeries.noIntersectionOperation(series).toLocalDateDoubleTimeSeries();
+      LocalDateDoubleTimeSeries newSeries = existingSeries.noIntersectionOperation(series);
       if (_storePoints.replace(objectId, existingSeries, newSeries) == false) {
         throw new IllegalArgumentException("Concurrent modification");
       }
@@ -343,7 +343,7 @@ public class InMemoryHistoricalTimeSeriesMaster
 
     LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
     if (existingSeries != null) {
-      LocalDateDoubleTimeSeries newSeries = existingSeries.unionOperate(series, DoubleTimeSeriesOperators.SECOND_OPERATOR).toLocalDateDoubleTimeSeries();
+      LocalDateDoubleTimeSeries newSeries = existingSeries.unionOperate(series, DoubleTimeSeriesOperators.SECOND_OPERATOR);
       if (_storePoints.replace(objectId, existingSeries, newSeries) == false) {
         throw new IllegalArgumentException("Concurrent modification");
       }
@@ -371,14 +371,14 @@ public class InMemoryHistoricalTimeSeriesMaster
     if (existingSeries == null) {
       return objectId.atLatestVersion();
     }
-    MutableLocalDateDoubleTimeSeries mutableTS = existingSeries.toMutableLocalDateDoubleTimeSeries();
-    for (Iterator<LocalDate> it = mutableTS.timeIterator(); it.hasNext(); ) {
-      LocalDate date = it.next();
+    LocalDateDoubleTimeSeriesBuilder bld = existingSeries.toBuilder();
+    for (LocalDateDoubleEntryIterator it = bld.iterator(); it.hasNext(); ) {
+      LocalDate date = it.nextTime();
       if (date.isBefore(fromDateInclusive) == false && date.isAfter(toDateInclusive) == false) {
         it.remove();
       }
     }
-    if (_storePoints.replace(objectId, existingSeries, mutableTS.toLocalDateDoubleTimeSeries()) == false) {
+    if (_storePoints.replace(objectId, existingSeries, bld.build()) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     return objectId.atLatestVersion();

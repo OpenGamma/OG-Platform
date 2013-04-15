@@ -30,8 +30,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -280,7 +280,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   public void test_points_update_correct() {
     LocalDate[] dates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2)};
     double[] values = {1.1d, 2.2d};
-    LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries input = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     
     UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
@@ -291,14 +291,14 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     
     LocalDate[] dates2 = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 3)};
     double[] values2 = {1.5d, 2.5d};
-    LocalDateDoubleTimeSeries input2 = new ArrayLocalDateDoubleTimeSeries(dates2, values2);
+    LocalDateDoubleTimeSeries input2 = ImmutableLocalDateDoubleTimeSeries.of(dates2, values2);
     
     UniqueId uniqueId2 = testPopulated.correctTimeSeriesDataPoints(doc1.getUniqueId(), input2);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId2.getObjectId());
     
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 3)};
     double[] expectedValues = {1.5d, 2.2d, 2.5d};
-    LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
+    LocalDateDoubleTimeSeries expected = ImmutableLocalDateDoubleTimeSeries.of(expectedDates, expectedValues);
     ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
@@ -307,7 +307,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   public void test_points_update_remove() {
     LocalDate[] dates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2)};
     double[] values = {1.1d, 2.2d};
-    LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries input = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     
     UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
@@ -321,7 +321,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1)};
     double[] expectedValues = {1.1d};
-    LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
+    LocalDateDoubleTimeSeries expected = ImmutableLocalDateDoubleTimeSeries.of(expectedDates, expectedValues);
     ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
@@ -346,7 +346,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
         2.2d, 
         2.0d
     }; 
-    LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries input = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     ManageableHistoricalTimeSeries reference = testPopulated.getTimeSeries(doc1.getUniqueId());
     
