@@ -136,6 +136,37 @@ public class StandardQuantoCreditDefaultSwapDefinition extends StandardCreditDef
   }
 
   @Override
+  public StandardQuantoCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {
+    return new StandardQuantoCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        startDate,
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getQuotedSpread(),
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate());
+  }
+
+  @Override
   public StandardQuantoCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
     return new StandardQuantoCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
