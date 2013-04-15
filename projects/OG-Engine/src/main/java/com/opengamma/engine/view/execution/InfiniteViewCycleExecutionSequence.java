@@ -11,7 +11,7 @@ package com.opengamma.engine.view.execution;
 public class InfiniteViewCycleExecutionSequence extends MergingViewCycleExecutionSequence {
 
   @Override
-  public ViewCycleExecutionOptions getNext(ViewCycleExecutionOptions defaultExecutionOptions) {
+  public ViewCycleExecutionOptions poll(ViewCycleExecutionOptions defaultExecutionOptions) {
     return merge(new ViewCycleExecutionOptions(), defaultExecutionOptions);
   }
 
@@ -36,6 +36,11 @@ public class InfiniteViewCycleExecutionSequence extends MergingViewCycleExecutio
   @Override
   public int estimateRemaining() {
     return Integer.MAX_VALUE;
+  }
+
+  @Override
+  public InfiniteViewCycleExecutionSequence copy() {
+    return this;
   }
 
 }
