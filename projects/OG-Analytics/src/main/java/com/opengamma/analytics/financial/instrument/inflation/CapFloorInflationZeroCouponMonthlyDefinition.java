@@ -85,7 +85,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
       final ZonedDateTime lastKnownFixingDate, final double indexStartValue, final ZonedDateTime referenceEndDate,
       final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
-    ArgumentChecker.notNull(lastKnownFixingDate, "Reference start date");
+    ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
     this._lastKnownFixingDate = lastKnownFixingDate;
     this._indexStartValue = indexStartValue;

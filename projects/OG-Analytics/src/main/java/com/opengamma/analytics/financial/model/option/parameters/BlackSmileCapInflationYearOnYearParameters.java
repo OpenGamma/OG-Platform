@@ -13,9 +13,9 @@ import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- *  Class describing the Black volatility surface used in inflation zero-coupon cap/floor modeling. The CPI forward is assumed to lognormal.
+ *  Class describing the Black volatility surface used in inflation year on year cap/floor modeling. The inflation year on year rate (\{CPI(T_{i+1})}{CPI(T_{i})})rate is assumed to be normal.
  */
-public class BlackSmileCapInflationZeroCouponParameters implements VolatilityModel<double[]> {
+public class BlackSmileCapInflationYearOnYearParameters implements VolatilityModel<double[]> {
 
   /**
    * The volatility surface. The dimensions are the expiration and the strike. Not null.
@@ -31,7 +31,7 @@ public class BlackSmileCapInflationZeroCouponParameters implements VolatilityMod
    * @param volatility The Black volatility curve.
    * @param index The Ibor index for which the volatility is valid.
    */
-  public BlackSmileCapInflationZeroCouponParameters(final Surface<Double, Double, Double> volatility, final IndexPrice index) {
+  public BlackSmileCapInflationYearOnYearParameters(final Surface<Double, Double, Double> volatility, final IndexPrice index) {
     Validate.notNull(volatility, "volatility curve");
     Validate.notNull(index, "index price");
     _volatility = volatility;
@@ -88,7 +88,7 @@ public class BlackSmileCapInflationZeroCouponParameters implements VolatilityMod
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BlackSmileCapInflationZeroCouponParameters other = (BlackSmileCapInflationZeroCouponParameters) obj;
+    BlackSmileCapInflationYearOnYearParameters other = (BlackSmileCapInflationYearOnYearParameters) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
