@@ -135,6 +135,37 @@ public class StandardVanillaCreditDefaultSwapDefinition extends StandardCreditDe
   }
 
   @Override
+  public StandardVanillaCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {
+    return new StandardVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        startDate,
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getQuotedSpread(),
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate());
+  }
+
+  @Override
   public StandardVanillaCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
     return new StandardVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
@@ -195,6 +226,7 @@ public class StandardVanillaCreditDefaultSwapDefinition extends StandardCreditDe
         getCashSettlementDate(),
         getAdjustCashSettlementDate());
   }
+
   @Override
   public StandardVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
     return new StandardVanillaCreditDefaultSwapDefinition(getBuySellProtection(),

@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  * The output is a DoubleMatrix1D.
  */
-public abstract class ParameterSensitivityMatrixMulticurveProviderAbstractCalculator {
+public abstract class ParameterSensitivityMulticurveMatrixAbstractCalculator {
 
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times for the discounting curve
@@ -33,7 +33,7 @@ public abstract class ParameterSensitivityMatrixMulticurveProviderAbstractCalcul
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public ParameterSensitivityMatrixMulticurveProviderAbstractCalculator(final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityMulticurveMatrixAbstractCalculator(final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }
@@ -46,7 +46,7 @@ public abstract class ParameterSensitivityMatrixMulticurveProviderAbstractCalcul
    * The sensitivity with respect to the curves in the fixedCurves list will not be part of the output total sensitivity. Not null.
    * @param curvesSet The set of curves for which the sensitivity will be computed. The multi-curve may contain more curves and other curves can be in the
    * instrument sensitivity but only the one in the set will be in the output. The curve order in the output is the set order.
-   * @return The sensitivity (as a DoubleMatrix1D).
+   * @return The sensitivity (as a Matrix). The order of the sensitivity is by curve as provided by the curvesSet.
    */
   public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative instrument, final MulticurveProviderInterface multicurves, final Set<String> curvesSet) {
     Validate.notNull(instrument, "null InterestRateDerivative");
@@ -63,7 +63,7 @@ public abstract class ParameterSensitivityMatrixMulticurveProviderAbstractCalcul
    * @param sensitivity The point sensitivity.
    * @param multicurves The multi-curve provider. Not null.
    * @param curvesSet The set of curves for which the sensitivity will be computed. Not null.
-   * @return The sensitivity (as a DoubleMatrix1D).
+   * @return The sensitivity (as a Matrix). The order of the sensitivity is by curve as provided by the curvesSet.
    */
   public abstract DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final MulticurveProviderInterface multicurves, final Set<String> curvesSet);
 
