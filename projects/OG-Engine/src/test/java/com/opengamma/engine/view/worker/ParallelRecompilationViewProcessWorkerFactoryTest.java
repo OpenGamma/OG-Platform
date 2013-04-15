@@ -20,11 +20,12 @@ import com.opengamma.engine.view.execution.ExecutionFlags.ParallelRecompilationM
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ParallelRecompilationViewProcessWorkerFactory} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ParallelRecompilationViewProcessWorkerFactoryTest {
 
   public void testIgnoreValidity() {
@@ -32,7 +33,19 @@ public class ParallelRecompilationViewProcessWorkerFactoryTest {
     final ViewProcessWorkerContext context = Mockito.mock(ViewProcessWorkerContext.class);
     final ViewDefinition viewDefinition = Mockito.mock(ViewDefinition.class);
     final ParallelRecompilationViewProcessWorkerFactory factory = new ParallelRecompilationViewProcessWorkerFactory(underlying);
+    factory.setDelegate(factory);
     final ViewExecutionOptions options = new ExecutionOptions(new InfiniteViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().awaitMarketData().ignoreCompilationValidity().get());
+    factory.createWorker(context, options, viewDefinition);
+    Mockito.verify(underlying, Mockito.only()).createWorker(context, options, viewDefinition);
+  }
+
+  public void testPassthrough() {
+    final ViewProcessWorkerFactory underlying = Mockito.mock(ViewProcessWorkerFactory.class);
+    final ViewProcessWorkerContext context = Mockito.mock(ViewProcessWorkerContext.class);
+    final ViewDefinition viewDefinition = Mockito.mock(ViewDefinition.class);
+    final ParallelRecompilationViewProcessWorkerFactory factory = new ParallelRecompilationViewProcessWorkerFactory(underlying);
+    factory.setDelegate(factory);
+    final ViewExecutionOptions options = new ExecutionOptions(new InfiniteViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().awaitMarketData().get());
     factory.createWorker(context, options, viewDefinition);
     Mockito.verify(underlying, Mockito.only()).createWorker(context, options, viewDefinition);
   }
@@ -40,7 +53,7 @@ public class ParallelRecompilationViewProcessWorkerFactoryTest {
   public void testParallel() {
     final ViewProcessWorkerFactory underlying = Mockito.mock(ViewProcessWorkerFactory.class);
     final ViewProcessWorkerContext context = Mockito.mock(ViewProcessWorkerContext.class);
-    final ViewExecutionOptions options = new ExecutionOptions(new InfiniteViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().awaitMarketData()
+    final ViewExecutionOptions options = new ExecutionOptions(new InfiniteViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().waitForInitialTrigger()
         .parallelCompilation(ParallelRecompilationMode.PARALLEL_EXECUTION).get());
     final ViewDefinition viewDefinition = Mockito.mock(ViewDefinition.class);
     final ViewProcessWorker delegateWorker = Mockito.mock(ViewProcessWorker.class);
@@ -51,7 +64,7 @@ public class ParallelRecompilationViewProcessWorkerFactoryTest {
             assertTrue(invocation.getArguments()[0] instanceof ParallelRecompilationViewProcessWorker.ParallelExecutionContext);
             final ViewExecutionOptions delegateOptions = (ViewExecutionOptions) invocation.getArguments()[1];
             assertEquals(delegateOptions.getExecutionSequence(), options.getExecutionSequence());
-            assertEquals(delegateOptions.getFlags(), ExecutionFlags.triggersEnabled().awaitMarketData().ignoreCompilationValidity().get());
+            assertEquals(delegateOptions.getFlags(), ExecutionFlags.triggersEnabled().waitForInitialTrigger().ignoreCompilationValidity().get());
             assertSame(invocation.getArguments()[2], viewDefinition);
             return delegateWorker;
           }
@@ -60,6 +73,7 @@ public class ParallelRecompilationViewProcessWorkerFactoryTest {
     factory.setDelegate(factory);
     final ParallelRecompilationViewProcessWorker worker = (ParallelRecompilationViewProcessWorker) factory.createWorker(context, options, viewDefinition);
     assertSame(worker.getContext(), context);
+    assertEquals(worker.getFlags(), ExecutionFlags.triggersEnabled().ignoreCompilationValidity().get());
   }
 
   public void testDeferred() {
