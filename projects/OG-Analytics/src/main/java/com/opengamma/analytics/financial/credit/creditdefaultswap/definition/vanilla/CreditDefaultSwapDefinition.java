@@ -238,11 +238,17 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // Abstract builder methods
+
+  public abstract CreditDefaultSwapDefinition withStartDate(ZonedDateTime startDate);
+
   public abstract CreditDefaultSwapDefinition withMaturityDate(ZonedDateTime maturityDate);
 
   public abstract CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate);
 
   public abstract CreditDefaultSwapDefinition withEffectiveDate(ZonedDateTime effectiveDate);
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public member accessor methods
 

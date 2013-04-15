@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CreditDefaultSwapOptionDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -39,10 +41,11 @@ public class PresentValueCreditDefaultSwapOption {
   // TODO : Need to do the calibration of the hazard rates for the underlying reference entity
   // TODO : Need to take out the HazardRateCurve input from this ctor
 
-  // TODO : Should add tests of the efficacy of the spread term structure (checkMarketData object)
+  // TODO : Have to sort out the hazard rate calibration objects (the type of the underlying CDS should just be CreditDefaultSwapDefinition)
 
   // NOTE : Have not included the PriceType field for the CDS - assume this is entered as part of the underlying CDS contract definition
   // NOTE : The test for a negative option strike is done in the CDS Swaption ctor
+  // NOTE : The checks of the efficacy of the input spread data are done in the underlying CDS classes (so don't need to be done here)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -55,6 +58,9 @@ public class PresentValueCreditDefaultSwapOption {
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(SPREAD_INTERPOLATOR, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
 
   private static final GenerateCreditDefaultSwapPremiumLegSchedule PREMIUM_LEG_SCHEDULE_CALCULATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+  // Create a CDS PV calculator object (this is used in the calibration of the survival probabilities)
+  private static final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -95,15 +101,27 @@ public class PresentValueCreditDefaultSwapOption {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Calculate the calibrated hazard rate curve from the calibrationTenors and marketSpreads here
+    // Create a copy of the underlying CDS for the purposes of calibration of the hazard rate term structure
+    final LegacyVanillaCreditDefaultSwapDefinition underlyingCalibrationCDS = (LegacyVanillaCreditDefaultSwapDefinition) cdsSwaption.getUnderlyingCDS();
+
+    // Build a hazard rate curve object based on the input market data
+    final HazardRateCurve calibratedHazardRateCurve = creditDefaultSwap.calibrateHazardRateCurve(valuationDate, underlyingCalibrationCDS, calibrationTenors, marketSpreads, yieldCurve);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Get the underlying CDS in the swaption contract
+    // Get the underlying CDS in the swaption contract (don't really need to do this if we fix the LegacyVanilla issue above)
     final CreditDefaultSwapDefinition underlyingCDS = cdsSwaption.getUnderlyingCDS();
+
+    CreditDefaultSwapDefinition shortCDS = cdsSwaption.getUnderlyingCDS();
+
+    shortCDS = shortCDS.withStartDate(cdsSwaption.getStartDate());
+    shortCDS = shortCDS.withEffectiveDate(cdsSwaption.getStartDate().plusDays(1));
+    shortCDS = shortCDS.withMaturityDate(cdsSwaption.getOptionExerciseDate());
 
     // Generate the cashflow schedule for the (forward) premium leg
     final ZonedDateTime[] underlyingCDSPremiumLegSchedule = PREMIUM_LEG_SCHEDULE_CALCULATOR.constructCreditDefaultSwapPremiumLegSchedule(underlyingCDS);
+
+    final ZonedDateTime[] shortCDSPremiumLegSchedule = PREMIUM_LEG_SCHEDULE_CALCULATOR.constructCreditDefaultSwapPremiumLegSchedule(shortCDS);
 
     // Get the option expiry date
     final ZonedDateTime optionExpiryDate = cdsSwaption.getOptionExerciseDate();
@@ -112,7 +130,7 @@ public class PresentValueCreditDefaultSwapOption {
     final ZonedDateTime cdsMaturityDate = cdsSwaption.getUnderlyingCDS().getMaturityDate();
 
     // Get the option strike
-    final double optionStrike = cdsSwaption.getOptionStrike();
+    final double optionStrike = cdsSwaption.getOptionStrike() / 10000.0;
 
     // Calculate the remaining time to option expiry (as a double)
     final double optionExpiryTime = TimeCalculator.getTimeBetween(valuationDate, cdsSwaption.getOptionExerciseDate());
@@ -133,7 +151,7 @@ public class PresentValueCreditDefaultSwapOption {
           cdsSwaption,
           underlyingCDSPremiumLegSchedule,
           yieldCurve,
-          hazardRateCurve);
+          calibratedHazardRateCurve/*hazardRateCurve*/);
 
       // Calculate the forward spread as seen at the valuation date for the period [optionExpiryDate, cdsMaturityDate]
       final double forwardSpread = calculateForwardSpread(
@@ -142,9 +160,10 @@ public class PresentValueCreditDefaultSwapOption {
           cdsMaturityDate,
           cdsSwaption,
           underlyingCDSPremiumLegSchedule,
+          shortCDSPremiumLegSchedule,
           spreadCurve,
           yieldCurve,
-          hazardRateCurve);
+          calibratedHazardRateCurve/*hazardRateCurve*/) / 10000.0;
 
       // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -161,7 +180,7 @@ public class PresentValueCreditDefaultSwapOption {
 
       // Do we need to add the front end protection
       if (!cdsSwaption.isKnockOut()) {
-        frontendProtection = calculateFrontendProtection(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
+        frontendProtection = calculateFrontendProtection(valuationDate, cdsSwaption, yieldCurve, calibratedHazardRateCurve/*hazardRateCurve*/);
       }
     }
 
@@ -169,6 +188,8 @@ public class PresentValueCreditDefaultSwapOption {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the value of the risky premium leg cashflows for the underlying CDS ( which occur after the option expiry date)
 
   private double calculateForwardRiskydV01(
       final ZonedDateTime valuationDate,
@@ -206,11 +227,12 @@ public class PresentValueCreditDefaultSwapOption {
       final ZonedDateTime forwardEndDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final ZonedDateTime[] premiumLegSchedule,
+      final ZonedDateTime[] shortCDSPremiumLegSchedule,
       final DoublesCurve spreadCurve,
       final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
-    final double dV01ToForwardDate = calculateForwardRiskydV01(valuationDate, valuationDate, forwardStartDate, cdsSwaption, premiumLegSchedule, yieldCurve, hazardRateCurve);
+    final double dV01ToForwardDate = calculateForwardRiskydV01(valuationDate, valuationDate, forwardStartDate, cdsSwaption, shortCDSPremiumLegSchedule, yieldCurve, hazardRateCurve);
     final double dV01ToMaturitydDate = calculateForwardRiskydV01(valuationDate, valuationDate, forwardEndDate, cdsSwaption, premiumLegSchedule, yieldCurve, hazardRateCurve);
 
     final double timeToForwardStartDate = TimeCalculator.getTimeBetween(valuationDate, forwardStartDate);
@@ -244,8 +266,8 @@ public class PresentValueCreditDefaultSwapOption {
     // Get the recovery rate of the reference entity in the underlying CDS
     final double recoveryRate = cdsSwaption.getUnderlyingCDS().getRecoveryRate();
 
-    // Compute the value of the front-end protection
-    final double frontendProtection = cdsSwaption.getNotional() * (1 - recoveryRate) * discountFactor * (1 - survivalProbability);
+    // Compute the value of the front-end protection (note that we don't multiply by the CDS Swaption notional here)
+    final double frontendProtection = (1 - recoveryRate) * discountFactor * (1 - survivalProbability);
 
     return frontendProtection;
   }
