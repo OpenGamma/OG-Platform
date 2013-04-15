@@ -53,7 +53,8 @@ public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurit
   @PropertyDefinition(validate = "notNull")
   private ExternalId _protectionSeller;
   /**
-   * The reference entity.
+   * The reference entity. Either an Obligor for a CDS, or an underlying
+   * index for a CDS Index.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _referenceEntity;
@@ -442,7 +443,8 @@ public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference entity.
+   * Gets the reference entity. Either an Obligor for a CDS, or an underlying
+   * index for a CDS Index.
    * @return the value of the property, not null
    */
   public ExternalId getReferenceEntity() {
@@ -450,7 +452,8 @@ public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurit
   }
 
   /**
-   * Sets the reference entity.
+   * Sets the reference entity. Either an Obligor for a CDS, or an underlying
+   * index for a CDS Index.
    * @param referenceEntity  the new value of the property, not null
    */
   public void setReferenceEntity(ExternalId referenceEntity) {
@@ -460,6 +463,7 @@ public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurit
 
   /**
    * Gets the the {@code referenceEntity} property.
+   * index for a CDS Index.
    * @return the property, not null
    */
   public final Property<ExternalId> referenceEntity() {

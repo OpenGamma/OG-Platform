@@ -71,11 +71,10 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
   }
 
 
-  CreditDefaultSwapIndexSecurity(String securityType,
-                                        boolean buy,
+  public CreditDefaultSwapIndexSecurity(boolean buy,
                                         ExternalId protectionBuyer,
                                         ExternalId protectionSeller,
-                                        ExternalId referenceEntity,
+                                        ExternalId underlyingIndex,
                                         ZonedDateTime startDate,
                                         ZonedDateTime effectiveDate,
                                         ZonedDateTime maturityDate,
@@ -93,11 +92,11 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
                                         boolean adjustSettlementDate,
                                         InterestRateNotional upfrontPayment,
                                         double indexCoupon) {
-    super(securityType,
+    super(SECURITY_TYPE,
           buy,
           protectionBuyer,
           protectionSeller,
-          referenceEntity,
+          underlyingIndex,
           startDate,
           effectiveDate,
           maturityDate,
