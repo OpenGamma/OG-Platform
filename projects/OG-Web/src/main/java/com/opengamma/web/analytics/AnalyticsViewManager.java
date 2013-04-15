@@ -57,7 +57,6 @@ public class AnalyticsViewManager {
   private final ViewProcessor _viewProcessor;
   private final ExecutionFlags.ParallelRecompilationMode _parallelViewRecompilation;
   private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
-  private final MarketDataSnapshotMaster _snapshotMaster;
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<>();
   private final ComputationTargetResolver _targetResolver;
   private final NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
@@ -82,7 +81,6 @@ public class AnalyticsViewManager {
       SecurityMaster securityMaster,
       PositionMaster positionMaster) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
-    ArgumentChecker.notNull(parallelViewRecompilation, "parallelViewRecompilation");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
@@ -101,7 +99,6 @@ public class AnalyticsViewManager {
     _viewProcessor = viewProcessor;
     _parallelViewRecompilation = parallelViewRecompilation;
     _aggregatedViewDefManager = aggregatedViewDefManager;
-    _snapshotMaster = snapshotMaster;
     _marketDataSpecificationRepository = marketDataSpecificationRepository;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
