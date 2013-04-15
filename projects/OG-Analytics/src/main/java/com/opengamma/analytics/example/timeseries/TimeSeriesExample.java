@@ -9,10 +9,9 @@ import java.io.PrintStream;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 
 /**
  * Example time-series code.
@@ -20,16 +19,16 @@ import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 public class TimeSeriesExample {
 
   public static void timeSeriesExample(final PrintStream out) {
-    final MutableLocalDateDoubleTimeSeries ts1 = new MapLocalDateDoubleTimeSeries();
-    ts1.putDataPoint(LocalDate.of(2010, 1, 1), 2.1d);
-    ts1.putDataPoint(LocalDate.of(2010, 1, 2), 2.2d);
-    ts1.putDataPoint(LocalDate.of(2010, 1, 3), 2.3d);
+    final LocalDateDoubleTimeSeriesBuilder ts1 = ImmutableLocalDateDoubleTimeSeries.builder();
+    ts1.put(LocalDate.of(2010, 1, 1), 2.1d);
+    ts1.put(LocalDate.of(2010, 1, 2), 2.2d);
+    ts1.put(LocalDate.of(2010, 1, 3), 2.3d);
     out.println("ts1: " + ts1);
 
-    final LocalDateDoubleTimeSeries ts2 = new ArrayLocalDateDoubleTimeSeries(ts1);
+    final LocalDateDoubleTimeSeries ts2 = ts1.build();
     out.println("ts2: " + ts2);
 
-    final LocalDateDoubleTimeSeries ts3 = new ArrayLocalDateDoubleTimeSeries(
+    final LocalDateDoubleTimeSeries ts3 = ImmutableLocalDateDoubleTimeSeries.of(
         new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 1, 2)},
         new double[] {1.1d, 1.2d});
     out.println("ts3: " + ts3);

@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -26,7 +25,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -62,7 +61,7 @@ public class CouponIborDefinitionTest {
   // Coupon with standard payment and accrual dates.
   private static final CouponIborDefinition IBOR_COUPON_DEFINITION_2 = CouponIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX);
   private static final double FIXING_RATE = 0.04;
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FIXING_RATE});
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {FIXING_DATE}, new double[] {FIXING_RATE});
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27); //For conversion to derivative
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -226,7 +225,7 @@ public class CouponIborDefinitionTest {
     final Payment couponConverted = IBOR_COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS, curves);
     assertEquals(coupon, couponConverted);
     // The fixing is not known
-    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR)},
+    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR)},
         new double[] {FIXING_RATE});
     final CouponIbor coupon2 = new CouponIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
         IBOR_COUPON_DEFINITION.getFixingPeriodAccrualFactor(), forwardCurve);
@@ -293,7 +292,7 @@ public class CouponIborDefinitionTest {
   //    final Payment couponConverted = IBOR_COUPON.toDerivative(referenceDate, FIXING_TS, curves);
   //    assertEquals(coupon, couponConverted);
   //    //    // The fixing is not known
-  //    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR)},
+  //    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = ImmutableZonedDateTimeDoubleTimeSeries.of(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR)},
   //        new double[] {FIXING_RATE});
   //    //final CouponIbor coupon2 = new CouponIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, ACCRUAL_FACTOR_FIXING, forwardCurve);
   //    final Payment couponConverted2 = IBOR_COUPON.toDerivative(referenceDate, fixingTS2, curves);

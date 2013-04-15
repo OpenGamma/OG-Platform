@@ -14,8 +14,8 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -31,7 +31,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   private static final double[] DATA = new double[N];
   private static final LocalDateDoubleTimeSeries TS;
   private static final double EPS = 1e-15;
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   static {
     for (int i = 0; i < N; i++) {
@@ -40,7 +40,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
     }
     DATA[0] = DATA1;
     DATA[1] = DATA2;
-    TS = new ArrayLocalDateDoubleTimeSeries(DATES, DATA);
+    TS = ImmutableLocalDateDoubleTimeSeries.of(DATES, DATA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -58,7 +58,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   @Test
   public void testMasked() {
     final LocalDateDoubleTimeSeries subSeries = TS.subSeries(DATES[0], DATES[11]);
-    final FilteredTimeSeries result = FILTER.evaluate(new ArrayLocalDateDoubleTimeSeries(subSeries));
+    final FilteredTimeSeries result = FILTER.evaluate(ImmutableLocalDateDoubleTimeSeries.of(subSeries));
     assertTimeSeries(result, 9);
   }
 

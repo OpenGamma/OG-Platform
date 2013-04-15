@@ -67,8 +67,8 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -141,7 +141,7 @@ public class FixedPayCashFlowVisitorTest {
       fixings.add(FIXING_RATE);
       date = date.plusDays(1);
     }
-    final LocalDateDoubleTimeSeries fixingSeries = new ArrayLocalDateDoubleTimeSeries(dates, fixings);
+    final LocalDateDoubleTimeSeries fixingSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, fixings);
     final Set<InstrumentDefinition<?>> floatingInstruments = new HashSet<InstrumentDefinition<?>>(INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES);
     floatingInstruments.addAll(INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES);
     for (final InstrumentDefinition<?> definition : floatingInstruments) {

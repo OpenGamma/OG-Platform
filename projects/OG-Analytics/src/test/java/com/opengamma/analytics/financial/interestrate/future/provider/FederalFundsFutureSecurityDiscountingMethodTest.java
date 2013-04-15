@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 
 public class FederalFundsFutureSecurityDiscountingMethodTest {
@@ -59,7 +59,7 @@ public class FederalFundsFutureSecurityDiscountingMethodTest {
     final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
         DateUtils.getUTCDate(2012, 3, 7)};
     final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(dateFixing, rateFixing);
     final FederalFundsFutureSecurity futureSecurity = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, NOT_USED_A);
     double interest = futureSecurity.getAccruedInterest();
     final double[] ratePeriod = new double[futureSecurity.getFixingPeriodAccrualFactor().length];

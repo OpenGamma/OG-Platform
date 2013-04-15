@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -23,7 +22,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -77,7 +76,7 @@ public class CouponIborCompoundingDefinitionTest {
   private static final String FWD_NAME = "Forward1M_USD";
 
   private static final double[] FIXING_RATES = new double[] {0.0010, 0.0011, 0.0012, 0.0013};
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 21), DateUtils.getUTCDate(2012, 8, 22),
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 21), DateUtils.getUTCDate(2012, 8, 22),
       DateUtils.getUTCDate(2012, 9, 20), DateUtils.getUTCDate(2012, 10, 22)}, FIXING_RATES);
 
   @Test

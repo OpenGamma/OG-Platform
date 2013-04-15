@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.timeseries.filter;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**

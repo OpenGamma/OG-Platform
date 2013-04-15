@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 
 /**
  * Class describing an Ibor for overnight swap. Both legs are in the same currency. 
@@ -128,7 +128,7 @@ public class SwapIborONDefinition extends SwapDefinition {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     // Curves should be: discounting, ibor, ois
     Validate.notNull(indexDataTS, "index data time series array");
     Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");

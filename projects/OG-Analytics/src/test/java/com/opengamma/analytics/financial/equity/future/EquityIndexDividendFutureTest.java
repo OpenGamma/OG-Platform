@@ -10,11 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -30,7 +31,7 @@ public class EquityIndexDividendFutureTest {
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime[] FIXING_DATES = {FIXING_DATE, FIXING_DATE.plusYears(1), DateUtils.getDateOffsetWithYearFraction(FIXING_DATE, 1.0) };
   private static final double[] FIXINGS = {98d, 99., 100.0 };
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(FIXING_DATES, FIXINGS);
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATES, FIXINGS, ZoneOffset.UTC);
 
   @Test
   public void test() {

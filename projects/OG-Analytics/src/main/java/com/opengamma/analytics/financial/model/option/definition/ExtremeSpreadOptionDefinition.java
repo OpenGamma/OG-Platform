@@ -7,9 +7,12 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
@@ -23,7 +26,7 @@ public class ExtremeSpreadOptionDefinition extends OptionDefinition {
     @Override
     public double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
       Validate.notNull(data, "data");
-      final DoubleTimeSeries<ZonedDateTime> ts = data.getSpotTimeSeries().toZonedDateTimeDoubleTimeSeries();
+      final DoubleTimeSeries<ZonedDateTime> ts = ImmutableZonedDateTimeDoubleTimeSeries.of((PreciseDoubleTimeSeries<?>) data.getSpotTimeSeries(), ZoneOffset.UTC);
       final ZonedDateTime periodEnd = getPeriodEnd().getExpiry();
       final DoubleTimeSeries<ZonedDateTime> firstPeriod = ts.subSeries(data.getDate(), true, periodEnd, true);
       final DoubleTimeSeries<ZonedDateTime> secondPeriod = ts.subSeries(periodEnd, false, ts.getLatestTime(), true);

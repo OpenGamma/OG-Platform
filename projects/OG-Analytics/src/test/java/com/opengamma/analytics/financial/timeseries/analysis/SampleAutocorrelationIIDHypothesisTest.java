@@ -10,8 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.InstantDoubleTimeSeries;
 
 /**
  * 
@@ -36,8 +35,8 @@ public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTestCas
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    final DoubleTimeSeries<Long> subSeries = RANDOM.subSeries(RANDOM.getTimeAtIndex(0), RANDOM.getTimeAtIndex(3));
-    SAMPLE_ACF.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
+    final InstantDoubleTimeSeries subSeries = RANDOM.subSeries(RANDOM.getTimeAtIndex(0), RANDOM.getTimeAtIndex(3));
+    SAMPLE_ACF.evaluate(subSeries);
   }
 
   @Test

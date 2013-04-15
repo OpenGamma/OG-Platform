@@ -16,10 +16,9 @@ import cern.jet.random.engine.MersenneTwister64;
 import com.opengamma.analytics.financial.timeseries.model.AutoregressiveTimeSeriesModel;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -49,7 +48,7 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
     }
     AR3 = AR_MODEL.getSeries(coeffs, order, dates);
     AR5 = AR_MODEL.getSeries(new double[] {coeffs[0], coeffs[1], coeffs[2], 0., 0., 0.1}, 5, dates);
-    RANDOM = new ArrayLocalDateDoubleTimeSeries(dates, random);
+    RANDOM = ImmutableLocalDateDoubleTimeSeries.of(dates, random);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -74,12 +73,12 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS() {
-    PACF_IDENTIFIER.getOrder(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    PACF_IDENTIFIER.getOrder(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    PACF_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_NANOS, new long[] {1, 2}, new double[] {0.1, 0.2}));
+    PACF_IDENTIFIER.getOrder(ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2}, new double[] {0.1, 0.2}));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

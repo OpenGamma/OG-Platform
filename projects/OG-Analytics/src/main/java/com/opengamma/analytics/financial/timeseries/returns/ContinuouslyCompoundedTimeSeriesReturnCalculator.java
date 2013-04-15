@@ -6,13 +6,12 @@
 package com.opengamma.analytics.financial.timeseries.returns;
 
 import com.opengamma.timeseries.TimeSeriesException;
-import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 
 /**
- * <p>
  * This class contains a function that calculates the continuously compounded
  * one-period simple return (also known as the log return) of an asset that pays
  * a dividend periodically. This is defined at time <i>t</i> as:<br>
@@ -20,9 +19,7 @@ import com.opengamma.util.CalculationMode;
  * where <i>P<sub>t</sub></i> is the price at time <i>t</i>,
  * <i>D<sub>t</sub></i> is the dividend at price <i>t</i> and
  * <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
- * 
  */
-
 public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
   public ContinuouslyCompoundedTimeSeriesReturnCalculator(final CalculationMode mode) {

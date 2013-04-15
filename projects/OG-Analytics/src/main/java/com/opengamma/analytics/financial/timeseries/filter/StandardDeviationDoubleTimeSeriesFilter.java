@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,7 +23,7 @@ public class StandardDeviationDoubleTimeSeriesFilter extends TimeSeriesFilter {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(StandardDeviationDoubleTimeSeriesFilter.class);
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   private final DoubleTimeSeriesStatisticsCalculator _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
   private final DoubleTimeSeriesStatisticsCalculator _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator());

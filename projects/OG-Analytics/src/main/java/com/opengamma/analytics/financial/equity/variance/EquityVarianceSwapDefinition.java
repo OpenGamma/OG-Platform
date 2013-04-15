@@ -14,7 +14,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -100,7 +100,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
 
   @Override
   public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final String... yieldCurveNames) {
-    return toDerivative(valueDate, ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
+    return toDerivative(valueDate, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
   }
 
   /**
@@ -122,7 +122,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, getSettlementDate());
     DoubleTimeSeries<LocalDate> realizedTS;
     if (timeToObsStart > 0) {
-      realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
+      realizedTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
       realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
     }

@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
@@ -33,7 +34,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -65,7 +67,7 @@ public class AnnuityCouponOISDefinitionTest {
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2012, 3, 15);
 
   // Utility to create a time series of fixings
-  static ArrayZonedDateTimeDoubleTimeSeries createFixingSeries(final ZonedDateTime startDate, final ZonedDateTime endDate) {
+  static ZonedDateTimeDoubleTimeSeries createFixingSeries(final ZonedDateTime startDate, final ZonedDateTime endDate) {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     final List<Double> data = new ArrayList<Double>();
     ZonedDateTime dt = startDate;
@@ -77,7 +79,7 @@ public class AnnuityCouponOISDefinitionTest {
         dt = dt.plusDays(2);
       }
     }
-    return new ArrayZonedDateTimeDoubleTimeSeries(dates, data);
+    return ImmutableZonedDateTimeDoubleTimeSeries.of(dates, data, ZoneOffset.UTC);
   }
 
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = createFixingSeries(SETTLEMENT_DATE, FINAL_PAYMENT_DATE);

@@ -19,8 +19,8 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
 
 /**
@@ -33,7 +33,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   private static final ExtremeValueDoubleTimeSeriesFilter VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter(MIN, MAX);
   private static final ExtremeReturnDoubleTimeSeriesFilter RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, RETURN_CALCULATOR);
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
   
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS1() {
@@ -145,7 +145,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     final List<Double> returnFilteredData = new ArrayList<Double>();
     final List<LocalDate> returnRejectedDates = new ArrayList<LocalDate>();
     final List<Double> returnRejectedData = new ArrayList<Double>();
-    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(dates, data);
+    final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(dates, data);
     final LocalDateDoubleTimeSeries returnTS = RETURN_CALCULATOR.evaluate(ts);
     LocalDate date;
     for (int i = 0; i < 99; i++) {
@@ -160,10 +160,10 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
       }
     }
     FilteredTimeSeries result = VALUE_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(filteredDates, filteredData), new ArrayLocalDateDoubleTimeSeries(rejectedDates,
+    assertEquals(result, new FilteredTimeSeries(ImmutableLocalDateDoubleTimeSeries.of(filteredDates, filteredData), ImmutableLocalDateDoubleTimeSeries.of(rejectedDates,
         rejectedData)));
     result = RETURN_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(returnFilteredDates, returnFilteredData), new ArrayLocalDateDoubleTimeSeries(
+    assertEquals(result, new FilteredTimeSeries(ImmutableLocalDateDoubleTimeSeries.of(returnFilteredDates, returnFilteredData), ImmutableLocalDateDoubleTimeSeries.of(
         returnRejectedDates, returnRejectedData)));
   }
 }

@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -26,7 +25,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -59,7 +58,7 @@ public class CouponIborGearingDefinitionTest {
       FIXING_DATE, INDEX, SPREAD, FACTOR);
 
   private static final double FIXING_RATE = 0.04;
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FIXING_RATE});
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {FIXING_DATE}, new double[] {FIXING_RATE});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
@@ -214,7 +213,7 @@ public class CouponIborGearingDefinitionTest {
     final Payment couponConverted = COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS, curves);
     assertEquals(coupon, couponConverted);
     // The fixing is not known
-    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR)},
+    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR)},
         new double[] {FIXING_RATE});
     final CouponIborGearing coupon2 = new CouponIborGearing(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
         FIXING_ACCRUAL_FACTOR, SPREAD, FACTOR, forwardCurve);

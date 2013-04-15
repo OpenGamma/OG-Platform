@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.horizon;
 
-import java.util.List;
-
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -33,9 +31,9 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -64,13 +62,13 @@ public final class ConstantSpreadHorizonThetaCalculator {
   }
 
   public MultipleCurrencyAmount getTheta(final SwapFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-      final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final int daysForward) {
+      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
-    final DoubleTimeSeries<ZonedDateTime>[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
+    final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
     if (paymentToday.size() != 1) {
@@ -84,13 +82,13 @@ public final class ConstantSpreadHorizonThetaCalculator {
   }
 
   public MultipleCurrencyAmount getTheta(final SwapFixedIborSpreadDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-      final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final int daysForward) {
+      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
-    final DoubleTimeSeries<ZonedDateTime>[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
+    final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
     if (paymentToday.size() != 1) {
@@ -104,13 +102,13 @@ public final class ConstantSpreadHorizonThetaCalculator {
   }
 
   public MultipleCurrencyAmount getTheta(final SwapFixedONDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-      final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final int daysForward) {
+      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
-    final DoubleTimeSeries<ZonedDateTime>[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
+    final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
     if (paymentToday.size() != 1) {
@@ -263,21 +261,17 @@ public final class ConstantSpreadHorizonThetaCalculator {
    * @param tomorrow Tomorrow date.
    * @return The time series with added data.
    */
-  private DoubleTimeSeries<ZonedDateTime>[] getDateShiftedTimeSeries(final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final ZonedDateTime tomorrow) {
+  private ZonedDateTimeDoubleTimeSeries[] getDateShiftedTimeSeries(final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final ZonedDateTime tomorrow) {
     final int n = fixingSeries.length;
-    @SuppressWarnings("unchecked")
-    final DoubleTimeSeries<ZonedDateTime>[] laggedFixingSeries = new DoubleTimeSeries[n];
+    final ZonedDateTimeDoubleTimeSeries[] laggedFixingSeries = new ZonedDateTimeDoubleTimeSeries[n];
     for (int i = 0; i < n; i++) {
       if (fixingSeries[i].isEmpty()) {
-        laggedFixingSeries[i] = ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
+        laggedFixingSeries[i] = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(tomorrow.getZone());
       } else {
-        final DoubleTimeSeries<ZonedDateTime> ts = fixingSeries[i].subSeries(fixingSeries[i].getEarliestTime(), tomorrow);
-        final List<ZonedDateTime> times = ts.times();
-        final List<Double> values = ts.values();
-        final double last = ts.getLatestValue();
-        times.add(tomorrow);
-        values.add(last);
-        laggedFixingSeries[i] = new ListZonedDateTimeDoubleTimeSeries(times, values);
+        final ZonedDateTimeDoubleTimeSeries ts = fixingSeries[i].subSeries(fixingSeries[i].getEarliestTime(), tomorrow);
+        ZonedDateTimeDoubleTimeSeriesBuilder bld = ts.toBuilder();
+        bld.put(tomorrow, ts.getLatestValue());
+        laggedFixingSeries[i] = bld.build();
       }
     }
     return laggedFixingSeries;

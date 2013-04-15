@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.timeseries.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,7 +20,7 @@ public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SpikeDoubleTimeSeriesFilter.class);
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   private double _maxPercentageMove;
 

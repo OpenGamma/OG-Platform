@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefiniti
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -133,7 +133,7 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
   }
 
   @Override
-  public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
+  public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
     ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");

@@ -6,13 +6,12 @@
 package com.opengamma.analytics.financial.timeseries.returns;
 
 import com.opengamma.timeseries.TimeSeriesException;
-import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 
 /**
- * <p>
  * This class contains a function that calculates the gross one-period simple
  * return of an asset that pays dividends periodically. This is defined at time
  * <i>t</i> as:<br>
@@ -22,7 +21,6 @@ import com.opengamma.util.CalculationMode;
  * <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  * 
  */
-
 public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
   public SimpleGrossTimeSeriesReturnCalculator(final CalculationMode mode) {

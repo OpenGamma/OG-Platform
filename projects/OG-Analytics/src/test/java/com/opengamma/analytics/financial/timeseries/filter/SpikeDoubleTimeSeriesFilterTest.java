@@ -16,8 +16,8 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
   private static final LocalDate[] DATES = new LocalDate[N];
   private static final double[] DATA = new double[N];
   
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   static {
     final double value = 0.5;
@@ -57,7 +57,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
   public void testInitialSpike() {
     final double[] data = Arrays.copyOf(DATA, N);
     data[0] = 100.;
-    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(DATES, data);
+    final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(DATES, data);
     final LocalDateDoubleTimeSeries rejected = FILTER.evaluate(ts).getRejectedTS();
     assertEquals(rejected.size(), 1);
     assertEquals(rejected.getTimeAtIndex(0), ts.getTimeAtIndex(0));
@@ -68,11 +68,11 @@ public class SpikeDoubleTimeSeriesFilterTest {
   public void testSpike() {
     final double[] data = Arrays.copyOf(DATA, N);
     data[10] = 100.;
-    LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(DATES, data);
+    LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(DATES, data);
     FilteredTimeSeries filtered = FILTER.evaluate(ts);
     assertSeries(ts, filtered, 10);
     data[10] = -100.;
-    ts = new ArrayLocalDateDoubleTimeSeries(DATES, data);
+    ts = ImmutableLocalDateDoubleTimeSeries.of(DATES, data);
     filtered = FILTER.evaluate(ts);
     assertSeries(ts, filtered, 10);
   }
