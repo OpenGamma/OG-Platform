@@ -80,7 +80,7 @@ public final class ImmutableInstantObjectTimeSeries<V>
    * @return the time-series, not null
    */
   public static <V> ImmutableInstantObjectTimeSeries<V> of(Instant instant, V value) {
-    Objects.requireNonNull(instant, "date");
+    Objects.requireNonNull(instant, "instant");
     long[] timesArray = new long[] {InstantToLongConverter.convertToLong(instant)};
     @SuppressWarnings("unchecked")
     V[] valuesArray = (V[]) new Object[] {value};

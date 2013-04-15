@@ -61,7 +61,7 @@ public final class ImmutableInstantDoubleTimeSeries
    * @return the time-series, not null
    */
   public static ImmutableInstantDoubleTimeSeries of(Instant instant, double value) {
-    Objects.requireNonNull(instant, "date");
+    Objects.requireNonNull(instant, "instant");
     long[] timesArray = new long[] {InstantToLongConverter.convertToLong(instant)};
     double[] valuesArray = new double[] {value};
     return new ImmutableInstantDoubleTimeSeries(timesArray, valuesArray);
