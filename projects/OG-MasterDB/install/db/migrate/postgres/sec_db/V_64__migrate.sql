@@ -48,7 +48,7 @@ START TRANSACTION;
     CONSTRAINT sec_fk_cdsindex2frequency FOREIGN KEY (frequency_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_cdsindex2daycount FOREIGN KEY (daycount_convention_id) REFERENCES sec_daycount (id),
     CONSTRAINT sec_fk_cdsindex2businessdayconvention FOREIGN KEY (businessday_convention_id) REFERENCES sec_businessdayconvention (id),
-    CONSTRAINT sec_fk_cdsindex2currency FOREIGN KEY (notional_currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_cdsindex2currency FOREIGN KEY (notional_currency_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_cdsindex2upfrontamtcurrency FOREIGN KEY (upfrontamt_notional_currency_id) REFERENCES sec_currency (id)
   );
 
@@ -56,7 +56,7 @@ START TRANSACTION;
 
   -- Migrate security type for any existing cds_index_definitions
   UPDATE sec_security
-  SET sec_type = "CDS_INDEX_DEFINITION"
-  WHERE sec_type = "CDS_INDEX"
+  SET sec_type = 'CDS_INDEX_DEFINITION'
+  WHERE sec_type = 'CDS_INDEX';
 
 COMMIT;

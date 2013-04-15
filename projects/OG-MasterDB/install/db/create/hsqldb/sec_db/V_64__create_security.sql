@@ -1080,10 +1080,10 @@ CREATE TABLE sec_credit_default_swap_index (
     buy boolean NOT NULL,
     buyer_scheme varchar(255) NOT NULL,
     buyer_identifier varchar(255) NOT NULL,
+    seller_scheme varchar(255) NOT NULL,
+    seller_identifier varchar(255) NOT NULL,
     index_scheme varchar(255) NOT NULL,
     index_identifier varchar(255) NOT NULL,
-    entity_scheme varchar(255) NOT NULL,
-    entity_identifier varchar(255) NOT NULL,
     start_date timestamp without time zone NOT NULL,
     start_date_zone varchar(50) NOT NULL,
     effective_date timestamp without time zone NOT NULL,
@@ -1119,7 +1119,7 @@ CREATE TABLE sec_credit_default_swap_index (
     CONSTRAINT sec_fk_cdsindex2frequency FOREIGN KEY (frequency_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_cdsindex2daycount FOREIGN KEY (daycount_convention_id) REFERENCES sec_daycount (id),
     CONSTRAINT sec_fk_cdsindex2businessdayconvention FOREIGN KEY (businessday_convention_id) REFERENCES sec_businessdayconvention (id),
-    CONSTRAINT sec_fk_cdsindex2currency FOREIGN KEY (notional_currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_cdsindex2currency FOREIGN KEY (notional_currency_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_cdsindex2upfrontamtcurrency FOREIGN KEY (upfrontamt_notional_currency_id) REFERENCES sec_currency (id)
   );
 CREATE INDEX ix_sec_cdsindex_security_id ON sec_credit_default_swap_index(security_id);
