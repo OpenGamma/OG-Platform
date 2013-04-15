@@ -98,6 +98,16 @@ public final class ExecutionFlags {
   }
 
   /**
+   * Adds {@link ViewExecutionFlags#IGNORE_COMPILATION_VALIDITY}
+   * 
+   * @return this
+   */
+  public ExecutionFlags ignoreCompilationValidity() {
+    _flags.add(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
+    return this;
+  }
+
+  /**
    * Modes of operation for the {@link #parallelCompilation} flag.
    */
   public static enum ParallelRecompilationMode {
