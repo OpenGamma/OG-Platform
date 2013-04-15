@@ -7,33 +7,26 @@ package com.opengamma.financial.analytics.model.riskfactor.option;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Maps an underlying type.
  */
 public class UnderlyingTypeToValueRequirementMapper {
 
-  public static ValueRequirement getValueRequirement(SecuritySource secSource, final UnderlyingType underlying, final Security security) {
+  public static ValueRequirement getValueRequirement(final UnderlyingType underlying, final Security security) {
     if (security instanceof EquityOptionSecurity) {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          Security optionUnderlying = secSource.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
-          if (optionUnderlying == null) {
-            throw new DataNotFoundException("Don't have security for underlying of " + option);
-          }
-          return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueId());
+          return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, option.getUnderlyingId());
         case SPOT_VOLATILITY:
           throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueId());
         case IMPLIED_VOLATILITY:
@@ -50,9 +43,9 @@ public class UnderlyingTypeToValueRequirementMapper {
       if (underlying == UnderlyingType.SPOT_PRICE) {
         return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId());
       } else {
-        throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying); 
+        throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying);
       }
-    } else {   
+    } else {
       throw new NotImplementedException("Can only get ValueRequirements for EquityOptionSecurity and EquitySecurity. Was " + security + ")");
     }
   }

@@ -109,7 +109,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     } else {
       for (final UnderlyingType underlying : underlyings) {
         try {
-          requirements.add(UnderlyingTypeToValueRequirementMapper.getValueRequirement(context.getSecuritySource(), underlying, security));
+          requirements.add(UnderlyingTypeToValueRequirementMapper.getValueRequirement(underlying, security));
         } catch (final Exception e) {
         }
       }
@@ -155,7 +155,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     order = greek.getUnderlying();
     underlyings = order.getUnderlyings();
     for (final UnderlyingType underlying : underlyings) {
-      final Double underlyingValue = (Double) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(executionContext.getSecuritySource(), underlying, security));
+      final Double underlyingValue = (Double) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(underlying, security));
       if (underlyingValue == null) {
         throw new NullPointerException("Could not get value for " + underlying + " for security " + security);
       } else {
