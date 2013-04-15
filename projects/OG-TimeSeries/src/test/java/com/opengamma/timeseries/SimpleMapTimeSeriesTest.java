@@ -28,7 +28,7 @@ public class SimpleMapTimeSeriesTest {
     assertEquals(0, test.size());
     assertEquals(true, test.isEmpty());
     assertEquals(false, test.iterator().hasNext());
-    assertEquals(false, test.timeIterator().hasNext());
+    assertEquals(false, test.timesIterator().hasNext());
     assertEquals(false, test.valuesIterator().hasNext());
     assertEquals(0, test.times().size());
     assertEquals(0, test.timesArray().length);
@@ -41,7 +41,7 @@ public class SimpleMapTimeSeriesTest {
     assertEquals(0, test.size());
     assertEquals(true, test.isEmpty());
     assertEquals(false, test.iterator().hasNext());
-    assertEquals(false, test.timeIterator().hasNext());
+    assertEquals(false, test.timesIterator().hasNext());
     assertEquals(false, test.valuesIterator().hasNext());
     assertEquals(0, test.times().size());
     assertEquals(0, test.timesArray().length);
@@ -55,7 +55,7 @@ public class SimpleMapTimeSeriesTest {
     assertEquals(2, test.size());
     assertEquals(false, test.isEmpty());
     assertEquals(true, test.iterator().hasNext());
-    assertEquals(true, test.timeIterator().hasNext());
+    assertEquals(true, test.timesIterator().hasNext());
     assertEquals(true, test.valuesIterator().hasNext());
     assertEquals(2, test.times().size());
     assertEquals(DATE1, test.times().get(0));

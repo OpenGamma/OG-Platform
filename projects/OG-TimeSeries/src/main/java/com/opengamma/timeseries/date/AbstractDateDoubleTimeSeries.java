@@ -101,7 +101,7 @@ public abstract class AbstractDateDoubleTimeSeries<T> implements DateDoubleTimeS
 
   //-------------------------------------------------------------------------
   @Override
-  public Iterator<T> timeIterator() {
+  public Iterator<T> timesIterator() {
     return new Iterator<T>() {
       private int _index = -1;
       @Override
@@ -136,7 +136,7 @@ public abstract class AbstractDateDoubleTimeSeries<T> implements DateDoubleTimeS
       }
       @Override
       public Iterator<T> iterator() {
-        return timeIterator();
+        return timesIterator();
       }
     };
   }

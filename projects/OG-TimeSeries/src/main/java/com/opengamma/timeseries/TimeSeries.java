@@ -140,7 +140,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>> {
    * 
    * @return the date-times iterator, not null
    */
-  Iterator<T> timeIterator();
+  Iterator<T> timesIterator();
 
   /**
    * Gets an iterator over the values in the time-series from earliest to latest.

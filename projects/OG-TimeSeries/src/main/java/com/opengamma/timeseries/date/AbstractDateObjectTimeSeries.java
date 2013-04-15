@@ -87,7 +87,7 @@ public abstract class AbstractDateObjectTimeSeries<T, V> implements DateObjectTi
 
   //-------------------------------------------------------------------------
   @Override
-  public Iterator<T> timeIterator() {
+  public Iterator<T> timesIterator() {
     return new Iterator<T>() {
       private int _index = -1;
       @Override
@@ -122,7 +122,7 @@ public abstract class AbstractDateObjectTimeSeries<T, V> implements DateObjectTi
       }
       @Override
       public Iterator<T> iterator() {
-        return timeIterator();
+        return timesIterator();
       }
     };
   }

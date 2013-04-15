@@ -87,7 +87,7 @@ public abstract class AbstractPreciseObjectTimeSeries<T, V> implements PreciseOb
 
   //-------------------------------------------------------------------------
   @Override
-  public Iterator<T> timeIterator() {
+  public Iterator<T> timesIterator() {
     return new Iterator<T>() {
       private int _index = -1;
       @Override
@@ -122,7 +122,7 @@ public abstract class AbstractPreciseObjectTimeSeries<T, V> implements PreciseOb
       }
       @Override
       public Iterator<T> iterator() {
-        return timeIterator();
+        return timesIterator();
       }
     };
   }

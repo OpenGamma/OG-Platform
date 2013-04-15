@@ -157,7 +157,7 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V>, Serializable
   }
 
   @Override
-  public Iterator<T> timeIterator() {
+  public Iterator<T> timesIterator() {
     return _map.keySet().iterator();
   }
 
@@ -194,7 +194,7 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V>, Serializable
       return this;
     } else {
       NavigableMap<T, V> newMap = new TreeMap<T, V>();
-      Iterator<T> times = timeIterator();
+      Iterator<T> times = timesIterator();
       Iterator<V> values = valuesIterator();
       if (lagCount > 0) {
         if (lagCount < _times.length) {

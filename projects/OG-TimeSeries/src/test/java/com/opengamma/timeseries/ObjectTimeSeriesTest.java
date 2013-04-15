@@ -270,8 +270,8 @@ public abstract class ObjectTimeSeriesTest<T, V> {
 
   //-------------------------------------------------------------------------
   public void test_timesIterator() {
-    Iterator<T> emptyTimesIter = createEmptyTimeSeries().timeIterator();
-    Iterator<T> dtsTimesIter = createStandardTimeSeries().timeIterator();
+    Iterator<T> emptyTimesIter = createEmptyTimeSeries().timesIterator();
+    Iterator<T> dtsTimesIter = createStandardTimeSeries().timesIterator();
     T[] testDates = testTimes();
     for (int i = 0; i < 6; i++) {
       assertTrue(dtsTimesIter.hasNext());
