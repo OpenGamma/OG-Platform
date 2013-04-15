@@ -52,6 +52,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -117,7 +118,7 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return null;
+    return FinancialSecurityTypes.CDS_SECURITY;
   }
 
   @Override
