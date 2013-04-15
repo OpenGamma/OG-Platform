@@ -25,7 +25,7 @@ START TRANSACTION;
     frequency_id bigint NOT NULL,
     daycount_convention_id bigint NOT NULL,
     businessday_convention_id bigint NOT NULL,
-    imm_adjust_maturity_date boolean NOT NULL,
+    imm_adjust_maturity_date bit NOT NULL,
     adjust_effective_date bit NOT NULL,
     adjust_maturity_date bit NOT NULL,
     adjust_settlement_date bit NOT NULL,
