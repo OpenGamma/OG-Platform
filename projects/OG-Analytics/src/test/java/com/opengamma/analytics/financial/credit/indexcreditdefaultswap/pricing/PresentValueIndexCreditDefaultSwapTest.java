@@ -158,7 +158,7 @@ public class PresentValueIndexCreditDefaultSwapTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  //Construct the index (from the pool and the other contract parameters)
+  // Construct the index (from the pool and the other contract parameters)
   private static final IndexCreditDefaultSwapDefinition dummyIndex = new IndexCreditDefaultSwapDefinition(
       indexName,
       buySellProtection,
