@@ -55,7 +55,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
    * The amount of upfront exchanged (usually on T+ 3bd) - can be positive or negative.
    */
   @PropertyDefinition(validate = "notNull")
-  private double _upfrontPayment;
+  private InterestRateNotional _upfrontPayment;
 
   /**
    * The fixed index coupon (fixed at the issuance of the index).
@@ -71,7 +71,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
   }
 
 
-  public CreditDefaultSwapIndexSecurity(String securityType,
+  CreditDefaultSwapIndexSecurity(String securityType,
                                         boolean buy,
                                         ExternalId protectionBuyer,
                                         ExternalId protectionSeller,
@@ -91,7 +91,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
                                         boolean protectionStart,
                                         ZonedDateTime settlementDate,
                                         boolean adjustSettlementDate,
-                                        double upfrontPayment,
+                                        InterestRateNotional upfrontPayment,
                                         double indexCoupon) {
     super(securityType,
           buy,
@@ -165,7 +165,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
         setAdjustSettlementDate((Boolean) newValue);
         return;
       case -638821960:  // upfrontPayment
-        setUpfrontPayment((Double) newValue);
+        setUpfrontPayment((InterestRateNotional) newValue);
         return;
       case 880904088:  // indexCoupon
         setIndexCoupon((Double) newValue);
@@ -269,7 +269,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
    * Gets the amount of upfront exchanged (usually on T+ 3bd) - can be positive or negative.
    * @return the value of the property, not null
    */
-  public double getUpfrontPayment() {
+  public InterestRateNotional getUpfrontPayment() {
     return _upfrontPayment;
   }
 
@@ -277,7 +277,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
    * Sets the amount of upfront exchanged (usually on T+ 3bd) - can be positive or negative.
    * @param upfrontPayment  the new value of the property, not null
    */
-  public void setUpfrontPayment(double upfrontPayment) {
+  public void setUpfrontPayment(InterestRateNotional upfrontPayment) {
     JodaBeanUtils.notNull(upfrontPayment, "upfrontPayment");
     this._upfrontPayment = upfrontPayment;
   }
@@ -286,7 +286,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
    * Gets the the {@code upfrontPayment} property.
    * @return the property, not null
    */
-  public final Property<Double> upfrontPayment() {
+  public final Property<InterestRateNotional> upfrontPayment() {
     return metaBean().upfrontPayment().createProperty(this);
   }
 
@@ -339,8 +339,8 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
     /**
      * The meta-property for the {@code upfrontPayment} property.
      */
-    private final MetaProperty<Double> _upfrontPayment = DirectMetaProperty.ofReadWrite(
-        this, "upfrontPayment", CreditDefaultSwapIndexSecurity.class, Double.TYPE);
+    private final MetaProperty<InterestRateNotional> _upfrontPayment = DirectMetaProperty.ofReadWrite(
+        this, "upfrontPayment", CreditDefaultSwapIndexSecurity.class, InterestRateNotional.class);
     /**
      * The meta-property for the {@code indexCoupon} property.
      */
@@ -413,7 +413,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
      * The meta-property for the {@code upfrontPayment} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> upfrontPayment() {
+    public final MetaProperty<InterestRateNotional> upfrontPayment() {
       return _upfrontPayment;
     }
 
