@@ -10,8 +10,8 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_FIELDS_REQUEST;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_HISTORICAL_DATA_REQUEST;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_SECURITIES_REQUEST;
 import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
-import static com.opengamma.bbg.BloombergConstants.ERROR_INFO;
 import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
+import static com.opengamma.bbg.BloombergConstants.ERROR_INFO;
 import static com.opengamma.bbg.BloombergConstants.FIELD_DATA;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCEPTIONS;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID;
@@ -24,7 +24,9 @@ import static com.opengamma.core.id.ExternalSchemes.BLOOMBERG_TICKER;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
@@ -51,8 +53,9 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -284,7 +287,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       }
 
       // parse data
-      Map<ExternalIdBundle, LocalDateDoubleTimeSeries> result = Maps.newHashMap();
+      Map<ExternalIdBundle, LocalDateDoubleTimeSeriesBuilder> result = Maps.newHashMap();
       for (Element resultElem : resultElements) {
         if (resultElem.hasElement(RESPONSE_ERROR)) {
           s_logger.warn("Response error");
@@ -314,14 +317,25 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         s_logger.warn("Failed to get time series results for ({}/{}) {}",
             new Object[] {externalIdBundle.size() - result.size(), externalIdBundle.size(), Sets.difference(externalIdBundle, result.keySet()) });
       }
-      return result;
+      return convertResult(result);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked" })
+    private static Map<ExternalIdBundle, LocalDateDoubleTimeSeries> convertResult(Map result) {
+      // ignore generics, which is safe as of JDK8
+      for (Iterator it = result.entrySet().iterator(); it.hasNext(); ) {
+        Entry entry = (Entry) it.next();
+        LocalDateDoubleTimeSeriesBuilder bld = (LocalDateDoubleTimeSeriesBuilder) entry.getValue();
+        entry.setValue(bld.build());
+      }
+      return (Map<ExternalIdBundle, LocalDateDoubleTimeSeries>) result;
     }
 
     /**
      * Extracts time-series.
      */
     private static void extractFieldData(
-        Element securityElem, String field, Map<String, ExternalIdBundle> reverseBundleMap, Map<ExternalIdBundle, LocalDateDoubleTimeSeries> result) {
+        Element securityElem, String field, Map<String, ExternalIdBundle> reverseBundleMap, Map<ExternalIdBundle, LocalDateDoubleTimeSeriesBuilder> result) {
 
       String secDes = securityElem.getElementAsString(BloombergConstants.SECURITY);
       ExternalIdBundle identifiers = reverseBundleMap.get(secDes);
@@ -329,13 +343,10 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         String message = "Found time series data for unrecognized security" + secDes + " " + reverseBundleMap;
         throw new OpenGammaRuntimeException(message);
       }
-      LocalDateDoubleTimeSeries hts = result.get(identifiers);
-      MapLocalDateDoubleTimeSeries timeSeries;
-      if (hts == null) {
-        timeSeries = new MapLocalDateDoubleTimeSeries();
-        result.put(identifiers, timeSeries);
-      } else {
-        timeSeries = (MapLocalDateDoubleTimeSeries) hts;
+      LocalDateDoubleTimeSeriesBuilder bld = result.get(identifiers);
+      if (bld == null) {
+        bld = ImmutableLocalDateDoubleTimeSeries.builder();
+        result.put(identifiers, bld);
       }
       Element fieldDataArray = securityElem.getElement(FIELD_DATA);
 
@@ -345,7 +356,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         Datetime date = fieldData.getElementAsDate("date");
         LocalDate ldate = LocalDate.of(date.year(), date.month(), date.dayOfMonth());
         double lastPrice = fieldData.getElementAsFloat64(field);
-        timeSeries.putDataPoint(ldate, lastPrice);
+        bld.put(ldate, lastPrice);
       }
     }
 

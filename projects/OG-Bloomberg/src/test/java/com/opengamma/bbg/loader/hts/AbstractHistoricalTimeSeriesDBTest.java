@@ -44,9 +44,9 @@ import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.MapUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -135,16 +135,16 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
     }
 
     private LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, LocalDate end) {
-      MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
+      LocalDateDoubleTimeSeriesBuilder tsMap = ImmutableLocalDateDoubleTimeSeries.builder();
       LocalDate current = start;
-      tsMap.putDataPoint(current, Math.random());
+      tsMap.put(current, Math.random());
       while (current.isBefore(end)) {
         current = current.plusDays(1);
         if (isWeekday(current)) {
-          tsMap.putDataPoint(current, Math.random());
+          tsMap.put(current, Math.random());
         }
       }
-      return new ArrayLocalDateDoubleTimeSeries(tsMap);
+      return tsMap.build();
     }
 
     private boolean isWeekday(LocalDate day) {
