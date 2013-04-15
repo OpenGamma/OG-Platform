@@ -70,7 +70,8 @@ $.register_module({
                     if (is_child && parent_api)
                         (og.api.rest = parent_api).on('abandon', function () {document.location.reload();});
                     else if (og.api.rest) api.subscribe();
-                    if (is_child && parent_data) og.analytics.Data = parent_data;
+                    if (is_child && parent_data && og.analytics) // the admin pages do not need og.analytics
+                        og.analytics.Data = parent_data;
                     routes.set_title(routes.title || (routes.get() || ''));
                     routes.handler();
                 });

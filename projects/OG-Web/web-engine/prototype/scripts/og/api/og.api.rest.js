@@ -213,7 +213,7 @@ $.register_module({
             simple_get: simple_get
         };
         common.cache_clear(api.name); // empty the cache from another session or window if it still exists
-        $(window).on('unload', function () {api.fire('abandon');});
+        $(window).on('beforeunload', function () {api.fire('abandon');});
         return api;
     }
 });
