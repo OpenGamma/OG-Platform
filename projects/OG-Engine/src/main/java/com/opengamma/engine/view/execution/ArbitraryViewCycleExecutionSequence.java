@@ -55,6 +55,7 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
     ArgumentChecker.notNull(executionSequence, "executionSequence");
     final Iterator<ViewCycleExecutionOptions> itr = executionSequence.iterator();
     if (itr.hasNext()) {
+      _size = 1;
       _executionSequenceHead = new Cycle(itr.next());
       Cycle tail = _executionSequenceHead;
       while (itr.hasNext()) {
