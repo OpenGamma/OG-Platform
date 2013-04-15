@@ -14,6 +14,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -32,7 +33,7 @@ public class StandardVanillaCDSIR01Defaults extends DefaultPropertyFunction {
   private final Map<String, String> _currencyToYieldBumpType;
 
   public StandardVanillaCDSIR01Defaults(final String priority, final String... perCurrencyDefaults) {
-    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
+    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY).or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
     ArgumentChecker.isTrue(perCurrencyDefaults.length % 3 == 0, "Must have one yield curve bump and yield bump type per currency");
@@ -75,4 +76,10 @@ public class StandardVanillaCDSIR01Defaults extends DefaultPropertyFunction {
   public PriorityClass getPriority() {
     return _priority;
   }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.ISDA_COMPLIANT_IR01;
+  }
+
 }

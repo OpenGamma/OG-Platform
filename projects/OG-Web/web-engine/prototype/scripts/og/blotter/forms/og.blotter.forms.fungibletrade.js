@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, request, data, security, $security_input, util = og.blotter.util,
+            var constructor = this, form, data, security, $security_input, util = og.blotter.util, promise,
             dropdown = '.og-blotter-security-select', securityId, details_selector = 'og-blocks-fungible-details',
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
@@ -15,7 +15,7 @@ $.register_module({
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             if(data.trade.securityIdBundle) securityId = data.trade.securityIdBundle.split(',')[0];
-            data.nodeId = config.portfolio ? config.portfolio.id : null;
+            data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Fungible Trade';
                 form = new og.common.util.ui.Form({
@@ -53,7 +53,12 @@ $.register_module({
             };
             get_security = function () {
                 var id = security.name();
-                if(id) request = og.api.rest.blotter.securities.get({id:id}).pipe(function(result){populate(result);});
+                if (id) {
+                    promise = og.api.rest.blotter.securities.get({id:id});
+                    promise.pipe(function(result){
+                        if (promise.id === result.meta.promise) populate(result);
+                    });
+                }
             };
             populate = function (config){
                 var details_block, ids_block, details, basket;

@@ -115,7 +115,6 @@ public class PresentValueIndexCreditDefaultSwapTest {
   private static final double notional = 10000000.0;
   private static final double upfrontPayment = 0.1;
   private static final double indexCoupon = 500.0;
-  private static final double indexSpread = 500.0;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -187,8 +186,7 @@ public class PresentValueIndexCreditDefaultSwapTest {
       protectionStart,
       notional,
       upfrontPayment,
-      indexCoupon,
-      indexSpread);
+      indexCoupon);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 

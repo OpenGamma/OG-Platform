@@ -7,6 +7,7 @@ package com.opengamma.financial.view;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
 
 /* package */class HistoricalViewEvaluationResultBuilder {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalViewEvaluationResultBuilder.class);
 
   // TODO: If the duration of the time series is high, or there are simply a large quantity then we could modify these builders to
@@ -45,13 +46,12 @@ import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
   // the identifiers of the time series that were written to the database
 
   /**
-   * Builder for time-series where there is at most one result for a given date. Points may be added in any order,
-   * allowing the results to be executed in parallel.
+   * Builder for time-series where there is at most one result for a given date.
+   * Points may be added in any order, allowing the results to be executed in parallel.
    */
   private static class TimeSeriesBuilder {
 
     private final SortedMap<Integer, Object> _datedResultMap = new Int2ObjectRBTreeMap<Object>();
-    
 
     public TimeSeriesBuilder() {
     }
@@ -83,7 +83,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
       }
       return ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     }
-    
+
     private LocalDateObjectTimeSeries<?> makeObjectTimeSeries() {
       int[] dates = new int[_datedResultMap.size()];
       Object[] values = new Object[_datedResultMap.size()];
@@ -98,7 +98,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
   }
 
   private static class ConfigurationResults {
-    
+
     private Map<ValueSpecification, Set<ValueRequirement>> _requirements;
     private final Map<ValueRequirement, TimeSeriesBuilder> _results = new HashMap<ValueRequirement, TimeSeriesBuilder>();
 
@@ -141,23 +141,88 @@ import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
 
   }
 
-  private final Map<String, ConfigurationResults> _results = new HashMap<String, ConfigurationResults>();
+  private static class MarketData {
 
-  public HistoricalViewEvaluationResultBuilder(final ViewDefinition viewDefinition) {
+    private final TimeSeriesBuilder _builder = new TimeSeriesBuilder();
+    private Collection<ValueSpecification> _alias;
+
+  }
+
+  private static class MarketDataResults extends HashMap<ValueSpecification, MarketData> {
+
+    private static final long serialVersionUID = 1L;
+
+    public void addMarketDataAlias(final ValueSpecification valueSpec, final Collection<ValueSpecification> aliasValueSpecs) {
+      MarketData data = get(valueSpec);
+      if (data == null) {
+        data = new MarketData();
+        put(valueSpec, data);
+      }
+      if (aliasValueSpecs != null) {
+        if (data._alias == null) {
+          data._alias = new ArrayList<ValueSpecification>(aliasValueSpecs);
+        } else {
+          data._alias.addAll(aliasValueSpecs);
+        }
+      }
+    }
+
+    public void store(final int date, final ValueSpecification specification, final Object value) {
+      MarketData data = get(specification);
+      if (data != null) {
+        data._builder.addPoint(date, value);
+      } else {
+        s_logger.warn("View produced unrequested market data {}", specification);
+      }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public HistoricalViewEvaluationMarketData makeResult() {
+      final HistoricalViewEvaluationMarketData results = new HistoricalViewEvaluationMarketData();
+      for (final Map.Entry<ValueSpecification, MarketData> result : entrySet()) {
+        final TimeSeries timeSeries = result.getValue()._builder.makeTimeSeries();
+        for (ValueSpecification alias : result.getValue()._alias) {
+          results.addTimeSeries(alias, timeSeries);
+        }
+      }
+      return results;
+    }
+
+  }
+
+  private final Map<String, ConfigurationResults> _results = new HashMap<String, ConfigurationResults>();
+  private final MarketDataResults _marketData;
+  private boolean _compiled;
+
+  public HistoricalViewEvaluationResultBuilder(final ViewDefinition viewDefinition, final boolean includeMarketData) {
     for (final ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
       final ConfigurationResults configResults = new ConfigurationResults(calcConfig.getSpecificRequirements());
       _results.put(calcConfig.getName(), configResults);
     }
-  }
-
-  public void store(final CompiledViewDefinition viewDefinition) {
-    for (final CompiledViewCalculationConfiguration calcConfig : viewDefinition.getCompiledCalculationConfigurations()) {
-      final ConfigurationResults configResults = _results.get(calcConfig.getName());
-      configResults.setRequirements(calcConfig.getTerminalOutputSpecifications());
+    if (includeMarketData) {
+      _marketData = new MarketDataResults();
+    } else {
+      _marketData = null;
     }
   }
 
-  public void store(LocalDate resultsDate, ViewComputationResultModel results) {
+  public synchronized void store(final CompiledViewDefinition viewDefinition) {
+    if (!_compiled) {
+      for (final CompiledViewCalculationConfiguration calcConfig : viewDefinition.getCompiledCalculationConfigurations()) {
+        final ConfigurationResults configResults = _results.get(calcConfig.getName());
+        configResults.setRequirements(calcConfig.getTerminalOutputSpecifications());
+        if (_marketData != null) {
+          for (Map.Entry<ValueSpecification, Collection<ValueSpecification>> marketDataAlias : calcConfig.getMarketDataAliases().entrySet()) {
+            _marketData.addMarketDataAlias(marketDataAlias.getKey(), marketDataAlias.getValue());
+          }
+        }
+      }
+      _compiled = true;
+    }
+  }
+
+  public synchronized void store(LocalDate resultsDate, ViewComputationResultModel results) {
+    assert _compiled;
     final int date = (int) resultsDate.toEpochDay();
     for (final ViewResultEntry viewResult : results.getAllResults()) {
       final ComputedValue computedValue = viewResult.getComputedValue();
@@ -167,14 +232,29 @@ import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
         configResults.store(date, computedValue.getSpecification(), value);
       }
     }
+    if (_marketData != null) {
+      for (final ComputedValue computedValue : results.getAllMarketData()) {
+        final Object value = computedValue.getValue();
+        if ((value != null) && !(value instanceof MissingInput)) {
+          _marketData.store(date, computedValue.getSpecification(), value);
+        }
+      }
+    }
   }
 
-  public Map<String, HistoricalViewEvaluationResult> getResults() {
+  public synchronized Map<String, HistoricalViewEvaluationResult> getResults() {
     final Map<String, HistoricalViewEvaluationResult> results = Maps.newHashMapWithExpectedSize(_results.size());
     for (final Map.Entry<String, ConfigurationResults> result : _results.entrySet()) {
       results.put(result.getKey(), result.getValue().makeResult());
     }
     return results;
+  }
+
+  public synchronized HistoricalViewEvaluationMarketData getMarketData() {
+    if (_marketData == null) {
+      return null;
+    }
+    return _marketData.makeResult();
   }
 
 }

@@ -111,7 +111,10 @@ public class CS01CreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // TODO : Check that beta is in the range [-100%, +100%] and not null
+    // Check that beta is in the range [-100%, +100%] and not null (don't need to check the other inputs as these are checked in the parallel CS01 calc)
+    ArgumentChecker.isInRangeInclusive(-1.0, 1.0, beta);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Compute the unadjusted parallel CS01
     final double parallelCS01 = getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
@@ -138,11 +141,12 @@ public class CS01CreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // TODO : Check that beta is in the range [-100%, +100%] and not null
+    // Check that beta is in the range [-100%, +100%] and not null (don't need to check the other inputs as these are checked in the parallel CS01 calc)
+    ArgumentChecker.isInRangeInclusive(-1.0, 1.0, beta);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Compute the unadjusted parallel CS01
+    // Compute the unadjusted bucketed CS01
     final double[] bucketedCS01 = getCS01BucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     final double[] betaAdjustedBucketedCS01 = new double[bucketedCS01.length];

@@ -20,9 +20,7 @@ public interface ViewCycleExecutionSequence {
    * @param defaultExecutionOptions the default execution options, may be null
    * @return the execution options for the next cycle, null if there are no further cycles to execute
    */
-  ViewCycleExecutionOptions getNext(ViewCycleExecutionOptions defaultExecutionOptions);
-
-  // REVIEW 2013-03-11 Andrew -- the name "poll" would be more consistent with other Java APIs and better reflect the destructive nature of "getNext" 
+  ViewCycleExecutionOptions poll(ViewCycleExecutionOptions defaultExecutionOptions);
 
   /**
    * Gets whether there are no more cycles in the execution sequence.
@@ -38,5 +36,12 @@ public interface ViewCycleExecutionSequence {
    * @return an estimate of the number of cycles remaining
    */
   int estimateRemaining();
+
+  /**
+   * Produces a copy of the sequence in its current state. Calling {@link #poll} on the original will not affect the copy, and calling {@link #poll} on the copy will not affect this original.
+   * 
+   * @return the copy, not null
+   */
+  ViewCycleExecutionSequence copy();
 
 }

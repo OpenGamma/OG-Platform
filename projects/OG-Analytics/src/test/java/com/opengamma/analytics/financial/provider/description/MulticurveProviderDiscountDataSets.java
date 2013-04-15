@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
@@ -26,8 +25,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.curve.MultiplyCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -337,10 +334,12 @@ public class MulticurveProviderDiscountDataSets {
   public static InflationIssuerProviderDiscount createMarket2(final ZonedDateTime pricingDate) {
     final InflationIssuerProviderDiscount market = createMarket1(pricingDate);
     final DoublesCurve curveNoAdj = market.getCurve(PRICE_INDEX_USD).getCurve();
-    final DoublesCurve adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD, false);
-    final DoublesCurve[] curveSet = new DoublesCurve[] {curveNoAdj, adj };
+    //TODO: seasonal have modified, so the following have to be modified
+    /*final DoublesCurve adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD, false);*/
+    /* final DoublesCurve[] curveSet = new DoublesCurve[] {curveNoAdj, adj };*/
+    /*final DoublesCurve[] curveSet = new DoublesCurve[] {curveNoAdj};
     final DoublesCurve curveAdj = new SpreadDoublesCurve(new MultiplyCurveSpreadFunction(), curveSet);
-    market.replaceCurve(PRICE_INDEX_USD, new PriceIndexCurve(curveAdj));
+    market.replaceCurve(PRICE_INDEX_USD, new PriceIndexCurve(curveAdj));*/
     return market;
   }
 

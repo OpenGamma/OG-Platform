@@ -58,7 +58,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Build of inflation curves in several blocks with relevant Jacobian matrices.
+ * Build of inflation curve in several blocks with relevant Jacobian matrice.
  */
 public class InflationBuildingCurveSimpleTestUS {
 

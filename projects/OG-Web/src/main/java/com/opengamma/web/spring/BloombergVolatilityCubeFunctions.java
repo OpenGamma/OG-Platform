@@ -8,9 +8,9 @@ package com.opengamma.web.spring;
 import java.util.List;
 import java.util.Set;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.volatility.cube.BloombergSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
@@ -20,14 +20,14 @@ import com.opengamma.util.money.Currency;
 /**
  * Function repository configuration source for the Bloomberg based volatility cubes.
  */
-public class BloombergVolatilityCubeFunctions extends AbstractRepositoryConfigurationBean {
+public class BloombergVolatilityCubeFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    * 
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new BloombergVolatilityCubeFunctions().getObjectCreating();
   }
 

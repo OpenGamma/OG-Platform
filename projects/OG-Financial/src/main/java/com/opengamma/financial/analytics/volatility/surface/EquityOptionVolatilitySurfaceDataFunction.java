@@ -221,10 +221,12 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    for (final Number nthExpiry : rawSurface.getXs()) {
+    Number[] xAsNumbers = getXs(rawSurface.getXs()); 
+    for (final Number nthExpiry : xAsNumbers) {
       final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
       if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
-        for (final Double strike : rawSurface.getYs()) {
+        Double[] ysAsDoubles = getYs(rawSurface.getYs());
+        for (final Double strike : ysAsDoubles) {
           final Double vol = rawSurface.getVolatility(nthExpiry, strike);
           if (vol != null) {
             tList.add(t);
@@ -250,11 +252,13 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    for (final Number nthExpiry : rawSurface.getXs()) {
+    Number[] xAsNumbers = getXs(rawSurface.getXs()); 
+    for (final Number nthExpiry : xAsNumbers) {
       final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
       final double forward = forwardCurve.getForward(t);
       if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
-        for (final Double strike : rawSurface.getYs()) {
+        Double[] ysAsDoubles = getYs(rawSurface.getYs());
+        for (final Double strike : ysAsDoubles) {
           final Double price = rawSurface.getVolatility(nthExpiry, strike);
           if (price != null) {
             try {
@@ -282,4 +286,30 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
         tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
     return stdVolSurface;
   }
+  
+  //TODO 
+  private static Number[] getXs(Object xs) {
+    if (xs instanceof Number[]) {
+      return (Number[]) xs;
+    }
+    Object[] tempArray = (Object[]) xs;
+    final Number[] result = new Number[tempArray.length];
+    for (int i = 0; i < tempArray.length; i++) {
+      result[i] = (Number) tempArray[i];
+    }
+    return result;
+  }
+
+  private static Double[] getYs(Object ys) {
+    if (ys instanceof Double[]) {
+      return (Double[]) ys;
+    }
+    Object[] tempArray = (Object[]) ys;
+    final Double[] result = new Double[tempArray.length];
+    for (int i = 0; i < tempArray.length; i++) {
+      result[i] = (Double) tempArray[i];
+    }
+    return result;
+  }
+
 }

@@ -17,17 +17,17 @@ public class PortfolioPosition {
   /**
    * The manageable position in the portfolio, not null.
    */
-  private final ManageablePosition position;
+  private final ManageablePosition _position;
 
   /**
    * The securities used for this position, not null.
    */
-  private final ManageableSecurity[] securities;
+  private final ManageableSecurity[] _securities;
 
   /**
    * The path to this position in the portfolio, not null.
    */
-  private final String[] portfolioPath;
+  private final String[] _portfolioPath;
 
   /**
    * Construct the portfolio position.
@@ -37,20 +37,20 @@ public class PortfolioPosition {
    * @param portfolioPath the portfolio path, not null
    */
   public PortfolioPosition(ManageablePosition position, ManageableSecurity[] securities, String[] portfolioPath) {
-    this.position = position;
-    this.securities = securities;
-    this.portfolioPath = portfolioPath;
+    this._position = position;
+    this._securities = securities;
+    this._portfolioPath = portfolioPath;
   }
 
   public ManageablePosition getPosition() {
-    return position;
+    return _position;
   }
 
   public ManageableSecurity[] getSecurities() {
-    return securities;
+    return _securities;
   }
 
   public String[] getPortfolioPath() {
-    return portfolioPath;
+    return _portfolioPath;
   }
 }

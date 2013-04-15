@@ -16,7 +16,7 @@ $.register_module({
                 data = {security: {type: "SwapSecurity", externalIdBundle: "", attributes: {}},
                     trade: og.blotter.util.otc_trade};
             }
-            data.nodeId = config.portfolio ? config.portfolio.id : null;
+            data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
@@ -31,6 +31,7 @@ $.register_module({
                         data.security.payLeg.notional.type = 'InterestRateNotional';
                         data.security.receiveLeg.notional.type = 'InterestRateNotional';
                         data.security.name = og.blotter.util.create_name(data);
+                        data.security.tradeDate = data.trade.tradeDate;
                         og.blotter.util.cleanup(data);
                     }
                 });

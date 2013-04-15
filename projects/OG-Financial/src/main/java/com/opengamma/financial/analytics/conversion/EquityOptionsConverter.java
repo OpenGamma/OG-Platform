@@ -103,12 +103,12 @@ public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<Inst
     if (underlyingSecurity instanceof IndexFutureSecurity) {
       final IndexFutureSecurity underlyingFuture = ((IndexFutureSecurity) underlyingSecurity);
       underlying = (IndexFutureDefinition) underlyingFuture.accept(_futureSecurityConverter);
-      s_logger.warn(security.getName() + " is an IndexFutureSecurity");
+//      s_logger.warn(security.getName() + " is an IndexFutureSecurity");
     } else if (underlyingSecurity instanceof EquityFutureSecurity) {
       final EquityFutureSecurity underlyingFuture = ((EquityFutureSecurity) underlyingSecurity);
       EquityFutureDefinition eqFut = (EquityFutureDefinition) underlyingFuture.accept(_futureSecurityConverter);
       underlying = new IndexFutureDefinition(eqFut.getExpiryDate(), eqFut.getSettlementDate(), eqFut.getStrikePrice(), eqFut.getCurrency(), eqFut.getUnitAmount(), underlyingFuture.getUnderlyingId());
-      s_logger.warn(security.getName() + " is an EquityFutureSecurity");
+//      s_logger.warn(security.getName() + " is an EquityFutureSecurity");
     }
    
     final double strike = security.getStrike();

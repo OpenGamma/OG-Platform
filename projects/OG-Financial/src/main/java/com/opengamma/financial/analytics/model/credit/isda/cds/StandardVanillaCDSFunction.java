@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
@@ -108,7 +111,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties);
+    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs);
   }
 
   @Override
@@ -129,6 +132,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    //TODO add check for calculation method = ISDA
     final Set<String> yieldCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE);
     if (yieldCurveNames == null || yieldCurveNames.size() != 1) {
       return null;
@@ -155,10 +159,13 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     //    final String spreadCurveName = Iterables.getOnlyElement(spreadCurveNames);
     final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
         yieldCurveCalculationMethodName);
-    final ValueProperties spreadCurveProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, spreadCurveName)
-        .get();
-    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
+    final Set<String> creditSpreadCurveShifts = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
+    final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, spreadCurveName);
+    if (creditSpreadCurveShifts != null) {
+      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts);
+    }
+    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
     return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement);
   }
 
@@ -198,8 +205,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     return results;
   }
 
-  protected abstract Set<ComputedValue> getComputedValue(LegacyVanillaCreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
-      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
+  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
+      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties, FunctionInputs inputs);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 

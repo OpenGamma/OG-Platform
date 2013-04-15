@@ -21,8 +21,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -291,6 +293,51 @@ public class DependencyGraph {
         }
       }
     }
+  }
+
+  /**
+   * Do not call directly; used by {@link DependencyNode#replaceWithinGraph}.
+   */
+  /* package */void replaceValueSpecification(final ValueSpecification oldSpec, final ValueSpecification newSpec) {
+    _outputValues.put(newSpec, _outputValues.remove(oldSpec));
+    final Set<ValueRequirement> reqs = _terminalOutputs.remove(oldSpec);
+    if (reqs != null) {
+      final Set<ValueRequirement> newReqs = Sets.newHashSetWithExpectedSize(reqs.size());
+      final ComputationTargetSpecification oldSpecTarget = oldSpec.getTargetSpecification();
+      final ComputationTargetSpecification newSpecTarget = newSpec.getTargetSpecification();
+      for (ValueRequirement req : reqs) {
+        if (oldSpecTarget.equals(req.getTargetReference())) {
+          newReqs.add(MemoryUtils.instance(new ValueRequirement(req.getValueName(), newSpecTarget, req.getConstraints())));
+        } else {
+          newReqs.add(req);
+        }
+      }
+      _terminalOutputs.put(newSpec, newReqs);
+    }
+  }
+
+  /**
+   * Replaces a node in the dependency graph with a new node based on the replacement target. The new target must be compatible with the original.
+   * 
+   * @param node the node to replace
+   * @param newTarget the target for the new node
+   * @return the new node
+   */
+  public DependencyNode replaceNode(final DependencyNode node, final ComputationTargetSpecification newTarget) {
+    ArgumentChecker.notNull(node, "node");
+    ArgumentChecker.notNull(newTarget, "newTarget");
+    if (!_dependencyNodes.remove(node)) {
+      throw new IllegalStateException("Node " + node + " is not in graph");
+    }
+    final DependencyNode newNode = new DependencyNode(newTarget);
+    newNode.setFunction(node.getFunction());
+    node.replaceWithinGraph(newNode, this);
+    _allComputationTargets.add(newTarget);
+    if (_rootNodes.remove(node)) {
+      _rootNodes.add(newNode);
+    }
+    _dependencyNodes.add(newNode);
+    return newNode;
   }
 
   /**

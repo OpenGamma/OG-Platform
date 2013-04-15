@@ -68,6 +68,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.historical.normalization.BloombergFixedRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.livedata.normalization.BloombergRateRuleProvider;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
@@ -77,6 +78,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -101,6 +103,7 @@ import com.opengamma.livedata.normalization.RequiredFieldFilter;
 import com.opengamma.livedata.normalization.SecurityRuleApplier;
 import com.opengamma.livedata.normalization.SecurityRuleProvider;
 import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.livedata.normalization.UnitChange;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
@@ -138,7 +141,8 @@ public final class BloombergDataUtils {
       "OPT_IMPLIED_VOLATILITY_MID_RT",
       "YLD_CNV_MID", //TODO BBG-96
       "YLD_YTM_MID", //TODO BBG-96
-      "PX_DIRTY_MID"); //TODO BBG-96
+      "PX_DIRTY_MID", //TODO BBG-96
+      "EQY_DVD_YLD_EST");
 
   /**
    * The standard fields required for Bloomberg data, as a set.
@@ -241,6 +245,7 @@ public final class BloombergDataUtils {
     openGammaRules.add(new FieldNameChange("YLD_CNV_MID", MarketDataRequirementNames.YIELD_CONVENTION_MID));
     openGammaRules.add(new FieldNameChange("YLD_YTM_MID", MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID));
     openGammaRules.add(new FieldNameChange("PX_DIRTY_MID", MarketDataRequirementNames.DIRTY_PRICE_MID));
+    openGammaRules.add(new FieldNameChange("EQY_DVD_YLD_EST", MarketDataRequirementNames.DIVIDEND_YIELD));
 
     // Calculate market value
     openGammaRules.add(new MarketValueCalculator());
@@ -251,6 +256,7 @@ public final class BloombergDataUtils {
       final SecurityRuleProvider quoteRuleProvider = new BloombergRateRuleProvider(rateClassifier);
       openGammaRules.add(new SecurityRuleApplier(quoteRuleProvider));
     }
+    openGammaRules.add(new UnitChange(MarketDataRequirementNames.DIVIDEND_YIELD, 0.01)); // returned as % from bbg
 
     // Calculate implied vol value
     openGammaRules.add(new ImpliedVolatilityCalculator());
@@ -266,7 +272,8 @@ public final class BloombergDataUtils {
         MarketDataRequirementNames.IMPLIED_VOLATILITY,
         MarketDataRequirementNames.YIELD_CONVENTION_MID,
         MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID,
-        MarketDataRequirementNames.DIRTY_PRICE_MID));
+        MarketDataRequirementNames.DIRTY_PRICE_MID,
+        MarketDataRequirementNames.DIVIDEND_YIELD));
     openGammaRules.add(new RequiredFieldFilter(MarketDataRequirementNames.MARKET_VALUE));
 
     final NormalizationRuleSet openGammaRuleSet = new NormalizationRuleSet(
@@ -282,10 +289,13 @@ public final class BloombergDataUtils {
     final HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
     final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
     final HistoricalTimeSeriesAdjuster rateNormalizer = new BloombergRateHistoricalTimeSeriesNormalizer(rateClassifier);
+    final BloombergFixedRateHistoricalTimeSeriesNormalizer div100 = new BloombergFixedRateHistoricalTimeSeriesNormalizer(new HistoricalTimeSeriesAdjustment.DivideBy(100.0));
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.SETTLE_PRICE, null, BloombergConstants.BBG_FIELD_SETTLE_PRICE, rateNormalizer);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, BloombergConstants.BBG_FIELD_LAST_PRICE, rateNormalizer);
+    fieldAdjustmentMap.addFieldAdjustment(BloombergConstants.BBG_FIELD_LAST_PRICE, null, BloombergConstants.BBG_FIELD_LAST_PRICE, rateNormalizer); 
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.VOLUME, null, BloombergConstants.BBG_FIELD_VOLUME, null);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, null, BloombergConstants.BBG_FIELD_YIELD_TO_MATURITY_MID, null);
+    fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.DIVIDEND_YIELD, null, BloombergConstants.BBG_FIELD_DIVIDEND_YIELD, div100);
     return fieldAdjustmentMap;
   }
 

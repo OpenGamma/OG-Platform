@@ -10,6 +10,7 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
@@ -24,23 +25,24 @@ import com.opengamma.util.time.DateUtils;
  */
 public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
   private static final GenerateCreditDefaultSwapIntegrationSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
-  private static final GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew();
+  private static final ISDAContingentLegIntegrationScheduleGenerator CALCULATOR = new ISDAContingentLegIntegrationScheduleGenerator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
-    DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
-    DateUtils.getUTCDate(2023, 3, 1) };
+      DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
+      DateUtils.getUTCDate(2023, 3, 1) };
   private static final double[] HR_TIMES;
   private static final double[] HR_RATES = new double[] {0.01, 0.02, 0.04, 0.03, 0.06, 0.03, 0.05, 0.03, 0.02 };
   private static final ZonedDateTime[] YC_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
-    DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
-    DateUtils.getUTCDate(2023, 3, 1) };
+      DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
+      DateUtils.getUTCDate(2023, 3, 1) };
   private static final HazardRateCurve HAZARD_RATE_CURVE;
   private static final double[] YC_TIMES;
   private static final double[] YC_RATES = new double[] {0.005, 0.006, 0.008, 0.009, 0.01, 0.012, 0.015, 0.02, 0.03 };
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final double OFFSET = 1. / 365;
   private static final ISDADateCurve YIELD_CURVE;
+  private static final ISDAYieldCurveAndHazardRateCurveProvider CURVES;
   private static final double EPS = 1e-15;
 
   static {
@@ -56,21 +58,22 @@ public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
       YC_TIMES[i] = DAY_COUNT.getDayCountFraction(BASE_DATE, YC_DATES[i]);
     }
     YIELD_CURVE = new ISDADateCurve("ISDA", BASE_DATE, YC_DATES, YC_RATES, OFFSET);
+    CURVES = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
   }
 
   @Test
   public void regressionTest() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final ZonedDateTime startDate = getStartDate(cds);
     final ZonedDateTime endDate = cds.getMaturityDate();
     final double[] deprecatedResult = DEPRECATED_CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
-    final double[] result = CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    final double[] result = CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, CURVES);
     assertArrayEquals(deprecatedResult, result, EPS);
   }
 
   @Test(enabled = false)
   public void timeBDeprecated() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final ZonedDateTime startDate = getStartDate(cds);
     final ZonedDateTime endDate = cds.getMaturityDate();
     final double startTime = System.currentTimeMillis();
@@ -85,13 +88,13 @@ public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
 
   @Test(enabled = false)
   public void timeARefactored() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final ZonedDateTime startDate = getStartDate(cds);
     final ZonedDateTime endDate = cds.getMaturityDate();
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 1000000; i++) {
-      CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    for (int i = 0; i < 5000000; i++) {
+      CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, CURVES);
       j++;
     }
     final double endTime = System.currentTimeMillis();
@@ -121,4 +124,5 @@ public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
     }
     return startDate;
   }
+
 }

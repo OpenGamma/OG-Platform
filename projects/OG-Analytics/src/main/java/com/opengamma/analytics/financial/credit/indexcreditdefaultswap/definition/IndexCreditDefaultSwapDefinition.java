@@ -29,7 +29,7 @@ public class IndexCreditDefaultSwapDefinition {
 
   // Cashflow Conventions are assumed to be as below (these will apply throughout the entire credit suite for index credit default swaps)
 
-  // Note that the long/short credit convention is opposite to that for single name CDS's
+  // Note that the long/short credit convention is opposite to that for single name CDS's (the market convention)
 
   // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
   // This convention is chosen to avoid confusion about whether a negative notional means a long/short position etc
@@ -48,7 +48,9 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Need to sort out the quoting conventions for the different indices
   // TODO : Need to sort out the type of CDS used to construct the index (in principle would like to build the index from an arbitrary combination of CDS types)
 
-  // TODO : Add an overloaded ctor taking in a SNCDS etc
+  // NOTE : The CDS index is constructed essentially like a SNCDS; we specify who the protection buyer and seller (obligors) are and we 
+  // NOTE : then specify a 'reference entity'. In a SNCDS the reference entity is just a single obligor, in an index it is a collection
+  // NOTE : of obligors bundled up into an UnderlyingPool object (which is passed into the index constructor)
 
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
@@ -156,7 +158,7 @@ public class IndexCreditDefaultSwapDefinition {
   private final double _indexCoupon;
 
   // The current market observed index spread (can differ from the fixed coupon)
-  private final double _indexSpread;
+  //private final double _indexSpread;
 
   // The number of obligors in the underlying pool that are non-defaulted as of trade date (expressed as a percentage) - MarkIt field
   private final double _indexFactor;
@@ -166,7 +168,7 @@ public class IndexCreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  //Constructor for a CDS index swap definition object (all fields are user specified)
+  // Constructor for a CDS index swap definition object (all fields are user specified)
   public IndexCreditDefaultSwapDefinition(
       final String indexName,
       final BuySellProtection buySellProtection,
@@ -194,8 +196,7 @@ public class IndexCreditDefaultSwapDefinition {
       final boolean protectionStart,
       final double notional,
       final double upfrontPayment,
-      final double indexCoupon,
-      final double indexSpread) {
+      final double indexCoupon) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -234,7 +235,6 @@ public class IndexCreditDefaultSwapDefinition {
 
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(indexCoupon, "Index coupon");
-    ArgumentChecker.notNegative(indexSpread, "Index spread");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -277,7 +277,6 @@ public class IndexCreditDefaultSwapDefinition {
     _notional = notional;
     _upfrontPayment = upfrontPayment;
     _indexCoupon = indexCoupon;
-    _indexSpread = indexSpread;
 
     _indexFactor = ((double) _underlyingPool.getNumberOfDefaultedObligors()) / ((double) _underlyingPool.getNumberOfObligors());
 
@@ -437,10 +436,6 @@ public class IndexCreditDefaultSwapDefinition {
 
   public double getIndexCoupon() {
     return _indexCoupon;
-  }
-
-  public double getIndexSpread() {
-    return _indexSpread;
   }
 
   public double getIndexFactor() {

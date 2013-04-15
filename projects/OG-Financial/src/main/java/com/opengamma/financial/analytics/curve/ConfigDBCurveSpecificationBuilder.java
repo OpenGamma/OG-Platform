@@ -10,7 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -19,6 +21,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -33,7 +36,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
   }
 
   @Override
-  public CurveSpecification buildCurve(final LocalDate curveDate, final CurveDefinition curveDefinition) {
+  public CurveSpecification buildCurve(final Instant valuationTime, final LocalDate curveDate, final CurveDefinition curveDefinition) {
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(curveDefinition, "curve definition");
     final Map<String, CurveNodeIdMapper> cache = new HashMap<>();
@@ -41,7 +44,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     final String curveName = curveDefinition.getName();
     for (final CurveNode nodes : curveDefinition.getNodes()) {
       final String curveSpecificationName = nodes.getCurveNodeIdMapperName();
-      final CurveNodeIdMapper builderConfig = getBuilderConfig(cache, curveSpecificationName);
+      final CurveNodeIdMapper builderConfig = getBuilderConfig(valuationTime, cache, curveSpecificationName);
       if (builderConfig == null) {
         throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
       }
@@ -56,12 +59,13 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   }
 
-  private CurveNodeIdMapper getBuilderConfig(final Map<String, CurveNodeIdMapper> cache, final String curveSpecificationName) {
+  private CurveNodeIdMapper getBuilderConfig(final Instant valuationTime, final Map<String, CurveNodeIdMapper> cache, final String curveSpecificationName) {
+    Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     CurveNodeIdMapper builderSpecDoc = cache.get(curveSpecificationName);
     if (builderSpecDoc != null) {
       return builderSpecDoc;
     }
-    builderSpecDoc = _configSource.getLatestByName(CurveNodeIdMapper.class, curveSpecificationName);
+    builderSpecDoc = _configSource.getSingle(CurveNodeIdMapper.class, curveSpecificationName, VersionCorrection.of(versionTime, versionTime));
     if (builderSpecDoc != null) {
       cache.put(curveSpecificationName, builderSpecDoc);
     }

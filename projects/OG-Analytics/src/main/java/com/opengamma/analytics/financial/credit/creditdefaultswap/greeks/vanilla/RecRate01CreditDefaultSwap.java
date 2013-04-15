@@ -36,10 +36,12 @@ public class RecRate01CreditDefaultSwap {
   // TODO : Further checks on efficacy of input arguments
   // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation
 
+  // TODO : Need to move the recovery rate bumper function into the recovery rate bumpers class
+
   // NOTE : The recovery rate is computed according to the following procedure
   // NOTE : 1. Calibrate the hazard rate term structure to the market input data
   // NOTE : 2. Calculate the CDS PV
-  // NOTE : 3. Bump the recovery rate and recalculate the CDS PV keeping the hazard rates the same as in step 2 (this is why we do the calibratio in this routine)
+  // NOTE : 3. Bump the recovery rate and recalculate the CDS PV keeping the hazard rates the same as in step 2 (this is why we do the calibration in this routine)
 
   // NOTE : recoveryrateBump is input as a percentage e.g. recoveryRate = 0.4 (40%), recoveryrateBump = 0.10 (10%)
   // NOTE : ADDITIVE bump - bumpedRecoveryRate = 0.4 + 0.1 = 0.5 (50%)

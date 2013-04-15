@@ -14,6 +14,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -34,7 +35,8 @@ public class ISDADateCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.BUCKETED_IR01,
     ValueRequirementNames.JUMP_TO_DEFAULT,
     ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.HAZARD_RATE_CURVE
+    ValueRequirementNames.HAZARD_RATE_CURVE,
+    ValueRequirementNames.VALUE_VEGA
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToYieldCurveName;
@@ -95,4 +97,10 @@ public class ISDADateCurveDefaults extends DefaultPropertyFunction {
   public PriorityClass getPriority() {
     return _priority;
   }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.ISDA_COMPLIANT_YIELD_CURVE_DEFAULTS;
+  }
+
 }

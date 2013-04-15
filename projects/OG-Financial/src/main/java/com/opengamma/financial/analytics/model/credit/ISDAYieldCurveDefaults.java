@@ -69,4 +69,5 @@ public class ISDAYieldCurveDefaults extends DefaultPropertyFunction {
   public PriorityClass getPriority() {
     return _priority;
   }
+
 }

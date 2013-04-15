@@ -172,6 +172,15 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     throw new IllegalArgumentException("Price index curve not found: " + index);
   }
 
+  /**
+   * Gets the price index curve associated to a given name.
+   * @param name The name of the Price index.
+   * @return The curve.
+   */
+  public PriceIndexCurve getCurve(final String name) {
+    return _allCurves.get(name);
+  }
+
   @Override
   public Set<IndexPrice> getPriceIndexes() {
     return _priceIndexCurves.keySet();
@@ -373,9 +382,11 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     if (!(inflationCurve == null)) {
       return inflationCurve.getNumberOfParameters();
     }
-    else
-    {
+    else if (!(curve == null) && (inflationCurve == null)) {
       return curve.getNumberOfParameters();
+    }
+    else {
+      throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
     }
   }
 

@@ -10,13 +10,17 @@ $.register_module({
             /**
              * launches a trade entry dialog
              * @param {Object} config.details the data of a current trade, places form in edit mode (optional)
-             * @param {Object} config.portfolio the data of a node, places form in create mode (optional)
+             * @param {Object} config.node the data of a node, places form in create mode (optional)
              * @param {Function} config.handler the endopoint that the form submits too
              * @param {Function} config.complete fired when the form closes after a sucessful edit/create (optional) 
              * @param {Boolean} config.save_as toggle if save as button is present, default false 
              */
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
             blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
+            /** validation_handler is passed to each form via thier submit or submit_new, 
+             *  The form api's submit listener in each form attempts to sumbit the form
+             *  If an error exists the message is displayed otherwise the form is closed
+             */ 
             var validation_handler = function (result) {
                 if(result.error) {
                     og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
@@ -27,7 +31,7 @@ $.register_module({
                 complete(result);
             };
             constructor.load = function () {
-                // security type tells which type of form to load
+                // security type specifies which form to create
                 if (config.details) {
                     title = 'Edit Trade', submit = 'Update';
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
@@ -38,15 +42,51 @@ $.register_module({
                         constructor.populate(type, config);
                     });
                 } else {
-                    title = 'Add New Tade', submit = 'Create';
+                    title = 'Add Trade', submit = 'Create';
                     og.api.text({module: 'og.blotter.forms.blocks.form_types_tash'}).pipe(function (template){
-                        $selector = $(template)
-                        .on('change', function (event) {
-                            constructor.populate($(event.target).val(), config);
+                        $selector = $(template);
+                        $selector.find('a').on('click', function (event) {
+                            constructor.populate($(event.target).attr('data-type'), config);
+                            $('.OG-blotter-trade-select').hide();
                         });
+                        /*.on('change', function (event) {
+                            constructor.populate($(event.target).val(), config);
+                        });*/
                         constructor.create_dialog();
+                        setup_existing();
                     });
                 }
+            };
+            var setup_existing = function () {
+                $('#OG-blotter-existing-trade').autocomplete({
+                    source: function (obj, handler) {
+                        og.api.rest.positions.get({
+                            handler: function (result) {
+                                var arr = result.data.data.map(function (val) {
+                                    var arr = val.split('|');
+                                    return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
+                                });
+                                handler(arr);
+                            },
+                            loading: '', page_size: 10, page: 1,
+                            identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
+                        });
+                    },
+                    minLength: 1,
+                    select: function (e, data) {add_existing(e, data);}
+                });
+            };
+            var add_existing = function (e, data) {
+                og.api.rest.configs.get({id: og.analytics.url.last.main.viewdefinition}).pipe(function (result){
+                    var portfolio = result.data.template_data.configJSON.data.identifier;
+                    og.api.rest.portfolios.put({
+                        position: data ? data.item.value : $('#OG-blotter-existing-trade').val(),
+                        id: portfolio,
+                        node: config.node.id
+                    }).pipe(function (result){
+                        validation_handler(result)
+                    });
+                })
             };
             constructor.populate = function (suffix, config) {
                 var str, inner;
@@ -55,16 +95,25 @@ $.register_module({
                     if (typeof acc[val] === 'undefined') constructor.clear();
                     else return acc[val];
                     }, window);
-                if(inner) {
+                if (inner) {
                     form_wrapper = new inner(config);
+                    $('.OG-blotter-trade-save').show();
                     $('.ui-dialog-title').html(form_wrapper.title);
+                } else {
+                    og.dev.warn('no form found for ' + str);
                 }
             };
             constructor.create_dialog = function () {
                 var buttons = {
-                        'Save': function () {form_wrapper.submit(validation_handler);},
-                        'Save as new' : function () {form_wrapper.submit_new(validation_handler);},
-                        'Cancel': function () {$(this).dialog('close');}
+                    'Save': {
+                        text: 'Save', 'class' : 'OG-blotter-trade-save',
+                        click: function () {form_wrapper.submit(validation_handler);}},
+                    'Save as new' : {
+                        text: 'Save as new', 'class': 'OG-blotter-trade-saveasnew',
+                        click: function () {form_wrapper.submit_new(validation_handler);}},
+                    'Cancel': {
+                        text: 'Cancel', 'class': 'OG-blotter-trade-cancel',
+                        click: function () {$(this).dialog('close');}}
                     };
                 if (!config.save_as) delete buttons['Save as new'];
                 blotter = new og.common.util.ui.dialog({

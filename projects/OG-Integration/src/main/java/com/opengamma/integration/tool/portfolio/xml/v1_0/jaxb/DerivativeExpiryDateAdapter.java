@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +9,9 @@ import org.threeten.bp.YearMonth;
 
 import com.opengamma.util.jaxb.AbstractDateAdapter;
 
+/**
+ * Converts between a String in an XML file and a YearMonth.
+ */
 public class DerivativeExpiryDateAdapter extends AbstractDateAdapter<YearMonth> {
 
   @Override
@@ -21,4 +23,5 @@ public class DerivativeExpiryDateAdapter extends AbstractDateAdapter<YearMonth> 
   public YearMonth unmarshal(String v) throws Exception {
     return _formatter.parse(v, YearMonth.class);
   }
+
 }

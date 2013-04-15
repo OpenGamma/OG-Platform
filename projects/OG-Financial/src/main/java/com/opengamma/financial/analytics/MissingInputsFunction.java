@@ -194,16 +194,18 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     // User must have requested our aggregation style
-    final ValueProperties resultConstraints = desiredValue.getConstraints();
-    final Set<String> aggregationStyle = resultConstraints.getValues(ValuePropertyNames.AGGREGATION);
+    ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle == null) {
       s_logger.debug("No aggregation requirements on {}", desiredValue);
       return null;
     }
     // Requirement has all constraints asked of us (minus the aggregation style)
-    final ValueProperties requirementConstraints = resultConstraints.withoutAny(ValuePropertyNames.AGGREGATION);
+    if (!constraints.isOptional(ValuePropertyNames.AGGREGATION)) {
+      constraints = constraints.copy().withOptional(ValuePropertyNames.AGGREGATION).get();
+    }
     final Set<ValueRequirement> requirements = getUnderlyingCompiled().getRequirements(context, target,
-        new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), requirementConstraints));
+        new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), constraints));
     s_logger.debug("Returning requirements {} for {}", requirements, desiredValue);
     return requirements;
   }

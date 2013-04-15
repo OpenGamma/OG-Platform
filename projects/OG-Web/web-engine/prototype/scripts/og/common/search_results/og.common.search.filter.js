@@ -11,8 +11,11 @@ $.register_module({
         var module = this, routes = og.common.routes,
             select = ['type'], // identify select form elements so we can handle these differently
             calendar = ['ob_date'], // calendar fields
-            fields = ['name', 'type', 'quantity', 'data_source', 'identifier', 'data_provider', 'data_field',
-                'ob_time', 'ob_date', 'status', 'observation_time'];
+            fields = [
+                'name', 'type', 'data_source', 'identifier', 'data_provider',
+                'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity',
+                'obligor_red_code', 'obligor_ticker'
+            ];
         return function (obj) { // obj holds a selector with the location of the filters container
             fields.forEach(function (filter) {
                 var event_type = ~select.indexOf(filter) || ~calendar.indexOf(filter) ? 'change' : 'keyup',

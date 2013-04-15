@@ -725,6 +725,11 @@ public class DbTool extends Task {
 
   @Override
   public void execute() throws BuildException {
+    // NOTE: The catalog field generally has to be set, but if you do not
+    // set the jdbcHost (normally the case) then the catalog is overridden
+    // with one derived from the URL in initialize() called from here.
+    // All very confusing...
+    
     if (!_createTestDb) {
       if (_catalog == null) {
         throw new BuildException("No database on the DB server specified.");

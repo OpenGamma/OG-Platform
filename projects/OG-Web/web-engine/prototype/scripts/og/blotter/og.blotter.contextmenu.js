@@ -7,8 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (cell, event) {
-            var module = this;
-            module.context_items = function (cell) {
+            var grid = og.analytics.grid;
+            var context_items = function (cell) {
                 var items = [];
                 // when aggregated the portfolio node structure is not shown so edit/add is not possible
                 if (og.analytics.url && og.analytics.url.last.main.aggregators.length) {
@@ -20,7 +20,7 @@ $.register_module({
                     var pos_arr = cell.row_value.positionId.split('~'), id = pos_arr[0] + '~' + pos_arr[1];
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: id, id: id}, 
+                            details: data, node:{name: id, id: id}, 
                             handler: function (data) {return og.api.rest.blotter.positions.put(data);},
                             complete : complete_handler
                         });
@@ -32,7 +32,7 @@ $.register_module({
                         nodeId= cell.row_value.nodeId;
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: nodeId, id: nodeId}, 
+                            details: data, node:{name: nodeId, id: nodeId}, 
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                             complete : complete_handler
                         });
@@ -42,7 +42,7 @@ $.register_module({
                 var trade_edit = function () {
                     og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
+                            details: data, node:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                             complete : complete_handler, save_as: true
                         });
@@ -50,7 +50,7 @@ $.register_module({
                 };
                 // addding a new trade needs a node id to append to
                 var trade_insert_node = function () {
-                    new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
+                    new og.blotter.Dialog({node:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                         complete : complete_handler
                     });
@@ -66,21 +66,45 @@ $.register_module({
                             'Cancel': function () {$(this).dialog('close');}
                         }
                     });
-                };
+                };              
                 var complete_handler = function (result) {
                     var msg, id = result.meta.id;
                     if (id) msg = "Trade " + result.meta.id + " successfully added";
                     else msg = "Trade successfully updated";
                     og.common.util.ui.message({location: '.OG-layout-analytics-center', message: msg, live_for: 6000});
                 };
+                var create_portolio = function () {
+                    $(this).dialog('close');
+                    og.api.rest.configs.get({id: og.analytics.url.last.main.viewdefinition}).pipe(function (result){
+                        var portfolio = result.data.template_data.configJSON.data.identifier;
+                        og.api.rest.portfolios.put({
+                            name: og.common.util.ui.dialog({return_field_value: 'name'}),
+                            id: portfolio,
+                            node: cell.row_value.nodeId,
+                            'new': true
+                        });
+                    });
+                };
+                var new_porfolio = function () {
+                    og.common.util.ui.dialog({
+                        width: 400, height: 190,  type: 'input', title: 'Add New Portfolio',
+                        fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
+                        buttons: {
+                            'OK': create_portolio,
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    });
+                };
                 // if a row is a node AND the cell is a position only the position insert option is relevant
-                // if a row is a node OR the cell is a node only the add new trade option is relevant
-                if (cell.row in og.analytics.grid.state.nodes && cell.type === 'POSITION') {
+                // note that cell.type === 'POSITION' is only relevant for the firs column, so can't be used
+                // else if a row is a node OR the cell is a node only the add new trade option is relevant
+                if (cell.row in grid.state.nodes && cell.row_value.positionId) {
                     items.push({name: 'Add Trade', handler: position_insert});
                     return items;
                 }
-                else if (cell.row in og.analytics.grid.state.nodes || cell.type === 'NODE') {  
+                else if (cell.row in grid.state.nodes || cell.type === 'NODE') {
                     items.push({name: 'Add Trade', handler: trade_insert_node});
+                    items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
                     return items;  
                 }
                 // if a cell has a tradeId then edit the trade otherwise it is an empty position
@@ -94,7 +118,9 @@ $.register_module({
                 return items;
             }; 
             return og.common.util.ui.contextmenu({
-                defaults: true, zindex: 4, items: module.context_items(cell)}, event, cell);
+                defaults: false, zindex: 4,
+                items: new og.analytics.NodeMenu(grid, cell, event).items().concat({}, context_items(cell))
+            }, event, cell);
         };
     }
 });

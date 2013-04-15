@@ -5,14 +5,13 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -29,6 +28,13 @@ public class CurveBuildingBlock {
   // TODO: Replace the curve names by some curve ID, maybe some UniqueIdentifiable objects
 
   /**
+   * Constructor.
+   */
+  public CurveBuildingBlock() {
+    _unit = new LinkedHashMap<>();
+  }
+
+  /**
    * Constructor from a map. A new map is created.
    * @param block The curve block. Not null.
    */
@@ -38,12 +44,17 @@ public class CurveBuildingBlock {
     _unit.putAll(block);
   }
 
+  public void add(String name, int start, int number) {
+    _unit.put(name, new ObjectsPair<Integer, Integer>(start, number));
+  }
+
   /**
    * Returns the start index of the given string in the array of all parameters.
    * @param name The string name.
    * @return The start index.
    */
   public Integer getStart(final String name) {
+    // TODO: Test nqme exists?
     return _unit.get(name).getFirst();
   }
 
@@ -68,8 +79,8 @@ public class CurveBuildingBlock {
    * Gets all of the underlying data.
    * @return The data wrapped in an unmodifiable map.
    */
-  public Map<String, Pair<Integer, Integer>> getData() {
-    return Collections.unmodifiableMap(_unit);
+  public LinkedHashMap<String, Pair<Integer, Integer>> getData() {
+    return _unit;
   }
 
   @Override

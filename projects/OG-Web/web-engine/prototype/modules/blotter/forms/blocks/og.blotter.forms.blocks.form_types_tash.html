@@ -1,20 +1,49 @@
-<select name="form_types" class="OG-blotter-trade-select">
-  <option>Select a trade type</option>
-  <optgroup label="Over The Counter Trades">
-    <option value="capfloorcmsspreadsecurity">Cap/Floor CMS Spread</option>
-    <option value="capfloorsecurity">Cap/Floor</option>
-    <option value="equityvarianceswapsecurity">Equity Variance Swap</option>   
-    <option value="frasecurity">Forward Rate Agreement</option>   
-    <option value="fxbarrieroptionsecurity">FX Barrier Option</option>
-    <option value="fxforwardsecurity">FX Forward</option>
-    <option value="fxoptionsecurity">FX Option</option>
-    <option value="nondeliverablefxoptionsecurity">Non-Deliverable FX Option</option>
-    <option value="swapsecurity">Swap</option>
-    <option value="swaptionsecurity">Swaption</option>
-  </optgroup>
-  <optgroup label="Fungible Trade">
-    <option value="fungibletrade">Bond, Bond Future, Exchange Traded</option>
-  </optgroup>
-</select>
+<div class='OG-blotter-trade-select'>
+  <h2>New Trades</h2>
+  <table>
+    <tr>
+      <td>
+        <h3>Over The Counter Trades</h3>
+        <ul>
+          <li><a data-type="capfloorcmsspreadsecurity">Cap/Floor CMS Spread</a></li>
+          <li><a data-type="capfloorsecurity">Cap/Floor</a></li>
+          <li><a data-type="equityvarianceswapsecurity">Equity Variance Swap</a></li>
+          <li><a data-type="frasecurity">Forward Rate Agreement</a></li>
+          <li><a data-type="fxbarrierdivsecurity">FX Barrier Option</a></li>
+          <li><a data-type="fxforwardsecurity">FX Forward</a></li>
+          <li><a data-type="fxdivsecurity">FX Option</a></li>
+          <li><a data-type="nondeliverablefxdivsecurity">Non-Deliverable FX Option</a></li>
+          <li><a data-type="swapsecurity">Swap</a></li>
+          <li><a data-type="swaptionsecurity">Swaption</a></li>
+        </ul>
+      </td>
+      <td>
+      <h3>Credit Derivative Swaps</h3>
+      <ul>
+        <li><a data-type="fungibletrade">CDS Index</a></li>
+        <li><a data-type="legacyfixedrecoverycdssecurity">Legacy Fixed Recovery CDS</a></li>
+        <li><a data-type="legacyrecoverylockcdssecurity">Legacy Recovery Lock CDS</a></li>
+        <li><a data-type="legacyvanillacdssecurity">Legacy Vanilla CDS</a></li>
+        <li><a data-type="standardfixedrecoverycdssecurity">Standard Fixed Recovery CDS</a></li>
+        <li><a data-type="standardrecoverylockcdssecurity">Standard Recovery Lock CDS</a></li>
+        <li><a data-type="standardvanillacdssecurity">Standard Vanilla CDS</a></li>
+      </ul>
+      <h3>Fungible Trades</h3>
+      <ul>
+          <li><a data-type="fungibletrade">Exchange Traded, Bond, Bond Future</a></li>
+      </ul></td>
+    </tr>
+  </table>
+  <hr/>
+  <h2>Existing Positions</h2>
+  <table class="existing-table">
+    <tr>
+      <td>
+        Identifier:
+      </td>
+      <td><input id="OG-blotter-existing-trade"  type="text" value="" name="og-js-dialog-name"></td>
+    </tr>
+  </table>
+</div>
 <div class='OG-blotter-error-block'></div>
 <div class='OG-blotter-form-block'></div>

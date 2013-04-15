@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.credit.isda.calibration;
 
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +17,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurveCalculator;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -62,7 +64,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInvoker {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final HazardRateCurveCalculator CALCULATOR = new HazardRateCurveCalculator();
+  private static final ISDAHazardRateCurveCalculator CALCULATOR = new ISDAHazardRateCurveCalculator();
   private CreditDefaultSwapSecurityConverter _converter;
 
   @Override
@@ -146,10 +148,14 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
         yieldCurveCalculationMethodName);
-    final ValueProperties spreadCurveProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, spreadCurveName)
-        .get();
-    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
+
+    final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, spreadCurveName);
+    final Set<String> spreadCurveShift = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
+    if (spreadCurveShift != null && !spreadCurveShift.isEmpty()) {
+      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, spreadCurveShift);
+    }
+    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
     return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement);
   }
 
@@ -172,9 +178,10 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
         propertiesBuilder.with(ValuePropertyNames.CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
         inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE);
       }
-      if (!inputPropertiesBuilder.get().isEmpty()) {
-        for (final String propertyName : inputPropertiesBuilder.get().getProperties()) {
-          propertiesBuilder.with(propertyName, inputPropertiesBuilder.get().getValues(propertyName));
+      final ValueProperties inputProperties = inputPropertiesBuilder.get();
+      if (!inputProperties.isEmpty()) {
+        for (final String propertyName : inputProperties.getProperties()) {
+          propertiesBuilder.with(propertyName, inputProperties.getValues(propertyName));
         }
       }
     }

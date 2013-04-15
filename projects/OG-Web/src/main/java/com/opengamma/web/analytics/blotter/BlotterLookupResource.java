@@ -26,8 +26,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -189,6 +189,7 @@ public class BlotterLookupResource {
     schemes.put("Tullett Prebon SURF", ExternalSchemes.SURF);
     schemes.put("ICAP", ExternalSchemes.ICAP);
     schemes.put("GMI", ExternalSchemes.GMI);
+    schemes.put("Markit RED Code", ExternalSchemes.MARKIT_RED_CODE);
     return new JSONObject(schemes).toString();
   }
 

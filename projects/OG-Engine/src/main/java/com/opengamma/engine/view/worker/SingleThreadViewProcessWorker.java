@@ -36,8 +36,12 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.PortfolioNodeEquivalenceMapper;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
@@ -167,9 +171,19 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private final ViewProcessWorkerContext _context;
   private final ViewExecutionOptions _executionOptions;
-  private final ViewCycleTrigger _masterCycleTrigger;
+  private final CombinedViewCycleTrigger _masterCycleTrigger = new CombinedViewCycleTrigger();
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
+  private final boolean _executeGraphs;
+  private final boolean _ignoreCompilationValidity;
+
+  /**
+   * The changes to the master trigger that must be made during the next cycle.
+   * <p>
+   * This has been added as an immediate fix for [PLAT-3291] but could be extended to represent an arbitrary change to add/remove triggers if we wish to support the execution options changing for a
+   * running worker.
+   */
+  private ViewCycleTrigger _masterCycleTriggerChanges;
 
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
@@ -193,28 +207,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<ValueSpecification>();
   private final Set<ValueSpecification> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
 
-  /**
-   * Marker for the state of watched targets.
-   */
-  private static enum TargetState {
-    /**
-     * Notification of changes to the target are required, but it must be checked for any changes between when it was last queried and this state was stored. After such a check, the state may be
-     * changed to {@link #WAITING}.
-     */
-    REQUIRED,
-    /**
-     * Notification of changes to the target are required, none have been received, and it will not be checked unless notified. After a change is received, the state may be changed to {@link #CHANGED}
-     * .
-     */
-    WAITING,
-    /**
-     * Notification of changes to the target are required, at least one is pending, and it must now be checked. Before the check is made, the state may be changed to {@link #WAITING}.
-     */
-    CHANGED
-  }
-
-  private ConcurrentMap<ObjectId, TargetState> _changedTargets;
-  private ChangeListener _targetResolverChangeListener;
+  private TargetResolverChangeListener _targetResolverChanges;
 
   private volatile boolean _wakeOnCycleRequest;
   private volatile boolean _cycleRequested;
@@ -261,22 +254,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _executionOptions = executionOptions;
     _cycleRequested = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
-    _masterCycleTrigger = createViewCycleTrigger(executionOptions);
-    _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
-    _viewDefinition = viewDefinition;
-    _job = new Job();
-    _thread = new BorrowedThread(context.toString(), _job);
-    s_executor.submit(_thread);
-  }
-
-  private ViewCycleTrigger createViewCycleTrigger(final ViewExecutionOptions executionOptions) {
-    final CombinedViewCycleTrigger trigger = new CombinedViewCycleTrigger();
-    trigger.addTrigger(_compilationExpiryCycleTrigger);
-    if (executionOptions.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
-      trigger.addTrigger(new RunAsFastAsPossibleTrigger());
-    }
+    addMasterCycleTrigger(_compilationExpiryCycleTrigger);
     if (executionOptions.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED)) {
-      trigger.addTrigger(new RecomputationPeriodTrigger(new Supplier<ViewDefinition>() {
+      addMasterCycleTrigger(new RecomputationPeriodTrigger(new Supplier<ViewDefinition>() {
         @Override
         public ViewDefinition get() {
           return getViewDefinition();
@@ -284,9 +264,23 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       }));
     }
     if (executionOptions.getMaxSuccessiveDeltaCycles() != null) {
-      trigger.addTrigger(new SuccessiveDeltaLimitTrigger(executionOptions.getMaxSuccessiveDeltaCycles()));
+      addMasterCycleTrigger(new SuccessiveDeltaLimitTrigger(executionOptions.getMaxSuccessiveDeltaCycles()));
     }
-    return trigger;
+    if (executionOptions.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
+      if (_cycleRequested) {
+        addMasterCycleTrigger(new RunAsFastAsPossibleTrigger());
+      } else {
+        // Defer the trigger until an initial one has happened
+        _masterCycleTriggerChanges = new RunAsFastAsPossibleTrigger();
+      }
+    }
+    _executeCycles = !executionOptions.getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
+    _executeGraphs = !executionOptions.getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
+    _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
+    _viewDefinition = viewDefinition;
+    _job = new Job();
+    _thread = new BorrowedThread(context.toString(), _job);
+    s_executor.submit(_thread);
   }
 
   private ViewProcessWorkerContext getWorkerContext() {
@@ -303,6 +297,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private ViewCycleTrigger getMasterCycleTrigger() {
     return _masterCycleTrigger;
+  }
+
+  private void addMasterCycleTrigger(final ViewCycleTrigger trigger) {
+    _masterCycleTrigger.addTrigger(trigger);
   }
 
   public FixedTimeTrigger getCompilationExpiryCycleTrigger() {
@@ -339,11 +337,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       } catch (final InterruptedException e) {
         return;
       }
-
       ViewCycleExecutionOptions executionOptions = null;
       try {
         if (!getExecutionOptions().getExecutionSequence().isEmpty()) {
-          executionOptions = getExecutionOptions().getExecutionSequence().getNext(getExecutionOptions().getDefaultExecutionOptions());
+          executionOptions = getExecutionOptions().getExecutionSequence().poll(getExecutionOptions().getDefaultExecutionOptions());
           s_logger.debug("Next cycle execution options: {}", executionOptions);
         }
         if (executionOptions == null) {
@@ -409,28 +406,32 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       try {
         // Don't query the cache so that the process gets a "compiled" message even if a cached compilation is used
         final CompiledViewDefinitionWithGraphs previous = _latestCompiledViewDefinition;
-        compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
-        if (compiledViewDefinition == null) {
-          s_logger.warn("Job terminated during view compilation");
-          return;
-        }
-        if ((previous == null) || !previous.getCompilationIdentifier().equals(compiledViewDefinition.getCompilationIdentifier())) {
-          if (_changedTargets != null) {
-            // We'll try to register for changes that will wake us up for a cycle if market data is not ticking
-            if (previous != null) {
-              final Set<UniqueId> subscribedIds = new HashSet<UniqueId>(previous.getResolvedIdentifiers().values());
-              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
-                if (!subscribedIds.contains(uid)) {
-                  _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
+        if (_ignoreCompilationValidity && (previous != null)) {
+          compiledViewDefinition = previous;
+        } else {
+          compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
+          if (compiledViewDefinition == null) {
+            s_logger.warn("Job terminated during view compilation");
+            return;
+          }
+          if ((previous == null) || !previous.getCompilationIdentifier().equals(compiledViewDefinition.getCompilationIdentifier())) {
+            if (_targetResolverChanges != null) {
+              // We'll try to register for changes that will wake us up for a cycle if market data is not ticking
+              if (previous != null) {
+                final Set<UniqueId> subscribedIds = new HashSet<UniqueId>(previous.getResolvedIdentifiers().values());
+                for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                  if (!subscribedIds.contains(uid)) {
+                    _targetResolverChanges.watch(uid.getObjectId());
+                  }
+                }
+              } else {
+                for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                  _targetResolverChanges.watch(uid.getObjectId());
                 }
               }
-            } else {
-              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
-                _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
-              }
             }
+            viewDefinitionCompiled(executionOptions, compiledViewDefinition);
           }
-          viewDefinitionCompiled(executionOptions, compiledViewDefinition);
         }
       } catch (final Exception e) {
         final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}", getViewDefinition().getUniqueId(),
@@ -476,6 +477,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             configToComputationTargets.put(graph.getCalculationConfigurationName(), graph.getAllComputationTargets());
             configToTerminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs());
           }
+          if (isTerminated()) {
+            return;
+          }
           cycleStarted(new DefaultViewCycleMetadata(
               cycleReference.get().getUniqueId(),
               marketDataSnapshot.getUniqueId(),
@@ -485,6 +489,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
               singleComputationCycle.getAllCalculationConfigurationNames(),
               configToComputationTargets,
               configToTerminalOutputs));
+          if (isTerminated()) {
+            return;
+          }
           executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
         } catch (final InterruptedException e) {
           // Execution interrupted - don't propagate as failure
@@ -616,6 +623,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           s_logger.error("Error notifying trigger of intention to execute cycle", e);
         }
         s_logger.debug("Eligible for {} cycle", cycleType);
+        if (_masterCycleTriggerChanges != null) {
+          // TODO: If we wish to support execution option changes mid-execution, we will need to add/remove any relevant triggers here
+          // Currently only the run-as-fast-as-possible trigger becomes valid for the second cycle if we've also got wait-for-initial-trigger
+          addMasterCycleTrigger(_masterCycleTriggerChanges);
+          _masterCycleTriggerChanges = null;
+        }
         return cycleType;
       }
 
@@ -663,21 +676,25 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         deltaCycle = null;
       }
     }
-
-    try {
-      cycleReference.get().execute(deltaCycle, marketDataSnapshot, s_executor);
-    } catch (final InterruptedException e) {
-      Thread.interrupted();
-      // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
-      // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
-      // interrupted cycle never happened so that deltas will be calculated from the previous cycle.
-      s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
-      throw e;
-    } catch (final Exception e) {
-      s_logger.error("Error while executing view cycle", e);
-      throw e;
+    cycleReference.get().preExecute(deltaCycle, marketDataSnapshot);
+    if (_executeGraphs) {
+      try {
+        cycleReference.get().execute(s_executor);
+      } catch (final InterruptedException e) {
+        Thread.interrupted();
+        // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
+        // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
+        // interrupted cycle never happened so that deltas will be calculated from the previous cycle.
+        s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
+        throw e;
+      } catch (final Exception e) {
+        s_logger.error("Error while executing view cycle", e);
+        throw e;
+      }
+    } else {
+      s_logger.debug("Skipping graph execution");
     }
-
+    cycleReference.get().postExecute();
     final long durationNanos = cycleReference.get().getDuration().toNanos();
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
@@ -716,39 +733,21 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   }
 
   private void subscribeToTargetResolverChanges() {
-    if (_changedTargets == null) {
-      assert _targetResolverChangeListener == null;
-      final ConcurrentMap<ObjectId, TargetState> changed = new ConcurrentHashMap<ObjectId, TargetState>();
-      _changedTargets = changed;
-      _targetResolverChangeListener = new ChangeListener() {
+    if (_targetResolverChanges == null) {
+      _targetResolverChanges = new TargetResolverChangeListener() {
         @Override
-        public void entityChanged(final ChangeEvent event) {
-          final ObjectId oid = event.getObjectId();
-          TargetState state = changed.get(oid);
-          if (state == null) {
-            return;
-          }
-          if ((state == TargetState.WAITING) || (state == TargetState.REQUIRED)) {
-            if (changed.replace(oid, state, TargetState.CHANGED)) {
-              // If the state changed to anything else, we either don't need the notification or another change message overtook
-              // this one and a cycle has already been triggered.
-              s_logger.info("Received change notification for {}", event.getObjectId());
-              requestCycle();
-              return;
-            }
-          }
+        protected void onChanged() {
+          requestCycle();
         }
       };
-      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().addChangeListener(_targetResolverChangeListener);
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().addChangeListener(_targetResolverChanges);
     }
   }
 
   private void unsubscribeFromTargetResolverChanges() {
-    if (_changedTargets != null) {
-      assert _targetResolverChangeListener != null;
-      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_targetResolverChangeListener);
-      _targetResolverChangeListener = null;
-      _changedTargets = null;
+    if (_targetResolverChanges != null) {
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_targetResolverChanges);
+      _targetResolverChanges = null;
     }
   }
 
@@ -771,7 +770,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     // Note: NOW means NOW as the caller has requested LATEST. We should not be using the valuation time.
     if (vc.getCorrectedTo() == null) {
       if (vc.getVersionAsOf() == null) {
-        subscribeToTargetResolverChanges();
+        if (!_ignoreCompilationValidity) {
+          subscribeToTargetResolverChanges();
+        }
         return vc.withLatestFixed(Instant.now());
       } else {
         vc = vc.withLatestFixed(Instant.now());
@@ -783,7 +784,44 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return vc;
   }
 
-  private void removePortfolioTerminalOutputs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final CompiledViewDefinitionWithGraphs compiledViewDefinition) {
+  private PortfolioNodeEquivalenceMapper getNodeEquivalenceMapper() {
+    return new PortfolioNodeEquivalenceMapper();
+  }
+
+  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped) {
+    if (mapped.containsKey(node.getUniqueId())) {
+      return;
+    }
+    if (unmapped.add(node.getUniqueId())) {
+      for (PortfolioNode child : node.getChildNodes()) {
+        findUnmapped(child, mapped, unmapped);
+      }
+      for (Position child : node.getPositions()) {
+        if (unmapped.add(child.getUniqueId())) {
+          for (Trade trade : child.getTrades()) {
+            unmapped.add(trade.getUniqueId());
+          }
+        }
+      }
+    }
+  }
+
+  private Set<UniqueId> rewritePortfolioNodes(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final CompiledViewDefinitionWithGraphs compiledViewDefinition,
+      final Portfolio newPortfolio) {
+    // Map any nodes from the old portfolio structure to the new one
+    final Map<UniqueId, UniqueId> mapped;
+    if (newPortfolio != null) {
+      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(), newPortfolio.getRootNode());
+    } else {
+      mapped = Collections.emptyMap();
+    }
+    // Identify anything not (immediately) mapped to the new portfolio structure
+    final Set<UniqueId> unmapped = new HashSet<UniqueId>();
+    findUnmapped(compiledViewDefinition.getPortfolio().getRootNode(), mapped, unmapped);
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Mapping {} portfolio nodes to new structure, unmapping {} targets", mapped.size(), unmapped.size());
+    }
+    // For anything not mapped, remove the terminal outputs from the graph
     for (final ViewCalculationConfiguration calcConfig : compiledViewDefinition.getViewDefinition().getAllCalculationConfigurations()) {
       final Set<ValueRequirement> specificRequirements = calcConfig.getSpecificRequirements();
       final Pair<DependencyGraph, Set<ValueRequirement>> previousGraphEntry = previousGraphs.get(calcConfig.getName());
@@ -797,24 +835,48 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final List<ValueRequirement>[] removeRequirements = new List[terminalOutputs.size()];
       int remove = 0;
       for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
-        List<ValueRequirement> removal = null;
-        for (final ValueRequirement requirement : entry.getValue()) {
-          if (!specificRequirements.contains(requirement)) {
-            if (removal == null) {
-              removal = new ArrayList<ValueRequirement>(entry.getValue().size());
+        if (unmapped.contains(entry.getKey().getTargetSpecification().getUniqueId())) {
+          List<ValueRequirement> removal = null;
+          for (final ValueRequirement requirement : entry.getValue()) {
+            if (!specificRequirements.contains(requirement)) {
+              if (removal == null) {
+                removal = new ArrayList<ValueRequirement>(entry.getValue().size());
+              }
+              removal.add(requirement);
             }
-            removal.add(requirement);
+            // Anything that was in the specific requirements will be captured by the standard invalid identifier tests
           }
-        }
-        if (removal != null) {
-          removeSpecifications[remove] = entry.getKey();
-          removeRequirements[remove++] = removal;
+          if (removal != null) {
+            removeSpecifications[remove] = entry.getKey();
+            removeRequirements[remove++] = removal;
+          }
         }
       }
       for (int i = 0; i < remove; i++) {
         previousGraph.removeTerminalOutputs(removeRequirements[i], removeSpecifications[i]);
       }
+      if (!mapped.isEmpty()) {
+        final ComputationTargetIdentifierRemapVisitor remapper = new ComputationTargetIdentifierRemapVisitor(mapped);
+        final Collection<Object> replacements = new ArrayList<Object>(mapped.size() * 2);
+        for (DependencyNode node : previousGraph.getDependencyNodes()) {
+          final ComputationTargetSpecification newTarget = remapper.remap(node.getComputationTarget());
+          if (newTarget != null) {
+            replacements.add(node);
+            replacements.add(newTarget);
+          }
+        }
+        final Iterator<Object> itrReplacements = replacements.iterator();
+        while (itrReplacements.hasNext()) {
+          final DependencyNode node = (DependencyNode) itrReplacements.next();
+          final ComputationTargetSpecification newTarget = (ComputationTargetSpecification) itrReplacements.next();
+          s_logger.debug("Rewriting {} to {}", node, newTarget);
+          previousGraph.replaceNode(node, newTarget);
+        }
+      }
     }
+    // Remove any PORTFOLIO nodes and any unmapped PORTFOLIO_NODE nodes with the filter
+    filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter(unmapped), null);
+    return new HashSet<UniqueId>(mapped.values());
   }
 
   /**
@@ -828,7 +890,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     long t = -System.nanoTime();
     // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
     final Set<ComputationTargetReference> toCheck;
-    if (_changedTargets == null) {
+    if (_targetResolverChanges == null) {
       // Change notifications aren't relevant for historical iteration; must recheck all of the resolutions
       toCheck = previousResolutions.keySet();
     } else {
@@ -837,18 +899,14 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
       for (final Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
         final ObjectId oid = previousResolution.getValue().getObjectId();
-        if (_changedTargets.replace(oid, TargetState.CHANGED, TargetState.WAITING)) {
+        if (_targetResolverChanges.isChanged(oid)) {
           // A change was seen on this target
           s_logger.debug("Change observed on {}", oid);
-          toCheck.add(previousResolution.getKey());
-        } else if (_changedTargets.putIfAbsent(oid, TargetState.WAITING) == null) {
-          // We've not been monitoring this target for changes - better start doing so
-          s_logger.debug("Added {} to change observation set", oid);
           toCheck.add(previousResolution.getKey());
         }
         allObjectIds.add(oid);
       }
-      _changedTargets.keySet().retainAll(allObjectIds);
+      _targetResolverChanges.watchOnly(allObjectIds);
       if (toCheck.isEmpty()) {
         s_logger.debug("No resolutions (from {}) to check", previousResolutions.size());
         return null;
@@ -982,8 +1040,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    * 
    * @param previousGraphs the previously used graphs as a map from calculation configuration name to the graph and the value requirements that need to be recalculated, not null
    * @param filter the filter to identify invalid nodes, not null
+   * @param unchangedNodes optional identifiers of unchanged portfolio nodes; any nodes filtered out must be removed from this
    */
-  private void filterPreviousGraphs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final DependencyNodeFilter filter) {
+  private void filterPreviousGraphs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final DependencyNodeFilter filter, final Set<UniqueId> unchangedNodes) {
     final Iterator<Map.Entry<String, Pair<DependencyGraph, Set<ValueRequirement>>>> itr = previousGraphs.entrySet().iterator();
     while (itr.hasNext()) {
       final Map.Entry<String, Pair<DependencyGraph, Set<ValueRequirement>>> entry = itr.next();
@@ -1010,6 +1069,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
                 missingRequirements.addAll(terminal);
               }
             }
+            if (unchangedNodes != null) {
+              unchangedNodes.remove(node.getComputationTarget().getUniqueId());
+            }
             return false;
           }
         }
@@ -1018,7 +1080,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         s_logger.info("Discarded total dependency graph for {}", entry.getKey());
         itr.remove();
       } else {
-        s_logger.info("Removed {} nodes from dependency graph for {}", nodes.size() - filtered.getSize(), entry.getKey());
+        if (s_logger.isInfoEnabled()) {
+          s_logger.info("Removed {} nodes from dependency graph for {} by {}", new Object[] {nodes.size() - filtered.getSize(), entry.getKey(), filter });
+        }
         entry.setValue(Pair.of(filtered, missingRequirements));
       }
     }
@@ -1036,8 +1100,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       compiledViewDefinition = getCachedCompiledViewDefinition(valuationTime, versionCorrection);
       Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
       ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
-      boolean portfolioFull = false;
       Set<UniqueId> changedPositions = null;
+      Set<UniqueId> unchangedNodes = null;
       boolean marketDataProviderDirty = _marketDataProviderDirty;
       _marketDataProviderDirty = false;
       if (compiledViewDefinition != null) {
@@ -1057,18 +1121,20 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             final Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
             if (invalidIdentifiers != null) {
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              if (invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
-                // The portfolio resolution is different, invalidate all PORTFOLIO and PORTFOLIO_NODE nodes in the graph
-                removePortfolioTerminalOutputs(previousGraphs, compiledViewDefinition);
-                filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter());
-                portfolioFull = true;
+              if ((compiledViewDefinition.getPortfolio() != null) && invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
+                // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
+                // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
+                // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
+                final ComputationTarget newPortfolio = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver()
+                    .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                unchangedNodes = rewritePortfolioNodes(previousGraphs, compiledViewDefinition, (Portfolio) newPortfolio.getValue());
               }
               // Invalidate any dependency graph nodes on the invalid targets
-              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()));
+              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()), unchangedNodes);
               previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers.size());
               for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
                 if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
-                  if (!portfolioFull && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
+                  if ((unchangedNodes == null) && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
                     // At least one position has changed, add all portfolio targets
                     ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
                     if (ctspec != null) {
@@ -1090,7 +1156,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           if (!CompiledViewDefinitionWithGraphsImpl.isValidFor(compiledViewDefinition, valuationTime)) {
             // Invalidate any dependency graph nodes that use functions that are no longer valid
             previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-            filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime));
+            filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime), unchangedNodes);
           }
           if (marketDataProviderDirty) {
             // Invalidate any market data sourcing nodes that are no longer valid
@@ -1099,7 +1165,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             getInvalidMarketData(previousGraphs, compiledViewDefinition, filter);
             if (filter.hasInvalidNodes()) {
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              filterPreviousGraphs(previousGraphs, filter);
+              filterPreviousGraphs(previousGraphs, filter, unchangedNodes);
             }
           }
           if (previousGraphs == null) {
@@ -1116,14 +1182,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       if (previousGraphs != null) {
-        if (portfolioFull) {
-          s_logger.info("Performing incremental graph compilation with portfolio resolution");
-          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions);
-        } else {
-          s_logger.info("Performing incremental graph compilation");
-          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions,
-              changedPositions);
-        }
+        s_logger.info("Performing incremental graph compilation");
+        _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs,
+            previousResolutions, changedPositions, unchangedNodes);
       } else {
         s_logger.info("Performing full graph compilation");
         _compilationTask = ViewDefinitionCompiler.fullCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
@@ -1185,10 +1246,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         if (cached != null) {
           // Only update ours if the one from the cache has a better validity
           if (resolverVersionCorrection.equals(cached.getResolverVersionCorrection())) {
-            _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+            cached = PLAT3249.deepClone(cached);
+            _latestCompiledViewDefinition = cached;
           } else {
             if (!resolverMatch && !valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
-              _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+              cached = PLAT3249.deepClone(cached);
+              _latestCompiledViewDefinition = cached;
             }
           }
         } else {
@@ -1200,7 +1263,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       // Query the cache
       cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
       if (cached != null) {
-        _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+        cached = PLAT3249.deepClone(cached);
+        _latestCompiledViewDefinition = cached;
       }
     }
     return cached;
@@ -1400,14 +1464,15 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   // ViewComputationJob
 
   @Override
-  public synchronized void triggerCycle() {
+  public synchronized boolean triggerCycle() {
     s_logger.debug("Cycle triggered manually");
     _forceTriggerCycle = true;
     notifyAll();
+    return true;
   }
 
   @Override
-  public synchronized void requestCycle() {
+  public synchronized boolean requestCycle() {
     // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
     // high-frequency market data. See how it goes, but we could take into account the recalc periods and apply a
     // heuristic (e.g. only wake up due to market data if max - min < e, for some e) which tries to see whether it's
@@ -1415,9 +1480,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     _cycleRequested = true;
     if (!_wakeOnCycleRequest) {
-      return;
+      return true;
     }
     notifyAll();
+    return true;
   }
 
   @Override

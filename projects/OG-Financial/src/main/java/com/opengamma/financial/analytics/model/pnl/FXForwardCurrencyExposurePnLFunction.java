@@ -105,7 +105,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
           .withAny(ValuePropertyNames.SAMPLING_PERIOD)
           .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
           .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-          .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE)
+          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE)
           .get();
       final ComputationTargetSpecification targetSpec = target.toSpecification();
       return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, targetSpec, properties));

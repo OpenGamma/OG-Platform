@@ -38,7 +38,6 @@ tests/output/
 javadoc
 lib/
 /projects/*/target/
-.idea/
 .DS_Store
 .*.sw?
 logs/
@@ -61,3 +60,6 @@ docs.sqlite3
 .idea/libraries
 .idea/workspace.xml
 .idea/dictionaries
+.idea/inspectionProfiles
+.idea/misc.xml
+.idea/validation.xml

@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Clipboard',
     dependencies: ['og.analytics.Data'],
     obj: function () {
-        var module = this, tab = '\t', line = '\n', textarea, node, is_array = $.isArray, formatters = {
+        var module = this, tab = '\t', line = '\n', textarea, is_array = $.isArray, formatters = {
             CURVE: function (value, single) {
                 if (!single) return '**CURVE**';
                 return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
@@ -165,7 +165,7 @@ $.register_module({
             clipboard.data = null;
         };
         $(function () {
-            node = (textarea = $('<textarea readonly="readonly" />').appendTo('body')
+            (textarea = $('<textarea readonly="readonly" />').appendTo('body')
                 .css({position: 'absolute', top: '-500px', left: '-500px', width: '100px', height: '100px'}))[0];
         });
         return Clipboard;

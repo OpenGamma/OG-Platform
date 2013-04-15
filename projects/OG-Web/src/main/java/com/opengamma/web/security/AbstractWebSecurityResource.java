@@ -26,6 +26,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityLoader;
@@ -68,15 +69,19 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
+   * @param organizationMaster the organization master, not null
    */
-  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster) {
+  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, 
+      final OrganizationMaster organizationMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(htsMaster, "htsMaster");
+    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
     _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);
     data().setHistoricalTimeSeriesMaster(htsMaster);
+    data().setOrganizationMaster(organizationMaster);
   }
 
   /**
@@ -133,7 +138,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   protected void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
     if (security instanceof FinancialSecurity) {
       FinancialSecurity financialSec = (FinancialSecurity) security;
-      financialSec.accept(new SecurityTemplateModelObjectBuilder(out, data().getSecurityMaster()));
+      financialSec.accept(new SecurityTemplateModelObjectBuilder(out, data().getSecurityMaster(), data().getOrganizationMaster()));
     } else {
       if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
         RawSecurity rawSecurity = (RawSecurity) security;

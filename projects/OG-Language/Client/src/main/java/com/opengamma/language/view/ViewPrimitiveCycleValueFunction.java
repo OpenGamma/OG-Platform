@@ -6,17 +6,14 @@
 package com.opengamma.language.view;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.BooleanUtils;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.UniqueId;
@@ -29,7 +26,6 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -62,23 +58,26 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
     this(new DefinitionAnnotater(ViewPrimitiveCycleValueFunction.class));
   }
 
-  public static Object invoke(final ViewComputationResultModel resultModel, final String calcConfigName, final ValueRequirement valueRequirement, final String notAvailableValue,
-      final boolean flattenValue) {
-    final ValueSpecification valueSpec = findValueSpecification(resultModel, valueRequirement);
-    if (valueSpec == null) {
-      // TODO should return #NA if notAvailableValue is null
-      return notAvailableValue;
-    }
+  public static Object invoke(final ViewComputationResultModel resultModel, final String calcConfigName, final String valueName, final ComputationTargetSpecification target,
+      final ValueProperties constraints, final String notAvailableValue, final boolean flattenValue) {
     final ViewCalculationResultModel calcResultModel = resultModel.getCalculationResult(calcConfigName);
     if (calcResultModel == null) {
       // TODO should return #NA if notAvailableValue is null
       return notAvailableValue;
     }
-    final Map<Pair<String, ValueProperties>, ComputedValueResult> targetResults = calcResultModel.getValues(valueSpec.getTargetSpecification());
-    final ComputedValueResult result = targetResults.get(Pair.of(valueSpec.getValueName(), valueSpec.getProperties()));
-    final Object resultValue = result != null ? result.getValue() : null;
-    if (resultValue != null) {
-      return flattenValue ? resultValue.toString() : resultValue;
+    Collection<ComputedValueResult> results = calcResultModel.getAllValues(target);
+    if (results == null) {
+      // TODO should return #NA if notAvailableValue is null
+      return notAvailableValue;
+    }
+    for (ComputedValueResult result : results) {
+      if (valueName.equals(result.getSpecification().getValueName()) && constraints.isSatisfiedBy(result.getSpecification().getProperties())) {
+        final Object resultValue = result.getValue();
+        if (resultValue != null) {
+          // TODO: Use more intelligent value flatteners than toString
+          return flattenValue ? resultValue.toString() : resultValue;
+        }
+      }
     }
     return notAvailableValue;
   }
@@ -91,23 +90,12 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
     final String notAvailableValue = (String) parameters[3];
     final boolean flattenValue = BooleanUtils.isTrue((Boolean) parameters[4]);
     final ComputationTargetSpecification target = ComputationTargetSpecification.of(targetId);
-    return invoke(resultModel, requirement.getFirst(), new ValueRequirement(requirement.getSecond(), target, requirement.getThird()),
-        notAvailableValue, flattenValue);
+    return invoke(resultModel, requirement.getFirst(), requirement.getSecond(), target, requirement.getThird(), notAvailableValue, flattenValue);
   }
 
   @Override
   public MetaFunction getMetaFunction() {
     return _meta;
-  }
-
-  //-------------------------------------------------------------------------
-  private static ValueSpecification findValueSpecification(final ViewComputationResultModel resultModel, final ValueRequirement valueRequirement) {
-    for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : resultModel.getRequirementToSpecificationMapping().entrySet()) {
-      if (entry.getValue().contains(valueRequirement)) {
-        return entry.getKey();
-      }
-    }
-    return null;
   }
 
 }

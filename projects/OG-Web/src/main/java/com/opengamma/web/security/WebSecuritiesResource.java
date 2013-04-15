@@ -40,6 +40,7 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -70,10 +71,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
+   * @param organizationMaster the organization master, not null
    */
   public WebSecuritiesResource(
-      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster) {
-    super(securityMaster, securityLoader, htsMaster);
+      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, final OrganizationMaster organizationMaster) {
+    super(securityMaster, securityLoader, htsMaster, organizationMaster);
   }
 
   //-------------------------------------------------------------------------
@@ -273,8 +275,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     out.put("searchRequest", searchRequest);
-    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(new SecurityMetaDataRequest());
+    final SecurityMetaDataRequest request = new SecurityMetaDataRequest();
+    request.setSchemaVersion(true);
+    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
     out.put("securityTypes", new TreeSet<String>(metaData.getSecurityTypes()));
+    out.put("schemaVersion", metaData.getSchemaVersion());
     return out;
   }
 

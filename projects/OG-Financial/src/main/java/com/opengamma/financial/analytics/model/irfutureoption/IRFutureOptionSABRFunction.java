@@ -35,6 +35,7 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -64,7 +65,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -150,10 +150,21 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       return false;
     }
     // REVIEW Andrew 2012-01-17 -- This shouldn't be necessary; the securities in the master should be logically correct and not refer to incorrect or missing underlyings
-    // REVIEW Andrew 2012-01-17 -- This call is wrong; getSingle won't observe the view cycle's object resolution time
-    final Security underlyingSecurity = context.getSecuritySource().getSingle(ExternalIdBundle.of(((IRFutureOptionSecurity) security).getUnderlyingId()));
-    if (!(underlyingSecurity instanceof InterestRateFutureSecurity)) {
-      s_logger.error("Loader error: " + security.getName() + ", supposedly an IRateFutureOption has an underlying that is not an IRFuture: " + underlyingSecurity.getName());
+    final ExternalId identifier = ((IRFutureOptionSecurity) security).getUnderlyingId();
+    final ComputationTargetRequirement underlyingTarget = new ComputationTargetRequirement(ComputationTargetType.SECURITY, identifier);
+    final ComputationTargetSpecification underlyingSpecification = context.getComputationTargetResolver().getSpecificationResolver().getTargetSpecification(underlyingTarget);
+    if (underlyingSpecification == null) {
+      s_logger.error("Loader error: " + security.getName() + " - cannot resolve underlying identifier " + identifier);
+      return false;
+    }
+    final ComputationTarget underlying = context.getComputationTargetResolver().resolve(underlyingSpecification);
+    if (underlying == null) {
+      s_logger.error("Loader error: " + security.getName() + " - cannot resolve underlying " + underlyingSpecification);
+      return false;
+    }
+    final Security underlyingSecurity = underlying.getSecurity();
+    if (!(underlying.getValue() instanceof InterestRateFutureSecurity)) {
+      s_logger.error("Loader error: " + security.getName() + " - IRateFutureOption has an underlying that is not an IRFuture: " + underlyingSecurity.getName());
       return false;
     }
     return true;

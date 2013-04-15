@@ -131,7 +131,7 @@ public class ObligorMarkitSectorAggregatorFunctionTest {
 
   private StandardVanillaCDSSecurity createCdsWithRedCode(String redcode) {
     return new StandardVanillaCDSSecurity(true, ExternalId.of("EXTERNAL_CODE", "ProtBuyer"),
-                                                            ExternalId.of("EXTERNAL_CODE" ,"ProtSeller"), ExternalSchemes.redCode(redcode),
+                                                            ExternalId.of("EXTERNAL_CODE" ,"ProtSeller"), ExternalSchemes.markItRedCode(redcode),
                                                             DebtSeniority.SNRFOR, RestructuringClause.MM, ExternalSchemes.financialRegionId("US"),
                                                             createZdt(2013, 3, 20), createZdt(2013, 3, 21), createZdt(2014,3,20), StubType.SHORT_START,
                                                             SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/360"),

@@ -62,7 +62,7 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
     ValueProperties.Builder requirementConstraints = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.CURRENCY)
         .with(HistoricalValuationFunction.PASSTHROUGH_PREFIX + ValuePropertyNames.CURRENCY, desiredCurrencies)
-        .withoutAny(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS)
+        .withoutAny(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS)
         .withoutAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withoutAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withoutAny(ValuePropertyNames.SAMPLING_PERIOD);
@@ -109,7 +109,7 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
         .withoutAny(ValuePropertyNames.FUNCTION)
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .with(ValuePropertyNames.CURRENCY, currencies)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Full")
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Full")
         .withoutAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
         .withoutAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, ScheduleCalculatorFactory.DAILY)

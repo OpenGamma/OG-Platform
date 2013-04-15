@@ -114,7 +114,7 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
   }
 
   private ExternalId getIdentifier(final String ticker) {
-    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, ticker);
+    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, ticker);
   }
 
   public Set<ExternalId> getInstruments(final Currency currency, final VolatilityPoint point) {

@@ -161,7 +161,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebRegionsResource.class, getRegionMaster());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster());
+    resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getOrganizationMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebPositionsResource.class, getPositionMaster(), getSecurityLoader(), getSecuritySource(), getHistoricalTimeSeriesSource());
     repo.getRestComponents().publishResource(resource);
@@ -185,8 +185,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       repo.getRestComponents().publishResource(
           new WebValueRequirementNamesResource(valueRequirementNameClasses.split(",")));
     } else {
-      repo.getRestComponents().publishResource(new WebValueRequirementNamesResource(new String[]
-          {valueRequirementNameClasses}));
+      repo.getRestComponents().publishResource(new WebValueRequirementNamesResource(new String[] {valueRequirementNameClasses}));
     }
   }
 

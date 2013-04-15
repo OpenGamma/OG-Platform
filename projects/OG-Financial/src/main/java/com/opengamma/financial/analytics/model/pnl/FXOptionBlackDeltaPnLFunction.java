@@ -116,7 +116,7 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction {
           .withAny(ValuePropertyNames.SAMPLING_PERIOD)
           .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
           .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-          .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE)
+          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE)
           .get();
       return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     }

@@ -13,7 +13,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -38,6 +38,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -258,8 +259,8 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   }
   
   @Override
-  public String visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
-    return "cds-index.ftl";
+  public String visitCreditDefaultSwapIndexDefinitionSecurity(CreditDefaultSwapIndexDefinitionSecurity security) {
+    return "cds-index-definition.ftl";
   }
   
   @Override
@@ -290,6 +291,13 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public String visitLegacyRecoveryLockCDSSecurity(LegacyRecoveryLockCDSSecurity security) {
     return "legacy-recovery-lock-cds.ftl";
+  }
+  
+  
+
+  @Override
+  public String visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
+    return "cds-option.ftl";
   }
 
   private String getBond() {
