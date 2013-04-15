@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -68,6 +69,15 @@ public final class ImmutableZonedDateTimeDoubleTimeSeries
   }
 
   /**
+   * Obtains a time-series from a single date and value, using a UTC zone.
+   * 
+   * @return the time-series, not null
+   */
+  public static ImmutableZonedDateTimeDoubleTimeSeries ofEmptyUTC() {
+    return ofEmpty(ZoneOffset.UTC);
+  }
+
+  /**
    * Obtains a time-series from a single instant and value.
    * 
    * @param instant  the singleton instant, not null
@@ -99,6 +109,18 @@ public final class ImmutableZonedDateTimeDoubleTimeSeries
   }
 
   /**
+   * Obtains a time-series from matching arrays of instants and values, using a UTC zone.
+   * 
+   * @param instants  the instant array, not null
+   * @param values  the value array, not null
+   * @return the time-series, not null
+   * @throws IllegalArgumentException if the arrays are of different lengths
+   */
+  public static ImmutableZonedDateTimeDoubleTimeSeries ofUTC(ZonedDateTime[] instants, Double[] values) {
+    return of(instants, values, ZoneOffset.UTC);
+  }
+
+  /**
    * Obtains a time-series from matching arrays of instants and values.
    * 
    * @param instants  the instant array, not null
@@ -113,6 +135,18 @@ public final class ImmutableZonedDateTimeDoubleTimeSeries
     double[] valuesArray = values.clone();
     zone = (zone != null ? zone : instants[0].getZone());
     return new ImmutableZonedDateTimeDoubleTimeSeries(timesArray, valuesArray, zone);
+  }
+
+  /**
+   * Obtains a time-series from matching arrays of instants and values, using a UTC zone.
+   * 
+   * @param instants  the instant array, not null
+   * @param values  the value array, not null
+   * @return the time-series, not null
+   * @throws IllegalArgumentException if the arrays are of different lengths
+   */
+  public static ImmutableZonedDateTimeDoubleTimeSeries ofUTC(ZonedDateTime[] instants, double[] values) {
+    return of(instants, values, ZoneOffset.UTC);
   }
 
   /**
@@ -133,6 +167,18 @@ public final class ImmutableZonedDateTimeDoubleTimeSeries
   }
 
   /**
+   * Obtains a time-series from matching arrays of instants and values, using a UTC zone.
+   * 
+   * @param instants  the instant array, not null
+   * @param values  the value array, not null
+   * @return the time-series, not null
+   * @throws IllegalArgumentException if the arrays are of different lengths
+   */
+  public static ImmutableZonedDateTimeDoubleTimeSeries ofUTC(long[] instants, double[] values) {
+    return of(instants, values, ZoneOffset.UTC);
+  }
+
+  /**
    * Obtains a time-series from matching arrays of instants and values.
    * 
    * @param instants  the instant list, not null
@@ -147,6 +193,18 @@ public final class ImmutableZonedDateTimeDoubleTimeSeries
     zone = (zone != null ? zone : instants.iterator().next().getZone());
     validate(timesArray, valuesArray);
     return new ImmutableZonedDateTimeDoubleTimeSeries(timesArray, valuesArray, zone);
+  }
+
+  /**
+   * Obtains a time-series from matching arrays of instants and values, using a UTC zone.
+   * 
+   * @param instants  the instant list, not null
+   * @param values  the value list, not null
+   * @return the time-series, not null
+   * @throws IllegalArgumentException if the arrays are of different lengths
+   */
+  public static ImmutableZonedDateTimeDoubleTimeSeries ofUTC(Collection<ZonedDateTime> instants, Collection<Double> values) {
+    return of(instants, values, ZoneOffset.UTC);
   }
 
   /**
