@@ -10,7 +10,7 @@ import java.util.Map;
 import org.threeten.bp.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.PublicSPI;
 
 /**
