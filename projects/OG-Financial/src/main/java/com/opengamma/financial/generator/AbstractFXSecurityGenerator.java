@@ -14,6 +14,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
@@ -47,12 +48,8 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   private static final DecimalFormat RATE_FORMATTER = new DecimalFormat("###.######");
   private static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("########.###");
   private static final Boolean[] BOOLEAN_VALUES = {Boolean.TRUE, Boolean.FALSE};
-  private static final String CURRENCY_PAIRS_NAME = "DEFAULT";
-  private final CurrencyPairs _currencyPairs;
+  private CurrencyPairs _currencyPairs = CurrencyPairsConfigPopulator.createCurrencyPairs();
 
-  {
-    _currencyPairs = getConfigSource().getSingle(CurrencyPairs.class, CURRENCY_PAIRS_NAME, VersionCorrection.LATEST);
-  }
   /**
    * Structured random information for creating the security.
    */

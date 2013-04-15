@@ -51,6 +51,10 @@ public class IndexCreditDefaultSwapDefinition {
 
   // TODO : Add an overloaded ctor taking in a SNCDS etc
 
+  // NOTE : The CDS index is constructed essentially like a SNCDS; we specify who the protection buyer and seller (obligors) are and we 
+  // NOTE : then specify a 'reference entity'. In a SNCDS the reference entity is just a single obligor, in an index it is a collection
+  // NOTE : of obligors bundled up into an UnderlyingPool object (which is passed into the index constructor)
+
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
   // NOTE : The stub type, coupon frequency, daycount fraction and business day convention fields are part of the CDS index definition.

@@ -30,8 +30,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.sta
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardRecoveryLockCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardSovereignCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -42,6 +41,10 @@ public class ISDACreditDefaultSwapPVCalculator {
 
   public double getPresentValue(final CreditInstrumentDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider data, final ZonedDateTime valuationDate,
       final PriceType priceType) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.notNull(valuationDate, "valuation date");
+    ArgumentChecker.notNull(priceType, "price type");
     final TempVisitor visitor = new TempVisitor(valuationDate, priceType);
     return cds.accept(visitor, data);
   }
@@ -135,13 +138,12 @@ public class ISDACreditDefaultSwapPVCalculator {
       return getLegacyCDSPresentValue(cds, data);
     }
 
+    @SuppressWarnings("synthetic-access")
     private Double getLegacyCDSPresentValue(final LegacyCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider data) {
       // Calculate the value of the premium leg (including accrued if required)
-      final ISDADateCurve yieldCurve = data.getYieldCurve();
-      final HazardRateCurve hazardRateCurve = data.getHazardRateCurve();
-      final double presentValuePremiumLeg = PREMIUM_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, yieldCurve, hazardRateCurve, _priceType);
+      final double presentValuePremiumLeg = PREMIUM_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, data, _priceType);
       // Calculate the value of the contingent leg
-      final double presentValueContingentLeg = CONTINGENT_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, yieldCurve, hazardRateCurve, _priceType);
+      final double presentValueContingentLeg = CONTINGENT_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, data, _priceType);
       // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
       double presentValue = -(cds.getParSpread() / 10000.0) * presentValuePremiumLeg + presentValueContingentLeg;
 
@@ -159,13 +161,12 @@ public class ISDACreditDefaultSwapPVCalculator {
       return presentValue;
     }
 
+    @SuppressWarnings("synthetic-access")
     private Double visitStandardCDS(final StandardCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider data) {
       // Calculate the value of the premium leg (including accrued if required)
-      final ISDADateCurve yieldCurve = data.getYieldCurve();
-      final HazardRateCurve hazardRateCurve = data.getHazardRateCurve();
-      final double presentValuePremiumLeg = PREMIUM_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, yieldCurve, hazardRateCurve, _priceType);
+      final double presentValuePremiumLeg = PREMIUM_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, data, _priceType);
       // Calculate the value of the contingent leg
-      final double presentValueContingentLeg = CONTINGENT_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, yieldCurve, hazardRateCurve, _priceType);
+      final double presentValueContingentLeg = CONTINGENT_LEG_CALCULATOR.calculateLeg(_valuationDate, cds, data, _priceType);
       // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
       double presentValue = -(cds.getQuotedSpread() / 10000.0) * presentValuePremiumLeg + presentValueContingentLeg;
 

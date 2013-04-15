@@ -14,7 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunctionFactory;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationBean {
+public class DefaultPropertiesFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Currency specific data.

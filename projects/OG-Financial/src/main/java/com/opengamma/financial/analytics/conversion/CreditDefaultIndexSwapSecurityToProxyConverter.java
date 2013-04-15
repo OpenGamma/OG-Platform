@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 
 /**
  * 
@@ -15,7 +15,7 @@ import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
 
   @Override
-  public CreditDefaultSwapDefinition visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+  public CreditDefaultSwapDefinition visitCreditDefaultSwapIndexDefinitionSecurity(final CreditDefaultSwapIndexDefinitionSecurity security) {
     return null;
   }
 }

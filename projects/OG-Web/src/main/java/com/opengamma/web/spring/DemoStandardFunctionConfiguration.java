@@ -12,7 +12,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExchangeDefaults;
@@ -52,7 +52,7 @@ import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
  */
 public class DemoStandardFunctionConfiguration extends StandardFunctionConfiguration {
 
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new DemoStandardFunctionConfiguration().getObjectCreating();
   }
 

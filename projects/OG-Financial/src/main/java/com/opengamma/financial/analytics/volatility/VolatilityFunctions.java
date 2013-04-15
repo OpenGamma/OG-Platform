@@ -8,25 +8,25 @@ package com.opengamma.financial.analytics.volatility;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationBundle;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
+public class VolatilityFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new VolatilityFunctions().getObjectCreating();
   }
 
@@ -36,23 +36,23 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(VolatilitySurfaceDefinitionFunction.class));
   }
 
-  protected RepositoryConfigurationSource cubeFunctionConfiguration() {
+  protected FunctionConfigurationSource cubeFunctionConfiguration() {
     // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource fittedResultsFunctionConfiguration() {
+  protected FunctionConfigurationSource fittedResultsFunctionConfiguration() {
     // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource surfaceFunctionConfiguration() {
+  protected FunctionConfigurationSource surfaceFunctionConfiguration() {
     return SurfaceFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), cubeFunctionConfiguration(), fittedResultsFunctionConfiguration(), surfaceFunctionConfiguration());
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), cubeFunctionConfiguration(), fittedResultsFunctionConfiguration(), surfaceFunctionConfiguration());
   }
 
 }

@@ -70,7 +70,7 @@ public class GammaIndexCreditDefaultSwap {
 
     ArgumentChecker.notNegative(spreadBump, "Spread bump");
 
-    int numberOfCreditSpreadTenors = indexCDS.getUnderlyingPool().getNumberOfCreditSpreadTenors();
+    int numberOfCreditSpreadTenors = marketTenors.length;
 
     double[] bucketedGamma = new double[numberOfCreditSpreadTenors];
 
@@ -137,7 +137,7 @@ public class GammaIndexCreditDefaultSwap {
     ArgumentChecker.notNegative(spreadBump, "Spread bump");
 
     int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
-    int numberOfCreditSpreadTenors = indexCDS.getUnderlyingPool().getNumberOfCreditSpreadTenors();
+    int numberOfCreditSpreadTenors = marketTenors.length;
 
     double[][] gamma = new double[numberOfObligors][numberOfCreditSpreadTenors];
 

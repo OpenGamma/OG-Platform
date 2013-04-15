@@ -15,9 +15,9 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.ISDAHazardRateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDAHazardRateCurveFunction;
@@ -43,21 +43,21 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class CreditFunctions extends AbstractRepositoryConfigurationBean {
+public class CreditFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new CreditFunctions().getObjectCreating();
   }
 
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     /**
      * Currency specific data.

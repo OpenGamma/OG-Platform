@@ -12,9 +12,8 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.VoDCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapValueOnDefaultCalculator;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -30,7 +29,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
  * 
  */
 public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSFunction {
-  private static final VoDCreditDefaultSwap CALCULATOR = new VoDCreditDefaultSwap();
+  private static final ISDACreditDefaultSwapValueOnDefaultCalculator CALCULATOR = new ISDACreditDefaultSwapValueOnDefaultCalculator();
 
   public StandardVanillaJumpToDefaultCDSFunction() {
     super(ValueRequirementNames.JUMP_TO_DEFAULT);
@@ -41,7 +40,7 @@ public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSF
       final double[] marketSpreads, final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties,
       final FunctionInputs inputs) {
     final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    final double jumpToDefault = CALCULATOR.getValueOnDefaultCreditDefaultSwap(valuationDate, (LegacyVanillaCreditDefaultSwapDefinition) definition, yieldCurve, times, marketSpreads, priceType);
+    final double jumpToDefault = CALCULATOR.getValueOnDefaultCreditDefaultSwap(valuationDate, definition, yieldCurve, times, marketSpreads, priceType);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.JUMP_TO_DEFAULT, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, jumpToDefault));
   }

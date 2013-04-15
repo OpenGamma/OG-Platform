@@ -55,7 +55,7 @@ public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunct
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final String idName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveName = idName;
-    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(configSource, now.toLocalDate(), curveName);
+    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
     final String dataField = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
     final String resolutionKey;
     final Set<String> resolutionKeyConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY);

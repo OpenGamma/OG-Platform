@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
@@ -24,23 +25,24 @@ import com.opengamma.util.time.DateUtils;
  */
 public class ISDACompliantAccruedLegIntegrationScheduleGenerationTest {
   private static final GenerateCreditDefaultSwapIntegrationSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
-  private static final GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew();
+  private static final ISDAAccruedLegIntegrationScheduleGenerator CALCULATOR = new ISDAAccruedLegIntegrationScheduleGenerator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
-    DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
-    DateUtils.getUTCDate(2023, 3, 1) };
+      DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
+      DateUtils.getUTCDate(2023, 3, 1) };
   private static final double[] HR_TIMES;
   private static final double[] HR_RATES = new double[] {0.01, 0.02, 0.04, 0.03, 0.06, 0.03, 0.05, 0.03, 0.02 };
   private static final ZonedDateTime[] YC_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
-    DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
-    DateUtils.getUTCDate(2023, 3, 1) };
+      DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
+      DateUtils.getUTCDate(2023, 3, 1) };
   private static final HazardRateCurve HAZARD_RATE_CURVE;
   private static final double[] YC_TIMES;
   private static final double[] YC_RATES = new double[] {0.005, 0.006, 0.008, 0.009, 0.01, 0.012, 0.015, 0.02, 0.03 };
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final double OFFSET = 1. / 365;
   private static final ISDADateCurve YIELD_CURVE;
+  private static final ISDAYieldCurveAndHazardRateCurveProvider CURVES;
 
   static {
     int n = HR_DATES.length;
@@ -55,13 +57,14 @@ public class ISDACompliantAccruedLegIntegrationScheduleGenerationTest {
       YC_TIMES[i] = DAY_COUNT.getDayCountFraction(BASE_DATE, YC_DATES[i]);
     }
     YIELD_CURVE = new ISDADateCurve("ISDA", BASE_DATE, YC_DATES, YC_RATES, OFFSET);
+    CURVES = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
   }
 
   @Test
   public void regressionTest() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final ZonedDateTime[] deprecatedResult = DEPRECATED_CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, false);
-    final ZonedDateTime[] result = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    final ZonedDateTime[] result = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, CURVES);
     assertDateArrayEquals(deprecatedResult, result);
   }
 
@@ -81,14 +84,15 @@ public class ISDACompliantAccruedLegIntegrationScheduleGenerationTest {
     for (int i = 0; i < hrDates.length; i++) {
       expected[i * 2 + 2] = hrDates[i];
     }
-    CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithProtectionStart(true).withMaturityDate(VALUATION_DATE.plusYears(50));
-    ZonedDateTime[] actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, YIELD_CURVE, hazardRateCurve);
+    CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithProtectionStart(true).withMaturityDate(VALUATION_DATE.plusYears(50));
+    final ISDAYieldCurveAndHazardRateCurveProvider curves = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, hazardRateCurve);
+    ZonedDateTime[] actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, curves);
     expected[0] = cds.getStartDate();
     expected[expected.length - 1] = cds.getMaturityDate().plusDays(1);
     assertDateArrayEquals(expected, actual);
     assertDateArrayEquals(expected, DEPRECATED_CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(VALUATION_DATE, cds, YIELD_CURVE, hazardRateCurve, false));
-    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithProtectionStart(false).withMaturityDate(VALUATION_DATE.plusYears(50));
-    actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, YIELD_CURVE, hazardRateCurve);
+    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithProtectionStart(false).withMaturityDate(VALUATION_DATE.plusYears(50));
+    actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, curves);
     expected[0] = cds.getStartDate();
     expected[expected.length - 1] = cds.getMaturityDate();
     assertDateArrayEquals(expected, actual);
@@ -97,11 +101,12 @@ public class ISDACompliantAccruedLegIntegrationScheduleGenerationTest {
 
   @Test
   public void testCDSWithinCurves() {
-    CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithProtectionStart(true)
+    CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithProtectionStart(true)
         .withMaturityDate(YC_DATES[YC_DATES.length - 1].minusMonths(1))
         .withEffectiveDate(VALUATION_DATE.minusMonths(1).plusDays(1))
         .withStartDate(VALUATION_DATE.minusMonths(1));
-    ZonedDateTime[] actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    final ISDAYieldCurveAndHazardRateCurveProvider curves = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
+    ZonedDateTime[] actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, CURVES);
     ZonedDateTime[] expected = new ZonedDateTime[YC_DATES.length + 1];
     for (int i = 0; i < YC_DATES.length; i++) {
       expected[i + 1] = YC_DATES[i];
@@ -110,11 +115,11 @@ public class ISDACompliantAccruedLegIntegrationScheduleGenerationTest {
     expected[YC_DATES.length] = cds.getMaturityDate().plusDays(1);
     assertDateArrayEquals(expected, actual);
     assertDateArrayEquals(expected, DEPRECATED_CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, false));
-    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithProtectionStart(false)
+    cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithProtectionStart(false)
         .withMaturityDate(YC_DATES[YC_DATES.length - 1].minusMonths(1))
         .withEffectiveDate(VALUATION_DATE.minusMonths(1).plusDays(1))
         .withStartDate(VALUATION_DATE.minusMonths(1));
-    actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    actual = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, CURVES);
     expected = new ZonedDateTime[YC_DATES.length + 1];
     for (int i = 0; i < YC_DATES.length; i++) {
       expected[i + 1] = YC_DATES[i];

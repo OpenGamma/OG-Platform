@@ -111,12 +111,15 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Get the minimum spread of the obligors in the underlying pool for the given tenor
-  public double getUnderlyingPoolCreditSpreadMinimum(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadMinimum(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     Arrays.sort(spreads);
 
@@ -126,12 +129,15 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Get the maximum spread of the obligors in the underlying pool for the given tenor
-  public double getUnderlyingPoolCreditSpreadMaximum(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadMaximum(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     Arrays.sort(spreads);
 
@@ -141,14 +147,17 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the average (mean) spread of the obligors in the underlying pool for a given tenor
-  public double getUnderlyingPoolCreditSpreadMean(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadMean(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     MeanCalculator mean = new MeanCalculator();
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return mean.evaluate(spreads);
   }
@@ -156,14 +165,17 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the median spread of the obligors in the underlying pool for a given tenor
-  public double getUnderlyingPoolCreditSpreadMedian(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadMedian(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     MedianCalculator median = new MedianCalculator();
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return median.evaluate(spreads);
   }
@@ -171,14 +183,17 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the modal spread of the obligors in the underlying pool for a given tenor
-  public double getUnderlyingPoolCreditSpreadMode(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadMode(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     ModeCalculator mode = new ModeCalculator();
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return mode.evaluate(spreads);
   }
@@ -186,14 +201,17 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the variance of the spread of the obligors in the underlying pool for a given tenor 
-  public double getUnderlyingPoolCreditSpreadVariance(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadVariance(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     SampleVarianceCalculator variance = new SampleVarianceCalculator();
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return variance.evaluate(spreads);
   }
@@ -201,14 +219,17 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the standard deviation of the spread of the obligors in the underlying pool for a given tenor
-  public double getUnderlyingPoolCreditSpreadStandardDeviation(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadStandardDeviation(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     SampleStandardDeviationCalculator standardDeviation = new SampleStandardDeviationCalculator();
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return standardDeviation.evaluate(spreads);
   }
@@ -216,14 +237,17 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the skewness of the spread of the obligors in the underlying pool for a given tenor
-  public double getUnderlyingPoolCreditSpreadSkewness(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadSkewness(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     SampleSkewnessCalculator skewness = new SampleSkewnessCalculator();
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return skewness.evaluate(spreads);
   }
@@ -231,14 +255,17 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the excess kurtosis of the spread of the obligors in the underlying pool for a given tenor
-  public double getUnderlyingPoolCreditSpreadKurtosis(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor) {
+  public double getUnderlyingPoolCreditSpreadKurtosis(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     SampleFisherKurtosisCalculator excessKurtosis = new SampleFisherKurtosisCalculator();
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return excessKurtosis.evaluate(spreads);
   }
@@ -246,41 +273,48 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the q'th percentile of the spread distribution of the obligors in the underlying pool for a given tenor
-  public double getUnderlyingPoolCreditSpreadPercentile(final UnderlyingPool underlyingPool, final CreditSpreadTenors creditSpreadTenor, final double q) {
+  public double getUnderlyingPoolCreditSpreadPercentile(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor, final double q) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
     ArgumentChecker.notNegative(q, "Percentile");
     ArgumentChecker.isTrue(q <= 1.0, "Percentile must be less than or equal to 100%");
 
     PercentileCalculator percentile = new PercentileCalculator(q);
 
-    double[] spreads = getSpreads(underlyingPool, creditSpreadTenor);
+    double[] spreads = getSpreads(underlyingPool, creditSpreadTenors, creditSpreadTermStructures, creditSpreadTenor);
 
     return percentile.evaluate(spreads);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Method to extract out the creditSpreadTenor spreads from the underlying pool
-  private double[] getSpreads(UnderlyingPool underlyingPool, CreditSpreadTenors creditSpreadTenor) {
+  // Method to extract out the creditSpreadTenor spreads for the names in the underlying pool
+  private double[] getSpreads(final UnderlyingPool underlyingPool, final CreditSpreadTenors[] creditSpreadTenors, final double[][] creditSpreadTermStructures,
+      final CreditSpreadTenors creditSpreadTenor) {
 
     ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.notNull(creditSpreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     // Check that creditSpreadTenor is one of the tenors contained in the underlying pool 
-    checkCreditSpreadTenor(underlyingPool, creditSpreadTenor);
+    checkCreditSpreadTenor(creditSpreadTenors, creditSpreadTenor);
 
     int counter = 0;
 
     double[] spreads = new double[underlyingPool.getNumberOfObligors()];
 
-    while (underlyingPool.getCreditSpreadTenors()[counter] != creditSpreadTenor) {
+    // TODO : This is assuming the tenors in creditSpreadTenors[] do not contain duplicate entries
+    while (creditSpreadTenors[counter] != creditSpreadTenor) {
       counter++;
     }
 
     for (int i = 0; i < underlyingPool.getNumberOfObligors(); i++) {
-      spreads[i] = underlyingPool.getSpreadTermStructures()[i][counter];
+      spreads[i] = creditSpreadTermStructures[i][counter];
     }
 
     return spreads;
@@ -289,13 +323,13 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Check that creditSpreadTenor is one of the tenors contained in the underlying pool (if not throw an exception)
-  private void checkCreditSpreadTenor(UnderlyingPool underlyingPool, CreditSpreadTenors creditSpreadTenor) {
+  private void checkCreditSpreadTenor(final CreditSpreadTenors[] creditSpreadTenors, CreditSpreadTenors creditSpreadTenor) {
 
     boolean haveFoundCreditSpreadTenor = false;
 
-    for (int m = 0; m < underlyingPool.getNumberOfCreditSpreadTenors(); m++) {
+    for (int m = 0; m < creditSpreadTenors.length; m++) {
 
-      if (creditSpreadTenor.equals(underlyingPool.getCreditSpreadTenors()[m])) {
+      if (creditSpreadTenor.equals(creditSpreadTenors[m])) {
         haveFoundCreditSpreadTenor = true;
 
         return;

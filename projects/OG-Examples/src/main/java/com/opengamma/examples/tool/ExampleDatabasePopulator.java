@@ -23,6 +23,7 @@ import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleExchangeLoader;
+import com.opengamma.examples.loader.ExampleFunctionConfigurationPopulator;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleHolidayLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
@@ -123,6 +124,18 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadBondPortfolio();
     loadLiborRawSecurities();
     loadViews();
+    loadFunctionConfigurations();
+  }
+
+  private void loadFunctionConfigurations() {
+    final Log log = new Log("Creating function configuration definitions");
+    try {
+      final ExampleFunctionConfigurationPopulator populator = new ExampleFunctionConfigurationPopulator();
+      populator.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   /**
