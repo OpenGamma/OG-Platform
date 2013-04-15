@@ -31,7 +31,6 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,8 +40,6 @@ import com.opengamma.util.ArgumentChecker;
 /* package */class AnalyticsViewClientConnection /*implements ChangeListener*/{
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
-
-  private static final ExecutionFlags.ParallelRecompilationMode PARALLEL_RECOMPILATION = ExecutionFlags.ParallelRecompilationMode.PARALLEL_EXECUTION;
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
@@ -54,34 +51,29 @@ import com.opengamma.util.ArgumentChecker;
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
   /**
+   * @param manager The manager object to copy settings from
    * @param viewRequest Defines the view that should be created
    * @param aggregatedViewDef The view definition including any aggregation
    * @param viewClient Connects this class to the calculation engine
    * @param view The object that encapsulates the state of the view user interface
-   * @param marketDataSpecRepo For looking up sources of market data
-   * @param snapshotMaster For looking up snapshots
    */
-  /* package */AnalyticsViewClientConnection(ViewRequest viewRequest,
-      AggregatedViewDefinition aggregatedViewDef, ViewClient viewClient,
-      AnalyticsView view,
-      NamedMarketDataSpecificationRepository marketDataSpecRepo,
-      MarketDataSnapshotMaster snapshotMaster,
+  /* package */AnalyticsViewClientConnection(AnalyticsViewManager manager, ViewRequest viewRequest, AggregatedViewDefinition aggregatedViewDef, ViewClient viewClient, AnalyticsView view,
       List<AutoCloseable> listeners) {
+    ArgumentChecker.notNull(manager, "manager");
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
-    ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(listeners, "listeners");
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = aggregatedViewDef;
-    _marketDataSpecRepo = marketDataSpecRepo;
+    _marketDataSpecRepo = manager.getMarketDataSpecificationRepository();
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
     ViewCycleExecutionOptions defaultOptions = ViewCycleExecutionOptions.builder().setValuationTime(viewRequest.getValuationTime()).setMarketDataSpecifications(actualMarketDataSpecs)
         .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection()).create();
-    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().parallelCompilation(PARALLEL_RECOMPILATION).get());
+    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().parallelCompilation(manager.getParallelViewRecompilation())
+        .get());
     _listeners = listeners;
     // this recalcs periodically or when market data changes. might need to give
     // the user the option to specify the behaviour

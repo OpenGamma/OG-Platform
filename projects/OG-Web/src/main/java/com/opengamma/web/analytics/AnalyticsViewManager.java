@@ -27,6 +27,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
+import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -54,6 +55,7 @@ public class AnalyticsViewManager {
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewManager.class);
 
   private final ViewProcessor _viewProcessor;
+  private final ExecutionFlags.ParallelRecompilationMode _parallelViewRecompilation;
   private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<>();
@@ -68,17 +70,19 @@ public class AnalyticsViewManager {
   private final ExecutorService _portfolioResolutionExecutor;
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
-                              AggregatedViewDefinitionManager aggregatedViewDefManager,
-                              MarketDataSnapshotMaster snapshotMaster,
-                              ComputationTargetResolver targetResolver,
-                              NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
-                              BlotterColumnMapper blotterColumnMapper,
-                              PositionSource positionSource,
-                              ConfigSource configSource,
-                              SecuritySource securitySource,
-                              SecurityMaster securityMaster,
-                              PositionMaster positionMaster) {
+      ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
+      AggregatedViewDefinitionManager aggregatedViewDefManager,
+      MarketDataSnapshotMaster snapshotMaster,
+      ComputationTargetResolver targetResolver,
+      NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
+      BlotterColumnMapper blotterColumnMapper,
+      PositionSource positionSource,
+      ConfigSource configSource,
+      SecuritySource securitySource,
+      SecurityMaster securityMaster,
+      PositionMaster positionMaster) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
+    ArgumentChecker.notNull(parallelViewRecompilation, "parallelViewRecompilation");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
@@ -95,6 +99,7 @@ public class AnalyticsViewManager {
     _blotterColumnMapper = blotterColumnMapper;
     _targetResolver = targetResolver;
     _viewProcessor = viewProcessor;
+    _parallelViewRecompilation = parallelViewRecompilation;
     _aggregatedViewDefManager = aggregatedViewDefManager;
     _snapshotMaster = snapshotMaster;
     _marketDataSpecificationRepository = marketDataSpecificationRepository;
@@ -104,8 +109,17 @@ public class AnalyticsViewManager {
     _portfolioResolutionExecutor = Executors.newFixedThreadPool(4);
   }
 
+  protected NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
+    return _marketDataSpecificationRepository;
+  }
+
+  protected ExecutionFlags.ParallelRecompilationMode getParallelViewRecompilation() {
+    return _parallelViewRecompilation;
+  }
+
   /**
    * Creates a new view.
+   * 
    * @param request Details of the view
    * @param clientId ID of the client connection
    * @param user User requesting the view
@@ -116,13 +130,13 @@ public class AnalyticsViewManager {
    * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
    */
   public void createView(ViewRequest request,
-                         String clientId,
-                         UserPrincipal user,
-                         ClientConnection clientConnection,
-                         String viewId,
-                         Object viewCallbackId,
-                         String portfolioGridId,
-                         String primitivesGridId) {
+      String clientId,
+      UserPrincipal user,
+      ClientConnection clientConnection,
+      String viewId,
+      Object viewCallbackId,
+      String portfolioGridId,
+      String primitivesGridId) {
     if (_viewConnections.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
@@ -145,10 +159,10 @@ public class AnalyticsViewManager {
       resolvedPortfolio = null;
     }
     portfolioSupplier = new PortfolioSupplier(portfolioObjectId,
-                                              versionCorrection,
-                                              _positionSource,
-                                              _securitySource,
-                                              _portfolioResolutionExecutor);
+        versionCorrection,
+        _positionSource,
+        _securitySource,
+        _portfolioResolutionExecutor);
     // TODO something a bit more sophisticated with the executor
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);
@@ -156,16 +170,16 @@ public class AnalyticsViewManager {
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
     AnalyticsView view = new SimpleAnalyticsView(resolvedPortfolio,
-                                                 versionCorrection,
-                                                 viewId,
-                                                 portfolioGridId,
-                                                 primitivesGridId,
-                                                 _targetResolver,
-                                                 viewportListener,
-                                                 _blotterColumnMapper,
-                                                 portfolioSupplier,
-                                                 entityExtractor,
-                                                 request.showBlotterColumns());
+        versionCorrection,
+        viewId,
+        portfolioGridId,
+        primitivesGridId,
+        _targetResolver,
+        viewportListener,
+        _blotterColumnMapper,
+        portfolioSupplier,
+        entityExtractor,
+        request.showBlotterColumns());
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     //AnalyticsView timingView = new TimingAnalyticsView(lockingView);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
@@ -173,12 +187,7 @@ public class AnalyticsViewManager {
     AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, notifyingView);
     AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, notifyingView, _positionSource);
     List<AutoCloseable> listeners = Lists.newArrayList(securityListener, positionListener, portfolioListener);
-    AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
-                                                                                 aggregatedViewDef, viewClient,
-                                                                                 notifyingView,
-                                                                                 _marketDataSpecificationRepository,
-                                                                                 _snapshotMaster,
-                                                                                 listeners);
+    AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(this, request, aggregatedViewDef, viewClient, notifyingView, listeners);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView
@@ -189,6 +198,7 @@ public class AnalyticsViewManager {
 
   /**
    * Deletes a view.
+   * 
    * @param viewId ID of the view
    * @throws DataNotFoundException If there's no view with the specified ID
    */
@@ -203,6 +213,7 @@ public class AnalyticsViewManager {
 
   /**
    * Returns a view given its ID.
+   * 
    * @param viewId ID of the view
    * @return The view
    * @throws DataNotFoundException If there's no view with the specified ID
@@ -236,4 +247,3 @@ public class AnalyticsViewManager {
     }
   }
 }
-
