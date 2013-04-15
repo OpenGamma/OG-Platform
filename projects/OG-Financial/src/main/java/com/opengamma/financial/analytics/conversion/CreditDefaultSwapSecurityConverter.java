@@ -46,7 +46,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
-  private static final Obligor DUMMY_OBLIGOR_A = new Obligor(
+  static final Obligor DUMMY_OBLIGOR_A = new Obligor(
       "Dummy_A",
       "Dummy_A",
       "Dummy_A",
@@ -59,7 +59,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
       Sector.BASICMATERIALS,
       Region.EUROPE,
       "CA");
-  private static final Obligor DUMMY_OBLIGOR_B = new Obligor(
+  static final Obligor DUMMY_OBLIGOR_B = new Obligor(
       "Dummy_B",
       "Dummy_B",
       "Dummy_B",
@@ -72,7 +72,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
       Sector.BASICMATERIALS,
       Region.ASIA,
       "NY");
-  private static final Obligor DUMMY_OBLIGOR_C = new Obligor(
+  static final Obligor DUMMY_OBLIGOR_C = new Obligor(
       "Dummy_C",
       "Dummy_C",
       "Dummy_C",
