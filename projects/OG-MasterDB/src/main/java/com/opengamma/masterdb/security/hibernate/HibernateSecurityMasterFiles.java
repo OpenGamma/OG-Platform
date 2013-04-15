@@ -16,7 +16,7 @@ import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cashflow.CashFlowSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBean;
-import com.opengamma.masterdb.security.hibernate.cds.CreditDefaultSwapIndexSecurityBean;
+import com.opengamma.masterdb.security.hibernate.cds.CreditDefaultSwapIndexDefinitionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cds.CreditDefaultSwapSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecurityBean;
@@ -116,7 +116,7 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       
       TenorBean.class,
       CDSIndexFamilyBean.class,
-      CreditDefaultSwapIndexSecurityBean.class,
+      CreditDefaultSwapIndexDefinitionSecurityBean.class,
       CreditDefaultSwapOptionSecurityBean.class
     };
   }

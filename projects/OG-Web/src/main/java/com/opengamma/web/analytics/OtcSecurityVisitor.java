@@ -8,7 +8,7 @@ package com.opengamma.web.analytics;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -113,11 +113,6 @@ public class OtcSecurityVisitor extends FinancialSecurityVisitorSameValueAdapter
 
   @Override
   public Boolean visitStandardFixedRecoveryCDSSecurity(StandardFixedRecoveryCDSSecurity security) {
-    return true;
-  }
-
-  @Override
-  public Boolean visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
     return true;
   }
 

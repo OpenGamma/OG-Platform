@@ -189,6 +189,7 @@ public class BlotterLookupResource {
     schemes.put("Tullett Prebon SURF", ExternalSchemes.SURF);
     schemes.put("ICAP", ExternalSchemes.ICAP);
     schemes.put("GMI", ExternalSchemes.GMI);
+    schemes.put("Markit RED Code", ExternalSchemes.MARKIT_RED_CODE);
     return new JSONObject(schemes).toString();
   }
 

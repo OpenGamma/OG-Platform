@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
  * The return format is DoubleMatrix1D object.
  */
-public class ParameterSensitivityMulticurveMatrixCalculator extends ParameterSensitivityMatrixMulticurveProviderAbstractCalculator {
+public class ParameterSensitivityMulticurveMatrixCalculator extends ParameterSensitivityMulticurveMatrixAbstractCalculator {
 
   /**
    * Constructor

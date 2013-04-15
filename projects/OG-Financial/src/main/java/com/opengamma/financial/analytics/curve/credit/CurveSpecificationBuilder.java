@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve.credit;
 
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -15,5 +16,5 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
  */
 public interface CurveSpecificationBuilder {
 
-  CurveSpecification buildCurve(LocalDate curveDate, CurveDefinition curveDefinition);
+  CurveSpecification buildCurve(Instant valuationTime, LocalDate curveDate, CurveDefinition curveDefinition);
 }

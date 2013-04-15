@@ -29,12 +29,15 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -47,10 +50,10 @@ import com.opengamma.util.money.Currency;
  */
 public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
 
-  private final Map<String, String> _curveCalculationConfigs = new HashMap<String, String>();
-  private final Map<String, String> _fxCurveCalculationConfigs = new HashMap<String, String>();
-  private final Map<String, String> _fxDiscountingCurveNames = new HashMap<String, String>();
-  private final Map<String, String> _irFuturesCurveCalculationConfigs = new HashMap<String, String>();
+  private final Map<String, String> _curveCalculationConfigs = new HashMap<>();
+  private final Map<String, String> _fxCurveCalculationConfigs = new HashMap<>();
+  private final Map<String, String> _fxDiscountingCurveNames = new HashMap<>();
+  private final Map<String, String> _irFuturesCurveCalculationConfigs = new HashMap<>();
   private String _fxVolSurfaceName = "DEFAULT";
   private String _swaptionVolSurfaceName = "DEFAULT";
   private String _irFutureOptionVolSurfaceName = "DEFAULT";
@@ -349,7 +352,31 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         return createValueRequirementsForCashLikeSecurity(security.getCurrency());
       }
 
-      private Set<ValueRequirement> createValueRequirementsForCashLikeSecurity(Currency currency) {
+      @Override
+      public Set<ValueRequirement> visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
+            .get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
+      @Override
+      public Set<ValueRequirement> visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
+            .get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
+      @Override
+      public Set<ValueRequirement> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
+            .get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
+      private Set<ValueRequirement> createValueRequirementsForCashLikeSecurity(final Currency currency) {
         final String config = _curveCalculationConfigs.get(currency);
         if (config == null) {
           throw new OpenGammaRuntimeException("Could not get curve calculation configuration for " + currency);

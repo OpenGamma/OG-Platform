@@ -87,7 +87,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -105,7 +105,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "Forward3M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -123,7 +123,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.EUR, ExternalSchemes.financialRegionId("EU"), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.EUR, ExternalSchemes.financialRegionId("EU"), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -144,13 +144,13 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.EUR, ExternalSchemes.financialRegionId("EU"), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.EUR, ExternalSchemes.financialRegionId("EU"), "Forward6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
   public static YieldCurveDefinition buildGBPFundingCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {2, 7, 14, 21}) {
+    for (final int i : new int[] {2, 7, 14}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
@@ -162,7 +162,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -179,7 +179,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "Forward3M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -198,7 +198,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "Forward6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -216,7 +216,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.CHF, ExternalSchemes.countryRegionId(Country.CH), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.CHF, ExternalSchemes.countryRegionId(Country.CH), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -237,7 +237,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.CHF, ExternalSchemes.countryRegionId(Country.CH), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.CHF, ExternalSchemes.countryRegionId(Country.CH), "Forward6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -255,7 +255,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.JPY, ExternalSchemes.countryRegionId(Country.JP), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.JPY, ExternalSchemes.countryRegionId(Country.JP), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -274,7 +274,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.JPY, ExternalSchemes.countryRegionId(Country.JP), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.JPY, ExternalSchemes.countryRegionId(Country.JP), "Forward6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -292,7 +292,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.CAD, ExternalSchemes.countryRegionId(Country.CA), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.CAD, ExternalSchemes.countryRegionId(Country.CA), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -311,7 +311,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.CAD, ExternalSchemes.countryRegionId(Country.CA), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.CAD, ExternalSchemes.countryRegionId(Country.CA), "Forward6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -329,7 +329,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -350,7 +350,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "Forward6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -368,7 +368,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.NZD, ExternalSchemes.countryRegionId(Country.NZ), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.NZD, ExternalSchemes.countryRegionId(Country.NZ), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -386,7 +386,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.NZD, ExternalSchemes.countryRegionId(Country.NZ), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.NZD, ExternalSchemes.countryRegionId(Country.NZ), "Forward3M", Interpolator1DFactory.DOUBLE_QUADRATIC,
        leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -404,7 +404,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.DKK, ExternalSchemes.countryRegionId(Country.DK), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.DKK, ExternalSchemes.countryRegionId(Country.DK), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -419,7 +419,7 @@ public class CurveDefinitionAndSpecifications {
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final boolean interpolateYields = true;
-    return new YieldCurveDefinition(Currency.DKK, ExternalSchemes.countryRegionId(Country.DK), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
+    return new YieldCurveDefinition(Currency.DKK, ExternalSchemes.countryRegionId(Country.DK), "Forward6M", Interpolator1DFactory.DOUBLE_QUADRATIC,
         leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
   }
 
@@ -612,40 +612,6 @@ public class CurveDefinitionAndSpecifications {
     definitions.put("Forward3M", forward3MDefinitions);
     definitions.put("Forward6M", forward6MDefinitions);
     definitions.put("Discounting", discountingDefinitions);
-    return definitions;
-  }
-
-  /**
-   * @deprecated Use buildNewCurveDefinitions
-   * @return curve definitions for the old style of curve construction
-   */
-  @Deprecated
-  public static Map<String, Map<Currency, YieldCurveDefinition>> buildOldCurveDefinitions() {
-    final Map<Currency, YieldCurveDefinition> forward3MDefinitions = new HashMap<Currency, YieldCurveDefinition>();
-    final Map<Currency, YieldCurveDefinition> forward6MDefinitions = new HashMap<Currency, YieldCurveDefinition>();
-    final Map<Currency, YieldCurveDefinition> fundingDefinitions = new HashMap<Currency, YieldCurveDefinition>();
-    forward3MDefinitions.put(Currency.USD, buildUSDThreeMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.USD, buildUSDFundingCurveDefinition());
-    forward6MDefinitions.put(Currency.EUR, buildEURSixMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.EUR, buildEURFundingCurveDefinition());
-    forward6MDefinitions.put(Currency.GBP, buildGBPSixMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.GBP, buildGBPFundingCurveDefinition());
-    forward6MDefinitions.put(Currency.JPY, buildJPYSixMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.JPY, buildJPYFundingCurveDefinition());
-    forward6MDefinitions.put(Currency.CHF, buildCHFSixMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.CHF, buildCHFFundingCurveDefinition());
-    forward6MDefinitions.put(Currency.CAD, buildCADSixMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.CAD, buildCADFundingCurveDefinition());
-    forward6MDefinitions.put(Currency.AUD, buildAUDSixMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.AUD, buildAUDFundingCurveDefinition());
-    forward3MDefinitions.put(Currency.NZD, buildNZDThreeMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.NZD, buildNZDFundingCurveDefinition());
-    forward6MDefinitions.put(Currency.DKK, buildDKKSixMonthForwardCurveDefinition());
-    fundingDefinitions.put(Currency.DKK, buildDKKFundingCurveDefinition());
-    final Map<String, Map<Currency, YieldCurveDefinition>> definitions = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
-    definitions.put("FORWARD_3M", forward3MDefinitions);
-    definitions.put("FORWARD_6M", forward6MDefinitions);
-    definitions.put("FUNDING", fundingDefinitions);
     return definitions;
   }
 

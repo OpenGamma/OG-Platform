@@ -47,8 +47,13 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
   // TODO : Need to sort out the quoting conventions for the different indices
   // TODO : Need to sort out the type of CDS used to construct the index (in principle would like to build the index from an arbitrary combination of CDS types)
+  // TODO : Take out the _indexSpread member variable (this is market data that changes on a day-to-day basis therefore should not be part of the instrument definition)
 
   // TODO : Add an overloaded ctor taking in a SNCDS etc
+
+  // NOTE : The CDS index is constructed essentially like a SNCDS; we specify who the protection buyer and seller (obligors) are and we 
+  // NOTE : then specify a 'reference entity'. In a SNCDS the reference entity is just a single obligor, in an index it is a collection
+  // NOTE : of obligors bundled up into an UnderlyingPool object (which is passed into the index constructor)
 
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
@@ -166,7 +171,7 @@ public class IndexCreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  //Constructor for a CDS index swap definition object (all fields are user specified)
+  // Constructor for a CDS index swap definition object (all fields are user specified)
   public IndexCreditDefaultSwapDefinition(
       final String indexName,
       final BuySellProtection buySellProtection,

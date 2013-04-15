@@ -11,7 +11,7 @@ $.register_module({
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "CapFloorSecurity", externalIdBundle: "", attributes: {}}, 
                 trade: og.blotter.util.otc_trade};}
-            data.nodeId = config.portfolio ? config.portfolio.id : null;
+            data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Cap/Floor';
                 form = new og.common.util.ui.Form({

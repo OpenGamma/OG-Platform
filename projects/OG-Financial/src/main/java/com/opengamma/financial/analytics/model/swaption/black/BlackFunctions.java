@@ -11,30 +11,30 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class BlackFunctions extends AbstractRepositoryConfigurationBean {
+public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new BlackFunctions().getObjectCreating();
   }
 
   /**
    * Function repository configuration source for the functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     /**
      * Currency specific data.

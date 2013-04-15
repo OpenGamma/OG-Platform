@@ -206,8 +206,8 @@
   <!-- Functions -->
   <bean id="mainCompiledFunctionService" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
-      <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
-        <property name="repositoryConfigurationSource" ref="sharedRepositoryConfigurationSource" />
+      <bean class="com.opengamma.engine.function.config.FunctionRepositoryFactoryBean">
+        <property name="functionConfigurationSource" ref="sharedFunctionConfigurationSource" />
       </bean>
     </constructor-arg>
     <constructor-arg>

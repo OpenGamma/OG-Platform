@@ -28,6 +28,13 @@ public class CurveBuildingBlock {
   // TODO: Replace the curve names by some curve ID, maybe some UniqueIdentifiable objects
 
   /**
+   * Constructor.
+   */
+  public CurveBuildingBlock() {
+    _unit = new LinkedHashMap<>();
+  }
+
+  /**
    * Constructor from a map. A new map is created.
    * @param block The curve block. Not null.
    */
@@ -47,6 +54,7 @@ public class CurveBuildingBlock {
    * @return The start index.
    */
   public Integer getStart(final String name) {
+    // TODO: Test nqme exists?
     return _unit.get(name).getFirst();
   }
 

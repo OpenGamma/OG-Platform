@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a cap/floor on Ibor.
+ * Class describing a cap/floor on Ibor - aka caplet/floorlet, which can be view as a call/put on an Ibor rate.
  */
 public class CapFloorIbor extends CouponFloating implements CapFloor {
 

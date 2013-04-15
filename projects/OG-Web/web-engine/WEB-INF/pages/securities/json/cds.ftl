@@ -1,4 +1,4 @@
-"buy":"${security.buy?string}",
+"buy": <#if security.buy> "Buy" <#else> "Sell" </#if>,
 "protectionBuyer":"${security.protectionBuyer.scheme} - ${security.protectionBuyer.value}",
 "protectionSeller":"${security.protectionSeller.scheme} - ${security.protectionSeller.value}",
 "referenceEntity":"${security.referenceEntity.scheme} - ${security.referenceEntity.value}",

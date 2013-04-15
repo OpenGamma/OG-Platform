@@ -15,7 +15,7 @@ $.register_module({
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             if(data.trade.securityIdBundle) securityId = data.trade.securityIdBundle.split(',')[0];
-            data.nodeId = config.portfolio ? config.portfolio.id : null;
+            data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Fungible Trade';
                 form = new og.common.util.ui.Form({

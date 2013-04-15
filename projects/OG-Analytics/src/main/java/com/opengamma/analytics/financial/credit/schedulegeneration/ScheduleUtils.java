@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration;
 
+import it.unimi.dsi.fastutil.doubles.DoubleLinkedOpenHashSet;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -12,6 +14,7 @@ import java.util.LinkedHashSet;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
@@ -31,7 +34,7 @@ public final class ScheduleUtils {
     ArgumentChecker.isTrue(startDate.isBefore(endDate), "Start date {} must be before end date {}", startDate, endDate);
     final int n = allDates.length;
     if (n == 0) {
-      return new ZonedDateTime[] {startDate, endDate};
+      return new ZonedDateTime[] {startDate, endDate };
     }
     final HashSet<ZonedDateTime> truncated = new LinkedHashSet<>(n + 2, 1);
     final LocalDate startDateAsLocal = startDate.toLocalDate();
@@ -72,15 +75,15 @@ public final class ScheduleUtils {
     return result;
   }
 
-  public static Double[] getTruncatedTimeLine(final double[] allTimes, final double startTime, final double endTime, final boolean sorted,
+  public static double[] getTruncatedTimeLine(final double[] allTimes, final double startTime, final double endTime, final boolean sorted,
       final double tolerance) {
     ArgumentChecker.notNull(allTimes, "all dates");
     ArgumentChecker.isTrue(startTime < endTime, "Start time {} must be before end time {}", startTime, endTime);
     final int n = allTimes.length;
     if (n == 0) {
-      return new Double[] {startTime, endTime};
+      return new double[] {startTime, endTime };
     }
-    final HashSet<Double> truncated = new LinkedHashSet<>(n + 2, 1);
+    final DoubleLinkedOpenHashSet truncated = new DoubleLinkedOpenHashSet(n + 2, 1);
     for (final Double time : allTimes) {
       if (time > startTime && time < endTime) {
         truncated.add(time);
@@ -88,9 +91,9 @@ public final class ScheduleUtils {
     }
     final int truncatedSize = truncated.size();
     if (truncatedSize == 0) {
-      return new Double[] {startTime, endTime};
+      return new double[] {startTime, endTime };
     }
-    final Double[] truncatedArray = truncated.toArray(new Double[truncatedSize]);
+    final double[] truncatedArray = truncated.toDoubleArray();
     if (!sorted) {
       Arrays.sort(truncatedArray);
     }
@@ -98,21 +101,34 @@ public final class ScheduleUtils {
       if (CompareUtils.closeEquals(truncatedArray[truncatedSize - 1], endTime, tolerance)) {
         return truncatedArray;
       }
-      final Double[] result = new Double[truncatedSize + 1];
+      final double[] result = new double[truncatedSize + 1];
       System.arraycopy(truncatedArray, 0, result, 0, truncatedSize);
       result[truncatedSize] = endTime;
       return result;
     }
     if (CompareUtils.closeEquals(truncatedArray[truncatedSize - 1], endTime, tolerance)) {
-      final Double[] result = new Double[truncatedSize + 1];
+      final double[] result = new double[truncatedSize + 1];
       System.arraycopy(truncatedArray, 0, result, 1, truncatedSize);
       result[0] = startTime;
       return result;
     }
-    final Double[] result = new Double[truncatedSize + 2];
+    final double[] result = new double[truncatedSize + 2];
     System.arraycopy(truncatedArray, 0, result, 1, truncatedSize);
     result[0] = startTime;
     result[truncatedSize + 1] = endTime;
     return result;
+  }
+
+  public static ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(final ISDAYieldCurveAndHazardRateCurveProvider curves,
+      final ZonedDateTime startDate, final ZonedDateTime endDate) {
+    final ZonedDateTime[] yieldCurveDates = curves.getYieldCurve().getCurveDates();
+    final ZonedDateTime[] hazardCurveDates = curves.getHazardRateCurve().getCurveTenors();
+    final int nYieldCurveDates = yieldCurveDates.length;
+    final int nHazardCurveDates = hazardCurveDates.length;
+    final int total = nYieldCurveDates + nHazardCurveDates;
+    final ZonedDateTime[] result = new ZonedDateTime[total];
+    System.arraycopy(yieldCurveDates, 0, result, 0, nYieldCurveDates);
+    System.arraycopy(hazardCurveDates, 0, result, nYieldCurveDates, nHazardCurveDates);
+    return ScheduleUtils.getTruncatedTimeLine(result, startDate, endDate, false);
   }
 }

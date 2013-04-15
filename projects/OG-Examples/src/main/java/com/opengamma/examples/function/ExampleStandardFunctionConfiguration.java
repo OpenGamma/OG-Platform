@@ -12,9 +12,9 @@ import java.util.List;
 
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentDefaultCurveNameFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
@@ -42,7 +42,7 @@ import com.opengamma.web.spring.StandardFunctionConfiguration;
  */
 public class ExampleStandardFunctionConfiguration extends StandardFunctionConfiguration {
 
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new ExampleStandardFunctionConfiguration().getObjectCreating();
   }
 
@@ -204,8 +204,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   }
 
   @Override
-  protected RepositoryConfigurationSource deprecatedFunctions() {
-    return CombiningRepositoryConfigurationSource.of(super.deprecatedFunctions(), FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
+  protected FunctionConfigurationSource deprecatedFunctions() {
+    return CombiningFunctionConfigurationSource.of(super.deprecatedFunctions(), FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
         com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.deprecated(),
         FutureFunctions.deprecated(), PNLFunctions.deprecated());
   }
