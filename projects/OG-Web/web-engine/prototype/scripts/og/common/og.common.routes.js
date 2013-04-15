@@ -52,12 +52,11 @@ $.register_module({
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common, is_child, opener_og, parent_api, parent_data, api = og.api.rest;
                     $('.OG-js-loading').hide();
-                    $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container, .OG-layout-tooltip-container').css({'visibility': 'visible'});
+                    $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container').css({'visibility': 'visible'});
                     common.layout = (({
                         'analytics.ftl': common.layout.analytics,
                         'analytics2.ftl': common.layout.analytics2,
                         'blotter.ftl': common.layout.blotter,
-                        'tooltip.ftl': common.layout.tooltip,
                         'gadget.ftl': common.layout.gadget,
                         'admin.ftl': common.layout.admin
                     })[window.location.pathname.split('/').reverse()[0].toLowerCase()] || $.noop)();

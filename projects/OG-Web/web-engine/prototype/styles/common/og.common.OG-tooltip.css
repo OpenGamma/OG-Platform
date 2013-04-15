@@ -3,184 +3,27 @@
  * Please see distribution for license.
  */
 
-
-/* TESTING */
-.OG-layout-tooltip-container {
-    height: 100%;
-    background: #fff;
-    visibility: visible;
-}
-
-div.center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -300px;
-    margin-left: -300px;
-    width:600px;
-    height:600px;
-}
-
-a.tooltip-cta {
-    cursor: help;
-    position: absolute;
-}
-
-div.tooltip-cta{
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: center;
-}
-
-div.reduced div.tooltip-cta{
-    height: 20px;
-    width: auto;
-    max-width: 100px;
-}
-
-div.tooltip-cta.norf {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    top:0;
-    left:50%;
-    margin-left: -75px;
-}
-
-div.tooltip-cta.norf-west {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    top:0;
-    left:50px;
-    margin-left: 0;
-}
-
-div.tooltip-cta.west {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    top:50%;
-    left:50px;
-    margin-top: -75px;
-}
-
-div.tooltip-cta.south-west {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    bottom:30px;
-    left:50px;
-}
-
-div.tooltip-cta.south {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    bottom:30px;
-    left:50%;
-    margin-left: -75px;
-}
-
-div.tooltip-cta.south-east {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    bottom:30px;
-    right:50px;
-}
-
-div.tooltip-cta.east {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    top:50%;
-    right:50px;
-    margin-top: -75px;
-}
-
-div.tooltip-cta.north-east {
-    width: 150px;
-    height: 150px;
-    background: #eee;
-    position: absolute;
-    top:0;
-    right:50px;
-}
-
-a.north {
-    top: 0;
-    left: 50%;
-    margin-left: -20px;
-}
-
-a.east {
-    top: 50%;
-    right: 0;
-    margin-right: 10px;
-    margin-top: -10px;
-}
-
-a.south {
-    left: 50%;
-    bottom: 0;
-    margin-left: -20px;
-    margin-bottom: 10px;
-}
-
-a.west {
-    left: 0;
-    top: 50%;
-    margin-top: -10px;
-    margin-left: 10px;
-}
-
-a.north-east {
-    right: 0;
-    top: 0;
-    margin-right: 10px;
-}
-
-a.south-east {
-    right: 0;
-    bottom: 0;
-    margin-right: 10px;
-    margin-bottom: 10px;
-}
-
-a.south-west {
-    left: 0;
-    bottom: 0;
-    margin-left: 10px;
-    margin-bottom: 10px;
-}
-
-a.north-west {
-    top: 0;
-    left: 0;
-    margin-left: 10px;
-}
-
-/* TESTING */
-
 div.OG-tooltip.og-large {
-    color:#555;
     background: #fff;
     border: 1px solid #bdc4c8;
-    padding: 10px;
     border-radius: 8px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    position: absolute;
-    width: auto;
-    max-width: 200px;
+    color:#555;
     display: none;
+    padding: 10px;
+    position: absolute;
+    max-width: 200px;
+    width: auto;
+    z-index: 100;
+}
+
+div[data-tooltip-type=large] {
+    border-bottom-style: 1px solid dotted !important;
+    display: inline-block;
+}
+
+.og-tooltip-cta-inline {
+    display: inline-block;
 }
 
 div.OG-tooltip.og-large.og-north{

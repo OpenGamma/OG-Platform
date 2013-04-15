@@ -9,12 +9,18 @@ $.register_module({
         return {
             init: (function () {
                 var tooltip, tooltip_offsets, orientation = '', offsets, height, width, viewport, total_width,
-                    total_height, blurkill = false, tmpl = '<div class="OG-tooltip og-large"></div>';
+                    total_height, blurkill = false, tmpl = '<div class="OG-tooltip og-large"></div>', cta;
 
                 var hide_tooltip = function (event) {
                     tooltip.removeAttr('style').removeClass(orientation).hide();
                     blurkill = false;
+                    $('body').off('mousewheel', remove_tooltip);
+                    $(window).off('resize', remove_tooltip);
                 };
+
+                var remove_tooltip = function (event) {
+                    if (!Object.equals(offsets, cta.offset())) hide_tooltip();
+                }
 
                 var show_tooltip = function (dir) {
                     orientation = dir;
@@ -72,22 +78,27 @@ $.register_module({
                 };
 
                 $('[data-tooltip-type=large]').live('click', function (event) {
-                    var elem = $(this);
-                    if (elem.attr('data-tooltip') === '') return;
-                    og.api.rest.tooltips.get({'id': elem.attr('data-tooltip')})
+                    cta = $(this);
+                    var cta_offsets;
+                    if (cta.attr('data-tooltip') === '') return;
+                    og.api.rest.tooltips.get({'id': cta.attr('data-tooltip')})
                         .pipe(function (resp) {
                             tooltip.html(Handlebars.compile(resp.data || resp.message)());
                             tooltip.removeClass(orientation);
                             tooltip_offsets = tooltip.offset();
-                            offsets = elem.offset(); width = elem.outerWidth(); height = elem.outerHeight();
+                            offsets = cta.offset(); width = cta.outerWidth(); height = cta.outerHeight();
                             viewport = { height: $(window).height(), width: $(window).width() };
                             total_width = offsets.left + width, total_height = offsets.top + height;
+                            cta_offsets = cta.offset();
+
+                            $('body').on('mousewheel', remove_tooltip);
+                            $(window).on('resize', remove_tooltip);
 
                             setTimeout(function () {
                                 if (blurkill) return;
                                 blurkill = true;
                                 tooltip.blurkill(hide_tooltip);
-                            }, 0);
+                            });
 
                             // north
                             if (total_height - tooltip.outerHeight() < 0 && total_width - tooltip.outerWidth() > 0 &&
@@ -121,11 +132,11 @@ $.register_module({
                                 else if (total_width + tooltip.outerWidth() < viewport.width)
                                     return show_tooltip('og-west');
                             }
-                    });
+                        });
                 });
 
-                $(function () {
-                    if (!tooltip) $('body').append(tooltip = $(tmpl));
+                $(document).ready( function (event) {
+                    if (!tooltip) $('body').prepend(tooltip = $(tmpl));
                 });
             })()
         };
