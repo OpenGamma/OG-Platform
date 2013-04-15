@@ -17,8 +17,11 @@ import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPro
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,10 +72,10 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
-public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class ISDACreditDefaultSwapOptionFunction extends AbstractFunction.NonCompiledInvoker {
   private final String[] _valueRequirements;
 
-  public CreditDefaultSwapOptionFunction(final String... valueRequirements) {
+  public ISDACreditDefaultSwapOptionFunction(final String... valueRequirements) {
     ArgumentChecker.notNull(valueRequirements, "value requirements");
     _valueRequirements = valueRequirements;
   }
@@ -108,16 +111,23 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
     final Double[] marketSpreadObjects = CreditFunctionUtils.getSpreads(spreadCurve.getYData());
     ParallelArrayBinarySort.parallelBinarySort(tenors, marketSpreadObjects);
     final int n = tenors.length;
-    final ZonedDateTime[] calibrationTimes = new ZonedDateTime[n];
-    final double[] marketSpreads = new double[n];
+    final List<ZonedDateTime> calibrationTimes = new ArrayList<>();
+    final DoubleArrayList marketSpreads = new DoubleArrayList();
     for (int i = 0; i < n; i++) {
-      calibrationTimes[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
-      marketSpreads[i] = marketSpreadObjects[i];
+      final ZonedDateTime nextIMMDate = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
+      if (nextIMMDate.isAfter(definition.getOptionExerciseDate())) {
+        calibrationTimes.add(IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0));
+        marketSpreads.add(marketSpreadObjects[i]);
+      }
+    }
+    if (calibrationTimes.size() < 2) {
+      throw new OpenGammaRuntimeException("Need at least two credit spread points for pricing");
     }
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, volatility, calibrationTimes, marketSpreads, hazardRateCurve, valuationTime, target, properties);
+    return getComputedValue(definition, yieldCurve, volatility, calibrationTimes.toArray(new ZonedDateTime[calibrationTimes.size()]),
+        marketSpreads.toDoubleArray(), hazardRateCurve, valuationTime, target, properties);
   }
 
   @Override
@@ -202,7 +212,7 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder propertiesBuilder = createValueProperties();
+    final ValueProperties.Builder propertiesBuilder = getCommonResultProperties();
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification spec = entry.getKey();
       final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();
@@ -247,4 +257,6 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
       double[] marketSpreads, HazardRateCurve hazardRateCurve, ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
 
   protected abstract boolean labelResultWithCurrency();
+
+  protected abstract ValueProperties.Builder getCommonResultProperties();
 }
