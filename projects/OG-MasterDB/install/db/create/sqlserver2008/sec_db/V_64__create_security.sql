@@ -11,7 +11,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '63');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '64');
 
 CREATE TABLE sec_hibernate_sequence (
   next_val numeric(19,0) 
@@ -1055,7 +1055,7 @@ CREATE TABLE sec_cdsid_tenor (
 
 CREATE TABLE sec_cdsid_component (
     cdsid_id bigint NOT NULL,
-    obligor_scheme varchar(255) NOT NULL,V_63__create_security
+    obligor_scheme varchar(255) NOT NULL,
     obligor_identifier varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
     weight double precision NOT NULL,
