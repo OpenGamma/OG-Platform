@@ -40,7 +40,7 @@ public class ImmutableInstantDoubleTimeSeriesFudgeBuilder implements FudgeBuilde
     // read old ZonedDateTimeDoubleTimeSeries, see OpenGammaFudgeContext
     if (message.getByOrdinal(0).toString().contains("ZonedDateTimeDoubleTimeSeries")) {
       FudgeMsg fastSeries = message.getMessage(2);
-      String encoding = fastSeries.getString(1);
+      String encoding = fastSeries.getMessage(1).getString(1);
       long[] instants = (long[]) fastSeries.getValue(2);
       double[] values = (double[]) fastSeries.getValue(3);
       if (encoding.equals("TIME_EPOCH_NANOS")) {  // CSIGNORE

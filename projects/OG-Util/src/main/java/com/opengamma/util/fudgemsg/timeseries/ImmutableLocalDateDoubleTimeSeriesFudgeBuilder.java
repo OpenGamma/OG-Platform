@@ -41,9 +41,10 @@ public class ImmutableLocalDateDoubleTimeSeriesFudgeBuilder implements FudgeBuil
   public ImmutableLocalDateDoubleTimeSeries buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     // read old LocalDateDoubleTimeSeries, see OpenGammaFudgeContext
     if (message.getByOrdinal(0).toString().contains("ArrayLocalDateDoubleTimeSeries") ||
-        message.getByOrdinal(0).toString().contains("ListLocalDateDoubleTimeSeries")) {
+        message.getByOrdinal(0).toString().contains("ListLocalDateDoubleTimeSeries") ||
+        message.getByOrdinal(0).toString().contains("MapLocalDateDoubleTimeSeries")) {
       FudgeMsg fastSeries = message.getMessage(2);
-      String encoding = fastSeries.getString(1);
+      String encoding = fastSeries.getMessage(1).getString(1);
       int[] dates = (int[]) fastSeries.getValue(2);
       double[] values = (double[]) fastSeries.getValue(3);
       if (encoding.equals("DATE_DDMMYYYY")) {  // CSIGNORE
