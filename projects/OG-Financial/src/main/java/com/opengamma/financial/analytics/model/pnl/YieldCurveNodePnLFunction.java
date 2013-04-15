@@ -71,6 +71,7 @@ import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -377,7 +378,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       if (dbNodeTimeSeries.getTimeSeries().isEmpty()) {
         throw new OpenGammaRuntimeException("Time series " + id + " is empty");
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       if (fxSeries != null) {
         if (isInverse) {
           nodeTimeSeries = nodeTimeSeries.divide(fxSeries.getTimeSeries());
@@ -406,7 +407,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {
         pnlSeries = nodeTimeSeries.multiply(values[i]);

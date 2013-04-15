@@ -48,7 +48,8 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -200,7 +201,7 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction {
       final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
       final double delta = mca.getAmount(currencyNonBase);
       final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
-      DoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
+      DateDoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
       result = result.multiply(position.getQuantity().doubleValue() * delta);
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
       return Collections.singleton(new ComputedValue(spec, result));
@@ -208,10 +209,10 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction {
 
   }
 
-  private DoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
+  private DateDoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
       final TimeSeriesSamplingFunction samplingFunction, final HistoricalTimeSeries dbTimeSeries) {
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), dates);
+    LocalDateDoubleTimeSeries result = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), dates);
     result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.
     return DIFFERENCE.evaluate(result);
   }

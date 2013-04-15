@@ -30,10 +30,8 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalValuationFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
@@ -95,12 +93,9 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
     for (int i = 0; i < pnlVectorSize; i++) {
       pnlValues[i] = valueTs.getValueAtIndex(i + 1) - valueTs.getValueAtIndex(i);
     }
-    FastArrayIntDoubleTimeSeries fastTs = (FastArrayIntDoubleTimeSeries) valueTs.getFastSeries();
-    int[] pnlDates = new int[fastTs.size() - 1];
-    System.arraycopy(fastTs.timesArrayFast(), 1, pnlDates, 0, pnlDates.length);
-    FastIntDoubleTimeSeries fastPnlTs = fastTs.newInstanceFast(pnlDates, pnlValues);
-    LocalDateDoubleTimeSeries pnlTs = new ArrayLocalDateDoubleTimeSeries(valueTs.getConverter(), fastPnlTs);
-
+    int[] pnlDates = new int[valueTs.size() - 1];
+    System.arraycopy(valueTs.timesArrayFast(), 1, pnlDates, 0, pnlDates.length);
+    LocalDateDoubleTimeSeries pnlTs = ImmutableLocalDateDoubleTimeSeries.of(pnlDates, pnlValues);
     ValueSpecification valueSpec = getResultSpec(target, valueTsComputedValue.getSpecification().getProperties());
     return ImmutableSet.of(new ComputedValue(valueSpec, pnlTs));
   }

@@ -16,7 +16,6 @@ import java.util.SortedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -32,13 +31,10 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.timeseries.TimeSeries;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastArrayIntObjectTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateObjectTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateObjectTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateObjectTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
 
 /* package */class HistoricalViewEvaluationResultBuilder {
   
@@ -85,10 +81,9 @@ import com.opengamma.timeseries.localdate.LocalDateObjectTimeSeries;
         values[i] = (Double) datedResult.getValue();
         i++;
       }
-      return new ArrayLocalDateDoubleTimeSeries(ZoneOffset.UTC, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, dates, values));
+      return ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     }
     
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private LocalDateObjectTimeSeries<?> makeObjectTimeSeries() {
       int[] dates = new int[_datedResultMap.size()];
       Object[] values = new Object[_datedResultMap.size()];
@@ -98,9 +93,8 @@ import com.opengamma.timeseries.localdate.LocalDateObjectTimeSeries;
         values[i] = datedResult.getValue();
         i++;
       }
-      return new ArrayLocalDateObjectTimeSeries(ZoneOffset.UTC, new FastArrayIntObjectTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, dates, values));
+      return ImmutableLocalDateObjectTimeSeries.of(dates, values);
     }
-    
   }
 
   private static class ConfigurationResults {

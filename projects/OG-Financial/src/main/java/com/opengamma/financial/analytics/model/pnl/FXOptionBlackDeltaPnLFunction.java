@@ -51,7 +51,8 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -190,7 +191,7 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction {
       final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
       final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
       final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-      final ArrayLocalDateDoubleTimeSeries timeSeries = (ArrayLocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+      final LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
       final LocalDate startDate = now.toLocalDate().minus(Period.parse(samplingPeriod));
       final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
       final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
@@ -208,10 +209,10 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction {
 
   }
 
-  private DoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
-      final TimeSeriesSamplingFunction samplingFunction, final ArrayLocalDateDoubleTimeSeries timeSeries) {
+  private DateDoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
+      final TimeSeriesSamplingFunction samplingFunction, final LocalDateDoubleTimeSeries timeSeries) {
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(timeSeries, dates);
+    LocalDateDoubleTimeSeries result = samplingFunction.getSampledTimeSeries(timeSeries, dates);
     result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.
     return DIFFERENCE.evaluate(result);
   }
