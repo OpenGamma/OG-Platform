@@ -10,33 +10,46 @@ import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.bumpers.SpreadVolatilityBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CreditDefaultSwapOptionDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing.PresentValueCreditDefaultSwapOption;
+import com.opengamma.analytics.financial.credit.creditdefaultswapoption.greeks.VegaCreditDefaultSwapOption;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
  */
-public class CreditDefaultSwapOptionPVFunction extends CreditDefaultSwapOptionFunction {
-  private static final PresentValueCreditDefaultSwapOption CALCULATOR = new PresentValueCreditDefaultSwapOption();
+public class ISDACreditDefaultSwapOptionVegaFunction extends ISDACreditDefaultSwapOptionFunction {
+  private static final VegaCreditDefaultSwapOption CALCULATOR = new VegaCreditDefaultSwapOption();
+
+  public ISDACreditDefaultSwapOptionVegaFunction() {
+    super(ValueRequirementNames.VALUE_VEGA);
+  }
 
   @Override
   protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapOptionDefinition definition, final ISDADateCurve yieldCurve, final double vol,
       final ZonedDateTime[] calibrationTenors, final double[] marketSpreads, final HazardRateCurve hazardRateCurve, final ZonedDateTime valuationTime,
       final ComputationTarget target, final ValueProperties properties) {
-    final double pv = CALCULATOR.getPresentValueCreditDefaultSwapOption(valuationTime, definition, vol, calibrationTenors, marketSpreads, yieldCurve, hazardRateCurve);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, pv));
+    final double vega = CALCULATOR.getVegaCreditDefaultSwapOption(valuationTime, definition, vol, yieldCurve, hazardRateCurve, calibrationTenors, marketSpreads, 0.01,
+        SpreadVolatilityBumpType.MULTIPLICATIVE);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_VEGA, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, vega));
   }
 
   @Override
   protected boolean labelResultWithCurrency() {
     return true;
   }
+
+  @Override
+  protected Builder getCommonResultProperties() {
+    return createValueProperties();
+  }
+
 }
