@@ -437,7 +437,6 @@
     <fragment>/scripts/og/views/common/og.views.common.toolbar.upload.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.default_details.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.core.js</fragment>
-    <fragment>/scripts/og/views/common/og.views.common.tooltip.js</fragment>
   </bundle>
   <bundle id="views_admin.js">
     <!-- config blocks -->

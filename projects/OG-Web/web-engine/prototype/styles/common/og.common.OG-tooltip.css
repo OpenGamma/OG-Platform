@@ -17,9 +17,10 @@ div.OG-tooltip.og-large {
     z-index: 100;
 }
 
-div[data-tooltip-type=large] {
-    border-bottom-style: 1px solid dotted !important;
+[data-tooltip-type=large] {
+    border-bottom: 1px dotted;
     display: inline-block;
+    cursor: help;
 }
 
 .og-tooltip-cta-inline {
