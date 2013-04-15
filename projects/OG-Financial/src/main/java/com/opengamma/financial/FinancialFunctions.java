@@ -7,10 +7,10 @@ package com.opengamma.financial;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.aggregation.AggregationFunctions;
 import com.opengamma.financial.analytics.AnalyticsFunctions;
 import com.opengamma.financial.currency.CurrencyFunctions;
@@ -22,14 +22,14 @@ import com.opengamma.financial.view.ViewFunctions;
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
+public class FinancialFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new FinancialFunctions().getObjectCreating();
   }
 
@@ -38,37 +38,37 @@ public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
     // Nothing in this package, just the sub-packages
   }
 
-  protected RepositoryConfigurationSource aggregationFunctionConfiguration() {
+  protected FunctionConfigurationSource aggregationFunctionConfiguration() {
     return AggregationFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource analyticsFunctionConfiguration() {
+  protected FunctionConfigurationSource analyticsFunctionConfiguration() {
     return AnalyticsFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource currencyFunctionConfiguration() {
+  protected FunctionConfigurationSource currencyFunctionConfiguration() {
     return CurrencyFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource propertyFunctionConfiguration() {
+  protected FunctionConfigurationSource propertyFunctionConfiguration() {
     return PropertyFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource valueFunctionConfiguration() {
+  protected FunctionConfigurationSource valueFunctionConfiguration() {
     return ValueFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource targetFunctionConfiguration() {
+  protected FunctionConfigurationSource targetFunctionConfiguration() {
     return TargetFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource viewFunctionConfiguration() {
+  protected FunctionConfigurationSource viewFunctionConfiguration() {
     return ViewFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
         propertyFunctionConfiguration(), valueFunctionConfiguration(), targetFunctionConfiguration(), viewFunctionConfiguration());
   }
 

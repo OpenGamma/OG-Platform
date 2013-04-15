@@ -8,12 +8,12 @@ package com.opengamma.financial.analytics.model.equity;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationBundle;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionDistanceFunction;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
@@ -22,14 +22,14 @@ import com.opengamma.financial.analytics.model.equity.varianceswap.VarianceSwapF
 /**
  * Function repository configuration source for the functions contained in this package and its sub-packages.
  */
-public class EquityFunctions extends AbstractRepositoryConfigurationBean {
+public class EquityFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new EquityFunctions().getObjectCreating();
   }
 
@@ -46,26 +46,26 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityOptionMonetizedVegaFunction.class));
   }
 
-  protected RepositoryConfigurationSource futuresFunctionConfiguration() {
+  protected FunctionConfigurationSource futuresFunctionConfiguration() {
     // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource optionFunctionConfiguration() {
+  protected FunctionConfigurationSource optionFunctionConfiguration() {
     return OptionFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource portfolioTheoryFunctionConfiguration() {
+  protected FunctionConfigurationSource portfolioTheoryFunctionConfiguration() {
     return PortfolioTheoryFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource varianceSwapFunctionConfiguration() {
+  protected FunctionConfigurationSource varianceSwapFunctionConfiguration() {
     return VarianceSwapFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), futuresFunctionConfiguration(), optionFunctionConfiguration(), portfolioTheoryFunctionConfiguration(),
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), futuresFunctionConfiguration(), optionFunctionConfiguration(), portfolioTheoryFunctionConfiguration(),
         varianceSwapFunctionConfiguration());
   }
 

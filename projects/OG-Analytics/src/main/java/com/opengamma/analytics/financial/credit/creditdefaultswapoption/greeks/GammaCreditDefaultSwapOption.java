@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStru
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing methods for the computation of Gamma for a CDS Swaption (parallel and bucketed bumps) 
+ * Class containing methods for the computation of Gamma for a CDS Swaption (parallel and bucketed bumps)
  */
 public class GammaCreditDefaultSwapOption {
 
@@ -192,10 +192,10 @@ public class GammaCreditDefaultSwapOption {
       }
 
       // Bump the spread at tenor m
-      if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED) {
+      if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED || spreadBumpType == SpreadBumpType.ADDITIVE) {
         bumpedUpMarketSpreads[m] = marketSpreads[m] + spreadBump;
         bumpedDownMarketSpreads[m] = marketSpreads[m] - spreadBump;
-      } else if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
+      } else if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED || spreadBumpType == SpreadBumpType.MULTIPLICATIVE) {
         bumpedUpMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
         bumpedDownMarketSpreads[m] = marketSpreads[m] * (1 - spreadBump);
       } else {
@@ -238,7 +238,7 @@ public class GammaCreditDefaultSwapOption {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    double[] betaAdjustedBucketedGamma = new double[marketTenors.length];
+    final double[] betaAdjustedBucketedGamma = new double[marketTenors.length];
 
     // Compute the unadjusted bucketed gamma
     final double[] bucketedGamma = getGammaBucketedCreditDefaultSwapOption(valuationDate, cdsSwaption, sigma, yieldCurve, hazardRateCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType);

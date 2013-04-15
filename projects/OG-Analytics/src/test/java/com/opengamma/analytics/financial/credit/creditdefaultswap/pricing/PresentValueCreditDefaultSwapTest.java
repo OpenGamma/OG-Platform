@@ -19,13 +19,11 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
-@Test(groups = TestGroup.UNIT)
 public class PresentValueCreditDefaultSwapTest {
   private static final PresentValueCreditDefaultSwap CALCULATOR = new PresentValueCreditDefaultSwap();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 3, 4);
@@ -52,16 +50,16 @@ public class PresentValueCreditDefaultSwapTest {
 
   @Test
   public void testAccruedInterest() {
-    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double accruedInterest = CALCULATOR.calculateAccruedInterest(VALUATION_DATE, cds);
     final double cleanPrice = CALCULATOR.calibrateAndGetPresentValue(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE, PriceType.CLEAN);
     final double dirtyPrice = CALCULATOR.calibrateAndGetPresentValue(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE, PriceType.DIRTY);
-    //    assertEquals(dirtyPrice, cleanPrice + (cds.getNotional() * accruedInterest), EPS);
+    //assertEquals(cleanPrice, dirtyPrice + accruedInterest, EPS);
   }
 
   @Test
   public void testRecoveryRateEqualsOne() {
-    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithRecoveryRate(1).withMaturityDate(
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithRecoveryRate(1).withMaturityDate(
         VALUATION_DATE.plusYears(10));
     final HazardRateCurve hazardRateCurve = CALCULATOR.calibrateHazardRateCurve(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
     final double contingentLeg = CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, hazardRateCurve);
@@ -76,7 +74,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   @Test
   public void testParSpreadEqualsZero() {
-    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithParSpread(0).withMaturityDate(VALUATION_DATE.plusYears(10));
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithParSpread(0).withMaturityDate(VALUATION_DATE.plusYears(10));
     final HazardRateCurve hazardRateCurve = CALCULATOR.calibrateHazardRateCurve(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
     final double contingentLeg = CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, hazardRateCurve);
     final double cleanPrice = CALCULATOR.calibrateAndGetPresentValue(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE, PriceType.CLEAN);
@@ -90,7 +88,7 @@ public class PresentValueCreditDefaultSwapTest {
     final int n = MARKET_TENORS.length;
     final double[] marketSpreads = new double[n];
     Arrays.fill(marketSpreads, EPS);
-    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final HazardRateCurve hazardRateCurve = CALCULATOR.calibrateHazardRateCurve(VALUATION_DATE, cds, MARKET_TENORS, marketSpreads, YIELD_CURVE);
     final double contingentLeg = CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, hazardRateCurve);
     final double cleanPremiumLeg = CALCULATOR.calculatePremiumLeg(VALUATION_DATE, cds, YIELD_CURVE, hazardRateCurve, PriceType.CLEAN);

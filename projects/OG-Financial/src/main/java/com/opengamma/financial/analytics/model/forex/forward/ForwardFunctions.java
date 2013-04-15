@@ -7,26 +7,26 @@ package com.opengamma.financial.analytics.model.forex.forward;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.DeprecatedFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
+public class ForwardFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new ForwardFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource deprecated() {
+  public static FunctionConfigurationSource deprecated() {
     return new DeprecatedFunctions().getObjectCreating();
   }
 

@@ -22,6 +22,7 @@ import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoad
 import com.opengamma.bloombergexample.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.bloombergexample.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
+import com.opengamma.bloombergexample.loader.ExampleFunctionConfigurationPopulator;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
@@ -109,6 +110,18 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     loadMultiCurrencySwapPortfolio();
     loadEquityOptionPortfolio();
     loadViews();
+    loadFunctionConfigurations();
+  }
+
+  private void loadFunctionConfigurations() {
+    final Log log = new Log("Creating function configuration definitions");
+    try {
+      final ExampleFunctionConfigurationPopulator populator = new ExampleFunctionConfigurationPopulator();
+      populator.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   /**

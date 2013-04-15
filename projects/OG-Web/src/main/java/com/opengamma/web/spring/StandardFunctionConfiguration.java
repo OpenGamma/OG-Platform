@@ -13,11 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
@@ -28,7 +28,6 @@ import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
-import com.opengamma.financial.analytics.model.future.FutureFunctions.Calculators;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
@@ -46,7 +45,7 @@ import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
  * <p>
  * A sub-class should provide installation specific details relating to the data providers used.
  */
-public abstract class StandardFunctionConfiguration extends AbstractRepositoryConfigurationBean {
+public abstract class StandardFunctionConfiguration extends AbstractFunctionConfigurationBean {
 
   private static final Logger s_logger = LoggerFactory.getLogger(StandardFunctionConfiguration.class);
 
@@ -606,7 +605,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     addLocalVolatilitySurfaceDefaults(functions);
   }
 
-  protected RepositoryConfigurationSource getRepository(final SingletonFactoryBean<RepositoryConfigurationSource> defaults) {
+  protected FunctionConfigurationSource getRepository(final SingletonFactoryBean<FunctionConfigurationSource> defaults) {
     try {
       defaults.afterPropertiesSet();
     } catch (final Exception e) {
@@ -634,7 +633,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource bondFunctions() {
+  protected FunctionConfigurationSource bondFunctions() {
     final BondFunctions.Defaults defaults = new BondFunctions.Defaults();
     setBondFunctionDefaults(defaults);
     return getRepository(defaults);
@@ -656,7 +655,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource bondFutureOptionFunctions() {
+  protected FunctionConfigurationSource bondFutureOptionFunctions() {
     final BondFutureOptionFunctions.Defaults defaults = new BondFutureOptionFunctions.Defaults();
     setBondFutureOptionDefaults(defaults);
     return getRepository(defaults);
@@ -680,20 +679,20 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource cdsFunctions() {
+  protected FunctionConfigurationSource cdsFunctions() {
     final CreditFunctions.Defaults defaults = new CreditFunctions.Defaults();
     setCDSFunctionDefaults(defaults);
     return getRepository(defaults);
   }
 
-  protected RepositoryConfigurationSource deprecatedFunctions() {
+  protected FunctionConfigurationSource deprecatedFunctions() {
     return null;
   }
 
   protected void setEquityOptionDefaults(final OptionFunctions.Defaults defaults) {
   }
 
-  protected RepositoryConfigurationSource equityOptionFunctions() {
+  protected FunctionConfigurationSource equityOptionFunctions() {
     final OptionFunctions.Defaults defaults = new OptionFunctions.Defaults();
     setEquityOptionDefaults(defaults);
     return getRepository(defaults);
@@ -717,12 +716,12 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource externalSensitivitiesFunctions() {
+  protected FunctionConfigurationSource externalSensitivitiesFunctions() {
     final SensitivitiesFunctions.Calculators calculators = new SensitivitiesFunctions.Calculators();
     setExternalSensitivitesCalculators(calculators);
     final SensitivitiesFunctions.Defaults defaults = new SensitivitiesFunctions.Defaults();
     setExternalSensitivitiesDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setFixedIncomeDefaults(final CurrencyInfo i, final FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
@@ -740,7 +739,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource fixedIncomeFunctions() {
+  protected FunctionConfigurationSource fixedIncomeFunctions() {
     final FixedIncomeFunctions.Defaults defaults = new FixedIncomeFunctions.Defaults();
     setFixedIncomeDefaults(defaults);
     return getRepository(defaults);
@@ -776,7 +775,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource forexFunctions() {
+  protected FunctionConfigurationSource forexFunctions() {
     final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions defaults =
         new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions();
     setForexDefaults(defaults);
@@ -786,7 +785,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected void setForexOptionDefaults(final com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.Defaults defaults) {
   }
 
-  protected RepositoryConfigurationSource forexOptionFunctions() {
+  protected FunctionConfigurationSource forexOptionFunctions() {
     final com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.Defaults defaults = new com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.Defaults();
     setForexOptionDefaults(defaults);
     return getRepository(defaults);
@@ -821,7 +820,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource forwardCurveFunctions() {
+  protected FunctionConfigurationSource forwardCurveFunctions() {
     final ForwardFunctions.Defaults defaults = new ForwardFunctions.Defaults();
     setForwardCurveDefaults(defaults);
     return getRepository(defaults);
@@ -846,12 +845,12 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     calculators.setClosingPriceField(getMark2MarketField());
   }
   
-  protected RepositoryConfigurationSource futureFunctions() {
+  protected FunctionConfigurationSource futureFunctions() {
     final FutureFunctions.Calculators calculators = new FutureFunctions.Calculators();
     setFutureFunctionCalculators(calculators);
     final FutureFunctions.Defaults defaults = new FutureFunctions.Defaults();
     setFutureDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setFutureOptionDefaults(final CurrencyInfo i, final FutureOptionFunctions.Defaults.CurrencyInfo defaults) {
@@ -880,7 +879,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource futureOptionFunctions() {
+  protected FunctionConfigurationSource futureOptionFunctions() {
     final FutureOptionFunctions.Defaults defaults = new FutureOptionFunctions.Defaults();
     setFutureOptionDefaults(defaults);
     return getRepository(defaults);
@@ -890,7 +889,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     defaults.setApplicableCurrencies(getPerCurrencyInfo().keySet());
   }
 
-  protected RepositoryConfigurationSource interestRateFunctions() {
+  protected FunctionConfigurationSource interestRateFunctions() {
     final InterestRateFunctions.Defaults defaults = new InterestRateFunctions.Defaults();
     setInterestRateDefaults(defaults);
     return getRepository(defaults);
@@ -912,7 +911,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource irFutureOptionFunctions() {
+  protected FunctionConfigurationSource irFutureOptionFunctions() {
     final IRFutureOptionFunctions.Defaults defaults = new IRFutureOptionFunctions.Defaults();
     setIRFutureOptionDefaults(defaults);
     return getRepository(defaults);
@@ -935,7 +934,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource localVolatilityFunctions() {
+  protected FunctionConfigurationSource localVolatilityFunctions() {
     final com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions defaults =
         new com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions();
     setLocalVolatilityDefaults(defaults);
@@ -976,18 +975,18 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource pnlFunctionDefaults() {
+  protected FunctionConfigurationSource pnlFunctionDefaults() {
     final PNLFunctions.Defaults defaults = new PNLFunctions.Defaults();
     setPNLFunctionDefaults(defaults);
     return getRepository(defaults);
   }
 
-  protected RepositoryConfigurationSource pnlFunctions() {
+  protected FunctionConfigurationSource pnlFunctions() {
     final PNLFunctions.Calculators calculators = new PNLFunctions.Calculators();
     setPNLFunctionCalculators(calculators);
     final PNLFunctions.Defaults defaults = new PNLFunctions.Defaults();
     setPNLFunctionDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setPortfolioTheoryCalculators(final PortfolioTheoryFunctions.Calculators calculators) {
@@ -996,12 +995,12 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected void setPortfolioTheoryDefaults(final PortfolioTheoryFunctions.Defaults defaults) {
   }
 
-  protected RepositoryConfigurationSource portfolioTheoryFunctions() {
+  protected FunctionConfigurationSource portfolioTheoryFunctions() {
     final PortfolioTheoryFunctions.Calculators calculators = new PortfolioTheoryFunctions.Calculators();
     setPortfolioTheoryCalculators(calculators);
     final PortfolioTheoryFunctions.Defaults defaults = new PortfolioTheoryFunctions.Defaults();
     setPortfolioTheoryDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setSABRCubeDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
@@ -1021,7 +1020,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource sabrCubeFunctions() {
+  protected FunctionConfigurationSource sabrCubeFunctions() {
     final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions defaults =
         new com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions();
     setSABRCubeDefaults(defaults);
@@ -1045,7 +1044,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource swaptionFunctions() {
+  protected FunctionConfigurationSource swaptionFunctions() {
     final com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults defaults = new com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults();
     setSwaptionDefaults(defaults);
     return getRepository(defaults);
@@ -1054,7 +1053,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected void setVaRDefaults(final VaRFunctions.Defaults defaults) {
   }
 
-  protected RepositoryConfigurationSource varFunctions() {
+  protected FunctionConfigurationSource varFunctions() {
     final VaRFunctions.Defaults defaults = new VaRFunctions.Defaults();
     setVaRDefaults(defaults);
     return getRepository(defaults);
@@ -1110,7 +1109,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults defaults) {
   }
 
-  protected RepositoryConfigurationSource volatilitySurfaceFunctions() {
+  protected FunctionConfigurationSource volatilitySurfaceFunctions() {
     final com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults d1 = new com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults();
     setVolatilitySurfaceDefaults(d1);
     final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions d2 =
@@ -1118,12 +1117,12 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setVolatilitySurfaceBlackDefaults(d2);
     final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults d3 = new com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults();
     setVolatilitySurfaceDefaults(d3);
-    return CombiningRepositoryConfigurationSource.of(getRepository(d1), getRepository(d2), getRepository(d3));
+    return CombiningFunctionConfigurationSource.of(getRepository(d1), getRepository(d2), getRepository(d3));
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
         externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(),
         interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(),
         volatilitySurfaceFunctions());

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.threeten.bp.Instant;
@@ -21,11 +21,55 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecutionSequence {
 
-  private final LinkedList<ViewCycleExecutionOptions> _executionSequence;
+  /**
+   * Node in a singly linked list of cycles. This makes the copy operation cheaper.
+   */
+  private static final class Cycle {
+
+    private final ViewCycleExecutionOptions _options;
+
+    private Cycle _next;
+
+    public Cycle(final ViewCycleExecutionOptions options) {
+      _options = options;
+    }
+
+    public ViewCycleExecutionOptions getOptions() {
+      return _options;
+    }
+
+    public void setNext(final Cycle next) {
+      _next = next;
+    }
+
+    public Cycle getNext() {
+      return _next;
+    }
+
+  }
+
+  private Cycle _executionSequenceHead;
+  private int _size;
 
   public ArbitraryViewCycleExecutionSequence(Collection<ViewCycleExecutionOptions> executionSequence) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
-    _executionSequence = new LinkedList<ViewCycleExecutionOptions>(executionSequence);
+    final Iterator<ViewCycleExecutionOptions> itr = executionSequence.iterator();
+    if (itr.hasNext()) {
+      _size = 1;
+      _executionSequenceHead = new Cycle(itr.next());
+      Cycle tail = _executionSequenceHead;
+      while (itr.hasNext()) {
+        final Cycle next = new Cycle(itr.next());
+        tail.setNext(next);
+        tail = next;
+        _size++;
+      }
+    }
+  }
+
+  protected ArbitraryViewCycleExecutionSequence(ArbitraryViewCycleExecutionSequence copyFrom) {
+    _executionSequenceHead = copyFrom._executionSequenceHead;
+    _size = copyFrom._size;
   }
 
   /**
@@ -85,14 +129,22 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   }
 
   public List<ViewCycleExecutionOptions> getRemainingSequence() {
-    return Collections.unmodifiableList(_executionSequence);
+    final List<ViewCycleExecutionOptions> result = new ArrayList<ViewCycleExecutionOptions>(_size);
+    Cycle itr = _executionSequenceHead;
+    while (itr != null) {
+      result.add(itr.getOptions());
+      itr = itr.getNext();
+    }
+    return result;
   }
 
   @Override
-  public ViewCycleExecutionOptions getNext(ViewCycleExecutionOptions defaultExecutionOptions) {
-    final ViewCycleExecutionOptions cycleOptions = _executionSequence.poll();
-    if (cycleOptions != null) {
-      return merge(cycleOptions, defaultExecutionOptions);
+  public ViewCycleExecutionOptions poll(ViewCycleExecutionOptions defaultExecutionOptions) {
+    Cycle head = _executionSequenceHead;
+    if (head != null) {
+      _executionSequenceHead = head.getNext();
+      _size--;
+      return merge(head.getOptions(), defaultExecutionOptions);
     } else {
       return null;
     }
@@ -100,12 +152,17 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
 
   @Override
   public boolean isEmpty() {
-    return _executionSequence.isEmpty();
+    return _executionSequenceHead == null;
   }
 
   @Override
   public int estimateRemaining() {
-    return _executionSequence.size();
+    return _size;
+  }
+
+  @Override
+  public ViewCycleExecutionSequence copy() {
+    return new ArbitraryViewCycleExecutionSequence(this);
   }
 
 }

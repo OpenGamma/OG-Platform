@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics.model.equity.option;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceDefaults;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceFunction;
@@ -17,14 +17,14 @@ import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanc
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class OptionFunctions extends AbstractRepositoryConfigurationBean {
+public class OptionFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new OptionFunctions().getObjectCreating();
   }
 
@@ -32,7 +32,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
    * Gets the default values for calculations
    * @return The repository with equity option defaults set
    */
-  public static RepositoryConfigurationSource defaults() {
+  public static FunctionConfigurationSource defaults() {
     final Defaults factory = new Defaults();
     factory.afterPropertiesSet();
     return factory.getObject();
@@ -44,7 +44,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
    * @param barrierFormat the barrier output display format
    * @return The repository with equity barrier option defaults set
    */
-  public static RepositoryConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth, final String barrierFormat) {
+  public static FunctionConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth, final String barrierFormat) {
     final Defaults factory = new Defaults();
     factory.setOverhedge(overhedge);
     factory.setCallSpreadFullWidth(callSpreadFullWidth);
@@ -56,7 +56,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private double _overhedge; /* = 0.0; */
     private double _callSpreadFullWidth = 0.001;

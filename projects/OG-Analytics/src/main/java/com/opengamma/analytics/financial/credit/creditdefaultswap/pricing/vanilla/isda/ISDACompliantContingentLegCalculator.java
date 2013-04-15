@@ -7,30 +7,36 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.schedulegeneration.isda.GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew;
+import com.opengamma.analytics.financial.credit.schedulegeneration.isda.ISDAContingentLegIntegrationScheduleGenerator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class ISDACompliantContingentLegCalculator extends ISDACompliantLegCalculator {
-  private static final GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew SCHEDULE_CALCULATOR = new GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew();
+  private static final ISDAContingentLegIntegrationScheduleGenerator SCHEDULE_CALCULATOR = new ISDAContingentLegIntegrationScheduleGenerator();
   private static final int SPOT_DAYS = 3;
   private static final boolean ADJUST_CASH_SETTLEMENT_DATE = true;
   private static final BusinessDayConvention BDA = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   @Override
-  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve, final PriceType priceType) {
+  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves,
+      final PriceType priceType) {
+    ArgumentChecker.notNull(valuationDate, "valuation date");
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(priceType, "price type");
     double presentValueContingentLeg = 0.0;
     final int offset = cds.getProtectionStart() ? 1 : 0;
     ZonedDateTime startDate;
@@ -50,11 +56,12 @@ public class ISDACompliantContingentLegCalculator extends ISDACompliantLegCalcul
     if (!startDate.isAfter(valuationDateM1)) {
       startDate = valuationDateM1;
     }
-    final Double[] contingentLegIntegrationSchedule = SCHEDULE_CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, startDate, clEndDate, cds, yieldCurve,
-        hazardRateCurve);
+    final double[] contingentLegIntegrationSchedule = SCHEDULE_CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, startDate, clEndDate, cds, curves);
     // Get the survival probability at the first point in the integration schedule
+    final HazardRateCurve hazardRateCurve = curves.getHazardRateCurve();
     double survivalProbability = hazardRateCurve.getSurvivalProbability(contingentLegIntegrationSchedule[0]);
     // Get the discount factor at the first point in the integration schedule
+    final ISDADateCurve yieldCurve = curves.getYieldCurve();
     double discountFactor = yieldCurve.getDiscountFactor(contingentLegIntegrationSchedule[0]);
     final double loss = (1 - cds.getRecoveryRate());
     for (int i = 1; i < contingentLegIntegrationSchedule.length; ++i) {

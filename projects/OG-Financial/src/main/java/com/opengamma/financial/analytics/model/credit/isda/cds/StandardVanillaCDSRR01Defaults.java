@@ -33,7 +33,7 @@ public class StandardVanillaCDSRR01Defaults extends DefaultPropertyFunction {
   private final Map<String, String> _currencyToRecoveryBumpType;
 
   public StandardVanillaCDSRR01Defaults(final String priority, final String... perCurrencyDefaults) {
-    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
+    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY).or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
     ArgumentChecker.isTrue(perCurrencyDefaults.length % 3 == 0, "Must have one recovery rate bump and recovery rate bump type per currency");
