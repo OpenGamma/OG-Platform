@@ -74,7 +74,7 @@ public class CurveNodeHistoricalDataLoader {
   public void run(final ToolContext tools) {
     final ConfigSource configSource = tools.getConfigSource();
     final ConfigMaster configMaster = tools.getConfigMaster();
-    final List<YieldCurveDefinition> curves = getForwardAndFundingCurves(configMaster);
+    final List<YieldCurveDefinition> curves = getForwardAndDiscountingCurves(configMaster);
 
     final Set<Currency> currencies = newHashSet();
 
@@ -138,16 +138,12 @@ public class CurveNodeHistoricalDataLoader {
    * @param configMaster
    * @return list of yield curve definition config object names
    */
-  private List<YieldCurveDefinition> getForwardAndFundingCurves(final ConfigMaster configMaster) {
+  private List<YieldCurveDefinition> getForwardAndDiscountingCurves(final ConfigMaster configMaster) {
     final List<YieldCurveDefinition> forwardCurves = getCurveDefinitionNames(configMaster, "Forward*");
-    final List<YieldCurveDefinition> oldForwardCurves = getCurveDefinitionNames(configMaster, "FORWARD*");
-    final List<YieldCurveDefinition> fundingCurves = getCurveDefinitionNames(configMaster, "Funding*");
-    final List<YieldCurveDefinition> oldFundingCurves = getCurveDefinitionNames(configMaster, "FUNDING*");
+    final List<YieldCurveDefinition> discountingCurves = getCurveDefinitionNames(configMaster, "Discounting*");
     final List<YieldCurveDefinition> allCurves = Lists.newArrayList();
     allCurves.addAll(forwardCurves);
-    allCurves.addAll(fundingCurves);
-    allCurves.addAll(oldForwardCurves);
-    allCurves.addAll(oldFundingCurves);
+    allCurves.addAll(discountingCurves);
     return allCurves;
   }
 
