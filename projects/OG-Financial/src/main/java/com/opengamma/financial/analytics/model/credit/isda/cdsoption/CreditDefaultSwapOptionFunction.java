@@ -10,10 +10,10 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.FUNCTION;
-import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE;
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD;
@@ -158,10 +158,10 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
     if (hazardRateCurveCalculationMethodNames == null || hazardRateCurveCalculationMethodNames.size() != 1) {
       return null;
     }
-    final Set<String> volatilitySurfaceNames = constraints.getValues(SURFACE);
-    if (volatilitySurfaceNames == null || volatilitySurfaceNames.size() != 1) {
-      return null;
-    }
+    //    final Set<String> volatilitySurfaceNames = constraints.getValues(SURFACE);
+    //    if (volatilitySurfaceNames == null || volatilitySurfaceNames.size() != 1) {
+    //      return null;
+    //    }
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(securitySource);
     final CreditDefaultSwapOptionSecurity security = (CreditDefaultSwapOptionSecurity) target.getSecurity();
@@ -180,18 +180,24 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
     final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
     //final String hazardRateCurveName = Iterables.getOnlyElement(hazardRateCurveNames);
     final String hazardRateCurveCalculationMethod = Iterables.getOnlyElement(hazardRateCurveCalculationMethodNames);
-    final ValueProperties hazardRateCurveProperties = ValueProperties.builder()
-        .with(CURVE, spreadCurveName)
-        .with(CURVE_CALCULATION_METHOD, hazardRateCurveCalculationMethod)
-        .get();
     final ComputationTargetSpecification underlyingTargetSpec = ComputationTargetSpecification.of(underlyingSecurity);
-    final ValueRequirement hazardRateCurveRequirement = new ValueRequirement(ValueRequirementNames.HAZARD_RATE_CURVE, underlyingTargetSpec, hazardRateCurveProperties);
-    final String volatilitySurfaceName = Iterables.getOnlyElement(volatilitySurfaceNames);
-    final ValueProperties volatilityProperties = ValueProperties.builder()
-        .with(SURFACE, volatilitySurfaceName)
-        .get();
-    final ValueRequirement volSurfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetSpecification.NULL, volatilityProperties);
-    return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement, hazardRateCurveRequirement, volSurfaceRequirement);
+    final Set<String> creditSpreadCurveShifts = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
+    final ValueProperties.Builder hazardRateCurveProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, spreadCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, hazardRateCurveCalculationMethod)
+        .with(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, yieldCurveCalculationConfigName)
+        .with(PROPERTY_YIELD_CURVE_CALCULATION_METHOD, yieldCurveCalculationMethodName)
+        .with(PROPERTY_YIELD_CURVE, yieldCurveName);
+    if (creditSpreadCurveShifts != null) {
+      hazardRateCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts);
+    }
+    final ValueRequirement hazardRateCurveRequirement = new ValueRequirement(ValueRequirementNames.HAZARD_RATE_CURVE, underlyingTargetSpec, hazardRateCurveProperties.get());
+    //    final String volatilitySurfaceName = Iterables.getOnlyElement(volatilitySurfaceNames);
+    //    final ValueProperties volatilityProperties = ValueProperties.builder()
+    //        .with(SURFACE, volatilitySurfaceName)
+    //        .get();
+    //    final ValueRequirement volSurfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetSpecification.NULL, volatilityProperties);
+    return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement, hazardRateCurveRequirement); //, volSurfaceRequirement);
   }
 
   @Override

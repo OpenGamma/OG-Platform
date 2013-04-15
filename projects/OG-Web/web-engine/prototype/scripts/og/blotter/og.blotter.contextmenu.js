@@ -20,7 +20,7 @@ $.register_module({
                     var pos_arr = cell.row_value.positionId.split('~'), id = pos_arr[0] + '~' + pos_arr[1];
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: id, id: id}, 
+                            details: data, node:{name: id, id: id}, 
                             handler: function (data) {return og.api.rest.blotter.positions.put(data);},
                             complete : complete_handler
                         });
@@ -32,7 +32,7 @@ $.register_module({
                         nodeId= cell.row_value.nodeId;
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: nodeId, id: nodeId}, 
+                            details: data, node:{name: nodeId, id: nodeId}, 
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                             complete : complete_handler
                         });
@@ -42,7 +42,7 @@ $.register_module({
                 var trade_edit = function () {
                     og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function (data) {
                         new og.blotter.Dialog({
-                            details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
+                            details: data, node:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                             complete : complete_handler, save_as: true
                         });
@@ -50,7 +50,7 @@ $.register_module({
                 };
                 // addding a new trade needs a node id to append to
                 var trade_insert_node = function () {
-                    new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
+                    new og.blotter.Dialog({node:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);},
                         complete : complete_handler
                     });
@@ -75,9 +75,14 @@ $.register_module({
                 };
                 var create_portolio = function () {
                     $(this).dialog('close');
-                    og.api.rest.portfolios.put({
-                        name: og.common.util.ui.dialog({return_field_value: 'name'}),
-                        id: 'TODO'
+                    og.api.rest.configs.get({id: og.analytics.url.last.main.viewdefinition}).pipe(function (result){
+                        var portfolio = result.data.template_data.configJSON.data.identifier;
+                        og.api.rest.portfolios.put({
+                            name: og.common.util.ui.dialog({return_field_value: 'name'}),
+                            id: portfolio,
+                            node: cell.row_value.nodeId,
+                            'new': true
+                        });
                     });
                 };
                 var new_porfolio = function () {
@@ -91,14 +96,15 @@ $.register_module({
                     });
                 };
                 // if a row is a node AND the cell is a position only the position insert option is relevant
-                // if a row is a node OR the cell is a node only the add new trade option is relevant
-                if (cell.row in grid.state.nodes && cell.type === 'POSITION') {
+                // note that cell.type === 'POSITION' is only relevant for the firs column, so can't be used
+                // else if a row is a node OR the cell is a node only the add new trade option is relevant
+                if (cell.row in grid.state.nodes && cell.row_value.positionId) {
                     items.push({name: 'Add Trade', handler: position_insert});
                     return items;
                 }
-                else if (cell.row in grid.state.nodes || cell.type === 'NODE') {  
+                else if (cell.row in grid.state.nodes || cell.type === 'NODE') {
                     items.push({name: 'Add Trade', handler: trade_insert_node});
-                    //items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
+                    items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
                     return items;  
                 }
                 // if a cell has a tradeId then edit the trade otherwise it is an empty position

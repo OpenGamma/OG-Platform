@@ -142,7 +142,7 @@ public class CS01CreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Compute the unadjusted parallel CS01
+    // Compute the unadjusted bucketed CS01
     final double[] bucketedCS01 = getCS01BucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     final double[] betaAdjustedBucketedCS01 = new double[bucketedCS01.length];

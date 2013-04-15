@@ -24,7 +24,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -236,7 +236,7 @@ import com.opengamma.util.time.Tenor;
   }
   
   @Override
-  public Void visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+  public Void visitCreditDefaultSwapIndexDefinitionSecurity(CreditDefaultSwapIndexDefinitionSecurity security) {
     List<String> tenors = Lists.newArrayList();
     for (Tenor tenor : security.getTerms()) {
       tenors.add(tenor.getPeriod().toString());

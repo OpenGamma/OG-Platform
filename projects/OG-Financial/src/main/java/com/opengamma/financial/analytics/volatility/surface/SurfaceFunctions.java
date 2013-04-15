@@ -7,32 +7,32 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
+public class SurfaceFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new SurfaceFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults() {
+  public static FunctionConfigurationSource defaults() {
     final Defaults factory = new Defaults();
     factory.afterPropertiesSet();
     return factory.getObject();
   }
 
-  public static RepositoryConfigurationSource defaults(final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String xInterpolatorName, final String leftYExtrapolatorName,
+  public static FunctionConfigurationSource defaults(final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String xInterpolatorName, final String leftYExtrapolatorName,
       final String rightYExtrapolatorName, final String yInterpolatorName) {
     final Defaults factory = new Defaults();
     factory.setLeftXExtrapolatorName(leftXExtrapolatorName);
@@ -48,7 +48,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the functions contained in this package and sub-packages.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private String _leftXExtrapolatorName = "FlatExtrapolator";
     private String _rightXExtrapolatorName = "FlatExtrapolator";

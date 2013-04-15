@@ -48,7 +48,7 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
   private static final NormalSTIRFuturesSmileProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, NORMAL_PARAMETERS, EURIBOR3M);
 
   private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), TARGET);
@@ -99,10 +99,10 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-4;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
-  @Test
   /**
    * Test the option price from the future price. Standard option.
    */
+  @Test
   public void price() {
     final double expiry = OPTION_ERU2.getExpirationTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, expiry, IS_CALL);
@@ -114,10 +114,10 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
     assertEquals("Future option with Black volatilities: option security price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 
-  @Test
   /**
    * Test the option transaction present value.
    */
+  @Test
   public void presentValue() {
     final double priceOption = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, NORMAL_MULTICURVES);
     final double presentValue1Expected = (priceOption - MARGIN_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
@@ -130,20 +130,20 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
     assertEquals("Future option with Black volatilities: option transaction pv", presentValue1Computed.getAmount(EUR), presentValue1Calculator.getAmount(EUR), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests present value curve sensitivity.
    */
+  @Test
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSNFC.calculateSensitivity(TRANSACTION_1, NORMAL_MULTICURVES, NORMAL_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSNFC_FD.calculateSensitivity(TRANSACTION_1, NORMAL_MULTICURVES);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
-  @Test
   /**
    * Test the option price Black sensitivity
    */
+  @Test
   public void priceNormalSensitivity() {
     final InterpolatedDoublesSurface normalParameterPlus = NormalDataSets.createNormalSurfaceFuturesPricesShift(VOL_SHIFT);
     final InterpolatedDoublesSurface NormalParameterMinus = NormalDataSets.createNormalSurfaceFuturesPricesShift(-VOL_SHIFT);
@@ -158,10 +158,10 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
     assertEquals("Future option with Black volatilities: option security vol sensi", 1, priceSensiComputed.getMap().size());
   }
 
-  @Test
   /**
    * Test the option price Black sensitivity
    */
+  @Test
   public void presentValueNormalSensitivity() {
     final SurfaceValue pvnsSecurity = METHOD_SECURITY_OPTION_NORMAL.priceNormalSensitivity(OPTION_ERU2, NORMAL_MULTICURVES);
     final SurfaceValue pvnsTransactionComputed = METHOD_TRANSACTION_OPTION_NORMAL.presentValueNormalSensitivity(TRANSACTION_1, NORMAL_MULTICURVES);

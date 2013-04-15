@@ -7,32 +7,32 @@ package com.opengamma.financial.analytics.model.horizon;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class HorizonFunctions extends AbstractRepositoryConfigurationBean {
+public class HorizonFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new HorizonFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource deprecated() {
+  public static FunctionConfigurationSource deprecated() {
     return new Deprecated().getObjectCreating();
   }
 
   /**
    * Function repository configuration source for the deprecated functions contained in this package.
    */
-  public static class Deprecated extends AbstractRepositoryConfigurationBean {
+  public static class Deprecated extends AbstractFunctionConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {

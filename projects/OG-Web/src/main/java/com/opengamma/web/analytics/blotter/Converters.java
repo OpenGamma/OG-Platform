@@ -14,7 +14,8 @@ import org.joda.convert.StringConverter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO docs clarifying why this exists on top of the standard Joda converters - property-specific behaviour
+ * TODO also clarify that you want one instance of this class for converting in each direction
  */
 /* package */ class Converters {
 

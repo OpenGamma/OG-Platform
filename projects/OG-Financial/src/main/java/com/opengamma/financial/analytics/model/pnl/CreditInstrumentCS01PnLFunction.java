@@ -109,7 +109,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //TODO
     final String curveName = "SAMEDAY_" + spreadCurveName;
-    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(configSource, now, curveName);
+    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
     HistoricalTimeSeries fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currency)) {

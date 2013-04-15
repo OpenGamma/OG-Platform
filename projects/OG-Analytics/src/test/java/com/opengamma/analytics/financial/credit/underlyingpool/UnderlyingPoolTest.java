@@ -7,10 +7,8 @@ package com.opengamma.analytics.financial.credit.underlyingpool;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.util.money.Currency;
@@ -44,17 +42,12 @@ public class UnderlyingPoolTest {
   private static final DebtSeniority[] debtSeniority = new DebtSeniority[numberOfObligors];
   private static final RestructuringClause[] restructuringClause = new RestructuringClause[numberOfObligors];
 
-  private static final CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
-  private static final double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
-
-  private static final ISDACurve[] yieldCurve = new ISDACurve[numberOfObligors];
-
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoolNameField() {
 
-    new UnderlyingPool(null, obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(null, obligors, currency, debtSeniority, restructuringClause, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -62,7 +55,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObligorsField() {
 
-    new UnderlyingPool(poolName, null, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, null, currency, debtSeniority, restructuringClause, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -70,7 +63,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrencyField() {
 
-    new UnderlyingPool(poolName, obligors, null, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, null, debtSeniority, restructuringClause, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -78,7 +71,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDebtSeniorityField() {
 
-    new UnderlyingPool(poolName, obligors, currency, null, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, null, restructuringClause, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -86,7 +79,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRestructuringClauseField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, null, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, null, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -94,7 +87,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCreditSpreadTenorsField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, null, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -102,7 +95,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCreditSpreadTermStructuresField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, null, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -110,7 +103,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNotionalsField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, null, coupons, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, null, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -118,7 +111,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCouponsField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, null, recoveryRates, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, notionals, null, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -126,7 +119,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRecoveryRatesField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, null, obligorWeights, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, notionals, coupons, null, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -134,7 +127,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObligorWeightsField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, null, yieldCurve);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, notionals, coupons, recoveryRates, null);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -142,7 +135,7 @@ public class UnderlyingPoolTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYieldCurveField() {
 
-    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, null);
+    new UnderlyingPool(poolName, obligors, currency, debtSeniority, restructuringClause, notionals, coupons, recoveryRates, obligorWeights);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

@@ -12,9 +12,9 @@ import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,25 +22,25 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class FutureFunctions extends AbstractRepositoryConfigurationBean {
+public class FutureFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new FutureFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource deprecated() {
+  public static FunctionConfigurationSource deprecated() {
     return new Deprecated().getObjectCreating();
   }
 
   /**
    * Function repository configuration source for the deprecated functions contained in this package.
    */
-  public static class Deprecated extends AbstractRepositoryConfigurationBean {
+  public static class Deprecated extends AbstractFunctionConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -54,7 +54,7 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     /**
      * Currency specific data.
@@ -119,7 +119,7 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the configurable functions contained in this package.
    */
-  public static class Calculators extends AbstractRepositoryConfigurationBean {
+  public static class Calculators extends AbstractFunctionConfigurationBean {
 
     private String _htsResolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
     private String _closingPriceField;

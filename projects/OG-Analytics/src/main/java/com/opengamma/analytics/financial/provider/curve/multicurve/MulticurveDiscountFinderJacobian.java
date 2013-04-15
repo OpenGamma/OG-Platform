@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMatrixMulticurveProviderAbstractCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveMatrixAbstractCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -23,7 +23,7 @@ public class MulticurveDiscountFinderJacobian extends Function1D<DoubleMatrix1D,
   /**
    * The instrument parameter sensitivity calculator.
    */
-  private final ParameterSensitivityMatrixMulticurveProviderAbstractCalculator _parameterSensitivityCalculator;
+  private final ParameterSensitivityMulticurveMatrixAbstractCalculator _parameterSensitivityCalculator;
   /**
    * The data required for curve building.
    */
@@ -34,7 +34,7 @@ public class MulticurveDiscountFinderJacobian extends Function1D<DoubleMatrix1D,
    * @param parameterSensitivityCalculator The instrument parameter sensitivity calculator.
    * @param data The data required for curve building.
    */
-  public MulticurveDiscountFinderJacobian(final ParameterSensitivityMatrixMulticurveProviderAbstractCalculator parameterSensitivityCalculator, 
+  public MulticurveDiscountFinderJacobian(final ParameterSensitivityMulticurveMatrixAbstractCalculator parameterSensitivityCalculator, 
       final MulticurveDiscountBuildingData data) {
     _parameterSensitivityCalculator = parameterSensitivityCalculator;
     _data = data;
