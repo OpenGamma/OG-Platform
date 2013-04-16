@@ -19,11 +19,18 @@ public class CreditCurveNodeIdentifier {
    */
   private static final String SEPARATOR = "_";
 
-  private static final ExternalScheme CDS_INDEX_SCHEME = ExternalScheme.of("CDS_INDEX_SCHEME");
-
-  private static final ExternalScheme SAMEDAY_CDS_SCHEME = ExternalScheme.of("SAMEDAY_CREDIT_CURVE_NODE");
   /**
-   * The scheme to use in external identifiers
+   * The scheme to use in external identifiers for CDS Index curve definition data.
+   */
+  private static final ExternalScheme CDS_INDEX_SCHEME = ExternalScheme.of("CDS_INDEX_CREDIT_CURVE_NODE");
+
+  /**
+   * The scheme to use in external identifiers for Same Day CDS curve definition data.
+   */
+  private static final ExternalScheme SAMEDAY_CDS_SCHEME = ExternalScheme.of("SAMEDAY_CREDIT_CURVE_NODE");
+
+  /**
+   * The scheme to use in external identifiers for Composite CDS curve definition data.
    */
   private static final ExternalScheme COMPOSITE_CDS_SCHEME = ExternalScheme.of("COMPOSITE_CREDIT_CURVE_NODE");
 
@@ -37,16 +44,30 @@ public class CreditCurveNodeIdentifier {
    */
   protected final String _idValue;
 
-  public static CreditCurveNodeIdentifier forCdsIndex(final String indexName, final String redCode, final Period term) {
+  /**
+   * Create an identifier for a CDS Index with the specified red code and term.
+   *
+   * @param redCode the red code of the CDS index
+   * @param term the term required
+   * @return a new identifier
+   */
+  public static CreditCurveNodeIdentifier forCdsIndex(final String redCode, final Period term) {
 
-    String idValue = indexName + SEPARATOR + convertRed(redCode) + SEPARATOR + term.toString();
+    String idValue = convertRed(redCode) + SEPARATOR + term.toString();
     return new CreditCurveNodeIdentifier(CDS_INDEX_SCHEME, idValue);
   }
 
-  private static String convertRed(String redCode) {
-    return redCode.replace("_", "-");
-  }
-
+  /**
+   * Create an identifier for a Sameday CDS with the specified properties.
+   *
+   * @param ticker the ticker of the CDS
+   * @param redCode the red code of the CDS
+   * @param currency the currency of the CDS
+   * @param term the term of the CDS
+   * @param seniority the seniority of the CDS
+   * @param restructuringClause the restructuring clause of the CDS
+   * @return a new identifier
+   */
   public static CreditCurveNodeIdentifier forSamedayCds(final String ticker,
                                                         final String redCode,
                                                         final Currency currency,
@@ -58,6 +79,17 @@ public class CreditCurveNodeIdentifier {
     return new CreditCurveNodeIdentifier(SAMEDAY_CDS_SCHEME, idValue);
   }
 
+  /**
+   * Create an identifier for a Composite CDS with the specified properties.
+   *
+   * @param ticker the ticker of the CDS
+   * @param redCode the red code of the CDS
+   * @param currency the currency of the CDS
+   * @param term the term of the CDS
+   * @param seniority the seniority of the CDS
+   * @param restructuringClause the restructuring clause of the CDS
+   * @return a new identifier
+   */
   public static CreditCurveNodeIdentifier forCompositeCds(final String ticker,
                                                         final String redCode,
                                                         final Currency currency,
@@ -79,8 +111,11 @@ public class CreditCurveNodeIdentifier {
         seniority + SEPARATOR + restructuringClause + SEPARATOR + term.toString();
   }
 
+  private static String convertRed(String redCode) {
+    return redCode.replace("_", "-");
+  }
 
-  public CreditCurveNodeIdentifier(ExternalScheme creditCurveScheme, String idValue) {
+  private CreditCurveNodeIdentifier(ExternalScheme creditCurveScheme, String idValue) {
 
     ArgumentChecker.notNull(creditCurveScheme, "creditCurveScheme");
     ArgumentChecker.notNull(idValue, "idValue");
