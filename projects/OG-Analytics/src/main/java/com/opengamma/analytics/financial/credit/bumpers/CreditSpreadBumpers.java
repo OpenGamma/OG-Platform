@@ -65,4 +65,66 @@ public class CreditSpreadBumpers {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Method to bump the credit spread term structure at every tenor point by a specified amount simultaneously for every obligor
+
+  public double[][] getBumpedCreditSpreads(final int numberOfObligors, final int numberOfTenors, final double[][] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
+
+    double[][] bumpedMarketSpreads = new double[numberOfObligors][numberOfTenors];
+
+    switch (spreadBumpType) {
+      case ADDITIVE_PARALLEL:
+        for (int i = 0; i < numberOfObligors; i++) {
+          for (int m = 0; m < numberOfTenors; m++) {
+            bumpedMarketSpreads[i][m] = marketSpreads[i][m] + spreadBump;
+          }
+        }
+
+        return bumpedMarketSpreads;
+
+      case MULTIPLICATIVE_PARALLEL:
+        for (int i = 0; i < numberOfObligors; i++) {
+          for (int m = 0; m < numberOfTenors; m++) {
+            bumpedMarketSpreads[i][m] = marketSpreads[i][m] * (1 + spreadBump);
+          }
+        }
+
+        return bumpedMarketSpreads;
+
+      default:
+        throw new IllegalArgumentException("Cannot handle bump type " + spreadBumpType);
+    }
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Method to bump the credit spread term structure at every tenor point by a specified amount simultaneously for a single obligor i
+
+  public double[][] getBumpedCreditSpreads(final int numberOfObligors, final int numberOfTenors, final int i, final double[][] marketSpreads, final double spreadBump,
+      final SpreadBumpType spreadBumpType) {
+
+    // Assign the bumped spread matrix to be the original input spread matrix
+    double[][] bumpedMarketSpreads = marketSpreads;
+
+    switch (spreadBumpType) {
+      case ADDITIVE_PARALLEL:
+        for (int m = 0; m < numberOfTenors; m++) {
+          bumpedMarketSpreads[i][m] = marketSpreads[i][m] + spreadBump;
+        }
+
+        return bumpedMarketSpreads;
+
+      case MULTIPLICATIVE_PARALLEL:
+        for (int m = 0; m < numberOfTenors; m++) {
+          bumpedMarketSpreads[i][m] = marketSpreads[i][m] * (1 + spreadBump);
+        }
+
+        return bumpedMarketSpreads;
+
+      default:
+        throw new IllegalArgumentException("Cannot handle bump type " + spreadBumpType);
+    }
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }
