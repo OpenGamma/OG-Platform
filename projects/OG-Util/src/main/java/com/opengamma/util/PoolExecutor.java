@@ -5,6 +5,8 @@
  */
 package com.opengamma.util;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -301,9 +303,43 @@ public class PoolExecutor implements Executor {
 
   }
 
-  private static final ThreadLocal<PoolExecutor> s_instance = new ThreadLocal<PoolExecutor>();
+  private static final ThreadLocal<Reference<PoolExecutor>> s_instance = new ThreadLocal<Reference<PoolExecutor>>();
+  private final Reference<PoolExecutor> _me = new WeakReference<PoolExecutor>(this);
   private final BlockingQueue<Runnable> _queue = new LinkedBlockingQueue<Runnable>();
   private final ThreadPoolExecutor _underlying;
+
+  private static final class ExecutorThread extends Thread {
+
+    private final Reference<PoolExecutor> _owner;
+
+    private ExecutorThread(final Reference<PoolExecutor> owner, final ThreadGroup group, final Runnable runnable, final String threadName, final int stackSize) {
+      super(group, runnable, threadName, stackSize);
+      _owner = owner;
+    }
+
+    @Override
+    public void run() {
+      s_instance.set(_owner);
+      super.run();
+    }
+
+  }
+
+  private static final class ExecutorThreadFactory extends NamedThreadPoolFactory {
+
+    private final Reference<PoolExecutor> _owner;
+
+    private ExecutorThreadFactory(final Reference<PoolExecutor> owner, final String name) {
+      super(name, true);
+      _owner = owner;
+    }
+
+    @Override
+    protected Thread createThread(final ThreadGroup group, final Runnable runnable, final String threadName, final int stackSize) {
+      return new ExecutorThread(_owner, group, runnable, threadName, stackSize);
+    }
+
+  }
 
   /**
    * Creates a new execution pool with the given (maximum) number of threads.
@@ -316,7 +352,7 @@ public class PoolExecutor implements Executor {
   public PoolExecutor(final int maxThreads, final String name) {
     if (maxThreads > 0) {
       _underlying = new ThreadPoolExecutor(maxThreads, maxThreads, 60, TimeUnit.SECONDS, _queue);
-      _underlying.setThreadFactory(new NamedThreadPoolFactory(name));
+      _underlying.setThreadFactory(new ExecutorThreadFactory(_me, name));
       _underlying.allowCoreThreadTimeOut(true);
     } else {
       _underlying = null;
@@ -356,13 +392,31 @@ public class PoolExecutor implements Executor {
    * @return the previously registered instance, or null for none
    */
   public static PoolExecutor setInstance(final PoolExecutor instance) {
-    PoolExecutor previous = s_instance.get();
-    s_instance.set(instance);
-    return previous;
+    Reference<PoolExecutor> previous = s_instance.get();
+    if (instance != null) {
+      s_instance.set(instance._me);
+    } else {
+      s_instance.set(null);
+    }
+    if (previous != null) {
+      return previous.get();
+    } else {
+      return null;
+    }
   }
 
+  /**
+   * Returns the instance registered with the current thread, if any.
+   * 
+   * @return the registered instance, or null for none
+   */
   public static PoolExecutor instance() {
-    return s_instance.get();
+    Reference<PoolExecutor> executor = s_instance.get();
+    if (executor != null) {
+      return executor.get();
+    } else {
+      return null;
+    }
   }
 
   // Executor
