@@ -354,6 +354,43 @@
           <artifactId>og-dbversion-maven-plugin</artifactId>
           <version>1.0.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.fudgemsg</groupId>
+                    <artifactId>maven-fudge-proto-plugin</artifactId>
+                    <versionRange>[0.3.9.6,)</versionRange>
+                    <goals>
+                      <goal>generate</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.joda</groupId>
+                    <artifactId>maven-joda-beans-plugin</artifactId>
+                    <versionRange>[0.7,)</versionRange>
+                    <goals>
+                      <goal>validate</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
