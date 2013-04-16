@@ -78,7 +78,6 @@ public class UnderlyingPool {
       final Currency[] currency,
       final DebtSeniority[] debtSeniority,
       final RestructuringClause[] restructuringClause,
-
       final double[] obligorNotionals,
       final double[] obligorCoupons,
       final double[] obligorRecoveryRates,
@@ -204,6 +203,21 @@ public class UnderlyingPool {
 
   public double[] getObligorWeights() {
     return _obligorWeights;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public UnderlyingPool withRecoveryRates(final double[] recoveryRates) {
+    return new UnderlyingPool(
+        getPoolName(),
+        getObligors(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getObligorNotionals(),
+        getCoupons(),
+        recoveryRates,
+        getObligorWeights());
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
