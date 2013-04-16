@@ -64,7 +64,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
                                                   ComputationTargetResolver targetResolver,
                                                   ViewportListener viewportListener) {
     DependencyGraphStructureBuilder builder =
-        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver);
+        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver, cycle);
     return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle, viewportListener);
   }
 

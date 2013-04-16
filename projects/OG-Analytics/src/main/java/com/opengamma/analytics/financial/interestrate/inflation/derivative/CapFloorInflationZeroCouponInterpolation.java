@@ -17,6 +17,10 @@ import com.opengamma.util.money.Currency;
 public class CapFloorInflationZeroCouponInterpolation extends CouponInflation implements CapFloor {
 
   /**
+   *  The fixing time of the last known fixing.
+   */
+  private final double _lastKnownFixingTime;
+  /**
    * The index value at the start of the coupon.
    */
   private final double _indexStartValue;
@@ -26,6 +30,12 @@ public class CapFloorInflationZeroCouponInterpolation extends CouponInflation im
    * The time can be negative (when the price index for the current and last month is not yet published).
    */
   private final double[] _referenceEndTime;
+
+  /**
+   *  The cap/floor maturity in years.
+   */
+  private final int _maturity;
+
   /**
    * The weight on the first month index in the interpolation.
    */
@@ -46,17 +56,21 @@ public class CapFloorInflationZeroCouponInterpolation extends CouponInflation im
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
+   * @param lastKnownFixingTime The fixing time of the last known fixing.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
+   * @param maturity The cap/floor maturity in years.
    * @param weight The weight on the first month index in the interpolation.
-   * @param strike The strike
+   * @param strike The strike 
    * @param isCap The cap/floor flag.
    */
   public CapFloorInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double indexStartValue, final double[] referenceEndTime, final double weight, double strike, boolean isCap) {
+      final double lastKnownFixingTime, final double indexStartValue, final double[] referenceEndTime, final int maturity, final double weight, double strike, boolean isCap) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
+    _lastKnownFixingTime = lastKnownFixingTime;
     _indexStartValue = indexStartValue;
     _referenceEndTime = referenceEndTime;
+    _maturity = maturity;
     _weight = weight;
     _strike = strike;
     _isCap = isCap;
@@ -69,19 +83,26 @@ public class CapFloorInflationZeroCouponInterpolation extends CouponInflation im
    */
   public CapFloorInflationZeroCouponInterpolation withStrike(final double strike) {
     return new CapFloorInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        getIndexStartValue(), getReferenceEndTime(), getWeight(), strike, _isCap);
+        _lastKnownFixingTime, _indexStartValue, _referenceEndTime, _maturity, _weight, strike, _isCap);
   }
 
   /**
    * Builder from a Ibor coupon, the strike and the cap/floor flag.
    * @param coupon An Ibor coupon.
+   * @param lastKnownFixingTime The fixing time of the last known fixing.
+   * @param maturity The cap/floor maturity in years.
    * @param strike The strike.
    * @param isCap The cap/floor flag.
    * @return The cap/floor.
    */
-  public static CapFloorInflationZeroCouponInterpolation from(final CouponInflationZeroCouponInterpolation coupon, final double strike, final boolean isCap) {
+  public static CapFloorInflationZeroCouponInterpolation from(final CouponInflationZeroCouponInterpolation coupon, final double lastKnownFixingTime, final int maturity, final double strike,
+      final boolean isCap) {
     return new CapFloorInflationZeroCouponInterpolation(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getPriceIndex(),
-        coupon.getIndexStartValue(), coupon.getReferenceEndTime(), coupon.getWeight(), strike, isCap);
+        lastKnownFixingTime, coupon.getIndexStartValue(), coupon.getReferenceEndTime(), maturity, coupon.getWeight(), strike, isCap);
+  }
+
+  public double getLastKnownFixingTime() {
+    return _lastKnownFixingTime;
   }
 
   public double getIndexStartValue() {
@@ -90,6 +111,10 @@ public class CapFloorInflationZeroCouponInterpolation extends CouponInflation im
 
   public double[] getReferenceEndTime() {
     return _referenceEndTime;
+  }
+
+  public int getMaturity() {
+    return _maturity;
   }
 
   public double getWeight() {
@@ -107,15 +132,15 @@ public class CapFloorInflationZeroCouponInterpolation extends CouponInflation im
   }
 
   @Override
-  public double payOff(double fixing) {
-    double omega = (_isCap) ? 1.0 : -1.0;
-    return Math.max(omega * (fixing - _strike), 0);
+  public Coupon withNotional(double notional) {
+    return new CapFloorInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _lastKnownFixingTime, _indexStartValue,
+        _referenceEndTime, _maturity, _weight, _strike, _isCap);
   }
 
   @Override
-  public Coupon withNotional(double notional) {
-    return new CapFloorInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), getIndexStartValue(),
-        getReferenceEndTime(), getWeight(), _strike, _isCap);
+  public double payOff(double fixing) {
+    double omega = (_isCap) ? 1.0 : -1.0;
+    return Math.max(omega * (fixing - Math.pow(1 + _strike, _maturity)), 0);
   }
 
   @Override
