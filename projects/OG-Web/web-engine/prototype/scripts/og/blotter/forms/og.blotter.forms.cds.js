@@ -46,8 +46,10 @@ $.register_module({
                     util.check_checkbox("security.adjustCashSettlementDate", data.security.adjustCashSettlementDate);
                     util.check_checkbox("security.adjustMaturityDate", data.security.adjustMaturityDate);
                     util.check_checkbox("security.immAdjustMaturityDate", data.security.immAdjustMaturityDate);
-                    if(!data.security.notional) return;
-                    util.set_select("security.notional.currency", data.security.notional.currency);
+                    if(data.security.notional)
+                        util.set_select("security.notional.currency", data.security.notional.currency);
+                    if(data.security.upfrontPayment)
+                        util.set_select("security.upfrontPayment.currency", data.security.upfrontPayment.currency);
                     
                 });
                 form.on('form:submit', function (result){
