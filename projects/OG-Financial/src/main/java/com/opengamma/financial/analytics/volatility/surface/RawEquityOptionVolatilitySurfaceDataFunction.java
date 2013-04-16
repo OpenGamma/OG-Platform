@@ -18,11 +18,9 @@ import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.id.UniqueId;
 
 /**
- * Constructs volatility surface data objects for equity options (single-name and index) if the target is a Bloomberg
- * ticker or weak ticker.
+ * Constructs volatility surface data objects for equity options (single-name and index) if the target is a Bloomberg ticker or weak ticker.
  */
 public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
 
@@ -52,16 +50,15 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
   /**
    * The postfix (e.g. Index, Equity) is removed from the Bloomberg ticker when constructing the surface name, so the full name of a surface with
    * <ul>
-   * <li> definitionName = OPENGAMMA
-   * <li> target=BLOOMBERG_TICKER~DJX Index
+   * <li>definitionName = OPENGAMMA
+   * <li>target=BLOOMBERG_TICKER~DJX Index
    * <ul>
-   * is OPENGAMMA_DJX_EQUITY_OPTION
-   * {@inheritDoc}
+   * is OPENGAMMA_DJX_EQUITY_OPTION {@inheritDoc}
    */
   @Override
   protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final ComputationTarget target, final String definitionName) {
-    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
-    final String fullDefinitionName = definitionName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
+    final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+    final String fullDefinitionName = definitionName + "_" + EquitySecurityUtils.getTrimmedTarget(identifier);
     final VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.EQUITY_OPTION);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + InstrumentTypeProperties.EQUITY_OPTION);
@@ -72,16 +69,15 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
   /**
    * The postfix (e.g. Index, Equity) is removed from the Bloomberg ticker when constructing the surface name, so the full name of a surface with
    * <ul>
-   * <li> specificationName = OPENGAMMA
-   * <li> target=BLOOMBERG_TICKER~DJX Index
+   * <li>specificationName = OPENGAMMA
+   * <li>target=BLOOMBERG_TICKER~DJX Index
    * <ul>
-   * is OPENGAMMA_DJX_EQUITY_OPTION
-   * {@inheritDoc}
+   * is OPENGAMMA_DJX_EQUITY_OPTION {@inheritDoc}
    */
   @Override
   protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final ComputationTarget target, final String specificationName) {
-    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
-    final String fullSpecificationName = specificationName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
+    final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+    final String fullSpecificationName = specificationName + "_" + EquitySecurityUtils.getTrimmedTarget(identifier);
     final VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.EQUITY_OPTION);
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + InstrumentTypeProperties.EQUITY_OPTION);
