@@ -23,10 +23,16 @@ import com.opengamma.util.money.Currency;
  */
 public final class CreditSecurityToIdentifierVisitor extends FinancialSecurityVisitorAdapter<CreditCurveIdentifier> {
   private final SecuritySource _securitySource;
+  private final String _prefix;
 
   public CreditSecurityToIdentifierVisitor(final SecuritySource securitySource) {
+    this(securitySource, null);
+  }
+
+  public CreditSecurityToIdentifierVisitor(final SecuritySource securitySource, final String prefix) {
     ArgumentChecker.notNull(securitySource, "security source");
     _securitySource = securitySource;
+    _prefix = prefix;
   }
 
   @Override
@@ -35,7 +41,10 @@ public final class CreditSecurityToIdentifierVisitor extends FinancialSecurityVi
     final Currency currency = security.getNotional().getCurrency();
     final String seniority = security.getDebtSeniority().name();
     final String restructuringClause = security.getRestructuringClause().name();
-    return CreditCurveIdentifier.of(redCode, currency, seniority, restructuringClause);
+    if (_prefix == null) {
+      return CreditCurveIdentifier.of(redCode, currency, seniority, restructuringClause);
+    }
+    return CreditCurveIdentifier.of(_prefix, redCode.getValue(), currency, seniority, restructuringClause);
   }
 
   @Override
@@ -44,7 +53,10 @@ public final class CreditSecurityToIdentifierVisitor extends FinancialSecurityVi
     final Currency currency = security.getNotional().getCurrency();
     final String seniority = security.getDebtSeniority().name();
     final String restructuringClause = security.getRestructuringClause().name();
-    return CreditCurveIdentifier.of(redCode, currency, seniority, restructuringClause);
+    if (_prefix == null) {
+      return CreditCurveIdentifier.of(redCode, currency, seniority, restructuringClause);
+    }
+    return CreditCurveIdentifier.of(_prefix, redCode.getValue(), currency, seniority, restructuringClause);
   }
 
   @Override
@@ -53,7 +65,9 @@ public final class CreditSecurityToIdentifierVisitor extends FinancialSecurityVi
     return underlyingSwap.accept(this);
   }
 
+  @Override
   public CreditCurveIdentifier visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
-
+    final ExternalId redCode = security.getReferenceEntity();
+    return CreditCurveIdentifier.of(redCode);
   }
 }
