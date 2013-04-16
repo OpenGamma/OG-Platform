@@ -38,6 +38,21 @@
       </span></div>
       </td>
     </tr>
+    {{#if index}}
+      <tr>
+        <td>
+          <label>
+            <span>Upfront Payment</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_12}}}
+          </span><span><input name="security.upfrontPayment.amount" type="text" value="{{data.upfrontPayment.amount}}"/>
+        </span></div>
+        </td>
+      </tr>
+    {{/if}}
+    {{#unless index}}
     <tr>
       <td>
         <label>
@@ -48,6 +63,7 @@
         {{{item_4}}}
       </td>
     </tr>
+    {{/unless}}
     <tr>
       <td>
         <label>
@@ -80,6 +96,20 @@
         <td class="og-double-cell">
           <div><span><input class="blotter-date" name="security.cashSettlementDate" type="text" value="{{data.cashSettlementDate}}"/>
           </span><span><label>Adjust <input name="security.adjustCashSettlementDate" type="checkbox" />
+          </label></span></div>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if index}}
+      <tr>
+        <td>
+          <label>
+            <span>Settlement Date</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="security.settlementDate" type="text" value="{{data.settlementDate}}"/>
+          </span><span><label>Adjust <input name="security.adjustSettlementDate" type="checkbox" />
           </label></span></div>
         </td>
       </tr>
@@ -126,6 +156,7 @@
         {{{item_7}}}
       </td>
     </tr>
+    {{#unless index}}
     <tr>
       <td>
         <label>
@@ -146,6 +177,7 @@
         {{{item_9}}}
       </td>
     </tr>
+    {{/unless}}
     <tr>
       <td>
         <label>
@@ -156,6 +188,7 @@
         {{{item_10}}}
       </td>
     </tr>
+    {{#unless index}}
     <tr>
       <td>
         <label>
@@ -166,6 +199,7 @@
         <input name="security.recoveryRate" type="text" value="{{data.recoveryRate}}"/>
       </td>
     </tr>
+    {{/unless}}
     {{#if legacy}}
     <tr>
       <td>
@@ -212,6 +246,18 @@
         </td>
         <td>
           <input name="security.coupon" type="text" value="{{data.coupon}}"/>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if index}}
+      <tr>
+        <td>
+          <label>
+            <span>Index Coupon</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.indexCoupon" type="text" value="{{data.indexCoupon}}"/>
         </td>
       </tr>
     {{/if}}

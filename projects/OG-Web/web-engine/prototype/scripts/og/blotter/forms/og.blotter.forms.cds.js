@@ -28,7 +28,7 @@ $.register_module({
                         portfolio: data.nodeId, trade: data.trade}),
                     new og.blotter.forms.blocks.cds({
                         form: form, data: data, standard: config.standard, stdvanilla: config.stdvanilla, 
-                        legacy: config.legacy}),
+                        legacy: config.legacy, index: config.index}),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })
