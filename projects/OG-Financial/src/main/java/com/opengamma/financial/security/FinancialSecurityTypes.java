@@ -14,6 +14,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
@@ -122,6 +123,11 @@ public class FinancialSecurityTypes {
    * The Corporate Bond security type.
    */
   public static final ObjectComputationTargetType<CorporateBondSecurity> CORPORATE_BOND_SECURITY = ObjectComputationTargetType.of(CorporateBondSecurity.class);
+
+  /**
+   * The credit default swap index security type
+   */
+  public static final ObjectComputationTargetType<CreditDefaultSwapIndexSecurity> CREDIT_DEFAULT_SWAP_INDEX_SECURITY = ObjectComputationTargetType.of(CreditDefaultSwapIndexSecurity.class);
 
   /**
    * The credit default swap option security type.
@@ -240,11 +246,6 @@ public class FinancialSecurityTypes {
   public static final ObjectComputationTargetType<LegacyVanillaCDSSecurity> LEGACY_VANILLA_CDS_SECURITY = ObjectComputationTargetType.of(LegacyVanillaCDSSecurity.class);
 
   /**
-   * The Standard Vanilla CDS security type
-   */
-  public static final ObjectComputationTargetType<StandardVanillaCDSSecurity> STANDARD_VANILLA_CDS_SECURITY = ObjectComputationTargetType.of(StandardVanillaCDSSecurity.class);
-
-  /**
    * The Metal Future security type.
    */
   public static final ObjectComputationTargetType<MetalFutureSecurity> METAL_FUTURE_SECURITY = ObjectComputationTargetType.of(MetalFutureSecurity.class);
@@ -279,6 +280,11 @@ public class FinancialSecurityTypes {
    * The Simple Zero Deposit security type.
    */
   public static final ObjectComputationTargetType<SimpleZeroDepositSecurity> SIMPLE_ZERO_DEPOSIT_SECURITY = ObjectComputationTargetType.of(SimpleZeroDepositSecurity.class);
+
+  /**
+   * The Standard Vanilla CDS security type
+   */
+  public static final ObjectComputationTargetType<StandardVanillaCDSSecurity> STANDARD_VANILLA_CDS_SECURITY = ObjectComputationTargetType.of(StandardVanillaCDSSecurity.class);
 
   /**
    * The Stock Future security type.
