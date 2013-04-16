@@ -44,6 +44,15 @@ import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditD
 import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionParallelGammaCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionRR01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionVegaFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedGammaCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedIR01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameJumpToDefaultFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelGammaCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelIR01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNamePresentValueFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameRR01Function;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -417,6 +426,15 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACreditDefaultSwapOptionBucketedGammaCS01Function.class));
     functions.add(functionConfiguration(ISDACreditDefaultSwapOptionRR01Function.class));
     functions.add(functionConfiguration(ISDACreditDefaultSwapOptionVegaFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameParallelCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameParallelGammaCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedGammaCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameParallelIR01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedIR01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameRR01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameJumpToDefaultFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNamePresentValueFunction.class));
   }
 
 }

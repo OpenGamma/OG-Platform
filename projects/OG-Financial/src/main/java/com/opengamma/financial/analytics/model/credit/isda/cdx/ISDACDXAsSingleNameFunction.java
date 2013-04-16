@@ -118,7 +118,7 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.CDS_SECURITY;
+    return FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY;
   }
 
   @Override
