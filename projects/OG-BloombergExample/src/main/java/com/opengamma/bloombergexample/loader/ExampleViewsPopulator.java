@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -69,7 +70,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
-  private static final String MISSING_INPUTS = null;
+  private static final String MISSING_INPUTS = MissingInputsFunction.AGGREGATION_STYLE_MISSING;
 
   //-------------------------------------------------------------------------
   /**
@@ -285,21 +286,36 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     viewDefinition.setMinFullCalculationPeriod(500L);
 
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA, ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA, 
+        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
 
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;

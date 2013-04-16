@@ -35,6 +35,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -227,8 +228,10 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   }
 
   private ValueRequirement getCreditSpreadCurveHTSRequirement(final Security security, final String curveName, final String samplingPeriod) {
-    return HistoricalTimeSeriesFunctionUtils.createCreditSpreadCurveHTSRequirement(security, curveName, "PX_LAST", null, DateConstraint.VALUATION_TIME.minus(samplingPeriod),
-        true, DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createCreditSpreadCurveHTSRequirement(security, curveName, MarketDataRequirementNames.MARKET_VALUE,
+        null, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true, DateConstraint.VALUATION_TIME, true);
+    //    return HistoricalTimeSeriesFunctionUtils.createCreditSpreadCurveHTSRequirement(security, curveName, "PX_LAST", null, DateConstraint.VALUATION_TIME.minus(samplingPeriod),
+    //        true, DateConstraint.VALUATION_TIME, true);
   }
 
   private Period getSamplingPeriod(final String samplingPeriodName) {
@@ -254,7 +257,8 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     int i = 0;
     for (final CurveNodeWithIdentifier node : nodes) {
       final ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
-      final HistoricalTimeSeries hts = htsBundle.get("PX_LAST", id);
+      final HistoricalTimeSeries hts = htsBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
+      //      final HistoricalTimeSeries hts = htsBundle.get("PX_LAST", id);
       if (hts == null) {
         throw new OpenGammaRuntimeException("Could not get historical time series for " + id);
       }

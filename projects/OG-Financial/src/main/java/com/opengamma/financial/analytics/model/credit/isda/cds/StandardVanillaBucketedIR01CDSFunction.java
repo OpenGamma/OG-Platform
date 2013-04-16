@@ -51,6 +51,7 @@ public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaIR01C
     for (int i = 0; i < n; i++) {
       dates[i] = yieldCurve.getCurveDates()[i].toLocalDate();
     }
+    //final String[] labels = CreditFunctionUtils.getFormattedBucketedXAxis(dates, valuationDate);
     final LocalDateLabelledMatrix1D ir01Matrix = new LocalDateLabelledMatrix1D(dates, ir01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_IR01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, ir01Matrix));

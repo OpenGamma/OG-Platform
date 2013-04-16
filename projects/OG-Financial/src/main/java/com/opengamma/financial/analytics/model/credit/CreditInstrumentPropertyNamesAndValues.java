@@ -51,5 +51,5 @@ public class CreditInstrumentPropertyNamesAndValues {
   public static final String PROPERTY_CDS_PRICE_TYPE = "CDSPriceType";
 
   /** Property value indicating that CDX are to be priced as a single-name CDS */
-  public static final String CDX_AS_SINGLE_NAME = "AsSingleName";
+  public static final String CDX_AS_SINGLE_NAME_ISDA = "AsSingleNameISDA";
 }
