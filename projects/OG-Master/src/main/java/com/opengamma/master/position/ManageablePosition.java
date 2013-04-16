@@ -279,7 +279,6 @@ public class ManageablePosition extends DirectBean
    */
   public SimplePosition toPosition() {
     SimplePosition sp = new SimplePosition();
-    sp.setUniqueId(this.getUniqueId());
     sp.setQuantity(this.getQuantity());
     sp.setSecurityLink(this.getSecurityLink());
     sp.getTrades().addAll(getTrades());
@@ -289,7 +288,11 @@ public class ManageablePosition extends DirectBean
     if (this.getProviderId() != null) {
       sp.addAttribute(this.providerId().name(), this.getProviderId().toString());
     }
-    
+
+    if (this.getUniqueId() != null) { // may not have an id yet
+      sp.setUniqueId(this.getUniqueId());
+    }
+
     return sp;
   }
 
