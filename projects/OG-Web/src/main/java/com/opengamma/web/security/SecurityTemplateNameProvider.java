@@ -14,6 +14,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -262,6 +263,11 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   public String visitCreditDefaultSwapIndexDefinitionSecurity(CreditDefaultSwapIndexDefinitionSecurity security) {
     return "cds-index-definition.ftl";
   }
+
+  @Override
+  public String visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+    return "cds-index.ftl";
+  }
   
   @Override
   public String visitStandardFixedRecoveryCDSSecurity(StandardFixedRecoveryCDSSecurity security) {
@@ -292,8 +298,6 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   public String visitLegacyRecoveryLockCDSSecurity(LegacyRecoveryLockCDSSecurity security) {
     return "legacy-recovery-lock-cds.ftl";
   }
-  
-  
 
   @Override
   public String visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
@@ -307,5 +311,4 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   private String getFuture() {
     return "future.ftl";
   }
-  
 }
