@@ -1209,14 +1209,14 @@ public class FinancialSecurityUtils {
         public CurrencyAmount visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
           final InterestRateNotional notional = security.getNotional();
           final int sign = security.isBuy() ? 1 : -1;
-          return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
+          return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
         }
 
         @Override
         public CurrencyAmount visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
           final InterestRateNotional notional = security.getNotional();
           final int sign = security.isBuy() ? 1 : -1;
-          return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
+          return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
         }
 
         @Override
