@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
@@ -28,10 +29,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class DepGraphTestHelper {
 
   private static final String REQUIREMENT_1 = "Req-1";
@@ -151,11 +154,12 @@ public class DepGraphTestHelper {
   }
 
   public void make2AvailableFromLiveData() {
-    _liveDataAvailabilityProvider.addAvailableRequirement(_req2);
+    _liveDataAvailabilityProvider.addAvailableData(new ValueSpecification(_req2.getValueName(), _req2.getTargetReference().getSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION,
+        "LiveData").get()));
   }
 
   public void make2MissingFromLiveData() {
-    _liveDataAvailabilityProvider.addMissingRequirement(_req2);
+    _liveDataAvailabilityProvider.addMissingData(_req2.getTargetReference().getSpecification().getUniqueId(), _req2.getValueName());
   }
 
   public DependencyGraphBuilder createBuilder(final FunctionPriority prioritizer) {

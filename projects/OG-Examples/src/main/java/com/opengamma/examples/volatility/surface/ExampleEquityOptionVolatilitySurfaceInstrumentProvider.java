@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
@@ -27,7 +26,7 @@ public class ExampleEquityOptionVolatilitySurfaceInstrumentProvider implements S
   private final String _underlyingPrefix; //expecting something like DJX
   private final String _postfix; //expecting Index or Equity
   private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE
-  private static final DateTimeFormatter s_dateFormatter = DateTimeFormatters.pattern("MM/dd/yy");
+  private static final DateTimeFormatter s_dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yy");
 
   private Boolean _generatePuts;
 
@@ -73,7 +72,7 @@ public class ExampleEquityOptionVolatilitySurfaceInstrumentProvider implements S
     }
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_underlyingPrefix);
-    final String formattedDate = s_dateFormatter.print(expiry);
+    final String formattedDate = s_dateFormatter.format(expiry);
     ticker.append(formattedDate);
     // TODO: check this logic
     if (_generatePuts) {

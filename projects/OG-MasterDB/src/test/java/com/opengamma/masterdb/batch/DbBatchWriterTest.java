@@ -44,6 +44,7 @@ import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.InvocationResult;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
@@ -51,20 +52,21 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
-import com.opengamma.engine.view.calcnode.InvocationResult;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
+import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test DbBatchWriter.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbBatchWriterTest extends DbTest {
 
   private DbBatchMaster _batchMaster;
@@ -78,7 +80,6 @@ public class DbBatchWriterTest extends DbTest {
   public DbBatchWriterTest(final String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
   }
-
 
   @Override
   @BeforeMethod

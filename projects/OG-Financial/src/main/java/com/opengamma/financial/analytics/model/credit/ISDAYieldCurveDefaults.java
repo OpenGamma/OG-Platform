@@ -38,7 +38,7 @@ public class ISDAYieldCurveDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyAndOffsets, "currency and offsets");
     ArgumentChecker.isTrue(currencyAndOffsets.length % 2 == 0, "must have one offset per currency");
     _priority = PriorityClass.valueOf(priority);
-    _offsetsForCurrency = new LinkedHashMap<String, String>();
+    _offsetsForCurrency = new LinkedHashMap<>();
     for (int i = 0; i < currencyAndOffsets.length; i += 2) {
       _offsetsForCurrency.put(currencyAndOffsets[i], currencyAndOffsets[i + 1]);
     }
@@ -69,4 +69,5 @@ public class ISDAYieldCurveDefaults extends DefaultPropertyFunction {
   public PriorityClass getPriority() {
     return _priority;
   }
+
 }

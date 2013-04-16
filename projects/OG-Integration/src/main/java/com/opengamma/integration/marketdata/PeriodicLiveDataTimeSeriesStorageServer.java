@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -33,10 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Duration;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.OffsetDate;
 import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 
 import au.com.bytecode.opencsv.CSVParser;
@@ -196,6 +196,11 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
       }
 
       @Override
+      public void subscriptionResultsReceived(Collection<LiveDataSubscriptionResponse> subscriptionResults) {
+        s_logger.warn("Sub result {}", subscriptionResults);
+      }
+
+      @Override
       public void subscriptionStopped(LiveDataSpecification fullyQualifiedSpecification) {
         s_logger.warn("Subscription stopped to {}", fullyQualifiedSpecification);
       }
@@ -228,7 +233,7 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
         }
         String observationTimeName = atTheHour.toOffsetTime().toString();
         try {
-          _storageExecutor.execute(new StorageTask(entry.getKey(), entry.getValue(), atTheHour.toOffsetDate(), observationTimeName));
+          _storageExecutor.execute(new StorageTask(entry.getKey(), entry.getValue(), atTheHour.toLocalDate(), observationTimeName));
         } catch (Exception e) {
           s_logger.error("Unable to submit a storage task to store {} {}", entry.getKey(), entry.getValue());
         }
@@ -243,10 +248,10 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
   private class StorageTask implements Runnable {
     private final LiveDataSpecification _liveDataSpecification;
     private final FudgeMsg _values;
-    private final OffsetDate _date;
+    private final LocalDate _date;
     private final String _observationTimeName;
     
-    public StorageTask(LiveDataSpecification ldSpec, FudgeMsg values, OffsetDate date, String observationTimeName) {
+    public StorageTask(LiveDataSpecification ldSpec, FudgeMsg values, LocalDate date, String observationTimeName) {
       _liveDataSpecification = ldSpec;
       _values = values;
       _date = date;
@@ -268,12 +273,12 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
               field.getName(),
               _observationTimeName,
               _liveDataSpecification.getIdentifiers(),
-              _date.getDate(),
+              _date,
               (Double) field.getValue());
         } else {
           s_logger.error("Would write {} {} {} {} {} {} {} {}",
               new Object[] {description, getDataSource(), getDataProvider(), field.getName(), _observationTimeName,
-                            _liveDataSpecification.getIdentifiers().toString(), _date.getDate(), field.getValue()});
+                            _liveDataSpecification.getIdentifiers().toString(), _date, field.getValue()});
         }
       }
     }
@@ -285,9 +290,9 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime nextHour = now.truncatedTo(HOURS).plusHours(1);
     Duration delay = Duration.between(now.atOffset(ZoneOffset.UTC), nextHour.atOffset(ZoneOffset.UTC));
-    Period oneHour = Period.of(1, HOURS);
+    Duration oneHour = Duration.ofHours(1);
     s_logger.warn("Now {} Next {} Delay {} {}", new Object[] {now, nextHour, delay, delay.toMillis() });
-    _timerExecutor.scheduleAtFixedRate(new SnapshotTask(), delay.toMillis(), oneHour.toDuration().toMillis(), TimeUnit.MILLISECONDS);
+    _timerExecutor.scheduleAtFixedRate(new SnapshotTask(), delay.toMillis(), oneHour.toMillis(), TimeUnit.MILLISECONDS);
     if (getInitializationFileName() != null) {
       initializeFromFile(getInitializationFileName());
     }

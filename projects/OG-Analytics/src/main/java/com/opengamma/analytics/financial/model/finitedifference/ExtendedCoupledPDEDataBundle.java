@@ -10,6 +10,7 @@ import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Not part of the new hierarchy
+ * @deprecated
  */
 @Deprecated
 public class ExtendedCoupledPDEDataBundle {
@@ -49,6 +50,8 @@ public class ExtendedCoupledPDEDataBundle {
 
   /**
    * Gets the a.
+   * @param t time
+   * @param x x
    * @return the a
    */
   public double getA(final double t, final double x) {
@@ -57,6 +60,8 @@ public class ExtendedCoupledPDEDataBundle {
 
   /**
    * Gets the b.
+   * @param t time
+   * @param x x
    * @return the b
    */
   public double getB(final double t, final double x) {
@@ -65,6 +70,8 @@ public class ExtendedCoupledPDEDataBundle {
 
   /**
    * Gets the c.
+   * @param t time
+   * @param x x
    * @return the c
    */
   public double getC(final double t, final double x) {
@@ -73,6 +80,8 @@ public class ExtendedCoupledPDEDataBundle {
 
   /**
    * Gets the alpha.
+   * @param t time
+   * @param x x
    * @return the alpha
    */
   public double getAlpha(final double t, final double x) {
@@ -81,6 +90,8 @@ public class ExtendedCoupledPDEDataBundle {
 
   /**
    * Gets the beta.
+   * @param t time
+   * @param x x
    * @return the beta
    */
   public double getBeta(final double t, final double x) {
@@ -89,6 +100,7 @@ public class ExtendedCoupledPDEDataBundle {
 
   /**
    * Gets the initialCondition.
+   * @param x x
    * @return the initialCondition
    */
   public double getInitialCondition(final double x) {

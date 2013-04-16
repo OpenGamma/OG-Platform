@@ -29,7 +29,12 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
   private static MockSecuritySource securitySource;

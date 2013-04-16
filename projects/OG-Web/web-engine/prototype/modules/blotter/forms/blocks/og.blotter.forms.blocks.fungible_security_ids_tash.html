@@ -1,0 +1,30 @@
+<section class="og-blocks-fungible-security-ids">
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 33%">              
+    <col style="width: 67%">              
+  </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <span><em>IDs</em></span>
+      </th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each security}}
+      <tr>
+        <td>
+          <label>
+            <span>{{scheme}}</span>
+          </label>
+        </td>
+        <td>
+          <span>{{id}}</span>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+</section>

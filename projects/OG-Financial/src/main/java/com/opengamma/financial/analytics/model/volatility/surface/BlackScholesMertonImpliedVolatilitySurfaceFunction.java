@@ -162,8 +162,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   private ValueRequirement getPriceRequirement(final ExternalId eid) {
-    // NOTE jonathan 2013-01-29 -- temporary fix for [PLAT-3044] - will only work if ID is a valid market data target and does not need resolution 
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, eid);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, eid);
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final Currency currency, final String curveName) {

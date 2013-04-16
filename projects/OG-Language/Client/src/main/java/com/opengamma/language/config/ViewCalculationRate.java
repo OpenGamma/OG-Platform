@@ -1,10 +1,9 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.language.config;
 public class ViewCalculationRate extends com.opengamma.language.config.ConfigurationItem implements java.io.Serializable {
           @Override 
-        public <T> T accept (final ConfigurationItemVisitor<T> visitor) { return visitor.visitViewCalculationRate (this); }
+          public <T> T accept (final ConfigurationItemVisitor<T> visitor) { return visitor.visitViewCalculationRate (this); }
   private static final long serialVersionUID = -1430661887897626589l;
   private long _minDelta;
   public static final String MIN_DELTA_KEY = "minDelta";
@@ -140,5 +139,4 @@ public class ViewCalculationRate extends com.opengamma.language.config.Configura
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON

@@ -13,14 +13,16 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.analytics.JsonTestUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlotterLookupResourceTest {
 
-  private final BlotterLookupResource _resource = new BlotterLookupResource(BlotterResource.getStringConvert());
+  private final BlotterLookupResource _resource = new BlotterLookupResource(BlotterUtils.getStringConvert());
 
   static {
     // ensure the converters are loaded and registered

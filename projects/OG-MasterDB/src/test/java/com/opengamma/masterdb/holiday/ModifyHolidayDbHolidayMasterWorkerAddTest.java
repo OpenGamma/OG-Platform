@@ -25,10 +25,12 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHolidayMasterWorkerTest {
   // superclass sets up dummy database
 

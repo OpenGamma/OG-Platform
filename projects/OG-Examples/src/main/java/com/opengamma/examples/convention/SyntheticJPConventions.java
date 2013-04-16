@@ -9,6 +9,7 @@ import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.ConventionBundleMaster;
@@ -41,42 +42,42 @@ public class SyntheticJPConventions {
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
 
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP7D"), simpleNameSecurityId("JPY LIBOR 1w")), "JPY LIBOR 1w", act360, following, DateUtils.periodOfDays(7), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP14D"), simpleNameSecurityId("JPY LIBOR 2w")), "JPY LIBOR 2w", act360, following, DateUtils.periodOfDays(14), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP1M"), simpleNameSecurityId("JPY LIBOR 1m")), "JPY LIBOR 1m", act360, following, DateUtils.periodOfMonths(1), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP2M"), simpleNameSecurityId("JPY LIBOR 2m")), "JPY LIBOR 2m", act360, following, DateUtils.periodOfMonths(2), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP3M"), simpleNameSecurityId("JPY LIBOR 3m")), "JPY LIBOR 3m", act360, following, DateUtils.periodOfMonths(3), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP6M"), simpleNameSecurityId("JPY LIBOR 6m")), "JPY LIBOR 6m", act360, following, DateUtils.periodOfMonths(6), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP12M")), "JPY LIBOR 12m", act360, following, DateUtils.periodOfMonths(12), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP7D"), simpleNameSecurityId("JPY LIBOR 1w")), "JPY LIBOR 1w", act360, following, Period.ofDays(7), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP14D"), simpleNameSecurityId("JPY LIBOR 2w")), "JPY LIBOR 2w", act360, following, Period.ofDays(14), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP1M"), simpleNameSecurityId("JPY LIBOR 1m")), "JPY LIBOR 1m", act360, following, Period.ofMonths(1), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP2M"), simpleNameSecurityId("JPY LIBOR 2m")), "JPY LIBOR 2m", act360, following, Period.ofMonths(2), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP3M"), simpleNameSecurityId("JPY LIBOR 3m")), "JPY LIBOR 3m", act360, following, Period.ofMonths(3), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP6M"), simpleNameSecurityId("JPY LIBOR 6m")), "JPY LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP12M")), "JPY LIBOR 12m", act360, following, Period.ofMonths(12), 2, false, jp);
 
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP1D")),
-        "JPYCASHP1D", act360, following, DateUtils.periodOfDays(1), 0, false, jp);
+        "JPYCASHP1D", act360, following, Period.ofDays(1), 0, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP2D")),
-        "JPYCASHP2D", act360, following, DateUtils.periodOfDays(2), 0, false, jp);
+        "JPYCASHP2D", act360, following, Period.ofDays(2), 0, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP1M")),
-        "JPYCASHP1M", act360, modified, DateUtils.periodOfMonths(1), 2, false, jp);
+        "JPYCASHP1M", act360, modified, Period.ofMonths(1), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP2M")),
-        "JPYCASHP2M", act360, modified, DateUtils.periodOfMonths(2), 2, false, jp);
+        "JPYCASHP2M", act360, modified, Period.ofMonths(2), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP3M")),
-        "JPYCASHP3M", act360, modified, DateUtils.periodOfMonths(3), 2, false, jp);
+        "JPYCASHP3M", act360, modified, Period.ofMonths(3), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP4M")),
-        "JPYCASHP4M", act360, modified, DateUtils.periodOfMonths(4), 2, false, jp);
+        "JPYCASHP4M", act360, modified, Period.ofMonths(4), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP5M")),
-        "JPYCASHP5M", act360, modified, DateUtils.periodOfMonths(5), 2, false, jp);
+        "JPYCASHP5M", act360, modified, Period.ofMonths(5), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP6M")),
-        "JPYCASHP6M", act360, modified, DateUtils.periodOfMonths(6), 2, false, jp);
+        "JPYCASHP6M", act360, modified, Period.ofMonths(6), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP7M")),
-        "JPYCASHP7M", act360, modified, DateUtils.periodOfMonths(7), 2, false, jp);
+        "JPYCASHP7M", act360, modified, Period.ofMonths(7), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP8M")),
-        "JPYCASHP8M", act360, modified, DateUtils.periodOfMonths(8), 2, false, jp);
+        "JPYCASHP8M", act360, modified, Period.ofMonths(8), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP9M")),
-        "JPYCASHP9M", act360, modified, DateUtils.periodOfMonths(9), 2, false, jp);
+        "JPYCASHP9M", act360, modified, Period.ofMonths(9), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP10M")),
-        "JPYCASHP10M", act360, modified, DateUtils.periodOfMonths(10), 2, false, jp);
+        "JPYCASHP10M", act360, modified, Period.ofMonths(10), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP11M")),
-        "JPYCASHP11M", act360, modified, DateUtils.periodOfMonths(11), 2, false, jp);
+        "JPYCASHP11M", act360, modified, Period.ofMonths(11), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP12M")),
-        "JPYCASHP12M", act360, modified, DateUtils.periodOfMonths(12), 2, false, jp);
+        "JPYCASHP12M", act360, modified, Period.ofMonths(12), 2, false, jp);
 
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_SWAP")), "JPY_SWAP", act365, modified, semiAnnual, 2, jp, act360,
         modified, semiAnnual, 2, simpleNameSecurityId("JPY LIBOR 6m"), jp, true);
@@ -88,7 +89,7 @@ public class SyntheticJPConventions {
 
     final Integer publicationLag = 0;
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("TONAR"), simpleNameSecurityId("JPY TONAR")),
-        "JPY TONAR", act365, following, DateUtils.periodOfDays(1), 2, false, jp, publicationLag);
+        "JPY TONAR", act365, following, Period.ofDays(1), 2, false, jp, publicationLag);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_OIS_SWAP")), "JPY_OIS_SWAP", act365, modified, annual, 2, jp,
         act365, modified, annual, 2, simpleNameSecurityId("JPY TONAR"), jp, true, publicationLag);
 

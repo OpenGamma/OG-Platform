@@ -27,9 +27,11 @@ import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
@@ -38,6 +40,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
@@ -99,6 +102,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private PortfolioMaster _portfolioMaster;
   /**
+   * The organization master.
+   */
+  @PropertyDefinition
+  private OrganizationMaster _organizationMaster;
+  /**
    * The historical time-series master.
    */
   @PropertyDefinition
@@ -140,6 +148,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private PositionSource _positionSource;
   /**
+   * The organization source.
+   */
+  @PropertyDefinition
+  private OrganizationSource _organizationSource;
+  /**
    * The historical time-series source.
    */
   @PropertyDefinition
@@ -175,6 +188,12 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private HistoricalTimeSeriesLoader _historicalTimeSeriesLoader;
+  
+  /**
+   * The view processor.
+   */
+  @PropertyDefinition
+  private ViewProcessor _viewProcessor;
 
   //-------------------------------------------------------------------------
   @Override
@@ -237,6 +256,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         return getPositionMaster();
       case -772274742:  // portfolioMaster
         return getPortfolioMaster();
+      case -1158737547:  // organizationMaster
+        return getOrganizationMaster();
       case 173967376:  // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
       case 2090650860:  // marketDataSnapshotMaster
@@ -253,6 +274,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         return getSecuritySource();
       case -1655657820:  // positionSource
         return getPositionSource();
+      case -973975762:  // organizationSource
+        return getOrganizationSource();
       case 358729161:  // historicalTimeSeriesSource
         return getHistoricalTimeSeriesSource();
       case -2019554651:  // marketDataSnapshotSource
@@ -267,6 +290,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         return getHistoricalTimeSeriesProvider();
       case 157715905:  // historicalTimeSeriesLoader
         return getHistoricalTimeSeriesLoader();
+      case -1697555603:  // viewProcessor
+        return getViewProcessor();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -301,6 +326,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       case -772274742:  // portfolioMaster
         setPortfolioMaster((PortfolioMaster) newValue);
         return;
+      case -1158737547:  // organizationMaster
+        setOrganizationMaster((OrganizationMaster) newValue);
+        return;
       case 173967376:  // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
@@ -325,6 +353,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       case -1655657820:  // positionSource
         setPositionSource((PositionSource) newValue);
         return;
+      case -973975762:  // organizationSource
+        setOrganizationSource((OrganizationSource) newValue);
+        return;
       case 358729161:  // historicalTimeSeriesSource
         setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
         return;
@@ -346,6 +377,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       case 157715905:  // historicalTimeSeriesLoader
         setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
         return;
+      case -1697555603:  // viewProcessor
+        setViewProcessor((ViewProcessor) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -366,6 +400,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
@@ -374,6 +409,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
@@ -381,6 +417,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           super.equals(obj);
     }
     return false;
@@ -398,6 +435,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
@@ -406,6 +444,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
@@ -413,6 +452,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     return hash ^ super.hashCode();
   }
 
@@ -643,6 +683,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the organization master.
+   * @return the value of the property
+   */
+  public OrganizationMaster getOrganizationMaster() {
+    return _organizationMaster;
+  }
+
+  /**
+   * Sets the organization master.
+   * @param organizationMaster  the new value of the property
+   */
+  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
+    this._organizationMaster = organizationMaster;
+  }
+
+  /**
+   * Gets the the {@code organizationMaster} property.
+   * @return the property, not null
+   */
+  public final Property<OrganizationMaster> organizationMaster() {
+    return metaBean().organizationMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the historical time-series master.
    * @return the value of the property
    */
@@ -843,6 +908,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the organization source.
+   * @return the value of the property
+   */
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  /**
+   * Sets the organization source.
+   * @param organizationSource  the new value of the property
+   */
+  public void setOrganizationSource(OrganizationSource organizationSource) {
+    this._organizationSource = organizationSource;
+  }
+
+  /**
+   * Gets the the {@code organizationSource} property.
+   * @return the property, not null
+   */
+  public final Property<OrganizationSource> organizationSource() {
+    return metaBean().organizationSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the historical time-series source.
    * @return the value of the property
    */
@@ -1018,6 +1108,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the view processor.
+   * @return the value of the property
+   */
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
+  }
+
+  /**
+   * Sets the view processor.
+   * @param viewProcessor  the new value of the property
+   */
+  public void setViewProcessor(ViewProcessor viewProcessor) {
+    this._viewProcessor = viewProcessor;
+  }
+
+  /**
+   * Gets the the {@code viewProcessor} property.
+   * @return the property, not null
+   */
+  public final Property<ViewProcessor> viewProcessor() {
+    return metaBean().viewProcessor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ToolContextComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -1072,6 +1187,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
         this, "portfolioMaster", ToolContextComponentFactory.class, PortfolioMaster.class);
     /**
+     * The meta-property for the {@code organizationMaster} property.
+     */
+    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organizationMaster", ToolContextComponentFactory.class, OrganizationMaster.class);
+    /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
@@ -1112,6 +1232,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
         this, "positionSource", ToolContextComponentFactory.class, PositionSource.class);
     /**
+     * The meta-property for the {@code organizationSource} property.
+     */
+    private final MetaProperty<OrganizationSource> _organizationSource = DirectMetaProperty.ofReadWrite(
+        this, "organizationSource", ToolContextComponentFactory.class, OrganizationSource.class);
+    /**
      * The meta-property for the {@code historicalTimeSeriesSource} property.
      */
     private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
@@ -1147,10 +1272,15 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<HistoricalTimeSeriesLoader> _historicalTimeSeriesLoader = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesLoader", ToolContextComponentFactory.class, HistoricalTimeSeriesLoader.class);
     /**
+     * The meta-property for the {@code viewProcessor} property.
+     */
+    private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(
+        this, "viewProcessor", ToolContextComponentFactory.class, ViewProcessor.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "batchMaster",
         "configMaster",
@@ -1160,6 +1290,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         "securityMaster",
         "positionMaster",
         "portfolioMaster",
+        "organizationMaster",
         "historicalTimeSeriesMaster",
         "marketDataSnapshotMaster",
         "configSource",
@@ -1168,13 +1299,15 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         "regionSource",
         "securitySource",
         "positionSource",
+        "organizationSource",
         "historicalTimeSeriesSource",
         "marketDataSnapshotSource",
         "conventionBundleSource",
         "securityProvider",
         "securityLoader",
         "historicalTimeSeriesProvider",
-        "historicalTimeSeriesLoader");
+        "historicalTimeSeriesLoader",
+        "viewProcessor");
 
     /**
      * Restricted constructor.
@@ -1203,6 +1336,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _positionMaster;
         case -772274742:  // portfolioMaster
           return _portfolioMaster;
+        case -1158737547:  // organizationMaster
+          return _organizationMaster;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
         case 2090650860:  // marketDataSnapshotMaster
@@ -1219,6 +1354,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _securitySource;
         case -1655657820:  // positionSource
           return _positionSource;
+        case -973975762:  // organizationSource
+          return _organizationSource;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
         case -2019554651:  // marketDataSnapshotSource
@@ -1233,6 +1370,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _historicalTimeSeriesProvider;
         case 157715905:  // historicalTimeSeriesLoader
           return _historicalTimeSeriesLoader;
+        case -1697555603:  // viewProcessor
+          return _viewProcessor;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1326,6 +1465,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code organizationMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganizationMaster> organizationMaster() {
+      return _organizationMaster;
+    }
+
+    /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      * @return the meta-property, not null
      */
@@ -1390,6 +1537,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code organizationSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganizationSource> organizationSource() {
+      return _organizationSource;
+    }
+
+    /**
      * The meta-property for the {@code historicalTimeSeriesSource} property.
      * @return the meta-property, not null
      */
@@ -1443,6 +1598,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<HistoricalTimeSeriesLoader> historicalTimeSeriesLoader() {
       return _historicalTimeSeriesLoader;
+    }
+
+    /**
+     * The meta-property for the {@code viewProcessor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ViewProcessor> viewProcessor() {
+      return _viewProcessor;
     }
 
   }

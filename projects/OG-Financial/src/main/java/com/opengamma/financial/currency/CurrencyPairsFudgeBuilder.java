@@ -16,18 +16,27 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.id.UniqueId;
+
 /**
  * Fudge builder for {@link CurrencyPairs}.
  */
 @FudgeBuilderFor(CurrencyPairs.class)
 public class CurrencyPairsFudgeBuilder implements FudgeBuilder<CurrencyPairs> {
 
-  /** Field name for the set of currency pairs */
+  /**
+   * Field name for the unique ID
+   */
+  public static final String UNIQUE_ID_FIELD_NAME = "uniqueId";
+  /**
+   * Field name for the set of currency pairs
+   */
   public static final String CURRENCY_PAIRS_FIELD_NAME = "currencyPairs";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CurrencyPairs object) {
     MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, UNIQUE_ID_FIELD_NAME, null, object.getUniqueId());
     Set<CurrencyPair> pairs = object.getPairs();
     HashSet<String> pairNames = new HashSet<String>(pairs.size());
     for (CurrencyPair pair : pairs) {
@@ -46,7 +55,12 @@ public class CurrencyPairsFudgeBuilder implements FudgeBuilder<CurrencyPairs> {
     for (String pairName : pairNames) {
       pairs.add(CurrencyPair.parse(pairName));
     }
-    return CurrencyPairs.of(pairs);
+    CurrencyPairs currencyPairs = CurrencyPairs.of(pairs);
+    FudgeField uniqueIdField = message.getByName(UNIQUE_ID_FIELD_NAME);
+    if (uniqueIdField != null) {
+      currencyPairs.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdField));      
+    }
+    return currencyPairs;
   }
 
 }

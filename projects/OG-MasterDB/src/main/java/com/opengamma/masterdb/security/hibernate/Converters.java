@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security.hibernate;
 import java.util.Date;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -24,11 +25,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
+import com.opengamma.masterdb.security.hibernate.cds.CDSIndexComponentBean;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Utility methods for simple conversions.
@@ -38,7 +42,7 @@ public final class Converters {
   private Converters() {
   }
 
-  public static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
+  public static Currency currencyBeanToCurrency(final CurrencyBean currencyBean) {
     if (currencyBean == null) {
       return null;
     }
@@ -46,7 +50,7 @@ public final class Converters {
   }
 
   //-------------------------------------------------------------------------
-  public static ExternalId externalIdBeanToExternalId(ExternalIdBean hibernateBean) {
+  public static ExternalId externalIdBeanToExternalId(final ExternalIdBean hibernateBean) {
     if (hibernateBean == null) {
       return null;
     }
@@ -54,11 +58,20 @@ public final class Converters {
   }
 
   public static ExternalIdBean externalIdToExternalIdBean(final ExternalId identifier) {
+    if (identifier == null) {
+      return null;
+    }
     return new ExternalIdBean(identifier.getScheme().getName(), identifier.getValue());
+  }
+  
+  public static CreditDefaultSwapIndexComponent cdsIndexComponentBeanToCDSIndexComponent(final CDSIndexComponentBean componentBean) {
+    final ExternalId obligor = externalIdBeanToExternalId(componentBean.getObligor());
+    final ExternalId bondId = externalIdBeanToExternalId(componentBean.getBondId());
+    return new CreditDefaultSwapIndexComponent(componentBean.getName(), obligor, componentBean.getWeight(), bondId);
   }
 
   //-------------------------------------------------------------------------
-  public static UniqueId uniqueIdBeanToUniqueId(UniqueIdBean hibernateBean) {
+  public static UniqueId uniqueIdBeanToUniqueId(final UniqueIdBean hibernateBean) {
     if (hibernateBean == null) {
       return null;
     }
@@ -74,7 +87,7 @@ public final class Converters {
     if (bean == null) {
       return null;
     }
-    ZonedDateTimeBean zonedDateTimeBean = bean.getExpiry();
+    final ZonedDateTimeBean zonedDateTimeBean = bean.getExpiry();
 
     final long epochSeconds = zonedDateTimeBean.getDate().getTime() / 1000;
     ZonedDateTime zdt = null;
@@ -92,7 +105,7 @@ public final class Converters {
       return null;
     }
     final ExpiryBean bean = new ExpiryBean();
-    
+
     final ZonedDateTimeBean zonedDateTimeBean = new ZonedDateTimeBean();
     zonedDateTimeBean.setDate(new Date(expiry.getExpiry().toInstant().toEpochMilli()));
     zonedDateTimeBean.setZone(expiry.getExpiry().getZone().getId());
@@ -130,6 +143,13 @@ public final class Converters {
     validateFrequency(frequencyBean.getName());
     return SimpleFrequencyFactory.INSTANCE.getFrequency(frequencyBean.getName());
   }
+  
+  public static Tenor tenorBeanToTenor(final TenorBean tenorBean) {
+    if (tenorBean == null) {
+      return null;
+    }
+    return new Tenor(Period.parse(tenorBean.getName()));
+  }
 
   public static void validateFrequency(final String name) {
     final Frequency f = SimpleFrequencyFactory.INSTANCE.getFrequency(name);
@@ -145,7 +165,7 @@ public final class Converters {
     validateDayCount(dayCountBean.getName());
     return DayCountFactory.INSTANCE.getDayCount(dayCountBean.getName());
   }
-  
+
   public static void validateDayCount(final String name) {
     final DayCount dc = DayCountFactory.INSTANCE.getDayCount(name);
     if (dc == null) {
@@ -160,14 +180,14 @@ public final class Converters {
     validateBusinessDayConvention(businessDayConventionBean.getName());
     return BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(businessDayConventionBean.getName());
   }
-  
+
   public static void validateBusinessDayConvention(final String name) {
     final BusinessDayConvention bdc = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(name);
     if (bdc == null) {
       throw new OpenGammaRuntimeException("Bad value for businessDayConvention (" + name + ")");
     }
   }
-  
+
   public static YieldConvention yieldConventionBeanToYieldConvention(final YieldConventionBean yieldConventionBean) {
     if (yieldConventionBean == null) {
       return null;
@@ -178,14 +198,14 @@ public final class Converters {
     }
     return yc;
   }
-  
+
   public static void validateYieldConvention(final String name) {
     final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention(name);
     if (yc == null) {
       throw new OpenGammaRuntimeException("Bad value for yieldConvention (" + name + ")");
     }
   }
-  
+
   public static StubType stubTypeBeanToStubType(final StubTypeBean stubTypeBean) {
     if (stubTypeBean == null) {
       return null;
@@ -194,32 +214,32 @@ public final class Converters {
     return StubType.valueOf(stubTypeBean.getName());
   }
 
-  private static void validateStubType(String name) {
+  private static void validateStubType(final String name) {
     try {
       StubType.valueOf(name);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for stub type (" + name + ")");
     }
   }
-  
+
   public static DebtSeniority debtSeniorityBeanToDebtSeniority(final DebtSeniorityBean bean) {
     if (bean == null) {
       return null;
     }
     try {
       return DebtSeniority.valueOf(bean.getName());
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for DebtSeniority type (" + bean.getName() + ")");
     }
   }
-  
+
   public static RestructuringClause restructuringClauseBeanToRestructuringClause(final RestructuringClauseBean bean) {
     if (bean == null) {
       return null;
     }
     try {
       return RestructuringClause.valueOf(bean.getName());
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for RestructuringClause type (" + bean.getName() + ")");
     }
   }

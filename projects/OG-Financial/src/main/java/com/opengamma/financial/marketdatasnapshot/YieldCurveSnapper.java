@@ -39,7 +39,7 @@ public class YieldCurveSnapper extends
     ManageableUnstructuredMarketDataSnapshot values = getUnstructured(bundle);
     ManageableYieldCurveSnapshot ret = new ManageableYieldCurveSnapshot();
     ret.setValues(values);
-    ret.setValuationTime(resultModel.getValuationTime());
+    ret.setValuationTime(resultModel.getViewCycleExecutionOptions().getValuationTime());
     return ret;
   }
 }

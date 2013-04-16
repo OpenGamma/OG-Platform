@@ -49,7 +49,7 @@ public class GridInterpolator2D extends Interpolator2D {
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(yInterpolator, "y interpolator");
     ArgumentChecker.notNull(xExtrapolator, "x extrapolator");
-    ArgumentChecker.notNull(yExtrapolator, "y extrapolator");    
+    ArgumentChecker.notNull(yExtrapolator, "y extrapolator");
     _xInterpolator = new CombinedInterpolatorExtrapolator(xInterpolator, xExtrapolator);
     _yInterpolator = new CombinedInterpolatorExtrapolator(yInterpolator, yExtrapolator);
     _comparator = FirstThenSecondPairComparator.INSTANCE_DOUBLES;
@@ -64,7 +64,7 @@ public class GridInterpolator2D extends Interpolator2D {
   public Double interpolate(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value) {
     ArgumentChecker.notNull(value, "value");
     ArgumentChecker.notNull(dataBundle, "data bundle");
-    final Map<Double, Double> xData = new HashMap<Double, Double>();
+    final Map<Double, Double> xData = new HashMap<>();
     for (final Map.Entry<Double, Interpolator1DDataBundle> entry : dataBundle.entrySet()) {
       xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
     }
@@ -75,24 +75,24 @@ public class GridInterpolator2D extends Interpolator2D {
   public Map<DoublesPair, Double> getNodeSensitivitiesForValue(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value) {
     ArgumentChecker.notNull(value, "value");
     ArgumentChecker.notNull(dataBundle, "data bundle");
-    final Map<Double, Double> xData = new HashMap<Double, Double>();
-    double[][] temp = new double[dataBundle.size()][];
+    final Map<Double, Double> xData = new HashMap<>();
+    final double[][] temp = new double[dataBundle.size()][];
     int i = 0;
     for (final Map.Entry<Double, Interpolator1DDataBundle> entry : dataBundle.entrySet()) {
-      //this is the sensitivity of the point projected onto a column of y-points to those points 
+      //this is the sensitivity of the point projected onto a column of y-points to those points
       temp[i++] = _yInterpolator.getNodeSensitivitiesForValue(entry.getValue(), value.getSecond());
       xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
     }
-    //this is the sensitivity of the point to the points projected onto y columns 
-    double[] xSense = _xInterpolator.getNodeSensitivitiesForValue(_xInterpolator.getDataBundle(xData), value.getKey());
+    //this is the sensitivity of the point to the points projected onto y columns
+    final double[] xSense = _xInterpolator.getNodeSensitivitiesForValue(_xInterpolator.getDataBundle(xData), value.getKey());
     ArgumentChecker.isTrue(xSense.length == dataBundle.size(), "Number of x sensitivities {} must be equal to the data bundle size {}", xSense.length, dataBundle.size());
-    Map<DoublesPair, Double> res = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> res = new HashMap<>();
 
     double sense;
     i = 0;
     int j = 0;
     for (final Map.Entry<Double, Interpolator1DDataBundle> entry : dataBundle.entrySet()) {
-      double[] yValues = entry.getValue().getKeys();
+      final double[] yValues = entry.getValue().getKeys();
       for (j = 0; j < yValues.length; j++) {
         sense = xSense[i] * temp[i][j];
         res.put(new DoublesPair(entry.getKey(), yValues[j]), sense);
@@ -103,13 +103,13 @@ public class GridInterpolator2D extends Interpolator2D {
     return res;
   }
   private Map<Double, Interpolator1DDataBundle> testData(final Map<DoublesPair, Double> data) {
-    final Map<Double, Interpolator1DDataBundle> result = new TreeMap<Double, Interpolator1DDataBundle>();
-    final TreeMap<DoublesPair, Double> sorted = new TreeMap<DoublesPair, Double>(_comparator);
+    final Map<Double, Interpolator1DDataBundle> result = new TreeMap<>();
+    final TreeMap<DoublesPair, Double> sorted = new TreeMap<>(_comparator);
     sorted.putAll(data);
     final Iterator<Map.Entry<DoublesPair, Double>> iterator = sorted.entrySet().iterator();
     final Map.Entry<DoublesPair, Double> firstEntry = iterator.next();
     double x = firstEntry.getKey().first;
-    Map<Double, Double> yzValues = new TreeMap<Double, Double>();
+    Map<Double, Double> yzValues = new TreeMap<>();
     yzValues.put(firstEntry.getKey().second, firstEntry.getValue());
     while (iterator.hasNext()) {
       final Map.Entry<DoublesPair, Double> nextEntry = iterator.next();
@@ -117,7 +117,7 @@ public class GridInterpolator2D extends Interpolator2D {
       if (Double.doubleToLongBits(newX) != Double.doubleToLongBits(x)) {
         final Interpolator1DDataBundle interpolatorData = _yInterpolator.getDataBundle(yzValues);
         result.put(x, interpolatorData);
-        yzValues = new TreeMap<Double, Double>();
+        yzValues = new TreeMap<>();
         yzValues.put(nextEntry.getKey().second, nextEntry.getValue());
         x = newX;
       } else {

@@ -33,7 +33,7 @@ import com.opengamma.util.time.Expiry;
  * second underlying.
  */
 public class TwoAssetCorrelationOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardTwoAssetOptionDataBundle>();
+  private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardTwoAssetOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardTwoAssetOptionDataBundle>() {
 
     @Override
@@ -53,7 +53,7 @@ public class TwoAssetCorrelationOptionDefinition extends OptionDefinition {
 
   /**
    * 
-   * @param strike The strike  
+   * @param strike The strike
    * @param expiry The expiry
    * @param isCall Is the option a call
    * @param payoutLevel The payout level of the option

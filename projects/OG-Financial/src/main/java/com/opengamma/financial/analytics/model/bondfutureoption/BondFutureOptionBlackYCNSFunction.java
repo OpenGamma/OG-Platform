@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.bondfutureoption;
@@ -44,7 +44,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class BondFutureOptionBlackYCNSFunction extends BondFutureOptionBlackCurveSpecificFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionBlackYCNSFunction.class);
@@ -83,7 +83,8 @@ public class BondFutureOptionBlackYCNSFunction extends BondFutureOptionBlackCurv
       sensitivities = CALCULATOR.calculateFromPresentValue(bondFutureOption, fixedData, data, couponSensitivity, jacobian, NSC);
     }
     sensitivities = CALCULATOR.calculateFromParRate(bondFutureOption, fixedData, data, jacobian, NSC);
-    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, data, sensitivities, curveSpec, spec);
+    final String fullCurveName = curveName + "_" + FinancialSecurityUtils.getCurrency(security).getCode();
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, data, sensitivities, curveSpec, spec);
   }
 
   @Override

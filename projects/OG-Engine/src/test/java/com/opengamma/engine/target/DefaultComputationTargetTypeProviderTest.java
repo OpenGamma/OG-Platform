@@ -13,18 +13,20 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultComputationTargetTypeProvider} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultComputationTargetTypeProviderTest {
 
   public void testGetSimpleTypes() {
     final DefaultComputationTargetTypeProvider provider = new DefaultComputationTargetTypeProvider();
     final Set<ComputationTargetType> types = new HashSet<ComputationTargetType>(provider.getSimpleTypes());
     assertEquals(types, ImmutableSet.<ComputationTargetType>of(ComputationTargetType.PORTFOLIO, ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.TRADE,
-        ComputationTargetType.SECURITY, ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR));
+        ComputationTargetType.SECURITY, ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR,
+        ComputationTargetType.CREDIT_CURVE_IDENTIFIER));
   }
 
   public void testGetAdditionalTypes() {
@@ -38,7 +40,7 @@ public class DefaultComputationTargetTypeProviderTest {
     final Set<ComputationTargetType> types = new HashSet<ComputationTargetType>(provider.getAllTypes());
     assertEquals(types, ImmutableSet.<ComputationTargetType>of(ComputationTargetType.PORTFOLIO, ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.TRADE,
         ComputationTargetType.SECURITY, ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR, ComputationTargetType.POSITION_OR_TRADE,
-        ComputationTargetType.LEGACY_PRIMITIVE));
+        ComputationTargetType.LEGACY_PRIMITIVE, ComputationTargetType.CREDIT_CURVE_IDENTIFIER));
   }
 
 }

@@ -189,8 +189,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // Write position
     if (_overwrite) {
       // Add the new position to the position master
-      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
-
+      PositionDocument addedDoc;
+      try {
+        addedDoc = _positionMaster.add(new PositionDocument(position));
+      } catch (Exception e) {
+        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage(), e);
+        return null;
+      }
       // Add the new position to the portfolio
       _currentNode.addPosition(addedDoc.getUniqueId());
 
@@ -240,8 +245,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
 
       // Add the new position to the position master
-      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
-
+      PositionDocument addedDoc;
+      try {
+        addedDoc = _positionMaster.add(new PositionDocument(position));
+      } catch (Exception e) {
+        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+        return null;
+      }
       // Add the new position to the portfolio
       _currentNode.addPosition(addedDoc.getUniqueId());
 
@@ -307,8 +317,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     // Not found, so add it
     SecurityDocument addDoc = new SecurityDocument(security);
-    SecurityDocument result = _securityMaster.add(addDoc);
-    return result.getSecurity();
+    try {
+      SecurityDocument result = _securityMaster.add(addDoc);
+      return result.getSecurity();
+    } catch (Exception e) {
+      s_logger.error("Failed to write security " + security + " to the security master");
+      return null;
+    }
   }
   
   @Override
@@ -325,20 +340,14 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   @Override
   public void setPath(String[] newPath) {
-    
-    ArgumentChecker.notNull(newPath, "newPath");
+    ArgumentChecker.noNulls(newPath, "newPath");
 
     if (!Arrays.equals(newPath, _currentPath)) {
 
-      if (newPath.length == 0) {
-        _currentNode = _portfolioDocument.getPortfolio().getRootNode();
-        _originalNode = _originalRoot;
-      } else {
-        if (_originalRoot != null) {
-          _originalNode = findNode(newPath, _originalRoot);
-        }
-        _currentNode = createNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+      if (_originalRoot != null) {
+        _originalNode = findNode(newPath, _originalRoot);
       }
+      _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -346,7 +355,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       // If keeping original portfolio nodes and merging positions, populate position map with existing positions in node
       if (_keepCurrentPositions && _mergePositions && _originalNode != null) {
         for (ObjectId positionId : _originalNode.getPositionIds()) {
-          ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+          ManageablePosition position = null;
+          try {
+            position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+          } catch (Exception e) {
+            // no action
+          }
           if (position != null) {
             position.getSecurityLink().resolve(_securitySource);
             if (position.getSecurity() != null) {
@@ -371,29 +385,24 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   }
   
   private ManageablePortfolioNode findNode(String[] path, ManageablePortfolioNode startNode) {
-    
+
     // Degenerate case
-    if (path.length == 1) {
-      if (startNode.getName().equals(path[0])) {
-        return startNode;
-      } else {
-        return null;
-      }
-    
-    // Recursive case, traverse all child nodes
-    } else {
-      for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
-        String[] newPath = (String[]) ArrayUtils.subarray(path, 1, path.length - 1);
-        ManageablePortfolioNode result = findNode(newPath, childNode);
+    if (path.length == 0) {
+      return startNode;
+    }
+
+    for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
+      if (path[0].equals(childNode.getName())) {
+        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length - 1), childNode);
         if (result != null) {
           return result;
         }
       }
-      return null;
     }
+    return null;
   }
   
-  private ManageablePortfolioNode createNode(String[] path, ManageablePortfolioNode startNode) {
+  private ManageablePortfolioNode getOrCreateNode(String[] path, ManageablePortfolioNode startNode) {
     ManageablePortfolioNode node = startNode;
     for (String p : path) {
       ManageablePortfolioNode foundNode = null;
@@ -467,8 +476,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
         portfolio.setRootNode(rootNode);
         _portfolioDocument.setPortfolio(portfolio);
-        _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
-      }      
+      }
     }
     // Set current node to the root node
     _currentNode = _portfolioDocument.getPortfolio().getRootNode();

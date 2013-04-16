@@ -40,6 +40,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 
+  private static final ComputationTargetType TYPE = ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
+
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
 
@@ -76,9 +78,9 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   /**
-   * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if
-   * the value is in "somethings per currency unit foo" so needs multiplying by the rate instead.
-   *
+   * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if the value is in "somethings per currency unit foo" so needs multiplying by the rate
+   * instead.
+   * 
    * @param value input value to convert
    * @param conversionRate conversion rate to use
    * @return the converted value
@@ -101,7 +103,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Delegates off to the other convert methods depending on the type of value.
-   *
+   * 
    * @param inputValue input value to convert
    * @param desiredValue requested value requirement
    * @param conversionRate conversion rate to use
@@ -217,7 +219,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return CurrencyMatrixSourcingFunction.getConversionRequirement(fromCurrency, toCurrency);
+    return CurrencyMatrixSpotSourcingFunction.getConversionRequirement(fromCurrency, toCurrency);
   }
 
   @Override
@@ -240,7 +242,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
+    return TYPE;
   }
 
 }

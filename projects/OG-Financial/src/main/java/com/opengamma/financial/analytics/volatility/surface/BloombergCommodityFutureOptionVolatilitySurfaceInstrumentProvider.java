@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.GoldFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.LiveCattleFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -25,9 +26,12 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
   private static final Map<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
   static {
     EXPIRY_RULES = Maps.newHashMap();
-    EXPIRY_RULES.put("BO", SoybeanFutureOptionExpiryCalculator.getInstance()); // Soy oil
-    EXPIRY_RULES.put("GC", GoldFutureOptionExpiryCalculator.getInstance()); // Gold
-    EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance()); // Soy
+    EXPIRY_RULES.put("BO", SoybeanFutureOptionExpiryCalculator.getInstance());      // Soy oil
+    EXPIRY_RULES.put("BZ", SoybeanFutureOptionExpiryCalculator.getInstance());      // Brent Crude -- temp for 2 character code in surface name
+    EXPIRY_RULES.put("BZA", SoybeanFutureOptionExpiryCalculator.getInstance());      // Brent Crude
+    EXPIRY_RULES.put("GC", GoldFutureOptionExpiryCalculator.getInstance());         // Gold
+    EXPIRY_RULES.put("LC", LiveCattleFutureOptionExpiryCalculator.getInstance());   // Live Cattle
+    EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance());      // Soy
   }
 
   /**
@@ -84,7 +88,12 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     ticker.append(expiryCode);
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
     ticker.append(" ");
-    ticker.append(strike);
+    // temp workaround for BZA which has 2 decimal places - need to find the proper rule.
+    //if (prefix.equals("BZA")) {
+    //  ticker.append(withTwoDigits.format(strike));
+    //} else {
+      ticker.append(strike);
+    //}
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());

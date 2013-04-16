@@ -24,8 +24,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionInputsImplTest {
 
   private static final ValueRequirement REQ1 = new ValueRequirement("foo-1", ComputationTargetSpecification.NULL);

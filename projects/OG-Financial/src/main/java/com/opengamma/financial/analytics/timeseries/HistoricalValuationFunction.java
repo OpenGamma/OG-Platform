@@ -13,8 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -37,17 +36,20 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
-import com.opengamma.financial.view.ViewEvaluationResult;
+import com.opengamma.financial.view.HistoricalViewEvaluationResult;
+import com.opengamma.financial.view.HistoricalViewEvaluationTarget;
+import com.opengamma.financial.view.ViewEvaluationFunction;
 import com.opengamma.financial.view.ViewEvaluationTarget;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.timeseries.TimeSeries;
+import com.opengamma.timeseries.TimeSeries;
 
 /**
  * Iterates a view client over historical data to produce a historical valuation of a target. The view client iteration is performed by a helper function on a {@link ViewEvaluationTarget} created by
@@ -92,18 +94,10 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
    */
   public static final String TARGET_SPECIFICATION_EXTERNAL = "External";
 
-  /**
-   * Property naming the time-zone the valuation time is specified in.
-   */
-  public static final String TIMEZONE_PROPERTY = "TZ";
+  private static final Set<String> s_ignoreConstraints = ImmutableSet.of(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY,
+      HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, ValuePropertyNames.FUNCTION);
 
-  /**
-   * Property naming the valuation time of day to use.
-   */
-  public static final String VALUATION_TIME_PROPERTY = "Time";
-
-  protected ValueRequirement getNestedRequirement(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTarget target, final ValueProperties constraints,
-      final ViewEvaluationTarget updateTempTarget) {
+  protected ValueRequirement getNestedRequirement(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTarget target, final ValueProperties constraints) {
     String valueName = ValueRequirementNames.VALUE;
     ComputationTargetReference requirementTarget = null;
     final ValueProperties.Builder requirementConstraints = ValueProperties.builder();
@@ -151,59 +145,20 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
             } else {
               requirementTarget = target.getContextSpecification().containing(resolver.simplifyType(target.getLeafSpecification().getType()), identifiers);
             }
+          }
+        } else if (constraintName.startsWith(PASSTHROUGH_PREFIX)) {
+          final String name = constraintName.substring(PASSTHROUGH_PREFIX.length());
+          if (constraintValues.isEmpty()) {
+            requirementConstraints.withAny(name);
           } else {
-            return null;
+            requirementConstraints.with(name, constraintValues);
           }
-        } else if (updateTempTarget != null) {
-          if (constraintName.startsWith(PASSTHROUGH_PREFIX)) {
-            final String name = constraintName.substring(PASSTHROUGH_PREFIX.length());
-            if (constraintValues.isEmpty()) {
-              requirementConstraints.withAny(name);
-            } else {
-              requirementConstraints.with(name, constraintValues);
-            }
-            if (constraints.isOptional(constraintName)) {
-              requirementConstraints.withOptional(name);
-            }
-          } else if (HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY.equals(constraintName)) {
-            if (constraintValues.isEmpty()) {
-              updateTempTarget.setFirstValuationDate("");
-            } else {
-              updateTempTarget.setFirstValuationDate(constraintValues.iterator().next());
-            }
-          } else if (HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY.equals(constraintName)) {
-            if (constraintValues.isEmpty() || constraintValues.contains(HistoricalTimeSeriesFunctionUtils.YES_VALUE)) {
-              updateTempTarget.setIncludeFirstValuationDate(true);
-            } else if (constraintValues.contains(HistoricalTimeSeriesFunctionUtils.NO_VALUE)) {
-              updateTempTarget.setIncludeFirstValuationDate(false);
-            } else {
-              return null;
-            }
-          } else if (HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY.equals(constraintName)) {
-            if (constraintValues.isEmpty()) {
-              updateTempTarget.setLastValuationDate("");
-            } else {
-              updateTempTarget.setLastValuationDate(constraintValues.iterator().next());
-            }
-          } else if (HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY.equals(constraintName)) {
-            if (constraintValues.isEmpty() || constraintValues.contains(HistoricalTimeSeriesFunctionUtils.YES_VALUE)) {
-              updateTempTarget.setIncludeLastValuationDate(true);
-            } else if (constraintValues.contains(HistoricalTimeSeriesFunctionUtils.NO_VALUE)) {
-              updateTempTarget.setIncludeLastValuationDate(false);
-            } else {
-              return null;
-            }
-          } else if (TIMEZONE_PROPERTY.equals(constraintName)) {
-            if (constraintValues.size() > 0) {
-              updateTempTarget.setTimeZone(ZoneId.of(constraintValues.iterator().next()));
-            }
-          } else if (VALUATION_TIME_PROPERTY.equals(constraintName)) {
-            if (constraintValues.size() > 0) {
-              updateTempTarget.setValuationTime(LocalTime.parse(constraintValues.iterator().next()));
-            }
-          } else if (!ValuePropertyNames.FUNCTION.equals(constraintName) && !constraints.isOptional(constraintName)) {
-            return null;
+          if (constraints.isOptional(constraintName)) {
+            requirementConstraints.withOptional(name);
           }
+        } else if (!constraints.isOptional(constraintName) && !s_ignoreConstraints.contains(constraintName)) {
+          // Not an optional constraint, not one recognized here, and not one ignored by the main getRequirements method
+          return null;
         }
       }
     }
@@ -231,7 +186,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return context.getViewCalculationConfiguration() != null;
+    return !(target.getValue() instanceof HistoricalViewEvaluationTarget) && context.getViewCalculationConfiguration() != null;
   }
 
   @Override
@@ -239,11 +194,52 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES, target.toSpecification(), ValueProperties.all()));
   }
 
+  private String anyConstraintOrNull(final ValueProperties constraints, final String name) {
+    final Set<String> values = constraints.getValues(name);
+    if ((values == null) || values.isEmpty()) {
+      return null;
+    } else {
+      return values.iterator().next();
+    }
+  }
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ViewEvaluationTarget tempTarget = new ViewEvaluationTarget(context.getViewCalculationConfiguration().getViewDefinition().getMarketDataUser());
-    tempTarget.setCorrection(context.getComputationTargetResolver().getVersionCorrection().getCorrectedTo());
-    final ValueRequirement requirement = getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints(), tempTarget);
+    ValueProperties constraints = desiredValue.getConstraints();
+    String startDateConstraint = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+    String includeStartConstraintString = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
+    boolean includeStartConstraint = true;
+    String endDateConstraint = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
+    String includeEndConstraintString = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
+    boolean includeEndConstraint = false;
+    if (includeStartConstraintString != null) {
+      includeStartConstraint = HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(includeStartConstraintString);
+    }
+    if (includeEndConstraintString != null) {
+      includeEndConstraint = HistoricalTimeSeriesFunctionUtils.NO_VALUE.equals(includeEndConstraintString);
+    }
+    if (endDateConstraint == null) {
+      endDateConstraint = DateConstraint.VALUATION_TIME.toString();
+    }
+    if (startDateConstraint == null) {
+      if (includeEndConstraint) {
+        if (includeStartConstraint) {
+          startDateConstraint = endDateConstraint;
+        } else {
+          startDateConstraint = DateConstraint.parse(endDateConstraint).minus(Period.ofDays(1)).toString();
+        }
+      } else {
+        if (includeStartConstraint) {
+          startDateConstraint = DateConstraint.parse(endDateConstraint).minus(Period.ofDays(1)).toString();
+        } else {
+          startDateConstraint = DateConstraint.parse(endDateConstraint).minus(Period.ofDays(2)).toString();
+        }
+      }
+    }
+    ViewDefinition viewDefinition = context.getViewCalculationConfiguration().getViewDefinition();
+    final HistoricalViewEvaluationTarget tempTarget = new HistoricalViewEvaluationTarget(viewDefinition.getMarketDataUser(), startDateConstraint, includeStartConstraint, endDateConstraint,
+        includeEndConstraint);
+    final ValueRequirement requirement = getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints());
     if (requirement == null) {
       return null;
     }
@@ -252,16 +248,17 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     tempTarget.getViewDefinition().addViewCalculationConfiguration(calcConfig);
     final TempTargetRepository targets = OpenGammaCompilationContext.getTempTargets(context);
     final UniqueId tempTargetId = targets.locateOrStore(tempTarget);
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.VALUE, new ComputationTargetSpecification(TempTarget.TYPE, tempTargetId), ValueProperties.none()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, new ComputationTargetSpecification(TempTarget.TYPE, tempTargetId), ValueProperties.withAny(
+        ViewEvaluationFunction.PROPERTY_CALC_CONFIG).get()));
   }
 
-  protected ValueProperties.Builder createValueProperties(final ViewEvaluationTarget tempTarget) {
+  protected ValueProperties.Builder createValueProperties(final HistoricalViewEvaluationTarget target) {
     final ValueProperties.Builder builder = createValueProperties();
-    builder.with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, tempTarget.getFirstValuationDate());
-    builder.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, tempTarget.isIncludeFirstValuationDate() ? HistoricalTimeSeriesFunctionUtils.YES_VALUE
+    builder.with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, target.getStartDate());
+    builder.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, target.isIncludeStart() ? HistoricalTimeSeriesFunctionUtils.YES_VALUE
         : HistoricalTimeSeriesFunctionUtils.NO_VALUE);
-    builder.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, tempTarget.getLastValuationDate());
-    builder.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, tempTarget.isIncludeLastValuationDate() ? HistoricalTimeSeriesFunctionUtils.YES_VALUE
+    builder.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, target.getEndDate());
+    builder.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, target.isIncludeEnd() ? HistoricalTimeSeriesFunctionUtils.YES_VALUE
         : HistoricalTimeSeriesFunctionUtils.NO_VALUE);
     return builder;
   }
@@ -271,9 +268,9 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final TempTarget tempTargetObject = OpenGammaCompilationContext.getTempTargets(context).get(inputs.keySet().iterator().next().getTargetSpecification().getUniqueId());
-    if (tempTargetObject instanceof ViewEvaluationTarget) {
-      final ViewEvaluationTarget tempTarget = (ViewEvaluationTarget) tempTargetObject;
-      final ViewCalculationConfiguration calcConfig = tempTarget.getViewDefinition().getCalculationConfiguration(context.getViewCalculationConfiguration().getName());
+    if (tempTargetObject instanceof HistoricalViewEvaluationTarget) {
+      final HistoricalViewEvaluationTarget historicalTarget = (HistoricalViewEvaluationTarget) tempTargetObject;
+      final ViewCalculationConfiguration calcConfig = historicalTarget.getViewDefinition().getCalculationConfiguration(context.getViewCalculationConfiguration().getName());
       final ExternalIdBundle targetEids;
       if (target.getValue() instanceof ExternalIdentifiable) {
         targetEids = ((ExternalIdentifiable) target.getValue()).getExternalId().toBundle();
@@ -356,7 +353,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
           // pricing currency changes over time for example; which do we use for the time series. This isn't always the case, but we'll
           // ignore the forms where we should know the outcomes to avoid complicating matters. A higher priority function should be
           // used to enforce any necessary constraints based on the target's properties.
-          final ValueProperties.Builder properties = createValueProperties(tempTarget);
+          final ValueProperties.Builder properties = createValueProperties(historicalTarget);
           properties.with(VALUE_PROPERTY, nestedRequirement.getValueName());
           final ValueProperties nestedConstraints = nestedRequirement.getConstraints();
           if (nestedConstraints.getProperties() != null) {
@@ -386,11 +383,11 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ViewEvaluationResult evaluationResult = (ViewEvaluationResult) inputs.getValue(ValueRequirementNames.VALUE);
+    final HistoricalViewEvaluationResult evaluationResult = (HistoricalViewEvaluationResult) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final ValueRequirement desiredValue : desiredValues) {
-      final ValueRequirement requirement = getNestedRequirement(executionContext.getComputationTargetResolver(), target, desiredValue.getConstraints(), null);
+      final ValueRequirement requirement = getNestedRequirement(executionContext.getComputationTargetResolver(), target, desiredValue.getConstraints());
       if (requirement != null) {
         @SuppressWarnings("rawtypes")
         final TimeSeries ts = evaluationResult.getTimeSeries(requirement);

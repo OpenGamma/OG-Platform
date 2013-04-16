@@ -28,26 +28,26 @@ import com.opengamma.util.time.DateUtils;
  * Tests related to the construction of CMS cap/floor.
  */
 public class AnnuityCapFloorCMSDefinitionTest {
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   // Ibor index
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
+  private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   //CMS 10Y
-  private static final Period CMS_TENOR = Period.of(10, YEARS);
-  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
+  private static final Period CMS_TENOR = Period.ofYears(10);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR);
   // Annuity
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
-  private static final Period ANNUITY_TENOR = Period.of(5, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(5);
   private static final ZonedDateTime MATURITY_DATE = START_DATE.plus(ANNUITY_TENOR);
   private static final double NOTIONAL = 100000000; //100m
-  private static final Period LEG_PAYMENT_PERIOD = Period.of(12, MONTHS);
+  private static final Period LEG_PAYMENT_PERIOD = Period.ofMonths(12);
   private static final DayCount LEG_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final boolean IS_PAYER = true;
   private static final double STRIKE = 0.04;

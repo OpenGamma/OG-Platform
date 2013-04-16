@@ -19,17 +19,18 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewResultModelMergerTest {
 
   private static final String CONFIG_1 = "config1";

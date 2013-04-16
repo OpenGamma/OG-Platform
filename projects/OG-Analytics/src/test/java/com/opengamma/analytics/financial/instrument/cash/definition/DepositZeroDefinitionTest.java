@@ -44,7 +44,7 @@ public class DepositZeroDefinitionTest {
   private static final double NOTIONAL = 100000000;
   private static final double RATE_FIGURE = 0.0250;
   private static final InterestRate RATE = new ContinuousInterestRate(RATE_FIGURE);
-  private static final Period DEPOSIT_PERIOD = Period.of(6, MONTHS);
+  private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final double DEPOSIT_AF = DAY_COUNT.getDayCountFraction(SPOT_DATE, END_DATE);
@@ -73,7 +73,7 @@ public class DepositZeroDefinitionTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullDaycount() {
+  public void nullDayCount() {
     DepositZeroDefinition.from(EUR, SPOT_DATE, END_DATE, null, RATE);
   }
 
@@ -104,15 +104,15 @@ public class DepositZeroDefinitionTest {
     DepositZeroDefinition modified;
     modified = new DepositZeroDefinition(Currency.USD, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, RATE);
     assertFalse("DepositZeroDefinition: equal-hash code", DEPOSIT_DEFINITION.equals(modified));
-    modified = new DepositZeroDefinition(Currency.USD, SPOT_DATE.plusDays(1), END_DATE, NOTIONAL, DEPOSIT_AF, RATE);
+    modified = new DepositZeroDefinition(Currency.EUR, SPOT_DATE.plusDays(1), END_DATE, NOTIONAL, DEPOSIT_AF, RATE);
     assertFalse("DepositZeroDefinition: equal-hash code", DEPOSIT_DEFINITION.equals(modified));
-    modified = new DepositZeroDefinition(Currency.USD, SPOT_DATE, END_DATE.plusDays(1), NOTIONAL, DEPOSIT_AF, RATE);
+    modified = new DepositZeroDefinition(Currency.EUR, SPOT_DATE, END_DATE.plusDays(1), NOTIONAL, DEPOSIT_AF, RATE);
     assertFalse("DepositZeroDefinition: equal-hash code", DEPOSIT_DEFINITION.equals(modified));
-    modified = new DepositZeroDefinition(Currency.USD, SPOT_DATE, END_DATE, NOTIONAL + 1000, DEPOSIT_AF, RATE);
+    modified = new DepositZeroDefinition(Currency.EUR, SPOT_DATE, END_DATE, NOTIONAL + 1000, DEPOSIT_AF, RATE);
     assertFalse("DepositZeroDefinition: equal-hash code", DEPOSIT_DEFINITION.equals(modified));
-    modified = new DepositZeroDefinition(Currency.USD, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF + 0.01, RATE);
+    modified = new DepositZeroDefinition(Currency.EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF + 0.01, RATE);
     assertFalse("DepositZeroDefinition: equal-hash code", DEPOSIT_DEFINITION.equals(modified));
-    modified = new DepositZeroDefinition(Currency.USD, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE, 1));
+    modified = new DepositZeroDefinition(Currency.EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE, 1));
     assertFalse("DepositZeroDefinition: equal-hash code", DEPOSIT_DEFINITION.equals(modified));
   }
 

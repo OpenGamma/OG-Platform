@@ -19,6 +19,11 @@ public class IMMDates {
 
   // TODO : Remove the previous December date (not needed because we always adjust to the following IMM date)
   // TODO : Eventually will replace this with methods based on the TemporalAdjuster class
+  // TODO : Add relevant arg checkers
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // NOTE : Note that we only check for an unadjusted IMM date i.e. one that falls on the 20th of the month
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

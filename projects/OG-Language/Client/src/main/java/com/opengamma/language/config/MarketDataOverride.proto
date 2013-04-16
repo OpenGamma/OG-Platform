@@ -17,21 +17,9 @@ namespace com.opengamma.language.config {
     }
   
     /**
-     * The value requirement to override, may be null if valueName and identifier are both supplied.
+     * The value requirement to override.
      */
-    optional engine.value.ValueRequirement valueRequirement;
-    
-    /**
-     * The value name to override, must be null if a valueRequirement is set. If supplied, identifier
-     * must also be supplied.
-     */
-    optional string valueName;
-    
-    /**
-     * The unresolved value identifier to override, must be null if a valueRequirement is set. If supplied,
-     * valueName must also be supplied.
-     */
-    optional id.ExternalId identifier;
+    required engine.value.ValueRequirement valueRequirement;
     
     /**
      * Value to override; may be omitted - meaning to inject a "missing" value. To remove an override, the

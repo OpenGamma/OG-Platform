@@ -6,6 +6,7 @@
 package com.opengamma.engine.value;
 
 import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -17,6 +18,10 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public final class ValuePropertyNames {
+
+  // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about this constant.
+  /** Property name of the contribution to the P&L (e.g. yield curve, FX rate) */
+  public static final String PROPERTY_PNL_CONTRIBUTIONS = "PnLContribution";
 
   /**
    * Restricted constructor.
@@ -78,6 +83,12 @@ public final class ValuePropertyNames {
   public static final String CURVE_CURRENCY = "CurveCurrency";
 
   /**
+   * The data provider used to source external values into the view cycle. This may be used by {@link MarketDataAvailabilityProvider} instances that work with multiple underlying providers to indicate
+   * which data provider should be queried for the value. In the case of a "route" of nested data providers existing, the {@code /} character can be used as a separator between elements.
+   */
+  public static final String DATA_PROVIDER = "DataProvider";
+
+  /**
    * The function identifier that produced a value.
    * <p>
    * If there are multiple functions in a repository that can compute a given value, this can
@@ -103,6 +114,18 @@ public final class ValuePropertyNames {
    * call amount).
    */
   public static final String RECEIVE_CURVE = "ReceiveCurve";
+
+  /**
+   * The name of the curve calculation configuration used for the pay leg of an instrument (e.g.
+   * an FX forward or a cross-currency swap).
+   */
+  public static final String PAY_CURVE_CALCULATION_CONFIG = "PayCurveCalculationConfig";
+
+  /**
+   * The name of the curve calculation configuration used for the receive leg of an instrument
+   * (e.g. an FX forward or a cross-currency swap).
+   */
+  public static final String RECEIVE_CURVE_CALCULATION_CONFIG = "ReceiveCurveCalculationConfig";
 
   /**
    * The symbolic name of a surface used to produce a value, valid within the naming context of
@@ -147,8 +170,9 @@ public final class ValuePropertyNames {
   public static final String OUTPUT_RESERVED_PREFIX = ".";
 
   /**
-   * A general name for a property describing the sampling period for a time series (e.g. daily, weekly)
+   * A general name for a property describing the period of time over which a time-series applies (e.g. P2Y).
    */
+  // NOTE jonathan 2013-03-12 -- PERIOD would be a better name
   public static final String SAMPLING_PERIOD = "SamplingPeriod";
 
   /**
@@ -242,4 +266,9 @@ public final class ValuePropertyNames {
    * such that each column may represent, for example, the vega of all positions sensitive to changes in that specific surface
    */
   public static final String UNDERLYING_TICKER = "UnderlyingTicker";
+
+  /**
+   * Controls the number formatting of the barrier distance - e.g. abs, percentage
+   */
+  public static final String BARRIER_DISTANCE_OUTPUT_FORMAT = "BarrierDistanceOutputFormat";
 }

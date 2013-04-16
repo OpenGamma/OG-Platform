@@ -32,12 +32,18 @@ import com.opengamma.util.PublicSPI;
 public class SecurityMetaDataResult extends AbstractMetaDataResult {
 
   /**
-   * The list if valid security types.
+   * The list of valid security types.
    * This is only populated if requested.
    */
   @PropertyDefinition
   private final List<String> _securityTypes = new ArrayList<String>();
-
+  /**
+   * The database schema version.
+   * This is only populated if requested.
+   */
+  @PropertyDefinition
+  private String _schemaVersion;
+  
   /**
    * Creates an instance.
    */
@@ -67,6 +73,8 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         return getSecurityTypes();
+      case -233564169:  // schemaVersion
+        return getSchemaVersion();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -77,6 +85,9 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         setSecurityTypes((List<String>) newValue);
+        return;
+      case -233564169:  // schemaVersion
+        setSchemaVersion((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -90,6 +101,7 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
     if (obj != null && obj.getClass() == this.getClass()) {
       SecurityMetaDataResult other = (SecurityMetaDataResult) obj;
       return JodaBeanUtils.equal(getSecurityTypes(), other.getSecurityTypes()) &&
+          JodaBeanUtils.equal(getSchemaVersion(), other.getSchemaVersion()) &&
           super.equals(obj);
     }
     return false;
@@ -99,12 +111,13 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
     return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list if valid security types.
+   * Gets the list of valid security types.
    * This is only populated if requested.
    * @return the value of the property
    */
@@ -113,7 +126,7 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   }
 
   /**
-   * Sets the list if valid security types.
+   * Sets the list of valid security types.
    * This is only populated if requested.
    * @param securityTypes  the new value of the property
    */
@@ -133,6 +146,34 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the database schema version.
+   * This is only populated if requested.
+   * @return the value of the property
+   */
+  public String getSchemaVersion() {
+    return _schemaVersion;
+  }
+
+  /**
+   * Sets the database schema version.
+   * This is only populated if requested.
+   * @param schemaVersion  the new value of the property
+   */
+  public void setSchemaVersion(String schemaVersion) {
+    this._schemaVersion = schemaVersion;
+  }
+
+  /**
+   * Gets the the {@code schemaVersion} property.
+   * This is only populated if requested.
+   * @return the property, not null
+   */
+  public final Property<String> schemaVersion() {
+    return metaBean().schemaVersion().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SecurityMetaDataResult}.
    */
   public static class Meta extends AbstractMetaDataResult.Meta {
@@ -148,11 +189,17 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
     private final MetaProperty<List<String>> _securityTypes = DirectMetaProperty.ofReadWrite(
         this, "securityTypes", SecurityMetaDataResult.class, (Class) List.class);
     /**
+     * The meta-property for the {@code schemaVersion} property.
+     */
+    private final MetaProperty<String> _schemaVersion = DirectMetaProperty.ofReadWrite(
+        this, "schemaVersion", SecurityMetaDataResult.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "securityTypes");
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "securityTypes",
+        "schemaVersion");
 
     /**
      * Restricted constructor.
@@ -165,6 +212,8 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
       switch (propertyName.hashCode()) {
         case -714180327:  // securityTypes
           return _securityTypes;
+        case -233564169:  // schemaVersion
+          return _schemaVersion;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -191,6 +240,14 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
      */
     public final MetaProperty<List<String>> securityTypes() {
       return _securityTypes;
+    }
+
+    /**
+     * The meta-property for the {@code schemaVersion} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> schemaVersion() {
+      return _schemaVersion;
     }
 
   }

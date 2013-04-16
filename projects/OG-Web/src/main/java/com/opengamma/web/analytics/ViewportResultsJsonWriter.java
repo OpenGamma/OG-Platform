@@ -20,11 +20,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogWithContext;
-import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.web.analytics.formatting.DataType;
@@ -69,7 +69,7 @@ public class ViewportResultsJsonWriter {
     for (ResultsCell cell : viewportCells) {
       Object cellValue = cell.getValue();
       ValueSpecification cellValueSpec = cell.getValueSpecification();
-      Object formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat());
+      Object formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat(), cell.getInlineKey());
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = cell.getType();
       DataType columnFormat = _formatter.getDataType(columnType);
@@ -158,7 +158,7 @@ public class ViewportResultsJsonWriter {
   private List<Object> formatHistory(ValueSpecification cellValueSpec, Collection<Object> history) {
     List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
     for (Object historyValue : history) {
-      formattedHistory.add(_formatter.format(historyValue, cellValueSpec, TypeFormatter.Format.HISTORY));
+      formattedHistory.add(_formatter.format(historyValue, cellValueSpec, TypeFormatter.Format.HISTORY, null));
     }
     return formattedHistory;
   }

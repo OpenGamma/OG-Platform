@@ -9,6 +9,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Timer;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -18,18 +22,33 @@ import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class ExpirationManagerTest {
 
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   public void expirationWithHeartbeatSendingClient() throws InterruptedException {
     ExternalScheme identificationDomain = ExternalScheme.of("BbgId");
     
-    MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
+    MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain,_cacheManager);
     dataServer.connect();
     ExpirationManager expirationManager = new ExpirationManager(dataServer, 100, 500);
     HeartbeatReceiver receiver = new HeartbeatReceiver(expirationManager);
@@ -68,7 +87,7 @@ public class ExpirationManagerTest {
   public void expirationWithClientThatDoesNotSendHeartbeats() throws InterruptedException {
     ExternalScheme identificationDomain = ExternalScheme.of("BbgId");
     
-    MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
+    MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain, _cacheManager);
     dataServer.connect();
     ExpirationManager expirationManager = new ExpirationManager(dataServer, 100, 500);
     

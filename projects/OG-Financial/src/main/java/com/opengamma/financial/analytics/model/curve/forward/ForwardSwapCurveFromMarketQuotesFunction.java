@@ -172,7 +172,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get number of settlement days");
         }
         final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
-        final LocalDate localNow = now.getDate();
+        final LocalDate localNow = now.toLocalDate();
         final Period forwardPeriod = Period.parse(forwardTenorName);
         final Tenor forwardTenor = new Tenor(forwardPeriod);
         final LocalDate forwardStart = ScheduleCalculator.getAdjustedDate(localNow.plus(forwardPeriod), settlementDays, calendar); //TODO check adjustments

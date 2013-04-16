@@ -18,11 +18,12 @@ import com.opengamma.engine.view.helper.AvailableOutput;
 import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsImpl;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link AvailableOutputsFudgeBuilder}
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class AvailableOutputsBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testCycleEmptyObject() {

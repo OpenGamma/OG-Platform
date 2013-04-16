@@ -34,6 +34,12 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
    */
   @PropertyDefinition
   private boolean _securityTypes = true;
+  
+  /**
+   * Whether to fetch the db_schema_version, false by default.
+   */
+  @PropertyDefinition
+  private boolean _schemaVersion;
 
   /**
    * Creates an instance.
@@ -64,6 +70,8 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         return isSecurityTypes();
+      case -233564169:  // schemaVersion
+        return isSchemaVersion();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -73,6 +81,9 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         setSecurityTypes((Boolean) newValue);
+        return;
+      case -233564169:  // schemaVersion
+        setSchemaVersion((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -86,6 +97,7 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
     if (obj != null && obj.getClass() == this.getClass()) {
       SecurityMetaDataRequest other = (SecurityMetaDataRequest) obj;
       return JodaBeanUtils.equal(isSecurityTypes(), other.isSecurityTypes()) &&
+          JodaBeanUtils.equal(isSchemaVersion(), other.isSchemaVersion()) &&
           super.equals(obj);
     }
     return false;
@@ -95,6 +107,7 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(isSecurityTypes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSchemaVersion());
     return hash ^ super.hashCode();
   }
 
@@ -125,6 +138,31 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether to fetch the db_schema_version, false by default.
+   * @return the value of the property
+   */
+  public boolean isSchemaVersion() {
+    return _schemaVersion;
+  }
+
+  /**
+   * Sets whether to fetch the db_schema_version, false by default.
+   * @param schemaVersion  the new value of the property
+   */
+  public void setSchemaVersion(boolean schemaVersion) {
+    this._schemaVersion = schemaVersion;
+  }
+
+  /**
+   * Gets the the {@code schemaVersion} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> schemaVersion() {
+    return metaBean().schemaVersion().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SecurityMetaDataRequest}.
    */
   public static class Meta extends AbstractMetaDataRequest.Meta {
@@ -139,11 +177,17 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
     private final MetaProperty<Boolean> _securityTypes = DirectMetaProperty.ofReadWrite(
         this, "securityTypes", SecurityMetaDataRequest.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code schemaVersion} property.
+     */
+    private final MetaProperty<Boolean> _schemaVersion = DirectMetaProperty.ofReadWrite(
+        this, "schemaVersion", SecurityMetaDataRequest.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "securityTypes");
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "securityTypes",
+        "schemaVersion");
 
     /**
      * Restricted constructor.
@@ -156,6 +200,8 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
       switch (propertyName.hashCode()) {
         case -714180327:  // securityTypes
           return _securityTypes;
+        case -233564169:  // schemaVersion
+          return _schemaVersion;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -182,6 +228,14 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
      */
     public final MetaProperty<Boolean> securityTypes() {
       return _securityTypes;
+    }
+
+    /**
+     * The meta-property for the {@code schemaVersion} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> schemaVersion() {
+      return _schemaVersion;
     }
 
   }

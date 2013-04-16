@@ -11,7 +11,6 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.threeten.bp.Period;
 
 /**
  * Fudge builder for {@code Tenor}.
@@ -36,7 +35,7 @@ public class TenorFudgeBuilder implements FudgeBuilder<Tenor> {
     if (tenorStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Tenor - field 'tenor' is not present");
     }
-    return new Tenor(Period.parse(tenorStr));
+    return new Tenor(DateUtils.toPeriod(tenorStr));
   }
 
 }

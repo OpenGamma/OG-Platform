@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test LocalDateRange.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class LocalDateRangeTest {
 
   @Test

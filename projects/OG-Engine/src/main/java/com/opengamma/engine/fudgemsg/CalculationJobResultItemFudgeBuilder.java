@@ -12,8 +12,8 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.engine.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.ExecutionLog;
-import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 
 /**
  * Fudge message builder for {@code CalculationJobResultItem}.

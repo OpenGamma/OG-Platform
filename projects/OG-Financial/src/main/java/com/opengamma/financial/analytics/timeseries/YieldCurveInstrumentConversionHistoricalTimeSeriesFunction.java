@@ -96,7 +96,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
     if ((curveCalculationConfigs == null) || (curveCalculationConfigs.size() != 1)) {
       return null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(Iterables.getOnlyElement(curveCalculationConfigs));
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
@@ -109,18 +109,15 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(curveCalculationConfigName);
-    final Set<ValueRequirement> timeSeriesRequirements = new HashSet<ValueRequirement>();
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final Set<ValueRequirement> timeSeriesRequirements = new HashSet<>();
     final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    for (final String curveName : curveNames) {
-      final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
-      final ValueRequirement specRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties);
-      final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(specRequirement);
-      if (curve == null) {
-        throw new OpenGammaRuntimeException("Could not get yield curve specification for curve named " + curveName + " with target " + target);
+    for (final ComputedValue input : inputs.getAllValues()) {
+      if (!input.getSpecification().getValueName().equals(ValueRequirementNames.YIELD_CURVE_SPEC)) {
+        continue;
       }
+      final String curveName = input.getSpecification().getProperty(ValuePropertyNames.CURVE);
+      final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) input.getValue();
       for (final FixedIncomeStripWithSecurity strip : curve.getStrips()) {
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(strip.getSecurity());
         final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(strip.getSecurity(), definition);

@@ -7,9 +7,9 @@ package com.opengamma.web.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.calcnode.MissingInput;
 
 /**
  * A single grid cell in a set of results, including the cell's value, value specification and history.
@@ -22,20 +22,36 @@ import com.opengamma.engine.view.calcnode.MissingInput;
   private final AggregatedExecutionLog _executionLog;
   private final boolean _updated;
   private final Class<?> _type;
+  private final Object _inlineKey;
 
   private ResultsCell(Object value,
                       ValueSpecification valueSpecification,
                       Collection<Object> history,
                       AggregatedExecutionLog executionLog,
-                      boolean updated, Class<?> type) {
+                      boolean updated,
+                      Class<?> type,
+                      Object inlineKey) {
     _value = value;
     _valueSpecification = valueSpecification;
     _history = history;
     _executionLog = executionLog;
     _updated = updated;
     _type = type;
+    _inlineKey = inlineKey;
   }
 
+  /**
+   * Factory method that creates a grid cell for displaying a static value.
+   * @param value The cell's value
+   * @param updated true if the value was updated in the last calculation cycle
+   * @param type TODO remove
+   * @return A cell for displaying the value
+   */
+  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type, boolean updated) {
+    return new ResultsCell(value, null, null, null, updated, type, null);
+  }
+
+  // TODO is this version still required? or should all callers be specifying whether the value was updated?
   /**
    * Factory method that creates a grid cell for displaying a static value.
    * @param value The cell's value
@@ -43,7 +59,7 @@ import com.opengamma.engine.view.calcnode.MissingInput;
    * @return A cell for displaying the value
    */
   /* package */ static ResultsCell forStaticValue(Object value, Class<?> type) {
-    return new ResultsCell(value, null, null, null, false, type);
+    return forStaticValue(value, type, false);
   }
 
   /**
@@ -61,7 +77,17 @@ import com.opengamma.engine.view.calcnode.MissingInput;
                                                       AggregatedExecutionLog executionLog,
                                                       boolean updated,
                                                       Class<?> type) {
-    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type);
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, null);
+  }
+
+  /* package */ static ResultsCell forCalculatedValue(Object value,
+                                                      ValueSpecification valueSpecification,
+                                                      Collection<Object> history,
+                                                      AggregatedExecutionLog executionLog,
+                                                      boolean updated,
+                                                      Class<?> type,
+                                                      Object inlineKey) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, inlineKey);
   }
 
   /**
@@ -72,7 +98,7 @@ import com.opengamma.engine.view.calcnode.MissingInput;
    * @param type TODO remove
    */
   /* package */ static ResultsCell empty(Collection<Object> emptyHistory, Class<?> type) {
-    return new ResultsCell(null, null, emptyHistory, null, false, type);
+    return new ResultsCell(null, null, emptyHistory, null, false, type, null);
   }
 
   /**
@@ -113,6 +139,10 @@ import com.opengamma.engine.view.calcnode.MissingInput;
 
   /* package */ Class<?> getType() {
     return _type;
+  }
+
+  /* package */ Object getInlineKey() {
+    return _inlineKey;
   }
 
   @Override

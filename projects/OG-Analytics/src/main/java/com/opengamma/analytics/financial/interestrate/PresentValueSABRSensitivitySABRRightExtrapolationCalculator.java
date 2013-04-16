@@ -146,7 +146,7 @@ public final class PresentValueSABRSensitivitySABRRightExtrapolationCalculator e
     Validate.notNull(annuity);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : annuity.getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
+      pvss = pvss.plus(p.accept(this, curves));
     }
     return pvss;
   }
@@ -165,10 +165,10 @@ public final class PresentValueSABRSensitivitySABRRightExtrapolationCalculator e
     Validate.notNull(swap);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : swap.getFirstLeg().getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
+      pvss = pvss.plus(p.accept(this, curves));
     }
     for (final Payment p : swap.getSecondLeg().getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
+      pvss = pvss.plus(p.accept(this, curves));
     }
     return pvss;
   }

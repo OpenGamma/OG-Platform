@@ -25,6 +25,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.ClassUtils;
 
 /**
  * Fudge message builder for {@link ComputationTargetType}.
@@ -78,7 +79,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
       return common;
     } else {
       try {
-        return ComputationTargetType.of((Class) Class.forName(str));
+        return ComputationTargetType.of((Class) ClassUtils.loadClass(str));
       } catch (final Exception e) {
         throw new OpenGammaRuntimeException("Can't decode " + str);
       }
@@ -169,13 +170,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
 
     @Override
     public Boolean visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final MutableFudgeMsg data) {
-      // Add fields in order
-      for (final ComputationTargetType type : types) {
-        if (type.accept(s_baseEncoder, data)) {
-          data.add(null, null, FudgeWireType.STRING, type.toString());
-        }
-      }
-      return Boolean.FALSE;
+      throw new IllegalArgumentException();
     }
 
     @Override
@@ -215,7 +210,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
           return current.or(common);
         }
       } else {
-        final Class clazz = Class.forName(name);
+        final Class clazz = ClassUtils.loadClass(name);
         if (current == null) {
           return ComputationTargetType.of(clazz);
         } else {
@@ -253,7 +248,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
           return outer.containing(common);
         }
       } else {
-        final Class clazz = Class.forName(name);
+        final Class clazz = ClassUtils.loadClass(name);
         if (outer == null) {
           return ComputationTargetType.of(clazz);
         } else {

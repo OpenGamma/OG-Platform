@@ -13,10 +13,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 
 public class YieldCurveWithBlackSwaptionBundleTest {
 
-  private static final BlackSwaptionParameters BLACK_SWAPTION = TestsDataSetsBlack.createBlackSwaptionEUR6();
+  private static final BlackFlatSwaptionParameters BLACK_SWAPTION = TestsDataSetsBlack.createBlackSwaptionEUR6();
   private static final YieldCurveBundle CURVES = TestsDataSetsBlack.createCurvesEUR();
   private static final YieldCurveWithBlackSwaptionBundle CURVES_WITH_BLACK = new YieldCurveWithBlackSwaptionBundle(BLACK_SWAPTION, CURVES);
 

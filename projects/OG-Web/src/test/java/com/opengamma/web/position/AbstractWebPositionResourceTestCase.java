@@ -10,9 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -32,7 +30,6 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -52,9 +49,13 @@ import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.master.security.SecurityLoaderRequest;
+import com.opengamma.master.security.SecurityLoaderResult;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.AbstractSecurityLoader;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.FreemarkerOutputter;
 import com.opengamma.web.MockUriInfo;
 import com.opengamma.web.WebResourceTestUtils;
@@ -83,7 +84,7 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected List<ManageableTrade> _trades;
   protected UriInfo _uriInfo;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
     _uriInfo = new MockUriInfo();
     _trades = getTrades();
@@ -94,16 +95,10 @@ public abstract class AbstractWebPositionResourceTestCase {
     final HistoricalTimeSeriesResolver htsResolver = new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(configSource), htsMaster);
     _htsSource = new MasterHistoricalTimeSeriesSource(htsMaster, htsResolver);
     _securitySource = new InMemorySecuritySource();
-    _secLoader = new SecurityLoader() {
-
+    _secLoader = new AbstractSecurityLoader() {
       @Override
-      public Map<ExternalIdBundle, UniqueId> loadSecurity(final Collection<ExternalIdBundle> identifiers) {
+      protected SecurityLoaderResult doBulkLoad(SecurityLoaderRequest request) {
         throw new UnsupportedOperationException("load security not supported");
-      }
-
-      @Override
-      public SecurityMaster getSecurityMaster() {
-        return _secMaster;
       }
     };
     populateSecMaster();

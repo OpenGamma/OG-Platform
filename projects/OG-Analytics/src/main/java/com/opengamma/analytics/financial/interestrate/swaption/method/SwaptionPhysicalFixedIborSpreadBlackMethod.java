@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- *  Class used to compute the price and sensitivity of a physical delivery swaption with Black model. 
+ *  Class used to compute the price and sensitivity of a physical delivery swaption on a swap with spread in the Black model. 
  *  The implied Black volatilities are expiry and underlying maturity dependent.
  *  The swap underlying the swaption should be a Fixed for Ibor with spread swap.
  */

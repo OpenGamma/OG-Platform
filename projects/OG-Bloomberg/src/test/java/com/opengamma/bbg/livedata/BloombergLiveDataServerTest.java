@@ -33,11 +33,12 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
 import com.opengamma.livedata.test.StandardRulesUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergLiveDataServerTest {
 
   private final static UserPrincipal TEST_USER = UserPrincipal.getTestUser(); 

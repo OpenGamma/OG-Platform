@@ -71,7 +71,7 @@ public class MixedLogNormalModelDataTest {
 
     MixedLogNormalModelData data = new MixedLogNormalModelData(p);
 
-    assertEquals(np, data.getNumberOfparameters());
+    assertEquals(np, data.getNumberOfParameters());
     for (int i = 0; i < n; i++) {
       assertEquals(p[i], data.getParameter(i), 1e-15);
     }
@@ -108,7 +108,7 @@ public class MixedLogNormalModelDataTest {
 
     MixedLogNormalModelData data = new MixedLogNormalModelData(p, false);
 
-    assertEquals(np, data.getNumberOfparameters());
+    assertEquals(np, data.getNumberOfParameters());
     for (int i = 0; i < n; i++) {
       assertEquals(p[i], data.getParameter(i), 1e-15);
     }

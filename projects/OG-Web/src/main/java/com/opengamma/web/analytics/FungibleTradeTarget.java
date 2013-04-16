@@ -10,20 +10,30 @@ import com.opengamma.id.UniqueId;
 /**
  * {@link RowTarget} implementation for rows displaying data for a trade.
  */
-public class FungibleTradeTarget extends PositionTarget {
+public class FungibleTradeTarget extends RowTarget {
 
-  /** ID of the position that contains the trade. */
-  //private final UniqueId _parentPositionId;
+  /** The trade ID */
+  private final UniqueId _tradeId;
+  /** The position ID */
+  private final UniqueId _positionId;
 
-  /* package */ FungibleTradeTarget(String name, UniqueId id/*, UniqueId parentPositionId*/) {
-    super(name, id);
-    //_parentPositionId = parentPositionId;
+  /* package */ FungibleTradeTarget(String name, UniqueId nodeId, UniqueId positionId, UniqueId tradeId) {
+    super(name, nodeId);
+    _tradeId = tradeId;
+    _positionId = positionId;
   }
 
   /**
-   * @return ID of the position that contains the trade
+   * @return The trade ID
    */
-  /*public UniqueId getParentPositionId() {
-    return _parentPositionId;
-  }*/
+  public UniqueId getPositionId() {
+    return _positionId;
+  }
+
+  /**
+   * @return The trade ID
+   */
+  public UniqueId getTradeId() {
+    return _tradeId;
+  }
 }

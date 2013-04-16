@@ -7,10 +7,12 @@ package com.opengamma.util;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SealableUtilsTest {
 
   private static class MockSealed implements Sealable {

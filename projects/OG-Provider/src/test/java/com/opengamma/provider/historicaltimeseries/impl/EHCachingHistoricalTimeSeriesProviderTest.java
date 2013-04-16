@@ -12,7 +12,8 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import net.sf.ehcache.CacheManager;
 
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -21,14 +22,15 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups="unit")
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHistoricalTimeSeriesProviderTest {
 
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
@@ -48,16 +50,21 @@ public class EHCachingHistoricalTimeSeriesProviderTest {
   private EHCachingHistoricalTimeSeriesProvider _cachingProvider;
   private CacheManager _cacheManager;
 
-  @BeforeMethod
-  public void setUp() {
-    _cacheManager = new CacheManager();
-    _underlyingProvider = mock(HistoricalTimeSeriesProvider.class);
-    _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, _cacheManager);
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
   }
 
-  @AfterMethod
-  public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod
+  public void setUp() {
+    EHCacheUtils.clear(_cacheManager);
+    _underlyingProvider = mock(HistoricalTimeSeriesProvider.class);
+    _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, _cacheManager);
   }
 
   //-------------------------------------------------------------------------

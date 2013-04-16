@@ -29,7 +29,9 @@ common/deploy.properties
 !/projects/OG-Provider
 !/projects/OG-Security
 !/projects/OG-Server
+!/projects/OG-TimeSeries
 !/projects/OG-Util
+!/projects/OG-UtilDB
 !/projects/OG-Web
 !/projects/OG-BloombergExample
 repository/
@@ -39,7 +41,6 @@ tests/output/
 javadoc
 lib/
 /projects/*/target/
-.idea/
 .DS_Store
 .*.sw?
 logs/
@@ -60,3 +61,9 @@ docs.sqlite3
 *.pyc
 .settings/
 target/
+.idea/libraries
+.idea/workspace.xml
+.idea/dictionaries
+.idea/inspectionProfiles
+.idea/misc.xml
+.idea/validation.xml

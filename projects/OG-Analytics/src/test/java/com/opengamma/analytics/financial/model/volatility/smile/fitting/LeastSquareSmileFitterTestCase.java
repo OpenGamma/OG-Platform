@@ -17,17 +17,17 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
  * 
  */
 public abstract class LeastSquareSmileFitterTestCase {
-  //  protected static final double VARIANCE = 0.3;
-  protected static final double T = 1.3;
-  protected static final double SIGMA = 0.3;// Math.sqrt(VARIANCE / T);
-  protected static final double ERROR = 0.00001; //0.1 bps error
-  protected static final EuropeanVanillaOption[] OPTIONS;
-  protected static final double FORWARD = 100;
-  protected static final double DF = 1;
-  protected static final BlackFunctionData[] FLAT_DATA;
-  protected static final double[] ERRORS;
-  protected static final BitSet FIXED = new BitSet();
-  protected static final double EPS = 1e-3;
+  //  static final double VARIANCE = 0.3;
+  static final double T = 1.3;
+  static final double SIGMA = 0.3;// Math.sqrt(VARIANCE / T);
+  static final double ERROR = 0.00001; //0.1 bps error
+  static final EuropeanVanillaOption[] OPTIONS;
+  static final double FORWARD = 100;
+  static final double DF = 1;
+  static final BlackFunctionData[] FLAT_DATA;
+  static final double[] ERRORS;
+  static final BitSet FIXED = new BitSet();
+  static final double EPS = 1e-3;
 
   static {
     final int n = 10;

@@ -21,9 +21,9 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewResultModel;
 
 /**
  */

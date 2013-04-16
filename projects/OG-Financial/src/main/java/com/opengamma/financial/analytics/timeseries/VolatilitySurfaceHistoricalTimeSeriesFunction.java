@@ -60,24 +60,20 @@ public abstract class VolatilitySurfaceHistoricalTimeSeriesFunction extends Abst
     final String resolutionKey;
     final Set<String> resolutionKeyConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY);
     if (resolutionKeyConstraint == null || resolutionKeyConstraint.size() != 1) {
-      resolutionKey = "";
+      resolutionKey = "Null";
     } else {
       resolutionKey = Iterables.getOnlyElement(resolutionKeyConstraint);
     }
-    final LocalDate startDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
+    final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
     final Set<String> endDateConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
     final String endDateString;
     if (endDateConstraint == null || endDateConstraint.size() != 1) {
-      endDateString = "";
+      endDateString = "Now";
     } else {
       endDateString = Iterables.getOnlyElement(endDateConstraint);
     }
-    LocalDate endDate = DateConstraint.getLocalDate(executionContext, endDateString);
-    if (endDate == null) {
-      // If end date was not specified, use the context valuation time, rather than the real "up to present day" we'd get from passing null
-      endDate = LocalDate.now(executionContext.getValuationClock());
-    }
+    LocalDate endDate = DateConstraint.evaluate(executionContext, endDateString);
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(target, surfaceName, definitionSource);

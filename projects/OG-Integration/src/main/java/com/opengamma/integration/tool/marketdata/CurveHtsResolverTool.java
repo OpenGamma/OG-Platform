@@ -23,7 +23,7 @@ import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
+import com.opengamma.bbg.loader.hts.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -220,7 +220,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
         for (final String dataField : dataFields) {
           s_logger.info("Loading time series (field: " + dataField + ", provider: " + dataProvider + ") with external IDs " + externalIds);
           if (write) {
-            loader.addTimeSeries(externalIds, dataProvider, dataField, LocalDate.now().minusYears(1), null);
+            loader.loadTimeSeries(externalIds, dataProvider, dataField, LocalDate.now().minusYears(1), null);
           }
         }
       }

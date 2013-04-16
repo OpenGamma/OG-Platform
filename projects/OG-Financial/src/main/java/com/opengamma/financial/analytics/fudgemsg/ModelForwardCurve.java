@@ -58,23 +58,22 @@ import com.opengamma.analytics.math.curve.Curve;
   @FudgeBuilderFor(ForwardCurve.class)
   public static final class ForwardCurveBuilder extends AbstractFudgeBuilder<ForwardCurve> {
     private static final String FORWARD_CURVE_FIELD_NAME = "forwardCurve";
-    //private static final String DRIFT_CURVE_FIELD_NAME = "driftCurve";
+    private static final String DRIFT_CURVE_FIELD_NAME = "driftCurve";
 
     @SuppressWarnings("unchecked")
     @Override
     public ForwardCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Curve<Double, Double> forwardCurve = deserializer.fieldValueToObject(Curve.class, message.getByName(FORWARD_CURVE_FIELD_NAME));
-      //final Curve<Double, Double> driftCurve = deserializer.fieldValueToObject(Curve.class, message.getByName(DRIFT_CURVE_FIELD_NAME));
-      return new ForwardCurve(forwardCurve);
-      //return new ForwardCurve(forwardCurve, driftCurve);
+      final Object forwardCurve = deserializer.fieldValueToObject(message.getByName(FORWARD_CURVE_FIELD_NAME));
+      final Object driftCurve = deserializer.fieldValueToObject(message.getByName(DRIFT_CURVE_FIELD_NAME));
+      return new ForwardCurve((Curve<Double, Double>) forwardCurve, (Curve<Double, Double>) driftCurve);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ForwardCurve object) {
-      //final Curve<Double, Double> driftCurve = object.getDriftCurve();
+      final Curve<Double, Double> driftCurve = object.getDriftCurve();
       final Curve<Double, Double> forwardCurve = object.getForwardCurve();
-      serializer.addToMessage(message, FORWARD_CURVE_FIELD_NAME, null, forwardCurve);
-      //serializer.addToMessage(message, DRIFT_CURVE_FIELD_NAME, null, driftCurve);
+      serializer.addToMessage(message, FORWARD_CURVE_FIELD_NAME, null, substituteObject(forwardCurve));
+      serializer.addToMessage(message, DRIFT_CURVE_FIELD_NAME, null, substituteObject(driftCurve));
     }
   }
 

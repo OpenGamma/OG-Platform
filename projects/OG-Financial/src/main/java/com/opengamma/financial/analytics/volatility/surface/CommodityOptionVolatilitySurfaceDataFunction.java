@@ -59,7 +59,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
     final ZonedDateTime valTime = ZonedDateTime.now(executionContext.getValuationClock());
-    final LocalDate valDate = valTime.getDate();
+    final LocalDate valDate = valTime.toLocalDate();
 
     final Currency currency = (Currency) target.getValue();
     final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
@@ -88,7 +88,8 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     // SurfaceInstrumentProvider just used to get expiry calculator - find a better way as this is quite ugly.
-    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(surfaceName.substring(4), "Comdty", "", 0., "")
+    final String surfacePrefix = surfaceName.split("\\_")[1];
+    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(surfacePrefix, "Comdty", "", 0., "")
         .getExpiryCalculator();
     for (final Number nthExpiry : rawSurface.getXs()) {
       final Double t = TimeCalculator.getTimeBetween(valDate, expiryCalculator.getExpiryDate(nthExpiry.intValue(), valDate, calendar));

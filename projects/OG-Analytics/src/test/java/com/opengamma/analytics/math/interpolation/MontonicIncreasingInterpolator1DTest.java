@@ -26,9 +26,9 @@ public class MontonicIncreasingInterpolator1DTest {
 
   @Test
   public void lowTest() {
-    double x = 0.05;
-    double expected = x * Y_DATA[0] / X_DATA[0];
-    double res = INTERPOLATOR.interpolate(DATA, x);
+    final double x = 0.05;
+    final double expected = x * Y_DATA[0] / X_DATA[0];
+    final double res = INTERPOLATOR.interpolate(DATA, x);
     assertEquals(expected, res, 1e-10);
   }
 
@@ -36,15 +36,15 @@ public class MontonicIncreasingInterpolator1DTest {
   public void test() {
     final int n = X_DATA.length;
     for (int i = 0; i < n; i++) {
-      double res = INTERPOLATOR.interpolate(DATA, X_DATA[i]);
+      final double res = INTERPOLATOR.interpolate(DATA, X_DATA[i]);
       assertEquals(Y_DATA[i], res, 1e-10);
     }
   }
 
   @Test(enabled = false)
-  public void TestPrint() {
+  public void testPrint() {
     for (int i = 0; i < 101; i++) {
-      double x = 10. * i / 100.;
+      final double x = 10. * i / 100.;
       System.out.println(x + "\t" + INTERPOLATOR.interpolate(DATA, x));
     }
 

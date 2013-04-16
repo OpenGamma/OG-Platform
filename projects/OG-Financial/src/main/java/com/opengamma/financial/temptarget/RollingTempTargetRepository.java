@@ -102,7 +102,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
 
   /**
    * Searches for a record in the "old" generation store.
-   *
+   * 
    * @param uid the identifier to search for
    * @return the record or null if not found
    */
@@ -110,7 +110,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
 
   /**
    * Searches for a record in the "new" generation store.
-   *
+   * 
    * @param uid the identifier to search for
    * @return the record or null if not found
    */
@@ -118,7 +118,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
 
   /**
    * Searches for a record in the "old" generation store.
-   *
+   * 
    * @param target the record to search for, not null
    * @return the identifier of the record or null if not found
    */
@@ -132,11 +132,15 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     return UniqueId.of(_scheme, Long.toString(uid));
   }
 
+  protected UniqueId createIdentifier(final Long uid) {
+    return UniqueId.of(_scheme, uid.toString());
+  }
+
   /**
    * Searches for a record in the "new" generation store or adds one if none is present.
    * <p>
    * Any new record identifiers must be allocated by calling {@link #allocIdentifier}.
-   *
+   * 
    * @param target the record to search for, not null
    * @return the identifier of the matched record, or the new record identifier
    */
@@ -144,7 +148,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
 
   /**
    * Copies all "live" records from the "old" to the "new" generation. Anything not copied because it hasn't been accessed for a while should be written to the {@code deletes} list.
-   *
+   * 
    * @param deadTime the {@link System#nanoTime} before which the record can be considered dead
    * @param deletes the delete notification list. This will be used to update anything subscribed to the change manager.
    * @return true if the copy was done, false if there was no copy and the old generation must be kept (for example nothing would be discarded)
@@ -190,6 +194,14 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     }
   }
 
+  protected UniqueId locateOrStoreImpl(final TempTarget target) {
+    final Long uidObject = findOldGeneration(target);
+    if (uidObject != null) {
+      return UniqueId.of(_scheme, uidObject.toString());
+    }
+    return createIdentifier(findOrAddNewGeneration(target));
+  }
+
   // TempTargetRepository
 
   @Override
@@ -214,11 +226,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
   public UniqueId locateOrStore(final TempTarget target) {
     _shared.lock();
     try {
-      final Long uidObject = findOldGeneration(target);
-      if (uidObject != null) {
-        return UniqueId.of(_scheme, uidObject.toString());
-      }
-      return createIdentifier(findOrAddNewGeneration(target));
+      return locateOrStoreImpl(target);
     } finally {
       _shared.unlock();
     }

@@ -26,7 +26,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * Takes as input the result of a function that acts on ComputationTargetType.SECURITY, applies unit scaling ( * 1.0 )
+ * and outputs the result for ComputationTargetType.POSITION_OR_TRADE. <p>
+ * Closely related to UnitPositionTradeScalingFunction but with different requirement target.
  */
 public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -44,7 +46,7 @@ public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonComp
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.POSITION_OR_TRADE;
   }
 
   @Override

@@ -12,6 +12,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
@@ -44,6 +47,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   private static final DecimalFormat RATE_FORMATTER = new DecimalFormat("###.######");
   private static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("########.###");
   private static final Boolean[] BOOLEAN_VALUES = {Boolean.TRUE, Boolean.FALSE};
+  private CurrencyPairs _currencyPairs = CurrencyPairsConfigPopulator.createCurrencyPairs();
 
   /**
    * Structured random information for creating the security.
@@ -84,7 +88,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final double putAmount = putCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime settlementDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), bundle._firstCurrency, bundle._secondCurrency);
     final Expiry expiry = new Expiry(settlementDate, ExpiryAccuracy.DAY_MONTH_YEAR);
-    final Double fxRate = getApproxFXRate(settlementDate.getDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -94,7 +98,9 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final BarrierDirection barrierDirection = BarrierDirection.KNOCK_IN;
     final MonitoringType monitoringType = MonitoringType.CONTINUOUS;
     final SamplingFrequency samplingFrequency = SamplingFrequency.DAILY_CLOSE;
-    final double barrierLevel = bundle._up ? fxRate * 1.5 : fxRate / 1.5;
+    final boolean invertBarrierLevel = !CurrencyPair.of(putCurrency, callCurrency).equals(getCurrencyPair(putCurrency, callCurrency));
+    // so if UP and ccy convention order, multiple, if UP and inverted ccy order, divide, if DOWN and ccy convention order multiply, if DOWN and inverted ccy order, divide.
+    final double barrierLevel = bundle._up ^ invertBarrierLevel ? fxRate * 1.5 : fxRate / 1.5;
     final FXBarrierOptionSecurity fxBarrierOptionSecurity = new FXBarrierOptionSecurity(putCurrency, callCurrency, putAmount, callAmount, expiry, settlementDate, barrierType, barrierDirection,
         monitoringType, samplingFrequency, barrierLevel, bundle._long);
     final String callAmountString = NOTIONAL_FORMATTER.format(callAmount);
@@ -113,7 +119,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final Currency paymentCurrency = bundle._paymentCurrency;
     final double putAmount = putCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime expiry = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), putCurrency, callCurrency);
-    final Double rate = getApproxFXRate(expiry.getDate(), Pair.of(putCurrency, callCurrency));
+    final Double rate = getApproxFXRate(expiry.toLocalDate(), Pair.of(putCurrency, callCurrency));
     if (rate == null) {
       return null;
     }
@@ -132,7 +138,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   protected FXForwardSecurity createFXForwardSecurity(final Bundle bundle) {
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime forwardDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), bundle._firstCurrency, bundle._secondCurrency);
-    final Double fxRate = getApproxFXRate(forwardDate.getDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(forwardDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -150,7 +156,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   protected NonDeliverableFXForwardSecurity createNDFXForwardSecurity(final Bundle bundle) {
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime forwardDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), bundle._firstCurrency, bundle._secondCurrency);
-    final Double fxRate = getApproxFXRate(forwardDate.getDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(forwardDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -172,7 +178,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final Currency callCurrency = bundle._secondCurrency;
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime settlementDate = bundle._tradeDate.plusDays(bundle._daysOffset);
-    final Double fxRate = getApproxFXRate(settlementDate.getDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -191,7 +197,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final Currency callCurrency = bundle._secondCurrency;
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime settlementDate = bundle._tradeDate.plusDays(bundle._daysOffset);
-    final Double fxRate = getApproxFXRate(settlementDate.getDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -213,7 +219,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.getDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
         ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     trade.setPremium(security.getCallAmount());
     trade.setPremiumCurrency(security.getCallCurrency());
@@ -225,7 +231,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.getDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
         ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     trade.setPremium(security.getCallAmount());
     trade.setPremiumCurrency(security.getCallCurrency());
@@ -237,7 +243,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.getDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
         ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     trade.setPremium(security.getPayAmount());
     trade.setPremiumCurrency(security.getPayCurrency());
@@ -250,7 +256,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.getDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
         ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     trade.setPremium(security.getPayAmount());
     trade.setPremiumCurrency(security.getPayCurrency());
@@ -262,7 +268,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.getDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
         ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     trade.setPremium(security.getCallAmount());
     trade.setPremiumCurrency(security.getCallCurrency());
@@ -274,11 +280,15 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.getDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetDateTime().toOffsetTime(), 
         ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     trade.setPremium(security.getCallAmount());
     trade.setPremiumCurrency(security.getCallCurrency());
     return trade;
+  }
+  
+  protected CurrencyPair getCurrencyPair(Currency ccy1, Currency ccy2) {
+    return _currencyPairs.getCurrencyPair(ccy1, ccy2);
   }
   
 }

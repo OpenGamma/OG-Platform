@@ -48,13 +48,13 @@ public class SwapFixedOISSimplifiedDefinitionTest {
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EUR_SETTLEMENT_DAYS, EUR_CALENDAR);
 
   // Swap EONIA 3M
-  private static final Period EUR_SWAP_3M_TENOR = Period.of(3, MONTHS);
+  private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
       FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
 
   // Swap EONIA 3Y
-  private static final Period EUR_SWAP_3Y_TENOR = Period.of(3, YEARS);
-  private static final Period EUR_COUPON_TENOR = Period.of(12, MONTHS);
+  private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
+  private static final Period EUR_COUPON_TENOR = Period.ofMonths(12);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS, FIXED_RATE,
       IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
 

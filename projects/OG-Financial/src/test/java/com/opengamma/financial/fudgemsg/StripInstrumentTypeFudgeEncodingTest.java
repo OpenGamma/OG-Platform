@@ -12,10 +12,12 @@ import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test StripInstrumentType Fudge support.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class StripInstrumentTypeFudgeEncodingTest extends FinancialTestBase {
 
   private static final StripInstrumentType s_ref = StripInstrumentType.FUTURE;

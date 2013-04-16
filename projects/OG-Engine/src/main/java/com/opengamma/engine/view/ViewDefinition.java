@@ -21,6 +21,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -36,6 +37,7 @@ import com.opengamma.util.tuple.Pair;
  * and computed.
  */
 @PublicAPI
+@Config
 public class ViewDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinition.class);
@@ -51,9 +53,10 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   private Long _minDeltaCalculationPeriod;
   private Long _maxDeltaCalculationPeriod;
-
   private Long _minFullCalculationPeriod;
   private Long _maxFullCalculationPeriod;
+  private boolean _persistent;
+  
   private Currency _defaultCurrency;
 
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName = new TreeMap<String, ViewCalculationConfiguration>();
@@ -236,6 +239,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     result.setMaxDeltaCalculationPeriod(getMaxDeltaCalculationPeriod());
     result.setMinFullCalculationPeriod(getMinFullCalculationPeriod());
     result.setMaxFullCalculationPeriod(getMaxFullCalculationPeriod());
+    result.setPersistent(isPersistent());
     for (final ViewCalculationConfiguration baseCalcConfig : getAllCalculationConfigurations()) {
       baseCalcConfig.copyTo(result);
     }
@@ -501,6 +505,32 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     return _resultModelDefinition;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets whether this is a persistent view definition.
+   * <p>
+   * A shared view process for a persistent view definition remains alive with its dependency graphs compiled even when
+   * no clients are connected. This can be useful if compilation is slow.
+   * 
+   * @return true if this is a persistent view definition, false otherwise
+   */
+  public boolean isPersistent() {
+    return _persistent;
+  }
+
+  /**
+   * Sets whether this is a persistent view definition.
+   * <p>
+   * A shared view process for a persistent view definition remains alive with its dependency graphs compiled even when
+   * no clients are connected. This can be useful if compilation is slow.
+   *  
+   * @param persistent  true to make this a persistent view definition, false otherwise
+   */
+  public void setPersistent(boolean persistent) {
+    _persistent = persistent;
+  }  
+  
+  //-------------------------------------------------------------------------
   /**
    * Tests whether to dump the computation cache to disk after execution of the view. This is intended for debugging and
    * testing only. There are more efficient ways to interact with the computation cache to obtain terminal and intermediate

@@ -53,7 +53,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
+import com.opengamma.financial.security.cds.CDSIndexTerms;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -83,6 +88,7 @@ import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -133,6 +139,7 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -309,6 +316,8 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       @Override
       public void getValues(final Collection<ExternalId> values) {
         values.add(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
+        values.add(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
+        values.add(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
       }
     });
     s_dataProviders.put(ExternalIdBundle.class, new TestDataProvider<ExternalIdBundle>() {
@@ -389,6 +398,15 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(SimpleFrequency.ANNUAL);
         values.add(SimpleFrequency.SEMI_ANNUAL);
         values.add(SimpleFrequency.CONTINUOUS);
+      }
+    });
+    s_dataProviders.put(Tenor.class, new TestDataProvider<Tenor>() {
+      @Override
+      public void getValues(final Collection<Tenor> values) {
+        values.add(Tenor.ONE_DAY);
+        values.add(Tenor.ONE_WEEK);
+        values.add(Tenor.ONE_MONTH);
+        values.add(Tenor.ONE_YEAR);
       }
     });
     s_dataProviders.put(DayCount.class, new TestDataProvider<DayCount>() {
@@ -508,6 +526,34 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         } while (i == 0);
         values.add(i * 100);
         values.add(i * -100);
+      }
+    });
+    s_dataProviders.put(CDSIndexTerms.class, new TestDataProvider<CDSIndexTerms>() {
+      @Override
+      public void getValues(Collection<CDSIndexTerms> values) {
+        values.add(CDSIndexTerms.EMPTY);
+        List<Tenor> tenors = getTestObjects(Tenor.class, null);
+        if (!tenors.isEmpty()) {
+          values.add(CDSIndexTerms.of(tenors.iterator().next()));
+        }
+        values.add(CDSIndexTerms.of(getTestObjects(Tenor.class, null)));
+      }
+    });
+    s_dataProviders.put(CreditDefaultSwapIndexComponent.class, new TestDataProvider<CreditDefaultSwapIndexComponent>() {
+      @Override
+      public void getValues(Collection<CreditDefaultSwapIndexComponent> values) {
+        values.add(new CreditDefaultSwapIndexComponent(null, null, null, null));
+      }
+      
+    });
+    s_dataProviders.put(CDSIndexComponentBundle.class, new TestDataProvider<CDSIndexComponentBundle>() {
+      @Override
+      public void getValues(Collection<CDSIndexComponentBundle> values) {
+        Collection<CreditDefaultSwapIndexComponent> components = permuteTestObjects(CreditDefaultSwapIndexComponent.class);
+        if (!components.isEmpty()) {
+          values.add(CDSIndexComponentBundle.of(components.iterator().next()));
+        }
+        values.add(CDSIndexComponentBundle.of(permuteTestObjects(CreditDefaultSwapIndexComponent.class)));
       }
     });
   }
@@ -949,4 +995,20 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testCashFlowSecurity() {
     assertSecurities(CashFlowSecurity.class);
   }
+
+  @Override
+  public void testCreditDefaultSwapIndexDefinitionSecurity() {
+    assertSecurities(CreditDefaultSwapIndexDefinitionSecurity.class);
+  }
+
+  @Override
+  public void testCreditDefaultSwapIndexSecurity() {
+    assertSecurities(CreditDefaultSwapIndexSecurity.class);
+  }
+
+  @Override
+  public void testCreditDefaultSwapOptionSecurity() {
+    assertSecurities(CreditDefaultSwapOptionSecurity.class);
+  }
+  
 }

@@ -11,11 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link BloombergContractID} 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BloombergContractIDTest {
   
   private static final Integer[] YEARS = {1, 11, 2011};
@@ -107,4 +108,13 @@ public class BloombergContractIDTest {
     }
   }
   
+  public void padding() {
+    final BloombergContractID id = new BloombergContractID("S", "Comdty");
+    assertEquals(id.getContractCode(), "S ");
+    assertEquals(id.getMarketSector(), "Comdty");
+    final BloombergContractID idGC = new BloombergContractID("GC", "Comdty");
+    assertEquals(idGC.getContractCode(), "GC");
+    assertEquals(idGC.getMarketSector(), "Comdty");
+  }
+
 }

@@ -17,11 +17,12 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbSecurityMaster.
  */
-@Test
+@Test(groups = TestGroup.UNIT_DB)
 public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements SecurityTestCaseMethods {
 
   /** Logger. */
@@ -281,4 +282,20 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testCashFlowSecurity() {
     _testCase.testCashFlowSecurity();
   }
+
+  @Override
+  public void testCreditDefaultSwapIndexDefinitionSecurity() {
+    _testCase.testCreditDefaultSwapIndexDefinitionSecurity();
+  }
+
+  @Override
+  public void testCreditDefaultSwapIndexSecurity() {
+    _testCase.testCreditDefaultSwapIndexSecurity();
+  }
+
+  @Override
+  public void testCreditDefaultSwapOptionSecurity() {
+    _testCase.testCreditDefaultSwapOptionSecurity();
+  }
+  
 }

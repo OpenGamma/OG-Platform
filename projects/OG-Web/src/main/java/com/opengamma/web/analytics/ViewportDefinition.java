@@ -19,11 +19,13 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
   
   private final TypeFormatter.Format _format;
   private final int _version;
+  private final boolean _enableLogging;
 
-  protected ViewportDefinition(int version, TypeFormatter.Format format) {
+  protected ViewportDefinition(int version, TypeFormatter.Format format, boolean enableLogging) {
     ArgumentChecker.notNull(format, "format");
     _version = version;
     _format = format;
+    _enableLogging = enableLogging;
   }
 
   /**
@@ -62,17 +64,17 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
     ArgumentChecker.notNull(cells, "cells");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(columns, "columns");
+    boolean logging = enableLogging == null ? false : enableLogging;
     if (cells.size() != 0) {
       if (rows.size() != 0 || columns.size() != 0) {
         throw new IllegalArgumentException("rows and columns must be empty if cells are specified");
       }
-      boolean logging = enableLogging == null ? false : enableLogging;
       return new ArbitraryViewportDefinition(version, cells, format, logging);
     } else {
       if (rows.size() == 0 || columns.size() == 0) {
         throw new IllegalArgumentException("rows and columns must not be empty if no cells are specified");
       }
-      return new RectangularViewportDefinition(version, rows, columns, format);
+      return new RectangularViewportDefinition(version, rows, columns, format, logging);
     }
   }
 
@@ -87,5 +89,7 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
     return _version;
   }
 
-  /* package */ abstract boolean enableLogging();
+  /* package */ boolean enableLogging() {
+    return _enableLogging;
+  }
 }

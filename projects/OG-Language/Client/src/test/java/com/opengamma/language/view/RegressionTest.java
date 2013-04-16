@@ -5,7 +5,6 @@
  */
 package com.opengamma.language.view;
 
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.threeten.bp.temporal.ChronoUnit.DAYS;
@@ -31,20 +30,20 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
-
 
 /**
  * Tests a view running over historical market data.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class RegressionTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RegressionTest.class);
@@ -106,7 +105,7 @@ public class RegressionTest {
         s_logger.info("Cycle fragment completed");
         postJobResult(fullFragment);
       }
-      
+
       @Override
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.info("Cycle completed");
@@ -150,7 +149,6 @@ public class RegressionTest {
     _jobResults.add(result);
   }
 
-
   private Object getResult() {
     try {
       s_logger.debug("Waiting for result");
@@ -173,14 +171,18 @@ public class RegressionTest {
       viewClient.setResultListener(createResultListener());
       viewClient.attachToViewProcess(viewClientDescriptor.getViewId(), viewClientDescriptor.getExecutionOptions(), true);
       Instant valuationInstant = firstValuationInstant;
+      boolean compiled = false;
       do {
         viewClient.triggerCycle();
-        assertEquals(getResult(), "COMPILED");
+        if (!compiled) {
+          assertEquals(getResult(), "COMPILED");
+          compiled = true;
+        }
         final Object result = getResult();
         s_logger.debug("Got result {}", result);
         assertTrue(result instanceof ViewComputationResultModel);
         ViewComputationResultModel model = (ViewComputationResultModel) result;
-        assertEquals(valuationInstant, model.getValuationTime());
+        assertEquals(valuationInstant, model.getViewCycleExecutionOptions().getValuationTime());
         valuationInstant = valuationInstant.plus(1, DAYS);
       } while (!valuationInstant.isAfter(lastValuationInstant));
       viewClient.triggerCycle();

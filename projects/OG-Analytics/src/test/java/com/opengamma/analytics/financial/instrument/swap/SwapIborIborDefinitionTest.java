@@ -23,8 +23,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Test the swap Ibor+spread to Ibor+spread constructor and to derivative.
@@ -35,7 +35,7 @@ public class SwapIborIborDefinitionTest {
   private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = INDEX_MASTER.getIndex("USDLIBOR3M", CALENDAR);
   private static final IborIndex USDLIBOR6M = INDEX_MASTER.getIndex("USDLIBOR6M", CALENDAR);
-  private static final Period ANNUITY_TENOR = Period.of(2, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(2);
 
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 4, 18);
   private static final double NOTIONAL = 1000000;

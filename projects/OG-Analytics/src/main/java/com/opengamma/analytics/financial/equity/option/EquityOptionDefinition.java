@@ -158,10 +158,17 @@ public class EquityOptionDefinition implements InstrumentDefinition<EquityOption
    */
   @Override
   public EquityOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "valuation date");
-    ArgumentChecker.isFalse(date.isAfter(getExpiryDate()), "Date must be at or before expiry");
-    final double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
-    final double timeToExpiry = TimeCalculator.getTimeBetween(date, _expiryDT);
+    ArgumentChecker.inOrderOrEqual(date.toLocalDate(), getExpiryDate().toLocalDate(), "valuation date", "expiry");
+    double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());
+    if (timeToExpiry == 0) { // Day of expiration: Still time value if option has not expired.
+      // REVIEW Stephen and Casey - This essentially assumes an Expiry with accuracy of 1 day.
+      // The intended behaviour is that an option is still alive on the expiry date
+      timeToExpiry = 0.0015; // Approximately half a day
+    } 
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
+    if (timeToSettlement == 0) {
+      timeToSettlement = 0.0015;
+    } 
     return new EquityOption(timeToExpiry, timeToSettlement, _strike, _isCall, _currency, _pointValue, _exerciseType, _settlementType);
   }
 

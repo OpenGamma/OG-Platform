@@ -8,31 +8,31 @@ package com.opengamma.financial.analytics.model.volatility.surface;
 import java.util.List;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackFunctions;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
+public class SurfaceFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new SurfaceFunctions().getObjectCreating();
   }
 
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private String _xInterpolatorName = Interpolator1DFactory.LINEAR;
     private String _yInterpolatorName = Interpolator1DFactory.LINEAR;
@@ -203,13 +203,13 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(InterpolatedVolatilitySurfaceFunction.class));
   }
 
-  protected RepositoryConfigurationSource blackFunctionConfiguration() {
+  protected FunctionConfigurationSource blackFunctionConfiguration() {
     return BlackFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), blackFunctionConfiguration());
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), blackFunctionConfiguration());
   }
 
 }

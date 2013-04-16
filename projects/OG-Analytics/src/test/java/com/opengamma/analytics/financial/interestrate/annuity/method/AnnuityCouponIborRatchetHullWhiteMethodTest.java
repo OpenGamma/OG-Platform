@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.interestrate.annuity.method;
 
 import static com.opengamma.analytics.financial.interestrate.TestUtils.assertSensitivityEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import java.util.List;
@@ -51,11 +49,11 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -67,7 +65,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   private static final Currency CUR = Currency.EUR;
   //Euribor 3m
   private static final int INDEX_TENOR_MONTH = 3;
-  private static final Period INDEX_TENOR = Period.of(INDEX_TENOR_MONTH, MONTHS);
+  private static final Period INDEX_TENOR = Period.ofMonths(INDEX_TENOR_MONTH);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -76,22 +74,22 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   //Annuity description
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final int ANNUITY_TENOR_YEAR = 2;
-  private static final Period ANNUITY_TENOR = Period.of(ANNUITY_TENOR_YEAR, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
   private static final boolean IS_PAYER = false;
   private static final double NOTIONAL = 100000000; // 100m
-  private static final double[] MAIN_COEF = new double[] {0.20, 0.80, 0.0010 };
-  private static final double[] FLOOR_COEF = new double[] {0.50, 0.00, 0.0200 };
-  private static final double[] CAP_COEF = new double[] {1.00, 0.00, 0.0300 };
+  private static final double[] MAIN_COEF = new double[] {0.20, 0.80, 0.0010};
+  private static final double[] FLOOR_COEF = new double[] {0.50, 0.00, 0.0200};
+  private static final double[] CAP_COEF = new double[] {1.00, 0.00, 0.0300};
   private static final double FIRST_CPN_RATE = 0.04;
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
 
   private static final AnnuityCouponIborRatchetDefinition ANNUITY_RATCHET_FIXED_DEFINITION = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL,
       IBOR_INDEX, IS_PAYER, FIRST_CPN_RATE, MAIN_COEF, FLOOR_COEF, CAP_COEF);
   private static final AnnuityCouponIborRatchetDefinition ANNUITY_RATCHET_IBOR_DEFINITION = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL,
       IBOR_INDEX, IS_PAYER, MAIN_COEF, FLOOR_COEF, CAP_COEF);
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {REFERENCE_DATE }, new double[] {FIRST_CPN_RATE });
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {REFERENCE_DATE}, new double[] {FIRST_CPN_RATE});
   private static final AnnuityCouponIborRatchet ANNUITY_RATCHET_FIXED = ANNUITY_RATCHET_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
 
   private static final int NB_PATH = 12500;
@@ -131,12 +129,11 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   public void presentValueFixedLeg() {
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
-    final double[] mainFixed = new double[] {0.0, 0.0, 0.0 };
-    final double[] floorFixed = new double[] {0.0, 0.0, FIRST_CPN_RATE };
-    final double[] capFixed = new double[] {0.0, 0.0, FIRST_CPN_RATE };
+    final double[] mainFixed = new double[] {0.0, 0.0, 0.0};
+    final double[] floorFixed = new double[] {0.0, 0.0, FIRST_CPN_RATE};
+    final double[] capFixed = new double[] {0.0, 0.0, FIRST_CPN_RATE};
     final AnnuityCouponIborRatchetDefinition ratchetFixedDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
-        FIRST_CPN_RATE,
-        mainFixed, floorFixed, capFixed);
+        FIRST_CPN_RATE, mainFixed, floorFixed, capFixed);
     final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
     final CurrencyAmount pvFixedMC = methodMC.presentValue(ratchetFixed, CUR, CURVES_NAMES[0], BUNDLE_HW);
 
@@ -152,12 +149,11 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
    * Test the Ratchet present value in the degenerate case where the coupon are ibor (no cap/floor, ibor factor=1.0).
    */
   public void presentValueIborLeg() {
-    final double[] mainIbor = new double[] {0.0, 1.0, 0.0 };
-    final double[] floorIbor = new double[] {0.0, 0.0, -10.0 };
-    final double[] capIbor = new double[] {0.0, 0.0, +50.0 };
+    final double[] mainIbor = new double[] {0.0, 1.0, 0.0};
+    final double[] floorIbor = new double[] {0.0, 0.0, -10.0};
+    final double[] capIbor = new double[] {0.0, 0.0, +50.0};
     final AnnuityCouponIborRatchetDefinition ratchetFixedDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
-        FIRST_CPN_RATE,
-        mainIbor, floorIbor, capIbor);
+        FIRST_CPN_RATE, mainIbor, floorIbor, capIbor);
     final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
     final AnnuityCouponIborDefinition iborDefinition = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER);
     final Annuity<? extends Coupon> ibor = iborDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
@@ -181,12 +177,11 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   public void presentValueFloorFixed() {
     final double strike = 0.04;
     final double factor = 0.65;
-    final double[] mainIbor = new double[] {0.0, factor, 0.0 };
-    final double[] floorIbor = new double[] {0.0, 0.0, factor * strike };
-    final double[] capIbor = new double[] {0.0, 0.0, +50.0 };
+    final double[] mainIbor = new double[] {0.0, factor, 0.0};
+    final double[] floorIbor = new double[] {0.0, 0.0, factor * strike};
+    final double[] capIbor = new double[] {0.0, 0.0, +50.0};
     final AnnuityCouponIborRatchetDefinition ratchetFixedDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
-        FIRST_CPN_RATE,
-        mainIbor, floorIbor, capIbor);
+        FIRST_CPN_RATE, mainIbor, floorIbor, capIbor);
     final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
     final AnnuityCapFloorIborDefinition capDefinition = AnnuityCapFloorIborDefinition.from(SETTLEMENT_DATE, SETTLEMENT_DATE.plus(ANNUITY_TENOR), NOTIONAL, IBOR_INDEX, IS_PAYER, strike, true);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
@@ -200,8 +195,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     //    System.out.println("PV Ratchet ibor - Hull-White MC method (" + nbPath + " paths): " + (endTime - startTime) + " ms");
     final CapFloorIborHullWhiteMethod methodCapHW = new CapFloorIborHullWhiteMethod();
     final AnnuityCouponFixedDefinition fixedDefinition = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, INDEX_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
-        strike,
-        IS_PAYER);
+        strike, IS_PAYER);
     final AnnuityCouponFixed fixed = fixedDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     double pvFlooredExpected = 0.0;
     pvFlooredExpected += ratchetFixed.getNthPayment(0).accept(PVC, CURVES);
@@ -220,13 +214,12 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2010, 8, 18);
     final double strike = 0.04;
     final double factor = 0.65;
-    final double[] mainIbor = new double[] {0.0, factor, 0.0 };
-    final double[] floorIbor = new double[] {0.0, 0.0, factor * strike };
-    final double[] capIbor = new double[] {0.0, 0.0, 100.0 };
+    final double[] mainIbor = new double[] {0.0, factor, 0.0};
+    final double[] floorIbor = new double[] {0.0, 0.0, factor * strike};
+    final double[] capIbor = new double[] {0.0, 0.0, 100.0};
     final AnnuityCouponIborRatchetDefinition ratchetIborDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
-        mainIbor,
-        floorIbor, capIbor);
-    final DoubleTimeSeries<ZonedDateTime> fixing = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {referenceDate }, new double[] {FIRST_CPN_RATE });
+        mainIbor, floorIbor, capIbor);
+    final DoubleTimeSeries<ZonedDateTime> fixing = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {referenceDate}, new double[] {FIRST_CPN_RATE});
     final AnnuityCouponIborRatchet ratchetIbor = ratchetIborDefinition.toDerivative(referenceDate, fixing, CURVES_NAMES);
     final AnnuityCapFloorIborDefinition capDefinition = AnnuityCapFloorIborDefinition.from(SETTLEMENT_DATE, SETTLEMENT_DATE.plus(ANNUITY_TENOR), NOTIONAL, IBOR_INDEX, IS_PAYER, strike, true);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(referenceDate, fixing, CURVES_NAMES);
@@ -240,8 +233,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     //    System.out.println("PV Ratchet ibor - Hull-White MC method (" + nbPath + " paths): " + (endTime - startTime) + " ms");
     final CapFloorIborHullWhiteMethod methodCapHW = new CapFloorIborHullWhiteMethod();
     final AnnuityCouponFixedDefinition fixedDefinition = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, INDEX_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
-        strike,
-        IS_PAYER);
+        strike, IS_PAYER);
     final AnnuityCouponFixed fixed = fixedDefinition.toDerivative(referenceDate, CURVES_NAMES);
     double pvFlooredExpected = 0.0;
     pvFlooredExpected += ratchetIbor.getNthPayment(0).accept(PVC, CURVES);
@@ -312,7 +304,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     long startTime, endTime;
     final int nbTest = 10;
     final int nbPath = 12500;
-    final AnnuityCouponIborRatchetDefinition annuityRatchetIbor20Definition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, Period.of(5, YEARS), NOTIONAL, IBOR_INDEX,
+    final AnnuityCouponIborRatchetDefinition annuityRatchetIbor20Definition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, Period.ofYears(5), NOTIONAL, IBOR_INDEX,
         IS_PAYER, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 18);
     final AnnuityCouponIborRatchet annuityRatchetIbor20 = annuityRatchetIbor20Definition.toDerivative(referenceDate, FIXING_TS, CURVES_NAMES);
@@ -335,7 +327,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " delta Ratchet Ibor Hull-White MC method: " + (endTime - startTime) + " ms");
-    // Performance note: HW MC delta (12500 paths): 24-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1325 ms for 10 Ratchet (20 coupons each).
+    // Performance note: HW MC delta (40 deltas - 12500 paths): 24-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1325 ms for 10 Ratchet (20 coupons each).
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

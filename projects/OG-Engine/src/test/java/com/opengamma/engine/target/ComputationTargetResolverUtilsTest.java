@@ -20,11 +20,12 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ComputationTargetResolverUtils} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetResolverUtilsTest {
 
   private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UniqueId.of("A", "B"), "Name");

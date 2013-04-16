@@ -6,14 +6,14 @@ $.register_module({
     name: 'og.common.gadgets.Depgraph',
     dependencies: ['og.analytics.Grid'],
     obj: function () {
-        var Depgraph = function (config) {
-            og.analytics.Grid.call(this, {
+        var Grid = og.analytics.Grid, Depgraph = function (config) {
+            Grid.call(this, {
                 selector: config.selector, child: config.child, cellmenu: !~config.selector.indexOf('inplace'),
-                show_sets: false, show_views: false, start_expanded: false,
+                show_sets: false, show_views: false, collapse_level: 1,
                 source: $.extend({depgraph: true, row: config.row, col: config.col}, config.source)
             });
         };
-        Depgraph.prototype = new og.analytics.Grid;
+        Depgraph.prototype = Object.create(Grid.prototype);
         Depgraph.prototype.label = 'depgraph';
         return Depgraph;
     }

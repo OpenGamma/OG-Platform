@@ -6,10 +6,11 @@ $.register_module({
     name: 'og.common.gadgets.Data',
     dependencies: ['og.common.gadgets.manager', 'og.common.events', 'og.analytics.Grid'],
     obj: function () {
-        var module = this, loading_template, formatters, char_width = 9, STRING = 'STRING';
+        var module = this, Grid = og.analytics.Grid, loading_template, formatters, char_width = 8,
+            DOUBLE = 'DOUBLE_GADGET', STRING = 'STRING';
         var cell_value = function (v) {return {v: v + ''};};
         var col_names = (function () {
-            var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), base = letters.length, base_log = Math.log(base);
+            var letters = 'ABΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ'.split(''), base = letters.length, base_log = Math.log(base);
             var letter = function (num) {
                 if (num < base) return letters[num];
                 var digits = Math.floor(Math.log(num) / base_log) + 1, lcv, result = '', digit, power;
@@ -26,6 +27,13 @@ $.register_module({
                 return result;
             };
         })();
+        var get_viewport_data = function (dataman) {
+            var data = dataman.formatted.data, viewport = dataman.meta.viewport, rows = dataman.meta.columns.total;
+            return viewport.rows.reduce(function (acc, row) {
+                var start = row * rows;
+                return acc.concat(viewport.cols.map(function (col) {return start + col;}));
+            }, []).map(function (index) {return data[index];});
+        };
         var meta = function (dataman, rows, cols, fixed_width, first) {
             var dimensions = rows + '|' + cols.length, meta;
             if (dataman.dimensions === dimensions) return null; else dataman.dimensions = dimensions;
@@ -34,18 +42,11 @@ $.register_module({
                 columns: {
                     fixed: [{columns: [{type: STRING, header: first ? cols[0] : '', width: fixed_width}]}],
                     scroll: [{
-                        columns: cols.slice(first ? 1 : 0).map(function (col) {return {type: STRING, header: col};})
+                        columns: cols.slice(first ? 1 : 0).map(function (col) {return {type: DOUBLE, header: col};})
                     }],
                     total: first ? cols.length : cols.length + 1
                 }
             };
-        };
-        var viewport = function (dataman) {
-            var data = dataman.formatted.data, viewport = dataman.meta.viewport, rows = dataman.meta.columns.total;
-            return viewport.rows.reduce(function (acc, row) {
-                var start = row * rows;
-                return acc.concat(viewport.cols.map(function (col) {return start + col;}));
-            }, []).map(function (index) {return data[index];});
         };
         formatters = {
             CURVE: function (dataman, data) {
@@ -70,9 +71,9 @@ $.register_module({
             LABELLED_MATRIX_2D: function (dataman, data) {
                 if (!data || !data.matrix || !data.matrix.length) return;
                 var cols = data.xLabels, rows = data.yLabels.map(cell_value),
-                    fixed_width = data.yLabels[rows.length - 1].length * char_width;
+                    fixed_width = Math.max.apply(null, data.yLabels.pluck('length')) * char_width;
                 return {
-                    meta: meta(dataman, rows.length, cols, fixed_width),
+                    meta: meta(dataman, rows.length, cols, fixed_width, cols.length === 1 + data.matrix[0].length),
                     data: data.matrix
                         .reduce(function (acc, val, idx) {return acc.concat(rows[idx], val.map(cell_value));}, []),
                 };
@@ -114,9 +115,11 @@ $.register_module({
         var DataMan = function (row, col, type, source, config) {
             var dataman = this, format = formatters[type].partial(dataman);
             dataman.cell = (config.parent ? config.parent.cell : new og.analytics
-                .Cell({source: source, col: col, row: row, format: 'EXPANDED'}, config.label))
+                .Cell({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
+                    source: source, col: col, row: row, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
+                }, config.label))
                 .on('data', function (raw) {
-                    var message;
+                    var message, viewport = dataman.meta.viewport;
                     if (raw.error || !raw.v) return;
                     try {dataman.formatted = config.parent ? config.parent.formatted : format(raw.v);} catch (error) {
                         og.dev.warn(message = module.name + ': formatting ' + type + ' failed, ' + error.message);
@@ -128,7 +131,8 @@ $.register_module({
                             .forEach(function (key) {dataman.meta[key] = dataman.formatted.meta[key];});
                         dataman.fire('meta', dataman.meta);
                     }
-                    if (dataman.formatted.data && dataman.meta.viewport) dataman.fire('data', viewport(dataman));
+                    if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)
+                        dataman.fire('data', get_viewport_data(dataman));
                 });
             dataman.id = dataman.cell.id;
             dataman.meta = {viewport: {rows: [], cols: []}};
@@ -139,18 +143,18 @@ $.register_module({
             var dataman = this;
             if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []), dataman;
             dataman.meta.viewport = new_viewport;
-            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', viewport(dataman));});
+            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', get_viewport_data(dataman));});
             return dataman;
         };
         var Gadget = function (config) {
             if (!formatters[config.type]) // return null or a primitive because this is a constructor
                 return $(config.selector).html('Data gadget cannot render ' + config.type), null;
-            og.analytics.Grid.call(this, {
+            Grid.call(this, {
                 selector: config.selector, child: config.child, show_sets: false, show_views: false,
                 source: config.source, dataman: DataMan.partial(config.row, config.col, config.type),
             });
         };
-        Gadget.prototype = new og.analytics.Grid;
+        Gadget.prototype = Object.create(Grid.prototype);
         Gadget.prototype.label = 'datagadget';
         return Gadget;
     }

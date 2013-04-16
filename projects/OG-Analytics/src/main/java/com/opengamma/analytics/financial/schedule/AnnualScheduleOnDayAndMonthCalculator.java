@@ -53,7 +53,7 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final List<LocalDate> dates = new ArrayList<>();
     while (!date.isAfter(endDate)) {
       dates.add(date);
       date = date.plusYears(1);
@@ -80,7 +80,7 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    final List<ZonedDateTime> dates = new ArrayList<>();
     while (!date.isAfter(endDate)) {
       dates.add(date);
       date = date.plusYears(1);

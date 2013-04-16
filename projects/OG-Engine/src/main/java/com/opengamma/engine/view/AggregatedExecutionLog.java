@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.opengamma.engine.view.calcnode.EmptyAggregatedExecutionLog;
+import com.opengamma.engine.calcnode.EmptyAggregatedExecutionLog;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.log.LogLevel;
 

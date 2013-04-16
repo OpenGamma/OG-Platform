@@ -9,12 +9,17 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the constructor and method of GeneratorDepositON.
@@ -53,7 +58,7 @@ public class GeneratorDepositONTest {
   @Test
   public void equalHash() {
     assertEquals(GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD);
-    GeneratorDepositON duplicate = new GeneratorDepositON(NAME, CUR, CALENDAR, DAY_COUNT);
+    final GeneratorDepositON duplicate = new GeneratorDepositON(NAME, CUR, CALENDAR, DAY_COUNT);
     assertEquals("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_ON_USD, duplicate);
     assertEquals("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_ON_USD.hashCode(), duplicate.hashCode());
     GeneratorDepositON other;
@@ -64,4 +69,20 @@ public class GeneratorDepositONTest {
     other = new GeneratorDepositON(NAME, CUR, CALENDAR, DayCountFactory.INSTANCE.getDayCount("Actual/365"));
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_ON_USD.equals(other));
   }
+
+  @Test
+  public void generateInstrument() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
+    final Period tenor = Period.ofDays(2);
+    final double rate = 0.01;
+    final double notional = 12345;
+    final GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);
+    final CashDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, rate, notional, attribute);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, tenor, CALENDAR);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, CALENDAR);
+    final double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
+    final CashDefinition insExpected = new CashDefinition(CUR, startDate, endDate, notional, rate, accrualFactor);
+    assertEquals("Generator Deposit Counterpart: generate instrument", insExpected, insGenerated);
+  }
+
 }

@@ -52,12 +52,12 @@ public class CashSecurityGenerator extends SecurityGenerator<CashSecurity> {
       return null;
     }
     final DayCount dayCount = convention.getDayCount();
-    final ExternalId cashRate = getCashRate(currency, start.getDate(), Tenor.ofMonths(length));
+    final ExternalId cashRate = getCashRate(currency, start.toLocalDate(), Tenor.ofMonths(length));
     if (cashRate == null) {
       return null;
     }
-    final HistoricalTimeSeries timeSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, cashRate.toBundle(), null, start.getDate(), true,
-        start.getDate(), true);
+    final HistoricalTimeSeries timeSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, cashRate.toBundle(), null, start.toLocalDate(), true,
+        start.toLocalDate(), true);
     if ((timeSeries == null) || timeSeries.getTimeSeries().isEmpty()) {
       return null;
     }

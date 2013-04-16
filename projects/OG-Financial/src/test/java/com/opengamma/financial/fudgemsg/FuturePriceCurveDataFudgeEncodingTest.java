@@ -14,11 +14,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FuturePriceCurveDataFudgeEncodingTest extends FinancialTestBase {
+
   private static final String DEFINITION_NAME = "DN";
   private static final String SPECIFICATION_NAME = "SN";
   private static final Currency UID = Currency.USD;

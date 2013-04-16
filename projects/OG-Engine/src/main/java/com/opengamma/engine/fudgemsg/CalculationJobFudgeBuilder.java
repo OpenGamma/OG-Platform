@@ -19,11 +19,11 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.CacheSelectHint;
+import com.opengamma.engine.calcnode.CalculationJob;
+import com.opengamma.engine.calcnode.CalculationJobItem;
+import com.opengamma.engine.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.view.cache.CacheSelectHint;
-import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
-import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.id.VersionCorrection;
 
 /**

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -42,6 +43,10 @@ import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -50,6 +55,8 @@ import com.opengamma.util.tuple.Pair;
 public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
+
+  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
 
   @Override
   /**
@@ -60,7 +67,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
     final ZonedDateTime valTime = ZonedDateTime.now(executionContext.getValuationClock());
-    final LocalDate valDate = valTime.getDate();
+    final LocalDate valDate = valTime.toLocalDate();
 
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 
@@ -108,10 +115,11 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String targetScheme = target.getUniqueId().getScheme();
-    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+    if (target.getValue() instanceof ExternalIdentifiable) {
+      final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+      return s_validSchemes.contains(identifier.getScheme());
+    }
+    return false;
   }
 
   @Override
@@ -139,7 +147,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       return null;
     }
     final String givenName = Iterables.getOnlyElement(surfaceNames);
-    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
+    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
 
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
@@ -212,10 +221,12 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    for (final Number nthExpiry : rawSurface.getXs()) {
+    Number[] xAsNumbers = getXs(rawSurface.getXs()); 
+    for (final Number nthExpiry : xAsNumbers) {
       final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
       if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
-        for (final Double strike : rawSurface.getYs()) {
+        Double[] ysAsDoubles = getYs(rawSurface.getYs());
+        for (final Double strike : ysAsDoubles) {
           final Double vol = rawSurface.getVolatility(nthExpiry, strike);
           if (vol != null) {
             tList.add(t);
@@ -241,11 +252,13 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    for (final Number nthExpiry : rawSurface.getXs()) {
+    Number[] xAsNumbers = getXs(rawSurface.getXs()); 
+    for (final Number nthExpiry : xAsNumbers) {
       final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
       final double forward = forwardCurve.getForward(t);
       if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
-        for (final Double strike : rawSurface.getYs()) {
+        Double[] ysAsDoubles = getYs(rawSurface.getYs());
+        for (final Double strike : ysAsDoubles) {
           final Double price = rawSurface.getVolatility(nthExpiry, strike);
           if (price != null) {
             try {
@@ -273,4 +286,30 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
         tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
     return stdVolSurface;
   }
+  
+  //TODO 
+  private static Number[] getXs(Object xs) {
+    if (xs instanceof Number[]) {
+      return (Number[]) xs;
+    }
+    Object[] tempArray = (Object[]) xs;
+    final Number[] result = new Number[tempArray.length];
+    for (int i = 0; i < tempArray.length; i++) {
+      result[i] = (Number) tempArray[i];
+    }
+    return result;
+  }
+
+  private static Double[] getYs(Object ys) {
+    if (ys instanceof Double[]) {
+      return (Double[]) ys;
+    }
+    Object[] tempArray = (Object[]) ys;
+    final Double[] result = new Double[tempArray.length];
+    for (int i = 0; i < tempArray.length; i++) {
+      result[i] = (Double) tempArray[i];
+    }
+    return result;
+  }
+
 }

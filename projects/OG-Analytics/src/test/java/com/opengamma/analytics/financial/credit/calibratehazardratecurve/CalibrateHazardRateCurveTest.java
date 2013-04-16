@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
@@ -104,7 +105,7 @@ public class CalibrateHazardRateCurveTest {
   private static final Region referenceEntityRegion = Region.EUROPE;
   private static final String referenceEntityCountry = "United Kingdom";
 
-  private static final Currency currency = Currency.USD;
+  private static final Currency currency = Currency.EUR;
 
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
   private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
@@ -378,21 +379,19 @@ public class CalibrateHazardRateCurveTest {
     tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
     marketSpreads[0] = flatSpread;
 
-    /*
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
     final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
 
-    final double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
+    //final double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
 
     if (outputResults) {
       for (int i = 0; i < numberOfCalibrationCDS; i++) {
-        System.out.println(calibratedHazardRateTermStructure[i]);
+        //System.out.println(calibratedHazardRateTermStructure[i]);
       }
     }
-    */
 
     // -----------------------------------------------------------------------------------------------
   }

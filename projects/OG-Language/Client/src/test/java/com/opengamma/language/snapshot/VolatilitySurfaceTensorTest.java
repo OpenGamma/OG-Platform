@@ -16,12 +16,13 @@ import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the volatility surface tensor functions.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class VolatilitySurfaceTensorTest {
 
   @SuppressWarnings("unchecked")

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -21,6 +22,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.EuropeanExerciseType;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -29,15 +32,18 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
 
 /* package */ class BlotterTestUtils {
 
   /* package */ static final FXForwardSecurity FX_FORWARD;
-  /* package */ static final BeanDataSource FX_FORWARD_DATA_SOURCE;
+  /* package */ static final MapBeanDataSource FX_FORWARD_DATA_SOURCE;
   /* package */ static final SwapSecurity SWAP;
-  /* package */ static final BeanDataSource SWAP_DATA_SOURCE;
+  /* package */ static final MapBeanDataSource SWAP_DATA_SOURCE;
+  /* package */ static final SwaptionSecurity SWAPTION;
+  /* package */ static final MapBeanDataSource SWAPTION_DATA_SOURCE;
   /* package */ static final EquityVarianceSwapSecurity EQUITY_VARIANCE_SWAP;
-  /* package */ static final BeanDataSource EQUITY_VARIANCE_SWAP_DATA_SOURCE;
+  /* package */ static final MapBeanDataSource EQUITY_VARIANCE_SWAP_DATA_SOURCE;
 
   static {
     ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
@@ -50,12 +56,11 @@ import com.opengamma.util.money.Currency;
         "payAmount", "150",
         "receiveCurrency", "GBP",
         "receiveAmount", "100",
-        "forwardDate", forwardDateStr, // maybe need an explicit converter for this
-        "regionId", "Reg~123",
+        "forwardDate", forwardDateStr,
         "attributes", attributes);
 
     ZonedDateTime forwardDate = parseDate(forwardDateStr);
-    ExternalId regionId = ExternalId.of("Reg", "123");
+    ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "GB");
     FX_FORWARD = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     FX_FORWARD.setName("TODO");
     FX_FORWARD.setAttributes(attributes);
@@ -80,12 +85,12 @@ import com.opengamma.util.money.Currency;
           "businessDayConvention", "Modified Following",
           "dayCount", "Act/360",
           "frequency", "3m",
-          "regionId", "Reg~123",
+          "regionId", "123",
           "eom", "true",
-        "notional", beanData(
-        "type", "InterestRateNotional",
-        "currency", "USD",
-        "amount", "222.33")),
+          "notional", beanData(
+            "type", "InterestRateNotional",
+            "currency", "USD",
+            "amount", "222.33")),
         "receiveLeg", beanData(
           "type", "FloatingInterestRateLeg",
           "floatingReferenceRateId", "Rate~123",
@@ -96,12 +101,12 @@ import com.opengamma.util.money.Currency;
           "businessDayConvention", "Following",
           "dayCount", "Act/Act",
           "frequency", "6m",
-          "regionId", "Reg~234",
+          "regionId", "234",
           "eom", "true",
-        "notional", beanData(
-        "type", "InterestRateNotional",
-        "currency", "GBP",
-        "amount", "123.45")));
+          "notional", beanData(
+            "type", "InterestRateNotional",
+            "currency", "GBP",
+            "amount", "123.45")));
 
     ZonedDateTime tradeDate = parseDate(tradeDateStr);
     ZonedDateTime effectiveDate = parseDate(effectiveDateStr);
@@ -110,7 +115,7 @@ import com.opengamma.util.money.Currency;
     SwapLeg payLeg = new FixedInterestRateLeg(
         DayCountFactory.INSTANCE.getDayCount("Act/360"),
         SimpleFrequencyFactory.INSTANCE.getFrequency("3m"),
-        ExternalId.of("Reg", "123"),
+        ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
         new InterestRateNotional(Currency.USD, 222.33),
         true,
@@ -118,7 +123,7 @@ import com.opengamma.util.money.Currency;
     FloatingInterestRateLeg receiveLeg = new FloatingInterestRateLeg(
         DayCountFactory.INSTANCE.getDayCount("Act/Act"),
         SimpleFrequencyFactory.INSTANCE.getFrequency("6m"),
-        ExternalId.of("Reg", "234"),
+        ExternalId.of(ExternalSchemes.FINANCIAL, "234"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
         new InterestRateNotional(Currency.GBP, 123.45),
         true,
@@ -149,7 +154,7 @@ import com.opengamma.util.money.Currency;
         "firstObservationDate", firstObservationDateStr,
         "lastObservationDate", lastObservationDateStr,
         "settlementDate", settlementDateStr,
-        "regionId", "Reg~123",
+        "regionId", "123",
         "observationFrequency", "Weekly",
         "attributes", attributes
     );
@@ -163,17 +168,47 @@ import com.opengamma.util.money.Currency;
                                        parseDate(firstObservationDateStr),
                                        parseDate(lastObservationDateStr),
                                        parseDate(settlementDateStr),
-                                       ExternalId.of("Reg", "123"),
+                                       ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
                                        SimpleFrequencyFactory.INSTANCE.getFrequency("Weekly"));
     EQUITY_VARIANCE_SWAP.setName("TODO");
     EQUITY_VARIANCE_SWAP.setAttributes(attributes);
+
+    //-------------------------------------
+
+    SWAPTION_DATA_SOURCE = beanData(
+        "type", "SwaptionSecurity",
+        "name", "TODO",
+        "attributes", attributes,
+        "payer", "true",
+        "longShort", "Short",
+        "expiry", "2013-03-08",
+        "cashSettled", "false",
+        "currency", "GBP",
+        "notional", "100000",
+        "exerciseType", "European",
+        "settlementDate", "2013-03-10");
+    // need to provide a value for the underlying ID but it isn't used
+    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 3, 8, 0, 0), ZoneOffset.UTC));
+    ZonedDateTime settlementDate = ZonedDateTime.of(LocalDateTime.of(2013, 3, 10, 11, 0), ZoneOffset.UTC);
+    SWAPTION = new SwaptionSecurity(true, ExternalId.of("ABC", "123"), false, expiry, false, Currency.GBP, 100000d,
+                                    new EuropeanExerciseType(), settlementDate);
+    SWAPTION.setName("TODO");
+    SWAPTION.setAttributes(attributes);
   }
 
   private static ZonedDateTime parseDate(String dateStr) {
     return LocalDate.parse(dateStr).atTime(11, 0).atZone(ZoneOffset.UTC);
   }
 
-  /* package */ static BeanDataSource beanData(Object... pairs) {
+  /* package */ static MapBeanDataSource overrideBeanData(MapBeanDataSource delegate, Object... pairs) {
+    final Map<Object, Object> map = Maps.newHashMap();
+    for (int i = 0; i < pairs.length / 2; i++) {
+      map.put(pairs[i * 2], pairs[(i * 2) + 1]);
+    }
+    return new MapBeanDataSource(delegate, map);
+  }
+
+  /* package */ static MapBeanDataSource beanData(Object... pairs) {
     final Map<Object, Object> map = Maps.newHashMap();
     for (int i = 0; i < pairs.length / 2; i++) {
       map.put(pairs[i * 2], pairs[(i * 2) + 1]);
@@ -186,7 +221,12 @@ import com.opengamma.util.money.Currency;
 
     private final Map<Object, Object> _map;
 
-    public MapBeanDataSource(Map<Object, Object> map) {
+    private MapBeanDataSource(MapBeanDataSource delegate, Map<Object, Object> map) {
+      _map = Maps.newHashMap(delegate._map);
+      _map.putAll(map);
+    }
+
+    private MapBeanDataSource(Map<Object, Object> map) {
       _map = map;
     }
 

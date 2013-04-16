@@ -41,11 +41,11 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -65,7 +65,7 @@ public class CouponOISDiscountingMethodTest {
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EUR_SETTLEMENT_DAYS, EUR_CALENDAR);
-  private static final Period EUR_CPN_TENOR = Period.of(3, MONTHS);
+  private static final Period EUR_CPN_TENOR = Period.ofMonths(3);
   private static final ZonedDateTime START_ACCRUAL_DATE = SPOT_DATE;
   private static final ZonedDateTime END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, EUR_CPN_TENOR, EUR_BUSINESS_DAY, EUR_CALENDAR, EUR_IS_EOM);
   private static ZonedDateTime LAST_FIXING_DATE = ScheduleCalculator.getAdjustedDate(END_ACCRUAL_DATE, -1, EUR_CALENDAR); // Overnight
@@ -80,7 +80,7 @@ public class CouponOISDiscountingMethodTest {
       NOTIONAL, EUR_OIS, START_ACCRUAL_DATE, END_ACCRUAL_DATE, FIXING_YEAR_FRACTION);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
   private static final ZonedDateTime REFERENCE_DATE_1 = TRADE_DATE;
   private static final double PAYMENT_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE_1, PAYMENT_DATE);
@@ -170,8 +170,8 @@ public class CouponOISDiscountingMethodTest {
    * Tests the present value rate sensitivity.
    */
   public void presentValueCurveSensitivityNotStarted() {
-    final InterestRateCurveSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
-    pvcs.cleaned();
+    InterestRateCurveSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
+    pvcs = pvcs.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
@@ -208,7 +208,7 @@ public class CouponOISDiscountingMethodTest {
     final CouponOIS eoniaCouponNotStartedOneCurve = new CouponOIS(EUR_CUR, PAYMENT_TIME_1, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_ACCRUAL_TIME_1, END_ACCRUAL_TIME_1,
         FIXING_YEAR_FRACTION, NOTIONAL, CURVES_NAMES[0]);
     final InterestRateCurveSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(eoniaCouponNotStartedOneCurve, CURVES);
-    pvcs.cleaned();
+    //pvcs = pvcs.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
@@ -263,8 +263,8 @@ public class CouponOISDiscountingMethodTest {
    * Tests the present value rate sensitivity.
    */
   public void parRateCurveSensitivityNotStarted() {
-    final InterestRateCurveSensitivity prcs = METHOD_OIS.parRateCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
-    prcs.cleaned();
+    InterestRateCurveSensitivity prcs = METHOD_OIS.parRateCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
+    prcs = prcs.cleaned();
     final double deltaTolerancePrice = 1.0E-10;
     // 1. Forward curve sensitivity
     final double[] nodeTimesForward = new double[] {EONIA_COUPON_NOTSTARTED.getFixingPeriodStartTime(), EONIA_COUPON_NOTSTARTED.getFixingPeriodEndTime() };
@@ -287,13 +287,13 @@ public class CouponOISDiscountingMethodTest {
   // Swap EONIA 3M
   private static final double EUR_FIXED_RATE = 0.01;
   private static final boolean IS_PAYER = true;
-  private static final Period EUR_SWAP_3M_TENOR = Period.of(3, MONTHS);
+  private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
       EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3M = EONIA_SWAP_3M_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
   //Swap EONIA 3Y
-  private static final Period EUR_SWAP_3Y_TENOR = Period.of(3, YEARS);
-  private static final Period EUR_COUPON_TENOR = Period.of(12, MONTHS);
+  private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
+  private static final Period EUR_COUPON_TENOR = Period.ofMonths(12);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS,
       EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3Y = EONIA_SWAP_3Y_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
@@ -326,7 +326,7 @@ public class CouponOISDiscountingMethodTest {
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedON OIS_USD_GENERATOR = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
   private static final double USD_FIXED_RATE = 0.0050;
-  private static final Period TENOR_6M = Period.of(6, MONTHS);
+  private static final Period TENOR_6M = Period.ofMonths(6);
   private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(START_ACCRUAL_DATE, TENOR_6M, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
   private static final YieldCurveBundle CURVES_2 = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVES_NAMES_2 = TestsDataSetsSABR.curves2Names();
@@ -347,7 +347,7 @@ public class CouponOISDiscountingMethodTest {
   @Test
   /**
    * Tests the present value for USD OIS where valuation date == first publication date (one business day following the first fixing date)
-   * AND the fixing has been published. 
+   * AND the fixing has been published.
    */
   public void presentValueOISSwapUSDAfterFixing() {
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, 1, NYC);
@@ -385,7 +385,7 @@ public class CouponOISDiscountingMethodTest {
     final int nbTest = 100;
 
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final Period tenor = Period.of(50, YEARS);
+    final Period tenor = Period.ofYears(50);
     SwapFixedONDefinition oidUsd5YDefinition;
     Swap<? extends Payment, ? extends Payment> ois;
 

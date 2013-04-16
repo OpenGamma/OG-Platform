@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -16,14 +17,18 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class MathCurveTest extends AnalyticsTestBase {
 
   @SuppressWarnings("unchecked")
@@ -94,5 +99,13 @@ public class MathCurveTest extends AnalyticsTestBase {
     c1 = FunctionalDoublesCurve.from(func, "NAME");
     c2 = cycleObject(Curve.class, c1);
     assertCurveEquals(c1, c2);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testNodalDoubleCurve() {
+    NodalTenorDoubleCurve c1 = NodalTenorDoubleCurve.from(new Tenor[] { Tenor.ONE_DAY, Tenor.ONE_YEAR }, new Double[] { 1.2345, 67.89 });
+    NodalTenorDoubleCurve c2 = cycleObject(NodalTenorDoubleCurve.class, c1);
+    assertTrue(c1.equals(c2));
   }
 }

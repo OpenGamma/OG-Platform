@@ -18,11 +18,12 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.referencedata.impl.AbstractReferenceDataProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class AbstractReferenceDataProviderTest {
 
   private static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();

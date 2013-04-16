@@ -23,6 +23,7 @@ import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleExchangeLoader;
+import com.opengamma.examples.loader.ExampleFunctionConfigurationPopulator;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleHolidayLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
@@ -111,7 +112,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
     loadTimeSeriesRating();
-    loadYieldCurves();
     loadSimulatedHistoricalData();
     loadMultiCurrencySwapPortfolio();
     loadAUDSwapPortfolio();
@@ -123,6 +123,18 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadBondPortfolio();
     loadLiborRawSecurities();
     loadViews();
+    loadFunctionConfigurations();
+  }
+
+  private void loadFunctionConfigurations() {
+    final Log log = new Log("Creating function configuration definitions");
+    try {
+      final ExampleFunctionConfigurationPopulator populator = new ExampleFunctionConfigurationPopulator();
+      populator.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   /**
@@ -219,16 +231,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       final ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
       timeSeriesRatingLoader.run(getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadYieldCurves() {
-    final Log log = new Log("Creating yield curve definitions");
-    try {
-      YieldCurveConfigPopulator.populateSyntheticCurveConfigMaster(getToolContext().getConfigMaster());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  *

@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -33,7 +34,7 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
   /**
    * A cache of instances.
    */
-  private static final ConcurrentMap<String, Country> s_instanceMap = new ConcurrentHashMap<String, Country>(16, 0.75f, 4);
+  private static final ConcurrentMap<String, Country> s_instanceMap = new ConcurrentHashMap<>(16, 0.75f, 4);
   /**
    * The scheme to use in object identifiers.
    */
@@ -328,4 +329,10 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
     return _code;
   }
 
+  /**
+   * @return A read-only {@link Iterable} of all registered {@link Country} instances.
+   */
+  public static Iterable<Country> getAvailableCountries() {
+    return Iterables.unmodifiableIterable(s_instanceMap.values());
+  }
 }

@@ -21,15 +21,16 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests time in the database.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbTimeTest extends DbTest {
   // TIMESTAMP WITHOUT TIME ZONE is consistent across Postgres and HSQL
   // it stores the visible field values from Timestamp (ignoring the Java and DB time zones)
@@ -48,7 +49,7 @@ public class DbTimeTest extends DbTest {
   private static final Instant INSTANT1 = LocalDateTime.of(2011, 1, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // winter
   private static final Instant INSTANT2 = LocalDateTime.of(2011, 7, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // summer
   private static final Instant INSTANT3 = LocalDateTime.of(2011, 3, 27, 1, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // Europe spring gap
-  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+  private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
   private ElSqlBundle _elSqlBundle;
   

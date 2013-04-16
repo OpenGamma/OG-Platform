@@ -9,7 +9,10 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.F
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
 
-import com.opengamma.OpenGammaRuntimeException;
+import java.util.Arrays;
+
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -22,13 +25,10 @@ import com.opengamma.util.ArgumentChecker;
  * Partially adopted from the RiskCare implementation of the ISDA model
  */
 public class HazardRateCurve {
+
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(ISDA_INTERPOLATOR, FLAT_EXTRAPOLATOR, ISDA_EXTRAPOLATOR);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /**
-   * 
-   */
 
   private final double _offset;
 
@@ -36,29 +36,43 @@ public class HazardRateCurve {
 
   private final double[] _shiftedTimePoints;
 
+  private final ZonedDateTime[] _curveTenors;
+
   private final double _zeroDiscountFactor;
 
+  //TODO almost certainly not necessary to store the next two
+  private final double[] _times;
+
+  private final double[] _rates;
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public HazardRateCurve(final double[] xData, final double[] yData, final double offset) {
-
+  public HazardRateCurve(final ZonedDateTime[] curveTenors, final double[] times, final double[] rates, final double offset) {
+    ArgumentChecker.notNull(curveTenors, "curve tenors");
+    ArgumentChecker.notNull(times, "times");
+    ArgumentChecker.notNull(rates, "rates");
+    final int n = curveTenors.length;
+    ArgumentChecker.isTrue(n > 0, "Must have at least one data point");
+    //ArgumentChecker.isTrue(times.length == n, "number of times {} must equal number of dates {}", times.length, n);
+    //ArgumentChecker.isTrue(rates.length == n, "number of rates {} must equal number of dates {}", rates.length, n);
     _offset = offset;
 
+    _curveTenors = new ZonedDateTime[n];
+    System.arraycopy(curveTenors, 0, _curveTenors, 0, n);
+    final int length = times.length;
+    _times = new double[length];
+    System.arraycopy(times, 0, _times, 0, length);
+    _rates = new double[length];
+    System.arraycopy(rates, 0, _rates, 0, length);
     // Choose interpolation/extrapolation to match the behaviour of curves in the ISDA CDS reference code
-    if (xData.length > 1) {
-      _curve = InterpolatedDoublesCurve.fromSorted(xData, yData, INTERPOLATOR);
-    } else if (xData.length == 1) {
-      _curve = ConstantDoublesCurve.from(yData[0]);  // Unless the curve is flat, in which case use a constant curve
+    if (length > 1) {
+      _curve = InterpolatedDoublesCurve.fromSorted(times, rates, INTERPOLATOR);
     } else {
-      throw new OpenGammaRuntimeException("Cannot construct a curve with no points");
+      _curve = ConstantDoublesCurve.from(rates[0]);  // Unless the curve is flat, in which case use a constant curve
     }
-
-    _shiftedTimePoints = new double[xData.length];
-
-    for (int i = 0; i < xData.length; ++i) {
-      _shiftedTimePoints[i] = xData[i] + _offset;
+    _shiftedTimePoints = new double[n];
+    for (int i = 0; i < n; ++i) {
+      _shiftedTimePoints[i] = times[i] + _offset;
     }
-
     _zeroDiscountFactor = Math.exp(_offset * getHazardRate(0.0));
   }
 
@@ -66,14 +80,12 @@ public class HazardRateCurve {
 
   // Builder method to build a new SurvivalCurve object given the tenor and hazard rate inputs
 
-  public HazardRateCurve bootstrapHelperHazardRateCurve(final double[] tenorsAsDoubles, final double[] hazardRates) {
-
+  @Deprecated
+  public HazardRateCurve bootstrapHelperHazardRateCurve(final ZonedDateTime[] curveTenors, final double[] tenorsAsDoubles, final double[] hazardRates) {
+    ArgumentChecker.notNull(curveTenors, "curve tenors");
     ArgumentChecker.notNull(tenorsAsDoubles, "Tenors as doubles field");
     ArgumentChecker.notNull(hazardRates, "Hazard rates field");
-
-    final HazardRateCurve modifiedHazardRateCurve = new HazardRateCurve(tenorsAsDoubles, hazardRates, 0.0);
-
-    return modifiedHazardRateCurve;
+    return new HazardRateCurve(curveTenors, tenorsAsDoubles, hazardRates, 0.0);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -84,6 +96,10 @@ public class HazardRateCurve {
 
   public DoublesCurve getCurve() {
     return _curve;
+  }
+
+  public ZonedDateTime[] getCurveTenors() {
+    return _curveTenors;
   }
 
   public double[] getShiftedTimePoints() {
@@ -106,5 +122,45 @@ public class HazardRateCurve {
     return _shiftedTimePoints.length;
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
+  public double[] getTimes() {
+    return _times;
+  }
+
+  public double[] getRates() {
+    return _rates;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_curveTenors);
+    result = prime * result + Arrays.hashCode(_shiftedTimePoints);
+    long temp;
+    temp = Double.doubleToLongBits(_zeroDiscountFactor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof HazardRateCurve)) {
+      return false;
+    }
+    final HazardRateCurve other = (HazardRateCurve) obj;
+    if (Double.compare(_zeroDiscountFactor, other._zeroDiscountFactor) != 0) {
+      return false;
+    }
+    if (!Arrays.equals(_curveTenors, other._curveTenors)) {
+      return false;
+    }
+    if (!Arrays.equals(_shiftedTimePoints, other._shiftedTimePoints)) {
+      return false;
+    }
+    return true;
+  }
+
 }

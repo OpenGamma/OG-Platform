@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -21,9 +20,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -89,13 +91,16 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId id = target.getUniqueId();
-    final String scheme = id.getScheme();
-    if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      final String ticker = id.getValue();
-      return _idToForwardCurveCalculationMethodName.containsKey(ticker);
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
+    if (!(target.getValue () instanceof ExternalIdentifiable)) {
+      return false;
     }
-    return false;
+    ExternalId id = ((ExternalIdentifiable)target.getValue()).getExternalId();
+    final String equityId = EquitySecurityUtils.getIndexOrEquityName(id);
+    if (equityId == null) {
+      return false;
+    }
+    return _idToForwardCurveName.containsKey(equityId.toUpperCase());
   }
 
   @Override
@@ -109,6 +114,9 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    if (!desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE).equals(InstrumentTypeProperties.EQUITY_OPTION)) {
+      return null;
+    }
     final String id = target.getUniqueId().getValue();
     final String curveName = _idToForwardCurveName.get(id);
     if (curveName == null) {
@@ -135,7 +143,7 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+    return OpenGammaFunctionExclusions.BLACK_VOLATILITY_SURFACE_DEFAULTS;
   }
 
 }

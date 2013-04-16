@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.underlyingpool.definition;
 
-import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -25,11 +23,12 @@ public class UnderlyingPool {
 
   // TODO : Add the hashcode and equals methods
   // TODO : Add an arg checker to ensure no two obligors are the same
-  // TODO : Remove all dependencies on market data from this class - yield curves and credit spread term structures
 
   // NOTE : We input the individual obligor notionals as part of the underlying pool (the total pool notional is then calculated from this).
   // NOTE : e.g. suppose we have 100 names in the pool all equally weighted. If each obligor notional is $1mm then the total pool notional is $100mm
   // NOTE : Alternatively we can specify the total pool notional to be $100mm and then calculate by hand what the appropriate obligor notionals should be (1/100)
+
+  // NOTE : The market data associated with the obligors in the pool (credit spread term structures and yield curves) are not part of this object
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -57,15 +56,6 @@ public class UnderlyingPool {
   // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt
   private final RestructuringClause[] _restructuringClause;
 
-  // Vector of tenors at which we have market observed par CDS spreads
-  private final CreditSpreadTenors[] _creditSpreadTenors;
-
-  // The number of tenor points used in specifying the term structure of credit spreads
-  private final int _numberOfCreditSpreadTenors;
-
-  // Matrix holding the term structure of market observed credit spreads (one term structure for each obligor in the underlying pool)
-  private final double[][] _spreadTermStructures;
-
   // Vector holding the notional amounts of each obligor in the underlying pool
   private final double[] _obligorNotionals;
 
@@ -78,9 +68,6 @@ public class UnderlyingPool {
   // Vector holding the weights of the obligor in the underlying pool
   private final double[] _obligorWeights;
 
-  // The yield curve objects (in principle each obligor can be in a different currency and therefore have a different discounting curve)
-  private final ISDACurve[] _yieldCurve;
-
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Ctor for the pool of obligor objects
@@ -91,13 +78,11 @@ public class UnderlyingPool {
       final Currency[] currency,
       final DebtSeniority[] debtSeniority,
       final RestructuringClause[] restructuringClause,
-      final CreditSpreadTenors[] creditSpreadTenors,
-      final double[][] spreadTermStructures,
+
       final double[] obligorNotionals,
       final double[] obligorCoupons,
       final double[] obligorRecoveryRates,
-      final double[] obligorWeights,
-      final ISDACurve[] yieldCurve) {
+      final double[] obligorWeights) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -108,21 +93,15 @@ public class UnderlyingPool {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(debtSeniority, "Debt Seniority");
     ArgumentChecker.notNull(restructuringClause, "Restructuring Clause");
-    ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
-    ArgumentChecker.notNull(spreadTermStructures, "Credit spread term structures");
     ArgumentChecker.notNull(obligorNotionals, "Notionals");
     ArgumentChecker.notNull(obligorCoupons, "Coupons");
     ArgumentChecker.notNull(obligorRecoveryRates, "Recovery Rates");
     ArgumentChecker.notNull(obligorWeights, "Obligor Weights");
-    ArgumentChecker.notNull(yieldCurve, "Yield curve");
 
     ArgumentChecker.noNulls(obligors, "Obligors");
     ArgumentChecker.noNulls(currency, "Currency");
     ArgumentChecker.noNulls(debtSeniority, "Debt Seniority");
     ArgumentChecker.noNulls(restructuringClause, "Restructuring Clause");
-    ArgumentChecker.noNulls(creditSpreadTenors, "Credit spread tenors");
-    ArgumentChecker.noNulls(spreadTermStructures, "Credit spread term structures");
-    ArgumentChecker.noNulls(yieldCurve, "Yield curve");
 
     ArgumentChecker.isTrue(obligors.length == currency.length, "Number of obligors and number of obligor currencies should be equal");
     ArgumentChecker.isTrue(obligors.length == debtSeniority.length, "Number of obligors and number of obligor debt seniorities should be equal");
@@ -130,7 +109,6 @@ public class UnderlyingPool {
     ArgumentChecker.isTrue(obligors.length == obligorCoupons.length, "Number of obligors and number of obligor coupons should be equal");
     ArgumentChecker.isTrue(obligors.length == obligorRecoveryRates.length, "Number of obligors and number of obligor recovery rates should be equal");
     ArgumentChecker.isTrue(obligors.length == obligorWeights.length, "Number of obligors and number of obligor weights should be equal");
-    ArgumentChecker.isTrue(obligors.length == yieldCurve.length, "Number of obligors and number of obligor yield curves should be equal");
 
     double totalObligorWeightings = 0.0;
 
@@ -146,6 +124,7 @@ public class UnderlyingPool {
       totalObligorWeightings += obligorWeights[i];
     }
 
+    // TODO : Need to get this check working ArgumentChecker.isTrue(Double.doubleToLongBits(totalObligorWeightings) == 1.0, "Index constituent weights must sum to unity");
     ArgumentChecker.isTrue(totalObligorWeightings == 1.0, "Index constituent weights must sum to unity");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -171,16 +150,10 @@ public class UnderlyingPool {
     _debtSeniority = debtSeniority;
     _restructuringClause = restructuringClause;
 
-    _creditSpreadTenors = creditSpreadTenors;
-    _spreadTermStructures = spreadTermStructures;
-    _numberOfCreditSpreadTenors = creditSpreadTenors.length;
-
     _obligorNotionals = obligorNotionals;
     _obligorCoupons = obligorCoupons;
     _obligorRecoveryRates = obligorRecoveryRates;
     _obligorWeights = obligorWeights;
-
-    _yieldCurve = yieldCurve;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -217,18 +190,6 @@ public class UnderlyingPool {
     return _restructuringClause;
   }
 
-  public CreditSpreadTenors[] getCreditSpreadTenors() {
-    return _creditSpreadTenors;
-  }
-
-  public double[][] getSpreadTermStructures() {
-    return _spreadTermStructures;
-  }
-
-  public int getNumberOfCreditSpreadTenors() {
-    return _numberOfCreditSpreadTenors;
-  }
-
   public double[] getObligorNotionals() {
     return _obligorNotionals;
   }
@@ -243,10 +204,6 @@ public class UnderlyingPool {
 
   public double[] getObligorWeights() {
     return _obligorWeights;
-  }
-
-  public ISDACurve[] getYieldCurves() {
-    return _yieldCurve;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

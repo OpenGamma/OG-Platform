@@ -1,0 +1,37 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.calcnode.msg {
+
+  message Invocations extends RemoteCalcNodeMessage {
+    
+    message PerConfiguration {
+    
+      required string configuration;
+      
+      message PerFunction {
+        
+        required string identifier;
+        required int count;
+        required double invocation;
+        required double dataInput;
+        required double dataOutput;
+        
+      }
+      
+      repeated required PerFunction function;
+    
+    }
+    
+    repeated required PerConfiguration configuration;
+  
+    binding Java {
+      body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitInvocationsMessage (this); }";
+    }
+    
+  }
+  
+}

@@ -21,10 +21,12 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryPortfolioDbPortfolioMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbPortfolioMasterWorkerTest {
   // superclass sets up dummy database
 

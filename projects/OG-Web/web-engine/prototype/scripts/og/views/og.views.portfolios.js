@@ -24,6 +24,19 @@ $.register_module({
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
             view, details_page, portfolio_name,
+            create_portolio = function () {
+                $(this).dialog('close');
+                api.rest.portfolios.put({
+                    handler: function (result) {
+                        var args = routes.current().args, rule = view.rules.load_item;
+                        if (result.error) return view.error(result.message);
+                        view.search(args);
+                        routes.go(routes.hash(rule, args, {
+                            add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
+                    },
+                    name: ui.dialog({return_field_value: 'name'})
+                });
+            },
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
@@ -32,22 +45,18 @@ $.register_module({
                         title: 'Add New Portfolio',
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                         buttons: {
-                            'OK': function () {
-                                $(this).dialog('close');
-                                api.rest.portfolios.put({
-                                    handler: function (result) {
-                                        var args = routes.current().args, rule = view.rules.load_item;
-                                        if (result.error) return view.error(result.message);
-                                        view.search(args);
-                                        routes.go(routes.hash(rule, args, {
-                                            add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
-                                    },
-                                    name: ui.dialog({return_field_value: 'name'})
-                                });
-                            },
+                            'OK': create_portolio,
                             'Cancel': function () {$(this).dialog('close');}
+                        },
+                        open: function (event, ui) {
+                            $(this).keydown(function (event) {
+                                if (event.which === $.ui.keyCode.ENTER) {
+                                    $(this).dialog('close');
+                                    create_portolio();
+                                }
+                            });
                         }
-                    })
+                    });
                 },
                 'import': og.views.common.toolbar.upload,
                 'delete': function () {
@@ -202,6 +211,7 @@ $.register_module({
                       <div class="og-divider">\
                           <h3><span>Positions</span></h3>\
                           <a href="#" class="OG-link-add OG-js-add-position">add new position</a>\
+                          <a href="#" class="OG-link-add OG-js-add-existing-position">add existing position</a>\
                       </div>\
                       <div class="og-js-position-grid og-grid"></div>';
                 $(selector).html(html).addClass(alive);
@@ -280,9 +290,15 @@ $.register_module({
                        ui.dialog({type: 'input', action: 'close'});
                     };
                     $('.OG-js-add-position').click(function () {
+                        var nodeId = json.template_data.node;
+                        new og.blotter.Dialog({portfolio:{name: nodeId, id: nodeId}, 
+                            handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                        });
+                    });
+                    $('.OG-js-add-existing-position').click(function () {
                         ui.dialog({
                             type: 'input',
-                            title: 'Add Position',
+                            title: 'Add Existing Position',
                             width: 400, height: 190,
                             fields: [{type: 'input', name: 'Identifier', id: 'name'}],
                             buttons: {
@@ -324,9 +340,9 @@ $.register_module({
                             return routes.prefix() + routes.hash(rule, args, node ?
                                 {add: {node: node}, del: ['position']} : {del: ['node', 'position']});
                         },
-                        title: function (name) {return name.length > 30 ? name : ''},
+                        title: function (name) {return name.length > 30 ? name : '';},
                         short_name: function (name) {
-                            return name.length > 30 ? name.slice(0, 27) + '...' : name
+                            return name.length > 30 ? name.slice(0, 27) + '...' : name;
                         }
                     }));
                     ui.content_editable();

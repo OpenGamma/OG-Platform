@@ -28,10 +28,12 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link WebPositionResource}.
  */
+@Test(groups = TestGroup.UNIT)
 public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase {
 
   @Test

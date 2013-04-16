@@ -89,11 +89,16 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
+    final String currency = FinancialSecurityUtils.getCurrency(trade.getSecurity()).getCode();
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0]} : curveNames;
+    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
+    final String[] fullYieldCurveNames = new String[yieldCurveNames.length];
+    for (int i = 0; i < yieldCurveNames.length; i++) {
+      fullYieldCurveNames[i] = yieldCurveNames[i] + "_" + currency;
+    }
     final YieldCurveBundle data = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, _curveConfigSource);
     final InstrumentDefinition<InstrumentDerivative> irFutureDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, yieldCurveNames, timeSeries);
+    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, fullYieldCurveNames, timeSeries);
     final ValueSpecification spec = getSpecification(target, curveCalculationConfigName);
     return getResults(irFuture, data, spec);
   }
@@ -148,15 +153,15 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
   private ValueSpecification getSpecification(final ComputationTarget target) {
     return new ValueSpecification(_valueRequirement, target.toSpecification(),
         createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get());
+            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get());
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target, final String curveCalculationConfig) {
     return new ValueSpecification(_valueRequirement, target.toSpecification(),
         createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get());
+            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get());
   }
 
 }

@@ -20,11 +20,12 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class SocketFudgeMessageConduitTest {
   public void simpleTest() throws Exception {
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();

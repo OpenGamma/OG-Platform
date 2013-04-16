@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.greeks.MixedOrderUnderlying;
 import com.opengamma.analytics.financial.greeks.NthOrderUnderlying;
 import com.opengamma.analytics.financial.greeks.Underlying;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

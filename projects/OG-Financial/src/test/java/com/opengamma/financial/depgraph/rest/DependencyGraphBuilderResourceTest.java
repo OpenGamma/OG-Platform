@@ -40,7 +40,8 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DefaultMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -53,11 +54,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the diagnostic REST exposure of a dependency graph builder.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DependencyGraphBuilderResourceTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderResourceTest.class);
@@ -104,10 +106,10 @@ public class DependencyGraphBuilderResourceTest {
 
   private DependencyGraphBuilderResourceContextBean createContextBean() {
     final DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
-    final CompiledFunctionService cfs = createFunctionCompilationService ();
+    final CompiledFunctionService cfs = createFunctionCompilationService();
     cfs.initialize();
     bean.setFunctionCompilationContext(cfs.getFunctionCompilationContext());
-    bean.setFunctionResolver (new DefaultFunctionResolver(cfs));
+    bean.setFunctionResolver(new DefaultFunctionResolver(cfs));
     bean.setMarketDataProviderResolver(new SingleMarketDataProviderResolver(new MarketDataProvider() {
 
       @Override
@@ -121,29 +123,29 @@ public class DependencyGraphBuilderResourceTest {
       }
 
       @Override
-      public void subscribe(final ValueRequirement valueRequirement) {
+      public void subscribe(final ValueSpecification valueSpecification) {
         fail();
       }
 
       @Override
-      public void subscribe(final Set<ValueRequirement> valueRequirements) {
+      public void subscribe(final Set<ValueSpecification> valueSpecifications) {
         fail();
       }
 
       @Override
-      public void unsubscribe(final ValueRequirement valueRequirement) {
+      public void unsubscribe(final ValueSpecification valueSpecification) {
         fail();
       }
 
       @Override
-      public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
+      public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
         fail();
       }
 
       @Override
-      public MarketDataAvailabilityProvider getAvailabilityProvider() {
-        return new DomainMarketDataAvailabilityProvider(cfs.getFunctionCompilationContext().getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
-            .asList(MarketDataRequirementNames.MARKET_VALUE));
+      public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
+        return new DomainMarketDataAvailabilityFilter(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE))
+            .withProvider(new DefaultMarketDataAvailabilityProvider());
       }
 
       @Override
@@ -210,9 +212,9 @@ public class DependencyGraphBuilderResourceTest {
   public void testAddValue() {
     final DependencyGraphBuilderResource resource = createResource();
     final Collection<ValueRequirement> r1 = resource.getRequirements();
-    final DependencyGraphBuilderResource prime = resource.addValueRequirement("Foo", "PRIMITIVE", "Test~1");
+    final DependencyGraphBuilderResource prime = resource.addValueRequirementByUniqueId("Foo", "PRIMITIVE", "Test~1");
     final Collection<ValueRequirement> r2 = prime.getRequirements();
-    final DependencyGraphBuilderResource prime2 = prime.addValueRequirement("Bar", "PRIMITIVE", "Test~2");
+    final DependencyGraphBuilderResource prime2 = prime.addValueRequirementByUniqueId("Bar", "PRIMITIVE", "Test~2");
     final Collection<ValueRequirement> r3 = prime2.getRequirements();
     assertEquals(r1, resource.getRequirements()); // original unchanged
     assertEquals(r2, prime.getRequirements()); // unchanged
@@ -223,8 +225,8 @@ public class DependencyGraphBuilderResourceTest {
 
   public void testBuild_ok() {
     final DependencyGraphBuilderResource resource = createResource();
-    final FudgeMsgEnvelope env = resource.addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
-        .addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~2").build();
+    final FudgeMsgEnvelope env = resource.addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
+        .addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~2").build();
     final FudgeMsg msg = env.getMessage();
     s_logger.debug("testBuild_ok = {}", msg);
     assertTrue(msg.hasField("dependencyGraph"));
@@ -234,8 +236,8 @@ public class DependencyGraphBuilderResourceTest {
 
   public void testBuild_exceptions() {
     final DependencyGraphBuilderResource resource = createResource();
-    final FudgeMsgEnvelope env = resource.addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
-        .addValueRequirement(ValueRequirementNames.FAIR_VALUE, "PRIMITIVE", "Foo~Bar").build();
+    final FudgeMsgEnvelope env = resource.addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
+        .addValueRequirementByUniqueId(ValueRequirementNames.FAIR_VALUE, "PRIMITIVE", "Foo~Bar").build();
     final FudgeMsg msg = env.getMessage();
     s_logger.debug("testBuild_exceptions = {}", msg);
     assertTrue(msg.hasField("dependencyGraph"));
@@ -245,8 +247,8 @@ public class DependencyGraphBuilderResourceTest {
 
   public void testBuild_failures() {
     final DependencyGraphBuilderResource resource = createResource();
-    final FudgeMsgEnvelope env = resource.addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Bar~1")
-        .addValueRequirement(ValueRequirementNames.PRESENT_VALUE, "PRIMITIVE", "Bar~2").build();
+    final FudgeMsgEnvelope env = resource.addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Bar~1")
+        .addValueRequirementByUniqueId(ValueRequirementNames.PRESENT_VALUE, "PRIMITIVE", "Bar~2").build();
     final FudgeMsg msg = env.getMessage();
     s_logger.debug("testBuild_failures = {}", msg);
     assertTrue(msg.hasField("dependencyGraph"));

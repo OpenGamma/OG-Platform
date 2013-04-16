@@ -13,14 +13,15 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.provider.security.SecurityProviderGetRequest;
-import com.opengamma.provider.security.SecurityProviderGetResult;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.provider.security.SecurityProviderRequest;
+import com.opengamma.provider.security.SecurityProviderResult;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class NoneFoundSecurityProviderTest {
 
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
@@ -42,8 +43,8 @@ public class NoneFoundSecurityProviderTest {
   @Test
   public void test_get_request() {
     NoneFoundSecurityProvider test = new NoneFoundSecurityProvider();
-    SecurityProviderGetRequest request = SecurityProviderGetRequest.createGet(BUNDLE, "FOO");
-    SecurityProviderGetResult expected = new SecurityProviderGetResult();
+    SecurityProviderRequest request = SecurityProviderRequest.createGet(BUNDLE, "FOO");
+    SecurityProviderResult expected = new SecurityProviderResult();
     expected.getResultMap().put(BUNDLE, null);
     assertEquals(expected, test.getSecurities(request));
   }

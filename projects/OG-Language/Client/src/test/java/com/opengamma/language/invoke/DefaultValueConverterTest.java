@@ -26,8 +26,10 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.convert.Converters;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.test.TestUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
+@Test(groups = TestGroup.UNIT)
 public class DefaultValueConverterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultValueConverterTest.class);

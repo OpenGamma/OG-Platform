@@ -28,11 +28,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ComputationTargetType.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetTypeTest {
 
   private static final SimplePortfolioNode NODE = new SimplePortfolioNode();
@@ -40,7 +41,7 @@ public class ComputationTargetTypeTest {
   private static final Security SECURITY = new SimpleSecurity("");
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
   private static final Trade TRADE = new SimpleTrade(SECURITY, new BigDecimal(1),
-      new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.getDate(),
+      new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(),
       TRADE_OFFSET_DATETIME.toOffsetTime());
 
   public void testIsCompatible_null() {

@@ -5,10 +5,6 @@
  */
 package com.opengamma.financial.convention.frequency;
 
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
-
 import java.io.Serializable;
 import java.util.Map;
 
@@ -28,39 +24,39 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /**
    * A frequency with a period of one year.
    */
-  public static final PeriodFrequency ANNUAL = new PeriodFrequency(ANNUAL_NAME, Period.of(1, YEARS));
+  public static final PeriodFrequency ANNUAL = new PeriodFrequency(ANNUAL_NAME, Period.ofYears(1));
   /**
    * A frequency with a period of six months.
    */
-  public static final PeriodFrequency SEMI_ANNUAL = new PeriodFrequency(SEMI_ANNUAL_NAME, Period.of(6, MONTHS));
+  public static final PeriodFrequency SEMI_ANNUAL = new PeriodFrequency(SEMI_ANNUAL_NAME, Period.ofMonths(6));
   /**
    * A frequency with a period of three months.
    */
-  public static final PeriodFrequency QUARTERLY = new PeriodFrequency(QUARTERLY_NAME, Period.of(3, MONTHS));
+  public static final PeriodFrequency QUARTERLY = new PeriodFrequency(QUARTERLY_NAME, Period.ofMonths(3));
   /**
    * A frequency with a period of two months.
    */
-  public static final PeriodFrequency BIMONTHLY = new PeriodFrequency(BIMONTHLY_NAME, Period.of(2, MONTHS));
+  public static final PeriodFrequency BIMONTHLY = new PeriodFrequency(BIMONTHLY_NAME, Period.ofMonths(2));
   /**
    * A frequency with a period of one month.
    */
-  public static final PeriodFrequency MONTHLY = new PeriodFrequency(MONTHLY_NAME, Period.of(1, MONTHS));
+  public static final PeriodFrequency MONTHLY = new PeriodFrequency(MONTHLY_NAME, Period.ofMonths(1));
   /**
    * A frequency with a period of twenty eight days.
    */
-  public static final PeriodFrequency TWENTY_EIGHT_DAYS = new PeriodFrequency(TWENTY_EIGHT_DAYS_NAME, Period.of(28, DAYS));
+  public static final PeriodFrequency TWENTY_EIGHT_DAYS = new PeriodFrequency(TWENTY_EIGHT_DAYS_NAME, Period.ofDays(28));
   /**
    * A frequency with a period of two weeks.
    */
-  public static final PeriodFrequency BIWEEKLY = new PeriodFrequency(BIWEEKLY_NAME, Period.of(14, DAYS));
+  public static final PeriodFrequency BIWEEKLY = new PeriodFrequency(BIWEEKLY_NAME, Period.ofDays(14));
   /**
    * A frequency with a period of one week.
    */
-  public static final PeriodFrequency WEEKLY = new PeriodFrequency(WEEKLY_NAME, Period.of(7, DAYS));
+  public static final PeriodFrequency WEEKLY = new PeriodFrequency(WEEKLY_NAME, Period.ofDays(7));
   /**
    * A frequency with a period of one day.
    */
-  public static final PeriodFrequency DAILY = new PeriodFrequency(DAILY_NAME, Period.of(1, DAYS));
+  public static final PeriodFrequency DAILY = new PeriodFrequency(DAILY_NAME, Period.ofDays(1));
   /**
    * A continuous frequency, with a period of zero.
    */
@@ -68,57 +64,57 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /**
    * A frequency with a period of four months
    */
-  public static final PeriodFrequency FOUR_MONTHS = new PeriodFrequency(FOUR_MONTH_NAME, Period.of(4, MONTHS));
+  public static final PeriodFrequency FOUR_MONTHS = new PeriodFrequency(FOUR_MONTH_NAME, Period.ofMonths(4));
   /**
    * A frequency with a period of five months
    */
-  public static final PeriodFrequency FIVE_MONTHS = new PeriodFrequency(FIVE_MONTH_NAME, Period.of(5, MONTHS));
+  public static final PeriodFrequency FIVE_MONTHS = new PeriodFrequency(FIVE_MONTH_NAME, Period.ofMonths(5));
   /**
    * A frequency with a period of seven months
    */
-  public static final PeriodFrequency SEVEN_MONTHS = new PeriodFrequency(SEVEN_MONTH_NAME, Period.of(7, MONTHS));
+  public static final PeriodFrequency SEVEN_MONTHS = new PeriodFrequency(SEVEN_MONTH_NAME, Period.ofMonths(7));
   /**
    * A frequency with a period of eight months
    */
-  public static final PeriodFrequency EIGHT_MONTHS = new PeriodFrequency(EIGHT_MONTH_NAME, Period.of(8, MONTHS));
+  public static final PeriodFrequency EIGHT_MONTHS = new PeriodFrequency(EIGHT_MONTH_NAME, Period.ofMonths(8));
   /**
    * A frequency with a period of nine months
    */
-  public static final PeriodFrequency NINE_MONTHS = new PeriodFrequency(NINE_MONTH_NAME, Period.of(9, MONTHS));
+  public static final PeriodFrequency NINE_MONTHS = new PeriodFrequency(NINE_MONTH_NAME, Period.ofMonths(9));
   /**
    * A frequency with a period of ten months
    */
-  public static final PeriodFrequency TEN_MONTHS = new PeriodFrequency(TEN_MONTH_NAME, Period.of(10, MONTHS));
+  public static final PeriodFrequency TEN_MONTHS = new PeriodFrequency(TEN_MONTH_NAME, Period.ofMonths(10));
   /**
    * A frequency with a period of eleven months
    */
-  public static final PeriodFrequency ELEVEN_MONTHS = new PeriodFrequency(ELEVEN_MONTH_NAME, Period.of(11, MONTHS));
+  public static final PeriodFrequency ELEVEN_MONTHS = new PeriodFrequency(ELEVEN_MONTH_NAME, Period.ofMonths(11));
   /**
    * A frequency with a period of eighteen months
    */
-  public static final PeriodFrequency EIGHTEEN_MONTHS = new PeriodFrequency(EIGHTEEN_MONTH_NAME, Period.of(18, MONTHS));
+  public static final PeriodFrequency EIGHTEEN_MONTHS = new PeriodFrequency(EIGHTEEN_MONTH_NAME, Period.ofMonths(18));
 
   /** A map containing all of the frequency */
   public static final Map<PeriodFrequency, PeriodFrequency> s_cache =
       ImmutableMap.<PeriodFrequency, PeriodFrequency>builder()
-          .put(ANNUAL, ANNUAL)
-          .put(SEMI_ANNUAL, SEMI_ANNUAL)
-          .put(QUARTERLY, QUARTERLY)
-          .put(BIMONTHLY, BIMONTHLY)
-          .put(MONTHLY, MONTHLY)
-          .put(BIWEEKLY, BIWEEKLY)
-          .put(WEEKLY, WEEKLY)
-          .put(DAILY, DAILY)
-          .put(CONTINUOUS, CONTINUOUS)
-          .put(FOUR_MONTHS, FOUR_MONTHS)
-          .put(FIVE_MONTHS, FIVE_MONTHS)
-          .put(SEVEN_MONTHS, SEVEN_MONTHS)
-          .put(EIGHT_MONTHS, EIGHT_MONTHS)
-          .put(NINE_MONTHS, NINE_MONTHS)
-          .put(TEN_MONTHS, TEN_MONTHS)
-          .put(ELEVEN_MONTHS, ELEVEN_MONTHS)
-          .put(EIGHTEEN_MONTHS, EIGHTEEN_MONTHS)
-          .build();
+      .put(ANNUAL, ANNUAL)
+      .put(SEMI_ANNUAL, SEMI_ANNUAL)
+      .put(QUARTERLY, QUARTERLY)
+      .put(BIMONTHLY, BIMONTHLY)
+      .put(MONTHLY, MONTHLY)
+      .put(BIWEEKLY, BIWEEKLY)
+      .put(WEEKLY, WEEKLY)
+      .put(DAILY, DAILY)
+      .put(CONTINUOUS, CONTINUOUS)
+      .put(FOUR_MONTHS, FOUR_MONTHS)
+      .put(FIVE_MONTHS, FIVE_MONTHS)
+      .put(SEVEN_MONTHS, SEVEN_MONTHS)
+      .put(EIGHT_MONTHS, EIGHT_MONTHS)
+      .put(NINE_MONTHS, NINE_MONTHS)
+      .put(TEN_MONTHS, TEN_MONTHS)
+      .put(ELEVEN_MONTHS, ELEVEN_MONTHS)
+      .put(EIGHTEEN_MONTHS, EIGHTEEN_MONTHS)
+      .build();
 
   /**
    * The name of the convention.
@@ -144,15 +140,37 @@ public final class PeriodFrequency implements Frequency, Serializable {
     return temp;
   }
 
+  /**
+   * Constructs a frequency from a period
+   * @param period The period, not null
+   * @return a period frequency, not null
+   */
   public static PeriodFrequency of(final Period period) {
+    ArgumentChecker.notNull(period, "period");
     for (final Map.Entry<PeriodFrequency, PeriodFrequency> entry : s_cache.entrySet()) {
-      if (entry.getKey().getPeriod().normalizedDaysToHours().normalizedMonthsISO().equals(period.normalizedDaysToHours().normalizedMonthsISO())) {
+      if (entry.getKey().getPeriod().normalized().equals(period.normalized())) {
         return entry.getValue();
       }
     }
     return new PeriodFrequency(period.toString(), period);
   }
 
+  /**
+   * Given a {@link PeriodFrequency} or {@link SimpleFrequency}, returns a {@link PeriodFrequency}.
+   * If the input is already a {@link PeriodFrequency}, then the original object is returned.
+   * @param frequency The frequency, not null
+   * @return A frequency based on {@link Period}
+   * @throws IllegalArgumentException if the input is not a {@link PeriodFrequency} or {@link SimpleFrequency}
+   */
+  public static PeriodFrequency convertToPeriodFrequency(final Frequency frequency) {
+    ArgumentChecker.notNull(frequency, "frequency");
+    if (frequency instanceof PeriodFrequency) {
+      return (PeriodFrequency) frequency;
+    } else if (frequency instanceof SimpleFrequency) {
+      return ((SimpleFrequency) frequency).toPeriodFrequency();
+    }
+    throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
+  }
   /**
    * Creates an instance.
    * 

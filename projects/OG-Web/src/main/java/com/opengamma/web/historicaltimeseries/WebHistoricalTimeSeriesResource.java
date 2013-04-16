@@ -20,14 +20,15 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.paging.PagingRequest;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * RESTful resource for a historical time-series.
@@ -48,20 +49,21 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("timeseries/onetimeseries.ftl", out);
+    return getFreemarker().build(HTML_DIR + "onetimeseries.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("timeseries/jsononetimeseries.ftl", out);
+    return getFreemarker().build(JSON_DIR + "onetimeseries.ftl", out);
   }
 
   @GET
   @Produces("text/csv")
   public String getCSV() {
     StringWriter stringWriter  = new StringWriter();
+    @SuppressWarnings("resource")
     CSVWriter csvWriter = new CSVWriter(stringWriter);
     csvWriter.writeNext(new String[] {"Time", "Value"});
     for (Map.Entry<?, Double> entry : data().getTimeSeries().getTimeSeries()) {
@@ -138,6 +140,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   private Collection<ManageableHistoricalTimeSeriesInfo> getRelatedTimeSeries() {
     HistoricalTimeSeriesInfoSearchRequest searchRequest = 
         new HistoricalTimeSeriesInfoSearchRequest(data().getInfo().getInfo().getExternalIdBundle().toBundle());
+    searchRequest.setPagingRequest(PagingRequest.FIRST_PAGE);
     HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);    
     Collection<ManageableHistoricalTimeSeriesInfo> result = searchResult.getInfoList();
     result.remove(data().getInfo().getInfo()); // remove the original time series itself from its related list

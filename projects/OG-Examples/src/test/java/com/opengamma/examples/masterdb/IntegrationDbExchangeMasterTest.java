@@ -19,10 +19,12 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.util.i18n.Country;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbExchangeMaster.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class IntegrationDbExchangeMasterTest extends AbstractIntegrationDbExchangeMasterTest {
 
   @Test

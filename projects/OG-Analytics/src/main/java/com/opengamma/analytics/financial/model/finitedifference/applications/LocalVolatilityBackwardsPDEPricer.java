@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
@@ -29,8 +28,8 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Sets up a PDE solver to solve the Black-Scholes-Merton PDE for the price of a European or American option on a commodity using a (near) uniform grid. 
- * This code should be view as an example of how to setup the PDE solver.  
+ * Sets up a PDE solver to solve the Black-Scholes-Merton PDE for the price of a European or American option on a commodity using a (near) uniform grid.
+ * This code should be view as an example of how to setup the PDE solver.
  */
 // TODO there is a lot of shared code with BlackScholesMertonPDEPricer
 public class LocalVolatilityBackwardsPDEPricer {
@@ -64,7 +63,7 @@ public class LocalVolatilityBackwardsPDEPricer {
   }
 
   /**
-   * All these setting are ignored if user supplies own grids and thetas 
+   * All these setting are ignored if user supplies own grids and thetas
    * @param useBurnin useBurnin if true use a 'burn-in' period that consumes 20% of the time nodes (and hence the compute time) and runs with a theta of 1.0
    */
   public LocalVolatilityBackwardsPDEPricer(final boolean useBurnin) {
@@ -75,7 +74,7 @@ public class LocalVolatilityBackwardsPDEPricer {
   }
 
   /**
-   * All these setting are ignored if user supplies own grids and thetas 
+   * All these setting are ignored if user supplies own grids and thetas
    * @param useBurnin if true use a 'burn-in' period that consumes some fraction of the time nodes (and hence the compute time) and runs with a theta of 1.0
    * @param burninFrac The fraction of burn-in (ignored if useBurnin is false)
    */
@@ -88,11 +87,11 @@ public class LocalVolatilityBackwardsPDEPricer {
   }
 
   /**
-   * All these setting are ignored if user supplies own grids and thetas 
+   * All these setting are ignored if user supplies own grids and thetas
    * @param useBurnin if true use a 'burn-in' period that consumes some fraction of the time nodes (and hence the compute time) and runs with a different theta
    * @param burninFrac The fraction of burn-in (ignored if useBurnin is false)
    * @param burninTheta the theta to use for burnin (default is 1.0) (ignored if useBurnin is false)
-   * @param mainTheta the theta to use for the main steps (default is 0.5) 
+   * @param mainTheta the theta to use for the main steps (default is 0.5)
    */
   public LocalVolatilityBackwardsPDEPricer(final boolean useBurnin, final double burninFrac, final double burninTheta, final double mainTheta) {
     ArgumentChecker.isTrue(burninFrac < 0.5, "burn-in fraction too high");
@@ -105,19 +104,19 @@ public class LocalVolatilityBackwardsPDEPricer {
   }
 
   /**
-   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using 
+   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using
    * finite difference methods to solve the Black-Scholes-Merton PDE. The grid is close to uniform in space (the strike and spot lie on the grid) and time<p>
    * Since a rather famous analytic formula exists for the price of European options on commodities that should be used in place of this
-   * @param fwd the forward curve. This contains the spot and the instantaneous cost-of-carry (drift of spot) 
+   * @param fwd the forward curve. This contains the spot and the instantaneous cost-of-carry (drift of spot)
    * @param riskFreeRate curve of instantaneous risk free rate against time
-   * @param option the option details. Contains the strike, expiry and whether its a call or put 
-   * @param localVol the local volatility surface parameterized by strike 
-   * @param isAmerican true if the option is American (false for European) 
-   * @param spaceNodes Number of Space nodes 
-   * @param timeNodes Number of time nodes 
-   * @return The option price 
+   * @param option the option details. Contains the strike, expiry and whether its a call or put
+   * @param localVol the local volatility surface parameterized by strike
+   * @param isAmerican true if the option is American (false for European)
+   * @param spaceNodes Number of Space nodes
+   * @param timeNodes Number of time nodes
+   * @return The option price
    */
-  public double price(final ForwardCurve fwd, final Curve<Double, Double> riskFreeRate, EuropeanVanillaOption option, LocalVolatilitySurfaceStrike localVol, final boolean isAmerican,
+  public double price(final ForwardCurve fwd, final Curve<Double, Double> riskFreeRate, final EuropeanVanillaOption option, final LocalVolatilitySurfaceStrike localVol, final boolean isAmerican,
       final int spaceNodes, final int timeNodes) {
 
     final double t = option.getTimeToExpiry();
@@ -160,24 +159,24 @@ public class LocalVolatilityBackwardsPDEPricer {
   }
 
   /**
-   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using 
-   * finite difference methods to solve the Black-Scholes-Merton PDE. The spatial (spot) grid concentrates points around the spot level and ensures that 
+   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using
+   * finite difference methods to solve the Black-Scholes-Merton PDE. The spatial (spot) grid concentrates points around the spot level and ensures that
    * strike and spot lie on the grid. The temporal grid concentrates points near time-to-expiry = 0 (i.e. the start). The PDE solver uses theta = 0.5 (Crank-Nicolson)
-   * unless a burn-in period is use, in which case theta = 1.0 (fully implicit) in that region. 
-   * @param fwd the forward curve. This contains the spot and the instantaneous cost-of-carry (drift of spot) 
+   * unless a burn-in period is use, in which case theta = 1.0 (fully implicit) in that region.
+   * @param fwd the forward curve. This contains the spot and the instantaneous cost-of-carry (drift of spot)
    * @param riskFreeRate curve of instantaneous risk free rate against time
-   * @param option the option details. Contains the strike, expiry and whether its a call or put 
-   * @param localVol the local volatility surface parameterized by strike 
-   * @param isAmerican true if the option is American (false for European) 
-   * @param spaceNodes Number of Space nodes 
-   * @param timeNodes Number of time nodes 
+   * @param option the option details. Contains the strike, expiry and whether its a call or put
+   * @param localVol the local volatility surface parameterized by strike
+   * @param isAmerican true if the option is American (false for European)
+   * @param spaceNodes Number of Space nodes
+   * @param timeNodes Number of time nodes
    * @param beta Bunching parameter for space (spot) nodes. A value great than zero. Very small values gives a very high density of points around the spot, with the
    * density quickly falling away in both directions
    * @param lambda Bunching parameter for time nodes. $\lambda = 0$ is uniform, $\lambda > 0$ gives a high density of points near $\tau = 0$
-   * @param sd The number of standard deviations from s0 to place the boundaries. Values between 3 and 6 are recommended. 
-   * @return The option price 
+   * @param sd The number of standard deviations from s0 to place the boundaries. Values between 3 and 6 are recommended.
+   * @return The option price
    */
-  public double price(final ForwardCurve fwd, final Curve<Double, Double> riskFreeRate, EuropeanVanillaOption option, LocalVolatilitySurfaceStrike localVol, final boolean isAmerican,
+  public double price(final ForwardCurve fwd, final Curve<Double, Double> riskFreeRate, final EuropeanVanillaOption option, final LocalVolatilitySurfaceStrike localVol, final boolean isAmerican,
       final int spaceNodes, final int timeNodes, final double beta, final double lambda, final double sd) {
 
     final double t = option.getTimeToExpiry();
@@ -222,21 +221,21 @@ public class LocalVolatilityBackwardsPDEPricer {
   }
 
   /**
-   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using 
+   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using
    * finite difference methods to solve the Black-Scholes-Merton PDE. <b>Note</b> This is a specialist method that requires correct grid
    * set up - if unsure use another method that sets up the grid for you.
-   * @param fwd the forward curve. This contains the spot and the instantaneous cost-of-carry (drift of spot) 
+   * @param fwd the forward curve. This contains the spot and the instantaneous cost-of-carry (drift of spot)
    * @param riskFreeRate curve of instantaneous risk free rate against time
-   * @param option the option details. Contains the strike, expiry and whether its a call or put 
-   * @param localVol the local volatility surface parameterized by strike 
-   * @param isAmerican true if the option is American (false for European) 
+   * @param option the option details. Contains the strike, expiry and whether its a call or put
+   * @param localVol the local volatility surface parameterized by strike
+   * @param isAmerican true if the option is American (false for European)
    * @param grid the grids. If a single grid is used, the spot must be a grid point and the strike
-   * must lie in the range of the xNodes; the time nodes must start at zero and finish at t (time-to-expiry). For multiple grids, 
-   * the xNodes must be <b>identical</b>, and the last time node of one grid must be the same as the first time node of the next.  
+   * must lie in the range of the xNodes; the time nodes must start at zero and finish at t (time-to-expiry). For multiple grids,
+   * the xNodes must be <b>identical</b>, and the last time node of one grid must be the same as the first time node of the next.
    * @param theta the theta to use on different grids
-   * @return The option price 
+   * @return The option price
    */
-  public double price(final ForwardCurve fwd, final Curve<Double, Double> riskFreeRate, EuropeanVanillaOption option, LocalVolatilitySurfaceStrike localVol, final boolean isAmerican,
+  public double price(final ForwardCurve fwd, final Curve<Double, Double> riskFreeRate, final EuropeanVanillaOption option, final LocalVolatilitySurfaceStrike localVol, final boolean isAmerican,
       final PDEGrid1D[] grid, final double[] theta) {
 
     final int n = grid.length;
@@ -250,10 +249,10 @@ public class LocalVolatilityBackwardsPDEPricer {
     // ensure the grids are consistent
     final double[] xNodes = grid[0].getSpaceNodes();
     ArgumentChecker.isTrue(grid[0].getTimeNode(0) == 0.0, "time nodes not starting from zero");
-    ArgumentChecker.isTrue(grid[n - 1].getTimeNode(grid[n - 1].getNumTimeNodes() - 1) == t, "time nodes not ending at t");
+    ArgumentChecker.isTrue(Double.compare(grid[n - 1].getTimeNode(grid[n - 1].getNumTimeNodes() - 1), t) == 0, "time nodes not ending at t");
     for (int ii = 1; ii < n; ii++) {
       ArgumentChecker.isTrue(Arrays.equals(grid[ii].getSpaceNodes(), xNodes), "different xNodes not supported");
-      ArgumentChecker.isTrue(grid[ii - 1].getTimeNode(grid[ii - 1].getNumTimeNodes() - 1) == grid[ii].getTimeNode(0), "time nodes not consistent");
+      ArgumentChecker.isTrue(Double.compare(grid[ii - 1].getTimeNode(grid[ii - 1].getNumTimeNodes() - 1), grid[ii].getTimeNode(0)) == 0, "time nodes not consistent");
     }
 
     final double sMin = xNodes[0];

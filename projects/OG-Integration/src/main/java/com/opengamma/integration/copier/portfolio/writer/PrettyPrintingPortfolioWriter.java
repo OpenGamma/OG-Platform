@@ -30,8 +30,7 @@ public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
   
   private ManageableSecurity writeSecurity(ManageableSecurity security) {
     
-    ArgumentChecker.notNull(security, "security");
-    if (_prettyPrint) {
+    if (_prettyPrint && security != null) {
       System.out.println("Security: " + security.toString());
     }
     return security;

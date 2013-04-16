@@ -29,13 +29,13 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CouponIborGearingTest {
   // The index: Libor 3m
-  private static final Period TENOR = Period.of(3, MONTHS);
+  private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Coupon
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -85,7 +85,7 @@ public class CouponIborGearingTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurrency() {
-    final Currency otherCurrency = Currency.EUR;
+    final Currency otherCurrency = Currency.USD;
     new CouponIborGearing(otherCurrency, ACCRUAL_END_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR, SPREAD,
         FACTOR, FORWARD_CURVE_NAME);
   }

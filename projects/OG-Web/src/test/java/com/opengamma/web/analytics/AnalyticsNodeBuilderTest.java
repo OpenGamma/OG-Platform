@@ -20,10 +20,12 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests that {@link AnalyticsNode.PortfolioNodeBuilder} creates nodes that match a portfolio structure.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnalyticsNodeBuilderTest {
 
   @Test
@@ -166,10 +168,6 @@ public class AnalyticsNodeBuilderTest {
     4  |_pos2
     5     |_trade3
     */
-    /*FXForwardSecurity security = new FXForwardSecurity(Currency.GBP, 123,
-                                                       Currency.USD, 321,
-                                                       LocalDate.of(2012, 12, 21).atTime(11, 0).atZone(ZoneOffset.UTC),
-                                                       ExternalId.of("Reg", "ABC"));*/
     EquitySecurity security = new EquitySecurity("exchange", "exchangeCode", "companyName", Currency.USD);
     SimplePortfolioNode portfolioRoot = new SimplePortfolioNode();
     SimplePosition position1 = new SimplePosition();

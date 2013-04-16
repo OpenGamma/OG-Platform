@@ -23,11 +23,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataTradeResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "TrdA");

@@ -9,6 +9,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -22,8 +24,14 @@ public class PureBlackVolatilitySurfacePrimitiveDefaults extends PureBlackVolati
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uniqueId = target.getUniqueId();
-    final String ticker = EquitySecurityUtils.getIndexOrEquityName(uniqueId);
+    if (!(target.getValue () instanceof ExternalIdentifiable)) {
+      return false;
+    }
+    ExternalId id = ((ExternalIdentifiable)target.getValue()).getExternalId();
+    final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
+    if (ticker == null) {
+      return false;
+    }
     if (getAllTickers().contains(ticker)) {
       return true;
     }

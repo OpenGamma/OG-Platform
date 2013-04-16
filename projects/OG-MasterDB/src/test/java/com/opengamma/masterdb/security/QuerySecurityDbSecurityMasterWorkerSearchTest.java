@@ -26,10 +26,12 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QuerySecurityDbSecurityMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSecurityMasterWorkerTest {
   // superclass sets up dummy database
 

@@ -19,13 +19,15 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.engine.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test DbFunctionCostsMaster.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbFunctionCostsMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbFunctionCostsMasterTest.class);

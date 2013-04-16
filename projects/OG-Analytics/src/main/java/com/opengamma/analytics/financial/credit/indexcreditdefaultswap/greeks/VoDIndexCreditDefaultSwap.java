@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.greeks;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.ObligorDefaultState;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -22,7 +23,7 @@ public class VoDIndexCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Compute the RecRate by a bump to the recovery rates of each of the obligors in the index - bump is applied individually to all obligors one by one
+  // Compute the Value-on-Default for each of the obligors in the index - VoD is calculated individually to all obligors one by one
 
   public double[] getVoDIndexCreditDefaultSwap(
       final ZonedDateTime valuationDate,
@@ -46,6 +47,38 @@ public class VoDIndexCreditDefaultSwap {
     }
 
     return valueOnDefault;
+  }
+
+  // ------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Compute the Value-on-Default for a user specified subset of obligors in the index e.g. what is the VoD if all financials defaulted
+
+  public double getVoDIndexScenarioCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final IndexCreditDefaultSwapDefinition indexCDS,
+      final ISDACurve[] yieldCurve,
+      final ZonedDateTime[] marketTenors,
+      final double[][] marketSpreads,
+      final ObligorDefaultState[] defaultScenario) {
+
+    ArgumentChecker.notNull(valuationDate, "Valuation date");
+    ArgumentChecker.notNull(indexCDS, "Index CDS");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve");
+    ArgumentChecker.notNull(marketTenors, "Market tenors");
+    ArgumentChecker.notNull(marketSpreads, "Market spreads");
+    ArgumentChecker.notNull(defaultScenario, "Default scenario");
+
+    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+
+    double runningVOD = 0.0;
+
+    for (int i = 0; i < numberOfObligors; i++) {
+      if (defaultScenario.equals(ObligorDefaultState.DEFAULTED)) {
+        runningVOD += 0.0;
+      }
+    }
+
+    return runningVOD;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------

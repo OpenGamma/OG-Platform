@@ -32,7 +32,7 @@ public abstract class StochasticProcess<T, U> {
 
   public List<double[]> getPaths(final T t, final U u, final List<double[]> random) {
     final int n = random.size();
-    final List<double[]> paths = new ArrayList<double[]>(n);
+    final List<double[]> paths = new ArrayList<>(n);
     for (final double[] r : random) {
       paths.add(getPath(t, u, r));
     }

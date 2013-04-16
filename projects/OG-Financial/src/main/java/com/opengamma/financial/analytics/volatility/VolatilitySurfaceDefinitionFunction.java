@@ -32,6 +32,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -66,8 +67,9 @@ public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
               throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName);
             }
           }
-        } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION)) {
-          final String fullDefinitionName = surfaceName + "_" + EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+        } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION) || instrumentType.equals(InstrumentTypeProperties.EQUITY_FUTURE_OPTION)) {
+          //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
+          final String fullDefinitionName = surfaceName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
           definition = source.getDefinition(fullDefinitionName, instrumentType);
           if (definition == null) {
             throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + instrumentType);

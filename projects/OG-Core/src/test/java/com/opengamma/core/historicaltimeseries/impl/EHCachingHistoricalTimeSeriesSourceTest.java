@@ -12,7 +12,9 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -24,13 +26,14 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHistoricalTimeSeriesSourceTest {
 
   private static final UniqueId UID = UniqueId.of("A", "B");
@@ -39,9 +42,18 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
   private EHCachingHistoricalTimeSeriesSource _cachingSource;
   private CacheManager _cacheManager;
 
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingHistoricalTimeSeriesSourceTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
     _underlyingSource = mock(HistoricalTimeSeriesSource.class);
     when(_underlyingSource.changeManager()).thenReturn(new BasicChangeManager());
     _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, _cacheManager);
@@ -49,7 +61,7 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    _cachingSource.shutdown();
   }
 
   //-------------------------------------------------------------------------

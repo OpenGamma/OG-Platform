@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
@@ -49,7 +50,7 @@ public class PresentValueScratchpad {
   // ---------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------
 
@@ -62,7 +63,8 @@ public class PresentValueScratchpad {
   private static final String protectionBuyerREDCode = "ABC123";
 
   private static final String protectionSellerTicker = "IBM";
-  private static final String protectionSellerShortName = "International Business Machines";
+  private static final String protectionSellerShortName = "International Business Mac" +
+      "hines";
   private static final String protectionSellerREDCode = "XYZ321";
 
   private static final String referenceEntityTicker = "BT";
@@ -125,7 +127,7 @@ public class PresentValueScratchpad {
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = true;
+  private static final boolean immAdjustMaturityDate = false;
   private static final boolean adjustEffectiveDate = true;
   private static final boolean adjustMaturityDate = true;
 
@@ -168,33 +170,43 @@ public class PresentValueScratchpad {
   };
 
   double[] times = {
-      s_act365.getDayCountFraction(baseDate, zdt(2012, 12, 16, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2013, 2, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2014, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2015, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2016, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2017, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2018, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2019, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2020, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2021, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2022, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2024, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2027, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2032, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2037, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2042, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC))
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC))
   };
 
+  /*
+  ,
+  s_act365.getDayCountFraction(baseDate, zdt(2014, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2015, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2016, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2017, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2018, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2019, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2020, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2021, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2022, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2024, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2027, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2032, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2037, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2042, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC))
+  };
+  */
+
   double[] rates = {
-      (new PeriodicInterestRate(0.00208, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.002075, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00257, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00311, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00523, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.00697, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.006965, 1)).toContinuous().getRate()
+  };
+
+  //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0 };
+
+  /*
       (new PeriodicInterestRate(0.00377, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00451, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00583, 1)).toContinuous().getRate(),
@@ -210,6 +222,7 @@ public class PresentValueScratchpad {
       (new PeriodicInterestRate(0.02420, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.02481, 1)).toContinuous().getRate(),
   };
+  */
 
   final double flatRate = 0.0;
 
@@ -328,15 +341,28 @@ public class PresentValueScratchpad {
 
     // -------------------------------------------------------------------------------------
 
+    /*
+    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    // Build the premium leg cashflow schedule from the contract specification
+    final ZonedDateTime[] premiumLegSchedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+
+    for (int i = 0; i < premiumLegSchedule.length; i++) {
+      System.out.println("i = " + "\t" + i + "\t" + premiumLegSchedule[i]);
+    }
+    */
+
     // Define the market data to calibrate to
 
     // The number of CDS instruments used to calibrate against
-    final int numberOfCalibrationCDS = 8;
+    final int numberOfCalibrationCDS = 1;
 
     // The CDS tenors to calibrate to
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
 
     tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
+
+    /*
     tenors[1] = DateUtils.getUTCDate(2013, 12, 20);
     tenors[2] = DateUtils.getUTCDate(2014, 12, 20);
     tenors[3] = DateUtils.getUTCDate(2015, 12, 20);
@@ -344,12 +370,14 @@ public class PresentValueScratchpad {
     tenors[5] = DateUtils.getUTCDate(2017, 12, 20);
     tenors[6] = DateUtils.getUTCDate(2019, 12, 20);
     tenors[7] = DateUtils.getUTCDate(2022, 12, 20);
+    */
 
     // The market observed par CDS spreads at these tenors
     final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
-    final double flatSpread = 550.0;
+    final double flatSpread = 0.0000001; //550.0;
 
+    /*
     marketSpreads[0] = 128.76;
     marketSpreads[1] = 164.62;
     marketSpreads[2] = 263.77;
@@ -358,9 +386,11 @@ public class PresentValueScratchpad {
     marketSpreads[5] = 406.02;
     marketSpreads[6] = 422.60;
     marketSpreads[7] = 432.96;
+    */
+
+    marketSpreads[0] = flatSpread;
 
     /*
-    marketSpreads[0] = flatSpread;
     marketSpreads[1] = flatSpread;
     marketSpreads[2] = flatSpread;
     marketSpreads[3] = flatSpread;
@@ -375,8 +405,6 @@ public class PresentValueScratchpad {
 
     // -------------------------------------------------------------------------------------
 
-    /*
-    
     // Create a calibration CDS (will be a modified version of the baseline CDS)
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
@@ -389,10 +417,11 @@ public class PresentValueScratchpad {
     final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    final double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
+    //final double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
 
     // -------------------------------------------------------------------------------------
 
+    /*
     // Vector of time nodes for the hazard rate curve
     final double[] times = new double[tenors.length + 1];
 
@@ -408,27 +437,26 @@ public class PresentValueScratchpad {
     for (int m = 1; m < calibratedHazardRateCurve.length; m++) {
       modifiedHazardRateCurve[m] = calibratedHazardRateCurve[m - 1];
     }
+    */
 
     // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve newCalibratedHazardRateCurve = new HazardRateCurve(times, modifiedHazardRateCurve, 0.0);
+    //final HazardRateCurve newCalibratedHazardRateCurve = new HazardRateCurve(times, modifiedHazardRateCurve, 0.0);
 
     // -------------------------------------------------------------------------------------
 
     // Call the constructor to create a CDS present value object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    //final PresentValueLegacyVanillaCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyVanillaCreditDefaultSwap();
 
     // Calculate the CDS MtM
-    final double presentValue = creditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, cds, yieldCurve, newCalibratedHazardRateCurve, priceType);
+    //final double presentValue = creditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, cds, yieldCurve, newCalibratedHazardRateCurve, priceType);
 
     if (outputResults) {
       for (int i = 0; i < numberOfCalibrationCDS; i++) {
-        System.out.println(calibratedHazardRateCurve[i]);
+        // System.out.println(calibratedHazardRateCurve[i]);
       }
 
-      System.out.println("PV = " + presentValue);
+      //System.out.println("PV = " + presentValue);
     }
-    
-    */
 
     // -------------------------------------------------------------------------------------
 

@@ -24,11 +24,12 @@ import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.RawSecurity;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link PortfolioGenerator}, {@link LeafPortfolioNodeGenerator}, and {@link SimplePositionGenerator} classes.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PortfolioGeneratorTest {
 
   private PositionGenerator createSimplePositionGenerator(final InMemorySecuritySource source) {
@@ -43,7 +44,7 @@ public class PortfolioGeneratorTest {
         ManageableTrade trade = null;
         RawSecurity security = createSecurity();
         ZonedDateTime tradeDate = ZonedDateTime.now();
-        trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.getDate(), tradeDate.toOffsetDateTime().toOffsetTime(),
+        trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetDateTime().toOffsetTime(),
             ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
         return trade;
       }

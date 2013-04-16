@@ -17,11 +17,12 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.language.install.ConfigurationScanner.ConfigurationListener;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests methods in the {@link AbstractConfigurationScanner} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class AbstractConfigurationScannerTest {
 
   private static class Scanner extends AbstractConfigurationScanner {

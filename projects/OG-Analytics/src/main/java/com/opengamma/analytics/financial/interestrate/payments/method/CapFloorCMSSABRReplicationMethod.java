@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.CurrencyAmount;
@@ -47,7 +48,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
    */
   private static final CapFloorCMSSABRReplicationMethod INSTANCE = new CapFloorCMSSABRReplicationMethod();
 
-  /** 
+  /**
    * Returns a default instance of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    * @return The calculation method
    */
@@ -64,7 +65,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
    */
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
 
-  /** 
+  /**
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    */
   private CapFloorCMSSABRReplicationMethod() {
@@ -72,7 +73,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   }
 
   /**
-   * Constructor of the CMS cap/floor replication method with the integration range. 
+   * Constructor of the CMS cap/floor replication method with the integration range.
    * @param integrationInterval Integration range.
    */
   public CapFloorCMSSABRReplicationMethod(final double integrationInterval) {
@@ -80,7 +81,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   }
 
   /**
-   * Compute the present value of a CMS cap/floor by replication in SABR framework. 
+   * Compute the present value of a CMS cap/floor by replication in SABR framework.
    * For floor the replication is between 0.0 and the strike. 0.0 is used as the rates are always >=0.0 in SABR.
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle.
@@ -109,7 +110,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
         integralPart = discountFactor * integrator.integrate(integrant, 0.0, strike);
       }
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     final double priceCMS = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     return CurrencyAmount.of(cmsCapFloor.getCurrency(), priceCMS);
@@ -123,7 +124,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   }
 
   /**
-   * Computes the present value sensitivity to the yield curves of a CMS cap/floor by replication in SABR framework. 
+   * Computes the present value sensitivity to the yield curves of a CMS cap/floor by replication in SABR framework.
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
@@ -184,7 +185,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   }
 
   /**
-   * Computes the present value sensitivity to the SABR parameters of a CMS cap/floor by replication in SABR framework. 
+   * Computes the present value sensitivity to the SABR parameters of a CMS cap/floor by replication in SABR framework.
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to SABR parameters.
@@ -234,7 +235,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   }
 
   /**
-   * Computes the present value sensitivity to the strike of a CMS cap/floor by replication in SABR framework. 
+   * Computes the present value sensitivity to the strike of a CMS cap/floor by replication in SABR framework.
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to strike.
@@ -338,7 +339,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       return (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x) * _factor;
     }
 
@@ -367,7 +368,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
 
     /**
      * The factor used in the strike part and in the integration of the replication.
-     * @param x The swap rate. 
+     * @param x The swap rate.
      * @return The factor.
      */
     double k(final double x) {
@@ -459,7 +460,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       final double[] bs = bsbsp(x);
       return (kD[1] * (x - super._strike) + 2.0 * kD[0]) * (_nnp[1] * bs[0] + _nnp[0] * bs[1]);
     }
@@ -541,7 +542,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       final EuropeanVanillaOption option = new EuropeanVanillaOption(x, super._timeToExpiry, super._isCall);
       final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) super._sabrFunction;
       final double[] volatilityAdjoint = sabrHaganFunction.getVolatilityAdjoint(option, super._forward, super._sabrData);
@@ -580,7 +581,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       return -kD[1] * bs(x);
     }
 

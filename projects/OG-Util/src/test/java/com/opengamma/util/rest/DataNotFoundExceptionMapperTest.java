@@ -11,12 +11,13 @@ import javax.ws.rs.core.Response;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test DataNotFoundExceptionMapper.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DataNotFoundExceptionMapperTest extends AbstractExceptionMapperTestHelper {
 
   @Test(dataProvider="mediaTypes")

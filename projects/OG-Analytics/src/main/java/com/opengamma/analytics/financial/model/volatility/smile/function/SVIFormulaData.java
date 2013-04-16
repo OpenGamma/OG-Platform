@@ -24,7 +24,8 @@ public class SVIFormulaData implements SmileModelData {
     Validate.isTrue(parameters[2] >= -1 && parameters[2] <= 1, "Need -1 <= rho <= 1");
     Validate.isTrue(parameters[3] >= 0, "Need nu >= 0");
 
-    _parameters = parameters;
+    _parameters = new double[NUM_PARAMETERS];
+    System.arraycopy(parameters, 0, _parameters, 0, NUM_PARAMETERS);
   }
 
   public SVIFormulaData(final double a, final double b, final double rho, final double nu, final double m) {
@@ -32,16 +33,14 @@ public class SVIFormulaData implements SmileModelData {
   }
 
   @Override
-  public boolean isAllowed(int index, double value) {
+  public boolean isAllowed(final int index, final double value) {
     switch (index) {
       case 0:
-        return value >= 0;
       case 1:
+      case 3:
         return value >= 0;
       case 2:
         return value >= -1 && value <= 1;
-      case 3:
-        return value >= 0.0;
       case 4:
         return true;
       default:
@@ -70,18 +69,18 @@ public class SVIFormulaData implements SmileModelData {
   }
 
   @Override
-  public int getNumberOfparameters() {
+  public int getNumberOfParameters() {
     return NUM_PARAMETERS;
   }
 
   @Override
-  public double getParameter(int index) {
+  public double getParameter(final int index) {
     return _parameters[index];
   }
 
   @Override
-  public SmileModelData with(int index, double value) {
-    double[] temp = new double[NUM_PARAMETERS];
+  public SmileModelData with(final int index, final double value) {
+    final double[] temp = new double[NUM_PARAMETERS];
     System.arraycopy(_parameters, 0, temp, 0, NUM_PARAMETERS);
     temp[index] = value;
     return new SVIFormulaData(temp);
@@ -96,7 +95,7 @@ public class SVIFormulaData implements SmileModelData {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -106,7 +105,7 @@ public class SVIFormulaData implements SmileModelData {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SVIFormulaData other = (SVIFormulaData) obj;
+    final SVIFormulaData other = (SVIFormulaData) obj;
     if (!Arrays.equals(_parameters, other._parameters)) {
       return false;
     }

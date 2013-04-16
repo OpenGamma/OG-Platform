@@ -11,6 +11,8 @@ import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,6 +30,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.financial.temptarget.BerkeleyDBTempTargetRepository;
+import com.opengamma.financial.temptarget.EHCachingTempTargetRepository;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.financial.temptarget.TempTargetSource;
 import com.opengamma.financial.temptarget.rest.DataTempTargetRepositoryResource;
@@ -36,7 +39,7 @@ import com.opengamma.financial.temptarget.rest.RemoteTempTargetRepository;
 import com.opengamma.financial.temptarget.rest.RemoteTempTargetSource;
 
 /**
- * Component factory for the temporary target repository
+ * Component factory providing the {@code TempTargetRepository} and {@code TempTargetSource}.
  */
 @BeanDefinition
 public class TempTargetRepositoryComponentFactory extends AbstractComponentFactory {
@@ -46,13 +49,11 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
   /**
    * The flag determining whether the component should be published by REST (default true).
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-
   /**
    * The path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
    * will be created with {@link Files#createTempDir}.
@@ -61,7 +62,6 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
    */
   @PropertyDefinition
   private String _path;
-
   /**
    * The URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
    * <p>
@@ -69,7 +69,15 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
    */
   @PropertyDefinition
   private String _remote;
+  /**
+   * The cache manager to use if the raw repository should be cached.
+   * <p>
+   * If omitted there will be no local caching.
+   */
+  @PropertyDefinition
+  private CacheManager _cacheManager;
 
+  //-------------------------------------------------------------------------
   protected void registerSource(final ComponentRepository repo, final TempTargetSource instance) {
     final ComponentInfo info = new ComponentInfo(TempTargetSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -116,9 +124,17 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     }
   }
 
+  protected TempTargetRepository createCachedRepository(final TempTargetRepository tempTargets) {
+    if (getCacheManager() != null) {
+      return new EHCachingTempTargetRepository(tempTargets, getCacheManager());
+    } else {
+      return tempTargets;
+    }
+  }
+
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final TempTargetRepository tempTargets = createRepository(repo, configuration);
+    final TempTargetRepository tempTargets = createCachedRepository(createRepository(repo, configuration));
     registerSource(repo, tempTargets);
     registerRepository(repo, tempTargets);
   }
@@ -152,6 +168,8 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
         return getPath();
       case -934610874:  // remote
         return getRemote();
+      case -1452875317:  // cacheManager
+        return getCacheManager();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -170,6 +188,9 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
         return;
       case -934610874:  // remote
         setRemote((String) newValue);
+        return;
+      case -1452875317:  // cacheManager
+        setCacheManager((CacheManager) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -192,6 +213,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getPath(), other.getPath()) &&
           JodaBeanUtils.equal(getRemote(), other.getRemote()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
     return false;
@@ -204,6 +226,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPath());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRemote());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 
@@ -325,6 +348,37 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the cache manager to use if the raw repository should be cached.
+   * <p>
+   * If omitted there will be no local caching.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager to use if the raw repository should be cached.
+   * <p>
+   * If omitted there will be no local caching.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * <p>
+   * If omitted there will be no local caching.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code TempTargetRepositoryComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -354,14 +408,20 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     private final MetaProperty<String> _remote = DirectMetaProperty.ofReadWrite(
         this, "remote", TempTargetRepositoryComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", TempTargetRepositoryComponentFactory.class, CacheManager.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "path",
-        "remote");
+        "remote",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -380,6 +440,8 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
           return _path;
         case -934610874:  // remote
           return _remote;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -430,6 +492,14 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
      */
     public final MetaProperty<String> remote() {
       return _remote;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
     }
 
   }

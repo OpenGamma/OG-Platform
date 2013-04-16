@@ -29,7 +29,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * Takes as input the result of a function that acts on ComputationTargetType.TRADE, applies unit scaling ( * 1.0 )
+ * and outputs the result for ComputationTargetType.POSITION. <p>
+ * Closely related to UnitPositionOrTradeScalingFunction but with different requirement target. 
  */
 public class UnitPositionTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -91,11 +93,9 @@ public class UnitPositionTradeScalingFunction extends AbstractFunction.NonCompil
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     ValueProperties common = null;
     Object scaledValue = null;
-    // TODO: What if there are multiple trades? The original function requested them all as inputs and chose an arbitrary one here. We process them all as the
-    // intersection of properties is required for the result
     for (ComputedValue value : inputs.getAllValues()) {
       common = SumUtils.addProperties(common, value.getSpecification().getProperties());
-      scaledValue = value.getValue();
+      scaledValue = SumUtils.addValue(scaledValue, value.getValue(), _requirementName);
     }
     common = common.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
     final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), common);

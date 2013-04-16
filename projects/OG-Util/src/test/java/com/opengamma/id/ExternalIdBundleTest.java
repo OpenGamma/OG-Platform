@@ -22,11 +22,12 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ExternalIdBundle}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdBundleTest {
 
   private static final ExternalScheme SCHEME = ExternalScheme.of("Scheme");

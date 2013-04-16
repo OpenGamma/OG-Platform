@@ -10,10 +10,10 @@ import java.util.List;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -27,8 +27,8 @@ public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSerie
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
     final LocalDate[] tsDates = localDateTS.timesArray();
     final double[] values = localDateTS.valuesArrayFast();
-    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
-    final List<Double> scheduledData = new ArrayList<Double>();
+    final List<LocalDate> scheduledDates = new ArrayList<>();
+    final List<Double> scheduledData = new ArrayList<>();
     int dateIndex = 0;
     for (final LocalDate localDate : schedule) {
       if (dateIndex < tsDates.length) {

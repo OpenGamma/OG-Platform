@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.instrument.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -17,8 +15,8 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -28,15 +26,14 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 public class BondCapitalIndexedTransactionDefinitionTest {
   // Index-Linked Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final String NAME_INDEX_UK = "UK RPI";
-  private static final Period LAG_INDEX_UK = Period.of(14, DAYS);
-  private static final IndexPrice PRICE_INDEX_UKRPI = new IndexPrice(NAME_INDEX_UK, Currency.GBP, Currency.GBP, LAG_INDEX_UK);
+  private static final IndexPrice PRICE_INDEX_UKRPI = new IndexPrice(NAME_INDEX_UK, Currency.GBP);
   private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY_GBP = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
@@ -49,7 +46,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
-  private static final Period COUPON_PERIOD_GILT_1 = Period.of(6, MONTHS);
+  private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS_GILT_1 = 2;
   private static final String ISSUER_UK = "UK GOVT";
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_GILT_1_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(
@@ -68,7 +65,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
 
   @Test
   public void toDerivative() {
-    DoubleTimeSeries<ZonedDateTime> ukRpi = MarketDiscountDataSets.ukRpiFrom2010();
+    DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
     ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
     BondCapitalIndexedTransaction<Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi, "Not used");
     BondCapitalIndexedSecurity<Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);
@@ -82,7 +79,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
 
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   //  private static final String NAME_INDEX_US = "US CPI-U";
-  //  private static final Period LAG_INDEX_US = Period.of(14, DAYS);
+  //  private static final Period LAG_INDEX_US = Period.ofDays(14);
   //  private static final PriceIndex PRICE_INDEX_USCPI = new PriceIndex(NAME_INDEX_US, Currency.USD, Currency.USD, LAG_INDEX_US);
   //  private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   //  private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -95,7 +92,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   //  private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
   //  private static final double NOTIONAL_TIPS_1 = 100.00;
   //  private static final double REAL_RATE_TIPS_1 = 0.02;
-  //  private static final Period COUPON_PERIOD_TIPS_1 = Period.of(6, MONTHS);
+  //  private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
   //  private static final int SETTLEMENT_DAYS_TIPS_1 = 2;
   //  private static final String ISSUER_US = "US GOVT";
   //  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_TIPS_1_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition

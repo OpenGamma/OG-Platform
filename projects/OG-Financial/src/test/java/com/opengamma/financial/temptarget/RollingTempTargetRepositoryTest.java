@@ -15,11 +15,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the {@link RollingTempTargetRepository} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RollingTempTargetRepositoryTest {
 
   private static class Mock extends RollingTempTargetRepository {

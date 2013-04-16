@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.marketdata;
@@ -16,6 +16,7 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.value.ValueRequirement;
@@ -32,13 +33,15 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Tests the {@link MarketDataELCompiler} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MarketDataELCompilerTest {
 
   private EquitySecurity _fooEquity;
@@ -61,13 +64,13 @@ public class MarketDataELCompilerTest {
 
   @Test(expectedExceptions = {IllegalArgumentException.class })
   public void testInvalidExpression() {
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
-    compiler.compile("Not a valid expression");
+    final MarketDataELCompiler compiler = new MarketDataELCompiler();
+    compiler.compile("Not a valid expression", new DefaultComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
   }
 
   public void testConstantMultiplier() {
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
-    final OverrideOperation operation = compiler.compile("x * 0.9");
+    final MarketDataELCompiler compiler = new MarketDataELCompiler();
+    final OverrideOperation operation = compiler.compile("x * 0.9", new DefaultComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
     assertNotNull(operation);
     final ValueRequirement req = new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "Bar")));
     final Object result = operation.apply(req, 42d);
@@ -75,8 +78,8 @@ public class MarketDataELCompilerTest {
   }
 
   public void testConstantAddition() {
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
-    final OverrideOperation operation = compiler.compile("x + 0.42");
+    final MarketDataELCompiler compiler = new MarketDataELCompiler();
+    final OverrideOperation operation = compiler.compile("x + 0.42", new DefaultComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
     assertNotNull(operation);
     final ValueRequirement req = new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "Bar")));
     final Object result = operation.apply(req, 0.9d);
@@ -87,8 +90,8 @@ public class MarketDataELCompilerTest {
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     securities.addSecurity(_fooEquity);
     securities.addSecurity(_swap);
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    final OverrideOperation operation = compiler.compile("if (security.type == \"EQUITY\") x * 0.9");
+    final MarketDataELCompiler compiler = new MarketDataELCompiler();
+    final OverrideOperation operation = compiler.compile("if (security.type == \"EQUITY\") x * 0.9", new DefaultComputationTargetResolver(securities).atVersionCorrection(VersionCorrection.LATEST));
     assertNotNull(operation);
     Object result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_fooEquity)), 42d);
     assertEquals (result, 42d * 0.9);
@@ -101,9 +104,10 @@ public class MarketDataELCompilerTest {
     securities.addSecurity(_fooEquity);
     securities.addSecurity(_barEquity);
     securities.addSecurity(_swap);
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    final OverrideOperation operation = compiler
-        .compile("if (security.type == \"EQUITY\" && security.name == \"Foo\") x * 0.9; if (security.type == \"EQUITY\") x * 1.1; if (security.cow == 42) x * 0");
+    final MarketDataELCompiler compiler = new MarketDataELCompiler();
+    final OverrideOperation operation = compiler.compile(
+        "if (security.type == \"EQUITY\" && security.name == \"Foo\") x * 0.9; if (security.type == \"EQUITY\") x * 1.1; if (security.cow == 42) x * 0", new DefaultComputationTargetResolver(
+            securities).atVersionCorrection(VersionCorrection.LATEST));
     assertNotNull(operation);
     // First rule should match
     Object result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_fooEquity)), 42d);
@@ -117,9 +121,9 @@ public class MarketDataELCompilerTest {
   }
 
   public void testValueExpression() {
-    final InMemorySecuritySource securities = new InMemorySecuritySource();
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(Currency.USD)), null);
+    final MarketDataELCompiler compiler = new MarketDataELCompiler();
+    final Object result = compiler.compile("value", new DefaultComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST)).apply(
+        new ValueRequirement("Foo", ComputationTargetSpecification.of(Currency.USD)), null);
     assertEquals(result, "Foo");
   }
 
@@ -130,15 +134,17 @@ public class MarketDataELCompilerTest {
         new AmericanExerciseType(), new Expiry(zdt(2020, 11, 25, 12, 0, 0, 0, ZoneOffset.UTC)), 42d, "EXCH");
     fooOption.addExternalId(ExternalId.of("Test", "FooOption"));
     securities.addSecurity(fooOption);
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    Object result = compiler.compile("security.underlyingId").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
+    final MarketDataELCompiler compiler = new MarketDataELCompiler();
+    Object result = compiler.compile("security.underlyingId", new DefaultComputationTargetResolver(securities).atVersionCorrection(VersionCorrection.LATEST)).apply(
+        new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
     assertEquals(result, ExternalId.of("Test", "FooEquity"));
-    result = compiler.compile("Security:get(security.underlyingId)").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
+    result = compiler.compile("Security:get(security.underlyingId)", new DefaultComputationTargetResolver(securities).atVersionCorrection(VersionCorrection.LATEST)).apply(
+        new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
     assertEquals(result, _fooEquity);
   }
 
   //-------------------------------------------------------------------------
-  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneId zone) {
     return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 

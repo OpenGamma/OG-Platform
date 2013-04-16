@@ -17,6 +17,8 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.fudgemsg.types.IndicatorType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
@@ -47,6 +49,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
   private static final String MAX_DELTA_CALC_PERIOD_FIELD = "maxDeltaCalcPeriod";
   private static final String MIN_FULL_CALC_PERIOD_FIELD = "minFullCalcPeriod";
   private static final String MAX_FULL_CALC_PERIOD_FIELD = "maxFullCalcPeriod";
+  private static final String PERSISTENT_FIELD = "persistent";
   private static final String RESULT_MODEL_DEFINITION_FIELD = "resultModelDefinition";
   private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
   private static final String PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD = "portfolioRequirementsBySecurityType";
@@ -63,12 +66,10 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewDefinition viewDefinition) {
-    // REVIEW jonathan 2010-08-13 -- This is really messy, but we're fighting against two problems:
-    // - ViewDefinitions are stored in Mongo, which means they need field names for absolutely everything
-    // - There's a cycle of references between ViewDefinition and ViewCalculationConfiguration, so we have to handle
-    // both at once.
+    // REVIEW jonathan 2010-08-13 -- This is really messy, but there's a cycle of references between ViewDefinition and
+    // ViewCalculationConfiguration, so we have to handle both at once.
     MutableFudgeMsg message = serializer.newMessage();
-//    message.add(UNIQUE_ID_FIELD, null, viewDefinition.getUniqueId());
+
     message.add(NAME_FIELD, null, viewDefinition.getName());
     serializer.addToMessage(message, PORTFOLIO_ID_FIELD, null, viewDefinition.getPortfolioId());
     serializer.addToMessage(message, USER_FIELD, null, viewDefinition.getMarketDataUser());
@@ -91,6 +92,11 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     if (viewDefinition.getMaxFullCalculationPeriod() != null) {
       message.add(MAX_FULL_CALC_PERIOD_FIELD, null, viewDefinition.getMaxFullCalculationPeriod());
     }
+    
+    if (viewDefinition.isPersistent()) {
+      message.add(PERSISTENT_FIELD, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+    }
+    
     Map<String, ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
     for (ViewCalculationConfiguration calcConfig : calculationConfigurations.values()) {
       MutableFudgeMsg calcConfigMsg = serializer.newMessage();
@@ -131,6 +137,9 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     if (valueRequirement.getTargetReference() instanceof ComputationTargetSpecification) {
       final ComputationTargetSpecification targetSpec = valueRequirement.getTargetReference().getSpecification();
       final ComputationTargetType type;
+      if (targetSpec.getUniqueId() == null) {
+        return valueRequirement;
+      }
       if (Currency.OBJECT_SCHEME.equals(targetSpec.getUniqueId().getScheme())) {
         type = ComputationTargetType.CURRENCY;
       } else if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(targetSpec.getUniqueId().getScheme())) {
@@ -184,6 +193,11 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     if (message.hasField(MAX_FULL_CALC_PERIOD_FIELD)) {
       viewDefinition.setMaxFullCalculationPeriod(message.getLong(MAX_FULL_CALC_PERIOD_FIELD));
     }
+    
+    if (message.hasField(PERSISTENT_FIELD)) {
+      viewDefinition.setPersistent(true);
+    }
+    
     List<FudgeField> calcConfigs = message.getAllByName(CALCULATION_CONFIGURATION_FIELD);
     for (FudgeField calcConfigField : calcConfigs) {
       FudgeMsg calcConfigMsg = message.getFieldValue(FudgeMsg.class, calcConfigField);

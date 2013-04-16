@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.blotter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,10 @@ import org.json.JSONObject;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -41,6 +45,7 @@ import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.i18n.Country;
 
 /**
  *
@@ -69,8 +74,6 @@ public class BlotterLookupResource {
     }
     return new JSONArray(results).toString();
   }
-
-  // TODO endpoint for the standard external identifier scheme and their human readable names
 
   @GET
   @Path("frequencies")
@@ -120,6 +123,27 @@ public class BlotterLookupResource {
   }
 
   @GET
+  @Path("debtseniority")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getDebtSeniority() {
+    return convertToJsonArray(DebtSeniority.class, Arrays.asList(DebtSeniority.values()).iterator());
+  }
+
+  @GET
+  @Path("restructuringclause")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getRestructuringClause() {
+    return convertToJsonArray(RestructuringClause.class, Arrays.asList(RestructuringClause.values()).iterator());
+  }
+
+  @GET
+  @Path("stubtype")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getStubType() {
+    return convertToJsonArray(StubType.class, Arrays.asList(StubType.values()).iterator());
+  }
+
+  @GET
   @Path("samplingfrequencies")
   @Produces(MediaType.APPLICATION_JSON)
   public String getSamplingFrequencies() {
@@ -152,19 +176,29 @@ public class BlotterLookupResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getIdSchemes() {
     Map<String, ExternalScheme> schemes = Maps.newHashMap();
-    // TODO should this include the weak ticker types?
-    // TODO are all the names correct?
     schemes.put("ISIN", ExternalSchemes.ISIN);
     schemes.put("CUSIP", ExternalSchemes.CUSIP);
     schemes.put("SEDOL1", ExternalSchemes.SEDOL1);
     schemes.put("Bloomberg BUID", ExternalSchemes.BLOOMBERG_BUID);
+    schemes.put("Bloomberg BUID (weak)", ExternalSchemes.BLOOMBERG_BUID_WEAK);
     schemes.put("Bloomberg Ticker", ExternalSchemes.BLOOMBERG_TICKER);
+    schemes.put("Bloomberg Ticker (weak)", ExternalSchemes.BLOOMBERG_TICKER_WEAK);
     schemes.put("Bloomberg Ticker/Coupon/Maturity", ExternalSchemes.BLOOMBERG_TCM);
     schemes.put("Reuters RIC", ExternalSchemes.RIC);
     schemes.put("ActiveFeed Ticker", ExternalSchemes.ACTIVFEED_TICKER);
     schemes.put("Tullett Prebon SURF", ExternalSchemes.SURF);
     schemes.put("ICAP", ExternalSchemes.ICAP);
     schemes.put("GMI", ExternalSchemes.GMI);
+    schemes.put("Markit RED Code", ExternalSchemes.MARKIT_RED_CODE);
     return new JSONObject(schemes).toString();
+  }
+
+  @GET
+  @Path("regions")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getRegions() {
+    List<Country> countryList = Lists.newArrayList(Country.getAvailableCountries().iterator());
+    Collections.sort(countryList);
+    return convertToJsonArray(Country.class, countryList.iterator());
   }
 }

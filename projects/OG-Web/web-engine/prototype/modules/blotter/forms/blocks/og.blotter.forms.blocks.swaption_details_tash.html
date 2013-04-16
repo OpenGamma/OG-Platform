@@ -1,8 +1,8 @@
 <section>
   <table class="OG-table">
     <colgroup>
-      <col style="width: 30%">              
-      <col style="width: 70%">              
+      <col style="width: 33%">              
+      <col style="width: 67%">              
     </colgroup>
     <tbody>
       <tr>
@@ -10,7 +10,7 @@
         </td>
         <td class="og-double-cell">
           <div><span><label><span>Pay</span><input type="radio" name="security.payer" value="true">
-          </label></span><span><label><span>Recieve</span><input type="radio" name="security.payer" value="false"></label>
+          </label></span><span><label><span>Receive</span><input type="radio" name="security.payer" value="false"></label>
           </span></div>
         </td>
       </tr>
@@ -31,7 +31,7 @@
           </label>
         </td>
         <td>
-          <input name="security.expiry" type="text" value='{{expiry}}' />
+          <input class="blotter-date" name="security.expiry" type="text" value='{{expiry}}' />
         </td>
       </tr>
       <tr>
@@ -41,7 +41,7 @@
           </label>
         </td>
         <td>
-          <input name="security.settlementDate" type="text" value='{{settlement}}' />
+          <input class="blotter-date" name="security.settlementDate" type="text" value='{{settlement}}' />
         </td>
       </tr>
       <tr>

@@ -10,7 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -24,7 +24,6 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Converts interest rate future securities into the definition form used by the analytics library
@@ -52,29 +51,28 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
   }
 
   @Override
-  public InterestRateFutureDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+  public InterestRateFutureSecurityDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final ConventionBundle iborConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IR_FUTURE"));
+    ConventionBundle iborConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
     if (iborConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
+      iborConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IR_FUTURE"));
+      if (iborConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
+      }
     }
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency));
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
     final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar, iborConvention.getDayCount(),
         iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
-    final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount in percent
-    return new InterestRateFutureDefinition(lastTradeDate, 0.0, lastTradeDate, iborIndex, notional, paymentAccrualFactor, 1, security.getName());
+    final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount for one percent
+    return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName());
   }
 
   private double getAccrualFactor(final Period period) {
-    if (period.equals(DateUtils.periodOfMonths(3))) {
-      return 0.25;
-    } else if (period.equals(DateUtils.periodOfMonths(1))) {
-      return 1. / 12;
-    }
-    throw new OpenGammaRuntimeException("Can only handle 1M and 3M interest rate futures");
+    final long nMonths = period.toTotalMonths();
+    return 1. / nMonths;
   }
 
 }

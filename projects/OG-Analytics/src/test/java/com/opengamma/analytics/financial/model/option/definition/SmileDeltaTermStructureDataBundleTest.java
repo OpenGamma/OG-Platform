@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SmileDeltaTermStructureDataBundleTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
-  private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.USD, Currency.EUR);
+  private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.EUR, Currency.EUR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILES = TestsDataSetsForex.smile5points(REFERENCE_DATE, 0);
   private static final SmileDeltaTermStructureDataBundle FX_DATA = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, CCYS);
@@ -62,7 +62,7 @@ public class SmileDeltaTermStructureDataBundleTest {
     assertFalse(FX_DATA.equals(other));
     other = new SmileDeltaTermStructureDataBundle(CURVES, TestsDataSetsForex.smile5points(REFERENCE_DATE, 1), CCYS);
     assertFalse(FX_DATA.equals(other));
-    other = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, Pair.of(Currency.USD, Currency.GBP));
+    other = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, Pair.of(Currency.EUR, Currency.GBP));
     assertFalse(FX_DATA.equals(other));
   }
 

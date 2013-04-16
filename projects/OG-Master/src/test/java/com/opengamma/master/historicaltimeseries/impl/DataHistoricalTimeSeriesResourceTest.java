@@ -25,11 +25,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataHistoricalTimeSeriesResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataHistoricalTimeSeriesResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");

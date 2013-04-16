@@ -17,7 +17,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
-import com.opengamma.util.annotation.ClassNameAnnotationScanner;
+import com.opengamma.util.annotation.ClassNameAnnotationScannerUtils;
 
 /**
  * Scans for annotations and writes the names of classes using them to a file.
@@ -69,7 +69,7 @@ public class ScriptsGeneratorTask extends Task {
       }
     }
 
-    Set<String> classNames = ClassNameAnnotationScanner.scan(jars.toArray(new String[jars.size()]), Scriptable.class);
+    Set<String> classNames = ClassNameAnnotationScannerUtils.scan(jars.toArray(new String[jars.size()]), Scriptable.class);
 
     for (String className : classNames) {
       try {

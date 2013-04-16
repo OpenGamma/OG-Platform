@@ -25,11 +25,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link PortfolioNodeFudgeBuilder} and {@link PositionFudgeBuilder}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PortfolioNodeAndPositionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioNodeAndPositionFudgeEncodingTest.class);

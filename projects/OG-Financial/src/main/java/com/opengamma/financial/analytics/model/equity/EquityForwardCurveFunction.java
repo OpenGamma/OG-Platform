@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYieldImplied;
@@ -30,6 +31,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -37,6 +41,8 @@ import com.opengamma.util.money.Currency;
  * Simple implementation does not include any Dividend treatment
  */
 public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -53,10 +59,17 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String targetScheme = target.getUniqueId().getScheme();
-    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+    if (target.getValue() instanceof ExternalIdentifiable) {
+      final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+      return s_validSchemes.contains(identifier.getScheme());
+    }
+    return false;
+  }
+
+  @Override
+  public boolean canHandleMissingInputs() {
+    // dividend yield may not be available
+    return true;
   }
 
   /* Spot value of the equity index or name */
@@ -102,6 +115,9 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     // Funding Curve Requirement
     requirements.add(getFundingCurveRequirement(currency, fundingCurveName, curveCalculationConfig));
 
+    // Dividend yield - optional
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
+
     return requirements;
   }
 
@@ -129,11 +145,14 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
       throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
-    // Cost of Carry TODO Dividend treatment - may be able to get this from BORROWING_COST_MID
-    final YieldCurve zeroCostOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"));
+
+    // Cost of Carry - if no dividend yield available set 0 cost of carry
+    final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);
+    final double dividendYield = dividendYieldObject == null ? 0.0 : dividendYieldObject.doubleValue();
+    final YieldCurve costOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(dividendYield, "CostOfCarry"));
 
     // Compute ForwardCurve
-    final ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, zeroCostOfCarryCurve);
+    final ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);
 
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)

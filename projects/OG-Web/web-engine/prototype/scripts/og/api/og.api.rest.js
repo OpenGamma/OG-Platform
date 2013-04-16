@@ -12,8 +12,7 @@ $.register_module({
         var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
             common = og.api.common, routes = og.common.routes, loading_start = common.loading_start,
             loading_end = common.loading_end, encode = window['encodeURIComponent'],
-            // convert all incoming params into strings (so for example, the value 0 ought to be truthy, not falsey)
-            str = common.str,
+            str = common.str, // convert all incoming params into strings (eg, 0 ought to be truthy, not falsey)
             outstanding_requests = {}, registrations = [], subscribe, post_processors = {},
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
@@ -25,26 +24,13 @@ $.register_module({
                 configs: true, exchanges: true, holidays: true, portfolios: true,
                 positions: true, regions: true, securities: true, timeseries: false
             },
-            request_id = 1,
-            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
+            PAGE = common.PAGE, PAGE_SIZE = common.PAGE_SIZE, STALL = 500 /* 500ms */,
             INSTANT = 0 /* 0ms */, RESUBSCRIBE = 10000 /* 10s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */
         var cache_get = function (key) {return common.cache_get(module.name + key);};
         var cache_set = function (key, value) {return common.cache_set(module.name + key, value);};
         var cache_del = function (key) {return common.cache_del(module.name + key);};
-        var check = function (params) {
-            common.check(params);
-            if (typeof params.bundle.config.handler !== 'function') params.bundle.config.handler = $.noop;
-            if (params.bundle.config.page && (params.bundle.config.from || params.bundle.config.to))
-                throw new TypeError(params.bundle.method + ': config.page + config.from/to is ambiguous');
-            if (str(params.bundle.config.to) && !str(params.bundle.config.from))
-                throw new TypeError(params.bundle.method + ': config.to requires config.from');
-            if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
-                params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
-            return ['handler', 'loading', 'update', 'dependencies', 'cache_for', 'dry'].reduce(function (acc, val) {
-                return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
-            }, {type: 'GET'});
-        };
+        var check = common.check;
         var default_del = function (config) {
             config = config || {};
             var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
@@ -106,12 +92,6 @@ $.register_module({
         post_processors[live_data_root + 'compressor/compress'] = function (data) {
             return (data.data = data.data.replace(/\=/g, '-').replace(/\//g, '_').replace(/\+/g, '.')), data;
         };
-        var Promise = function () {
-            var deferred = new $.Deferred, promise = deferred.promise();
-            promise.deferred = deferred;
-            promise.id = ++request_id;
-            return promise;
-        };
         var register = function (req) {
             if (!req.config.meta.update) return true;
             if (!api.id) return false;
@@ -133,7 +113,7 @@ $.register_module({
                     [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
                         .filter(Boolean).join('?')
                             : live_data_root + method.map(encode).join('/')),
-            promise = promise || new Promise;
+            promise = promise || new common.Promise;
             /** @ignore */
             var send = function () {
                 // GETs are being POSTed with method=GET so they do not cache. TODO: change this
@@ -156,18 +136,19 @@ $.register_module({
                         if (error === 'timeout' && is_get && !config.meta.is_update) return send();
                         var result = {
                             error: xhr.status || true, data: null,
-                            meta: {content_length: (xhr.responseText || '').length, url: url},
+                            meta: {content_length: (xhr.responseText || '').length, url: url, promise: promise.id},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
                         delete outstanding_requests[promise.id];
                         if (error === 'abort') return; // do not call handler if request was cancelled
+                        if (config.meta.cache_for) cache_del(url);
                         config.meta.handler(result);
                         promise.deferred.resolve(result);
                     },
                     success: function (data, status, xhr) {
                         if (promise.ignore) return;
-                        var meta = {content_length: xhr.responseText.length, url: url},
+                        var meta = {content_length: xhr.responseText.length, url: url, promise: promise.id},
                             location = xhr.getResponseHeader('Location'), result, cache_for;
                         delete outstanding_requests[promise.id];
                         if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
@@ -184,7 +165,9 @@ $.register_module({
                 // if registration fails, it's because we don't have a client ID yet, so stall
                 return setTimeout(request.partial(method, config, promise), STALL), promise;
             if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
-                var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
+                var result = {
+                    error: true, data: null, meta: {promise: promise.id}, message: 'The app is in read-only mode.'
+                };
                 config.meta.handler(result);
                 promise.deferred.resolve(result);
             }, INSTANT), promise;
@@ -195,6 +178,7 @@ $.register_module({
             loading_start(config.meta.loading);
             if (is_get) { // deal with client-side caching of GETs
                 if (cache_get(url) && typeof cache_get(url) === 'object') return setTimeout((function (result) {
+                    result.meta.promise = promise.id; // overwrite the promise id before sending it out
                     return function () {config.meta.handler(result), promise.deferred.resolve(result);};
                 })(cache_get(url)), INSTANT), promise;
                 if (cache_get(url)) // if cache_get returns true a request is already outstanding, so stall
@@ -233,20 +217,28 @@ $.register_module({
                 del: not_available_del
             },
             blotter: (function () { // all requests that begin with /blotter
-                var blotter = {  
+                var blotter = {
                     root: 'blotter',
                     get: not_available_get, put: not_available_put, del: not_available_del, // no requests to /blotter
-                    trades: {root: 'blotter/trades'}
+                    trades: {root: 'blotter/trades'},
+                    securities: {root: 'blotter/securities'},
+                    positions: {root: 'blotter/positions'}
                 };
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
                     'exercisetypes', 'floatingratetypes', 'frequencies', 'idschemes', 'longshort', 'monitoringtype',
-                    'samplingfrequencies'
+                    'samplingfrequencies', 'regions', 'debtseniority', 'restructuringclause', 'stubtype'
                 ].forEach(function (key) {
                     blotter[key] = {
                         root: 'blotter/lookup/' + key, get: simple_get, put: not_available_put, del: not_available_del
                     };
                 });
+                blotter.securities.get = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
                 blotter.trades.get = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta;
@@ -256,8 +248,27 @@ $.register_module({
                 blotter.trades.put = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
-                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['trade']}]});
-                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying});
+                    meta = check({bundle: {method: root + '#put', config: config},
+                                required: [{all_of: ['trade', 'nodeId']}]});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
+                        nodeId: config.nodeId});
+                    meta.type = id ? 'PUT' : 'POST';
+                    if (id) method.push(id);
+                    return request(method, {data: data, meta: meta});
+                };
+                blotter.positions.get = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
+                blotter.positions.put = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.nodeId;
+                    meta = check({bundle: {method: root + '#put', config: config},
+                                required: [{all_of: ['trade', 'nodeId']}]});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
+                        nodeId: config.nodeId});
                     meta.type = id ? 'PUT' : 'POST';
                     if (id) method.push(id);
                     return request(method, {data: data, meta: meta});
@@ -382,6 +393,13 @@ $.register_module({
                 get: simple_get,
                 put: not_available_put,
                 del: not_available_del
+            },
+            legal_entities: {
+                root: 'organizations',
+                get: default_get.partial(['node', 'name', 'obligor_red_code', 'obligor_ticker'],
+                    ['organizationId', 'shortName', 'obligorREDCode', 'obligorTicker']),
+                put: not_implemented_put,
+                del: not_implemented_del
             },
             marketdatasnapshots: { // all requests that begin with /marketdatasnapshots
                 root: 'marketdatasnapshots',
@@ -561,15 +579,19 @@ $.register_module({
                 },
                 put: function (config) {
                     config = config || {};
-                    var root = this.root, method = [root], data = {}, meta,
+                    var root = this.root, method = [root], data = {}, meta, id = str(config.id),
                         fields = ['data_provider', 'data_field', 'start', 'end', 'scheme_type', 'identifier'],
                         api_fields = ['dataProvider', 'dataField', 'start', 'end', 'idscheme', 'idvalue'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{all_of: ['data_provider', 'data_field', 'scheme_type', 'identifier']}]
+                        required: [
+                            {condition: !id, all_of: ['data_field', 'scheme_type', 'identifier']},
+                            {condition: !!id, all_of: ['id']}
+                        ]
                     });
-                    meta.type = 'POST';
+                    meta.type = id ? 'PUT' : 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
+                    if (id) method = method.concat(id); else data['dataProvider'] = data['dataProvider'] || 'DEFAULT';
                     return request(method, {data: data, meta: meta});
                 },
                 del: default_del
@@ -580,7 +602,7 @@ $.register_module({
                     config = config || {};
                     var root = this.root, data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}});
-                    meta.timeout = 12500; meta.is_update = true; // back-end will timeout at 10s, so 12.5 should be fine
+                    meta.is_update = true;
                     return request(null, {url: ['', root, api.id].join('/'), data: data, meta: meta});
                 },
                 put: not_available_put,
@@ -613,14 +635,15 @@ $.register_module({
                 get: not_available_get,
                 put: function (config, promise) {
                     config = config || {};
-                    var promise = promise || new Promise,
+                    var promise = promise || new common.Promise,
                         root = this.root, method = [root], data = {}, meta,
                         fields = [
-                            'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'
+                            'viewdefinition', 'aggregators', 'providers', 'valuation',
+                            'version', 'correction', 'blotter'
                         ],
                         api_fields = [
-                            'viewDefinitionId', 'aggregators', 'marketDataProviders',
-                            'valuationTime', 'portfolioVersionTime', 'portfolioCorrectionTime'
+                            'viewDefinitionId', 'aggregators', 'marketDataProviders', 'valuationTime',
+                            'portfolioVersionTime', 'portfolioCorrectionTime', 'blotter'
                         ];
                     if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
                         return function () {api.views.put.call(context, config, promise);}; // complete, return a
@@ -655,7 +678,19 @@ $.register_module({
                 grid: {
                     depgraphs: {
                         root: 'views/{{view_id}}/{{grid_type}}/depgraphs',
-                        del: not_implemented_del,
+                        del: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#del', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'graph_id']}]
+                            });
+                            meta.type = 'DELETE';
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method.push(config.graph_id);
+                            return request(method, {data: {}, meta: meta});
+                        },
                         get: not_available_get,
                         structure: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
@@ -676,8 +711,8 @@ $.register_module({
                         },
                         put: function (config) {
                             config = config || {};
-                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['view_id', 'grid_type', 'row', 'col'],
+                            var promise = new common.Promise, root = this.root, method = root.split('/'),
+                                data = {}, meta, fields = ['view_id', 'grid_type', 'row', 'col'],
                             meta = check({
                                 bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                             });
@@ -707,8 +742,8 @@ $.register_module({
                             },
                             put: function (config) {
                                 config = config || {};
-                                var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                    fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                                var promise = new common.Promise, root = this.root, method = root.split('/'),
+                                    data = {}, meta, fields = ['cells', 'rows', 'cols', 'format', 'log'],
                                     api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
@@ -779,8 +814,8 @@ $.register_module({
                         },
                         put: function (config) {
                             config = config || {};
-                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                            var promise = new common.Promise, root = this.root, method = root.split('/'),
+                                data = {}, meta, fields = ['cells', 'rows', 'cols', 'format', 'log'],
                                 api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
@@ -835,8 +870,9 @@ $.register_module({
                 result.data.updates.filter(function (update) {
                     var simple = typeof update === 'string', promise, request;
                     if (!simple && (promise = (request = outstanding_requests[update.id]) && request.promise)) {
-                        promise.deferred
-                            .resolve({error: false, data: null, meta: {id: update.message.split('/').pop()}});
+                        promise.deferred.resolve({
+                            error: false, data: null, meta: {id: update.message.split('/').pop()}, promise: promise.id
+                        });
                         delete outstanding_requests[promise.id];
                     }
                     return simple;
@@ -861,6 +897,7 @@ $.register_module({
                 }});
             })();
         }});
+        $(window).on('unload', function () {api.fire('abandon');});
         return api;
     }
 });

@@ -181,4 +181,17 @@ public abstract class AbstractSecurityTestCaseAdapter implements SecurityTestCas
   @Override
   public void testCashFlowSecurity() {
   }
+
+  @Override
+  public void testCreditDefaultSwapIndexDefinitionSecurity() {
+  }
+
+  @Override
+  public void testCreditDefaultSwapIndexSecurity() {
+  }
+
+  @Override
+  public void testCreditDefaultSwapOptionSecurity() {
+  }
+  
 }

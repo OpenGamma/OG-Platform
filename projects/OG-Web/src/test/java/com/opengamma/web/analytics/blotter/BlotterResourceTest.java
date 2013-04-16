@@ -22,10 +22,15 @@ import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BlotterResourceTest {
 
-  private final StringConvert _stringConvert = BlotterResource.getStringConvert();
+  private final StringConvert _stringConvert = BlotterUtils.getStringConvert();
   
   @Test
   public void isSecurity() {

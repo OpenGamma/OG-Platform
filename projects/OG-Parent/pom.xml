@@ -63,25 +63,25 @@
   <!-- standard build setup -->
   <build>
     <resources>
-		<resource>
-		<targetPath>.</targetPath>
-		<directory>${project.build.sourceDirectory}</directory>
-		<includes>
-		  <include>**/*.properties</include>
-		  <include>**/*.csv</include>
-		  <include>**/*.dat</include>
-		  <include>**/*.elsql</include>
-		  <include>**/*.ftl</include>
-		  <include>**/*.proto</include>
-		  <include>**/*.txt</include>
-		  <include>**/*.version</include>
-		  <include>**/*.xml</include>
-		</includes>
-	  </resource>
-  <resource>
-    <directory>src/main/resources</directory>
-  </resource>
-</resources>  
+      <resource>
+        <targetPath>.</targetPath>
+        <directory>${project.build.sourceDirectory}</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
+          <include>**/*.proto</include>
+          <include>**/*.txt</include>
+          <include>**/*.version</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
         <targetPath>.</targetPath>
@@ -149,8 +149,7 @@
           <parallel>${tests.testng.parallel}</parallel>
           <threadCount>${tests.testng.threads}</threadCount>
           <groups>${tests.testng.includedgroups}</groups>
-          <!--<excludedGroups>${tests.testng.exludedgroups}</excludedGroups>-->
-          <excludedGroups>integration</excludedGroups>
+          <excludedGroups>${tests.testng.excludedgroups}</excludedGroups>
         </configuration>
       </plugin>
       <plugin>
@@ -162,7 +161,7 @@
             <include>**/*Test.java</include>
           </includes>
           <groups>integration</groups>
-      </configuration>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -274,7 +273,7 @@
                   </includes>
                 </bannedDependencies>
                 <!-- ensure dependencies resolve to latest version -->
-                <requireUpperBoundDeps/>
+                <requireUpperBoundDeps />
                 <!-- need Java 7 or greater -->
                 <requireJavaVersion>
                   <version>[1.7,)</version>
@@ -284,6 +283,53 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.joda</groupId>
+        <artifactId>maven-joda-beans-plugin</artifactId>
+        <version>0.7</version>
+        <executions>
+          <execution>
+            <id>joda-beans-validate</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+            <configuration>
+              <indent>${joda.beans.indent}</indent>
+              <prefix>${joda.beans.prefix}</prefix>
+              <stopOnError>${joda.beans.stopOnError}</stopOnError>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-beans</artifactId>
+            <version>0.7</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.fudgemsg</groupId>
+        <artifactId>maven-fudge-proto-plugin</artifactId>
+        <version>0.3.9.6</version>
+        <executions>
+          <execution>
+            <id>fudge-proto-generate</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.fudgemsg</groupId>
+            <artifactId>fudge-proto</artifactId>
+            <version>0.3.9.6</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -375,7 +421,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-java</artifactId>
-        <version>0.3.9.6</version>
+        <version>0.3.9.8</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -386,12 +432,12 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-proto</artifactId>
-        <version>0.3.9.4</version>
+        <version>0.3.9.6</version>
       </dependency>
       <dependency>
         <groupId>org.threeten</groupId>
         <artifactId>threetenbp</artifactId>
-        <version>0.7</version>
+        <version>0.8.1</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.external.json</groupId>
@@ -498,7 +544,7 @@
       <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
-        <version>1.7.2</version>
+        <version>2.6.3</version>
       </dependency>
       <dependency>
         <groupId>de.odysseus.juel</groupId>
@@ -813,6 +859,17 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-spring</artifactId>
+        <version>3.6</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
 
       <!-- Database -->
       <dependency>
@@ -1017,6 +1074,17 @@
     <tests.testng.threads>4</tests.testng.threads>
     <tests.testng.includedgroups></tests.testng.includedgroups>
     <tests.testng.excludedgroups>integration</tests.testng.excludedgroups>
+    <joda.beans.indent>2</joda.beans.indent>
+    <joda.beans.prefix>_</joda.beans.prefix>
+    <joda.beans.stopOnError>false</joda.beans.stopOnError>
+    <!--<joda.beans.stopOnError>true</joda.beans.stopOnError>-->
+    <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java;..{RELATIVE}../projects/OG-Language/Client/src/main/java</fudge.proto.searchDir>
+    <fudge.proto.verbose>false</fudge.proto.verbose>
+    <fudge.proto.listFiles>false</fudge.proto.listFiles>
+    <fudge.proto.rebuildAll>true</fudge.proto.rebuildAll>
+    <fudge.proto.excludes>*Security.proto;*ExerciseType.proto;*OptionType.proto;*PayoffStyle.proto;*SwapLeg.proto;*Notional.proto</fudge.proto.excludes>
+    <fudge.proto.fileHeader>///CLOVER:OFF - CSOFF</fudge.proto.fileHeader>
+    <fudge.proto.fileFooter>///CLOVER:ON - CSON</fudge.proto.fileFooter>
   </properties>
 
 </project>

@@ -138,6 +138,9 @@ public class DbSecurityMaster
       List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
       result.getSecurityTypes().addAll(securityTypes);
     }
+    if (request.isSchemaVersion()) {
+      result.setSchemaVersion(String.valueOf(getSchemaVersion()));
+    }
     return result;
   }
 
@@ -426,7 +429,7 @@ public class DbSecurityMaster
   }
 
   @Override
-  public AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     SecurityHistoryRequest historyRequest = new SecurityHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -435,4 +438,5 @@ public class DbSecurityMaster
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

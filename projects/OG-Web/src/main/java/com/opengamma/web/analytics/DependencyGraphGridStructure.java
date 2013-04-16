@@ -85,7 +85,7 @@ public class DependencyGraphGridStructure implements GridStructure {
             column("Value Name", 2),
             column("Value", null, 3),
             column("Function", 4),
-            column("Properties", 5)),
+            column("Properties", ValueProperties.class, 5)),
         false)));
   }
 
@@ -111,7 +111,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       GridColumn column = _columnGroups.getColumn(cell.getColumn());
-      results.add(column.getResults(cell.getRow(), cache));
+      results.add(column.buildResults(cell.getRow(), cache));
     }
     ViewportResults newResults = new ViewportResults(results,
                                                      viewportDefinition,
@@ -228,7 +228,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
       ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
       switch (_colIndex) {
         case TARGET_COL:
@@ -247,7 +247,8 @@ public class DependencyGraphGridStructure implements GridStructure {
           String fnName = _fnNames.get(rowIndex);
           return ResultsCell.forStaticValue(fnName, columnType);
         case PROPERTIES_COL:
-          return ResultsCell.forStaticValue(getValuePropertiesForDisplay(valueSpec.getProperties()), columnType);
+          return ResultsCell.forStaticValue(valueSpec.getProperties(), columnType);
+          //return ResultsCell.forStaticValue(getValuePropertiesForDisplay(valueSpec.getProperties()), columnType);
         default: // never happen
           throw new IllegalArgumentException("Column index " + _colIndex + " is invalid");
       }

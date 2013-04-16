@@ -9,9 +9,9 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class FadeInOptionDefinition extends OptionDefinition {
       return inRange * (isCall() ? Math.max(0, data.getSpot() - getStrike()) : Math.max(0, getStrike() - data.getSpot())) / spotTS.size();
     }
   };
-  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>();
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final double _lowerBound;
   private final double _upperBound;
 

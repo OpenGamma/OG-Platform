@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -32,6 +33,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   private ConventionBundleSource _conventionBundleSource;
   private ExchangeSource _exchangeSource;
   private ConfigSource _configSource;
+  private OrganizationSource _organizationSource;
   private ConfigMaster _configMaster;
   private OverrideOperationCompiler _overrideOperationCompiler;
 
@@ -65,6 +67,14 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
 
   public void setRegionSource(final RegionSource regionRepository) {
     _regionSource = regionRepository;
+  }
+
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  public void setOrganizationSource(OrganizationSource organizationSource) {
+    _organizationSource = organizationSource;
   }
 
   public ExchangeSource getExchangeSource() {
@@ -125,6 +135,9 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     }
     if (getRegionSource() != null) {
       OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
+    }
+    if (getOrganizationSource() != null) {
+      context.setOrganizationSource(getOrganizationSource());
     }
     if (getExchangeSource() != null) {
       OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());

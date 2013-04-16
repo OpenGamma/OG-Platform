@@ -78,8 +78,8 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
   @Override
   public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.getDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().getDate()), "date is after expiry date");
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);

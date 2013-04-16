@@ -1,0 +1,220 @@
+<section>
+<table class="OG-table" id="{{index}}">
+  <colgroup>
+    <col style="width: 33%">
+    <col style="width: 67%">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+      </td>
+      <td  class="og-double-cell">
+        <div><span><label><span>Buy</span><input type="radio" name="security.buy" value="true"></label>
+        </span><span><label><span>Sell</span><input type="radio" name="security.buy" value="false"></label>
+        </span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td class="og-double-cell">
+        <div><span><label><span>Protection Start</span><input name="security.protectionStart" type="checkbox" /></label>
+        </span><span><label><span>Accrued Premium
+        </span><input name="security.includeAccruedPremium" type="checkbox"/></label></span></div>
+      </td>
+    </tr>
+    {{{item_0}}}
+    {{{item_1}}}
+    {{{item_2}}}
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span>{{{item_3}}}
+        </span><span><input name="security.notional.amount" type="text" value="{{data.notional.amount}}"/>
+      </span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Region</span>
+        </label>
+      </td>
+      <td>
+        {{{item_4}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Start Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.startDate" type="text" value="{{data.startDate}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Effective Date</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span><input class="blotter-date" name="security.effectiveDate" type="text" value="{{data.effectiveDate}}"/>
+        </span><span><label>Adjust <input name="security.adjustEffectiveDate" type="checkbox" />
+        </label></span></div>
+      </td>
+    </tr>
+    {{#if stdvanilla}}
+      <tr>
+        <td>
+          <label>
+            <span>Cash Settlement Date</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="security.cashSettlementDate" type="text" value="{{data.cashSettlementDate}}"/>
+          </span><span><label>Adjust <input name="security.adjustCashSettlementDate" type="checkbox" />
+          </label></span></div>
+        </td>
+      </tr>
+    {{/if}}
+    <tr>
+      <td>
+        <label>
+          <span>Maturity Date</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span><input class="blotter-date" name="security.maturityDate" type="text" value="{{data.maturityDate}}"/>
+        </span><span><label>Adjust <input name="security.adjustMaturityDate" type="checkbox" />
+        </label><label>IMM <input name="security.immAdjustMaturityDate" type="checkbox" /></label></span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        {{{item_5}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Coupon Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_6}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Business Day Convention</span>
+        </label>
+      </td>
+      <td>
+        {{{item_7}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Restructuring Clause</span>
+        </label>
+      </td>
+      <td>
+        {{{item_8}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Debt Seniority</span>
+        </label>
+      </td>
+      <td>
+        {{{item_9}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Stub Type</span>
+        </label>
+      </td>
+      <td>
+        {{{item_10}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Recovery Rate</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.recoveryRate" type="text" value="{{data.recoveryRate}}"/>
+      </td>
+    </tr>
+    {{#if legacy}}
+    <tr>
+      <td>
+        <label>
+          <span>Par Spread</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.parSpread" type="text" value="{{data.parSpread}}"/>
+      </td>
+    </tr>
+    {{/if}}
+    {{#if standard}}
+      <tr>
+        <td>
+          <label>
+            <span>Quoted Spread</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.quotedSpread" type="text" value="{{data.quotedSpread}}"/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Upfront Amount</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_11}}}
+          </span><span><input name="security.upfrontAmout.amount" type="text" value="{{data.upfrontAmout.amount}}"/>
+          </span></div>
+        </td>
+      </tr>
+      </tr>
+    {{/if}}
+    {{#if stdvanilla}}
+      <tr>
+        <td>
+          <label>
+            <span>Coupon</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.coupon" type="text" value="{{data.coupon}}"/>
+        </td>
+      </tr>
+    {{/if}}
+  </tbody>
+</table>
+</section>

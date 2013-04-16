@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import net.sf.ehcache.CacheManager;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
@@ -25,23 +25,25 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingExchangeSourceTest {
 
   private CacheManager _cacheManager;
 
-  @BeforeMethod
-  public void setUp() {
-    _cacheManager = new CacheManager();
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingExchangeSourceTest.class);
   }
 
-  @AfterMethod
-  public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
   }
 
   //-------------------------------------------------------------------------

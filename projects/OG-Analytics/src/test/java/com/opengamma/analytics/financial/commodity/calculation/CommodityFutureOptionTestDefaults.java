@@ -54,7 +54,7 @@ public abstract class CommodityFutureOptionTestDefaults {
 
   protected static final StaticReplicationDataBundle MARKET = new StaticReplicationDataBundle(VOL_SURFACE, DISCOUNT, FORWARD_CURVE);
 
-  protected static double TOLERANCE = 1.0E-9;   // tolerance for equals()
+  protected static final double TOLERANCE = 1.0E-9;   // tolerance for equals()
 
   // future & option params
   protected final static ExternalId AN_UNDERLYING = ExternalId.of("Scheme", "value");
@@ -63,8 +63,8 @@ public abstract class CommodityFutureOptionTestDefaults {
   protected final static ZonedDateTime SETTLEMENT_DATE = LAST_DELIVERY_DATE;
   protected final static ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2011, 9, 21);
   protected final static ZonedDateTime A_DATE = DateUtils.getUTCDate(2011, 7, 7);
-  protected final static double UNIT_AMOUNT = 10;
-  protected final static double AMOUNT = 5;
+  protected final static double UNIT_AMOUNT = 5;
+  protected final static double AMOUNT = 1.11;
   protected final static ExerciseDecisionType EXERCISE = ExerciseDecisionType.EUROPEAN;
   protected final static double EXPIRY = 0.20821917808219179;
   protected final static double STRIKE = 70;

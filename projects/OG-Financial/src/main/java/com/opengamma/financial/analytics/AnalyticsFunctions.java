@@ -7,12 +7,13 @@ package com.opengamma.financial.analytics;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
+import com.opengamma.financial.analytics.covariance.CovarianceFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
@@ -23,20 +24,20 @@ import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
+public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   *
+   * 
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new AnalyticsFunctions().getObjectCreating();
   }
 
   /**
    * Adds an aggregation function for the given requirement name that produces the sum of the child position values.
-   *
+   * 
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -55,7 +56,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Adds a unit scaling function to deliver the value from position's underlying security or trade at the position level. This is normally used for positions in OTC instruments that are stored with a
    * quantity of 1 in OpenGamma.
-   *
+   * 
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -72,7 +73,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Adds a scaling function to deliver the value from a position's underlying security or trade multiplied by the quantity at the position level. This is used for positions in exchange traded
    * instruments.
-   *
+   * 
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -107,7 +108,6 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.CREDIT_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.CLEAN_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.CONVEXITY);
-    addSummingFunction(functions, ValueRequirementNames.CS01);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_APPLIED_BETA);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_MARKET_CAP);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_PRICE);
@@ -174,20 +174,20 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
-    addUnitScalingFunction(functions, ValueRequirementNames.NOTIONAL);
+    addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NOTIONAL);
     addUnitScalingFunction(functions, ValueRequirementNames.PHI);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functions, ValueRequirementNames.POSITION_DELTA);
-    
     addSummingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_RHO);
     addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
-    addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);    
-    
+    addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
@@ -244,31 +244,63 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.Z_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA_P);
+    addUnitScalingFunction(functions, ValueRequirementNames.BARRIER_DISTANCE);
+    addUnitScalingFunction(functions, ValueRequirementNames.CS01);
+    addSummingFunction(functions, ValueRequirementNames.CS01);
+    addSummingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
+    addSummingFunction(functions, ValueRequirementNames.GAMMA_CS01);
+    addSummingFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
+    addSummingFunction(functions, ValueRequirementNames.RR01);
+    addSummingFunction(functions, ValueRequirementNames.IR01);
+    addSummingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
+    addSummingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
+    addUnitScalingFunction(functions, ValueRequirementNames.DV01);
+    addUnitScalingFunction(functions, ValueRequirementNames.CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.RR01);
+    addUnitScalingFunction(functions, ValueRequirementNames.IR01);
+    addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
+    addUnitScalingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
+    addUnitScalingFunction(functions, ValueRequirementNames.HAZARD_RATE_CURVE);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.CLEAN_PRESENT_VALUE);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.DIRTY_PRESENT_VALUE);
+    addUnitScalingFunction(functions, ValueRequirementNames.ACCRUED_DAYS);
+    addUnitScalingFunction(functions, ValueRequirementNames.ACCRUED_PREMIUM);
+    addUnitScalingFunction(functions, ValueRequirementNames.PRINCIPAL);
+    addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
+    addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
   }
 
-  protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {
+  protected FunctionConfigurationSource cashFlowFunctionConfiguration() {
     return CashFlowFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource irCurveFunctionConfiguration() {
+  protected FunctionConfigurationSource covarianceFunctionConfiguration() {
+    return CovarianceFunctions.instance();
+  }
+
+  protected FunctionConfigurationSource irCurveFunctionConfiguration() {
     return IRCurveFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource modelFunctionConfiguration() {
+  protected FunctionConfigurationSource modelFunctionConfiguration() {
     return ModelFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource timeSeriesFunctionConfiguration() {
+  protected FunctionConfigurationSource timeSeriesFunctionConfiguration() {
     return TimeSeriesFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource volatilityFunctionConfiguration() {
+  protected FunctionConfigurationSource volatilityFunctionConfiguration() {
     return VolatilityFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), irCurveFunctionConfiguration(),
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), covarianceFunctionConfiguration(), irCurveFunctionConfiguration(),
         modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 

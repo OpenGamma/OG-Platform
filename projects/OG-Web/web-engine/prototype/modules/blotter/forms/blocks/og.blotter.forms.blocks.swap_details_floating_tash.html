@@ -1,7 +1,7 @@
 <table class="OG-table" id="{{index}}">
   <colgroup>
-    <col style="width: 30%">              
-    <col style="width: 70%">
+    <col style="width: 33%">
+    <col style="width: 67%">
   </colgroup>
   <tbody>
     <tr>
@@ -21,21 +21,21 @@
         <div><span>{{{item_0}}}</span><span><input name="{{leg}}notional.amount" type="text" value="{{notional}}"/></span></div>
       </td>
     </tr>
-    {{{item_1}}}
+    <tr>
+      <td>
+        <label>
+          <span>Region</span>
+        </label>
+      </td>
+      <td>
+        {{{item_1}}}
+      </td>
+    </tr>
+    {{{item_2}}}
     <tr>
       <td>
         <label>
           <span>Day Count</span>
-        </label>
-      </td>
-      <td>
-        {{{item_2}}}
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label>
-          <span>Frequency</span>
         </label>
       </td>
       <td>
@@ -45,11 +45,21 @@
     <tr>
       <td>
         <label>
-          <span>Business Day Convention</span>
+          <span>Frequency</span>
         </label>
       </td>
       <td>
         {{{item_4}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Business Day Convention</span>
+        </label>
+      </td>
+      <td>
+        {{{item_5}}}
       </td>
     </tr>
     <tr>
@@ -69,7 +79,7 @@
         </label>
       </td>
       <td>
-        {{{item_5}}}
+        {{{item_6}}}
       </td>
     </tr>
     <tr>
@@ -89,7 +99,7 @@
         </label>
       </td>
       <td>
-        {{{item_6}}}
+        {{{item_7}}}
       </td>
     </tr>
     {{#if spre}}

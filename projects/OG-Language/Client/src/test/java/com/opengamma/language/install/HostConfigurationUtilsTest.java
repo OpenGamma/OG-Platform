@@ -15,12 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.TestProperties;
 
 /**
  * Tests methods in the {@link HostConfigurationUtils} class.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class HostConfigurationUtilsTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HostConfigurationUtilsTest.class);

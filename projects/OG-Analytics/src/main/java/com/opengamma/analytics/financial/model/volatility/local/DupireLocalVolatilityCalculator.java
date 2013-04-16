@@ -40,6 +40,7 @@ public class DupireLocalVolatilityCalculator {
 
   /**
    * Classic Dupire local volatility formula
+   * 
    * @param priceSurface present value (i.e. discounted) value of options on underlying at various expiries and strikes
    * @param spot The current value of the underlying
    * @param r The risk free rate (or domestic rate in FX)
@@ -69,16 +70,22 @@ public class DupireLocalVolatilityCalculator {
       }
 
       public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", priceSurface, spot, r, q), "getSurface"),
+            "getFunction");
+      }
+
+    };
+
+    return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol)) {
+      public Object writeReplace() {
         return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", priceSurface, spot, r, q);
       }
     };
-
-    return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol));
   }
 
   /**
-   * REVIEW if we need this
-   * Get the absolute (i.e. normal instantaneous) local vol surface
+   * REVIEW if we need this Get the absolute (i.e. normal instantaneous) local vol surface
+   * 
    * @param impliedVolatilitySurface BlackVolatilitySurface
    * @param spot value of underlying
    * @param rate interest rate
@@ -116,15 +123,22 @@ public class DupireLocalVolatilityCalculator {
       }
 
       public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getAbsoluteLocalVolatilitSurface", impliedVolatilitySurface, spot,
+            rate), "getSurface"), "getFunction");
+      }
+
+    };
+
+    return new AbsoluteLocalVolatilitySurface(FunctionalDoublesSurface.from(locVol)) {
+      public Object writeReplace() {
         return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getAbsoluteLocalVolatilitSurface", impliedVolatilitySurface, spot, rate);
       }
     };
-
-    return new AbsoluteLocalVolatilitySurface(FunctionalDoublesSurface.from(locVol));
   }
 
   /**
    * Classic Dupire local volatility formula in terms of the Black Volatility surface (parameterised by strike)
+   * 
    * @param impliedVolatilitySurface Black Volatility surface (parameterised by strike)
    * @param spot Level of underlying
    * @param drift The risk free rate minus The dividend yield (r-q), or the difference between the domestic and foreign risk free rates in FX
@@ -161,9 +175,19 @@ public class DupireLocalVolatilityCalculator {
         }
         return Math.sqrt(var);
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", impliedVolatilitySurface, spot, drift),
+            "getSurface"), "getFunction");
+      }
+
     };
 
-    return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol));
+    return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol)) {
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", impliedVolatilitySurface, spot, drift);
+      }
+    };
   }
 
   //TODO replace this
@@ -179,6 +203,7 @@ public class DupireLocalVolatilityCalculator {
 
   /**
    * Get the local volatility in the case where the option price is a function of the forward price
+   * 
    * @param impliedVolatilitySurface The Black implied volatility surface
    * @param forwardCurve Curve of forward prices
    * @return The local volatility
@@ -215,18 +240,26 @@ public class DupireLocalVolatilityCalculator {
       }
 
       public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", impliedVolatilitySurface, forwardCurve),
+            "getSurface"), "getFunction");
+      }
+
+    };
+
+    return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol)) {
+      public Object writeReplace() {
         return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", impliedVolatilitySurface, forwardCurve);
       }
     };
-
-    return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol));
   }
 
   /**
-   * Get the <b>pure</b> local volatility surface (i.e. if the pure stock $x$ follows the SDE $\frac{dx}{x} = \sigma(t,x) dW$ then $\sigma(t,x)$ is the pure local volatility<p>
+   * Get the <b>pure</b> local volatility surface (i.e. if the pure stock $x$ follows the SDE $\frac{dx}{x} = \sigma(t,x) dW$ then $\sigma(t,x)$ is the pure local volatility
+   * <p>
    * See White, R (2012) Equity Variance Swap with Dividends
-   * @param pureImpliedVolatilitySurface The pure implied volatility surface - i.e. the volatility that put into the Black formula will give the price of an option on the pure stock 
-   * @return pure local volatility surface 
+   * 
+   * @param pureImpliedVolatilitySurface The pure implied volatility surface - i.e. the volatility that put into the Black formula will give the price of an option on the pure stock
+   * @return pure local volatility surface
    */
   public PureLocalVolatilitySurface getLocalVolatility(final PureImpliedVolatilitySurface pureImpliedVolatilitySurface) {
     final Surface<Double, Double, Double> lv = getLocalVolatility(pureImpliedVolatilitySurface.getSurface());
@@ -234,9 +267,10 @@ public class DupireLocalVolatilityCalculator {
   }
 
   /**
-   * Get the local volatility surface (parameterised by expiry and moneyness = strike/forward) from a Black volatility surface (also parameterised by expiry and moneyness).
-   * <b>Note</b> this is the cleanest method as is does not require any knowledge of instantaneous rates (i.e. r & q). If the Black volatility surface is parameterised by strike and/or the
-   * local volatility surface is required to be parameterised by strike use can use the converters BlackVolatilitySurfaceConverter and/or LocalVolatilitySurfaceConverter
+   * Get the local volatility surface (parameterised by expiry and moneyness = strike/forward) from a Black volatility surface (also parameterised by expiry and moneyness). <b>Note</b> this is the
+   * cleanest method as is does not require any knowledge of instantaneous rates (i.e. r & q). If the Black volatility surface is parameterised by strike and/or the local volatility surface is
+   * required to be parameterised by strike use can use the converters BlackVolatilitySurfaceConverter and/or LocalVolatilitySurfaceConverter
+   * 
    * @param impliedVolatilitySurface Black volatility surface (parameterised by expiry and moneyness)
    * @return local volatility surface (parameterised by expiry and moneyness)
    */
@@ -264,7 +298,7 @@ public class DupireLocalVolatilityCalculator {
         final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
         final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
 
-        final double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        final double bTheta = -BlackFormulaRepository.driftlessTheta(1.0, m, t, vol);
         final double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
         final double theta = bTheta + vega * divT;
         final double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
@@ -274,16 +308,26 @@ public class DupireLocalVolatilityCalculator {
         return Math.sqrt(2 * theta / dens) / m;
       }
 
+      public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatilityDebug", impliedVolatilitySurface),
+            "getSurface"), "getFunction");
+      }
+
     };
 
-    return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(locVol), impliedVolatilitySurface.getForwardCurve());
+    return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(locVol), impliedVolatilitySurface.getForwardCurve()) {
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatilityDebug", impliedVolatilitySurface);
+      }
+    };
   }
 
   /**
-   * Get the theta surface - the rate of change of an option with respect to the time-to-expiry (<b>Note</b> this is the negative of the normal definition as change of an 
-   * option with respect to (calendar) time)
+   * Get the theta surface - the rate of change of an option with respect to the time-to-expiry (<b>Note</b> this is the negative of the normal definition as change of an option with respect to
+   * (calendar) time)
+   * 
    * @param impliedVolatilitySurface Black volatility surface (parameterised by expiry and moneyness)
-   * @return Theta surface (parameterised by moneyness) 
+   * @return Theta surface (parameterised by moneyness)
    */
   public Surface<Double, Double, Double> getTheta(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
 
@@ -302,18 +346,28 @@ public class DupireLocalVolatilityCalculator {
 
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
 
-        final double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        final double bTheta = -BlackFormulaRepository.driftlessTheta(1.0, m, t, vol);
         final double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
         return bTheta + vega * divT;
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getTheta", impliedVolatilitySurface), "getFunction");
+      }
+
     };
 
-    return FunctionalDoublesSurface.from(theta);
+    return new FunctionalDoublesSurface(theta) {
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getTheta", impliedVolatilitySurface);
+      }
+    };
   }
 
   /**
-   * Get the transition density surface - each time slice through this surface is the Probably Density Function (PDF), in the risk neutral measure, for the underlying 
-   * at that time (parameterised by moneyness) 
+   * Get the transition density surface - each time slice through this surface is the Probably Density Function (PDF), in the risk neutral measure, for the underlying at that time (parameterised by
+   * moneyness)
+   * 
    * @param impliedVolatilitySurface Black volatility surface (parameterised by expiry and moneyness)
    * @return The transition density surface
    */
@@ -342,9 +396,18 @@ public class DupireLocalVolatilityCalculator {
         final double dens = dg + 2 * vanna * divM + +vomma * divM * divM + vega * divM2;
         return dens;
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getDensity", impliedVolatilitySurface), "getFunction");
+      }
+
     };
 
-    return FunctionalDoublesSurface.from(density);
+    return new FunctionalDoublesSurface(density) {
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getDensity", impliedVolatilitySurface);
+      }
+    };
   }
 
   public Surface<Double, Double, Double> getLocalVolatility(final Surface<Double, Double, Double> surf) {
@@ -380,11 +443,16 @@ public class DupireLocalVolatilityCalculator {
       }
 
       public Object writeReplace() {
+        return new InvokedSerializedForm(new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", surf), "getFunction");
+      }
+
+    };
+
+    return new FunctionalDoublesSurface(locVol) {
+      public Object writeReplace() {
         return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", surf);
       }
     };
-
-    return FunctionalDoublesSurface.from(locVol);
   }
 
   private double getFirstTimeDev(final Surface<Double, Double, Double> surface, final double t, final double k, final double mid) {

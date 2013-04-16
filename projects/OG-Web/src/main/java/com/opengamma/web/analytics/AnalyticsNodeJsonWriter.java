@@ -21,25 +21,40 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class AnalyticsNodeJsonWriter {
 
-  public static String getJson(AnalyticsNode root) {
-    Object[] rootArray = createNodeArray(root);
+  /**
+   * @param node The node
+   * @return Nested JSON array of the node structure
+   */
+  public static String getJson(AnalyticsNode node) {
+    Object[] rootArray = createNodeArray(node);
     try {
       return new JSONArray(rootArray).toString();
     } catch (JSONException e) {
-      throw new OpenGammaRuntimeException("Failed to create JSON for node " + root, e);
+      throw new OpenGammaRuntimeException("Failed to create JSON for node " + node, e);
     }
   }
 
   /**
    * Creates an array containing the contents of {@code node}. Recursively creates arrays for child nodes.
+   * {@code isFungiblePosition} is optional, it has a value of 1 for fungible positions and is omitted for all
+   * other node types.
    * <pre>
-   *   [startRow,endRow,[childNode1,childNode2,...]]
+   *   [startRow,endRow,[childNode1,childNode2,...],isFungiblePosition]
    * </pre>
    * @param node The grid node
-   * @return <pre>[startRow,endRow,[childNode1,childNode2,...]]</pre>
+   * @return <pre>[startRow,endRow,[childNode1,childNode2,...],isFungiblePosition]</pre>
    */
   private static Object[] createNodeArray(AnalyticsNode node) {
-    Object[] nodeArray = new Object[3];
+    if (node == null) {
+      return new Object[0];
+    }
+    Object[] nodeArray;
+    if (node.isCollapseByDefault()) {
+      nodeArray = new Object[4];
+      nodeArray[3] = 1;
+    } else {
+      nodeArray = new Object[3];
+    }
     nodeArray[0] = node.getStartRow();
     nodeArray[1] = node.getEndRow();
 

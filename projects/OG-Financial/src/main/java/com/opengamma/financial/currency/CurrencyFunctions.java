@@ -7,22 +7,22 @@ package com.opengamma.financial.currency;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
+public class CurrencyFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
-   *
+   * 
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new CurrencyFunctions().getObjectCreating();
   }
 
@@ -42,8 +42,15 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(CurrencyMatrixSeriesSourcingFunction.class));
+    functions.add(functionConfiguration(CurrencyMatrixSpotSourcingFunction.class));
     addCurrencyConversionFunction(functions, ValueRequirementNames.DAILY_PNL);
     addCurrencyConversionFunction(functions, ValueRequirementNames.DV01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.CS01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.GAMMA_CS01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.RR01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.IR01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addCurrencyConversionFunction(functions, ValueRequirementNames.FAIR_VALUE);
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.PNL_SERIES);
     addCurrencyConversionFunction(functions, ValueRequirementNames.PRESENT_VALUE);
@@ -59,6 +66,10 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_VEGA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_VOMMA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_CS01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_IR01);
   }
 
 }

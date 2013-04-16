@@ -17,6 +17,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_TICK_VAL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PRIMARY_EXCHANGE_NAME;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_ID_BB_UNIQUE;
 
@@ -37,6 +38,8 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
+import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
@@ -74,9 +77,11 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
    * The valid Bloomberg security types for Equity Index Future Option
    * NOTE: THESE ARE ACTUALLY FUTURES_CATEGORY TYPES NOT SECURITY_TYP TYPES.
    */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of("Equity Index");
+  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of("Equity Index", "Weekly Index Options");
 
   private static final FutureOptionMarginResolver MARGIN_RESOLVER = new FutureOptionMarginResolver();
+
+  private static final ExchangeDataProvider exchangeData = DefaultExchangeDataProvider.getInstance();
 
   /**
    * Creates an instance.
@@ -91,6 +96,7 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
     String rootTicker = fieldData.getString(FIELD_TICKER);
     String exchange = fieldData.getString(FIELD_EXCH_CODE);
+    String exchangeDescription = fieldData.getString(FIELD_PRIMARY_EXCHANGE_NAME);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX);
     double pointValue = fieldData.getDouble(FIELD_FUT_VAL_PT);
@@ -173,6 +179,14 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
     }
     
     final ExerciseType exerciseType = getExerciseType(optionExerciseType);
+
+    // currently we will pick up the unified bbg exchange code - we try to map to MIC via the description
+    if (exchangeDescription != null) {
+      final String exchangeMIC = exchangeData.getExchangeFromDescription(exchangeDescription).getMic();
+      if (exchangeMIC != null) {
+        exchange = exchangeMIC;
+      }
+    }
 
     final EquityIndexFutureOptionSecurity security = new EquityIndexFutureOptionSecurity(
         exchange,

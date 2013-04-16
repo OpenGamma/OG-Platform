@@ -31,10 +31,12 @@ import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -163,7 +165,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   public void test_search_trades_withPremium() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
@@ -205,7 +207,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   public void test_search_trades_withAttributes() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
@@ -245,7 +247,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     position.addAttribute("PA2", "B");
     position.addAttribute("PA3", "C");
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));

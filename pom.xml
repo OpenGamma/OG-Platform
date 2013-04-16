@@ -53,7 +53,9 @@
     <module>projects/OG-Provider</module>
     <module>projects/OG-Security</module>
     <module>projects/OG-Server</module>
+    <module>projects/OG-TimeSeries</module>
     <module>projects/OG-Util</module>
+    <module>projects/OG-UtilDB</module>
     <module>projects/OG-Web</module>
   </modules>
 

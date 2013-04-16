@@ -23,10 +23,12 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link PortfolioNodeTraverser}.
  */
+@Test(groups = TestGroup.UNIT)
 public class PortfolioNodeTraverserTest {
 
   /* Test tree =

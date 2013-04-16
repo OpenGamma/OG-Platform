@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.IR01CreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
@@ -221,6 +222,73 @@ public class IR01LegacyCreditDefaultSwapTest {
       s_act365.getDayCountFraction(baseDate, zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
   };
 
+  ZonedDateTime[] dates = {
+      zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2009, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2009, 6, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2009, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2010, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2010, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2011, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2011, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2012, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2012, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+  };
+
   double[] rates = {
       (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
@@ -293,27 +361,29 @@ public class IR01LegacyCreditDefaultSwapTest {
 
   // Build the yield curve object
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, offset);
-
+  ISDADateCurve yieldDateCurve = new ISDADateCurve("IR_DATE_CURVE", dates, times, rates, offset);
   // ----------------------------------------------------------------------------------
 
   // Hazard rate term structure (assume this has been calibrated previously)
 
+  static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
+
   static double[] hazardRateTimes = {
-      0.0,
-      s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
+    0.0,
+    s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+    s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+    s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
   };
 
   static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateDates, hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -446,7 +516,7 @@ public class IR01LegacyCreditDefaultSwapTest {
     final IR01CreditDefaultSwap ir01 = new IR01CreditDefaultSwap();
 
     // Compute the IR01 for a parallel shift
-    final double parallelIR01 = ir01.getIR01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, interestRateBump, interestRateBumpType, priceType);
+    final double parallelIR01 = ir01.getIR01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldDateCurve, tenors, marketSpreads, interestRateBump, interestRateBumpType, priceType);
 
     // -------------------------------------------------------------------------------------
 
@@ -458,7 +528,7 @@ public class IR01LegacyCreditDefaultSwapTest {
   }
 
   //-------------------------------------------------------------------------
-  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneId zone) {
     return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 

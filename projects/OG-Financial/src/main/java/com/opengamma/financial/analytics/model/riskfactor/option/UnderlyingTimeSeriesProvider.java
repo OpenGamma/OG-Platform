@@ -55,7 +55,7 @@ public class UnderlyingTimeSeriesProvider {
   }
 
   public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security) {
-    return getSeriesRequirement(greek, security, DateConstraint.EARLIEST_START, DateConstraint.VALUATION_TIME);
+    return getSeriesRequirement(greek, security, DateConstraint.NULL, DateConstraint.VALUATION_TIME);
   }
 
   public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security, final DateConstraint startDate, final DateConstraint endDate) {

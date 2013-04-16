@@ -11,8 +11,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,7 +24,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   /**
    * Underlying future security.
    */
-  private final InterestRateFutureDefinition _underlyingFuture;
+  private final InterestRateFutureSecurityDefinition _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -45,7 +45,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureSecurityDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     ArgumentChecker.notNull(expirationDate, "expiration");
     this._underlyingFuture = underlyingFuture;
@@ -58,7 +58,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFutureDefinition getUnderlyingFuture() {
+  public InterestRateFutureSecurityDefinition getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -92,8 +92,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    final Double referencePrice = 0.0;
-    final InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
+    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
     final InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
     return option;
   }

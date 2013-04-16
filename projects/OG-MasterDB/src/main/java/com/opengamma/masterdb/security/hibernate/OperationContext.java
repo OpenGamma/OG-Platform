@@ -5,6 +5,8 @@
  */
 package com.opengamma.masterdb.security.hibernate;
 
+import org.hibernate.Session;
+
 import com.opengamma.core.region.RegionSource;
 
 /**
@@ -13,6 +15,10 @@ import com.opengamma.core.region.RegionSource;
 public final class OperationContext {
 
   private RegionSource _regionRepository;
+  /**
+   * The Hibernate session.
+   */
+  private Session _session;
 
   public void setRegionRepository(final RegionSource regionRepository) {
     _regionRepository = regionRepository;
@@ -20,6 +26,14 @@ public final class OperationContext {
 
   public RegionSource getRegionRepository() {
     return _regionRepository;
+  }
+  
+  public void setSession(final Session session) {
+    _session = session;
+  }
+  
+  public Session getSession() {
+    return _session;
   }
 
 }

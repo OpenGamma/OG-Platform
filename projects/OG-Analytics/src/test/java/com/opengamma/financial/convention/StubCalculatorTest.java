@@ -77,16 +77,16 @@ public class StubCalculatorTest {
     SHORT_END_STUB4 = new LocalDate[n];
     LONG_END_STUB4 = new LocalDate[n];
     for (int i = 0; i < n; i++) {
-      NO_STUB2[i] = NO_STUB1[i].getDate();
-      SHORT_START_STUB4[i] = SHORT_START_STUB3[i].getDate();
-      LONG_START_STUB4[i] = LONG_START_STUB3[i].getDate();
-      SHORT_END_STUB4[i] = SHORT_END_STUB3[i].getDate();
-      LONG_END_STUB4[i] = LONG_END_STUB3[i].getDate();
-      NO_STUB4[i] = NO_STUB3[i].getDate();
-      SHORT_START_STUB2[i] = SHORT_START_STUB1[i].getDate();
-      LONG_START_STUB2[i] = LONG_START_STUB1[i].getDate();
-      SHORT_END_STUB2[i] = SHORT_END_STUB1[i].getDate();
-      LONG_END_STUB2[i] = LONG_END_STUB1[i].getDate();
+      NO_STUB2[i] = NO_STUB1[i].toLocalDate();
+      SHORT_START_STUB4[i] = SHORT_START_STUB3[i].toLocalDate();
+      LONG_START_STUB4[i] = LONG_START_STUB3[i].toLocalDate();
+      SHORT_END_STUB4[i] = SHORT_END_STUB3[i].toLocalDate();
+      LONG_END_STUB4[i] = LONG_END_STUB3[i].toLocalDate();
+      NO_STUB4[i] = NO_STUB3[i].toLocalDate();
+      SHORT_START_STUB2[i] = SHORT_START_STUB1[i].toLocalDate();
+      LONG_START_STUB2[i] = LONG_START_STUB1[i].toLocalDate();
+      SHORT_END_STUB2[i] = SHORT_END_STUB1[i].toLocalDate();
+      LONG_END_STUB2[i] = LONG_END_STUB1[i].toLocalDate();
     }
   }
 

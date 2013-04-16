@@ -8,13 +8,16 @@ package com.opengamma.financial.analytics.fudgemsg;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class TestStatefulFunction {
   private final boolean _boolean;
   private final int _int;

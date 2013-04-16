@@ -67,7 +67,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, name, classification, regionIdStrs, uriInfo);
-    return getFreemarker().build("regions/regions.ftl", out);
+    return getFreemarker().build(HTML_DIR + "regions.ftl", out);
   }
 
   @GET
@@ -82,7 +82,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, name, classification, regionIdStrs, uriInfo);
-    return getFreemarker().build("regions/jsonregions.ftl", out);
+    return getFreemarker().build(JSON_DIR + "regions.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, String name, RegionClassification classification,

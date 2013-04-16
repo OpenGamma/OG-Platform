@@ -58,7 +58,8 @@ import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DefaultMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -82,11 +83,12 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the functions used to inject default constraints into the dependency graph.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultPropertyFunctionsTest {
 
   public class TradeScalingFunction extends PropertyPreservingFunction {
@@ -399,8 +401,8 @@ public class DefaultPropertyFunctionsTest {
     ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules()));
     ctx.init();
     builder.setFunctionResolver(cfr);
-    builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(ctx.getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
-        .asList(MarketDataRequirementNames.MARKET_VALUE)));
+    builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityFilter(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE))
+        .withProvider(new DefaultMarketDataAvailabilityProvider()));
     return builder;
   }
 

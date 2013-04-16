@@ -18,27 +18,28 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.resource.EngineResourceManagerImpl;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.engine.view.calc.EngineResourceManagerImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests RateLimitingMergingUpdateProvider
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class RateLimitingMergingViewProcessListenerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RateLimitingMergingViewProcessListenerTest.class);

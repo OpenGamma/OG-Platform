@@ -60,17 +60,16 @@ public class GeneratorSwapXCcyIborIborTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.of(6, MONTHS);
+    Period tenor = Period.ofMonths(6);
     double spread = -0.0050;
     double notional = 12345;
-    double fxRateUSDEUR = 0.75;
-    FXMatrix fxMatrix = new FXMatrix(USDLIBOR3M.getCurrency(), EURIBOR3M.getCurrency(), fxRateUSDEUR);
-    SwapXCcyIborIborDefinition insGenerated = EURIBOR3MUSDLIBOR3M.generateInstrument(referenceDate, tenor, spread, notional, fxRateUSDEUR);
-    SwapXCcyIborIborDefinition insGenerated2 = EURIBOR3MUSDLIBOR3M.generateInstrument(referenceDate, tenor, spread, notional, fxMatrix);
+    double fxRateEURUSD = 1.25;
+    FXMatrix fxMatrix = new FXMatrix(EURIBOR3M.getCurrency(), USDLIBOR3M.getCurrency(), fxRateEURUSD);
+    GeneratorAttributeFX attribute = new GeneratorAttributeFX(tenor, fxMatrix);
+    SwapXCcyIborIborDefinition insGenerated = EURIBOR3MUSDLIBOR3M.generateInstrument(referenceDate, spread, notional, attribute);
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(referenceDate, EURIBOR3MUSDLIBOR3M.getSpotLag(), NYC);
-    SwapXCcyIborIborDefinition insExpected = SwapXCcyIborIborDefinition.from(settleDate, tenor, EURIBOR3MUSDLIBOR3M, fxRateUSDEUR * notional, notional, spread, true);
+    SwapXCcyIborIborDefinition insExpected = SwapXCcyIborIborDefinition.from(settleDate, tenor, EURIBOR3MUSDLIBOR3M, notional, notional * fxRateEURUSD, spread, true);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
-    assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated2);
   }
 
 }

@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -38,7 +37,8 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.PRESENT_VALUE
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
@@ -47,7 +47,7 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
-    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
       _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
@@ -67,8 +67,8 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.PAY_CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.RECEIVE_CURVE);
-      defaults.addValuePropertyName(valueRequirement, FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     }
   }
 
@@ -93,10 +93,10 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
       return Collections.singleton(receivePair.getSecond());
     }
-    if (FXForwardFunction.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(payPair.getFirst());
     }
-    if (FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(receivePair.getFirst());
     }
     return null;

@@ -10,10 +10,10 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
@@ -34,12 +34,14 @@ public class RecRate01CreditDefaultSwap {
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
   // TODO : Further checks on efficacy of input arguments
-  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
+  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation
+
+  // TODO : Need to move the recovery rate bumper function into the recovery rate bumpers class
 
   // NOTE : The recovery rate is computed according to the following procedure
   // NOTE : 1. Calibrate the hazard rate term structure to the market input data
   // NOTE : 2. Calculate the CDS PV
-  // NOTE : 3. Bump the recovery rate and recalculate the CDS PV keeping the hazard rates the same as in step 2
+  // NOTE : 3. Bump the recovery rate and recalculate the CDS PV keeping the hazard rates the same as in step 2 (this is why we do the calibration in this routine)
 
   // NOTE : recoveryrateBump is input as a percentage e.g. recoveryRate = 0.4 (40%), recoveryrateBump = 0.10 (10%)
   // NOTE : ADDITIVE bump - bumpedRecoveryRate = 0.4 + 0.1 = 0.5 (50%)
@@ -54,7 +56,7 @@ public class RecRate01CreditDefaultSwap {
   public double getRecoveryRate01CreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double recoveryRateBump,
@@ -85,7 +87,7 @@ public class RecRate01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Compute the bumped recovery rate
-    double bumpedRecoveryRate = getBumpedRecoveryRate(cds, recoveryRateBump, recoveryRateBumpType);
+    final double bumpedRecoveryRate = getBumpedRecoveryRate(cds, recoveryRateBump, recoveryRateBumpType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -96,21 +98,22 @@ public class RecRate01CreditDefaultSwap {
     final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, calibratedHazardRates, 0.0);
+    //final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, calibratedHazardRates, 0.0);
+    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, calibratedHazardRates, 0.0);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a new CDS identical to the input CDS except for the recovery rate
-    //LegacyVanillaCreditDefaultSwapDefinition bumpedCDS = cds.withRecoveryRate(bumpedRecoveryRate);
+    final LegacyVanillaCreditDefaultSwapDefinition bumpedCDS = cds.withRecoveryRate(bumpedRecoveryRate);
 
     // Create a CDS PV calculator
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the CDS PV using the just calibrated hazard rate term structure
-    final double presentValue = 0; //creditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, cds, yieldCurve, calibratedHazardRateCurve, priceType);
+    final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, cds, yieldCurve, calibratedHazardRateCurve, priceType);
 
     // Calculate the bumped CDS PV
-    final double bumpedPresentValue = 0; //creditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, bumpedCDS, yieldCurve, calibratedHazardRateCurve, priceType);
+    final double bumpedPresentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, bumpedCDS, yieldCurve, calibratedHazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

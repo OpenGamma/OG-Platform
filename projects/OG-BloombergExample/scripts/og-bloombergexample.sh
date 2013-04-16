@@ -18,6 +18,8 @@ canonicalize() {
   )
 }
 
+PROJECT=og-bloombergexample
+
 BASENAME=${0##*/}
 COMPONENT=${BASENAME%.sh}
 BASEDIR="$(dirname "$(dirname "$(canonicalize "$0")")")"

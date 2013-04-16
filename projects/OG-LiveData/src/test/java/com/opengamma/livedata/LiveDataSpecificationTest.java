@@ -9,11 +9,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test LiveDataSpecification.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class LiveDataSpecificationTest extends AbstractFudgeBuilderTestCase {
 
   public void test_basic() {

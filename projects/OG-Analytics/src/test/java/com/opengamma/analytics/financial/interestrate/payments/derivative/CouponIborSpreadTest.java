@@ -35,9 +35,9 @@ public class CouponIborSpreadTest {
   private static final double NOTIONAL = 10000.0;
   private static final String FUNDING_CURVE_NAME = "funding";
   private static final String LIBOR_CURVE_NAME = "libor";
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
-  private static final Period TENOR = Period.of(3, MONTHS);
+  private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -132,7 +132,7 @@ public class CouponIborSpreadTest {
     assertEquals(FIXING_PERIOD_END_TIME, PAYMENT2.getFixingPeriodEndTime(), 0);
     assertEquals(FIXING_PERIOD_START_TIME, PAYMENT2.getFixingPeriodStartTime(), 0);
     assertEquals(RESET_TIME, PAYMENT2.getFixingTime(), 0);
-    assertEquals(FORWARD_YEAR_FRACTION, PAYMENT2.getFixingYearFraction(), 0);
+    assertEquals(FORWARD_YEAR_FRACTION, PAYMENT2.getFixingAccrualFactor(), 0);
     assertEquals(LIBOR_CURVE_NAME, PAYMENT2.getForwardCurveName());
     assertEquals(FUNDING_CURVE_NAME, PAYMENT2.getFundingCurveName());
     assertEquals(NOTIONAL, PAYMENT2.getNotional(), 0);

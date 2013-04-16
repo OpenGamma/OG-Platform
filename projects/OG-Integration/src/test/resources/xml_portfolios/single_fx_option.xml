@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+
+    <fxOptionTrade id="t1">
+      <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
+
+      <tradeDate>2013-01-20</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <optionType>Put</optionType>
+      <buySell>Buy</buySell>
+      <currencyPair>EUR/USD</currencyPair>
+      <optionCurrency>EUR</optionCurrency>
+
+      <strike>1.9</strike>
+
+      <fxExpiry>
+        <expiryDate>2018-01-31</expiryDate>
+        <expiryCutoff>ECB|10am NY</expiryCutoff>
+
+        <expiryCalendars>
+          <calendar type="bank">
+            <id scheme="CountryISO2">FD</id>
+          </calendar>
+        </expiryCalendars>
+      </fxExpiry>
+
+      <paymentCalendars>
+        <calendar type="bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </paymentCalendars>
+
+      <notional>1000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>European</exerciseType>
+    </fxOptionTrade>
+  </trades>
+
+  <positions>
+    <position id="p1">
+      <quantity>1</quantity>
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </position>
+  </positions>
+
+  <portfolios>
+    <!-- portfolio name must be unique in this set -->
+    <portfolio name="single_fx_portfolio">
+      <positions>
+        <position ref="p1"/>
+      </positions>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

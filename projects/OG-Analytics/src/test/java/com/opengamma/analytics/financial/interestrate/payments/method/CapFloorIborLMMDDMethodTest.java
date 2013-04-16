@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -58,12 +56,12 @@ public class CapFloorIborLMMDDMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final int SETTLEMENT_DAYS = 2;
-  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
+  private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int SWAP_TENOR_YEAR = 4;
-  private static final Period SWAP_TENOR = Period.of(SWAP_TENOR_YEAR, YEARS);
-  private static final Period FIXED_PAYMENT_PERIOD = Period.of(3, MONTHS);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(3);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -74,9 +72,9 @@ public class CapFloorIborLMMDDMethodTest {
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, STRIKE, FIXED_IS_PAYER);
   //to derivatives
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
-  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1] });
+  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
   private static final int NB_CPN_IBOR = SWAP_PAYER.getSecondLeg().getNumberOfPayments();
   private static final boolean IS_CAP = true;
 
@@ -155,11 +153,11 @@ public class CapFloorIborLMMDDMethodTest {
     final double displacement = PARAMETERS_LMM.getDisplacement()[index];
     final double beta = forwardCurve.getDiscountFactor(CAP_LAST.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(CAP_LAST.getFixingPeriodEndTime())
         * discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodEndTime()) / discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodStartTime());
-    final double strikeAdjusted = (STRIKE - (beta - 1) / CAP_LAST.getFixingYearFraction()) / beta;
+    final double strikeAdjusted = (STRIKE - (beta - 1) / CAP_LAST.getFixingAccrualFactor()) / beta;
     // Strike adjusted from Forward on forward curve and Forward on discount curve.
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeAdjusted + displacement, 1.0, CAP_LAST.isCap());
     final double forwardDsc = (discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodStartTime()) / discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodEndTime()) - 1.0)
-        / CAP_LAST.getFixingYearFraction();
+        / CAP_LAST.getFixingAccrualFactor();
     final double df = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(CAP_LAST.getPaymentTime());
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardDsc + displacement, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
@@ -255,7 +253,7 @@ public class CapFloorIborLMMDDMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 100;
+    final int nbTest = 10;
 
     final YieldAndDiscountCurve dsc = CURVES.getCurve(CURVES_NAME[0]);
     LiborMarketModelMonteCarloMethod methodLmmMc;
@@ -268,7 +266,7 @@ public class CapFloorIborLMMDDMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " cap/floor LMM Monte Carlo method: " + (endTime - startTime) + " ms");
-    // Performance note: LMM Monte Carlo: 15-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 100 cap.
+    // Performance note: LMM Monte Carlo: 15-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 980 ms for 10 cap (12,500 paths).
   }
 
 }

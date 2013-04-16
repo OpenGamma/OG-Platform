@@ -13,9 +13,9 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
-import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewResultModel;
 
 /**
  * 

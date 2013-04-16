@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -39,7 +40,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * This function will produce all valueRequirements that the EquityFutureSecurity offers. A trade may produce additional generic ones, e.g. date and number of contracts..
@@ -52,11 +52,15 @@ public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
   private static final Logger s_logger = LoggerFactory.getLogger(EquityDividendYieldFuturesFunction.class);
 
   /**
-   * @param valueRequirementName The value requirement name to be calculated
+   * @param valueRequirementName String describes the value requested
    * @param calculator The calculator
+   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
+   * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
-  public EquityDividendYieldFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
-    super(valueRequirementName, calculator);
+  public EquityDividendYieldFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator, 
+      String closingPriceField, String costOfCarryField, String resolutionKey) {
+    super(valueRequirementName, calculator, closingPriceField, costOfCarryField, resolutionKey);
   }
 
   @Override
@@ -88,7 +92,6 @@ public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
         final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
     final Double spotUnderlyer = getSpot(inputs);
     Double dividendYield = timeSeriesBundle.get(MarketDataRequirementNames.DIVIDEND_YIELD, getSpotAssetId(security)).getTimeSeries().getLatestValue();
-    dividendYield /= 100.0;
     final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs, fundingCurveName, curveConfigName);
@@ -181,7 +184,7 @@ public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.DIVIDEND_YIELD,
-        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
 }

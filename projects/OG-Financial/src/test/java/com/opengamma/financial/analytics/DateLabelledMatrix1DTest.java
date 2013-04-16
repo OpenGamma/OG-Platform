@@ -13,12 +13,15 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class DateLabelledMatrix1DTest {
+
   private static final LocalDate[] D1 = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 3, 1), LocalDate.of(2011, 5, 1), LocalDate.of(2011, 7, 1) };
   private static final Object[] D1_LABELS = new Object[] {"2011-01-01", "2011-03-01", "2011-05-01", "2011-07-01" };
   private static final ZonedDateTime[] Z1 = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 7, 1) };
@@ -32,7 +35,7 @@ public class DateLabelledMatrix1DTest {
   private static final double[] V1 = new double[] {1, 2, 3, 4 };
   private static final double[] V2 = new double[] {5, 6, 7, 8 };
   private static final double[] V3 = new double[] {9, 10, 11, 12 };
-  private static final Period TOLERANCE = DateUtils.periodOfDays(2);
+  private static final Period TOLERANCE = Period.ofDays(2);
   private static final LocalDateLabelledMatrix1D LD1 = new LocalDateLabelledMatrix1D(D1, V1);
   private static final LocalDateLabelledMatrix1D LD2 = new LocalDateLabelledMatrix1D(D1, V2);
   private static final LocalDateLabelledMatrix1D LD3 = new LocalDateLabelledMatrix1D(D2, V3);

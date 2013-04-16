@@ -62,6 +62,7 @@ $.register_module({
                 ['minDeltaCalcPeriod',                                                          Form.type.LNG],
                 ['minFullCalcPeriod',                                                           Form.type.LNG],
                 ['name',                                                                        Form.type.STR],
+                ['persistent',                                                                  Form.type.IND],
                 [[RMDF, 'aggregatePositionOutputMode'].join('.'),                               Form.type.STR],
                 [[RMDF, 'positionOutputMode'].join('.'),                                        Form.type.STR],
                 [[RMDF, 'primitiveOutputMode'].join('.'),                                       Form.type.STR],
@@ -146,7 +147,11 @@ $.register_module({
             form.children = [
                 new form.Block({ // form item_0
                     module: 'og.views.forms.view-definition-identifier-currency_tash',
-                    extras: {name: master.name},
+                    extras: {name: master.name, persistent: 'persistent' in master},
+                    processor: function (data) {
+                        if ($(form_id + ' input[name=persistent]').is(':checked')) data.persistent = null;
+                        else delete data.persistent;
+                    },
                     children: [
                         new ui.Dropdown({
                             form: form, resource: 'portfolios', index: 'identifier', value: master.identifier,
@@ -185,7 +190,11 @@ $.register_module({
                     });
                 })(),
                 new form.Block({ // form item_2
-                    module: 'og.views.forms.view-definition-execution-parameters_tash'
+                    module: 'og.views.forms.view-definition-execution-parameters_tash',
+                    processor: function (data) {
+                        ['maxDeltaCalcPeriod', 'maxFullCalcPeriod', 'minDeltaCalcPeriod', 'minFullCalcPeriod']
+                            .forEach(function (param) {if (data[param] === '') delete data[param];});
+                    }
                 }).on('form:load', function () {
                     ['DeltaCalcPeriod', 'FullCalcPeriod'].forEach(function (suffix) {
                         ['min', 'max'].forEach(function (prefix) {

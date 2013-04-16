@@ -12,7 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingMarketDataSentinel;
 
 /**
  * Fudge message builder for {@code MissingLiveDataSentinel}.

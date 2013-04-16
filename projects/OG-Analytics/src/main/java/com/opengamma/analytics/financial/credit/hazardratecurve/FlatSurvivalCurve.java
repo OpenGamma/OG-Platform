@@ -12,6 +12,10 @@ public class FlatSurvivalCurve {
 
   // ------------------------------------------------------------------------
 
+  // TODO : Can remove this code now
+
+  // ------------------------------------------------------------------------
+
   // Private (final) member variables
 
   // Flat (across the term structure) hazard rate value

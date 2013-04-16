@@ -69,6 +69,10 @@ import com.opengamma.util.tuple.Pair;
 
   // Operations
 
+  public void submit(final ContextRunnable runnable) {
+    getBuilder().addToRunQueue(runnable);
+  }
+
   /**
    * Schedule the task for execution.
    * 
@@ -76,7 +80,7 @@ import com.opengamma.util.tuple.Pair;
    */
   public void run(final ResolveTask runnable) {
     runnable.addRef();
-    getBuilder().addToRunQueue(runnable);
+    submit(runnable);
   }
 
   /**
@@ -87,7 +91,7 @@ import com.opengamma.util.tuple.Pair;
   public void pump(final ResolutionPump pump) {
     s_logger.debug("Pumping {}", pump);
     if (++_stackDepth > MAX_CALLBACK_DEPTH) {
-      getBuilder().addToRunQueue(new ResolutionPump.Pump(pump));
+      submit(new ResolutionPump.Pump(pump));
     } else {
       pump.pump(this);
     }
@@ -102,7 +106,7 @@ import com.opengamma.util.tuple.Pair;
   public void close(final ResolutionPump pump) {
     s_logger.debug("Closing {}", pump);
     if (++_stackDepth > MAX_CALLBACK_DEPTH) {
-      getBuilder().addToRunQueue(new ResolutionPump.Close(pump));
+      submit(new ResolutionPump.Close(pump));
     } else {
       pump.close(this);
     }
@@ -153,7 +157,8 @@ import com.opengamma.util.tuple.Pair;
     ExceptionWrapper.createAndPut(t, _exceptions);
   }
 
-  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent, final Set<FunctionExclusionGroup> functionExclusion) {
+  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent,
+      final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
     final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
@@ -183,7 +188,8 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Set<FunctionExclusionGroup> functionExclusion) {
+  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask,
+      final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
     final ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
     do {
       ResolveTask task;

@@ -536,7 +536,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "objectIds",
         "externalIdSearch",
         "name",

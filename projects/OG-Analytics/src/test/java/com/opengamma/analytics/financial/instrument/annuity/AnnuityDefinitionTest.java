@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.Arrays;
 
@@ -29,9 +28,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * 
@@ -53,7 +52,7 @@ public class AnnuityDefinitionTest {
     FIXED_PAYMENTS = new PaymentFixedDefinition[n];
     FIXED_FLOAT_PAYMENTS = new PaymentDefinition[n];
     ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
-    final IborIndex index = new IborIndex(CCY, Period.of(3, MONTHS), 0, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    final IborIndex index = new IborIndex(CCY, Period.ofMonths(3), 0, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false);
     for (int i = 0; i < n; i++) {
       FIXED_PAYMENTS[i] = new PaymentFixedDefinition(CCY, date, 1000);
@@ -66,7 +65,7 @@ public class AnnuityDefinitionTest {
     }
     FIXED_DEFINITION = new AnnuityDefinition<PaymentFixedDefinition>(FIXED_PAYMENTS);
     FIXED_FLOAT_DEFINITION = new AnnuityDefinition<PaymentDefinition>(FIXED_FLOAT_PAYMENTS);
-    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FIXING_RATE});
+    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -95,12 +94,12 @@ public class AnnuityDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullDate1() {
-    FIXED_DEFINITION.toDerivative(null, new String[] {"E", "F"});
+    FIXED_DEFINITION.toDerivative(null, new String[] {"E", "F" });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullDate2() {
-    FIXED_DEFINITION.toDerivative(null, FIXING_TS, new String[] {"E", "F"});
+    FIXED_DEFINITION.toDerivative(null, FIXING_TS, new String[] {"E", "F" });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

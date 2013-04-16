@@ -25,16 +25,17 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})  // this fails randomly
 public class HistoricalTimeSeriesSourceTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesSourceTest.class);
@@ -158,12 +159,9 @@ public class HistoricalTimeSeriesSourceTest {
 
   //-------------------------------------------------------------------------
   public void testEHCachingHistoricalTimeSeriesSource() {
-    CacheManager cacheManager = new CacheManager();
-    try {
-      doTestCaching(cacheManager);
-    } finally {
-      EHCacheUtils.shutdownQuiet(cacheManager);
-    }
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(HistoricalTimeSeriesSourceTest.class);
+    doTestCaching(cacheManager);
+    EHCacheUtils.shutdownQuiet(cacheManager);
   }
 
   private void doTestCaching(CacheManager cacheManager) {
@@ -278,6 +276,9 @@ public class HistoricalTimeSeriesSourceTest {
       HistoricalTimeSeries historicalTimeSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field);
       assertEquals(ids, cachedProvider.getExternalIdBundle(historicalTimeSeries.getUniqueId()));
     }
+
+    // Shut down cache
+    cachedProvider.shutdown();
   }
 
 }

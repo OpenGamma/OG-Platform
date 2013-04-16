@@ -104,7 +104,7 @@ public final class MixedLogNormalVolatilityFunction extends VolatilityFunctionPr
 
   private double[] getVolatilityAdjoint(final double forward, final double strike, final double expiry, final MixedLogNormalModelData data) {
 
-    final int nParms = data.getNumberOfparameters();
+    final int nParms = data.getNumberOfParameters();
     final boolean isCall = strike >= forward;
 
     final double[] sigmas = data.getVolatilities();
@@ -164,7 +164,7 @@ public final class MixedLogNormalVolatilityFunction extends VolatilityFunctionPr
 
   private double[] getModelAjoint(final double forward, final double strike, final double expiry, final MixedLogNormalModelData data, final double[] deltas, final double vega) {
     final boolean isCall = strike >= forward;
-    final int nParms = data.getNumberOfparameters();
+    final int nParms = data.getNumberOfParameters();
     final double[] sigmas = data.getVolatilities();
     final double[] rFwds = data.getRelativeForwards();
     final double[] w = data.getWeights();

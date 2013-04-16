@@ -10,11 +10,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.bbg.AbstractRemoteProviderTest;
 import com.opengamma.provider.security.SecurityProvider;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Base case for testing BloombergSecuritySource.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteBloombergSecurityProviderTest extends BloombergSecurityProviderTest {
 
   @BeforeTest

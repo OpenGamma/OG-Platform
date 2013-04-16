@@ -26,11 +26,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ValueRequirement.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ValueRequirementTest {
 
   private static final UniqueId USD = UniqueId.of("currency", "USD");  

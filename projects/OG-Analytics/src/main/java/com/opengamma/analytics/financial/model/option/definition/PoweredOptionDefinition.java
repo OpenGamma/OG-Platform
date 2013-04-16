@@ -11,7 +11,7 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * Definition for a powered option. 
+ * Definition for a powered option.
  * <p>
  * The exercise style is European. The payoff of these options is:
  * $$
@@ -20,7 +20,7 @@ import com.opengamma.util.time.Expiry;
  * p &= \max(K - S, 0)^i
  * \end{align*}
  * $$
- * where $K$ is the strike, $i$ is the power and $S$ is the spot. 
+ * where $K$ is the strike, $i$ is the power and $S$ is the spot.
  */
 public class PoweredOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
@@ -32,7 +32,7 @@ public class PoweredOptionDefinition extends OptionDefinition {
       return isCall() ? Math.pow(Math.max(0, spot - getStrike()), getPower()) : Math.pow(Math.max(0, getStrike() - spot), getPower());
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final double _power;
 
   /**

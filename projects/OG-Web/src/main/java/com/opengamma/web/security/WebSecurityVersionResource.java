@@ -43,7 +43,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
   @GET
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/securityversion.ftl", out);
+    return getFreemarker().build(HTML_DIR + "securityversion.ftl", out);
   }
 
   @GET
@@ -55,7 +55,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
       return builder.build();
     }
     FlexiBean out = createRootData();
-    String json = getFreemarker().build("securities/jsonsecurity.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "security.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 

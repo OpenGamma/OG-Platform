@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,9 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -26,13 +24,14 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -78,10 +77,12 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     public boolean canHandleMissingRequirements() {
       return true;
     }
+
     @Override
     public boolean canHandleMissingInputs() {
       return true;
     }
+
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
         final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -122,9 +123,10 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   }
 
   private SnapshotDataBundle buildMarketDataMap(final FunctionExecutionContext context, final FunctionInputs inputs) {
-    final Map<ExternalId, Double> marketDataMap = new HashMap<ExternalId, Double>();
+    final SnapshotDataBundle marketData = new SnapshotDataBundle();
+    final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(context.getComputationTargetResolver());
     for (final ComputedValue value : inputs.getAllValues()) {
-      final ExternalId identifier = context.getExternalIdLookup().getIdentifier(value.getSpecification().getTargetSpecification());
+      final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
       double rate = (Double) value.getValue();
       //TODO this is here because KWCDC Curncy is not normalized
       if (rate > 1.1) {
@@ -132,11 +134,9 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
         s_logger.warn("Performing normalization of rate in YieldCurveMarketDataFunction; if this is being used for anything other than KWCDC Curncy check market data normalization");
         rate /= 100;
       }
-      marketDataMap.put(identifier, rate);
+      marketData.setDataPoint(identifiers, rate);
     }
-    final SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
-    snapshotDataBundle.setDataPoints(marketDataMap);
-    return snapshotDataBundle;
+    return marketData;
   }
 
   @Override

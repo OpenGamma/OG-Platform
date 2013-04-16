@@ -1,7 +1,7 @@
 <table class="OG-table">
   <colgroup>
-    <col style="width: 30%">
-    <col style="width: 70%">
+    <col style="width: 33%">
+    <col style="width: 67%">
   </colgroup>
   <tbody>
     <tr>
@@ -11,7 +11,7 @@
         </label>
       </td>
       <td>
-        <input name="security.expiry" type="text" value="{{expiry}}"/>
+        <input class="blotter-date" name="security.expiry" type="text" value="{{expiry}}"/>
       </td>
     </tr>
     <tr>
@@ -31,7 +31,7 @@
         </label>
       </td>
       <td>
-        <input name="security.settlementDate" type="text" value="{{settlement}}"/>
+        <input class="blotter-date" name="security.settlementDate" type="text" value="{{settlement}}"/>
       </td>
     </tr>
     {{#if nondev}}

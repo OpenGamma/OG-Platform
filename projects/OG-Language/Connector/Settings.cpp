@@ -22,7 +22,7 @@ LOGGING (com.opengamma.language.connector.Settings);
 #  define DEFAULT_PIPE_PREFIX			TEXT ("\\\\.\\pipe\\OpenGammaLanguageAPI-Client-")
 # else /* ifdef _WIN32 */
 #  ifndef DEFAULT_PIPE_FOLDER
-#   define DEFAULT_PIPE_FOLDER			TEXT ("/var/run/OG-Language/")
+#   define DEFAULT_PIPE_FOLDER			TEXT ("/tmp/")
 #  endif /* ifndef DEFAULT_PIPE_FOLDER */
 #  define DEFAULT_PIPE_PREFIX			DEFAULT_PIPE_FOLDER TEXT ("Client-")
 # endif /* ifdef _WIN32 */
@@ -125,9 +125,6 @@ int CSettings::GetSendTimeout () const {
 class CServiceExecutableDefault : public CAbstractSettingProvider {
 private:
 
-	/// The service name (if available).
-	CAtomicPointer<TCHAR*> m_pszServiceName;
-
 	/// Locates the executable based on the service name.
 	///
 	/// @param[in] pszServiceName name of the service
@@ -157,6 +154,8 @@ private:
 		} else {
 			LOGWARN (TEXT ("Couldn't open HKLM\\SYSTEM\\CurrentControlSet\\services registry key, error ") << hr);
 		}
+#else /* ifdef _WIN32 */
+		// TODO: Can the daemon process be found from the Sys V style service wrappers?
 #endif /* ifdef _WIN32 */
 		return pszExecutable;
 	}
@@ -213,11 +212,12 @@ protected:
 
 	/// Locates the directory of the current module, and looks alongside it for the service executable.
 	///
+	/// @param[in] poSettings the owning settings object, an instance of CSettings
 	/// @return the path to the executable, or a default best guess if none was found
-	TCHAR *CalculateString () const {
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
 		TCHAR *pszExecutable = NULL;
 		do {
-			if ((pszExecutable = FindServiceExecutable (m_pszServiceName.Get ())) != NULL) break;
+			if ((pszExecutable = FindServiceExecutable (((const CSettings*)poSettings)->GetServiceName ())) != NULL) break;
 			if ((pszExecutable = FindLocalExecutable ()) != NULL) break;
 		} while (false);
 		if (pszExecutable) {
@@ -227,26 +227,6 @@ protected:
 		}
 		return pszExecutable;
 	}
-
-public:
-
-	/// Destroys the object.
-	~CServiceExecutableDefault () {
-		TCHAR *psz = m_pszServiceName.GetAndSet (NULL);
-		if (psz) {
-			free (psz);
-		}
-	}
-
-	/// Registers the service name being used
-	void SetServiceName (const TCHAR *pszServiceName) {
-		TCHAR *pszCopy = _tcsdup (pszServiceName);
-		TCHAR *pszPrevious = m_pszServiceName.CompareAndSet (pszCopy, NULL);
-		if (pszPrevious) {
-			free (pszCopy);
-		}
-	}
-
 };
 
 /// Instance of the provider to retrieve the default service executable path.
@@ -256,7 +236,6 @@ static CServiceExecutableDefault g_oServiceExecutableDefault;
 ///
 /// @return the path
 const TCHAR *CSettings::GetServiceExecutable () const {
-	g_oServiceExecutableDefault.SetServiceName (GetServiceName ());
 	return GetServiceExecutable (&g_oServiceExecutableDefault);
 }
 
@@ -275,6 +254,79 @@ const TCHAR *CSettings::GetServiceName () const {
 int CSettings::GetServicePoll () const {
 	return GetServicePoll (DEFAULT_SERVICE_POLL);
 }
+
+#ifndef _WIN32
+
+/// Locates the service query command.
+class CServiceQueryDefault : public CAbstractSettingProvider {
+protected:
+	/// Constructs the service control command by adding "status" to the default command.
+	///
+	/// @param[in] poSettings the owning settings object, an instance of CSettings
+	/// @return the service control query string
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
+		return ServiceCreateQueryCmd (((const CSettings*)poSettings)->GetServiceName ());
+	}
+};
+
+/// Instance of the provider to retrieve the default service query command.
+static CServiceQueryDefault g_oServiceQueryDefault;
+
+/// Returns the command that should be used to query the status of the service in the Posix
+/// environment. For example "service og-language status".
+///
+/// @return the command to use, or NULL if there is none
+const TCHAR *CSettings::GetServiceQueryCmd () const {
+	return GetServiceQueryCmd (&g_oServiceQueryDefault);
+}
+
+/// Locates the service start command.
+class CServiceStartDefault : public CAbstractSettingProvider {
+protected:
+	/// Constructs the service control command by adding "start" to the default command.
+	//
+	/// @param[in] poSettings the owning settings object, an instance of CSettings
+	/// @return the service control start string
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
+		return ServiceCreateStartCmd (((const CSettings*)poSettings)->GetServiceName ());
+	}
+};
+
+/// Instance of the provider to retrieve the default service start command.
+static CServiceStartDefault g_oServiceStartDefault;
+
+/// Returns the command that should be used to start the service in the Posix environment. For example
+/// "service og-language start"
+///
+/// @return the command to use, or NULL if there is none
+const TCHAR *CSettings::GetServiceStartCmd () const {
+	return GetServiceStartCmd (&g_oServiceStartDefault);
+}
+
+/// Locates the service stop command.
+class CServiceStopDefault : public CAbstractSettingProvider {
+protected:
+	/// Constructs the service control command by adding "stop" to the default command.
+	///
+	/// @param[in] poSettings the owning settings object, an instance of CSettings
+	/// @return the service control stop string
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
+		return ServiceCreateStopCmd (((const CSettings*)poSettings)->GetServiceName ());
+	}
+};
+
+/// Instance of the provider to retrieve the default service stop command.
+static CServiceStopDefault g_oServiceStopDefault;
+
+/// Returns the command that should be used to stop the service in the Posix environment. For example
+/// "service og-language stop"
+///
+/// @return the command to use, or NULL if there is none
+const TCHAR *CSettings::GetServiceStopCmd () const {
+	return GetServiceStopCmd (&g_oServiceStopDefault);
+}
+
+#endif /* ifndef _WIN32 */
 
 /// Returns the time to wait for a service or executable to startup in milliseconds.
 ///

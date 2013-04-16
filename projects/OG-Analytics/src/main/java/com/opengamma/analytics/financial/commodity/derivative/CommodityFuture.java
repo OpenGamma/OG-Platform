@@ -120,7 +120,7 @@ public abstract class CommodityFuture implements InstrumentDerivative {
    * @return the amount
    */
   public double getAmount() {
-    return _amount;
+    return _amount; // FIXME Resolve confusion about _amount and _unitAmount - What is _amount? Speak to Casey. Also need to look at Converters (Security > Definition > Derivative)
   }
 
   /**

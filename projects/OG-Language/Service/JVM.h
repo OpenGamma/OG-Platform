@@ -11,6 +11,7 @@
 #include <Util/Mutex.h>
 #include <Util/Thread.h>
 #include "Settings.h"
+#include "ErrorFeedback.h"
 
 /// Maintains an embedded JVM and calls methods on the "Main" class to activate the contained Java stack.
 class CJVM {
@@ -47,12 +48,14 @@ private:
 	};
 
 	CJVM (CLibrary *hModule, JavaVM *pJVM, JNIEnv *pEnv);
-	static bool Invoke (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
-	bool Invoke (const char *pszMethod);
+	static bool InvokeBool (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
+	static TCHAR *InvokeString (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
+	bool InvokeBool (const char *pszMethod);
+	TCHAR *InvokeString (const char *pszMethod);
 public:
 	~CJVM ();
-	static CJVM *Create ();
-	void Start (bool bAsync = true);
+	static CJVM *Create (CErrorFeedback *poFeedback);
+	void Start (CErrorFeedback *poFeedback, bool bAsync = true);
 	void Stop (bool bAsync = true);
 	bool IsBusy (unsigned long dwTimeout) const;
 	bool IsRunning () const;

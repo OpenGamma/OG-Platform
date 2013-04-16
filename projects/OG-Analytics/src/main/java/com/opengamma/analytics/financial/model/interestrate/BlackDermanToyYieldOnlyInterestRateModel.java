@@ -73,10 +73,10 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
         final Triple<Double, Double, Double>[][] result = new Triple[_n + 1][_j];
         for (int i = 0; i <= _n; i++) {
           for (int j = 0; j < _j; j++) {
-            result[i][j] = new Triple<Double, Double, Double>(r[i][j], d[i][j], q[i][j]);
+            result[i][j] = new Triple<>(r[i][j], d[i][j], q[i][j]);
           }
         }
-        return new RecombiningBinomialTree<Triple<Double, Double, Double>>(result);
+        return new RecombiningBinomialTree<>(result);
       }
 
     };

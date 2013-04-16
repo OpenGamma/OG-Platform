@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definit
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Definition of a generic Single Name Credit Default Swap Option contract 
+ * Definition of a generic Single Name Credit Default Swap Option contract (the underlying CDS can be of any type e.g. SNAC, Sov etc)
  */
 public class CreditDefaultSwapOptionDefinition {
 
@@ -33,11 +33,15 @@ public class CreditDefaultSwapOptionDefinition {
   // NOTE : We allow the two counterparties in the CDS swaption to be distinct from the (three) counterparties in the underlying CDS
   // NOTE : In practice it is likely that the counterparties in the option contract will be the same as the protection buyer and seller
   // NOTE : in the underlying CDS (but the reference entity in the underlying CDS will be distinct from these two counterparties)
+  // NOTE : but for the sake of flexibility we allow the more general case where all the contract counterparties are different
+
+  // NOTE : The maturity of the underlying CDS is not included as part of this contract definition as it is assumed that
+  // NOTE : the maturity of the underlying CDS is included as part of the underlying CDS contract definition
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add equals and hashcode
-  // TODO : Need to be able to create a CDS optionwith any type of CDS as its underlying e.g. a muni, quanto, vanilla etc
+  // TODO : Do we need the buy/sell flag? Should use the isPayer flag to determine the direction of the cashflows in the underlying CDS contract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -56,14 +60,8 @@ public class CreditDefaultSwapOptionDefinition {
   // The date of the CDS swaption contract inception
   private final ZonedDateTime _startDate;
 
-  // The effective date for protection to begin (usually T + 1d for a legacy CDS, T - 60d or T - 90d for a standard CDS)
-  private final ZonedDateTime _effectiveDate;
-
   // Exercise date for the CDS swaption to enter into a CDS contract (this is the start date of the underlying CDS)
   private final ZonedDateTime _optionExerciseDate;
-
-  // The maturity date of the underlying CDS contract (when premium and protection coverage ceases)
-  private final ZonedDateTime _maturityDate;
 
   // The CDS swaption trade notional (in the trade currency), convention is that this will always be a positive amount
   private final double _notional;
@@ -72,34 +70,32 @@ public class CreditDefaultSwapOptionDefinition {
   private final double _optionStrike;
 
   // Does the CDS swaption knock-out if there is a default between [_effectiveDate, _optionExercisedate]
-  private final CDSOptionKnockoutType _optionKnockoutType;
+  private final boolean _isKnockOut;
 
-  // The option type (payer or receiver swaptions)
-  private final CDSOptionType _optionType;
+  // The option type (true for payer, false for receiver)
+  private final boolean _isPayer;
 
   // The option exercise type (typically only European exercise is traded)
   private final CDSOptionExerciseType _optionExerciseType;
 
   // The underlying CDS referenced in the CDS swaption contract
-  private final LegacyVanillaCreditDefaultSwapDefinition _underlyingCDS;
+  private final CreditDefaultSwapDefinition _underlyingCDS;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public CreditDefaultSwapOptionDefinition(
-      BuySellProtection buySellProtection,
-      Obligor protectionBuyer,
-      Obligor protectionSeller,
-      Currency currency,
-      ZonedDateTime startDate,
-      ZonedDateTime effectiveDate,
-      ZonedDateTime optionExerciseDate,
-      ZonedDateTime maturityDate,
-      double notional,
-      double optionStrike,
-      CDSOptionKnockoutType optionKnockoutType,
-      CDSOptionType optionType,
-      CDSOptionExerciseType optionExerciseType,
-      LegacyVanillaCreditDefaultSwapDefinition underlyingCDS) {
+      final BuySellProtection buySellProtection,
+      final Obligor protectionBuyer,
+      final Obligor protectionSeller,
+      final Currency currency,
+      final ZonedDateTime startDate,
+      final ZonedDateTime optionExerciseDate,
+      final double notional,
+      final double optionStrike,
+      final boolean isKnockOut,
+      final boolean isPayer,
+      final CDSOptionExerciseType optionExerciseType,
+      final CreditDefaultSwapDefinition underlyingCDS) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -113,26 +109,25 @@ public class CreditDefaultSwapOptionDefinition {
     ArgumentChecker.notNull(currency, "Currency");
 
     ArgumentChecker.notNull(startDate, "Start date");
-    ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(optionExerciseDate, "Option exercise date");
-    ArgumentChecker.notNull(maturityDate, "Maturity date");
+
+    ArgumentChecker.notNull(underlyingCDS, "underlying CDS");
+
+    final ZonedDateTime cdsEffectiveDate = underlyingCDS.getEffectiveDate();
+    final ZonedDateTime cdsMaturityDate = underlyingCDS.getMaturityDate();
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
-    ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(cdsEffectiveDate), "Start date {} must be on or before CDS effective date {}", startDate, cdsEffectiveDate);
     ArgumentChecker.isTrue(!startDate.isAfter(optionExerciseDate), "Start date {} must be on or before option exercise date {}", startDate, optionExerciseDate);
-    ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
-    ArgumentChecker.isTrue(!effectiveDate.isAfter(optionExerciseDate), "Effective date {} must be on or before option exercise date {}", effectiveDate, optionExerciseDate);
-    ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
-    ArgumentChecker.isTrue(!optionExerciseDate.isAfter(maturityDate), "Option exercise date {} must be on or before maturity date {}", optionExerciseDate, maturityDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(cdsMaturityDate), "Start date {} must be on or before CDS maturity date {}", startDate, cdsMaturityDate);
+    ArgumentChecker.isTrue(!cdsEffectiveDate.isBefore(optionExerciseDate), "CDS effective date {} must be on or after option exercise date {}", cdsEffectiveDate, optionExerciseDate);
+    ArgumentChecker.isTrue(!cdsEffectiveDate.isAfter(cdsMaturityDate), "CDS effective date {} must be on or before CDS maturity date {}", cdsEffectiveDate, cdsMaturityDate);
+    ArgumentChecker.isTrue(!optionExerciseDate.isAfter(cdsMaturityDate), "Option exercise date {} must be on or before CDS maturity date {}", optionExerciseDate, cdsMaturityDate);
 
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(optionStrike, "Option strike");
 
-    ArgumentChecker.notNull(optionKnockoutType, "Option knockout type");
-    ArgumentChecker.notNull(optionType, "Option type");
     ArgumentChecker.notNull(optionExerciseType, "Option exercise type");
-
-    ArgumentChecker.notNull(underlyingCDS, "CDS");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -146,14 +141,12 @@ public class CreditDefaultSwapOptionDefinition {
     _currency = currency;
 
     _startDate = startDate;
-    _effectiveDate = effectiveDate;
     _optionExerciseDate = optionExerciseDate;
-    _maturityDate = maturityDate;
 
     _notional = notional;
     _optionStrike = optionStrike;
-    _optionKnockoutType = optionKnockoutType;
-    _optionType = optionType;
+    _isKnockOut = isKnockOut;
+    _isPayer = isPayer;
     _optionExerciseType = optionExerciseType;
 
     _underlyingCDS = underlyingCDS;
@@ -183,16 +176,9 @@ public class CreditDefaultSwapOptionDefinition {
     return _startDate;
   }
 
-  public ZonedDateTime getEffectiveDate() {
-    return _effectiveDate;
-  }
-
+  //TODO rename me
   public ZonedDateTime getOptionExerciseDate() {
     return _optionExerciseDate;
-  }
-
-  public ZonedDateTime getMaturityDate() {
-    return _maturityDate;
   }
 
   public double getNotional() {
@@ -203,20 +189,114 @@ public class CreditDefaultSwapOptionDefinition {
     return _optionStrike;
   }
 
-  public CDSOptionKnockoutType getOptionKnockoutType() {
-    return _optionKnockoutType;
+  public boolean isKnockOut() {
+    return _isKnockOut;
   }
 
-  public CDSOptionType getOptionType() {
-    return _optionType;
+  public boolean isPayer() {
+    return _isPayer;
   }
 
   public CDSOptionExerciseType getOptionExerciseType() {
     return _optionExerciseType;
   }
 
-  public LegacyVanillaCreditDefaultSwapDefinition getUnderlyingCDS() {
+  public CreditDefaultSwapDefinition getUnderlyingCDS() {
     return _underlyingCDS;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to modify the recovery rate of the underlying CDS in a CDS Swaption contract
+
+  public CreditDefaultSwapOptionDefinition withRecoveryRate(final double recoveryRate) {
+
+    // Extract the underlying CDS from the CDS Swaption contract
+    CreditDefaultSwapDefinition modifiedCDS = getUnderlyingCDS();
+
+    // Modify the recovery rate of the underlying CDS
+    modifiedCDS = modifiedCDS.withRecoveryRate(recoveryRate);
+
+    // Return the modified CDS Swaption contract
+    return new CreditDefaultSwapOptionDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getCurrency(),
+        getStartDate(),
+        getOptionExerciseDate(),
+        getNotional(),
+        getOptionStrike(),
+        isKnockOut(),
+        isPayer(),
+        getOptionExerciseType(),
+        modifiedCDS);                 // This is the CDS Swaption contract field that has been modified
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to modify the option strike in a CDS Swaption contract
+
+  public CreditDefaultSwapOptionDefinition withOptionstrike(final double optionStrike) {
+
+    // Return the modified CDS Swaption contract
+    return new CreditDefaultSwapOptionDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getCurrency(),
+        getStartDate(),
+        getOptionExerciseDate(),
+        getNotional(),
+        optionStrike,
+        isKnockOut(),
+        isPayer(),
+        getOptionExerciseType(),
+        getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to modify the payer/receiver flag in a CDS Swaption contract
+
+  public CreditDefaultSwapOptionDefinition withIsPayer(final boolean isPayer) {
+
+    // Return the modified CDS Swaption contract
+    return new CreditDefaultSwapOptionDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getCurrency(),
+        getStartDate(),
+        getOptionExerciseDate(),
+        getNotional(),
+        getOptionStrike(),
+        isKnockOut(),
+        isPayer,
+        getOptionExerciseType(),
+        getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to modify the knockout/non-knockout flag in a CDS Swaption contract
+
+  public CreditDefaultSwapOptionDefinition withIsKnockout(final boolean isKnockOut) {
+
+    // Return the modified CDS Swaption contract
+    return new CreditDefaultSwapOptionDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getCurrency(),
+        getStartDate(),
+        getOptionExerciseDate(),
+        getNotional(),
+        getOptionStrike(),
+        isKnockOut,
+        isPayer(),
+        getOptionExerciseType(),
+        getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

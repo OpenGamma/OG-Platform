@@ -61,7 +61,9 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
     ValueRequirementNames.CARRY_RHO,
     ValueRequirementNames.THETA,
     ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.PNL, // Used for EquityOption*ScenarioPnLFunction's
+    ValueRequirementNames.BARRIER_DISTANCE
   };
 
   /**
@@ -69,7 +71,9 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
    * @param perIdConfig Default values of curve configuration, discounting curve, surface name and interpolation method per id, not null
    */
   public EquityOptionSurfaceCalculationMethodDefaults(final String priority, final String... perIdConfig) {
-    super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
+    super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
+        .or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);

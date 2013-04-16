@@ -14,11 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.language.function.MetaFunction;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ExternalFunctionProvider} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalFunctionProviderTest {
 
   @ExternalFunction

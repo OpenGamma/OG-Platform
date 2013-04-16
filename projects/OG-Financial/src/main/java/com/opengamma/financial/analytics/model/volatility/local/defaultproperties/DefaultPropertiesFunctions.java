@@ -12,14 +12,14 @@ import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationBean {
+public class DefaultPropertiesFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Currency specific data.
@@ -176,7 +176,7 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
         Double.toString(getTimeStepBunching()), Double.toString(getSpaceStepBunching()), Double.toString(getMaxProxyDelta()), Double.toString(getCentreMoneyness()), getSpaceDirectionInterpolator()));
     functions.add(functionConfiguration(BackwardPDEDefaults.class, Double.toString(getTheta()), Integer.toString(getNTimeSteps()), Integer.toString(getNSpaceSteps()),
         Double.toString(getTimeStepBunching()), Double.toString(getSpaceStepBunching()), Double.toString(getMaxMoneynessScale()), getSpaceDirectionInterpolator()));
-    if (getPerCurrencyInfo().isEmpty()) {
+    if (!getPerCurrencyInfo().isEmpty()) {
       addPDECurveDefaults(functions);
     }
   }

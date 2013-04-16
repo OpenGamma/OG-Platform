@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.bbg.BloombergConstants;
@@ -32,6 +33,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergTickerParserBondFutureOption;
 import com.opengamma.bbg.util.BloombergTickerParserCommodityFutureOption;
+import com.opengamma.bbg.util.BloombergTickerParserEQVanillaOption;
 import com.opengamma.bbg.util.BloombergTickerParserFutureOption;
 import com.opengamma.bbg.util.BloombergTickerParserIRFutureOption;
 import com.opengamma.component.tool.AbstractTool;
@@ -41,6 +43,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergBondFuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.BloombergCommodityFuturePriceCurveInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.BloombergEquityFuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.BloombergIRFuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
@@ -70,6 +73,7 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigDocument;
@@ -93,7 +97,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext> {
 
   /** the logger */
-  private static Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveCreator.class);
+  static Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveCreator.class);
 
   /** bbg surface prefix */
   private static final String BBG_PREFIX = "BBG_";
@@ -106,9 +110,9 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
 
   //Track surfaces we create so we dont recreate them when multiple securities need them
   /** vol definitions we have created */
-  private final Set<String> _curveDefinitionNames = new HashSet<String>();
+  private final Set<String> _curveDefinitionNames = new HashSet<>();
   /** vol specifications we have created */
-  private final Set<String> _curveSpecificationNames = new HashSet<String>();
+  private final Set<String> _curveSpecificationNames = new HashSet<>();
   /** regexp to get strike from option ticker */
   private static final String STRIKE_REGEXP = "[CP][ ]*((\\d)+(.\\d+)*)\\b";
 
@@ -135,7 +139,7 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
 
     // if skipping existing surfaces get the list now
     if (skipExisting) {
-      ConfigSearchRequest<FuturePriceCurveDefinition<?>> curveDefinitionSearchRequest = new ConfigSearchRequest<FuturePriceCurveDefinition<?>>();
+      ConfigSearchRequest<FuturePriceCurveDefinition<?>> curveDefinitionSearchRequest = new ConfigSearchRequest<>();
       curveDefinitionSearchRequest.setType(VolatilitySurfaceDefinition.class);
       // can't use name to restrict search as ticker symbol may not be same as underlying symbol (e.g. RUT vs RUY)
       curveDefinitionSearchRequest.setName(WILDCARD_SEARCH);
@@ -143,7 +147,7 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
         _curveDefinitionNames.add(doc.getName());
       }
 
-      ConfigSearchRequest<FuturePriceCurveSpecification> curveSpecSearchRequest = new ConfigSearchRequest<FuturePriceCurveSpecification>();
+      ConfigSearchRequest<FuturePriceCurveSpecification> curveSpecSearchRequest = new ConfigSearchRequest<>();
       curveSpecSearchRequest.setType(FuturePriceCurveSpecification.class);
       // can't use name to restrict search as ticker symbol may not be same as underlying symbol (e.g. RUT vs RUY)
       curveSpecSearchRequest.setName(WILDCARD_SEARCH);
@@ -280,6 +284,32 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
 
     @Override
     public Object visitEquityOptionSecurity(final EquityOptionSecurity security) {
+      if (TimeCalculator.getTimeBetween(ZonedDateTime.now(OpenGammaClock.getInstance()), security.getExpiry().getExpiry()) < 0) {
+        return null;
+      }
+      final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
+      final BloombergTickerParserEQVanillaOption tickerParser = new BloombergTickerParserEQVanillaOption(ticker);
+      String underlyingOptChainTicker = getUnderlyingTicker(ticker, security.getUnderlyingId(), "Equity");
+      final String name = BBG_PREFIX + tickerParser.getSymbol() + "_" + tickerParser.getExchangeCode() + "_" + InstrumentTypeProperties.EQUITY_FUTURE_PRICE;
+      if (!_knownCurveSpecNames.contains(name)) {
+        s_logger.info("Creating FuturePriceCurveSpecification \"{}\"", name);
+        // use future chain to get prefix, exchange and postfix.
+        final Collection<ExternalId> futChain = BloombergDataUtils.getFuturechain(_referenceDataProvider, underlyingOptChainTicker);
+        if (futChain == null || futChain.isEmpty()) {
+          throw new OpenGammaRuntimeException("Can't get future chain for " + ticker);
+        }
+        final String[] tickerParts = futChain.iterator().next().getValue().split("\\s+"); // e.g. [AAPL=G3, OC, Equity]
+        if (tickerParts == null || tickerParts.length != 3 || tickerParts[0].length() < 3) {
+          throw new OpenGammaRuntimeException("Can't get prefix, exchange and postfix from " + futChain.iterator().next());
+        }
+        final String prefix = tickerParts[0].substring(0, tickerParts[0].length() - 2); // AAPL=G3 -> AAPL=
+        final String exchange = tickerParts[1];
+        final String postfix = tickerParts[2];
+        final BloombergEquityFuturePriceCurveInstrumentProvider curveInstrumentProvider =
+            new BloombergEquityFuturePriceCurveInstrumentProvider(prefix, postfix, FIELD_NAME_PRICE, exchange);
+        createFuturePriceCurveSpecification(UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), underlyingOptChainTicker), name, curveInstrumentProvider);
+      }
+      createFuturePriceCurveDefinition(Lists.newArrayList(1., 2., 3., 4.), name, security.getCurrency()); // hardcoded to 4 currently
       return null;
     }
 
@@ -367,7 +397,14 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
         s_logger.info("Creating FuturePriceCurveDefinition \"{}\"", name);
         final Set<ExternalId> options = BloombergDataUtils.getOptionChain(_referenceDataProvider, underlyingTicker);
         final ObjectsPair<ImmutableList<Double>, ImmutableList<Double>> axes = determineAxes(options);
-        final FuturePriceCurveDefinition<Double> futureCurveDefinition = new FuturePriceCurveDefinition<Double>(name, target, axes.getFirst().toArray(new Double[0]));
+        createFuturePriceCurveDefinition(axes.getFirst(), name, target);
+      }
+    }
+
+    private void createFuturePriceCurveDefinition(final Collection<Double> xAxis, final String name, final UniqueIdentifiable target) {
+      if (!_knownCurveDefNames.contains(name)) {
+        s_logger.info("Creating FuturePriceCurveDefinition \"{}\"", name);
+        final FuturePriceCurveDefinition<Double> futureCurveDefinition = new FuturePriceCurveDefinition<>(name, target, xAxis.toArray(new Double[0]));
         final ConfigItem<FuturePriceCurveDefinition<Double>> futureCurveDefinitionConfig = ConfigItem.of(futureCurveDefinition, futureCurveDefinition.getName(), FuturePriceCurveDefinition.class);
         if (!_dryRun) {
           ConfigMasterUtils.storeByName(_configMaster, futureCurveDefinitionConfig);
@@ -391,7 +428,7 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
      * @return x and y axes
      */
     private ObjectsPair<ImmutableList<Double>, ImmutableList<Double>> determineAxes(Collection<ExternalId> options) {
-      Set<Double> strikes = new TreeSet<Double>();
+      Set<Double> strikes = new TreeSet<>();
       Pattern strikePattern = Pattern.compile(STRIKE_REGEXP);
       for (ExternalId option : options) {
         String name = option.getValue();
@@ -412,7 +449,7 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
       if (numX < 12) {
         numX = 12;
       }
-      List<Double> xAxis = new ArrayList<Double>();
+      List<Double> xAxis = new ArrayList<>();
       for (int i = 1; i < numX + 1; i++) {
         xAxis.add(Double.valueOf(i));
       }

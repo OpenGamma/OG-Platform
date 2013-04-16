@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 
 /**
  * Interface for classes that receive data from a bean and create another object from it.
@@ -26,7 +27,8 @@ import org.joda.beans.MetaBean;
   void setMap(String propertyName, Map<?, ?> values);
 
   // TODO why does the sink need to do the conversion?
-  Object convert(Object value, Class<?> type, BeanTraverser traverser);
+  // because when it needs to traverse a BeanDataSource only the sink knows how to create another sink
+  Object convert(Object value, MetaProperty<?> property, Class<?> expectedType, BeanTraverser traverser);
 
   T finish();
 }

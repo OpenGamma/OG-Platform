@@ -9,7 +9,6 @@ package com.opengamma.integration.copier.portfolio.writer;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -182,6 +181,9 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
           }
         }
       } else {
+        // Write position
+        _currentRow.putAll(_currentParser.constructRow(position));
+
         // Export only the first trade of each position or none at all
         if (!position.getTrades().isEmpty()) {
           _currentRow.putAll(_currentParser.constructRow(position.getTrades().get(0)));

@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +25,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -75,7 +72,7 @@ public class YieldCurveFunctionHelper {
       final FunctionCompilationContext context, final Instant atInstant) {
     //TODO: avoid doing this compile twice all the time
     final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final LocalDate curveDate = atInstantZDT.getDate();
+    final LocalDate curveDate = atInstantZDT.toLocalDate();
     final InterpolatedYieldCurveSpecification specification = buildCurve(curveDate);
     final Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant());
     return new Triple<Instant, Instant, InterpolatedYieldCurveSpecification>((expiry != null) ? atInstantZDT.with(LocalTime.MIDNIGHT).toInstant() : null, expiry, specification);
@@ -135,9 +132,8 @@ public class YieldCurveFunctionHelper {
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
   }
 
-  public Map<ExternalId, Double> getMarketDataMap(final FunctionInputs inputs) {
-    final SnapshotDataBundle marketDataBundle = (SnapshotDataBundle) inputs.getValue(getMarketDataValueRequirement());
-    return marketDataBundle.getDataPoints();
+  public SnapshotDataBundle getMarketDataMap(final FunctionInputs inputs) {
+    return (SnapshotDataBundle) inputs.getValue(getMarketDataValueRequirement());
   }
 
 }

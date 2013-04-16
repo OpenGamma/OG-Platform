@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * A fixed-strike lookback call(put) option pays out the maximum of the
@@ -27,7 +27,7 @@ public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
       return isCall() ? Math.max(0, ts.maxValue() - getStrike()) : Math.max(0, getStrike() - ts.minValue());
     }
   };
-  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>();
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
 
   public FixedStrikeLookbackOptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
     super(strike, expiry, isCall);

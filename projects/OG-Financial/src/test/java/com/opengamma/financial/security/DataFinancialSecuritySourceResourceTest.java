@@ -35,12 +35,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataFinancialSecuritySourceResource.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataFinancialSecuritySourceResourceTest {
 
   private FinancialSecuritySource _underlying;

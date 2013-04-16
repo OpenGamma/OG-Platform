@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,12 +25,14 @@ import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test ConstantVolatilitySurface/InterpolatedVolatilitySurface.
  */
+@Test(groups = TestGroup.UNIT)
 public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
 
   @Test
@@ -44,7 +47,7 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
     final double sigma = 0.4;
     final Interpolator1D linear = new LinearInterpolator1D();
     final Interpolator2D interpolator = new GridInterpolator2D(linear, linear);
-    final Map<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> data = new HashMap<>();
     data.put(Pair.of(0., 1.), sigma);
     data.put(Pair.of(1., 0.), sigma);
     data.put(Pair.of(0., 0.), sigma);
@@ -74,9 +77,40 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
     final VolatilitySurfaceInterpolator interpolator = new VolatilitySurfaceInterpolator();
     final BlackVolatilitySurfaceMoneynessFcnBackedByGrid moneyness1 = new BlackVolatilitySurfaceMoneynessFcnBackedByGrid(surface, curve, gridData, interpolator);
     BlackVolatilitySurfaceMoneynessFcnBackedByGrid moneyness2 = cycleObject(BlackVolatilitySurfaceMoneynessFcnBackedByGrid.class, moneyness1);
-    assertEquals(moneyness1, moneyness2);
+    assertArrayEquals(moneyness1.getGridData().getExpiries(), moneyness2.getGridData().getExpiries(), 0);
+    assertArrayEquals(moneyness1.getGridData().getForwards(), moneyness2.getGridData().getForwards(), 0);
+    assert2DArrayEquals(moneyness1.getGridData().getStrikes(), moneyness2.getGridData().getStrikes(), 0);
+    assert2DArrayEquals(moneyness1.getGridData().getVolatilities(), moneyness2.getGridData().getVolatilities(), 0);
+    assertCurveEquals(moneyness1.getGridData().getForwardCurve(), moneyness2.getGridData().getForwardCurve());
+    assertCurveEquals(moneyness1.getForwardCurve(), moneyness2.getForwardCurve());
+    assertEquals(moneyness1.getInterpolator(), moneyness2.getInterpolator());
+    assertEquals(moneyness1.getSurface(), moneyness2.getSurface());
     moneyness2 = cycleObject(BlackVolatilitySurfaceMoneynessFcnBackedByGrid.class, new BlackVolatilitySurfaceMoneynessFcnBackedByGrid(moneyness1));
-    assertEquals(moneyness1, moneyness2);
+    assertArrayEquals(moneyness1.getGridData().getExpiries(), moneyness2.getGridData().getExpiries(), 0);
+    assertArrayEquals(moneyness1.getGridData().getForwards(), moneyness2.getGridData().getForwards(), 0);
+    assert2DArrayEquals(moneyness1.getGridData().getStrikes(), moneyness2.getGridData().getStrikes(), 0);
+    assert2DArrayEquals(moneyness1.getGridData().getVolatilities(), moneyness2.getGridData().getVolatilities(), 0);
+    assertCurveEquals(moneyness1.getGridData().getForwardCurve(), moneyness2.getGridData().getForwardCurve());
+    assertCurveEquals(moneyness1.getForwardCurve(), moneyness2.getForwardCurve());
+    assertEquals(moneyness1.getInterpolator(), moneyness2.getInterpolator());
+    assertEquals(moneyness1.getSurface(), moneyness2.getSurface());
+  }
+
+  private void assert2DArrayEquals(final double[][] a1, final double[][] a2, final double eps) {
+    assertEquals(a1.length, a2.length);
+    for (int i = 0; i < a1.length; i++) {
+      assertArrayEquals(a1[i], a2[i], eps);
+    }
+  }
+
+  private void assertCurveEquals(final ForwardCurve c1, final ForwardCurve c2) {
+    assertEquals(c1.getSpot(), c2.getSpot());
+    if (c1 != c2) {
+      for (double x = 0.1; x < 3.0; x += 0.02) {
+        assertEquals(c1.getForward(x), c2.getForward(x));
+        assertEquals(c1.getDrift(x), c2.getDrift(x));
+      }
+    }
   }
 
 }

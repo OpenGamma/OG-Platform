@@ -26,11 +26,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataSecurityResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataSecurityResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");

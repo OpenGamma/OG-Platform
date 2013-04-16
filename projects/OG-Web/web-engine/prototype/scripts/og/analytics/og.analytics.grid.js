@@ -10,7 +10,7 @@ $.register_module({
             templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = og.common.util.scrollbar_size,
             do_not_expand = {
                 DOUBLE: null, FUNGIBLE_TRADE: null, NODE: null, OTC_TRADE: null, POSITION: null, STRING: null
-            };
+            }, has = 'hasOwnProperty';
         var available = (function () {
             var nodes;
             var all = function (total) {
@@ -31,8 +31,9 @@ $.register_module({
                 while (++start <= end) result.push(start);
                 return result;
             };
-            return function (meta) {
-                nodes = meta.nodes;
+            return function () {
+                var grid = this, meta = grid.meta, state = grid.state;
+                nodes = state.nodes;
                 return meta.structure.length ? unravel(meta.structure, []) : all(meta.data_rows);
             };
         })();
@@ -45,16 +46,130 @@ $.register_module({
             return BMP.rle8(width, height, pixels);
         };
         var col_css = function (id, sets, offset) {
-            var partial_width = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+            var partial = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var css = {
-                    prefix: id, index: idx + (offset || 0),
-                    left: partial_width, right: total_width - partial_width - val.width
+                    prefix: id, index: idx + (offset || 0), left: partial, right: total_width - partial - val.width
                 };
-                return (partial_width += val.width), css;
+                return (partial += val.width), css;
             });
         };
+        var col_reorder = (function () {
+            var namespace = '.og_analytics_reorder', index, last, first, grid_width, timeout = null, after,
+                line = 'OG-g-h-line', reorderer = 'OG-g-h-reorderer', offset_left;
+            var auto_scroll = function (direction, scroll_left, scroll_body) {
+                var increment = 10, interval = 75;
+                clearTimeout(timeout);
+                if (direction === 'right') scroll_body.scrollLeft(scroll_left + increment);
+                else if (direction === 'left') scroll_body.scrollLeft(scroll_left - increment);
+                timeout = setTimeout(function () {
+                    auto_scroll(direction, scroll_body.scrollLeft(), scroll_body);
+                }, interval);
+            };
+            var clean_up = function (grid) {
+                $('.' + reorderer).remove();
+                $('.' + line).remove();
+                $(document).off(namespace);
+                timeout = clearTimeout(timeout), null;
+                grid.elements.scroll_body.off(namespace);
+                grid.selector.clear();
+            };
+            var mousemove = function (grid, event) {
+                var scroll_body = grid.elements.scroll_body, scroll_left = scroll_body.scrollLeft(),
+                    fixed_width = grid.meta.columns.width.fixed, scan = grid.meta.columns.scan.all, line_left;
+                set_after(grid, event);
+                line_left = grid.offset.left - scroll_left + scan[after];
+                $('.' + reorderer).css({left: event.pageX - offset_left});
+                if (line_left <= fixed_width + grid.offset.left && scroll_left)
+                    return auto_scroll('left', scroll_left, scroll_body);
+                if (line_left >= grid_width) return auto_scroll('right', scroll_left, scroll_body);
+                timeout = clearTimeout(timeout), null;
+                $('.' + line).show().css({left: line_left});
+            };
+            var mouseup = function (grid, event) {
+                var state = grid.state, columns = grid.meta.columns;
+                clean_up(grid);
+                if (after === index || after + 1 === index) return; // no reordering
+                if (!state.col_reorder.length) state.col_reorder = range(0, columns.length - 1);
+                [state.col_reorder, state.col_override].forEach(function (arr) {
+                    arr.splice(after < index ? after + 1 : after, 0, arr.splice(index, 1)[0]);
+                });
+                reorder_cols.call(grid);
+                grid.resize();
+            };
+            var scroll = function () {$('.' + line).hide();};
+            var set_after = function (grid, event) {
+                var x = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft();
+                after = Math.max(
+                    grid.meta.fixed_length - 1,
+                    grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
+                );
+            };
+            return function (event, $target) {
+                var grid = this, $clone;
+                clean_up(grid);
+                if (event.which === 3 || event.button === 2) return; // ignore right clicks
+                index = +$target.attr('data-index');
+                first = grid.meta.fixed_length;
+                last = grid.meta.columns.widths.length - 1;
+                grid_width = grid.elements.parent.width();
+                $clone = $target.clone();
+                $clone.find('.resize').remove();
+                offset_left = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft() -
+                    grid.meta.columns.scan.all[index - 1];
+                $clone.addClass(reorderer).css({
+                    top: grid.offset.top + grid.meta.set_height - 6,
+                    left: event.pageX - offset_left,
+                    width: grid.meta.columns.widths[index]
+                }).appendTo(document.body);
+                $('<div class="' + line + '" />').css({
+                    top: grid.offset.top + grid.meta.header_height,
+                    left: grid.offset.left - grid.elements.scroll_body.scrollLeft() +
+                        grid.meta.columns.scan.all[index === last ? index - 1 : index] - 3,
+                    height: grid.elements.parent.height() - grid.meta.header_height
+                }).appendTo(document.body);
+                grid.elements.scroll_body.on('scroll' + namespace, scroll);
+                set_after(grid, event);
+                $(document)
+                    .on('mousemove' + namespace, mousemove.partial(grid))
+                    .on('mouseup' + namespace, mouseup.partial(grid));
+            };
+        })();
+        var col_resize = (function () {
+            var namespace = '.og_analytics_resizer', line = 'OG-g-h-line',
+                index, start_left, start_width, min_size = 50;
+            var clean_up = function (grid) {
+                $('.' + line).remove();
+                $(document).off(namespace);
+                grid.selector.clear();
+            };
+            var mousemove = function (grid, event) {
+                $('.' + line).css({left: Math.max(event.pageX - 3, (start_left - start_width) + min_size)});
+            };
+            var mouseup = function (grid, event) {
+                clean_up(grid);
+                grid.state.col_override[index] = Math.max(min_size, start_width + (event.pageX - start_left));
+                grid.resize();
+            };
+            return function (event, $target) {
+                var grid = this, offset_left;
+                clean_up(grid);
+                if (event.which === 3 || event.button === 2) return; // ignore right clicks
+                index = +$target.parents('div.OG-g-h-col:first').attr('data-index');
+                offset_left = grid.offset.left -
+                    (index < grid.meta.fixed_length ? 0 : grid.elements.scroll_body.scrollLeft());
+                start_width = grid.meta.columns.widths[index];
+                $(document)
+                    .on('mousemove' + namespace, mousemove.partial(grid))
+                    .on('mouseup' + namespace, mouseup.partial(grid));
+                $('<div class="' + line + '" />').css({
+                    top: grid.offset.top + grid.meta.set_height,
+                    left: start_left = offset_left + grid.meta.columns.scan.all[index] - 3,
+                    height: grid.elements.parent.height() - grid.meta.set_height
+                }).appendTo(document.body);
+            };
+        })();
         var compile_templates = function (handler) {
             var grid = this, css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
                 header = og.api.text({module: 'og.analytics.grid.header_tash'}),
@@ -77,6 +192,7 @@ $.register_module({
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
             grid.meta = null;
+            grid.state = {col_override: [], col_reorder: [], nodes: null, structure: null};
             grid.source = config.source;
             grid.updated = (function (last, delta) {
                 return function (time) {
@@ -90,7 +206,7 @@ $.register_module({
             grid.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
-            grid.elements.parent.html(templates.loading({text: 'creating view client...'}));
+            grid.elements.parent.html(templates.loading({text: 'preparing view...'}));
             grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: grid.label})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('disconnect', function () {
@@ -102,8 +218,8 @@ $.register_module({
                 })
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
-                    grid.views.rest = Object.keys(types)
-                        .filter(function (key) {return types[key] && key !== grid.views.selected;});
+                    grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
+                    if (grid.views.list.length === 1) grid.views.list = [];
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
             grid.clipboard = new og.analytics.Clipboard(grid);
@@ -136,26 +252,36 @@ $.register_module({
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.unbind().html(templates.container({id: grid.id.substring(1)}))
                 .on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
-                    return grid.fire('viewchange', $(this).html().toLowerCase()), false;
+                    var selection = $(this).html().toLowerCase();
+                    if (selection === grid.views.selected) return $('.OG-g-h-set-name .og-menu').toggle(), false;
+                    return grid.fire('viewchange', selection), false;
                 })
                 .on('click', '.OG-g-h-set-name .og-dropdown', function (event) {
                     return $('.OG-g-h-set-name .og-menu').toggle(), false;
                 })
                 .on('click', '.OG-g-h-set-name .og-sparklines', function (event) {
-                    return $(this).toggleClass('og-active').find('span')
-                        .html((grid.config.sparklines = !grid.config.sparklines) ? 'ON' : 'OFF'), false;
+                    $(this).toggleClass('og-active').find('span')
+                        .html((grid.config.sparklines = !grid.config.sparklines) ? 'ON' : 'OFF');
+                    render_rows.call(grid, grid.data); // re-render right away to show sparklines before next tick
+                    grid.resize(); // re-write styles
+                    return false;
                 })
                 .on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();
+                    if ($target.is('.resize')) return col_resize.call(grid, event, $target), void 0;
+                    if ($target.is('.reorder')) return col_reorder.call(grid, event, $target), void 0;
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
-                    grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
+                    if ($target.is('.loading')) return; else $target.removeClass('expand collapse').addClass('loading');
+                    grid.state.nodes[row = +$target.attr('data-row')] = !grid.state.nodes[row];
                     grid.resize().selector.clear();
-                    return false; // kill bubbling if it's a node
+                    return false; // kill bubbling
                 })
                 .on('contextmenu', '.OG-g-sel, .OG-g-cell', function (event) { // for cells
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
-                    return grid.fire('contextmenu', event, cell, null);
+                    if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
+                    if (0 === cell.col && grid.state.nodes[has](cell.row))
+                        return new og.analytics.NodeMenu(grid, cell, event).display();
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
@@ -216,32 +342,67 @@ $.register_module({
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
-        var init_grid = function (meta) {
-            var grid = this, columns = meta.columns, config = grid.config,
-                col_fields = ['description', 'header', 'type', 'width'];
-            var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
-            grid.meta = meta;
-            ['show_sets', 'show_views', 'start_expanded']
-                .forEach(function (key) {meta[key] = key in config ? config[key] : true;});
+        var init_grid = function (metadata) {
+            var grid = this, config = grid.config, meta = grid.meta = JSON.parse(JSON.stringify(metadata)); // a copy
+            ['show_sets', 'show_views'].forEach(function (key) {meta[key] = key in config ? config[key] : true;});
             meta.show_save = 'show_save' in config ? config['show_save'] : false;
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
-            meta.header_height =  (meta.show_sets ? set_height : 0) + title_height;
+            meta.set_height = meta.show_sets ? set_height : 0;
+            meta.header_height =  meta.set_height + title_height;
             meta.scrollbar = scrollbar;
-            grid.col_widths();
-            col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
-            columns.fixed[0].columns.forEach(populate);
-            columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
-            unravel_structure.call(grid);
+            meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
+            meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            verify_state.call(grid);
+            if (!reorder_cols.call(grid)) populate_cols.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
-            grid.resize(!meta.start_expanded);
+            grid.resize(config[has]('collapse_level'));
             render_rows.call(grid, null, true);
+        };
+        var populate_cols = function () {
+            var grid = this, columns = grid.meta.columns, col_fields = ['description', 'header', 'type'];
+            var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
+            columns.orig_widths = columns.fixed.concat(columns.scroll).reduce(function (acc, set) {
+                return acc.concat(set.columns.map(function (col) {return col.width || null;}));
+            }, []);
+            grid.col_widths();
+            col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
+            columns.fixed.forEach(function (set) {set.columns.forEach(populate);});
+            columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
+            columns.length = columns.types.length;
+        };
+        var range = function (start, end) {
+            var result = [], lcv;
+            for (lcv = start; lcv < end + 1; lcv += 1) result.push(lcv);
+            return result;
+        };
+        var reorder_cols = function () {
+            var grid = this, meta = grid.meta, columns, reorder, scrolls, sets;
+            if (!grid.state.col_reorder.length) return false;
+            columns = (meta = grid.meta = $.extend(grid.meta, JSON.parse(JSON.stringify(grid.dataman.meta)))).columns;
+            reorder = grid.state.col_reorder.slice(meta.fixed_length)
+                .map(function (value) {return value - meta.fixed_length;});
+            scrolls = columns.scroll.reduce(function (acc, set, idx) {
+                return acc.concat(set.columns.map(function (col) {return (col.orig_set = idx), col;}));
+            }, []);
+            scrolls = reorder.map(function (idx) {return scrolls[idx];});
+            sets = columns.scroll.reduce(function (acc, set) {delete set.columns; return acc.concat(set);}, []);
+            columns.scroll = scrolls.reduce(function (acc, col, idx) {
+                var length = acc.length, same_set = length && scrolls[idx - 1].orig_set === col.orig_set, orig_set;
+                if (same_set) return acc[length - 1].columns.push(col), acc;
+                orig_set = sets[col.orig_set];
+                acc.push(Object.keys(orig_set).reduce(function (acc, key) {
+                    return (acc[key] = orig_set[key]), acc;
+                }, {columns: [col]}));
+                return acc;
+            }, []);
+            return populate_cols.call(grid), true;
         };
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
                 var meta = grid.meta, width = meta.columns.width, index = 0, show_save = meta.show_save,
-                    show_sets = meta.show_sets, show_views = meta.show_views;
+                    show_sets = meta.show_sets, show_views = meta.show_views, fixed = !col_offset;
                 return {
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar : 0,
                     sets: sets.map(function (set, idx) {
@@ -252,10 +413,10 @@ $.register_module({
                             };
                         });
                         return {
-                            // only send views in for fixed columns (and if show_views)
-                            views: !col_offset && show_views ? grid.views : null, sparklines: grid.config.sparklines,
-                            name: set.name, index: idx + (set_offset || 0), columns: columns, show_sets: show_sets,
-                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0), save: show_save
+                            columns: columns, index: idx + (set_offset || 0), name: set.name, reorder: !fixed,
+                            show_save: show_save, show_sets: show_sets, show_sparklines: grid.config.sparklines,
+                            views: fixed && show_views ? grid.views : null,
+                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
                     })
                 };
@@ -268,15 +429,13 @@ $.register_module({
             };
         })();
         var render_rows = (function () {
-            var row_data = function (grid, data, fixed, loading) {
-                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner, prefix,
-                    cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
-                    types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
-                    row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
-                    widths = meta.columns.widths, row_class = meta.row_class, result = {
-                        rows: [], loading: loading, holder_height: Math
-                            .max(inner.height + (fixed ? scrollbar : 0), inner.scroll_height - (fixed ? 0 : scrollbar)),
-                    };
+            var row_data = function (grid, fixed, loading) {
+                var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, i, j, index,
+                    data_row, inner = meta.inner, prefix, cols = meta.viewport.cols, rows = meta.viewport.rows,
+                    grid_row = state.available.indexOf(rows[0]), types = meta.columns.types, type,
+                    total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
+                    col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
+                    widths = meta.columns.widths, row_class = meta.row_class, result = {rows: [], loading: loading};
                 if (loading) return result;
                 for (i = 0; i < row_len; i += 1) {
                     result.rows.push({
@@ -284,15 +443,16 @@ $.register_module({
                     });
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (; j < col_end; j += 1) {
-                        index = i * total_cols + j; column = cols[j];
+                        index = i * total_cols + j;
+                        column = state.col_reorder.length ? state.col_reorder.indexOf(cols[j]) : cols[j];
                         value = formatter[type = types[column]] ?
                             data[index] && formatter[type](data[index], widths[column], row_height)
                                 : data[index] && data[index].v || '';
-                        prefix = fixed && j === 0 ? meta.unraveled_cache[meta.unraveled[data_row]]({
-                            state: grid.meta.nodes[data_row] ? 'collapse' : 'expand'
+                        prefix = fixed && j === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
+                            state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
                         cells.push({
-                            column: column, value: prefix + value,
+                            column: column, value: prefix + value, type: data[index].t || type,
                             logging: data[index] && data[index][logging], error: data[index] && data[index].error
                         });
                     }
@@ -300,12 +460,15 @@ $.register_module({
                 return result;
             };
             return function (data, loading) { // TODO handle scenario where grid was busy when data stopped ticking
-                var grid = this, meta = grid.meta;
+                var grid = this, meta = grid.meta, reorder;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
+                reorder = meta.viewport.cols.slice(1).reduce(function (acc, val) {
+                    return (acc.value = acc.value || val < acc.last), (acc.last = val), acc;
+                }, {last: meta.viewport.cols[0], value: false}).value;
                 grid.data = data;
-                grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, data, true, loading));
+                grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body
-                    .html(grid.formatter.transform(templates.row(row_data(grid, data, false, loading))));
+                    .html(grid.formatter.transform(templates.row(row_data(grid, false, loading))));
                 grid.updated(+new Date);
                 if (loading) {
                     if (!grid.elements.notified) grid.elements.main
@@ -318,8 +481,8 @@ $.register_module({
             };
         })();
         var set_css = function (id, sets, offset) {
-            var partial = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
-                total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
+            var partial = 0, total_width = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, [])
+                .reduce(function (acc, val) {return val.width + acc;}, 0);
             return sets.map(function (set, idx) {
                 var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
                 css = {
@@ -340,11 +503,11 @@ $.register_module({
                 return rep_memo[times] = result;
             };
             var unravel = function (arr, result, indent) {
-                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end = null, str,
+                var start = arr[0], end = arr[1], children = arr[2], expand = !arr[3], prefix, last_end = null, str,
                     i, j, len = children.length, child, curr_start, curr_end, html;
                 html = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;'
                 prefix = cache[rep(indent) + html] = counter++;
-                result.push({prefix: prefix, node: true, indent: indent, length: end - start});
+                result.push({prefix: prefix, node: true, indent: indent, range: [start, end], expand: expand});
                 for (i = 0; i < len; i += 1) {
                     child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
                     if (j < curr_start) prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
@@ -357,43 +520,56 @@ $.register_module({
                 return result;
             };
             return function () {
-                var grid = this, meta = grid.meta, unraveled, prefix;
-                cache = {}; counter = 0; grid.meta.unraveled_cache = [];
+                var grid = this, meta = grid.meta, state = grid.state, unraveled,
+                    collapse = grid.config[has]('collapse_level'), collapse_level = grid.config.collapse_level;
+                cache = {}; counter = 0; state.unraveled_cache = [];
                 unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
-                meta.nodes = unraveled.reduce(function (acc, val, idx) {
+                state.nodes = unraveled.reduce(function (acc, val, idx) {
                     if (!val.node) return acc;
-                    acc[idx] = true;
-                    acc.all.push(idx);
-                    acc.ranges.push(val.length);
-                    if (val.indent > 1) acc.collapse.push(idx);
+                    acc[idx] = val.expand;
+                    acc.all.push(idx); acc.indent[idx] = val.indent; acc.ranges.push(val.range);
+                    acc.max_indent = Math.max(acc.max_indent, val.indent);
+                    if (collapse && val.indent >= collapse_level) acc.collapse.push(idx); // e.g. depgraphs
                     return acc;
-                }, {all: [], ranges: [], collapse: []});
-                for (prefix in cache) meta.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);
-                meta.unraveled = unraveled.pluck('prefix');
+                }, {all: [], collapse: [], indent: {}, ranges: [], max_indent: 0});
+                Object.keys(cache)
+                    .forEach(function (prefix) {state.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);});
+                state.unraveled = unraveled.pluck('prefix');
+                state.structure = meta.structure;
             };
         })();
+        var verify_state = function () {
+            var grid = this, meta = grid.meta, state = grid.state;
+            if (state.col_override.length !== meta.fixed_length + meta.scroll_length) { // length has changed (in meta)
+                state.col_override = new Array(meta.fixed_length + meta.scroll_length);
+                state.col_reorder = [];
+            }
+            if (!Object.equals(meta.structure, state.structure)) unravel_structure.call(grid);
+        };
         var viewport = function (handler) {
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
                 fixed_len = meta.fixed_length, row_start = Math.floor((top_position / inner.height) * meta.rows),
-                scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv,
-                row_end = Math.min(row_start + meta.visible_rows + buffer.row, meta.available.length),
+                scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv, reorder,
+                row_end = Math.min(row_start + meta.visible_rows + buffer.row, grid.state.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
             lcv = Math.max(0, row_start - buffer.row); viewport.rows = [];
-            while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);
+            while (lcv < row_end) viewport.rows.push(grid.state.available[lcv++]);
             (viewport.cols = []), (lcv = 0);
             while (lcv < fixed_len) viewport.cols.push(lcv++);
+            reorder = grid.state.col_reorder.length && grid.state.col_reorder;
             viewport.cols = viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
                 var lcv;
                 if (!('scan' in acc)) return acc;
                 if ((acc.scan += col.width) >= left_position) {
                     if (!acc.cols.length && idx) // pad before
-                        for (lcv = Math.max(0, idx - buffer.col); lcv < idx; lcv += 1) acc.cols.push(lcv + fixed_len);
-                    acc.cols.push(idx + fixed_len);
+                        for (lcv = Math.max(0, idx - buffer.col); lcv < idx; lcv += 1)
+                            acc.cols.push(reorder ? reorder[lcv + fixed_len] : lcv + fixed_len);
+                    acc.cols.push(reorder ? reorder[idx + fixed_len] : idx + fixed_len);
                 }
                 if (acc.scan > scroll_position) {
                     for (lcv = idx + 1; lcv < Math.min(idx + buffer.col, scroll_cols.length); lcv += 1)
-                        acc.cols.push(lcv + fixed_len);
+                        acc.cols.push(reorder ? reorder[lcv + fixed_len] : lcv + fixed_len);
                     delete acc.scan;
                 }
                 return acc;
@@ -412,28 +588,53 @@ $.register_module({
         };
         Grid.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
-            var grid = this, meta = grid.meta, viewport = grid.meta.viewport, rows = viewport.rows,
+            var grid = this, meta = grid.meta, state = grid.state, viewport = grid.meta.viewport, rows = viewport.rows,
                 cols = viewport.cols, row = selection.rows[0], col = selection.cols[0], col_index = cols.indexOf(col),
                 data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
             return typeof cell === 'undefined' ? null : {
-                row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
-                row_name: grid.data[data_index - col_index].v.name, col_name: meta.columns.headers[col],
+                row: row, col: col, value: cell, type: cell.t || selection.type[0],
+                row_name: grid.data[data_index - col_index].v.name || grid.data[data_index - col_index].v,
+                col_name: meta.columns.headers[state.col_reorder.length ? state.col_reorder.indexOf(col) : col],
                 row_value: grid.data[data_index - col_index].v
             };
         };
         Grid.prototype.col_widths = function () {
-            var grid = this, meta = grid.meta, avg_col_width, fixed_width, scroll_cols = meta.columns.scroll,
-                scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
-            meta.fixed_length = meta.columns.fixed[0].columns.length;
-            meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
-            fixed_width = meta.columns.fixed[0].columns
-                .reduce(function (acc, col, idx) {return acc + (col.width = col.width || (idx ? 150 : 250));}, 0);
-            remainder = (scroll_width = parent_width - fixed_width - scrollbar) -
-                ((avg_col_width = Math.floor(scroll_width / meta.scroll_length)) * meta.scroll_length);
+            var grid = this, state = grid.state, meta = grid.meta, avg_col_width, fixed_width,
+                fixed_cols = meta.columns.fixed, scroll_cols = meta.columns.scroll, scroll_data_width,
+                def_scrolls, scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
+            (function (idx) {
+                fixed_cols.concat(scroll_cols).forEach(function (set) {
+                    set.columns.forEach(function (col) {
+                        col.width = state.col_override[idx] || meta.columns.orig_widths[idx];
+                        idx += 1;
+                    });
+                });
+            })(0);
+            def_scrolls = scroll_cols.reduce(function (top, set) {
+                top.length += set.columns.reduce(function (acc, col) {
+                    top.width += +col.width;
+                    return col.width ? acc + 1 : acc;
+                }, 0);
+                return top;
+            }, {length: 0, width: 0});
+            meta.columns.widths = [];
+            fixed_width = meta.columns.fixed.length && meta.columns.fixed[0].columns.reduce(function (acc, col, idx) {
+                meta.columns.widths.push(col.width = col.width || (idx ? 150 : 250));
+                return acc + col.width;
+            }, 0);
+            scroll_width = parent_width - fixed_width - scrollbar;
+            avg_col_width = Math.floor((scroll_width - def_scrolls.width) / (meta.scroll_length - def_scrolls.length));
             scroll_cols.forEach(function (set) {
-                set.columns.forEach(function (col) {col.width = Math.max(default_col_width, avg_col_width);});
+                set.columns.forEach(function (col) {
+                    meta.columns.widths.push(col.width = col.width || Math.max(default_col_width, avg_col_width));
+                });
             });
-            (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
+            scroll_data_width = scroll_cols.pluck('columns').reduce(function (acc, set) {return acc + set.pluck('width')
+                .reduce(function (acc, val) {return acc + val;});}, 0);
+            if ((remainder = scroll_width - scroll_data_width) <= 0) return;
+            meta.columns.widths[meta.columns.widths.length - 1] += remainder;
+            if (scroll_cols.length)
+                (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
         Grid.prototype.kill = function () {
@@ -457,7 +658,7 @@ $.register_module({
                 col_indices, cols_len = viewport.cols.length, types = [], result = null,
                 available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
                     !selection.cols.some(function (col) {return !~viewport.cols.indexOf(col);});
-            if (!available) return null;
+            if (!available || !grid.data) return {data: null, raw: null};
             row_indices = selection.rows.map(function (row) {return viewport.rows.indexOf(row);});
             col_indices = selection.cols.map(function (col) {return viewport.cols.indexOf(col);});
             result = row_indices.map(function (row_idx) {
@@ -466,18 +667,18 @@ $.register_module({
                     return {value: cell, type: cell.t || selection.type[idx]};
                 });
             });
-            return !expanded ? result : result.every(function (row) {
+            return !expanded ? {data: result, raw: result} : result.every(function (row) {
                 return row.pluck('type').every(function (type) {return type in do_not_expand;});
-            }) ? result : null;
+            }) ? {data: result, raw: result} : {data: null, raw: result};
         };
         Grid.prototype.resize = function (collapse) {
-            var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
-                width = grid.elements.parent.width(), data_width, height = grid.elements.parent.height(),
-                header_height = meta.header_height;
+            var grid = this, config = grid.config, meta = grid.meta, state = grid.state, columns = meta.columns,
+                id = grid.id, css, sheet, width = grid.elements.parent.width(), data_width,
+                height = grid.elements.parent.height(), header_height = meta.header_height;
             grid.col_widths();
             columns.width = {
                 fixed: columns.fixed.reduce(function (acc, set) {
-                    return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
+                    return acc + set.columns.reduce(function (acc, col, idx) {return acc + col.width;}, 0);
                 }, 0),
                 scroll: columns.scroll.reduce(function (acc, set) {
                     return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
@@ -496,8 +697,8 @@ $.register_module({
             columns.scan.all = columns.scan.fixed
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar;
-            if (collapse) meta.nodes.collapse.forEach(function (node) {meta.nodes[node] = false;});
-            meta.rows = (meta.available = available(grid.meta)).length;
+            if (collapse) state.nodes.collapse.forEach(function (node) {state.nodes[node] = false;});
+            meta.rows = (state.available = available.call(grid)).length;
             meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,
                 width: Math.min(width, data_width) - columns.width.fixed
@@ -507,12 +708,15 @@ $.register_module({
                 id: id, viewport_width: meta.inner.width, rest_top: meta.inner.height,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
+                scroll_height: Math.max(meta.inner.height, meta.inner.scroll_height - scrollbar),
+                fixed_height: Math.max(meta.inner.height + scrollbar, meta.inner.scroll_height),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
-                scroll_left: columns.width.fixed, set_height: meta.show_sets ? set_height : 0,
+                scroll_left: columns.width.fixed, set_height: meta.set_height, sparklines: grid.config.sparklines,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
+            grid.elements.style.empty();
             if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
             else sheet.appendChild(document.createTextNode(css));
             grid.offset = grid.elements.parent.offset();

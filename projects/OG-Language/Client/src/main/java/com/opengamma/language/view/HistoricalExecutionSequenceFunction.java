@@ -73,7 +73,7 @@ public class HistoricalExecutionSequenceFunction extends AbstractFunctionInvoker
     final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
         ((int) (to.getEpochSecond() - from.getEpochSecond()) + samplePeriodSeconds - 1) / samplePeriodSeconds);
     for (Instant valuationTime = from; !valuationTime.isAfter(to); valuationTime = valuationTime.plus(samplePeriodSeconds, SECONDS)) {
-      final LocalDate date = ZonedDateTime.ofInstant(valuationTime, ZoneOffset.UTC).getDate();
+      final LocalDate date = ZonedDateTime.ofInstant(valuationTime, ZoneOffset.UTC).toLocalDate();
       final HistoricalMarketDataSpecification spec = MarketData.historical(date, timeSeriesResolverKey);
       final ViewCycleExecutionOptions options = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecification(spec).create();
       cycles.add(options);

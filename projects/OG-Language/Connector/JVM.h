@@ -29,7 +29,9 @@ private:
 
 	CClientJVM (CProcess *poProcess, bool bFirstConnection);
 	static CClientJVM *StartExecutable (const TCHAR *pszExecutable, unsigned long lStartTimeout);
+#ifdef _WIN32
 	static CClientJVM *StartService (const TCHAR *pszServiceName, const TCHAR *pszExecutable, unsigned long lPollTimeout, unsigned long lStartTimeout, unsigned long lStopTimeout);
+#endif /* ifdef _WIN32 */
 public:
 	~CClientJVM ();
 	static CClientJVM *Start ();
