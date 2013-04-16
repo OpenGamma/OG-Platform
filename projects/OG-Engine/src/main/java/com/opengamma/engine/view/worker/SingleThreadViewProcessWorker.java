@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +88,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
+import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
@@ -890,7 +890,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    */
   private Map<UniqueId, ComputationTargetSpecification> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
     long t = -System.nanoTime();
-    // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
     final Set<ComputationTargetReference> toCheck;
     if (_targetResolverChanges == null) {
       // Change notifications aren't relevant for historical iteration; must recheck all of the resolutions
@@ -916,8 +915,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         s_logger.debug("Checking {} of {} resolutions for changed objects", toCheck.size(), previousResolutions.size());
       }
     }
+    PoolExecutor previousInstance = PoolExecutor.setInstance(getProcessContext().getFunctionCompilationService().getExecutorService());
     final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
         .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(toCheck, versionCorrection);
+    PoolExecutor.setInstance(previousInstance);
     t += System.nanoTime();
     Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = null;
     for (final Map.Entry<ComputationTargetReference, UniqueId> target : previousResolutions.entrySet()) {
@@ -939,27 +940,23 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   }
 
   private void getInvalidMarketData(final DependencyGraph graph, final InvalidMarketDataDependencyNodeFilter filter) {
+    final PoolExecutor.Service<?> slaveJobs = getProcessContext().getFunctionCompilationService().getExecutorService().createService(null);
     // 32 was chosen fairly arbitrarily. Before doing this 502 node checks was taking 700ms. After this it is taking 180ms. 
     final int jobSize = 32;
     InvalidMarketDataDependencyNodeFilter.VisitBatch visit = filter.visit(jobSize);
-    LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
     for (ValueSpecification marketData : graph.getAllRequiredMarketData()) {
       if (visit.isFull()) {
-        futures.add(getProcessContext().getFunctionCompilationService().getExecutorService().submit(visit));
+        slaveJobs.execute(visit);
         visit = filter.visit(jobSize);
       }
       final DependencyNode node = graph.getNodeProducing(marketData);
       visit.add(marketData, node);
     }
     visit.run();
-    Future<?> future = futures.poll();
-    while (future != null) {
-      try {
-        future.get();
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Interrupted", e);
-      }
-      future = futures.poll();
+    try {
+      slaveJobs.join();
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
     }
   }
 

@@ -6,9 +6,6 @@
 package com.opengamma.core.position.impl;
 
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -18,6 +15,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PoolExecutor;
 
 /**
  * A traverser that runs in parallel using a number of threads. The ordering is non-deterministic.
@@ -26,28 +24,25 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ParallelPortfolioNodeTraverser.class);
 
-  private final ExecutorService _executorService;
+  private final PoolExecutor.Service<?> _executorService;
 
   /**
    * Creates a traverser.
-   *
+   * 
    * @param callback the callback to invoke, not null
    * @param executorService the executor service for parallel resolutions
    */
-  public ParallelPortfolioNodeTraverser(final PortfolioNodeTraversalCallback callback, final ExecutorService executorService) {
+  public ParallelPortfolioNodeTraverser(final PortfolioNodeTraversalCallback callback, final PoolExecutor executorService) {
     super(callback);
     ArgumentChecker.notNull(executorService, "executorService");
-    _executorService = executorService;
+    _executorService = executorService.createService(null);
   }
 
-  protected ExecutorService getExecutorService() {
+  protected PoolExecutor.Service<?> getExecutorService() {
     return _executorService;
   }
 
   private final class Context {
-
-    private final AtomicInteger _count = new AtomicInteger();
-    private final Queue<Runnable> _work = new ConcurrentLinkedQueue<Runnable>();
 
     private final class NodeTraverser implements Runnable {
 
@@ -127,74 +122,13 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
     }
 
     private void submit(final Runnable runnable) {
-      _count.incrementAndGet();
-      if (_work.isEmpty()) {
-        synchronized (this) {
-          if (_work.isEmpty()) {
-            _work.add(runnable);
-            notify();
-            // Don't submit a job - there will be the caller to waitForCompletion
-            return;
-          } else {
-            _work.add(runnable);
-          }
-        }
-      } else {
-        _work.add(runnable);
-      }
-      getExecutorService().submit(new Runnable() {
-        @Override
-        public void run() {
-          // The original thread might have raced ahead so there might not be work for us in the queue
-          final Runnable underlying = _work.poll();
-          if (underlying != null) {
-            try {
-              underlying.run();
-            } catch (final Throwable t) {
-              s_logger.error("Error running work item {}", t.getMessage());
-              s_logger.warn("Caught exception", t);
-            } finally {
-              if (_count.decrementAndGet() == 0) {
-                // This was the last piece of work
-                synchronized (Context.this) {
-                  Context.this.notify();
-                }
-              }
-            }
-          }
-        }
-      });
+      getExecutorService().execute(runnable);
     }
 
     public void waitForCompletion() {
       try {
-        do {
-          Runnable work = _work.poll();
-          while (work != null) {
-            try {
-              work.run();
-            } catch (final Throwable t) {
-              s_logger.error("Error running work item {}", t.getMessage());
-              s_logger.warn("Caught exception", t);
-            }
-            if (_count.decrementAndGet() == 0) {
-              // This was the last piece of work - we're done
-              return;
-            }
-            work = _work.poll();
-          }
-          // Nothing in the queue but the background threads are busy
-          synchronized (this) {
-            if (_count.get() == 0) {
-              // We're done
-              return;
-            }
-            if (_work.isEmpty()) {
-              wait();
-            }
-          }
-        } while (true);
-      } catch (final InterruptedException e) {
+        getExecutorService().join();
+      } catch (InterruptedException e) {
         s_logger.info("Interrupted waiting for completion");
         throw new OpenGammaRuntimeException("interrupted", e);
       }
@@ -204,7 +138,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   /**
    * Traverse the nodes notifying using the callback.
-   *
+   * 
    * @param portfolioNode the node to start from, null does nothing
    */
   @Override

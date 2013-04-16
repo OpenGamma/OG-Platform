@@ -12,12 +12,14 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.resolver.IdentifierResolver;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.PoolExecutor;
 
 /**
  * Standard implementation of a {@link ComputationTargetSpecificationResolver}.
@@ -47,6 +49,15 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
   @Override
   public AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
     return new AtVersionCorrection() {
+
+      private PoolExecutor.Service<Void> createService() {
+        final PoolExecutor executor = PoolExecutor.instance();
+        if (executor != null) {
+          return executor.createService(null);
+        } else {
+          return null;
+        }
+      }
 
       private final ComputationTargetReferenceVisitor<ComputationTargetSpecification> _getTargetSpecification =
           new ComputationTargetReferenceVisitor<ComputationTargetSpecification>() {
@@ -157,6 +168,7 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
         for (final ComputationTargetReference reference : references) {
           reference.accept(visitor);
         }
+        final PoolExecutor.Service<Void> jobs = createService();
         // TODO: sort the target types - some resolvers will cause caching behavior that will help others out (e.g. resolving Portfolio OID will cache all component Position OID/UIDs).
         // TODO: should there be a threshold for single vs bulk - e.g. are two calls in succession quicker than the map/set operations?
         for (final Map.Entry<ComputationTargetType, Set<ComputationTargetRequirement>> entry : requirementByType.entrySet()) {
@@ -166,24 +178,60 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
               break;
             case 1: {
               // Single item
-              final ComputationTargetRequirement requirement = entry.getValue().iterator().next();
-              final UniqueId uid = _resolve.get(entry.getKey()).resolveExternalId(requirement.getIdentifiers(), versionCorrection);
-              if (uid != null) {
-                result.put(requirement, requirement.replaceIdentifier(uid));
+              if (jobs != null) {
+                jobs.execute(new Runnable() {
+                  @Override
+                  public void run() {
+                    final ComputationTargetRequirement requirement = entry.getValue().iterator().next();
+                    final UniqueId uid = _resolve.get(entry.getKey()).resolveExternalId(requirement.getIdentifiers(), versionCorrection);
+                    if (uid != null) {
+                      synchronized (result) {
+                        result.put(requirement, requirement.replaceIdentifier(uid));
+                      }
+                    }
+                  }
+                });
+              } else {
+                final ComputationTargetRequirement requirement = entry.getValue().iterator().next();
+                final UniqueId uid = _resolve.get(entry.getKey()).resolveExternalId(requirement.getIdentifiers(), versionCorrection);
+                if (uid != null) {
+                  result.put(requirement, requirement.replaceIdentifier(uid));
+                }
               }
               break;
             }
             default: {
               // Bulk lookup
-              final Set<ExternalIdBundle> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
-              for (final ComputationTargetRequirement requirement : entry.getValue()) {
-                identifiers.add(requirement.getIdentifiers());
-              }
-              final Map<ExternalIdBundle, UniqueId> uids = _resolve.get(entry.getKey()).resolveExternalIds(identifiers, versionCorrection);
-              for (final ComputationTargetRequirement requirement : entry.getValue()) {
-                final UniqueId uid = uids.get(requirement.getIdentifiers());
-                if (uid != null) {
-                  result.put(requirement, requirement.replaceIdentifier(uid));
+              if (jobs != null) {
+                jobs.execute(new Runnable() {
+                  @Override
+                  public void run() {
+                    final Set<ExternalIdBundle> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
+                    for (final ComputationTargetRequirement requirement : entry.getValue()) {
+                      identifiers.add(requirement.getIdentifiers());
+                    }
+                    final Map<ExternalIdBundle, UniqueId> uids = _resolve.get(entry.getKey()).resolveExternalIds(identifiers, versionCorrection);
+                    for (final ComputationTargetRequirement requirement : entry.getValue()) {
+                      final UniqueId uid = uids.get(requirement.getIdentifiers());
+                      if (uid != null) {
+                        synchronized (result) {
+                          result.put(requirement, requirement.replaceIdentifier(uid));
+                        }
+                      }
+                    }
+                  }
+                });
+              } else {
+                final Set<ExternalIdBundle> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
+                for (final ComputationTargetRequirement requirement : entry.getValue()) {
+                  identifiers.add(requirement.getIdentifiers());
+                }
+                final Map<ExternalIdBundle, UniqueId> uids = _resolve.get(entry.getKey()).resolveExternalIds(identifiers, versionCorrection);
+                for (final ComputationTargetRequirement requirement : entry.getValue()) {
+                  final UniqueId uid = uids.get(requirement.getIdentifiers());
+                  if (uid != null) {
+                    result.put(requirement, requirement.replaceIdentifier(uid));
+                  }
                 }
               }
               break;
@@ -197,27 +245,71 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
               break;
             case 1: {
               // Single item
-              final ComputationTargetSpecification specification = entry.getValue().iterator().next();
-              final UniqueId uid = _resolve.get(entry.getKey()).resolveObjectId(specification.getUniqueId().getObjectId(), versionCorrection);
-              if (uid != null) {
-                result.put(specification, specification.replaceIdentifier(uid));
+              if (jobs != null) {
+                jobs.execute(new Runnable() {
+                  @Override
+                  public void run() {
+                    final ComputationTargetSpecification specification = entry.getValue().iterator().next();
+                    final UniqueId uid = _resolve.get(entry.getKey()).resolveObjectId(specification.getUniqueId().getObjectId(), versionCorrection);
+                    if (uid != null) {
+                      synchronized (result) {
+                        result.put(specification, specification.replaceIdentifier(uid));
+                      }
+                    }
+                  }
+                });
+              } else {
+                final ComputationTargetSpecification specification = entry.getValue().iterator().next();
+                final UniqueId uid = _resolve.get(entry.getKey()).resolveObjectId(specification.getUniqueId().getObjectId(), versionCorrection);
+                if (uid != null) {
+                  result.put(specification, specification.replaceIdentifier(uid));
+                }
               }
               break;
             }
             default: {
               // Bulk lookup
-              final Set<ObjectId> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
-              for (final ComputationTargetSpecification specification : entry.getValue()) {
-                identifiers.add(specification.getUniqueId().getObjectId());
-              }
-              final Map<ObjectId, UniqueId> uids = _resolve.get(entry.getKey()).resolveObjectIds(identifiers, versionCorrection);
-              for (final ComputationTargetSpecification specification : entry.getValue()) {
-                final UniqueId uid = uids.get(specification.getUniqueId().getObjectId());
-                if (uid != null) {
-                  result.put(specification, specification.replaceIdentifier(uid));
+              if (jobs != null) {
+                jobs.execute(new Runnable() {
+                  @Override
+                  public void run() {
+                    final Set<ObjectId> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
+                    for (final ComputationTargetSpecification specification : entry.getValue()) {
+                      identifiers.add(specification.getUniqueId().getObjectId());
+                    }
+                    final Map<ObjectId, UniqueId> uids = _resolve.get(entry.getKey()).resolveObjectIds(identifiers, versionCorrection);
+                    for (final ComputationTargetSpecification specification : entry.getValue()) {
+                      final UniqueId uid = uids.get(specification.getUniqueId().getObjectId());
+                      if (uid != null) {
+                        synchronized (result) {
+                          result.put(specification, specification.replaceIdentifier(uid));
+                        }
+                      }
+                    }
+                  }
+                });
+              } else {
+                final Set<ObjectId> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
+                for (final ComputationTargetSpecification specification : entry.getValue()) {
+                  identifiers.add(specification.getUniqueId().getObjectId());
+                }
+                final Map<ObjectId, UniqueId> uids = _resolve.get(entry.getKey()).resolveObjectIds(identifiers, versionCorrection);
+                for (final ComputationTargetSpecification specification : entry.getValue()) {
+                  final UniqueId uid = uids.get(specification.getUniqueId().getObjectId());
+                  if (uid != null) {
+                    result.put(specification, specification.replaceIdentifier(uid));
+                  }
                 }
               }
+              break;
             }
+          }
+        }
+        if (jobs != null) {
+          try {
+            jobs.join();
+          } catch (InterruptedException e) {
+            throw new OpenGammaRuntimeException("Interrupted", e);
           }
         }
         return result;
