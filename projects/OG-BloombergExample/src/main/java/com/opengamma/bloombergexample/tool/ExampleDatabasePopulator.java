@@ -110,7 +110,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     loadMultiCurrencySwapPortfolio();
     loadEquityOptionPortfolio();
     loadViews();
-    loadFunctionConfigurations();
+//    loadFunctionConfigurations();
   }
 
   private void loadFunctionConfigurations() {
