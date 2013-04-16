@@ -46,6 +46,7 @@ $.register_module({
                     util.check_checkbox("security.adjustCashSettlementDate", data.security.adjustCashSettlementDate);
                     util.check_checkbox("security.adjustMaturityDate", data.security.adjustMaturityDate);
                     util.check_checkbox("security.immAdjustMaturityDate", data.security.immAdjustMaturityDate);
+                    util.check_checkbox("security.adjustSettlementDate", data.security.adjustSettlementDate);
                     if(data.security.notional)
                         util.set_select("security.notional.currency", data.security.notional.currency);
                     if(data.security.upfrontPayment)
