@@ -32,7 +32,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -71,7 +70,6 @@ public class AnalyticsViewManager {
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
-                              MarketDataSnapshotMaster snapshotMaster,
                               ComputationTargetResolver targetResolver,
                               NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
                               BlotterColumnMapper blotterColumnMapper,
@@ -82,7 +80,6 @@ public class AnalyticsViewManager {
                               PositionMaster positionMaster) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMapper");
@@ -104,14 +101,6 @@ public class AnalyticsViewManager {
     _positionMaster = positionMaster;
     // TODO something more sophisticated / configurable here
     _portfolioResolutionExecutor = Executors.newFixedThreadPool(4);
-  }
-
-  protected NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
-    return _marketDataSpecificationRepository;
-  }
-
-  protected ExecutionFlags.ParallelRecompilationMode getParallelViewRecompilation() {
-    return _parallelViewRecompilation;
   }
 
   /**
@@ -183,8 +172,13 @@ public class AnalyticsViewManager {
     AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, timingView);
     AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, timingView, _positionSource);
     List<AutoCloseable> listeners = Lists.newArrayList(securityListener, positionListener, portfolioListener);
-    AnalyticsViewClientConnection connection =
-        new AnalyticsViewClientConnection(this, request, aggregatedViewDef, viewClient, timingView, listeners);
+    AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
+                                                                                 aggregatedViewDef,
+                                                                                 viewClient,
+                                                                                 timingView,
+                                                                                 listeners,
+                                                                                 _parallelViewRecompilation,
+                                                                                 _marketDataSpecificationRepository);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView
