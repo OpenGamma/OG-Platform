@@ -340,8 +340,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   @Override
   public void setPath(String[] newPath) {
-    
-    ArgumentChecker.notNull(newPath, "newPath");
+    ArgumentChecker.noNulls(newPath, "newPath");
 
     if (!Arrays.equals(newPath, _currentPath)) {
 

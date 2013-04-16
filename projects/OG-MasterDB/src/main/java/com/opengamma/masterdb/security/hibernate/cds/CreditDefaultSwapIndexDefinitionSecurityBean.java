@@ -25,7 +25,7 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.TenorBean;
 
 /**
- * A Hibernate bean representation of {@link CreditDefaultSwapIndexSecurity}.
+ * A Hibernate bean representation of {@link CreditDefaultSwapIndexDefinitionSecurity}.
  */
 @BeanDefinition
 public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {

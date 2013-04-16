@@ -59,13 +59,15 @@ public class SequencePartitioningViewProcessWorkerTest {
     // ViewProcessWorker
 
     @Override
-    public void triggerCycle() {
+    public boolean triggerCycle() {
       fail();
+      return false;
     }
 
     @Override
-    public void requestCycle() {
+    public boolean requestCycle() {
       fail();
+      return false;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class SequencePartitioningViewProcessWorkerTest {
     public void run() {
       boolean compiled = false;
       do {
-        ViewCycleExecutionOptions options = _options.getExecutionSequence().getNext(_options.getDefaultExecutionOptions());
+        ViewCycleExecutionOptions options = _options.getExecutionSequence().poll(_options.getDefaultExecutionOptions());
         if (options == null) {
           _context.workerCompleted();
           return;

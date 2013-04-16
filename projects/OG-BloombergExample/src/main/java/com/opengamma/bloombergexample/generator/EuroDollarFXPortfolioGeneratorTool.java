@@ -42,5 +42,15 @@ public class EuroDollarFXPortfolioGeneratorTool extends MixedFXPortfolioGenerato
     protected ManageableTrade createFXForwardSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
       return null;
     }
+    
+    /**
+     * We don't want FX barriers in the generated portfolio as the generated trades don't always price, so this always returns null.
+     * @return null
+     */
+    @Override
+    protected ManageableTrade createFXBarrierOptionSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
+      return null;
+    }
+    
   }
 }
