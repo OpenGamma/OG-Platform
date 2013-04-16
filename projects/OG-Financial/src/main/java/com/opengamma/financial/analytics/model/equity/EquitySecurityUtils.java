@@ -48,10 +48,9 @@ public final class EquitySecurityUtils {
   }
 
   /**
-   * Gets the underlying index or equity name from a security. At the moment, only securities with a Bloomberg ticker or
-   * BUID (if the security is an equity index option) are handled.
-   * For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be
-   * the name.
+   * Gets the underlying index or equity name from a security. At the moment, only securities with a Bloomberg ticker or BUID (if the security is an equity index option) are handled. For a Bloomberg
+   * ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be the name.
+   * 
    * @param security The security, not null
    * @return The equity or index name, null if the underlying id is not a BUID or Bloomberg ticker
    */
@@ -80,8 +79,8 @@ public final class EquitySecurityUtils {
   }
 
   /**
-   * Gets the underlying index or equity name from an external id. At the moment, only ids with a Bloomberg ticker are handled.
-   * For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX).
+   * Gets the underlying index or equity name from an external id. At the moment, only ids with a Bloomberg ticker are handled. For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX).
+   * 
    * @param underlyingId The security, not null
    * @return The equity or index name, null if the underlying id is not a Bloomberg ticker
    */
@@ -98,10 +97,9 @@ public final class EquitySecurityUtils {
   }
 
   /**
-   * Gets the underlying index or equity name from a unique id. At the moment, only securities with a Bloomberg ticker or
-   * BUID (if the security is an equity index option) are handled.
-   * For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be
-   * the name.
+   * Gets the underlying index or equity name from a unique id. At the moment, only securities with a Bloomberg ticker or BUID (if the security is an equity index option) are handled. For a Bloomberg
+   * ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be the name.
+   * 
    * @param externalId The unique id, not null
    * @return The equity or index name, null if the underlying id is not a BUID or Bloomberg ticker
    */
@@ -126,9 +124,7 @@ public final class EquitySecurityUtils {
     s_logger.info("Cannot handle scheme of type {}", extScheme);
     return null;
   }
-  
-  
-  
+
   /*
    * 
    *   public static String getIndexOrEquityName(final UniqueId uniqueId) {
@@ -161,11 +157,13 @@ public final class EquitySecurityUtils {
 
   /**
    * Removes the postfix if the uid is a Bloomberg ticker.
+   * 
    * @param uid The unique id, not null
    * @return The ticker without postfix
+   * @deprecated holding a Bloomberg ticker in a unique identifier is normally wrong
    */
+  @Deprecated
   public static String getTrimmedTarget(final UniqueId uid) {
-    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
     ArgumentChecker.notNull(uid, "unique id");
     final String value = uid.getValue();
     if (uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
@@ -176,8 +174,24 @@ public final class EquitySecurityUtils {
   }
 
   /**
-   * Gets the exchange given a unique id representing an equity underlying. If the id scheme is weak, this is transformed
-   * before the security is requested from the security source.
+   * Removes the postfix if the identifier is a Bloomberg ticker.
+   * 
+   * @param identifier The ticker identifier
+   * @return The ticker without postfix
+   */
+  public static String getTrimmedTarget(final ExternalId identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    final String value = identifier.getValue();
+    if (identifier.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) || identifier.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
+      final int lastSpace = value.lastIndexOf(" ");
+      return value.substring(0, lastSpace);
+    }
+    return value;
+  }
+
+  /**
+   * Gets the exchange given a unique id representing an equity underlying. If the id scheme is weak, this is transformed before the security is requested from the security source.
+   * 
    * @param securitySource The security source, not null
    * @param id The id of the equity, not null
    * @return The exchange or null if there is no security for this id in the source.
@@ -186,27 +200,27 @@ public final class EquitySecurityUtils {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(id, "unique id");
     return "CBOE";
-//    final String scheme;
-//    final String originalScheme = id.getScheme();
-//    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-//      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
-//    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
-//      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
-//    } else {
-//      scheme = originalScheme;
-//    }
-//    final String value = id.getValue();
-//    final ExternalId ticker = ExternalId.of(scheme, value);
-//    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
-//    if (security == null) {
-//      return null;
-//    }
-//    return FinancialSecurityUtils.getExchange(security).getValue();
+    //    final String scheme;
+    //    final String originalScheme = id.getScheme();
+    //    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+    //      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
+    //    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
+    //      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
+    //    } else {
+    //      scheme = originalScheme;
+    //    }
+    //    final String value = id.getValue();
+    //    final ExternalId ticker = ExternalId.of(scheme, value);
+    //    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
+    //    if (security == null) {
+    //      return null;
+    //    }
+    //    return FinancialSecurityUtils.getExchange(security).getValue();
   }
 
   /**
-   * Gets the currency given a unique id representing an equity underlying. If the id scheme is weak, this is transformed
-   * before the security is requested from the security source.
+   * Gets the currency given a unique id representing an equity underlying. If the id scheme is weak, this is transformed before the security is requested from the security source.
+   * 
    * @param securitySource The security source, not null
    * @param id The id of the equity, not null
    * @return The currency or null if there is no security for this id in the source.
@@ -215,26 +229,27 @@ public final class EquitySecurityUtils {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(id, "unique id");
     return "USD";
-//    final String scheme;
-//    final String originalScheme = id.getScheme();
-//    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-//      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
-//    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
-//      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
-//    } else {
-//      scheme = originalScheme;
-//    }
-//    final String value = id.getValue();
-//    final ExternalId ticker = ExternalId.of(scheme, value);
-//    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
-//    if (security == null) {
-//      return null;
-//    }
-//    return FinancialSecurityUtils.getCurrency(security).getCode();
+    //    final String scheme;
+    //    final String originalScheme = id.getScheme();
+    //    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+    //      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
+    //    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
+    //      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
+    //    } else {
+    //      scheme = originalScheme;
+    //    }
+    //    final String value = id.getValue();
+    //    final ExternalId ticker = ExternalId.of(scheme, value);
+    //    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
+    //    if (security == null) {
+    //      return null;
+    //    }
+    //    return FinancialSecurityUtils.getCurrency(security).getCode();
   }
 
   /**
    * Determine the data scheme from the surface name e.g. BBG -> Bloomberg ticker
+   * 
    * @param surfaceName the surface or curve name
    * @return the scheme
    */
@@ -250,6 +265,7 @@ public final class EquitySecurityUtils {
 
   /**
    * Get scheme which maps onto this one
+   * 
    * @param scheme the destination scheme
    * @return the source scheme
    */
