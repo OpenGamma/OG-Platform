@@ -50,7 +50,8 @@ $.register_module({
                         util.set_select("security.notional.currency", data.security.notional.currency);
                     if(data.security.upfrontPayment)
                         util.set_select("security.upfrontPayment.currency", data.security.upfrontPayment.currency);
-                    
+                    if(data.security.upfrontAmount)
+                        util.set_select("security.upfrontAmount.currency", data.security.upfrontAmount.currency);
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);

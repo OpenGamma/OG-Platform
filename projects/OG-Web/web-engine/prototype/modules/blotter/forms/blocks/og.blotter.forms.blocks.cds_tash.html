@@ -42,13 +42,27 @@
       <tr>
         <td>
           <label>
-            <span>Upfront Payment</span>
+            <span>Upfront Amount</span>
           </label>
         </td>
         <td class="og-double-cell">
           <div><span>{{{item_12}}}
           </span><span><input name="security.upfrontPayment.amount" type="text" value="{{data.upfrontPayment.amount}}"/>
         </span></div>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if standard}}
+      <tr>
+        <td>
+          <label>
+            <span>Upfront Amount</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_11}}}
+          </span><span><input name="security.upfrontAmount.amount" type="text" value="{{data.upfrontAmount.amount}}"/>
+          </span></div>
         </td>
       </tr>
     {{/if}}
@@ -222,19 +236,6 @@
         <td>
           <input name="security.quotedSpread" type="text" value="{{data.quotedSpread}}"/>
         </td>
-      </tr>
-      <tr>
-        <td>
-          <label>
-            <span>Upfront Amount</span>
-          </label>
-        </td>
-        <td class="og-double-cell">
-          <div><span>{{{item_11}}}
-          </span><span><input name="security.upfrontAmout.amount" type="text" value="{{data.upfrontAmout.amount}}"/>
-          </span></div>
-        </td>
-      </tr>
       </tr>
     {{/if}}
     {{#if stdvanilla}}
