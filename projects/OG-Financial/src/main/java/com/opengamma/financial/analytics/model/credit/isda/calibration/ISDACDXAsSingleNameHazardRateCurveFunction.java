@@ -3,13 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.isda.cdx;
+package com.opengamma.financial.analytics.model.credit.isda.calibration;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.CDX_AS_SINGLE_NAME_ISDA;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,8 +16,10 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
@@ -28,7 +28,6 @@ import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -41,8 +40,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.CreditDefaultIndexSwapSecurityToProxyConverter;
+import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
@@ -55,41 +55,28 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
-//TODO rename to make clear that these functions use the ISDA methodology (specifically, for effective dates)
-public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCompiledInvoker {
+public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCurveFunction {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private final String[] _valueRequirements;
-  private CreditDefaultIndexSwapSecurityToProxyConverter _converter;
-
-  public ISDACDXAsSingleNameFunction(final String... valueRequirements) {
-    ArgumentChecker.notNull(valueRequirements, "value requirements");
-    _valueRequirements = valueRequirements;
-  }
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final OrganizationSource organizationSource = OpenGammaCompilationContext.getOrganizationSource(context);
-    _converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource);
-  }
+  private static final ISDAHazardRateCurveCalculator CALCULATOR = new ISDAHazardRateCurveCalculator();
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+    final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
-    LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(_converter);
-    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
+    LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
+    cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -110,10 +97,13 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
       times[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
       marketSpreads[i] = marketSpreadObjects[i];
     }
-    final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
+    final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs);
+    final ISDAYieldCurveAndSpreadsProvider data = new ISDAYieldCurveAndSpreadsProvider(times, marketSpreads, yieldCurve);
+    final HazardRateCurve curve = CALCULATOR.calibrateHazardRateCurve(cds, data, valuationTime);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, curve));
   }
 
   @Override
@@ -124,17 +114,12 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.all();
-    final Set<ValueSpecification> results = new HashSet<>();
-    for (final String valueRequirement : _valueRequirements) {
-      results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties));
-    }
-    return results;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    //TODO add check for calculation method = ISDA
     final Set<String> yieldCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE);
     if (yieldCurveNames == null || yieldCurveNames.size() != 1) {
       return null;
@@ -147,25 +132,21 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
     if (yieldCurveCalculationMethodNames == null || yieldCurveCalculationMethodNames.size() != 1) {
       return null;
     }
-    final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context));
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final String spreadCurveName = "CDS_INDEX_" + security.accept(identifierVisitor).getUniqueId().getValue();
-    //    final Set<String> spreadCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE);
-    //    if (spreadCurveNames == null || spreadCurveNames.size() != 1) {
-    //      return null;
-    //    }
     final ComputationTargetSpecification currencyTarget = ComputationTargetSpecification.of(FinancialSecurityUtils.getCurrency(target.getSecurity()));
     final String yieldCurveName = Iterables.getOnlyElement(yieldCurveNames);
     final String yieldCurveCalculationConfigName = Iterables.getOnlyElement(yieldCurveCalculationConfigNames);
     final String yieldCurveCalculationMethodName = Iterables.getOnlyElement(yieldCurveCalculationMethodNames);
-    //    final String spreadCurveName = Iterables.getOnlyElement(spreadCurveNames);
+    final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context));
+    final String spreadCurveName = "CDS_INDEX_" + security.accept(identifierVisitor).getUniqueId().getValue();
     final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
         yieldCurveCalculationMethodName);
-    final Set<String> creditSpreadCurveShifts = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
+
     final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, spreadCurveName);
-    if (creditSpreadCurveShifts != null) {
-      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts);
+    final Set<String> spreadCurveShift = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
+    if (spreadCurveShift != null && !spreadCurveShift.isEmpty()) {
+      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, spreadCurveShift);
     }
     final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
     return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement);
@@ -173,8 +154,8 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder propertiesBuilder = getCommonResultProperties();
-    propertiesBuilder.with(CALCULATION_METHOD, CDX_AS_SINGLE_NAME_ISDA);
+    final ValueProperties.Builder propertiesBuilder = createValueProperties()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME);
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification spec = entry.getKey();
       final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();
@@ -187,32 +168,19 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
         propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD));
         inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
       } else if (spec.getValueName().equals(ValueRequirementNames.CREDIT_SPREAD_CURVE)) {
-        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
+        propertiesBuilder.with(ValuePropertyNames.CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
         inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE);
       }
-      if (!inputPropertiesBuilder.get().isEmpty()) {
-        for (final String propertyName : inputPropertiesBuilder.get().getProperties()) {
-          propertiesBuilder.with(propertyName, inputPropertiesBuilder.get().getValues(propertyName));
+      final ValueProperties inputProperties = inputPropertiesBuilder.get();
+      if (!inputProperties.isEmpty()) {
+        for (final String propertyName : inputProperties.getProperties()) {
+          propertiesBuilder.with(propertyName, inputProperties.getValues(propertyName));
         }
       }
     }
-    if (labelResultWithCurrency()) {
-      propertiesBuilder.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-    }
     final ValueProperties properties = propertiesBuilder.get();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final Set<ValueSpecification> results = new HashSet<>();
-    for (final String valueRequirement : _valueRequirements) {
-      results.add(new ValueSpecification(valueRequirement, targetSpec, properties));
-    }
-    return results;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, targetSpec, properties));
   }
-
-  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
-      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties, FunctionInputs inputs);
-
-  protected abstract ValueProperties.Builder getCommonResultProperties();
-
-  protected abstract boolean labelResultWithCurrency();
 
 }

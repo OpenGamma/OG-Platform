@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults
 import com.opengamma.financial.analytics.model.credit.isda.ISDAHazardRateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSHazardRateCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSOptionHazardRateCurveFunction;
+import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDXAsSingleNameHazardRateCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedGammaCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedIR01CDSFunction;
@@ -402,6 +403,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));
     functions.add(functionConfiguration(ISDACDSHazardRateCurveFunction.class));
     functions.add(functionConfiguration(ISDACDSOptionHazardRateCurveFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameHazardRateCurveFunction.class));
     functions.add(functionConfiguration(BucketedSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDAParallelCS01VanillaCDSFunction.class));
     functions.add(functionConfiguration(ISDABucketedCS01VanillaCDSFunction.class));
