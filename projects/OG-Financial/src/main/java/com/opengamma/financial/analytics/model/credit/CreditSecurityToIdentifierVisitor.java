@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.credit;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
@@ -50,5 +51,9 @@ public final class CreditSecurityToIdentifierVisitor extends FinancialSecurityVi
   public CreditCurveIdentifier visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
     final CreditDefaultSwapSecurity underlyingSwap = (CreditDefaultSwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version correction?
     return underlyingSwap.accept(this);
+  }
+
+  public CreditCurveIdentifier visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+
   }
 }
