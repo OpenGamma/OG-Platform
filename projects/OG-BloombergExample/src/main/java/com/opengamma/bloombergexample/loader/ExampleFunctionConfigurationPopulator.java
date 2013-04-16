@@ -81,7 +81,6 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
               }
             }.getObjectCreating();
           }
-
         }.getObjectCreating();
       }
     }.getObjectCreating());
