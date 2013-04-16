@@ -37,15 +37,23 @@ public class ExampleDatabaseCreator {
   private static final File EXAMPLES_DIR = new File(System.getProperty("user.dir"));
   /** Schema. */
   private static final String CONFIG_FILE = "toolcontext/toolcontext-example.properties";
-  /** Database URL. */
-  private static final String KEY_URL = "db.standard.url";
-  /** Database user name. */
-  private static final String KEY_USER_NAME = "db.standard.username";
-  /** Database password. */
-  private static final String KEY_PASSWORD = "db.standard.password";
+  /** Shared database URL. */
+  private static final String KEY_SHARED_URL = "db.standard.url";
+  /** Shared database user name. */
+  private static final String KEY_SHARED_USER_NAME = "db.standard.username";
+  /** Shared database password. */
+  private static final String KEY_SHARED_PASSWORD = "db.standard.password";
+  /** Temporary user database URL. */
+  private static final String KEY_USERFINANCIAL_URL = "db.userfinancial.url";
+  /** Temporary user database user name. */
+  private static final String KEY_USERFINANCIAL_USER_NAME = "db.userfinancial.username";
+  /** Temporary user database password. */
+  private static final String KEY_USERFINANCIAL_PASSWORD = "db.userfinancial.password";
   /** Catalog. */
   private static final String CATALOG = "og-financial";
-  /** Script files. */
+  /** Script files by relative location. */
+  private static final File SCRIPT_RELATIVE_PATH = new File(EXAMPLES_DIR, "../OG-MasterDB");
+  /** Script files using zips built by Ant. */
   private static final File SCRIPT_ZIP_PATH = new File(EXAMPLES_DIR, "lib/sql/com.opengamma/og-masterdb");
   /** Script expansion. */
   private static final File SCRIPT_INSTALL_DIR = new File(EXAMPLES_DIR, "temp/" + ExampleDatabaseCreator.class.getSimpleName());
@@ -57,7 +65,6 @@ public class ExampleDatabaseCreator {
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
-    s_logger.warn("Creating example database");
     try {
       new ExampleDatabaseCreator().run(CONFIG_FILE);
       System.exit(0);
@@ -78,56 +85,56 @@ public class ExampleDatabaseCreator {
       }
       props.load(in);
     }
-    String url = Objects.requireNonNull(props.getProperty(KEY_URL));
-    String user = props.getProperty(KEY_USER_NAME, "");
-    String password = props.getProperty(KEY_PASSWORD, "");
-    
     // find the scripts
-    createSQLScripts();
+    String scriptDir = createSQLScripts();
     
     // create main database
+    s_logger.warn("Creating main database...");
     DbTool dbTool = new DbTool();
-    dbTool.setJdbcUrl(url);
-    dbTool.setUser(user);
-    dbTool.setPassword(password);
+    dbTool.setJdbcUrl(Objects.requireNonNull(props.getProperty(KEY_SHARED_URL)));
+    dbTool.setUser(props.getProperty(KEY_SHARED_USER_NAME, ""));
+    dbTool.setPassword(props.getProperty(KEY_SHARED_PASSWORD, ""));
     dbTool.setCatalog(CATALOG);  // ignored, as it is parsed from the url
     dbTool.setCreate(true);
     dbTool.setDrop(true);
     dbTool.setCreateTables(true);
-    dbTool.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
+    dbTool.setDbScriptDir(scriptDir);
     dbTool.execute();
-    s_logger.warn("Main database created");
     
     // create user database
+    s_logger.warn("Creating user database...");
     DbTool dbToolUser = new DbTool();
-    dbToolUser.setJdbcUrl(url);
-    dbToolUser.setUser(user);
-    dbToolUser.setPassword(password);
-    dbToolUser.setJdbcUrl("jdbc:hsqldb:file:/temp/hsqldb/og-fin-user");
+    dbToolUser.setJdbcUrl(Objects.requireNonNull(props.getProperty(KEY_USERFINANCIAL_URL)));
+    dbToolUser.setUser(props.getProperty(KEY_USERFINANCIAL_USER_NAME, ""));
+    dbToolUser.setPassword(props.getProperty(KEY_USERFINANCIAL_PASSWORD, ""));
     dbToolUser.setCatalog(CATALOG);  // ignored, as it is parsed from the url
     dbToolUser.setCreate(true);
     dbToolUser.setDrop(true);
     dbToolUser.setCreateTables(true);
-    dbToolUser.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
+    dbToolUser.setDbScriptDir(scriptDir);
     dbToolUser.execute();
-    s_logger.warn("User database created");
     
     // populate the database
+    s_logger.warn("Populating main database...");
     new ExampleDatabasePopulator().run("classpath:" + configFile, ToolContext.class);
-    s_logger.warn("Populated database");
+    
+    s_logger.warn("Successfully created example databases");
   }
 
-  private static void createSQLScripts() throws IOException {
-    cleanScriptDir();
-    for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-      ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+  private static String createSQLScripts() throws IOException {
+    if (SCRIPT_RELATIVE_PATH.exists()) {
+      return SCRIPT_RELATIVE_PATH.getAbsolutePath();
     }
-  }
-
-  private static void cleanScriptDir() {
-    if (SCRIPT_INSTALL_DIR.exists()) {
-      FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+    if (SCRIPT_ZIP_PATH.exists()) {
+      if (SCRIPT_INSTALL_DIR.exists()) {
+        FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+      }
+      for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
+        ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+      }
+      return SCRIPT_INSTALL_DIR.getAbsolutePath();
     }
+    throw new IllegalArgumentException("Unable to find database scripts. Tried: " + SCRIPT_RELATIVE_PATH + " and " + SCRIPT_ZIP_PATH);
   }
 
 }

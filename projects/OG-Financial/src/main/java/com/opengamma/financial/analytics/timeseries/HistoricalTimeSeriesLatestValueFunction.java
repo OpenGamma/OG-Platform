@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
  * Function to source the latest time series data point from a {@link HistoricalTimeSeriesSource} attached to the execution context.
  */
 public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
@@ -77,7 +77,6 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), createValueProperties()
         .withAny(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY)
-        .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
         .withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY).get()));
   }
 

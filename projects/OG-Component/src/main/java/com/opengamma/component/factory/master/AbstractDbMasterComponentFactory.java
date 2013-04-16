@@ -45,7 +45,7 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     ArgumentChecker.notNull(schemaName, "schemaName");
     Integer expectedSchemaVersion = DbSchemaVersionUtils.readVersion(SCHEMA_VERSION_PATH, schemaName);
     if (expectedSchemaVersion == null) {
-      s_logger.warn("Unable to find schema version information for {}. The database schema may differ from the required version.", schemaName);
+      s_logger.info("Unable to find schema version information for {}. The database schema may differ from the required version.", schemaName);
       return;
     }
     if (expectedSchemaVersion.intValue() == actualSchemaVersion) {

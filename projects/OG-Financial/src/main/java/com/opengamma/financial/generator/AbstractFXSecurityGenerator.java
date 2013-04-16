@@ -27,7 +27,6 @@ import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.i18n.Country;

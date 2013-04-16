@@ -36,7 +36,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   /**
    * Cache key for configs.
    */
-  /*package*/ static final String CONFIG_CACHE = "config";
+  /*package*/static final String CONFIG_CACHE = "config";
 
   /**
    * The result cache.
@@ -45,9 +45,9 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
 
   /**
    * Creates the cache around an underlying config source.
-   *
-   * @param underlying  the underlying data, not null
-   * @param cacheManager  the cache manager, not null
+   * 
+   * @param underlying the underlying data, not null
+   * @param cacheManager the cache manager, not null
    */
   public EHCachingMasterConfigSource(final ConfigMaster underlying, final CacheManager cacheManager) {
     super(underlying);
@@ -68,7 +68,12 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
 
     final Element element = _configCache.get(uniqueId);
     if (element != null) {
-      return (R) ((ConfigDocument) EHCacheUtils.get(element)).getConfig().getValue();
+      final ConfigDocument doc = (ConfigDocument) EHCacheUtils.get(element);
+      if (doc != null) {
+        return (R) doc.getConfig().getValue();
+      } else {
+        return null;
+      }
     }
     try {
       final ConfigDocument doc = getMaster().get(uniqueId);
@@ -89,7 +94,12 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, objectId, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return ((R) ((ConfigDocument) EHCacheUtils.get(element)).getConfig().getValue());
+      final ConfigDocument doc = (ConfigDocument) EHCacheUtils.get(element);
+      if (doc != null) {
+        return (R) doc.getConfig().getValue();
+      } else {
+        return null;
+      }
     }
     try {
       final ConfigDocument doc = getMaster().get(objectId, versionCorrection);
@@ -112,21 +122,26 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList("single", clazz, configName, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return (R) ((ConfigDocument) EHCacheUtils.get(element)).getConfig().getValue();
+      final ConfigDocument doc = (ConfigDocument) EHCacheUtils.get(element);
+      if (doc != null) {
+        return (R) doc.getConfig().getValue();
+      } else {
+        return null;
+      }
     }
     try {
-
       final ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
       searchRequest.setName(configName);
       searchRequest.setVersionCorrection(versionCorrection);
       final ConfigDocument doc = getMaster().search(searchRequest).getFirstDocument();
-      if (doc == null) {
+      putValue(searchKey, doc, _configCache);
+      if (doc != null) {
+        putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
+        putValue(doc.getUniqueId(), doc, _configCache);
+        return (R) doc.getConfig().getValue();
+      } else {
         return null;
       }
-      putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
-      putValue(doc.getUniqueId(), doc, _configCache);
-
-      return (R) putValue(searchKey, doc, _configCache).getConfig().getValue();
     } catch (final RuntimeException ex) {
       return EHCacheUtils.<R>putException(searchKey, ex, _configCache);
     }
