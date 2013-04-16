@@ -42,6 +42,7 @@
     <dependency org="org.jboss" name="javassist" rev="3.9.0" />
     <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3[" />
     <dependency org="net.sourceforge.ehcache" name="ehcache" rev="2.6.3" />
-    <exclude org="org.junit" />
+    <dependency org="redis" name="jedis" rev="2.1.0"/>
+    <exclude org="org.junit"/>
   </dependencies>
 </ivy-module>
