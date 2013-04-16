@@ -247,6 +247,47 @@
         <artifactId>maven-repository-plugin</artifactId>
         <version>2.3.1</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>${basedir}/../../common/checkstyle.xml</configLocation>
+          <headerLocation>${basedir}/../../common/checkstyle-header.txt</headerLocation>
+          <suppressionsLocation>${basedir}/../../common/checkstyle-suppressions.xml</suppressionsLocation>
+          <propertiesLocation>${basedir}/../../common/checkstyle.properties</propertiesLocation>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>validate</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.8</version>
+        <configuration>
+          <additionalBuildcommands>
+            <buildcommand>net.sf.eclipsecs.core.CheckstyleBuilder</buildcommand>
+          </additionalBuildcommands>
+          <additionalProjectnatures>
+            <projectnature>net.sf.eclipsecs.core.CheckstyleNature</projectnature>
+          </additionalProjectnatures>
+          <additionalConfig>
+            <file>
+              <name>.checkstyle</name>
+              <location>../../common/eclipse-checkstyle.xml</location>
+            </file>
+          </additionalConfig>
+        </configuration>
+      </plugin>
       <!-- use enforcer to apply build rules -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -385,6 +426,19 @@
                   </pluginExecutionFilter>
                   <action>
                     <ignore></ignore>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <versionRange>[1.0.0,)</versionRange>
+                    <goals>
+                      <goal>enforce</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
