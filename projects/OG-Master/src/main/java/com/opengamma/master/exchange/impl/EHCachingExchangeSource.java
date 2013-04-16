@@ -6,14 +6,12 @@
 package com.opengamma.master.exchange.impl;
 
 import java.util.Collection;
-import java.util.Map;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import com.google.common.collect.Maps;
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
@@ -27,7 +25,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * A cache to optimize the results of {@code ExchangeSource}.
  */
-public class EHCachingExchangeSource implements ExchangeSource {
+public class EHCachingExchangeSource extends AbstractSource<Exchange> implements ExchangeSource {
 
   /**
    * Cache key for exhanges.
@@ -50,8 +48,8 @@ public class EHCachingExchangeSource implements ExchangeSource {
   /**
    * Creates the cache around an underlying exchange source.
    * 
-   * @param underlying  the underlying data, not null
-   * @param cacheManager  the cache manager, not null
+   * @param underlying the underlying data, not null
+   * @param cacheManager the cache manager, not null
    */
   public EHCachingExchangeSource(final ExchangeSource underlying, final CacheManager cacheManager) {
     _underlying = underlying;
@@ -64,7 +62,7 @@ public class EHCachingExchangeSource implements ExchangeSource {
   /**
    * Sets the time to live of the cache.
    * 
-   * @param ttl  the time to live in seconds
+   * @param ttl the time to live in seconds
    */
   public void setTTL(final Integer ttl) {
     _ttl = ttl;
@@ -92,7 +90,7 @@ public class EHCachingExchangeSource implements ExchangeSource {
     if (element != null) {
       return (Exchange) element.getObjectValue();
     }
-    
+
     Exchange underlying = _underlying.getSingle(identifier);
     element = new Element(identifier, underlying);
     if (_ttl != null) {
@@ -105,20 +103,6 @@ public class EHCachingExchangeSource implements ExchangeSource {
   @Override
   public Exchange getSingle(ExternalIdBundle identifierBundle) {
     return _underlying.getSingle(identifierBundle);
-  }
-
-  @Override
-  public Map<UniqueId, Exchange> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, Exchange> result = Maps.newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      try {
-        Exchange security = get(uniqueId);
-        result.put(uniqueId, security);
-      } catch (DataNotFoundException ex) {
-        // do nothing
-      }
-    }
-    return result;
   }
 
   //-------------------------------------------------------------------------

@@ -9,30 +9,45 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.core.AbstractSource;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Partial implementation of {@link SecuritySource}.
  */
-public abstract class AbstractSecuritySource implements SecuritySource {
+public abstract class AbstractSecuritySource extends AbstractSource<Security> implements SecuritySource {
 
-  @Override
-  public Map<UniqueId, Security> get(Collection<UniqueId> uniqueIds) {
-    ArgumentChecker.notNull(uniqueIds, "uniqueIds");
-    Map<UniqueId, Security> result = Maps.newHashMapWithExpectedSize(uniqueIds.size());
-    for (UniqueId uniqueId : uniqueIds) {
-      try {
-        Security security = get(uniqueId);
-        if (security != null) {
-          result.put(uniqueId, security);
-        }
-      } catch (DataNotFoundException ex) {
-        // Ignore
+  public static Map<ExternalIdBundle, Collection<Security>> getAll(final SecuritySource securitySource, final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    final Map<ExternalIdBundle, Collection<Security>> results = Maps.newHashMapWithExpectedSize(bundles.size());
+    for (ExternalIdBundle bundle : bundles) {
+      final Collection<Security> result = securitySource.get(bundle, versionCorrection);
+      if ((result != null) && !result.isEmpty()) {
+        results.put(bundle, result);
       }
     }
-    return result;
+    return results;
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Collection<Security>> getAll(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    return getAll(this, bundles, versionCorrection);
+  }
+
+  public static Map<ExternalIdBundle, Security> getSingle(final SecuritySource securitySource, final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    final Map<ExternalIdBundle, Security> results = Maps.newHashMapWithExpectedSize(bundles.size());
+    for (ExternalIdBundle bundle : bundles) {
+      final Security result = securitySource.getSingle(bundle, versionCorrection);
+      if (result != null) {
+        results.put(bundle, result);
+      }
+    }
+    return results;
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Security> getSingle(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    return getSingle(this, bundles, versionCorrection);
   }
 
 }

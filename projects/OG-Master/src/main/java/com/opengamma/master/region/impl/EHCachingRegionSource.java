@@ -5,15 +5,16 @@
  */
 package com.opengamma.master.region.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.util.Collection;
-import java.util.Map;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
@@ -25,18 +26,13 @@ import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 /**
  * A cache decorating a {@code RegionSource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingRegionSource implements RegionSource {
-  
-  
+public class EHCachingRegionSource extends AbstractSource<Region> implements RegionSource {
+
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingRegionSource.class);
   /**
    * The cache name.
@@ -51,7 +47,7 @@ public class EHCachingRegionSource implements RegionSource {
    * The cache.
    */
   private final Cache _cache;
-  
+
   /**
    * The time to live.
    */
@@ -60,8 +56,8 @@ public class EHCachingRegionSource implements RegionSource {
   /**
    * Creates an instance.
    * 
-   * @param underlying  the underlying source, not null
-   * @param cacheManager  the cache manager, not null
+   * @param underlying the underlying source, not null
+   * @param cacheManager the cache manager, not null
    */
   public EHCachingRegionSource(RegionSource underlying, CacheManager cacheManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -89,9 +85,10 @@ public class EHCachingRegionSource implements RegionSource {
   public CacheManager getCacheManager() {
     return _cache.getCacheManager();
   }
-  
+
   /**
    * Gets the ttl.
+   * 
    * @return the ttl
    */
   public Integer getTtl() {
@@ -100,7 +97,8 @@ public class EHCachingRegionSource implements RegionSource {
 
   /**
    * Sets the ttl.
-   * @param ttl  the ttl
+   * 
+   * @param ttl the ttl
    */
   public void setTtl(Integer ttl) {
     _ttl = ttl;
@@ -115,7 +113,7 @@ public class EHCachingRegionSource implements RegionSource {
       s_logger.debug("Caching region {}", result);
       _cache.put(new Element(uniqueId, result));
     } else {
-      Element element = _cache.get(uniqueId); 
+      Element element = _cache.get(uniqueId);
       if (element != null) {
         s_logger.debug("Cache hit on {}", uniqueId);
         if (element.getObjectValue() instanceof Region) {
@@ -136,7 +134,7 @@ public class EHCachingRegionSource implements RegionSource {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setVersionCorrection(versionCorrection);
     request.addObjectId(objectId);
-    
+
     Region result = null;
     Element element = _cache.get(request);
     if (element != null) {
@@ -159,7 +157,7 @@ public class EHCachingRegionSource implements RegionSource {
   public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);
     request.setVersionCorrection(versionCorrection);
-    
+
     Element element = _cache.get(request);
     Collection<? extends Region> result = null;
     if (element != null) {
@@ -206,20 +204,6 @@ public class EHCachingRegionSource implements RegionSource {
       _cache.put(element);
       if (result != null) {
         _cache.put(new Element(result.getUniqueId(), result));
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public Map<UniqueId, Region> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, Region> result = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      try {
-        Region object = get(uniqueId);
-        result.put(uniqueId, object);
-      } catch (DataNotFoundException ex) {
-        // do nothing
       }
     }
     return result;

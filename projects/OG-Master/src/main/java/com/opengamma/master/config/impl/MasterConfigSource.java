@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -28,15 +29,13 @@ import com.opengamma.util.PublicSPI;
 /**
  * A {@code ConfigSource} implemented using an underlying {@code ConfigMaster}.
  * <p>
- * The {@link ConfigSource} interface provides securities to the engine via a narrow API.
- * This class provides the source on top of a standard {@link ConfigMaster}.
+ * The {@link ConfigSource} interface provides securities to the engine via a narrow API. This class provides the source on top of a standard {@link ConfigMaster}.
  * <p>
- * This implementation supports the concept of fixing the version.
- * This allows the version to be set in the constructor, and applied automatically to the methods.
- * Some methods on {@code ConfigSource} specify their own version requirements, which are respected.
+ * This implementation supports the concept of fixing the version. This allows the version to be set in the constructor, and applied automatically to the methods. Some methods on {@code ConfigSource}
+ * specify their own version requirements, which are respected.
  */
 @PublicSPI
-public class MasterConfigSource implements ConfigSource, VersionedSource {
+public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements ConfigSource, VersionedSource {
 
   /**
    * The config master.
@@ -49,8 +48,8 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * Creates an instance with an underlying config master which does not override versions.
-   *
-   * @param configMaster  the config master, not null
+   * 
+   * @param configMaster the config master, not null
    */
   public MasterConfigSource(final ConfigMaster configMaster) {
     this(configMaster, null);
@@ -58,9 +57,9 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * Creates an instance with an underlying config master optionally overriding the requested version.
-   *
-   * @param configMaster  the config master, not null
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
+   * 
+   * @param configMaster the config master, not null
+   * @param versionCorrection the version-correction locator to search at, null to not override versions
    */
   public MasterConfigSource(final ConfigMaster configMaster, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(configMaster, "configMaster");
@@ -71,7 +70,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying config master.
-   *
+   * 
    * @return the config master, not null
    */
   public ConfigMaster getMaster() {
@@ -80,7 +79,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * Gets the version-correction locator to search at.
-   *
+   * 
    * @return the version-correction locator to search at, null if not overriding versions
    */
   public VersionCorrection getVersionCorrection() {
@@ -89,7 +88,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * Gets the change manager.
-   *
+   * 
    * @return the change manager, not null
    */
   @Override
@@ -99,8 +98,8 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * Sets the version-correction locator to search at.
-   *
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
+   * 
+   * @param versionCorrection the version-correction locator to search at, null to not override versions
    */
   @Override
   public void setVersionCorrection(final VersionCorrection versionCorrection) {
@@ -110,9 +109,9 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   //-------------------------------------------------------------------------
   /**
    * Search for configuration elements using a request object.
-   *
-   * @param <R>  the type of configuration element
-   * @param request  the request object with value for search fields, not null
+   * 
+   * @param <R> the type of configuration element
+   * @param request the request object with value for search fields, not null
    * @return all configuration elements matching the request, not null
    */
   public <R> List<ConfigItem<R>> search(final ConfigSearchRequest<R> request) {

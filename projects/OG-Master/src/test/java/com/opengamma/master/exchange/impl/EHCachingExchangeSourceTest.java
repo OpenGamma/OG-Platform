@@ -13,8 +13,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Maps;
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.exchange.impl.SimpleExchange;
@@ -31,7 +30,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Test.
  */
-@Test(groups = {TestGroup.UNIT, "ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache" })
 public class EHCachingExchangeSourceTest {
 
   private CacheManager _cacheManager;
@@ -51,12 +50,12 @@ public class EHCachingExchangeSourceTest {
   public void getById() throws InterruptedException {
     final AtomicLong getCount = new AtomicLong(0);
     ExchangeSource underlying = new ExchangeSource() {
-      
+
       @Override
       public Exchange getSingle(ExternalIdBundle identifierBundle) {
         return null;
       }
-      
+
       @Override
       public Exchange getSingle(ExternalId identifier) {
         getCount.incrementAndGet();
@@ -64,17 +63,17 @@ public class EHCachingExchangeSourceTest {
         simpleExchange.setExternalIdBundle(ExternalIdBundle.of(identifier));
         return simpleExchange;
       }
-      
+
       @Override
       public Collection<? extends Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
         return null;
       }
-      
+
       @Override
       public Exchange get(ObjectId objectId, VersionCorrection versionCorrection) {
         return null;
       }
-      
+
       @Override
       public Exchange get(UniqueId uniqueId) {
         return null;
@@ -82,17 +81,14 @@ public class EHCachingExchangeSourceTest {
 
       @Override
       public Map<UniqueId, Exchange> get(Collection<UniqueId> uniqueIds) {
-        Map<UniqueId, Exchange> result = Maps.newHashMap();
-        for (UniqueId uniqueId : uniqueIds) {
-          try {
-            Exchange exchange = get(uniqueId);
-            result.put(uniqueId, exchange);
-          } catch (DataNotFoundException ex) {
-            // do nothing
-          }
-        }
-        return result;
+        return AbstractSource.get(this, uniqueIds);
       }
+
+      @Override
+      public Map<ObjectId, Exchange> get(Collection<ObjectId> objectIds, VersionCorrection versionCorrection) {
+        return AbstractSource.get(this, objectIds, versionCorrection);
+      }
+
     };
     long ttl = Timeout.standardTimeoutSeconds();
     EHCachingExchangeSource source = new EHCachingExchangeSource(underlying, _cacheManager);
@@ -108,7 +104,7 @@ public class EHCachingExchangeSourceTest {
     Exchange get2 = source.getSingle(id);
     assertEquals(1, getCount.get());
     assertTrue(get1 == get2);
-    
+
     Thread.sleep(ttl * 2000);
 
     Exchange get3 = source.getSingle(id);

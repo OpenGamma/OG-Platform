@@ -5,16 +5,14 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
 
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.Holiday;
@@ -42,9 +40,9 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ExchangeSource EXCHANGE_SOURCE = new MyExchangeSource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(
-    new InMemoryConventionBundleMaster());
+      new InMemoryConventionBundleMaster());
 
-  private static class MyHolidaySource implements HolidaySource {
+  private static class MyHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
     private static final Calendar WEEKEND_HOLIDAY = new MondayToFridayCalendar("D");
 
     @Override
@@ -64,24 +62,16 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-                             final ExternalIdBundle regionOrExchangeIds) {
+        final ExternalIdBundle regionOrExchangeIds) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-                             final ExternalId regionOrExchangeId) {
+        final ExternalId regionOrExchangeId) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
-    @Override
-    public Map<UniqueId, Holiday> get(Collection<UniqueId> uniqueIds) {
-      Map<UniqueId, Holiday> map = newHashMap();
-      for (UniqueId uniqueId : uniqueIds) {
-        map.put(uniqueId, get(uniqueId));
-      }
-      return map;
-    }
   }
 
   @Test
@@ -89,7 +79,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     //TODO
   }
 
-  private static class MyExchangeSource implements ExchangeSource {
+  private static class MyExchangeSource extends AbstractSource<Exchange> implements ExchangeSource {
     private static final Exchange EXCHANGE = new Exchange() {
 
       @Override
@@ -144,13 +134,5 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
       return EXCHANGE;
     }
 
-    @Override
-    public Map<UniqueId, Exchange> get(Collection<UniqueId> uniqueIds) {
-      Map<UniqueId, Exchange> map = newHashMap();
-      for (UniqueId uniqueId : uniqueIds) {
-        map.put(uniqueId, get(uniqueId));
-      }
-      return map;
-    }
   }
 }

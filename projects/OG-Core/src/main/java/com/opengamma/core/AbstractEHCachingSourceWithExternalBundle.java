@@ -9,11 +9,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -27,7 +31,7 @@ import com.opengamma.util.tuple.Pair;
  * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
- *
+ * 
  * @param <V> the type returned by the source
  * @param <S> the source
  */
@@ -44,7 +48,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
-   *
+   * 
    * @param underlying the underlying security source, not null
    * @param cacheManager the cache manager, not null
    */
@@ -96,6 +100,54 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     return result;
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public Map<ExternalIdBundle, Collection<V>> getAll(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundles, "bundles");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    if (versionCorrection.containsLatest()) {
+      return getUnderlying().getAll(bundles, versionCorrection);
+    }
+    final Map<ExternalIdBundle, Collection<V>> results = Maps.newHashMapWithExpectedSize(bundles.size());
+    final Collection<ExternalIdBundle> misses = new ArrayList<ExternalIdBundle>(bundles.size());
+    for (ExternalIdBundle bundle : bundles) {
+      final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
+      final Element e = _eidToUidCache.get(key);
+      if (e != null) {
+        if (e.getObjectValue() instanceof Collection) {
+          final Collection<UniqueId> identifiers = (Collection<UniqueId>) e.getObjectValue();
+          if (identifiers.isEmpty()) {
+            results.put(bundle, Collections.<V>emptySet());
+          } else {
+            results.put(bundle, get(identifiers).values());
+          }
+          continue;
+        }
+      }
+      misses.add(bundle);
+    }
+    if (!misses.isEmpty()) {
+      final Map<ExternalIdBundle, Collection<V>> underlying = getUnderlying().getAll(misses, versionCorrection);
+      for (ExternalIdBundle miss : misses) {
+        final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(miss, versionCorrection);
+        final Collection<V> result = underlying.get(miss);
+        if ((result == null) || result.isEmpty()) {
+          cacheIdentifiers(Collections.<UniqueId>emptyList(), key);
+        } else {
+          final List<UniqueId> uids = new ArrayList<UniqueId>(result.size());
+          for (final V item : result) {
+            uids.add(item.getUniqueId());
+          }
+          Collections.sort(uids);
+          cacheIdentifiers(uids, key);
+          cacheItems(result);
+          results.put(miss, result);
+        }
+      }
+    }
+    return results;
+  }
+
   @Override
   public V getSingle(final ExternalIdBundle bundle) {
     final V result = getUnderlying().getSingle(bundle);
@@ -137,6 +189,66 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
       cacheItem(result);
     }
     return result;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Map<ExternalIdBundle, V> getSingle(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundles, "bundles");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    if (versionCorrection.containsLatest()) {
+      return getUnderlying().getSingle(bundles, versionCorrection);
+    }
+    final Map<ExternalIdBundle, V> results = Maps.newHashMapWithExpectedSize(bundles.size());
+    final Collection<ExternalIdBundle> misses = new ArrayList<ExternalIdBundle>(bundles.size());
+    final Map<ExternalIdBundle, Collection<UniqueId>> hits = Maps.newHashMapWithExpectedSize(bundles.size());
+    final Set<UniqueId> lookup = Sets.newHashSetWithExpectedSize(bundles.size());
+    for (ExternalIdBundle bundle : bundles) {
+      final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
+      final Element e = _eidToUidCache.get(key);
+      if (e != null) {
+        if (e.getObjectValue() instanceof List) {
+          final List<UniqueId> identifiers = (List<UniqueId>) e.getObjectValue();
+          lookup.addAll(identifiers);
+          hits.put(bundle, identifiers);
+          continue;
+        } else if (e.getObjectValue() instanceof UniqueId) {
+          final UniqueId identifier = (UniqueId) e.getObjectValue();
+          lookup.add(identifier);
+          hits.put(bundle, Collections.singleton(identifier));
+          continue;
+        }
+      }
+      misses.add(bundle);
+    }
+    if (!lookup.isEmpty()) {
+      final Map<UniqueId, V> underlying = getUnderlying().get(lookup);
+      for (Map.Entry<ExternalIdBundle, Collection<UniqueId>> hit : hits.entrySet()) {
+        final ExternalIdBundle bundle = hit.getKey();
+        for (UniqueId uid : hit.getValue()) {
+          final V result = underlying.get(uid);
+          if (result != null) {
+            results.put(bundle, result);
+            break;
+          }
+        }
+      }
+    }
+    if (!misses.isEmpty()) {
+      final Map<ExternalIdBundle, V> underlying = getUnderlying().getSingle(misses, versionCorrection);
+      for (ExternalIdBundle miss : misses) {
+        final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(miss, versionCorrection);
+        final V result = underlying.get(miss);
+        if (result == null) {
+          cacheIdentifiers(Collections.<UniqueId>emptyList(), key);
+        } else {
+          cacheIdentifiers(result.getUniqueId(), key);
+          cacheItem(result);
+          results.put(miss, result);
+        }
+      }
+    }
+    return results;
   }
 
   protected void cacheIdentifiers(final UniqueId uniqueId, final Pair<ExternalIdBundle, VersionCorrection> key) {

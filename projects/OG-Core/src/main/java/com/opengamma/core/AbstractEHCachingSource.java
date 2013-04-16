@@ -5,6 +5,7 @@
  */
 package com.opengamma.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -179,6 +180,65 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     }
   }
 
+  @Override
+  public Map<UniqueId, V> get(final Collection<UniqueId> uids) {
+    final Map<UniqueId, V> results = Maps.newHashMapWithExpectedSize(uids.size());
+    final Collection<UniqueId> misses = new ArrayList<UniqueId>(uids.size());
+    for (UniqueId uid : uids) {
+      V result = _frontCacheByUID.get(uid);
+      if (result != null) {
+        results.put(uid, result);
+        continue;
+      }
+      final Element e = _uidCache.get(uid);
+      if (e != null) {
+        result = (V) e.getValue();
+        s_logger.debug("retrieved object: {} from uid-cache", result);
+        V existing = _frontCacheByUID.putIfAbsent(uid, result);
+        if (existing != null) {
+          results.put(uid, existing);
+          continue;
+        }
+        if (uid.isLatest()) {
+          existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
+          if (existing != null) {
+            results.put(uid, existing);
+            continue;
+          }
+        }
+        results.put(uid, result);
+      } else {
+        misses.add(uid);
+      }
+    }
+    if (!misses.isEmpty()) {
+      final Map<UniqueId, V> underlying = getUnderlying().get(misses);
+      for (UniqueId uid : misses) {
+        V result = underlying.get(uid);
+        if (result == null) {
+          // TODO: cache the miss
+          continue;
+        }
+        V existing = _frontCacheByUID.putIfAbsent(uid, result);
+        if (existing != null) {
+          results.put(uid, existing);
+          continue;
+        }
+        if (uid.isLatest()) {
+          existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
+          if (existing != null) {
+            result = existing;
+          } else {
+            _uidCache.put(new Element(result.getUniqueId(), result));
+          }
+        }
+        _uidCache.put(new Element(uid, result));
+        results.put(uid, result);
+      }
+    }
+    return results;
+  }
+
   @SuppressWarnings("unchecked")
   protected Map<VersionCorrection, V> getObjectIdCacheEntry(final ObjectId objectId) {
     final Element e = _oidCache.get(objectId);
@@ -224,6 +284,67 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
       }
     }
     return result;
+  }
+
+  @Override
+  public Map<ObjectId, V> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
+    final Map<ObjectId, V> results = Maps.newHashMapWithExpectedSize(objectIds.size());
+    final Collection<ObjectId> misses = new ArrayList<ObjectId>(objectIds.size());
+    for (ObjectId objectId : objectIds) {
+      V result = _frontCacheByOID.get(objectId, versionCorrection);
+      if (result != null) {
+        results.put(objectId, result);
+        continue;
+      }
+      Map<VersionCorrection, V> items = getObjectIdCacheEntry(objectId);
+      if (items != null) {
+        result = items.get(versionCorrection);
+        if (result != null) {
+          final V existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
+          if (existing != null) {
+            _frontCacheByOID.put(objectId, versionCorrection, result);
+            results.put(objectId, existing);
+            continue;
+          }
+          _frontCacheByOID.put(objectId, versionCorrection, result);
+          _uidCache.put(new Element(result.getUniqueId(), result));
+          results.put(objectId, result);
+          continue;
+        }
+      }
+      misses.add(objectId);
+    }
+    if (!misses.isEmpty()) {
+      final Map<ObjectId, V> underlying = getUnderlying().get(misses, versionCorrection);
+      for (ObjectId objectId : misses) {
+        final V result = underlying.get(objectId);
+        if (result == null) {
+          // TODO: cache the miss
+          continue;
+        }
+        final V existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
+        if (existing != null) {
+          _frontCacheByOID.put(objectId, versionCorrection, existing);
+          results.put(objectId, existing);
+          continue;
+        }
+        _frontCacheByOID.put(objectId, versionCorrection, result);
+        _uidCache.put(new Element(result.getUniqueId(), result));
+        if (!versionCorrection.containsLatest()) {
+          final Map<VersionCorrection, V> newitems = Maps.newHashMap();
+          synchronized (this) {
+            Map<VersionCorrection, V> items = getObjectIdCacheEntry(objectId);
+            if (items != null) {
+              newitems.putAll(items);
+            }
+            newitems.put(versionCorrection, result);
+            _oidCache.put(new Element(objectId, newitems));
+          }
+        }
+        results.put(objectId, result);
+      }
+    }
+    return results;
   }
 
   @Override

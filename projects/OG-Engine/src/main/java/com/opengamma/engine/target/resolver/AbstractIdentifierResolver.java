@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -21,7 +21,7 @@ import com.opengamma.util.PoolExecutor;
  */
 public abstract class AbstractIdentifierResolver implements IdentifierResolver {
 
-  public static Map<ExternalIdBundle, UniqueId> resolveExternalIds(final PoolExecutor executor, final IdentifierResolver resolver, final Set<ExternalIdBundle> identifiers,
+  public static Map<ExternalIdBundle, UniqueId> resolveExternalIds(final PoolExecutor executor, final IdentifierResolver resolver, final Collection<ExternalIdBundle> identifiers,
       final VersionCorrection versionCorrection) {
     final PoolExecutor.Service<Void> jobs = executor.createService(null);
     final Map<ExternalIdBundle, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
@@ -46,7 +46,7 @@ public abstract class AbstractIdentifierResolver implements IdentifierResolver {
     return result;
   }
 
-  public static Map<ExternalIdBundle, UniqueId> resolveExternalIds(final IdentifierResolver resolver, final Set<ExternalIdBundle> identifiers,
+  public static Map<ExternalIdBundle, UniqueId> resolveExternalIds(final IdentifierResolver resolver, final Collection<ExternalIdBundle> identifiers,
       final VersionCorrection versionCorrection) {
     final PoolExecutor executor = PoolExecutor.instance();
     if (executor != null) {
@@ -63,7 +63,8 @@ public abstract class AbstractIdentifierResolver implements IdentifierResolver {
     }
   }
 
-  public static Map<ObjectId, UniqueId> resolveObjectIds(final PoolExecutor executor, final IdentifierResolver resolver, final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+  public static Map<ObjectId, UniqueId> resolveObjectIds(final PoolExecutor executor, final IdentifierResolver resolver, final Collection<ObjectId> identifiers,
+      final VersionCorrection versionCorrection) {
     final PoolExecutor.Service<Void> jobs = executor.createService(null);
     final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
     for (final ObjectId identifier : identifiers) {
@@ -87,7 +88,7 @@ public abstract class AbstractIdentifierResolver implements IdentifierResolver {
     return result;
   }
 
-  public static Map<ObjectId, UniqueId> resolveObjectIds(final IdentifierResolver resolver, final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+  public static Map<ObjectId, UniqueId> resolveObjectIds(final IdentifierResolver resolver, final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
     final PoolExecutor executor = PoolExecutor.instance();
     if (executor != null) {
       return resolveObjectIds(executor, resolver, identifiers, versionCorrection);
@@ -106,12 +107,12 @@ public abstract class AbstractIdentifierResolver implements IdentifierResolver {
   // IdentifierResolver
 
   @Override
-  public Map<ExternalIdBundle, UniqueId> resolveExternalIds(Set<ExternalIdBundle> identifiers, VersionCorrection versionCorrection) {
+  public Map<ExternalIdBundle, UniqueId> resolveExternalIds(Collection<ExternalIdBundle> identifiers, VersionCorrection versionCorrection) {
     return resolveExternalIds(this, identifiers, versionCorrection);
   }
 
   @Override
-  public Map<ObjectId, UniqueId> resolveObjectIds(Set<ObjectId> identifiers, VersionCorrection versionCorrection) {
+  public Map<ObjectId, UniqueId> resolveObjectIds(Collection<ObjectId> identifiers, VersionCorrection versionCorrection) {
     return resolveObjectIds(this, identifiers, versionCorrection);
   }
 

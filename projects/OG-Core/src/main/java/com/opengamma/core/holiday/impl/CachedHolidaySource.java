@@ -5,16 +5,12 @@
  */
 package com.opengamma.core.holiday.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -34,7 +30,7 @@ import com.opengamma.util.money.Currency;
  * A cached {@link HolidaySource} using a concurrent hash map and no eviction policy. This is better than having no cache but is not very efficient. Also does not listen for changes to the underlying
  * data.
  */
-public class CachedHolidaySource implements HolidaySource {
+public class CachedHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
 
   private static final Object NULL = new Object();
 
@@ -165,20 +161,6 @@ public class CachedHolidaySource implements HolidaySource {
       _isHoliday3.putIfAbsent(dateToCheck, holidayType, regionOrExchangeId, ex);
       throw ex;
     }
-  }
-
-  @Override
-  public Map<UniqueId, Holiday> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, Holiday> result = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      try {
-        Holiday object = get(uniqueId);
-        result.put(uniqueId, object);
-      } catch (DataNotFoundException ex) {
-        // do nothing
-      }
-    }
-    return result;
   }
 
 }

@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.model.credit;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -17,14 +16,13 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.region.Region;
@@ -83,7 +81,8 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
   protected abstract Object compute(final ZonedDateTime now, LegacyVanillaCreditDefaultSwapDefinition cds, final double[] spreads, final ISDADateCurve isdaCurve, final ZonedDateTime[] bucketDates);
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+      throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
 
     final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
@@ -181,7 +180,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
 
   /**
    * Get the CreditCurveIdentifier with name appended
-   *
+   * 
    * @param security
    */
   private static CreditCurveIdentifier getCreditCurveIdentifier(final CreditDefaultSwapSecurity security, final String name) {
@@ -201,7 +200,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
     return region;
   }
 
-  class TestRegionSource implements RegionSource {
+  class TestRegionSource extends AbstractSource<Region> implements RegionSource {
 
     private final AtomicLong _count = new AtomicLong(0);
     private final Region _testRegion;
@@ -262,25 +261,12 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
 
     /**
      * Gets the count.
-     *
+     * 
      * @return the count
      */
     public AtomicLong getCount() {
       return _count;
     }
 
-    @Override
-    public Map<UniqueId, Region> get(final Collection<UniqueId> uniqueIds) {
-      final Map<UniqueId, Region> result = Maps.newHashMap();
-      for (final UniqueId uniqueId : uniqueIds) {
-        try {
-          final Region security = get(uniqueId);
-          result.put(uniqueId, security);
-        } catch (final DataNotFoundException ex) {
-          // do nothing
-        }
-      }
-      return result;
-    }
   }
 }
