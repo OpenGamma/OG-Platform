@@ -478,6 +478,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             configToTerminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs());
           }
           if (isTerminated()) {
+            cycleReference.release();
             return;
           }
           cycleStarted(new DefaultViewCycleMetadata(
@@ -490,6 +491,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
               configToComputationTargets,
               configToTerminalOutputs));
           if (isTerminated()) {
+            cycleReference.release();
             return;
           }
           executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
