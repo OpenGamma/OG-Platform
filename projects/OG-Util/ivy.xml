@@ -42,7 +42,6 @@
     <dependency org="org.scannotation" name="scannotation" rev="1.0.2" />
     <dependency org="org.jboss" name="javassist" rev="3.9.0" />
     <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3[" />
-    <dependency org="com.opensymphony" name="quartz" rev="1.8.1" />
     <dependency org="net.sourceforge.ehcache" name="ehcache" rev="2.6.3" />
     <exclude org="org.junit" />
   </dependencies>

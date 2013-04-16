@@ -19,6 +19,7 @@
 
     <dependency org="com.opengamma" name="region" rev="20110127" />
 
+    <dependency org="com.opensymphony" name="quartz" rev="1.8.1"/>
     <dependency org="org.apache.poi" name="poi" rev="3.7" />
     <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2" />
     <dependency org="org.jfree" name="jfreechart" rev="1.0.13" />
