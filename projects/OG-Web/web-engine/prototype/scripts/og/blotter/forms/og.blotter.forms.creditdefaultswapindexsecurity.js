@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            config.title = 'Credit Default Swap Index Security';
+            config.title = 'CDS Index';
             config.type = 'CreditDefaultSwapIndexSecurity';
             config.index = true;
             return new og.blotter.forms.cds(config);

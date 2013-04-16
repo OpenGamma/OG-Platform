@@ -405,6 +405,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardrecoverylockcdssecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardvanillacdssecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.creditdefaultswapindexsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.creditdefaultswapoptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.cds.js</fragment>
     <!--Fungible Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
