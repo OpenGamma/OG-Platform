@@ -22,6 +22,10 @@ import com.opengamma.engine.view.impl.ViewProcessImpl;
  * <p>
  * Some of the callback methods can have very large parameters (for example dependency graphs, or result models) when called remotely. Any callbacks that are not required by the receiver (for example
  * the process has no active listeners for that event) should be silently discarded at the earliest opportunity and not sent over the network.
+ * <p>
+ * The callback methods must be called from a worker's critical path, allowing the context to control the execution sequence by blocking if required. If it is not appropriate for the worker to be
+ * blocked during the notification then the context (and not the worker) must implement an appropriate mechanism to allow control to return immediately to the worker while it performs an appropriate
+ * action.
  */
 public interface ViewProcessWorkerContext {
 

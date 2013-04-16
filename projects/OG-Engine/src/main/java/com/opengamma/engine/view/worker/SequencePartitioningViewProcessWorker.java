@@ -109,7 +109,7 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
     final int partitionSize = getPartitionSize();
     final List<ViewCycleExecutionOptions> partition = new ArrayList<ViewCycleExecutionOptions>(partitionSize);
     for (int i = 0; i < partitionSize; i++) {
-      final ViewCycleExecutionOptions step = sequence.getNext(getDefaultExecutionOptions());
+      final ViewCycleExecutionOptions step = sequence.poll(getDefaultExecutionOptions());
       if (step != null) {
         partition.add(step);
       } else {
@@ -131,19 +131,22 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
   // ViewProcessWorker
 
   @Override
-  public synchronized void triggerCycle() {
-    if (s_logger.isDebugEnabled() && (_trigger == 0)) {
+  public synchronized boolean triggerCycle() {
+    if (_trigger == 0) {
       s_logger.debug("Ignoring triggerCycle on run-as-fast-as-possible sequence");
+      return false;
     }
     while (_trigger > 0) {
       spawnWorker();
       _trigger--;
     }
+    return true;
   }
 
   @Override
-  public void requestCycle() {
+  public boolean requestCycle() {
     s_logger.debug("Ignoring requestCycle on run-as-fast-as-possible sequence");
+    return false;
   }
 
   @Override

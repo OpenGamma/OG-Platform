@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.updateStructure");
     List<String> retVal = _delegate.updateStructure(compiledViewDefinition);
-    s_logger.trace("Method updateStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("updateStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -45,7 +45,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.updateResults");
     List<String> retVal = _delegate.updateResults(results, viewCycle);
-    s_logger.trace("Method updateResults completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("updateResults completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -54,7 +54,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getGridStructure");
     GridStructure retVal = _delegate.getGridStructure(gridType);
-    s_logger.trace("Method getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -67,7 +67,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.createViewport");
     boolean retVal = _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
-    s_logger.trace("Method createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -78,7 +78,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.updateViewport");
     String retVal = _delegate.updateViewport(gridType, viewportId, viewportDefinition);
-    s_logger.trace("Method updateViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("updateViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -87,7 +87,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.deleteViewport");
     _delegate.deleteViewport(gridType, viewportId);
-    s_logger.trace("Method deleteViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("deleteViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
   }
 
   @Override
@@ -95,7 +95,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getData");
     ViewportResults retVal = _delegate.getData(gridType, viewportId);
-    s_logger.trace("Method getData completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("getData completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -106,7 +106,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.openDependencyGraph");
     _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, row, col);
-    s_logger.trace("Method openDependencyGraph completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("openDependencyGraph completed in " + (System.currentTimeMillis() - startTime) + "ms");
   }
 
   @Override
@@ -114,7 +114,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.closeDependencyGraph");
     _delegate.closeDependencyGraph(gridType, graphId);
-    s_logger.trace("Method closeDependencyGraph completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("closeDependencyGraph completed in " + (System.currentTimeMillis() - startTime) + "ms");
   }
 
   @Override
@@ -122,7 +122,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getGridStructure");
     GridStructure retVal = _delegate.getGridStructure(gridType, graphId);
-    s_logger.trace("Method getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -141,7 +141,7 @@ import com.opengamma.util.ArgumentChecker;
                                               viewportId,
                                               callbackId,
                                               viewportDefinition);
-    s_logger.trace("Method createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -152,7 +152,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.updateViewport");
     String retVal = _delegate.updateViewport(gridType, graphId, viewportId, viewportDefinition);
-    s_logger.trace("Method updateViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("updateViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -163,7 +163,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.deleteViewport");
     _delegate.deleteViewport(gridType, graphId, viewportId);
-    s_logger.trace("Method deleteViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("deleteViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
   }
 
   @Override
@@ -173,7 +173,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getData");
     ViewportResults retVal = _delegate.getData(gridType, graphId, viewportId);
-    s_logger.trace("Method getData completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("getData completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -182,7 +182,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.entityChanged");
     List<String> retVal = _delegate.entityChanged(notification);
-    s_logger.trace("Method entityChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("entityChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
@@ -191,7 +191,7 @@ import com.opengamma.util.ArgumentChecker;
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.entityChanged");
     List<String> retVal = _delegate.portfolioChanged();
-    s_logger.trace("Method portfolioChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    s_logger.trace("portfolioChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 }

@@ -40,6 +40,7 @@ public class PresentValueCreditDefaultSwapOption {
 
   // TODO : Need to do the calibration of the hazard rates for the underlying reference entity
   // TODO : Need to take out the HazardRateCurve input from this ctor
+  // TODO : Make sure have got the cashflow conventions (and also when to include the FEP calculation) correct
 
   // TODO : Have to sort out the hazard rate calibration objects (the type of the underlying CDS should just be CreditDefaultSwapDefinition)
 

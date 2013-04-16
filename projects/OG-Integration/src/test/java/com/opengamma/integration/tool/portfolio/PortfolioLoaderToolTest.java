@@ -169,6 +169,24 @@ public class PortfolioLoaderToolTest extends DbTest{
   }
 
   @Test
+  public void testStandardCdsPortfolio() throws IOException {
+
+    String data = "adjustCashSettlementDate,adjustEffectiveDate,adjustMaturityDate,businessDayConvention,buy,cashSettlementDate,coupon,couponFrequency,dayCount,debtSeniority,effectiveDate,externalIdBundle,immAdjustMaturityDate,includeAccruedPremium,maturityDate,name,notional,position:quantity,protectionBuyer,protectionSeller,protectionStart,quotedSpread,recoveryRate,referenceEntity,regionId,restructuringClause,startDate,stubType,trade:counterpartyExternalId,trade:premium,trade:premiumCurrency,trade:premiumDate,trade:premiumTime,trade:quantity,trade:tradeDate,trade:tradeTime,upfrontAmount\n" +
+    "FALSE,FALSE,FALSE,Following,TRUE,2013-03-24T00:00:00.0Z,100,Semi-annual,ACT/360,SNRFOR,2013-03-21T00:00:00.0Z,CSV_LOADER~41355.6232870372,FALSE,TRUE,2020-03-20T00:00:00.0Z,STEM GBP 100 7Y,GBP 1000000,1,EXTERNAL_CODE~ProtBuyer_1,EXTERNAL_CODE~ProtSeller_1,TRUE,100,0.4,MARKIT_RED_CODE~5AB67W,FINANCIAL_REGION~CARIBBEAN,MR,2013-03-20T00:00:00.0Z,SHORT_START,EXTERNAL_CODE~ProtSeller_1,,,,,1,2013-03-22,,GBP 50000";
+
+    doPortfolioLoadTest("Standard CDS Portfolio", "StandardVanillaCDS", data, 1, 1);
+  }
+
+  @Test
+  public void testCdsIndexPortfolio() throws IOException {
+
+    String data = "adjustSettlementDate,adjustEffectiveDate,adjustMaturityDate,businessDayConvention,buy,settlementDate,coupon,couponFrequency,dayCount,effectiveDate,externalIdBundle,immAdjustMaturityDate,includeAccruedPremium,indexCoupon,maturityDate,name,notional,position:quantity,protectionBuyer,protectionSeller,protectionStart,quotedSpread,recoveryRate,referenceEntity,startDate,stubType,trade:counterpartyExternalId,trade:premium,trade:premiumCurrency,trade:premiumDate,trade:premiumTime,trade:quantity,trade:tradeDate,trade:tradeTime,upfrontPayment\n" +
+        "FALSE,FALSE,FALSE,Following,TRUE,2013-03-24T00:00:00.0Z,100,Semi-annual,ACT/360,2013-03-21T00:00:00.0Z,CSV_LOADER~41355.6232870372,FALSE,TRUE,0.01,2020-03-20T00:00:00.0Z,STEM GBP 100 7Y,GBP 1000000,1,EXTERNAL_CODE~ProtBuyer_1,EXTERNAL_CODE~ProtSeller_1,TRUE,100,0.4,MARKIT_RED_CODE~5AB67W,2013-03-20T00:00:00.0Z,SHORT_START,EXTERNAL_CODE~ProtSeller_1,,,,,1,2013-03-22,,GBP 50000";
+
+    doPortfolioLoadTest("CDS Index Portfolio", "CreditDefaultSwapIndex", data, 1, 1);
+  }
+
+  @Test
   public void testLoadFxFutureOptionPortfolio() throws IOException {
 
     String data = "\"currency\",\"tradingExchange\",\"settlementExchange\",\"exerciseType\",\"expiry\",\"externalIdBundle\",\"underlyingId\",\"optionType\",\"position:quantity\",\"securityType\",\"trade:counterpartyExternalId\",\"trade:deal\",\"trade:premium\",\"trade:premiumCurrency\",\"trade:premiumDate\",\"trade:premiumTime\",\"trade:quantity\",\"trade:tradeDate\",\"trade:tradeTime\"\n" +
