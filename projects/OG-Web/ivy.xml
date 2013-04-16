@@ -17,6 +17,7 @@
     <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm,web,context" />
     <dependency org="org.cometd" name="cometd-java" rev="1.0.1" conf="*->server,client" />
 
+    <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.4.2"/>
     <dependency org="org.junit" name="junit" rev="4.8.2" />
   </dependencies>
 </ivy-module>
