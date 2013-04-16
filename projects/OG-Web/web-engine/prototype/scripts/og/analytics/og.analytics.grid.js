@@ -460,11 +460,8 @@ $.register_module({
                 return result;
             };
             return function (data, loading) { // TODO handle scenario where grid was busy when data stopped ticking
-                var grid = this, meta = grid.meta, reorder;
+                var grid = this, meta = grid.meta;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
-                reorder = meta.viewport.cols.slice(1).reduce(function (acc, val) {
-                    return (acc.value = acc.value || val < acc.last), (acc.last = val), acc;
-                }, {last: meta.viewport.cols[0], value: false}).value;
                 grid.data = data;
                 grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body
