@@ -8,17 +8,17 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var CDS = function (config) {
-            var block = this, form = config.form, data = config.data, ui = og.common.util.ui, 
+            var block = this, form = config.form, data = config.data, ui = og.common.util.ui, buy, sell, ref,
                 children = [
-                    new og.blotter.forms.blocks.Security({
+                    buy = new og.blotter.forms.blocks.Security({
                         form: form, label: 'Protection Buyer', security: data.security.protectionBuyer,
                         index: 'security.protectionBuyer'
                     }),
-                    new og.blotter.forms.blocks.Security({
+                    sell = new og.blotter.forms.blocks.Security({
                         form: form, label: 'Protection Seller', security: data.security.protectionSeller,
                         index: 'security.protectionSeller'
                     }),
-                    new og.blotter.forms.blocks.Security({
+                    ref = new og.blotter.forms.blocks.Security({
                         form: form, label: 'Reference Entity', security: data.security.referenceEntity,
                         index: 'security.referenceEntity'
                     }),
@@ -82,6 +82,19 @@ $.register_module({
                     sec.notional.type = 'InterestRateNotional';
                     if (config.standard) sec.upfrontAmount.type = 'InterestRateNotional';
                     if (config.index) sec.upfrontPayment.type = 'InterestRateNotional';
+                },
+                /*
+                 * The genrator is needed here to enable the creation of the autocomplete securities
+                 * The security blocks create the autocomplete on form load which does not happen
+                 * when using the cds options. As the generator exists, the default handler is needed
+                 */
+                generator: function (handler, tmpl, data) {
+                    handler(tmpl(data));
+                    if (config.option) {
+                        buy.create_autocomplete();
+                        sell.create_autocomplete();
+                        ref.create_autocomplete();   
+                    }          
                 }
             });
         };
