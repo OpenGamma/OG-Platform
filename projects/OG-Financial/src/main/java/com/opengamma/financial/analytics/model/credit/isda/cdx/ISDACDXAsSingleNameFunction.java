@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.model.credit.isda.cdx;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.CDX_AS_SINGLE_NAME;
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.CDX_AS_SINGLE_NAME_ISDA;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 
 import java.util.HashSet;
@@ -118,7 +118,7 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.CDS_SECURITY;
+    return FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY;
   }
 
   @Override
@@ -149,7 +149,7 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
     }
     final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context));
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
+    final String spreadCurveName = "CDS_INDEX_" + security.accept(identifierVisitor).getUniqueId().getValue();
     //    final Set<String> spreadCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE);
     //    if (spreadCurveNames == null || spreadCurveNames.size() != 1) {
     //      return null;
@@ -174,7 +174,7 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final ValueProperties.Builder propertiesBuilder = getCommonResultProperties();
-    propertiesBuilder.with(CALCULATION_METHOD, CDX_AS_SINGLE_NAME);
+    propertiesBuilder.with(CALCULATION_METHOD, CDX_AS_SINGLE_NAME_ISDA);
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification spec = entry.getKey();
       final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();

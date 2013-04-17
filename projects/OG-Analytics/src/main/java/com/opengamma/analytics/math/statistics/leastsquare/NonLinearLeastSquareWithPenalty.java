@@ -30,7 +30,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
  */
 public class NonLinearLeastSquareWithPenalty {
   // private static final Logger LOGGER = LoggerFactory.getLogger(NonLinearLeastSquareWithPenalty.class);
-  private static final int MAX_ATTEMPTS = 10000;
+  private static final int MAX_ATTEMPTS = 100000;
   private final double _eps;
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
@@ -132,11 +132,11 @@ public class NonLinearLeastSquareWithPenalty {
       }
 
       //debug
-      final int n = theta.getNumberOfElements();
-      for (int i = 0; i < n; i++) {
-        System.out.print(theta.getEntry(i) + "\t");
-      }
-      System.out.print("\n");
+//      final int n = theta.getNumberOfElements();
+//      for (int i = 0; i < n; i++) {
+//        System.out.print(theta.getEntry(i) + "\t");
+//      }
+//      System.out.print("\n");
 
       DoubleMatrix1D trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
 

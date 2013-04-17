@@ -52,12 +52,12 @@ public class StepInterpolator1DTest {
 
   @Test
   public void testDataBundleType1() {
-    assertEquals(INTERPOLATOR.getDataBundle(new double[] {1, 2, 3 }, new double[] {1, 2, 3 }).getClass(), ArrayInterpolator1DDataBundle.class);
+    assertEquals(INTERPOLATOR.getDataBundle(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
   }
 
   @Test
   public void testDataBundleType2() {
-    assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2, 3 }, new double[] {1, 2, 3 }).getClass(), ArrayInterpolator1DDataBundle.class);
+    assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
   }
 
   @Test
@@ -75,4 +75,15 @@ public class StepInterpolator1DTest {
     value = 3;
     assertEquals(INTERPOLATOR.interpolate(DATA, value), 6.7, EPS);
   }
+
+  @Test(enabled = false)
+  void printTest() {
+    System.out.println("StepInterpolator1DTest");
+    CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    for (int i = 0; i < 101; i++) {
+      double x = 0.5 + i * 3.0 / 100;
+      System.out.println(x + "\t" + interpolator.interpolate(DATA, x));
+    }
+  }
+
 }

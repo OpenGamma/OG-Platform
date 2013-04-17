@@ -70,6 +70,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
@@ -1153,6 +1155,26 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCapFloorInflationZeroCouponMonthlyDefinition(CapFloorInflationZeroCouponMonthlyDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearInterpolationDefinition(CapFloorInflationYearOnYearInterpolationDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearInterpolationDefinition(CapFloorInflationYearOnYearInterpolationDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearMonthlyDefinition(CapFloorInflationYearOnYearMonthlyDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearMonthlyDefinition(CapFloorInflationYearOnYearMonthlyDefinition coupon) {
       return null;
     }
 

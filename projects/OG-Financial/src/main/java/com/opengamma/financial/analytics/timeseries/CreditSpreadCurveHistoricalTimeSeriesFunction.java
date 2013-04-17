@@ -94,14 +94,16 @@ public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunct
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
         .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
-        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY);
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY);
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .withAny(CURVE)
-        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, "PX_LAST")
+        //        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, "PX_LAST")
+        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, MarketDataRequirementNames.MARKET_VALUE)
         .withAny(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY)
         .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
         .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)

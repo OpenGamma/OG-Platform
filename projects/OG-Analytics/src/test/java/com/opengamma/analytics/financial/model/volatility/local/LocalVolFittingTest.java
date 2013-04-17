@@ -123,10 +123,10 @@ public class LocalVolFittingTest {
     final int nWeights = bSplines.size();
 
     PSplineFitter psf = new PSplineFitter();
-    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(psf.getDiffMatrix(sizes, differenceOrder[0], 0), lambda[0]);
+    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(sizes, differenceOrder[0], 0), lambda[0]);
     for (int i = 1; i < dim; i++) {
       if (lambda[i] > 0.0) {
-        final DoubleMatrix2D d = psf.getDiffMatrix(sizes, differenceOrder[i], i);
+        final DoubleMatrix2D d = psf.getPenaltyMatrix(sizes, differenceOrder[i], i);
         ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda[i]));
       }
     }
@@ -250,7 +250,7 @@ public class LocalVolFittingTest {
     };
 
     PSplineFitter psf = new PSplineFitter();
-    DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(psf.getDiffMatrix(nKnots, 2), 0.01);
+    DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(nKnots, 2), 0.01);
 
     double[] start = new double[nKnots];
     // Arrays.fill(start, 0.4);

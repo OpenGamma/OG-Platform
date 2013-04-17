@@ -17,6 +17,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyCDSSecurity;
 import com.opengamma.financial.security.cds.StandardCDSSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -45,7 +46,8 @@ public class CreditInstrumentCS01PnLDefaults extends DefaultPropertyFunction {
     final Security security = target.getPosition().getSecurity();
     return security instanceof StandardCDSSecurity ||
         security instanceof LegacyCDSSecurity ||
-        security instanceof CreditDefaultSwapOptionSecurity;
+        security instanceof CreditDefaultSwapOptionSecurity ||
+        security instanceof CreditDefaultSwapIndexSecurity;
   }
 
   @Override

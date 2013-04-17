@@ -8,11 +8,8 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var CDS = function (config) {
-            var block = this, form = config.form, data = config.data, ui = og.common.util.ui;
-            form.Block.call(block, {
-                module: 'og.blotter.forms.blocks.cds_tash',
-                extras: {data: data.security, legacy: config.legacy, standard: config.standard, stdvanilla: config.stdvanilla},
-                children: [
+            var block = this, form = config.form, data = config.data, ui = og.common.util.ui, 
+                children = [
                     new og.blotter.forms.blocks.Security({
                         form: form, label: 'Protection Buyer', security: data.security.protectionBuyer,
                         index: 'security.protectionBuyer'
@@ -63,7 +60,16 @@ $.register_module({
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: 'security.upfrontAmount.currency'}
                     })
-                ],
+                ];
+            if (config.index) {
+                children.push(new form.Block({module:'og.views.forms.currency_tash', 
+                    extras:{name: 'security.upfrontPayment.currency'}}));
+            }
+            form.Block.call(block, {
+                module: 'og.blotter.forms.blocks.cds_tash',
+                extras: {data: data.security, legacy: config.legacy, standard: config.standard, 
+                    stdvanilla: config.stdvanilla, index: config.index},
+                children: children,
                 processor: function (data) {
                     var sec = data.security;
                     sec.includeAccruedPremium = og.blotter.util.get_checkbox('security.includeAccruedPremium');
@@ -72,9 +78,10 @@ $.register_module({
                     sec.adjustEffectiveDate = og.blotter.util.get_checkbox('security.adjustEffectiveDate');
                     sec.immAdjustMaturityDate = og.blotter.util.get_checkbox('security.immAdjustMaturityDate');
                     sec.adjustCashSettlementDate = og.blotter.util.get_checkbox('security.adjustCashSettlementDate');
+                    sec.adjustSettlementDate = og.blotter.util.get_checkbox('security.adjustSettlementDate');
                     sec.notional.type = 'InterestRateNotional';
-                    if (config.standard)
-                        sec.upfrontAmount.type = 'InterestRateNotional';   
+                    if (config.standard) sec.upfrontAmount.type = 'InterestRateNotional';
+                    if (config.index) sec.upfrontPayment.type = 'InterestRateNotional';
                 }
             });
         };

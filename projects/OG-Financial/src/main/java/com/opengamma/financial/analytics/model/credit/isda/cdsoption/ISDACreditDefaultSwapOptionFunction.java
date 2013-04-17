@@ -62,9 +62,7 @@ import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
@@ -175,7 +173,6 @@ public abstract class ISDACreditDefaultSwapOptionFunction extends AbstractFuncti
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(securitySource);
     final CreditDefaultSwapOptionSecurity security = (CreditDefaultSwapOptionSecurity) target.getSecurity();
-    final CreditDefaultSwapSecurity underlyingSecurity = (CreditDefaultSwapSecurity) securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version correction
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //TODO need to handle surface data as well
     final ComputationTargetSpecification currencyTarget = ComputationTargetSpecification.of(FinancialSecurityUtils.getCurrency(target.getSecurity()));
@@ -190,7 +187,6 @@ public abstract class ISDACreditDefaultSwapOptionFunction extends AbstractFuncti
     final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
     //final String hazardRateCurveName = Iterables.getOnlyElement(hazardRateCurveNames);
     final String hazardRateCurveCalculationMethod = Iterables.getOnlyElement(hazardRateCurveCalculationMethodNames);
-    final ComputationTargetSpecification underlyingTargetSpec = ComputationTargetSpecification.of(underlyingSecurity);
     final Set<String> creditSpreadCurveShifts = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
     final ValueProperties.Builder hazardRateCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, spreadCurveName)
@@ -201,7 +197,7 @@ public abstract class ISDACreditDefaultSwapOptionFunction extends AbstractFuncti
     if (creditSpreadCurveShifts != null) {
       hazardRateCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts);
     }
-    final ValueRequirement hazardRateCurveRequirement = new ValueRequirement(ValueRequirementNames.HAZARD_RATE_CURVE, underlyingTargetSpec, hazardRateCurveProperties.get());
+    final ValueRequirement hazardRateCurveRequirement = new ValueRequirement(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), hazardRateCurveProperties.get());
     //    final String volatilitySurfaceName = Iterables.getOnlyElement(volatilitySurfaceNames);
     //    final ValueProperties volatilityProperties = ValueProperties.builder()
     //        .with(SURFACE, volatilitySurfaceName)

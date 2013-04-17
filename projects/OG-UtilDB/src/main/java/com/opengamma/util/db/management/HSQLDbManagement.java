@@ -155,7 +155,15 @@ public final class HSQLDbManagement extends AbstractDbManagement {
 
   @Override
   public void dropSchema(String catalog, String schema) {
-    FileUtils.deleteQuietly(getFile());
+    try {
+      super.dropSchema(catalog, schema);
+    } catch (RuntimeException ex) {
+      // try deleting database
+      if (ex.getCause() instanceof SQLInvalidAuthorizationSpecException) {
+        FileUtils.deleteQuietly(getFile());
+        super.dropSchema(catalog, schema);
+      }
+    }
     
     /*
      * NOTE jonathan 2013-04-11 -- this should work but for some reason doesn't
