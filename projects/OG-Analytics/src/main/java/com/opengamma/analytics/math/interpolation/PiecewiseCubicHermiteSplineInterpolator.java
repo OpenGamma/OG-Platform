@@ -12,7 +12,11 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * C1 cubic interpolation preserving monotonicity 
+ * C1 cubic interpolation preserving monotonicity based on 
+ * Fritsch, F. N.; Carlson, R. E. (1980) 
+ * "Monotone Piecewise Cubic Interpolation", SIAM Journal on Numerical Analysis 17 (2): 238–246. 
+ * Fritsch, F. N. and Butland, J. (1984)
+ * "A method for constructing local monotone piecewise cubic interpolants", SIAM Journal on Scientific and Statistical Computing 5 (2): 300-304.
  */
 public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomialInterpolator {
 

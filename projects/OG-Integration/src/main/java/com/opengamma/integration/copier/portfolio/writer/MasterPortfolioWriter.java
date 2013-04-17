@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -54,6 +56,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MasterPortfolioWriter.class);
 
+  private static final int NUMBER_OF_THREADS = 20;
+
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
@@ -77,6 +81,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   private boolean _discardIncompleteOptions;
 
+  private boolean _multithread;
+  private ExecutorService _executorService;
+
 
   /**
    * Create a master portfolio writer
@@ -95,9 +102,19 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * @param discardIncompleteOptions  If true, when an underlying cannot be loaded, the position/trade will be discarded;
    *                                  if false, the option will be created with a dangling reference to the underlying
    */
+
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
       boolean mergePositions, boolean keepCurrentPositions, boolean discardIncompleteOptions)  {
+
+    this(portfolioName, portfolioMaster, positionMaster, securityMaster, overwrite, mergePositions,
+         keepCurrentPositions, discardIncompleteOptions, false);
+  }
+
+  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
+      PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
+      boolean mergePositions, boolean keepCurrentPositions, boolean discardIncompleteOptions,
+      boolean multithread)  {
 
     ArgumentChecker.notEmpty(portfolioName, "portfolioName");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -120,6 +137,11 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     //_currentPath = new String[0];
     //_securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
 
+    _multithread = multithread;
+    if (_multithread) {
+      _executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    }
+
     createPortfolio(portfolioName);
 
     setPath(new String[0]);
@@ -138,13 +160,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * @return            the positions/securities in the masters after writing, null on failure
    */
   @Override
-  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(final ManageablePosition position, ManageableSecurity[] securities) {
     
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(securities, "securities");
 
     // Write securities
-    List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
+    final List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
     for (ManageableSecurity security : securities) {
       if (security != null || !_discardIncompleteOptions) { // latter term preserves old behaviour
         ManageableSecurity writtenSecurity = writeSecurity(security);
@@ -167,7 +189,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     if (_mergePositions && _securityIdToPosition.containsKey(writtenSecurities.get(0).getUniqueId().getObjectId())) {
 
       // Add new quantity to existing position's quantity
-      ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
+      final ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
       existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
 
       // Add new trades to existing position's trades
@@ -175,15 +197,30 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         existingPosition.addTrade(trade);
       }
 
-      // Save the updated existing position to the position master
-      PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
+      if (!_multithread) {
+        // Save the updated existing position to the position master
+        PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
-      // update position map (huh?)
-      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+        // update position map (huh?)
+        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
-      // Return the updated position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
-          securities);
+        // Return the updated position
+        return new ObjectsPair<>(addedDoc.getPosition(),
+            securities);
+      } else {
+        _executorService.submit(new Runnable() {
+          @Override
+          public void run() {
+            PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
+
+            // update position map (huh?)
+            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+          }
+        });
+
+        // Return the updated position
+        return new ObjectsPair<>(existingPosition, securities);
+      }
     }
 
     // Write position
@@ -244,23 +281,43 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         // TODO also confirm that all the associated trades are identical
       }
 
-      // Add the new position to the position master
-      PositionDocument addedDoc;
-      try {
-        addedDoc = _positionMaster.add(new PositionDocument(position));
-      } catch (Exception e) {
-        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
-        return null;
+      if (!_multithread) {
+        // Add the new position to the position master
+        PositionDocument addedDoc;
+        try {
+          addedDoc = _positionMaster.add(new PositionDocument(position));
+        } catch (Exception e) {
+          s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+          return null;
+        }
+        // Add the new position to the portfolio
+        _currentNode.addPosition(addedDoc.getUniqueId());
+
+        // Update position map
+        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+
+        // Return the new position
+        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
+            writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+      } else {
+        _executorService.submit(new Runnable() {
+          @Override
+          public void run() {
+            PositionDocument addedDoc;
+            try {
+              addedDoc = _positionMaster.add(new PositionDocument(position));
+            } catch (Exception e) {
+              s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+              return;
+            }
+            // update position map (huh?)
+            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+          }
+        });
+
+        // Return the updated position
+        return new ObjectsPair<>(position, writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
       }
-      // Add the new position to the portfolio
-      _currentNode.addPosition(addedDoc.getUniqueId());
-
-      // Update position map
-      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
-
-      // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
-          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
     }
   }
 
