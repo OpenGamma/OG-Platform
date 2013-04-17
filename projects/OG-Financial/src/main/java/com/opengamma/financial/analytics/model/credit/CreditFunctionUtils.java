@@ -60,7 +60,7 @@ public class CreditFunctionUtils {
   }
 
   public static String[] getFormattedBucketedXAxis(final LocalDate[] dates, final ZonedDateTime valuationDateTime) {
-    final LocalDate valuationDate = valuationDateTime.toLocalDate();
+    final LocalDate valuationDate = IMMDateGenerator.getPreviousIMMDate(valuationDateTime.toLocalDate());
     final int n = dates.length;
     final String[] result = new String[n];
     for (int i = 0; i < n; i++) {
