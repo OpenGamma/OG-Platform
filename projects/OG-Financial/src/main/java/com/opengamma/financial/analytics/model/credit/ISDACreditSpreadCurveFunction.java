@@ -102,8 +102,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties()
-          .withAny(ValuePropertyNames.CURVE)
-          .get();
+        .withAny(ValuePropertyNames.CURVE)
+        .get();
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties));
       }
 
