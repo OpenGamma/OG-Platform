@@ -14,9 +14,12 @@
       <Pattern>%date [%thread] %-5level %logger{36} - %msg%n</Pattern>
     </layout>
   </appender>
+  
+  <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
 
   <root level="warn">
     <appender-ref ref="FILE" />
+    <appender-ref ref="BRIDGE" />
   </root>
 
 </configuration>
