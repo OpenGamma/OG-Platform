@@ -74,6 +74,7 @@ $.register_module({
                                         var args = routes.current().args, rule = view.rules.load;
                                         if (result.error) return view.error(result.message);
                                         routes.go(routes.hash(rule, args));
+                                        setTimeout(function () {view.search(args);});
                                     }
                                 };
                                 $(this).dialog('close');
