@@ -92,7 +92,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   @Override
   protected void doRun() {
     storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
-    storeViewDefinition(getFXViewDefinition(ExampleDatabasePopulator.FX_PORTFOLIO_NAME));
+    //storeViewDefinition(getFXViewDefinition(ExampleDatabasePopulator.FX_PORTFOLIO_NAME));
     storeViewDefinition(getMultiCurrencySwapViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME));
     storeViewDefinition(getEquityOptionViewDefinition(DemoEquityOptionCollarPortfolioLoader.PORTFOLIO_NAME));
   }
