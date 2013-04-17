@@ -67,6 +67,15 @@ $.register_module({
                 {text:'Floating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
                 {text:'Floating Spread Interest Rate Leg', value:'FloatingSpreadIRLeg'},
                 {text:'Fixed Interest Rate Leg', value:'FixedInterestRateLeg'}
+            ],
+            cds_types : [
+                {text:'CDS Index', value:'creditdefaultswapindexsecurity'},
+                {text:'Legacy Fixed Recovery CDS', value:'legacyfixedrecoverycdssecurity'},
+                {text:'Legacy Recovery Lock CDS', value:'legacyrecoverylockcdssecurity'},
+                {text:'Legacy Vanilla CDS', value:'legacyvanillacdssecurity'},
+                {text:'Standard Fixed Recovery CDS', value:'standardfixedrecoverycdssecurity'},
+                {text:'Standard Recovery Lock CDS', value:'standardrecoverylockcdssecurity'},
+                {text:'Standard Vanilla CDS', value:'standardvanillacdssecurity'}
             ]
         };
     }

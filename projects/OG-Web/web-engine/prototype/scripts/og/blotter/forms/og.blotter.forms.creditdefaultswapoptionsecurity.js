@@ -15,7 +15,7 @@ $.register_module({
             constructor.load = function () {
                 constructor.title = 'CDS Option';
                 form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.simple_tash',
+                    module: 'og.blotter.forms.cds_option_tash',
                     selector: '.OG-blotter-form-block',
                     data: data,
                     processor: function (data) {
@@ -26,7 +26,10 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
                         portfolio: data.nodeId, trade: data.trade}),
-
+                    cds_select = new ui.Dropdown({
+                        form: form, placeholder: 'Select CDS Type',
+                        data_generator: function (handler) {handler(og.blotter.util.cds_types);}
+                    }),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })

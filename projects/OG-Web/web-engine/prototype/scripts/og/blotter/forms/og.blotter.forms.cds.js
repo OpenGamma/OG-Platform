@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
+            var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util, cds_select;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: config.type, externalIdBundle: "", attributes: {}}, 
                 trade: util.otc_trade};}
