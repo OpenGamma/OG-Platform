@@ -69,6 +69,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
@@ -1059,6 +1061,26 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitCapFloorInflationZeroCouponMonthly(CapFloorInflationZeroCouponMonthly coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearInterpolation(CapFloorInflationYearOnYearInterpolation coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearInterpolation(CapFloorInflationYearOnYearInterpolation coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearMonthly(CapFloorInflationYearOnYearMonthly coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationYearOnYearMonthly(CapFloorInflationYearOnYearMonthly coupon) {
       return null;
     }
 

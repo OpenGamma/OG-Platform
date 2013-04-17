@@ -21,6 +21,8 @@ import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.aggregation.AggregationFunctions;
 import com.opengamma.financial.analytics.AnalyticsFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
+import com.opengamma.financial.analytics.model.ModelFunctions;
+import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackSurfaceDefaults;
 import com.opengamma.financial.currency.CurrencyFunctions;
 import com.opengamma.financial.property.PropertyFunctions;
@@ -69,7 +71,19 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
   @Override
   protected void doRun() {
     storeFunctionDefinition(AGGREGATION, AggregationFunctions.instance());
-    storeFunctionDefinition(ANALYTICS, AnalyticsFunctions.instance());
+    storeFunctionDefinition(ANALYTICS, new AnalyticsFunctions() {
+      protected FunctionConfigurationSource modelFunctionConfiguration() {
+        return new ModelFunctions() {
+          protected FunctionConfigurationSource equityFunctionConfiguration() {
+            return new EquityFunctions() {
+              protected FunctionConfigurationSource optionFunctionConfiguration() {
+                return null;
+              }
+            }.getObjectCreating();
+          }
+        }.getObjectCreating();
+      }
+    }.getObjectCreating());
     storeFunctionDefinition(CURRENCY, CurrencyFunctions.instance());
     storeFunctionDefinition(PROPERTY, PropertyFunctions.instance());
     storeFunctionDefinition(VALUE, ValueFunctions.instance());

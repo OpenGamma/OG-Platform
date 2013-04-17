@@ -90,7 +90,7 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final String spreadCurveName = security.accept(new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context))).getUniqueId().getValue();
+    final String spreadCurveName = "CDS_INDEX_" + security.accept(new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context))).getUniqueId().getValue();
     //TODO shouldn't need all of the yield curve properties
     final String hazardRateCurveCalculationMethod = Iterables.getOnlyElement(hazardRateCurveCalculationMethodNames);
     final String yieldCurveName = desiredValue.getConstraint(PROPERTY_YIELD_CURVE);

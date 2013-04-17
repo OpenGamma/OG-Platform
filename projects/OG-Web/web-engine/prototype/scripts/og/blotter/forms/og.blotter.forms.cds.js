@@ -28,7 +28,7 @@ $.register_module({
                         portfolio: data.nodeId, trade: data.trade}),
                     new og.blotter.forms.blocks.cds({
                         form: form, data: data, standard: config.standard, stdvanilla: config.stdvanilla, 
-                        legacy: config.legacy}),
+                        legacy: config.legacy, index: config.index}),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })
@@ -46,9 +46,13 @@ $.register_module({
                     util.check_checkbox("security.adjustCashSettlementDate", data.security.adjustCashSettlementDate);
                     util.check_checkbox("security.adjustMaturityDate", data.security.adjustMaturityDate);
                     util.check_checkbox("security.immAdjustMaturityDate", data.security.immAdjustMaturityDate);
-                    if(!data.security.notional) return;
-                    util.set_select("security.notional.currency", data.security.notional.currency);
-                    
+                    util.check_checkbox("security.adjustSettlementDate", data.security.adjustSettlementDate);
+                    if(data.security.notional)
+                        util.set_select("security.notional.currency", data.security.notional.currency);
+                    if(data.security.upfrontPayment)
+                        util.set_select("security.upfrontPayment.currency", data.security.upfrontPayment.currency);
+                    if(data.security.upfrontAmount)
+                        util.set_select("security.upfrontAmount.currency", data.security.upfrontAmount.currency);
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);

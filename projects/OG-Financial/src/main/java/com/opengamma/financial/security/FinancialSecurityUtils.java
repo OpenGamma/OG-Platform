@@ -975,6 +975,7 @@ public class FinancialSecurityUtils {
         public Collection<Currency> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -1209,14 +1210,14 @@ public class FinancialSecurityUtils {
         public CurrencyAmount visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
           final InterestRateNotional notional = security.getNotional();
           final int sign = security.isBuy() ? 1 : -1;
-          return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
+          return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
         }
 
         @Override
         public CurrencyAmount visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
           final InterestRateNotional notional = security.getNotional();
           final int sign = security.isBuy() ? 1 : -1;
-          return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
+          return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
         }
 
         @Override
@@ -1259,6 +1260,12 @@ public class FinancialSecurityUtils {
           final Currency currency = security.getCurrency();
           final double notional = security.getUnitAmount();
           return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          final InterestRateNotional notional = security.getNotional();
+          return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
         }
 
       });

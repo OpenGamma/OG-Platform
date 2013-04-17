@@ -50,6 +50,7 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
     for (int i = 0; i < n; i++) {
       dates[i] = times[i].toLocalDate();
     }
+    //final String[] labels = CreditFunctionUtils.getFormattedBucketedXAxis(dates, valuationDate);
     final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, cs01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));

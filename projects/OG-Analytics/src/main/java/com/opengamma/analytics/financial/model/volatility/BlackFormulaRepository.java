@@ -725,6 +725,11 @@ public abstract class BlackFormulaRepository {
 
       @Override
       public Double evaluate(final Double volatility) {
+        // dubug
+        if (volatility < 0.0) {
+          double arse = 0.0;
+          arse++;
+        }
         double sum = 0.0;
         for (int i = 0; i < n; i++) {
           sum += price(data[i], volatility);
@@ -732,7 +737,7 @@ public abstract class BlackFormulaRepository {
         return sum - price;
       }
     };
-    final double[] range = bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change));
+    final double[] range = bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0.0, Double.POSITIVE_INFINITY);
     return rootFinder.getRoot(func, range[0], range[1]);
   }
 
