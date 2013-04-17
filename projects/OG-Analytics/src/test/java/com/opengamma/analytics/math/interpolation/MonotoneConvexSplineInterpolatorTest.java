@@ -154,7 +154,7 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test
   public void positiveTest() {
-    final boolean print = true;
+    final boolean print = false;
     System.out.println("MonotoneConvexSplineInterpolatorTest");
 
     final double[] xValues = new double[] {0., 0.1, 1., 2., 6., 9., 30};
