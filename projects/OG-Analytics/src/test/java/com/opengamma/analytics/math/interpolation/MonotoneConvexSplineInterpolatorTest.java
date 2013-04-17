@@ -184,7 +184,7 @@ public class MonotoneConvexSplineInterpolatorTest {
     }
   }
 
-  @Test(enabled=false)
+  @Test//(enabled=false)
   public void monotonicTest() {
     final boolean print = true;
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -195,7 +195,7 @@ public class MonotoneConvexSplineInterpolatorTest {
     final int nPts = 300;
     double old = yValues[0];
     for (int i = 0; i < nPts; ++i) {
-      final double key = 0.0 + i * 5.9 / (nPts - 1);
+      final double key = 0.1 + i * 5.9 / (nPts - 1);
       final double value = interpolator.interpolate(xValues, yValues, key);
       if (print) {
         System.out.println(key + "\t" + value);

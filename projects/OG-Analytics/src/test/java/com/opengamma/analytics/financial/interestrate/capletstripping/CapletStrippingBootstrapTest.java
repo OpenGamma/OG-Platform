@@ -57,7 +57,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
   private static int N_KNOTS = 20;
   private static int DEGREE = 3;
   private static int DIFFERENCE_ORDER = 2;
-  private static double LAMBDA = 1;
+  private static double LAMBDA = 1e-6;
   private static DoubleMatrix2D PENALTY_MAT;
   private static List<Function1D<Double, Double>> B_SPLINES;
   private static Function1D<DoubleMatrix1D, DoubleMatrix1D> WEIGHTS_TO_SWAP_FUNC;
@@ -154,7 +154,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
   }
 
-  @Test(enabled=false)
+  @Test(enabled = false)
   public void curveTest() {
 
     final Interpolator1D baseInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -205,10 +205,10 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
   }
 
-  @Test(enabled=false)
+  @Test(enabled = false)
   public void pSplineTest() {
 
-  //this maps the b-spline weights into a VolatilityModel1D - in this case a term structure of (caplet) volatility 
+    // this maps the b-spline weights into a VolatilityModel1D - in this case a term structure of (caplet) volatility
     final VolatilityModelProvider volModel = new VolatilityModelProvider() {
 
       @Override
@@ -233,13 +233,23 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
         };
       }
     };
-    
+
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new CapletStrippingFunction(CAPS_1PC, YIELD_CURVES, volModel);
     int n = B_SPLINES.size();
-    LeastSquareResults ans = NLLSWP.solve(new DoubleMatrix1D(VOL_1PC)                                         , func, new DoubleMatrix1D(n, 1.0),PENALTY_MAT);
-   
-    System.out.println(ans);
+    LeastSquareResults ans = NLLSWP.solve(new DoubleMatrix1D(VOL_1PC), func, new DoubleMatrix1D(n, 1.0), PENALTY_MAT);
 
+    System.out.println("chi2: " + ans.getChiSq());
+    DoubleMatrix1D modelCapVols = func.evaluate(ans.getFitParameters());
+    for(int i=0;i<VOL_1PC.length;i++) {
+      System.out.println(VOL_1PC[i]+"\t"+modelCapVols.getEntry(i));
+    }
+    System.out.println();
+    final Function1D<Double, Double> fittedVol = new BasisFunctionAggregation<>(B_SPLINES,ans.getFitParameters().getData());
+    
+    for(int i=0;i<101;i++) {
+      double t = i*10.0/100;
+      System.out.println(t+"\t"+fittedVol.evaluate(t));
+    }
   }
 
 }
