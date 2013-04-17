@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,136 +8,124 @@ package com.opengamma.financial.credit;
 import org.threeten.bp.Period;
 
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
-public abstract class CreditCurveNodeIdentifier implements ExternalIdentifiable {
+public class CreditCurveNodeIdentifier {
 
   /**
    * The separator used in the id construction.
    */
-  protected static final String SEPARATOR = "_";
+  private static final String SEPARATOR = "_";
+
+  /**
+   * The scheme to use in external identifiers for CDS Index curve definition data.
+   */
+  private static final ExternalScheme CDS_INDEX_SCHEME = ExternalScheme.of("CDS_INDEX_CREDIT_CURVE_NODE");
+
+  /**
+   * The scheme to use in external identifiers for Same Day CDS curve definition data.
+   */
+  private static final ExternalScheme SAMEDAY_CDS_SCHEME = ExternalScheme.of("SAMEDAY_CREDIT_CURVE_NODE");
+
+  /**
+   * The scheme to use in external identifiers for Composite CDS curve definition data.
+   */
+  private static final ExternalScheme COMPOSITE_CDS_SCHEME = ExternalScheme.of("COMPOSITE_CREDIT_CURVE_NODE");
+
   /**
    * The external id for this curve.
    */
-  protected final ExternalId _externalId;
-  /**
-   * The red code.
-   */
-  protected final String _redCode;
-  /**
-   * The ticker.
-   */
-  protected final String _ticker;
-  /**
-   * Seniority of the curve. E.g. LIEN1 (First Lien),
-   * SNRFOR (Subordinated or Lower SeniorityLevel 2 Debt (Banks))
-   */
-  protected final String _seniority;
-  /**
-   * The curve currency.
-   */
-  protected final Currency _currency;
-  /**
-   * Term for the curve, 6m, 1y, 2y, ... 30y etc
-   */
-  protected final Period _term;
-  /**
-   * The restructuring clause e.g. MR (Modified restructuring)
-   */
-  protected final String _restructuringClause;
+  private final ExternalId _externalId;
+
   /**
    * The generated id for this curve.
    */
   protected final String _idValue;
 
-  public CreditCurveNodeIdentifier(final ExternalScheme creditCurveScheme,
-                                   final String ticker,
-                                   final String redCode,
-                                   final String seniority,
-                                   final Currency currency,
-                                   final Period term,
-                                   final String restructuringClause) {
+  /**
+   * Create an identifier for a CDS Index with the specified red code and term.
+   *
+   * @param redCode the red code of the CDS index
+   * @param term the term required
+   * @return a new identifier
+   */
+  public static CreditCurveNodeIdentifier forCdsIndex(final String redCode, final Period term) {
+
+    String idValue = convertRed(redCode) + SEPARATOR + term.toString();
+    return new CreditCurveNodeIdentifier(CDS_INDEX_SCHEME, idValue);
+  }
+
+  /**
+   * Create an identifier for a Sameday CDS with the specified properties.
+   *
+   * @param ticker the ticker of the CDS
+   * @param redCode the red code of the CDS
+   * @param currency the currency of the CDS
+   * @param term the term of the CDS
+   * @param seniority the seniority of the CDS
+   * @param restructuringClause the restructuring clause of the CDS
+   * @return a new identifier
+   */
+  public static CreditCurveNodeIdentifier forSamedayCds(final String ticker,
+                                                        final String redCode,
+                                                        final Currency currency,
+                                                        final Period term,
+                                                        final String seniority,
+                                                        final String restructuringClause) {
+
+    String idValue = generateCdsId(ticker, redCode, currency, term, seniority, restructuringClause);
+    return new CreditCurveNodeIdentifier(SAMEDAY_CDS_SCHEME, idValue);
+  }
+
+  /**
+   * Create an identifier for a Composite CDS with the specified properties.
+   *
+   * @param ticker the ticker of the CDS
+   * @param redCode the red code of the CDS
+   * @param currency the currency of the CDS
+   * @param term the term of the CDS
+   * @param seniority the seniority of the CDS
+   * @param restructuringClause the restructuring clause of the CDS
+   * @return a new identifier
+   */
+  public static CreditCurveNodeIdentifier forCompositeCds(final String ticker,
+                                                        final String redCode,
+                                                        final Currency currency,
+                                                        final Period term,
+                                                        final String seniority,
+                                                        final String restructuringClause) {
+
+    String idValue = generateCdsId(ticker, redCode, currency, term, seniority, restructuringClause);
+    return new CreditCurveNodeIdentifier(COMPOSITE_CDS_SCHEME, idValue);
+  }
+
+  private static String generateCdsId(String ticker,
+                                      String redCode,
+                                      Currency currency,
+                                      Period term,
+                                      String seniority,
+                                      String restructuringClause) {
+    return ticker + SEPARATOR + convertRed(redCode) + SEPARATOR + currency.getCode() + SEPARATOR +
+        seniority + SEPARATOR + restructuringClause + SEPARATOR + term.toString();
+  }
+
+  private static String convertRed(String redCode) {
+    return redCode.replace("_", "-");
+  }
+
+  private CreditCurveNodeIdentifier(ExternalScheme creditCurveScheme, String idValue) {
 
     ArgumentChecker.notNull(creditCurveScheme, "creditCurveScheme");
-    ArgumentChecker.notNull(ticker, "ticker");
-    ArgumentChecker.notNull(redCode, "redCode");
-    ArgumentChecker.notNull(currency, "currency");
-    ArgumentChecker.notNull(seniority, "seniority");
-    ArgumentChecker.notNull(term, "term");
-    ArgumentChecker.notNull(restructuringClause, "restructuring clause");
+    ArgumentChecker.notNull(idValue, "idValue");
 
-    _currency = currency;
-    _term = term;
-    _redCode = redCode.replace("_", "-");
-    _ticker = ticker;
-    _restructuringClause = restructuringClause;
-    _seniority = seniority;
-
-    _idValue = _ticker + SEPARATOR +_redCode + SEPARATOR + _currency.getCode() + SEPARATOR +
-        _seniority + SEPARATOR + _restructuringClause + SEPARATOR + _term.toString();
-    _externalId = ExternalId.of(creditCurveScheme, _idValue);
+    _idValue = idValue;
+    _externalId = ExternalId.of(creditCurveScheme, idValue);
   }
 
-  @Override
   public ExternalId getExternalId() {
     return _externalId;
-  }
-
-  /**
-   * Gets the ticker.
-   *
-   * @return the ticker
-   */
-  public String getTicker() {
-    return _ticker;
-  }
-
-  /**
-   * Gets the RED code.
-   *
-   * @return the RED code
-   */
-  public String getRedCode() {
-    return _redCode;
-  }
-
-  /**
-   * Gets the seniority.
-   *
-   * @return the seniority
-   */
-  public String getSeniority() {
-    return _seniority;
-  }
-
-  /**
-   * Gets the restructuring clause.
-   *
-   * @return the restructuring clause
-   */
-  public String getRestructuringClause() {
-    return _restructuringClause;
-  }
-
-  /**
-   * Gets the currency.
-   *
-   * @return the currency
-   */
-  public Currency getCurrency() {
-    return _currency;
-  }
-
-  /**
-   * Gets the term;
-   *
-   * @return the term
-   */
-  public Period getTerm() {
-    return _term;
   }
 
   /**

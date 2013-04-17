@@ -157,9 +157,6 @@ public class IndexCreditDefaultSwapDefinition {
   // The fixed index coupon (fixed at the issuance of the index)
   private final double _indexCoupon;
 
-  // The current market observed index spread (can differ from the fixed coupon)
-  //private final double _indexSpread;
-
   // The number of obligors in the underlying pool that are non-defaulted as of trade date (expressed as a percentage) - MarkIt field
   private final double _indexFactor;
 
@@ -444,6 +441,41 @@ public class IndexCreditDefaultSwapDefinition {
 
   public CreditDefaultSwapDefinition[] getUnderlyingCDS() {
     return _underlyingCDS;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to construct an index CDS position with an underlying pool which has been modified in some way
+
+  public IndexCreditDefaultSwapDefinition withUnderlyingPool(final UnderlyingPool underlyingPool) {
+    return new IndexCreditDefaultSwapDefinition(
+        getIndexName(),
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        underlyingPool,
+        getIndex(),
+        getSeries(),
+        getVersion(),
+        getCurrency(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getSettlementDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDaycountFractionConvention(),
+        getBusinessdayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustSettlementDate(),
+        getAdjustMaturityDate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getNotional(),
+        getUpfrontPayment(),
+        getIndexCoupon());
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

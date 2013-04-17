@@ -102,10 +102,20 @@ public class InflationSensitivity {
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
-  public static InflationSensitivity ofYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+  public static InflationSensitivity ofYieldDiscountingAndPriceIndex(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     ArgumentChecker.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
     return new InflationSensitivity(sensitivityYieldDiscounting, new HashMap<String, List<ForwardSensitivity>>(), sensitivityPriceCurve);
+  }
+
+  /**
+   * Constructor from a yield discounting map of sensitivity. The map is used directly.
+   * @param sensitivityPriceCurve The map.
+   * @return The sensitivity.
+   */
+  public static InflationSensitivity ofPriceIndex(final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+    ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index");
+    return new InflationSensitivity(new HashMap<String, List<DoublesPair>>(), new HashMap<String, List<ForwardSensitivity>>(), sensitivityPriceCurve);
   }
 
   /**

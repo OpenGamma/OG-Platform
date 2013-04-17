@@ -62,7 +62,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
    */
-  private final Map2<ObjectId, VersionCorrection, V> _frontCacheByOID = new WeakValueHashMap2<ObjectId, VersionCorrection, V>();
+  //private final Map2<ObjectId, VersionCorrection, V> _frontCacheByOID = new WeakValueHashMap2<ObjectId, VersionCorrection, V>();
 
   /**
    * The underlying cache.
@@ -194,31 +194,23 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
   public V get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    V result = _frontCacheByOID.get(objectId, versionCorrection);
-    if (result != null) {
-      return result;
-    }
     Map<VersionCorrection, V> items = getObjectIdCacheEntry(objectId);
     if (items != null) {
-      result = items.get(versionCorrection);
+      V result = items.get(versionCorrection);
       if (result != null) {
         final V existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
         if (existing != null) {
-          _frontCacheByOID.put(objectId, versionCorrection, result);
           return existing;
         }
-        _frontCacheByOID.put(objectId, versionCorrection, result);
         _uidCache.put(new Element(result.getUniqueId(), result));
         return result;
       }
     }
-    result = getUnderlying().get(objectId, versionCorrection);
+    V result = getUnderlying().get(objectId, versionCorrection);
     final V existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
     if (existing != null) {
-      _frontCacheByOID.put(objectId, versionCorrection, existing);
       return existing;
     }
-    _frontCacheByOID.put(objectId, versionCorrection, result);
     _uidCache.put(new Element(result.getUniqueId(), result));
     if (!versionCorrection.containsLatest()) {
       final Map<VersionCorrection, V> newitems = Maps.newHashMap();
@@ -255,7 +247,6 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     _frontCacheByUID.remove(uid);
     _uidCache.remove(uid);
     // Destroy all version/correction cached values for the object
-    _frontCacheByOID.removeAllKey1(oid);
     _oidCache.remove(oid);
   }
 
