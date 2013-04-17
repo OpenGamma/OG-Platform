@@ -28,20 +28,19 @@ public class MonotoneConvexSplineInterpolatorTest {
   @Test
   public void knotsControlTest1() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27. };
-    final double[] yValues = new double[] {3., 2., 2., 2., 3., 2.5, 2., 2., 3., 3., 2.5, 2., 2., 4., 5., 5., 4.9, 5., 6., 8., 3., -2., -1.5, -1., -2., -1.5, -1., };
-    final double[][] xValuesMatrix = new double[][] { {1., 2. }, {3., 4. } };
-    final double[] xValuesMod = new double[] {1., 2., 3., 4. + 1.e-14, 5., 6. + 1.e-14, 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27. };
-    final double[][] xValuesModMatrix = new double[][] { {1., 2. }, {3., 4. + 1.e-14 } };
-    final double[][] yValuesMatrix = new double[][] { {3., 2. }, {2., 2. } };
+    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27.};
+    final double[] yValues = new double[] {3., 2., 2., 2., 3., 2.5, 2., 2., 3., 3., 2.5, 2., 2., 4., 5., 5., 4.9, 5., 6., 8., 3., -2., -1.5, -1., -2., -1.5, -1.,};
+    final double[][] xValuesMatrix = new double[][] { {1., 2.}, {3., 4.}};
+    final double[] xValuesMod = new double[] {1., 2., 3., 4. + 1.e-14, 5., 6. + 1.e-14, 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27.};
+    final double[][] xValuesModMatrix = new double[][] { {1., 2.}, {3., 4. + 1.e-14}};
+    final double[][] yValuesMatrix = new double[][] { {3., 2.}, {2., 2.}};
 
     final double[] knotsExp = new double[] {1., 2., 3., 4., 4.7, 5., 6., 6.5, 7., 8., 101. / 12., 9., 101. / 11., 10., 149. / 14., 11., 11.5, 12., 138. / 11., 13., 830. / 63., 14., 15., 602. / 39.,
-        16., 16. + 2. / 3., 17., 487. / 28.,
-        18., 19., 19. + 240. / 251., 20., 20. + 117. / (97. + 117.),
-        21., 21.5, 22., 22. + 1.5 / 224., 23., 23. + 62.5 / 63., 24., 24.5, 25., 25. + 1.5 / 63.5, 26., 27. };
+        16., 16. + 2. / 3., 17., 487. / 28., 18., 19., 19. + 240. / 251., 20., 20. + 117. / (97. + 117.), 21., 21.5, 22., 22. + 1.5 / 224., 23., 23. + 62.5 / 63., 24., 24.5, 25., 25. + 1.5 / 63.5,
+        26., 27.};
 
-    final double[] modifiedFwds = new double[] {0.75, 1.5, 2., 4., 0., -2, -2, 4., 6., -5., -7., -7., 4., 24.5, 10., 4.15, 5., 13.4, 35., -194., -214., -214., 10., -52., -52., 11.5, 12.25, };
-    final double[][] modifiedFwdsMatrix = new double[][] { {0.75, 1.5 }, {2., 4. } };
+    final double[] modifiedFwds = new double[] {0.75, 1.5, 2., 4., 0., -2, -2, 4., 6., -5., -7., -7., 4., 24.5, 10., 4.15, 5., 13.4, 35., -194., -214., -214., 10., -52., -52., 11.5, 12.25,};
+    final double[][] modifiedFwdsMatrix = new double[][] { {0.75, 1.5}, {2., 4.}};
     final int nData = xValues.length;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -106,11 +105,11 @@ public class MonotoneConvexSplineInterpolatorTest {
   @Test
   public void constTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6. };
-    final double[] yValues = new double[] {1., 1., 1., 1., 1., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6.};
+    final double[] yValues = new double[] {1., 1., 1., 1., 1., 1.};
 
-    final double[][] coefMatInt = new double[][] { {0., 0., 1., 1. }, {0., 0., 1., 2. }, {0., 0., 1., 3. }, {0., 0., 1., 4. }, {0., 0., 1., 5. }, {0., 0., 1., 6. } };
-    final double[][] coefMatIntFwds = new double[][] { {0., 0., 1. }, {0., 0., 1. }, {0., 0., 1. }, {0., 0., 1. }, {0., 0., 1. } };
+    final double[][] coefMatInt = new double[][] { {0., 0., 1., 1.}, {0., 0., 1., 2.}, {0., 0., 1., 3.}, {0., 0., 1., 4.}, {0., 0., 1., 5.}, {0., 0., 1., 6.}};
+    final double[][] coefMatIntFwds = new double[][] { {0., 0., 1.}, {0., 0., 1.}, {0., 0., 1.}, {0., 0., 1.}, {0., 0., 1.}};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     PiecewisePolynomialResult result = interpolator.interpolate(xValues, yValues);
@@ -155,25 +154,54 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test
   public void positiveTest() {
+    final boolean print = true;
+    System.out.println("MonotoneConvexSplineInterpolatorTest");
 
-    final double[] xValues = new double[] {0., 0.1, 1., 2., 6., 9., 30 };
-    final double[] yValues = new double[] {0., 2., 2., 2., 3., 2., 1. };
+    final double[] xValues = new double[] {0., 0.1, 1., 2., 6., 9., 30};
+    final double[] yValues = new double[] {0., 2., 2., 2., 3., 2., 1.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
 
     final int nPts = 300;
     for (int i = 0; i < nPts; ++i) {
       final double key = 30. / nPts + 30. / nPts * i;
-      // System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
+      if (print) {
+        System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
+      }
       assertTrue(interpolator.interpolateFwds(xValues, yValues, key) >= 0.);
     }
 
-    System.out.println("\n");
+    if (print) {
+      System.out.println("\n");
+    }
 
     for (int i = 0; i < nPts + 100; ++i) {
       final double key = 30. / nPts + 30. / nPts * i;
-      //System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
+      if (print) {
+        System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
+      }
       assertTrue(interpolator.interpolate(xValues, yValues, key) >= 0.);
+    }
+  }
+
+  @Test(enabled=false)
+  public void monotonicTest() {
+    final boolean print = true;
+    MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
+    System.out.println("MonotoneConvexSplineInterpolatorTest");
+
+    final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9};
+    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3};
+    final int nPts = 300;
+    double old = yValues[0];
+    for (int i = 0; i < nPts; ++i) {
+      final double key = 0.0 + i * 5.9 / (nPts - 1);
+      final double value = interpolator.interpolate(xValues, yValues, key);
+      if (print) {
+        System.out.println(key + "\t" + value);
+      }
+      assertTrue(value >= old);
+      old = value;
     }
   }
 
@@ -182,16 +210,16 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   public void discontTest() {
 
-    final double[] xValues = new double[] {0., 0.1, 4., 10., 20., 30. };
-    final double[] yValues = new double[] {0., 5., 5., 5., 5., 4.5 };
-    final double[] fwdsExp = new double[] {0., 5., 5., 5., 4.25, 3.125 };
+    final double[] xValues = new double[] {0., 0.1, 4., 10., 20., 30.};
+    final double[] yValues = new double[] {0., 5., 5., 5., 5., 4.5};
+    final double[] fwdsExp = new double[] {0., 5., 5., 5., 4.25, 3.125};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
 
     final int nPts = xValues.length;
     for (int i = 1; i < nPts; ++i) {
       final double key = xValues[i];
-      //   System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
+      // System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
       final double ref = yValues[i] == 0. ? 1. : Math.abs(yValues[i]);
       assertEquals(interpolator.interpolateFwds(xValues, yValues, key), yValues[i], ref * EPS);
     }
@@ -200,7 +228,7 @@ public class MonotoneConvexSplineInterpolatorTest {
 
     for (int i = 1; i < nPts; ++i) {
       final double key = xValues[i];
-      //   System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
+      // System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
       final double ref = fwdsExp[i] == 0. ? 1. : Math.abs(fwdsExp[i]);
       assertEquals(interpolator.interpolateFwds(xValues, yValues, key), fwdsExp[i], ref * EPS);
     }
@@ -215,8 +243,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nonSupTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 3., 2., 1. }, {1., 3., 2., 1. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] { {1., 3., 2., 1.}, {1., 3., 2., 1.}};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolate(xValues, yValues);
@@ -227,8 +255,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nonSupKeyTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 3., 2., 1. }, {1., 3., 2., 1. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] { {1., 3., 2., 1.}, {1., 3., 2., 1.}};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolate(xValues, yValues, 1.);
@@ -239,9 +267,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nonSupKeyVectorTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 3., 2., 1. }, {1., 3., 2., 1. } };
-    final double[] key = new double[] {2., 2.5 };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] { {1., 3., 2., 1.}, {1., 3., 2., 1.}};
+    final double[] key = new double[] {2., 2.5};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolate(xValues, yValues, key);
@@ -252,9 +280,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nonSupKeyMatrixTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 3., 2., 1. }, {1., 3., 2., 1. } };
-    final double[][] key = new double[][] { {2., 2.5 }, {2., 2.5 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] { {1., 3., 2., 1.}, {1., 3., 2., 1.}};
+    final double[][] key = new double[][] { {2., 2.5}, {2., 2.5}};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolate(xValues, yValues, key);
@@ -265,7 +293,7 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullyTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[] yValues = new double[4];
     yValues = null;
 
@@ -278,7 +306,7 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullxTest() {
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] yValues = new double[] {1., 2., 3., 4.};
     double[] xValues = new double[4];
     xValues = null;
 
@@ -291,9 +319,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullkeyVecTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
-    double[] key = new double[] {2., 2.5 };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
+    double[] key = new double[] {2., 2.5};
     key = null;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -305,9 +333,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullkeyMatTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
-    double[][] key = new double[][] { {2., 2.5 }, {2., 2.5 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
+    double[][] key = new double[][] { {2., 2.5}, {2., 2.5}};
     key = null;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -319,8 +347,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infxTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     xValues[3] = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -332,8 +360,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infyTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     yValues[3] = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -345,8 +373,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanxTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     xValues[3] = Double.NaN;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -358,8 +386,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanyTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     yValues[3] = Double.NaN;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -371,8 +399,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infKeyTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
     double key = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -384,9 +412,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infKeyVecTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
-    double[] key = new double[] {2., 2.5 };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
+    double[] key = new double[] {2., 2.5};
     key[1] = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -398,9 +426,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infKeyMatTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
-    double[][] key = new double[][] { {2., 2.5 }, {2., 2.5 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
+    double[][] key = new double[][] { {2., 2.5}, {2., 2.5}};
     key[1][1] = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -412,9 +440,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanKeyVecTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
-    double[] key = new double[] {2., 2.5 };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
+    double[] key = new double[] {2., 2.5};
     key[1] = Double.NaN;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -426,9 +454,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanKeyMatTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
-    double[][] key = new double[][] { {2., 2.5 }, {2., 2.5 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
+    double[][] key = new double[][] { {2., 2.5}, {2., 2.5}};
     key[1][1] = Double.NaN;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -440,8 +468,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void largeKeyTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
     double key = 1.e308;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -453,9 +481,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void largeKeyVecTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
-    double[] key = new double[] {2., 2.5 };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
+    double[] key = new double[] {2., 2.5};
     key[1] = 1.e308;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -467,9 +495,9 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void largeKeyMatTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
-    double[][] key = new double[][] { {2., 2.5 }, {2., 2.5 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
+    double[][] key = new double[][] { {2., 2.5}, {2., 2.5}};
     key[1][1] = 1.e308;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -481,8 +509,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void shortDataLengthTest() {
-    final double[] xValues = new double[] {1. };
-    final double[] yValues = new double[] {1. };
+    final double[] xValues = new double[] {1.};
+    final double[] yValues = new double[] {1.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolate(xValues, yValues);
@@ -493,8 +521,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongDataLengthTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1., 2. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1., 2.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolate(xValues, yValues);
@@ -505,8 +533,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void repeatedDataTest() {
-    final double[] xValues = new double[] {1., 2., 1., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 1., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolate(xValues, yValues);
@@ -517,8 +545,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infxFwdsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     xValues[3] = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -530,8 +558,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infyFwdsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     yValues[3] = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -543,8 +571,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanxFwdsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     xValues[3] = Double.NaN;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -556,8 +584,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanyFwdsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
     yValues[3] = Double.NaN;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -569,8 +597,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infKeyFwdsTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
     double key = INF;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -582,8 +610,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void largeKeyFwdsTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 3., 2., 1. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 3., 2., 1.};
     double key = 1.e308;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
@@ -595,8 +623,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void shortDataLengthFwdsTest() {
-    final double[] xValues = new double[] {1. };
-    final double[] yValues = new double[] {1. };
+    final double[] xValues = new double[] {1.};
+    final double[] yValues = new double[] {1.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolateFwds(xValues, yValues);
@@ -607,8 +635,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongDataLengthFwdsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1., 2. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1., 2.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolateFwds(xValues, yValues);
@@ -619,8 +647,8 @@ public class MonotoneConvexSplineInterpolatorTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void repeatedDataFwdsTest() {
-    final double[] xValues = new double[] {1., 2., 1., 4. };
-    final double[] yValues = new double[] {1., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 1., 4.};
+    final double[] yValues = new double[] {1., 3., 2., 1.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     interpolator.interpolateFwds(xValues, yValues);
@@ -629,16 +657,15 @@ public class MonotoneConvexSplineInterpolatorTest {
   /**
    * Tests below for debugging
    */
-  @Test
-      (enabled = false)
-      public void printTest2() {
-    //    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27. };
-    //    final double[] yValues = new double[] {3., 2., 2., 2., 3., 2.5, 2., 2., 3., 3., 2.5, 2., 2., 4., 5., 5., 4.9, 5., 6., 8., 3., -2., -1.5, -1., -2., -1.5, -1., };
-    //    final double[] xValues = new double[] {0., 0.1, 1., 4., 9., 20., 30 };
-    //    final double[] yValues = new double[] {0., 8.1, 7., 4.4, 7., 4., 3. };
+  @Test(enabled = false)
+  public void printTest2() {
+    // final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27. };
+    // final double[] yValues = new double[] {3., 2., 2., 2., 3., 2.5, 2., 2., 3., 3., 2.5, 2., 2., 4., 5., 5., 4.9, 5., 6., 8., 3., -2., -1.5, -1., -2., -1.5, -1., };
+    // final double[] xValues = new double[] {0., 0.1, 1., 4., 9., 20., 30 };
+    // final double[] yValues = new double[] {0., 8.1, 7., 4.4, 7., 4., 3. };
 
-    final double[] xValues = new double[] {0., 1., 2., 3., 4. };
-    final double[] yValues = new double[] {0., 1., 4., 9., 16. };
+    final double[] xValues = new double[] {0., 1., 2., 3., 4.};
+    final double[] yValues = new double[] {0., 1., 4., 9., 16.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     PiecewisePolynomialResult result = interpolator.interpolate(xValues, yValues);
@@ -664,12 +691,11 @@ public class MonotoneConvexSplineInterpolatorTest {
   /**
    * 
    */
-  @Test
-      (enabled = false)
-      public void printTest3() {
+  @Test(enabled = false)
+  public void printTest3() {
 
-    final double[] xValues = new double[] {2., 3., 7. / 2., 4., 5. };
-    final double[] yValues = new double[] {0., 2., 9. / 4., 2., 0. };
+    final double[] xValues = new double[] {2., 3., 7. / 2., 4., 5.};
+    final double[] yValues = new double[] {0., 2., 9. / 4., 2., 0.};
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
     PiecewisePolynomialResult result = interpolator.interpolate(xValues, yValues);
@@ -688,10 +714,10 @@ public class MonotoneConvexSplineInterpolatorTest {
       System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
     }
 
-    //    for (int i = 0; i < nPts; ++i) {
-    //      final double key = 1. + 6. / nPts + 6. / nPts * i;
-    //      System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
-    //    }
+    // for (int i = 0; i < nPts; ++i) {
+    // final double key = 1. + 6. / nPts + 6. / nPts * i;
+    // System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
+    // }
 
   }
 
