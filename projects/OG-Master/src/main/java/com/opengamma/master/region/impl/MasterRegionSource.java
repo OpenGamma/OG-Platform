@@ -6,7 +6,10 @@
 package com.opengamma.master.region.impl;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
+import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
@@ -23,8 +26,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * A {@code RegionSource} implemented using an underlying {@code RegionMaster}.
  * <p>
- * The {@link RegionSource} interface provides regions to the application via a narrow API.
- * This class provides the source on top of a standard {@link RegionMaster}.
+ * The {@link RegionSource} interface provides regions to the application via a narrow API. This class provides the source on top of a standard {@link RegionMaster}.
  */
 @PublicSPI
 public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocument, RegionMaster> implements RegionSource {
@@ -32,7 +34,7 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
   /**
    * Creates an instance with an underlying master which does not override versions.
    * 
-   * @param master  the master, not null
+   * @param master the master, not null
    */
   public MasterRegionSource(final RegionMaster master) {
     super(master);
@@ -41,19 +43,20 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
   /**
    * Creates an instance with an underlying master optionally overriding the requested version.
    * 
-   * @param master  the master, not null
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
+   * @param master the master, not null
+   * @param versionCorrection the version-correction locator to search at, null to not override versions
    */
   public MasterRegionSource(final RegionMaster master, VersionCorrection versionCorrection) {
     super(master, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);
     request.setVersionCorrection(getVersionCorrection());
-    return getMaster().search(request).getRegions();
+    return (List) getMaster().search(request).getRegions();
   }
 
   @Override
@@ -70,6 +73,31 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionCorrection(getVersionCorrection());
     return getMaster().search(request).getFirstRegion();
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Collection<Region>> getAll(Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection) {
+    return AbstractSourceWithExternalBundle.getAll(this, bundles, versionCorrection);
+  }
+
+  @Override
+  public Collection<Region> get(ExternalIdBundle bundle) {
+    return AbstractSourceWithExternalBundle.get(this, bundle);
+  }
+
+  @Override
+  public Region getSingle(ExternalIdBundle bundle) {
+    return AbstractSourceWithExternalBundle.getSingle(this, bundle);
+  }
+
+  @Override
+  public Region getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    return AbstractSourceWithExternalBundle.getSingle(this, bundle, versionCorrection);
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Region> getSingle(Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection) {
+    return AbstractSourceWithExternalBundle.getSingle(this, bundles, versionCorrection);
   }
 
 }

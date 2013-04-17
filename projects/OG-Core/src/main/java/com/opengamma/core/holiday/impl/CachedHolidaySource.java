@@ -36,7 +36,7 @@ public class CachedHolidaySource extends AbstractSource<Holiday> implements Holi
 
   private final HolidaySource _underlying;
   private final ConcurrentMap<UniqueId, Object> _getHoliday1 = new ConcurrentHashMap<UniqueId, Object>();
-  private final Map2<ObjectId, VersionCorrection, Object> _getHoliday2 = new HashMap2<ObjectId, VersionCorrection, Object>();
+  private final Map2<VersionCorrection, ObjectId, Object> _getHoliday2 = new HashMap2<VersionCorrection, ObjectId, Object>(HashMap2.WEAK_KEYS);
   private final ConcurrentMap<Currency, ConcurrentMap<LocalDate, Object>> _isHoliday1 = new ConcurrentHashMap<Currency, ConcurrentMap<LocalDate, Object>>();
   private final Map3<LocalDate, HolidayType, ExternalIdBundle, Object> _isHoliday2 = new HashMap3<LocalDate, HolidayType, ExternalIdBundle, Object>();
   private final Map3<LocalDate, HolidayType, ExternalId, Object> _isHoliday3 = new HashMap3<LocalDate, HolidayType, ExternalId, Object>();
@@ -90,19 +90,19 @@ public class CachedHolidaySource extends AbstractSource<Holiday> implements Holi
 
   @Override
   public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
-    Object result = _getHoliday2.get(objectId, versionCorrection);
+    Object result = _getHoliday2.get(versionCorrection, objectId);
     if (result != null) {
       return getOrThrow(result);
     }
     try {
       final Holiday h = getUnderlying().get(objectId, versionCorrection);
-      result = _getHoliday2.putIfAbsent(objectId, versionCorrection, safeNull(h));
+      result = _getHoliday2.putIfAbsent(versionCorrection, objectId, safeNull(h));
       if (result != null) {
         return getOrThrow(result);
       }
       return h;
     } catch (RuntimeException ex) {
-      _getHoliday2.putIfAbsent(objectId, versionCorrection, ex);
+      _getHoliday2.putIfAbsent(versionCorrection, objectId, ex);
       throw ex;
     }
   }

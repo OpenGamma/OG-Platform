@@ -71,7 +71,9 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     if (versionCorrection.containsLatest()) {
-      return getUnderlying().get(bundle, versionCorrection);
+      Collection<V> results = getUnderlying().get(bundle, versionCorrection);
+      cacheItems(results);
+      return results;
     }
     final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
     final Element e = _eidToUidCache.get(key);
@@ -102,7 +104,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<ExternalIdBundle, Collection<V>> getAll(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+  public Map<ExternalIdBundle, Collection<V>> getAll(final Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundles, "bundles");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     if (versionCorrection.containsLatest()) {
@@ -110,6 +112,8 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     }
     final Map<ExternalIdBundle, Collection<V>> results = Maps.newHashMapWithExpectedSize(bundles.size());
     final Collection<ExternalIdBundle> misses = new ArrayList<ExternalIdBundle>(bundles.size());
+    final Map<ExternalIdBundle, Collection<UniqueId>> lookupBundles = Maps.newHashMapWithExpectedSize(bundles.size());
+    final Set<UniqueId> lookupIds = Sets.newHashSetWithExpectedSize(bundles.size());
     for (ExternalIdBundle bundle : bundles) {
       final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
       final Element e = _eidToUidCache.get(key);
@@ -119,12 +123,27 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
           if (identifiers.isEmpty()) {
             results.put(bundle, Collections.<V>emptySet());
           } else {
-            results.put(bundle, get(identifiers).values());
+            lookupBundles.put(bundle, identifiers);
+            lookupIds.addAll(identifiers);
           }
           continue;
         }
       }
       misses.add(bundle);
+    }
+    if (!lookupIds.isEmpty()) {
+      final Map<UniqueId, V> underlying = get(lookupIds);
+      for (Map.Entry<ExternalIdBundle, Collection<UniqueId>> lookupBundle : lookupBundles.entrySet()) {
+        final ArrayList<V> resultCollection = new ArrayList<V>(lookupBundle.getValue().size());
+        for (UniqueId uid : lookupBundle.getValue()) {
+          final V resultValue = underlying.get(uid);
+          if (resultValue != null) {
+            resultCollection.add(resultValue);
+          }
+        }
+        resultCollection.trimToSize();
+        results.put(lookupBundle.getKey(), resultCollection);
+      }
     }
     if (!misses.isEmpty()) {
       final Map<ExternalIdBundle, Collection<V>> underlying = getUnderlying().getAll(misses, versionCorrection);
@@ -235,7 +254,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
       }
     }
     if (!misses.isEmpty()) {
-      final Map<ExternalIdBundle, V> underlying = getUnderlying().getSingle(misses, versionCorrection);
+      final Map<ExternalIdBundle, ? extends V> underlying = getUnderlying().getSingle(misses, versionCorrection);
       for (ExternalIdBundle miss : misses) {
         final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(miss, versionCorrection);
         final V result = underlying.get(miss);

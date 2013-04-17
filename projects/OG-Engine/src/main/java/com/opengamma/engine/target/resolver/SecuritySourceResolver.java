@@ -89,9 +89,9 @@ public class SecuritySourceResolver extends AbstractIdentifierResolver implement
 
   @Override
   public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
-    final Map<ExternalIdBundle, Security> securities = getUnderlying().getSingle(identifiers, versionCorrection);
+    final Map<ExternalIdBundle, ? extends Security> securities = getUnderlying().getSingle(identifiers, versionCorrection);
     final Map<ExternalIdBundle, UniqueId> result = Maps.newHashMapWithExpectedSize(securities.size());
-    for (Map.Entry<ExternalIdBundle, Security> security : securities.entrySet()) {
+    for (Map.Entry<ExternalIdBundle, ? extends Security> security : securities.entrySet()) {
       result.put(security.getKey(), security.getValue().getUniqueId());
     }
     return result;

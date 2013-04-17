@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
-import java.util.Collection;
 import java.util.Collections;
 
+import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
 
 import com.opengamma.core.AbstractSource;
 import com.opengamma.core.exchange.Exchange;
@@ -38,7 +38,7 @@ import com.opengamma.util.test.TestGroup;
 public class SecurityToFixedIncomeFutureDefinitionConverterTest {
 
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
-  private static final ExchangeSource EXCHANGE_SOURCE = new MyExchangeSource();
+  private static final ExchangeSource EXCHANGE_SOURCE = myExchangeSource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(
       new InMemoryConventionBundleMaster());
 
@@ -79,60 +79,17 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     //TODO
   }
 
-  private static class MyExchangeSource extends AbstractSource<Exchange> implements ExchangeSource {
-    private static final Exchange EXCHANGE = new Exchange() {
-
-      @Override
-      public UniqueId getUniqueId() {
-        return UniqueId.of("SOMETHING", "SOMETHING ELSE");
-      }
-
-      @Override
-      public ExternalIdBundle getExternalIdBundle() {
-        return null;
-      }
-
-      @Override
-      public String getName() {
-        return null;
-      }
-
-      @Override
-      public ExternalIdBundle getRegionIdBundle() {
-        return null;
-      }
-
-      @Override
-      public ZoneId getTimeZone() {
-        return null;
-      }
-
-    };
-
-    @Override
-    public Exchange get(final UniqueId uid) {
-      return EXCHANGE;
-    }
-
-    @Override
-    public Exchange get(ObjectId objectId, VersionCorrection versionCorrection) {
-      return EXCHANGE;
-    }
-
-    @Override
-    public Collection<? extends Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      return Collections.singleton(EXCHANGE);
-    }
-
-    @Override
-    public Exchange getSingle(final ExternalId identifier) {
-      return EXCHANGE;
-    }
-
-    @Override
-    public Exchange getSingle(final ExternalIdBundle identifierBundle) {
-      return EXCHANGE;
-    }
-
+  @SuppressWarnings("unchecked")
+  private static ExchangeSource myExchangeSource() {
+    final Exchange exchange = Mockito.mock(Exchange.class);
+    Mockito.when(exchange.getUniqueId()).thenReturn(UniqueId.of("SOMETHING", "SOMETHING ELSE"));
+    final ExchangeSource source = Mockito.mock(ExchangeSource.class);
+    Mockito.when(source.get(Mockito.any(UniqueId.class))).thenReturn(exchange);
+    Mockito.when(source.get(Mockito.any(ObjectId.class), Mockito.any(VersionCorrection.class))).thenReturn(exchange);
+    ((OngoingStubbing) Mockito.when(source.get(Mockito.any(ExternalIdBundle.class), Mockito.any(VersionCorrection.class)))).thenReturn(Collections.singleton(exchange));
+    Mockito.when(source.getSingle(Mockito.any(ExternalId.class))).thenReturn(exchange);
+    Mockito.when(source.getSingle(Mockito.any(ExternalIdBundle.class))).thenReturn(exchange);
+    return source;
   }
+
 }

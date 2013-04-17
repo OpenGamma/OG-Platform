@@ -7,7 +7,9 @@ package com.opengamma.util.map;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
+import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,11 +28,11 @@ import java.util.concurrent.ConcurrentMap;
 
   /* package */final class ReferenceMap implements ConcurrentMap<K2, V> {
 
-    private final K1 _key1;
+    private final Object _key1Reference;
     private final ConcurrentMap<K2, Reference<? extends V>> _underlying;
 
     private ReferenceMap(final K1 key1, final ConcurrentMap<K2, Reference<? extends V>> underlying) {
-      _key1 = key1;
+      _key1Reference = createKey1Reference(key1);
       _underlying = underlying;
     }
 
@@ -102,8 +104,56 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     @Override
-    public Set<java.util.Map.Entry<K2, V>> entrySet() {
-      throw new UnsupportedOperationException();
+    public Set<Map.Entry<K2, V>> entrySet() {
+      return new AbstractSet<Map.Entry<K2, V>>() {
+
+        @Override
+        public Iterator<Map.Entry<K2, V>> iterator() {
+          final Iterator<Map.Entry<K2, Reference<? extends V>>> itr = _underlying.entrySet().iterator();
+          return new Iterator<Map.Entry<K2, V>>() {
+
+            @Override
+            public boolean hasNext() {
+              return itr.hasNext();
+            }
+
+            @Override
+            public Map.Entry<K2, V> next() {
+              final Map.Entry<K2, Reference<? extends V>> e = itr.next();
+              return new Map.Entry<K2, V>() {
+
+                @Override
+                public K2 getKey() {
+                  return e.getKey();
+                }
+
+                @Override
+                public V getValue() {
+                  return e.getValue().get();
+                }
+
+                @Override
+                public V setValue(final V value) {
+                  throw new UnsupportedOperationException();
+                }
+
+              };
+            }
+
+            @Override
+            public void remove() {
+              itr.remove();
+            }
+
+          };
+        }
+
+        @Override
+        public int size() {
+          return _underlying.size();
+        }
+
+      };
     }
 
     @Override
@@ -139,14 +189,21 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     /* package */void housekeep(final K2 key, final Reference<? extends V> value) {
-      synchronized (this) {
-        if (!remove(key, value) || !isEmpty()) {
-          return;
+      final K1 key1 = getKey1(_key1Reference);
+      if (key1 != null) {
+        synchronized (this) {
+          if (!remove(key, value) || !isEmpty()) {
+            return;
+          }
         }
+        removeAllKey1NoHousekeep(key1);
       }
-      removeAllKey1NoHousekeep(_key1);
     }
 
+  }
+
+  public ReferenceHashMap2(final KeyStrategy key1Strategy) {
+    super(key1Strategy);
   }
 
   @Override

@@ -16,69 +16,31 @@ import net.sf.ehcache.Element;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.AbstractSource;
+import com.opengamma.core.AbstractEHCachingSource;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 
 /**
  * An EHCache based {@link HolidaySource}. This is better than having no cache but is not very efficient. Also does not listen for changes to the underlying data.
  */
-public class EHCachingHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
+public class EHCachingHolidaySource extends AbstractEHCachingSource<Holiday, HolidaySource> implements HolidaySource {
 
   /*package*/static final String CACHE_NAME = "holiday";
-  private final HolidaySource _underlying;
   private final Cache _cache;
 
   public EHCachingHolidaySource(final HolidaySource underlying, final CacheManager cacheManager) {
-    ArgumentChecker.notNull(underlying, "underlying");
-    ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _underlying = underlying;
+    super(underlying, cacheManager);
     EHCacheUtils.addCache(cacheManager, CACHE_NAME);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
   }
 
-  protected HolidaySource getUnderlying() {
-    return _underlying;
-  }
-
   protected Cache getCache() {
     return _cache;
-  }
-
-  @Override
-  public Holiday get(final UniqueId uniqueId) {
-    final Element e = getCache().get(uniqueId);
-    if (e != null) {
-      return EHCacheUtils.get(e);
-    }
-    try {
-      return putValue(uniqueId, getUnderlying().get(uniqueId), getCache());
-    } catch (RuntimeException ex) {
-      return putException(uniqueId, ex, getCache());
-    }
-  }
-
-  @Override
-  public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
-    final Object key = Arrays.asList(objectId, versionCorrection);
-    final Element e = getCache().get(key);
-    if (e != null) {
-      return EHCacheUtils.get(e);
-    }
-    try {
-      return putValue(key, getUnderlying().get(objectId, versionCorrection), getCache());
-    } catch (RuntimeException ex) {
-      return putException(key, ex, getCache());
-    }
   }
 
   @Override
@@ -126,7 +88,10 @@ public class EHCachingHolidaySource extends AbstractSource<Holiday> implements H
   /**
    * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
    */
-  protected void shutdown() {
+  @Override
+  public void shutdown() {
+    super.shutdown();
     _cache.getCacheManager().removeCache(CACHE_NAME);
   }
+
 }

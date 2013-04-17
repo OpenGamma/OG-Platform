@@ -22,7 +22,9 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuo
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
-import com.opengamma.core.AbstractSource;
+import com.opengamma.core.AbstractSourceWithExternalBundle;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.region.Region;
@@ -200,7 +202,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
     return region;
   }
 
-  class TestRegionSource extends AbstractSource<Region> implements RegionSource {
+  class TestRegionSource extends AbstractSourceWithExternalBundle<Region> implements RegionSource {
 
     private final AtomicLong _count = new AtomicLong(0);
     private final Region _testRegion;
@@ -210,11 +212,11 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
     }
 
     @Override
-    public Collection<? extends Region> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+    public Collection<Region> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
       _count.getAndIncrement();
-      Collection<? extends Region> result = Collections.emptyList();
+      Collection<Region> result = Collections.emptyList();
       if (_testRegion.getExternalIdBundle().equals(bundle) && versionCorrection.equals(VersionCorrection.LATEST)) {
-        result = Collections.singleton(getTestRegion());
+        result = Collections.singleton((Region) getTestRegion());
       }
       return result;
     }
@@ -266,6 +268,11 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
      */
     public AtomicLong getCount() {
       return _count;
+    }
+
+    @Override
+    public ChangeManager changeManager() {
+      return DummyChangeManager.INSTANCE;
     }
 
   }
