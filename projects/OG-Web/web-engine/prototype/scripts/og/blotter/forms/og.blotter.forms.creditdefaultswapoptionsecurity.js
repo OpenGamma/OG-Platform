@@ -48,6 +48,7 @@ $.register_module({
                     $.when(config.handler(result.data)).then(validate);
                 });
                 form.on('change', '#' + cds_select.id, function (event) {
+                    console.log(event);
                     swap_cds({type: event.target.value});
                 });
 
@@ -57,10 +58,15 @@ $.register_module({
                 if(!cds.type.length) {
                     new_block = new form.Block({content:"<div id='" + cds_id + "'></div>"});
                 } else {
-                    new_block = new og.blotter.forms.blocks.cds({form: form, data: data, standard: config.standard, 
-                        stdvanilla: config.stdvanilla, legacy: config.legacy, index: config.index});
+                    var standard = ~['standardfixedrecoverycdssecurity', 
+                            'standardrecoverylockcdssecurity'].indexOf(cds.type),
+                        legacy = ~['legacyfixedrecoverycdssecurity', 'legacyrecoverylockcdssecurity', 
+                            'legacyvanillacdssecurity'].indexOf(cds.type),
+                        stdvanilla = ~cds.type.indexOf('standardvanillacdssecurity'), 
+                        index = ~cds.type.indexOf('creditdefaultswapindexsecurity'); 
+                    new_block = new og.blotter.forms.blocks.cds({form: form, data: data, standard: standard, 
+                        stdvanilla: stdvanilla, legacy: legacy, index: index});
                 }
-               
                 new_block.html(function (html) {
                     $('#' + cds_id).replaceWith(html);
                 });
