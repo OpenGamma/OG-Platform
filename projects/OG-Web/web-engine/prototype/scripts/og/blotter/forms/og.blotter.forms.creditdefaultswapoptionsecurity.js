@@ -7,7 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
+            var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util, cds_select,
+            cds_id = 'blotter-cds-block';
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: config.type, externalIdBundle: "", attributes: {}}, 
                 trade: util.otc_trade};}
@@ -30,6 +31,7 @@ $.register_module({
                         form: form, placeholder: 'Select CDS Type',
                         data_generator: function (handler) {handler(og.blotter.util.cds_types);}
                     }),
+                    cds_block = new form.Block({content:"<div id='" + cds_id + "'></div>"}),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })
@@ -45,6 +47,24 @@ $.register_module({
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);
                 });
+                form.on('change', '#' + cds_select.id, function (event) {
+                    swap_cds({type: event.target.value});
+                });
+
+            };
+            swap_cds = function (cds) {
+                var new_block;
+                if(!cds.type.length) {
+                    new_block = new form.Block({content:"<div id='" + cds_id + "'></div>"});
+                } else {
+                    new_block = new og.blotter.forms.blocks.cds({form: form, data: data, standard: config.standard, 
+                        stdvanilla: config.stdvanilla, legacy: config.legacy, index: config.index});
+                }
+               
+                new_block.html(function (html) {
+                    $('#' + cds_id).replaceWith(html);
+                });
+                form.children[1] = new_block;
             };
             constructor.load();
             constructor.submit = function (handler) {
