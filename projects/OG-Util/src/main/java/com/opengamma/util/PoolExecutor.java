@@ -429,7 +429,11 @@ public class PoolExecutor implements Executor {
   @Override
   public void execute(final Runnable command) {
     s_logger.debug("Submitting {}", command);
-    _underlying.execute(command);
+    if (_underlying != null) {
+      _underlying.execute(command);
+    } else {
+      getQueue().add(command);
+    }
   }
 
 }

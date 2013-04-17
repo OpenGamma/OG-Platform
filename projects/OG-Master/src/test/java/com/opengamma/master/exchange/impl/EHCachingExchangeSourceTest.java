@@ -20,6 +20,7 @@ import com.opengamma.core.exchange.impl.SimpleExchange;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
 
@@ -51,6 +52,7 @@ public class EHCachingExchangeSourceTest {
       public Exchange answer(InvocationOnMock invocation) throws Throwable {
         getCount.incrementAndGet();
         SimpleExchange simpleExchange = new SimpleExchange();
+        simpleExchange.setUniqueId(UniqueId.of("Test", "Foo", "0"));
         simpleExchange.setExternalIdBundle(ExternalIdBundle.of((ExternalId) invocation.getArguments()[0]));
         return simpleExchange;
       }
@@ -64,7 +66,7 @@ public class EHCachingExchangeSourceTest {
     assertEquals(1, get1.getExternalIdBundle().size());
     assertEquals(id, get1.getExternalIdBundle().getExternalId(scheme));
 
-    Exchange get2 = source.getSingle(id);
+    Exchange get2 = source.get(UniqueId.of("Test", "Foo", "0"));
     assertEquals(1, getCount.get());
     assertTrue(get1 == get2);
 

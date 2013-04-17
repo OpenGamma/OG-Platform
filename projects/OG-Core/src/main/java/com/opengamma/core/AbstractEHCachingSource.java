@@ -188,7 +188,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
         result = get(uid);
       } else {
         result = cacheItem(getUnderlying().get(objectId, versionCorrection));
-        _oidCache.put(new Element(key, result));
+        _oidCache.put(new Element(key, result.getUniqueId()));
       }
     }
     return result;
@@ -261,12 +261,16 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
 
   //-------------------------------------------------------------------------
   protected V cacheItem(final V item) {
-    final V existing = _frontCacheByUID.putIfAbsent(item.getUniqueId(), item);
-    if (existing != null) {
-      return existing;
+    if (item != null) {
+      final V existing = _frontCacheByUID.putIfAbsent(item.getUniqueId(), item);
+      if (existing != null) {
+        return existing;
+      } else {
+        _uidCache.put(new Element(item.getUniqueId(), item));
+        return item;
+      }
     } else {
-      _uidCache.put(new Element(item.getUniqueId(), item));
-      return item;
+      return null;
     }
   }
 

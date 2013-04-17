@@ -28,8 +28,10 @@ public class EHCachingExchangeSource extends AbstractEHCachingSourceWithExternal
   }
 
   @Override
-  public Exchange getSingle(ExternalId identifier) {
-    return getSingle(identifier.toBundle());
+  public Exchange getSingle(final ExternalId identifier) {
+    final Exchange result = getUnderlying().getSingle(identifier);
+    cacheItem(result);
+    return result;
   }
 
 }
