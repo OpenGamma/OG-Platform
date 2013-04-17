@@ -30,13 +30,13 @@ public class ISDACreditDefaultSwapBucketedGammaCS01CalculatorTest {
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
-    DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
-    DateUtils.getUTCDate(2023, 3, 1) };
+      DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
+      DateUtils.getUTCDate(2023, 3, 1) };
   private static final double[] HR_TIMES;
   private static final double[] HR_RATES = new double[] {0.01, 0.02, 0.04, 0.03, 0.06, 0.03, 0.05, 0.03, 0.02 };
   private static final ZonedDateTime[] YC_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
-    DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
-    DateUtils.getUTCDate(2023, 3, 1) };
+      DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
+      DateUtils.getUTCDate(2023, 3, 1) };
   private static final double[] YC_TIMES;
   private static final double[] YC_RATES = new double[] {0.005, 0.006, 0.008, 0.009, 0.01, 0.012, 0.015, 0.02, 0.03 };
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -61,15 +61,16 @@ public class ISDACreditDefaultSwapBucketedGammaCS01CalculatorTest {
 
   @Test
   public void regressionTest() {
-    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final double[] deprecatedResult = DEPRECATED_CALCULATOR.getGammaBucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_BUCKETED, PriceType.CLEAN);
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final double[] deprecatedResult = DEPRECATED_CALCULATOR.getGammaBucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_BUCKETED,
+        PriceType.CLEAN);
     final double[] result = CALCULATOR.getGammaCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
     assertArrayEquals(deprecatedResult, result, EPS);
   }
 
   @Test(enabled = false)
   public void timeBDeprecated() {
-    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     double j = 0;
     for (int i = 0; i < 100; i++) {
@@ -83,7 +84,7 @@ public class ISDACreditDefaultSwapBucketedGammaCS01CalculatorTest {
 
   @Test(enabled = false)
   public void timeARefactored() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     double j = 0;
     for (int i = 0; i < 100; i++) {

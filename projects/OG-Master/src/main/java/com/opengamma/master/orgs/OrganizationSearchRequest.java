@@ -226,7 +226,7 @@ public class OrganizationSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the organization ticker, null to not match on ticker.
+   * Gets the organization ticker, wildcards allowed, null to not match on ticker.
    * @return the value of the property
    */
   public String getObligorTicker() {
@@ -234,7 +234,7 @@ public class OrganizationSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the organization ticker, null to not match on ticker.
+   * Sets the organization ticker, wildcards allowed, null to not match on ticker.
    * @param obligorTicker  the new value of the property
    */
   public void setObligorTicker(String obligorTicker) {

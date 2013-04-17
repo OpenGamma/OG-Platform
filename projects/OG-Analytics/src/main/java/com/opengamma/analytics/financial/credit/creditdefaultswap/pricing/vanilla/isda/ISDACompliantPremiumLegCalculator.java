@@ -7,13 +7,14 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.ScheduleUtils;
-import com.opengamma.analytics.financial.credit.schedulegeneration.isda.GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew;
-import com.opengamma.analytics.financial.credit.schedulegeneration.isda.GenerateCreditDefaultSwapPremiumLegScheduleNew;
+import com.opengamma.analytics.financial.credit.schedulegeneration.isda.ISDAAccruedLegIntegrationScheduleGenerator;
+import com.opengamma.analytics.financial.credit.schedulegeneration.isda.ISDAPremiumLegScheduleGenerator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -30,8 +31,8 @@ public class ISDACompliantPremiumLegCalculator extends ISDACompliantLegCalculato
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final GenerateCreditDefaultSwapPremiumLegScheduleNew PREMIUM_LEG_SCHEDULE = new GenerateCreditDefaultSwapPremiumLegScheduleNew();
-  private static final GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew ACRRUED_INTEGRATION_SCHEDULE = new GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew();
+  private static final ISDAPremiumLegScheduleGenerator PREMIUM_LEG_SCHEDULE = new ISDAPremiumLegScheduleGenerator();
+  private static final ISDAAccruedLegIntegrationScheduleGenerator ACRRUED_INTEGRATION_SCHEDULE = new ISDAAccruedLegIntegrationScheduleGenerator();
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,13 +42,15 @@ public class ISDACompliantPremiumLegCalculator extends ISDACompliantLegCalculato
   // the ISDA model - will replace with a better model in due course
 
   @Override
-  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve,
+  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves,
       final PriceType priceType) {
     double presentValuePremiumLeg = 0.0;
     final ZonedDateTime[] premiumLegSchedule = PREMIUM_LEG_SCHEDULE.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
-    final ZonedDateTime[] accruedLegIntegrationSchedule = ACRRUED_INTEGRATION_SCHEDULE.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, yieldCurve, hazardRateCurve);
+    final ZonedDateTime[] accruedLegIntegrationSchedule = ACRRUED_INTEGRATION_SCHEDULE.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, curves);
     final ZonedDateTime adjustedMaturityDate = PREMIUM_LEG_SCHEDULE.getAdjustedMaturityDate(cds);
     ArgumentChecker.isTrue(!valuationDate.isAfter(adjustedMaturityDate), "Valuation date {} must be on or before the adjusted maturity date {}", valuationDate, adjustedMaturityDate);
+    final ISDADateCurve yieldCurve = curves.getYieldCurve();
+    final HazardRateCurve hazardRateCurve = curves.getHazardRateCurve();
     // TODO : Check the effective date calc here
     // If the valuation date is exactly the adjusted maturity date then simply return zero
     /*

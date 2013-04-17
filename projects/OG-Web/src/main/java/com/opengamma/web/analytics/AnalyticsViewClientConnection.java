@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,14 +29,15 @@ import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
+ * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting
+ * it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
 /* package */ class AnalyticsViewClientConnection /*implements ChangeListener*/ {
@@ -52,44 +54,53 @@ import com.opengamma.util.ArgumentChecker;
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
   /**
+   * @param parallelViewRecompilation Whether to recompile the view whilst running the current version
+   * @param marketDataSpecificationRepository For looking up market data specs
    * @param viewRequest Defines the view that should be created
    * @param aggregatedViewDef The view definition including any aggregation
    * @param viewClient Connects this class to the calculation engine
    * @param view The object that encapsulates the state of the view user interface
-   * @param marketDataSpecRepo For looking up sources of market data
-   * @param snapshotMaster For looking up snapshots
    */
   /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
-                                              AggregatedViewDefinition aggregatedViewDef, ViewClient viewClient,
+                                              AggregatedViewDefinition aggregatedViewDef,
+                                              ViewClient viewClient,
                                               AnalyticsView view,
-                                              NamedMarketDataSpecificationRepository marketDataSpecRepo,
-                                              MarketDataSnapshotMaster snapshotMaster,
-                                              List<AutoCloseable> listeners) {
+                                              List<AutoCloseable> listeners,
+                                              ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
+                                              NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
-    ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(listeners, "listeners");
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = aggregatedViewDef;
-    _marketDataSpecRepo = marketDataSpecRepo;
+    _marketDataSpecRepo = marketDataSpecificationRepository;
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
-    ViewCycleExecutionOptions defaultOptions = ViewCycleExecutionOptions.builder().setValuationTime(viewRequest.getValuationTime()).setMarketDataSpecifications(actualMarketDataSpecs)
-        .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection()).create();
-    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().get());
+    ViewCycleExecutionOptions defaultOptions =
+        ViewCycleExecutionOptions
+            .builder()
+            .setValuationTime(viewRequest.getValuationTime())
+            .setMarketDataSpecifications(actualMarketDataSpecs)
+            .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection())
+            .create();
+    EnumSet<ViewExecutionFlags> flags =
+        ExecutionFlags.triggersEnabled().parallelCompilation(parallelViewRecompilation).get();
+    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, flags);
     _listeners = listeners;
     // this recalcs periodically or when market data changes. might need to give
     // the user the option to specify the behaviour
   }
 
   /**
-   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture of data sources including live sources, multiple live sources combined, live
-   * sources backed by historical data and pure historical data. The new UI only shows live sources, and the names of those sources don't match the names in the old UI (which include something to tell
-   * the user it's a live source). The real data sources are looked up using the old names so this method rebuilds the list of data sources and replaces the new source specs with the old ones.
-   * 
+   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture of
+   * data sources including live sources, multiple live sources combined, live
+   * sources backed by historical data and pure historical data. The new UI only shows live sources, and the names of
+   * those sources don't match the names in the old UI (which include something to tell
+   * the user it's a live source). The real data sources are looked up using the old names so this method rebuilds the
+   * list of data sources and replaces the new source specs with the old ones.
+   *
    * @param requestedMarketDataSpecs The market data sources requested by the user
    * @return The specs needed to look up the sources the user requested
    */
@@ -153,7 +164,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public callback methods.
+   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public
+   * callback methods.
    */
   private class Listener extends AbstractViewResultListener {
 

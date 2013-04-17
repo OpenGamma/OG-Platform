@@ -24,6 +24,7 @@ public class CreditCurveIdentifierFudgeBuilder implements FudgeBuilder<CreditCur
   private static final String TERM = "term";
   private static final String SENIORITY = "seniority";
   private static final String RESTRUCTURING_CLAUSE = "restructuringClause";
+  private static final String CURVE_TYPE_PREFIX = "curveTypePrefix";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CreditCurveIdentifier object) {
@@ -34,6 +35,9 @@ public class CreditCurveIdentifierFudgeBuilder implements FudgeBuilder<CreditCur
     message.add(TERM, object.getTerm());
     message.add(SENIORITY, object.getSeniority());
     message.add(RESTRUCTURING_CLAUSE, object.getRestructuringClause());
+    if (object.getCurveTypePrefix() != null) {
+      message.add(CURVE_TYPE_PREFIX, object.getCurveTypePrefix());
+    }
     return message;
   }
 
@@ -41,9 +45,16 @@ public class CreditCurveIdentifierFudgeBuilder implements FudgeBuilder<CreditCur
   public CreditCurveIdentifier buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String redCode = message.getString(RED_CODE);
     final Currency currency = message.getValue(Currency.class, CURRENCY);
+    if (currency == null) {
+      return CreditCurveIdentifier.of(redCode);
+    }
     final String term = message.getString(TERM);
     final String seniority = message.getString(SENIORITY);
     final String restructuringClause = message.getString(RESTRUCTURING_CLAUSE);
+    if (message.hasField(CURVE_TYPE_PREFIX)) {
+      final String curveTypePrefix = message.getString(CURVE_TYPE_PREFIX);
+      return CreditCurveIdentifier.of(curveTypePrefix, redCode, currency, seniority, restructuringClause);
+    }
     return CreditCurveIdentifier.of(redCode, currency, term, seniority, restructuringClause);
   }
 

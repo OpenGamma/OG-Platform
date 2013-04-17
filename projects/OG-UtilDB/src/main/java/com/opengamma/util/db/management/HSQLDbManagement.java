@@ -6,11 +6,18 @@
 package com.opengamma.util.db.management;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.SQLInvalidAuthorizationSpecException;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 
 /**
@@ -157,6 +164,37 @@ public final class HSQLDbManagement extends AbstractDbManagement {
         super.dropSchema(catalog, schema);
       }
     }
+    
+    /*
+     * NOTE jonathan 2013-04-11 -- this should work but for some reason doesn't
+    Connection conn = null;
+    try {
+      if (!getCatalogCreationStrategy().catalogExists(catalog)) {
+        System.out.println("Catalog " + catalog + " does not exist");
+        return; // nothing to drop
+      }
+
+      conn = connect(catalog);
+      
+      if (schema == null) {
+        schema = "PUBLIC";
+      }
+
+      Statement statement = conn.createStatement();
+      statement.executeUpdate("DROP SCHEMA " + schema + " CASCADE");
+      statement.close();
+      
+    } catch (SQLException e) {
+      throw new OpenGammaRuntimeException("Failed to drop schema", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+      }
+    }
+    */
   }
 
   private File getFile() {

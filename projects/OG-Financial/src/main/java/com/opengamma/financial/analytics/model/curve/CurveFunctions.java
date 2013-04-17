@@ -7,10 +7,10 @@ package com.opengamma.financial.analytics.model.curve;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
@@ -18,14 +18,14 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFu
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class CurveFunctions extends AbstractRepositoryConfigurationBean {
+public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new CurveFunctions().getObjectCreating();
   }
 
@@ -34,21 +34,21 @@ public class CurveFunctions extends AbstractRepositoryConfigurationBean {
     // Nothing in this package, just the sub-packages
   }
 
-  protected RepositoryConfigurationSource forwardFunctionConfiguration() {
+  protected FunctionConfigurationSource forwardFunctionConfiguration() {
     return ForwardFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource futureFunctionConfiguration() {
+  protected FunctionConfigurationSource futureFunctionConfiguration() {
     return FutureFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource interestRateFunctionConfiguration() {
+  protected FunctionConfigurationSource interestRateFunctionConfiguration() {
     return InterestRateFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), forwardFunctionConfiguration(), futureFunctionConfiguration(), interestRateFunctionConfiguration());
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), forwardFunctionConfiguration(), futureFunctionConfiguration(), interestRateFunctionConfiguration());
   }
 
 }

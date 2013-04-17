@@ -208,7 +208,7 @@
           </#switch>
         </@subsection>
         <#break>
-      <#case "CDS_INDEX">
+      <#case "CDS_INDEX_DEFINITION">
         <@rowout label="Version">${security.version}</@rowout>
         <@rowout label="Series">${security.series}</@rowout>
         <@rowout label="Family">${security.family}</@rowout>

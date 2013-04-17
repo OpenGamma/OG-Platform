@@ -11,29 +11,29 @@ import java.util.Set;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class InterestRateFunctions extends AbstractRepositoryConfigurationBean {
+public class InterestRateFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new InterestRateFunctions().getObjectCreating();
   }
 
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private final Set<String> _applicableCurrencies = new HashSet<String>();
     private double _absoluteTolerance = 0.0001;

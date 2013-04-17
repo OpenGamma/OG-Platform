@@ -33,7 +33,10 @@ public class StandardVanillaCDSBucketedIR01Defaults extends DefaultPropertyFunct
   private final Map<String, String> _currencyToYieldBumpType;
 
   public StandardVanillaCDSBucketedIR01Defaults(final String priority, final String... perCurrencyDefaults) {
-    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
+    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
+        .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
     ArgumentChecker.isTrue(perCurrencyDefaults.length % 3 == 0, "Must have one yield curve bump and yield bump type per currency");

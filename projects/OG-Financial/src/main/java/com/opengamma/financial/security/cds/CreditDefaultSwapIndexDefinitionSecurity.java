@@ -33,7 +33,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
   /**
    * The security type.
    */
-  public static final String SECURITY_TYPE = "CDS_INDEX";
+  public static final String SECURITY_TYPE = "CDS_INDEX_DEFINITION";
   /**
    * The version number.
    */

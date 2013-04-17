@@ -35,6 +35,7 @@ public class ISDAHazardRateCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.BUCKETED_IR01,
     ValueRequirementNames.JUMP_TO_DEFAULT,
     ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.VALUE_VEGA
   };
   private final PriorityClass _priority;
   //private final Map<String, String> _currencyToHazardRateCurveName;
@@ -43,7 +44,8 @@ public class ISDAHazardRateCurveDefaults extends DefaultPropertyFunction {
   public ISDAHazardRateCurveDefaults(final String priority, final String... perCurrencyDefaults) {
     super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
         .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
-        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY), true);
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
     ArgumentChecker.isTrue(perCurrencyDefaults.length % 2 == 0, "must have one hazard rate curve calculation method name per currency");

@@ -87,7 +87,7 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethod {
     final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexBar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
-    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPriceIndex(resultMapDisc, resultMapPrice);
     return MultipleCurrencyInflationSensitivity.of(coupon.getCurrency(), inflationSensitivity);
   }
 

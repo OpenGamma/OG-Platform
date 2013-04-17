@@ -7,10 +7,10 @@ package com.opengamma.financial.analytics.model.volatility;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.cube.CubeFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.LocalFunctions;
 import com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions;
@@ -18,14 +18,14 @@ import com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctio
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
+public class VolatilityFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new VolatilityFunctions().getObjectCreating();
   }
 
@@ -34,21 +34,21 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
     // No functions, just sub-packages
   }
 
-  protected RepositoryConfigurationSource cubeFunctionConfiguration() {
+  protected FunctionConfigurationSource cubeFunctionConfiguration() {
     return CubeFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource localFunctionConfiguration() {
+  protected FunctionConfigurationSource localFunctionConfiguration() {
     return LocalFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource surfaceFunctionConfiguration() {
+  protected FunctionConfigurationSource surfaceFunctionConfiguration() {
     return SurfaceFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), cubeFunctionConfiguration(), localFunctionConfiguration(), surfaceFunctionConfiguration());
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), cubeFunctionConfiguration(), localFunctionConfiguration(), surfaceFunctionConfiguration());
   }
 
 }

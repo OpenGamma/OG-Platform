@@ -17,6 +17,10 @@ import com.opengamma.util.money.Currency;
 public class CapFloorInflationZeroCouponMonthly extends CouponInflation implements CapFloor {
 
   /**
+   *  The fixing time of the last known fixing.
+   */
+  private final double _lastKnownFixingTime;
+  /**
    * The index value at the start of the coupon.
    */
   private final double _indexStartValue;
@@ -24,6 +28,11 @@ public class CapFloorInflationZeroCouponMonthly extends CouponInflation implemen
    * The reference date for the index at the coupon end. The first of the month. There is usually a difference of two or three month between the reference date and the payment date.
    */
   private final double _referenceEndTime;
+
+  /**
+   *  The cap/floor maturity in years.
+   */
+  private final int _maturity;
   /**
    * The cap/floor strike.
    */
@@ -40,16 +49,20 @@ public class CapFloorInflationZeroCouponMonthly extends CouponInflation implemen
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
+   * @param lastKnownFixingTime The fixing time of the last known fixing.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
+   * @param maturity The cap/floor maturity in years.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
   public CapFloorInflationZeroCouponMonthly(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double indexStartValue, final double referenceEndTime, double strike, boolean isCap) {
+      final double lastKnownFixingTime, final double indexStartValue, final double referenceEndTime, final int maturity, final double strike, final boolean isCap) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
+    _lastKnownFixingTime = lastKnownFixingTime;
     _indexStartValue = indexStartValue;
     _referenceEndTime = referenceEndTime;
+    _maturity = maturity;
     _strike = strike;
     _isCap = isCap;
   }
@@ -61,19 +74,25 @@ public class CapFloorInflationZeroCouponMonthly extends CouponInflation implemen
    */
   public CapFloorInflationZeroCouponMonthly withStrike(final double strike) {
     return new CapFloorInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        getIndexStartValue(), getReferenceEndTime(), strike, _isCap);
+        _lastKnownFixingTime, _indexStartValue, _referenceEndTime, _maturity, strike, _isCap);
   }
 
   /**
    * Builder from a Ibor coupon, the strike and the cap/floor flag.
    * @param coupon An Ibor coupon.
+   * @param lastKnownFixingTime The fixing time of the last known fixing.
+   * @param maturity The cap/floor maturity in years.
    * @param strike The strike.
    * @param isCap The cap/floor flag.
    * @return The cap/floor.
    */
-  public static CapFloorInflationZeroCouponMonthly from(final CouponInflationZeroCouponMonthly coupon, final double strike, final boolean isCap) {
+  public static CapFloorInflationZeroCouponMonthly from(final CouponInflationZeroCouponMonthly coupon, final double lastKnownFixingTime, final int maturity, final double strike, final boolean isCap) {
     return new CapFloorInflationZeroCouponMonthly(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getPriceIndex(),
-        coupon.getIndexStartValue(), coupon.getReferenceEndTime(), strike, isCap);
+        lastKnownFixingTime, coupon.getIndexStartValue(), coupon.getReferenceEndTime(), maturity, strike, isCap);
+  }
+
+  public double getLastKnownFixingTime() {
+    return _lastKnownFixingTime;
   }
 
   public double getIndexStartValue() {
@@ -82,6 +101,10 @@ public class CapFloorInflationZeroCouponMonthly extends CouponInflation implemen
 
   public double getReferenceEndTime() {
     return _referenceEndTime;
+  }
+
+  public int getMaturity() {
+    return _maturity;
   }
 
   @Override
@@ -102,8 +125,8 @@ public class CapFloorInflationZeroCouponMonthly extends CouponInflation implemen
 
   @Override
   public Coupon withNotional(double notional) {
-    return new CapFloorInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), getIndexStartValue(),
-        getReferenceEndTime(), _strike, _isCap);
+    return new CapFloorInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _lastKnownFixingTime, _indexStartValue,
+        _referenceEndTime, _maturity, _strike, _isCap);
   }
 
   @Override

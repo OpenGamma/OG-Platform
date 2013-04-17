@@ -435,7 +435,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    * @param args Command-line args. Ignored.
    * @throws InterruptedException Required to make the compiler happy
    */
-  public static void main(final String[] args) throws InterruptedException {
+  public static void main(final String[] args) throws InterruptedException { // CSIGNORE
     CogdaLiveDataClient client = new CogdaLiveDataClient(UserPrincipal.getLocalUser());
     //client.setServerName("cogdasvr-lx-1.hq.opengamma.com");
     client.start();

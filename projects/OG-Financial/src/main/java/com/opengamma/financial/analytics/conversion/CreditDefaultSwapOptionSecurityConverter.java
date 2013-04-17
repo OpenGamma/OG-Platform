@@ -94,6 +94,9 @@ public class CreditDefaultSwapOptionSecurityConverter extends FinancialSecurityV
     final CDSOptionExerciseType optionExerciseType = convertExerciseType(security.getExerciseType());
     final FinancialSecurity underlyingSecurity = (FinancialSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version correction
     final CreditDefaultSwapDefinition underlyingCDS = underlyingSecurity.accept(_underlyingConverter);
+    //    underlyingCDS = underlyingCDS.withMaturityDate(maturityDate.plusYears(10));
+    //    underlyingCDS = underlyingCDS.withEffectiveDate(maturityDate.plusDays(1));
+    //    underlyingCDS = underlyingCDS.withStartDate(maturityDate);
     return new CreditDefaultSwapOptionDefinition(buySellProtection, protectionBuyer, protectionSeller, currency, startDate, maturityDate, notional, strike,
         isKnockOut, isPayer, optionExerciseType, underlyingCDS);
   }

@@ -22,6 +22,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -67,16 +68,15 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         String curveName;
         try {
           curveName = "SAMEDAY_" + idName;
-          curveSpecification = CreditFunctionUtils.getCurveSpecification(configSource, now.toLocalDate(), curveName);
+          curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
         } catch (final Exception e) {
           curveName = idName;
-          curveSpecification = CreditFunctionUtils.getCurveSpecification(configSource, now.toLocalDate(), idName);
+          curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), idName);
         }
         final List<Tenor> tenors = new ArrayList<>();
         final List<Double> marketSpreads = new ArrayList<>();
         for (final CurveNodeWithIdentifier strip : curveSpecification.getNodes()) {
-          //final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
-          final Object marketSpreadObject = inputs.getValue(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+          final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
           if (marketSpreadObject != null) {
             tenors.add(strip.getCurveNode().getResolvedMaturity());
             marketSpreads.add(10000 * (Double) marketSpreadObject);
@@ -102,8 +102,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURVE)
-        .get();
+          .withAny(ValuePropertyNames.CURVE)
+          .get();
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties));
       }
 
@@ -119,23 +119,22 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         try {
-          final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(configSource, atZDT.toLocalDate(), curveName);
+          final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
           for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
             if (strip.getCurveNode() instanceof CreditSpreadNode) {
-              //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
-              requirements.add(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
             }
           }
           return requirements;
         } catch (final Exception e) {
+          s_logger.error(e.getMessage());
           //TODO backwards compatibility - remove when upstream functions select the correct prefix
           curveName = Iterables.getOnlyElement(curveNames);
           try {
-            final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(configSource, atZDT.toLocalDate(), curveName);
+            final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
             for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
               if (strip.getCurveNode() instanceof CreditSpreadNode) {
-                //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
-                requirements.add(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+                requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
               }
             }
             return requirements;

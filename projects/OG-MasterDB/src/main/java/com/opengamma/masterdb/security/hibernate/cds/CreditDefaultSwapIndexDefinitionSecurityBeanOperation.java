@@ -27,7 +27,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
-public final class CreditDefaultSwapIndexDefinitionSecurityBeanOperation extends AbstractSecurityBeanOperation<CreditDefaultSwapIndexDefinitionSecurity, CreditDefaultSwapIndexSecurityBean> {
+public final class CreditDefaultSwapIndexDefinitionSecurityBeanOperation extends AbstractSecurityBeanOperation<CreditDefaultSwapIndexDefinitionSecurity, CreditDefaultSwapIndexDefinitionSecurityBean> {
 
   /**
    * Singleton
@@ -35,13 +35,13 @@ public final class CreditDefaultSwapIndexDefinitionSecurityBeanOperation extends
   public static final CreditDefaultSwapIndexDefinitionSecurityBeanOperation INSTANCE = new CreditDefaultSwapIndexDefinitionSecurityBeanOperation();
   
   private CreditDefaultSwapIndexDefinitionSecurityBeanOperation() {
-    super(CreditDefaultSwapIndexDefinitionSecurity.SECURITY_TYPE, CreditDefaultSwapIndexDefinitionSecurity.class, CreditDefaultSwapIndexSecurityBean.class);
+    super(CreditDefaultSwapIndexDefinitionSecurity.SECURITY_TYPE, CreditDefaultSwapIndexDefinitionSecurity.class, CreditDefaultSwapIndexDefinitionSecurityBean.class);
   }
   
   @Override
-  public CreditDefaultSwapIndexSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, CreditDefaultSwapIndexDefinitionSecurity security) {
+  public CreditDefaultSwapIndexDefinitionSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, CreditDefaultSwapIndexDefinitionSecurity security) {
 
-    CreditDefaultSwapIndexSecurityBean bean = new CreditDefaultSwapIndexSecurityBean();
+    CreditDefaultSwapIndexDefinitionSecurityBean bean = new CreditDefaultSwapIndexDefinitionSecurityBean();
     bean.setVersion(security.getVersion());
     bean.setSeries(security.getSeries());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
@@ -67,7 +67,7 @@ public final class CreditDefaultSwapIndexDefinitionSecurityBeanOperation extends
   }
 
   @Override
-  public CreditDefaultSwapIndexDefinitionSecurity createSecurity(OperationContext context, CreditDefaultSwapIndexSecurityBean bean) {
+  public CreditDefaultSwapIndexDefinitionSecurity createSecurity(OperationContext context, CreditDefaultSwapIndexDefinitionSecurityBean bean) {
     List<Tenor> tenors = Lists.newArrayList();
     for (TenorBean tenorBean : bean.getTenors()) {
       tenors.add(tenorBeanToTenor(tenorBean));

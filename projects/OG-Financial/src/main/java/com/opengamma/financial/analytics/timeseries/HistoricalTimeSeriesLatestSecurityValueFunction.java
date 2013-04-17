@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.timeseries;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -29,7 +28,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
  * Function to source the latest historical time-series data point for a security.
  */
 public class HistoricalTimeSeriesLatestSecurityValueFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -44,28 +43,59 @@ public class HistoricalTimeSeriesLatestSecurityValueFunction extends AbstractFun
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties props = createValueProperties()
+  protected ValueProperties.Builder createValueProperties() {
+    return super.createValueProperties()
         .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
-        .withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), props));
+        .withAny(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY)
+        .withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final HistoricalTimeSeriesResolver htsResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final Set<String> dataFieldConstraints = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
-    if (dataFieldConstraints.size() > 1) {
-      return null;
+    final String dataField;
+    if ((dataFieldConstraints == null) || dataFieldConstraints.isEmpty()) {
+      dataField = null;
+    } else {
+      dataField = dataFieldConstraints.iterator().next();
     }
-    final String dataField = dataFieldConstraints.isEmpty() ? null : Iterables.getOnlyElement(dataFieldConstraints);
-    HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, dataField, null);
+    final Set<String> resolutionKeyConstraints = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY);
+    final String resolutionKey;
+    if ((resolutionKeyConstraints == null) || resolutionKeyConstraints.isEmpty()) {
+      resolutionKey = null;
+    } else {
+      resolutionKey = resolutionKeyConstraints.iterator().next();
+    }
+    final HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, dataField, resolutionKey);
     if (resolutionResult == null) {
       return null;
     }
     UniqueId htsId = resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId();
-    ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, desiredValue.getConstraints());
+    final ValueProperties.Builder constraints = ValueProperties.builder();
+    final Set<String> ageLimitConstraints = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
+    if (ageLimitConstraints != null) {
+      if (ageLimitConstraints.isEmpty()) {
+        if (desiredValue.getConstraints().isOptional(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY)) {
+          constraints.withOptional(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
+        } else {
+          constraints.withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
+        }
+      } else {
+        constraints.with(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY, ageLimitConstraints);
+        if (desiredValue.getConstraints().isOptional(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY)) {
+          constraints.withOptional(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
+        }
+      }
+    }
+    // TODO: Add the adjustment constraint
+    ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, constraints.get());
     return Collections.singleton(valueRequirement);
   }
-  
+
 }

@@ -14,9 +14,7 @@
 'Clean Price' java.lang.Double
 'CreditSpreadCurve' com.opengamma.analytics.math.curve.NodalObjectsCurve
 'Dirty Price' java.lang.Double
-'FX Currency Exposure' com.opengamma.util.money.MultipleCurrencyAmount
 'FX Present Value' com.opengamma.financial.analytics.CurrencyLabelledMatrix1D
-'FairValue' java.lang.Double
 'Forward' java.lang.Double
 'ForwardCurve' com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve
 'HazardRateCurve' com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve
@@ -32,7 +30,6 @@
 'Market Yield To Maturity' java.lang.Double
 'Market_Value' java.lang.Double
 'Modified Duration' java.lang.Double
-'P&L Series' com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries
 'Par Rate' java.lang.Double
 'PV Z Spread Sensitivity' java.lang.Double
 'PV01' java.lang.Double
@@ -43,7 +40,6 @@
 'Present Value SABR Alpha Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
 'Present Value SABR Nu Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
 'Present Value SABR Rho Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
-'Present Value' java.lang.Double
 'Security Market Price' java.lang.Double
 'Sharpe Ratio' java.lang.Double
 'Spot' java.lang.Double
@@ -52,14 +48,9 @@
 'Treynor Ratio' java.lang.Double
 'Underlying Market Price' java.lang.Double
 'Value' java.lang.Double
-'ValueDelta' java.lang.Double
-'ValueGamma' java.lang.Double
 'ValueRho' java.lang.Double
 'ValueVanna' java.lang.Double
-'ValueVega' java.lang.Double
 'ValueVomma' java.lang.Double
-'Vega Matrix' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
-'Vega Quote Matrix' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
 'VolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
 'Yield Curve Node Sensitivities' com.opengamma.financial.analytics.DoubleLabelledMatrix1D
 'Yield To Maturity' java.lang.Double

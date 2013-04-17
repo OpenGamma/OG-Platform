@@ -29,7 +29,7 @@ public class IndexCreditDefaultSwapDefinition {
 
   // Cashflow Conventions are assumed to be as below (these will apply throughout the entire credit suite for index credit default swaps)
 
-  // Note that the long/short credit convention is opposite to that for single name CDS's
+  // Note that the long/short credit convention is opposite to that for single name CDS's (the market convention)
 
   // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
   // This convention is chosen to avoid confusion about whether a negative notional means a long/short position etc
@@ -47,9 +47,10 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
   // TODO : Need to sort out the quoting conventions for the different indices
   // TODO : Need to sort out the type of CDS used to construct the index (in principle would like to build the index from an arbitrary combination of CDS types)
-  // TODO : Take out the _indexSpread member variable (this is market data that changes on a day-to-day basis therefore should not be part of the instrument definition)
 
-  // TODO : Add an overloaded ctor taking in a SNCDS etc
+  // NOTE : The CDS index is constructed essentially like a SNCDS; we specify who the protection buyer and seller (obligors) are and we 
+  // NOTE : then specify a 'reference entity'. In a SNCDS the reference entity is just a single obligor, in an index it is a collection
+  // NOTE : of obligors bundled up into an UnderlyingPool object (which is passed into the index constructor)
 
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
@@ -156,9 +157,6 @@ public class IndexCreditDefaultSwapDefinition {
   // The fixed index coupon (fixed at the issuance of the index)
   private final double _indexCoupon;
 
-  // The current market observed index spread (can differ from the fixed coupon)
-  private final double _indexSpread;
-
   // The number of obligors in the underlying pool that are non-defaulted as of trade date (expressed as a percentage) - MarkIt field
   private final double _indexFactor;
 
@@ -195,8 +193,7 @@ public class IndexCreditDefaultSwapDefinition {
       final boolean protectionStart,
       final double notional,
       final double upfrontPayment,
-      final double indexCoupon,
-      final double indexSpread) {
+      final double indexCoupon) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -235,7 +232,6 @@ public class IndexCreditDefaultSwapDefinition {
 
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(indexCoupon, "Index coupon");
-    ArgumentChecker.notNegative(indexSpread, "Index spread");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -278,7 +274,6 @@ public class IndexCreditDefaultSwapDefinition {
     _notional = notional;
     _upfrontPayment = upfrontPayment;
     _indexCoupon = indexCoupon;
-    _indexSpread = indexSpread;
 
     _indexFactor = ((double) _underlyingPool.getNumberOfDefaultedObligors()) / ((double) _underlyingPool.getNumberOfObligors());
 
@@ -440,16 +435,47 @@ public class IndexCreditDefaultSwapDefinition {
     return _indexCoupon;
   }
 
-  public double getIndexSpread() {
-    return _indexSpread;
-  }
-
   public double getIndexFactor() {
     return _indexFactor;
   }
 
   public CreditDefaultSwapDefinition[] getUnderlyingCDS() {
     return _underlyingCDS;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to construct an index CDS position with an underlying pool which has been modified in some way
+
+  public IndexCreditDefaultSwapDefinition withUnderlyingPool(final UnderlyingPool underlyingPool) {
+    return new IndexCreditDefaultSwapDefinition(
+        getIndexName(),
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        underlyingPool,
+        getIndex(),
+        getSeries(),
+        getVersion(),
+        getCurrency(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getSettlementDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDaycountFractionConvention(),
+        getBusinessdayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustSettlementDate(),
+        getAdjustMaturityDate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getNotional(),
+        getUpfrontPayment(),
+        getIndexCoupon());
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

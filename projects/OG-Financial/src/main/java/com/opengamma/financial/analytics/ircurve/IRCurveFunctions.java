@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -18,18 +18,18 @@ import com.opengamma.master.config.impl.ConfigSearchIterator;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class IRCurveFunctions extends AbstractRepositoryConfigurationBean {
+public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new IRCurveFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource providers(final ConfigMaster configMaster) {
+  public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
     final Providers factory = new Providers();
     factory.setConfigMaster(configMaster);
     return factory.getObjectCreating();
@@ -38,7 +38,7 @@ public class IRCurveFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for yield curve functions based on the items defined in a Config Master.
    */
-  public static class Providers extends AbstractRepositoryConfigurationBean {
+  public static class Providers extends AbstractFunctionConfigurationBean {
 
     private ConfigMaster _configMaster;
 

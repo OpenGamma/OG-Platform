@@ -35,7 +35,8 @@ public class ISDADateCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.BUCKETED_IR01,
     ValueRequirementNames.JUMP_TO_DEFAULT,
     ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.HAZARD_RATE_CURVE
+    ValueRequirementNames.HAZARD_RATE_CURVE,
+    ValueRequirementNames.VALUE_VEGA
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToYieldCurveName;
@@ -45,7 +46,8 @@ public class ISDADateCurveDefaults extends DefaultPropertyFunction {
   public ISDADateCurveDefaults(final String priority, final String... perCurrencyDefaults) {
     super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
         .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
-        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY), true);
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
     ArgumentChecker.isTrue(perCurrencyDefaults.length % 4 == 0, "must have one yield curve name, yield curve calculation config and" +

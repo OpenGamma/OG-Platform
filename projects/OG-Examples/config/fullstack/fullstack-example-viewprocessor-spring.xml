@@ -15,8 +15,8 @@
   <!-- Functions -->
   <bean id="mainCompiledFunctionService" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
-      <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
-        <property name="repositoryConfigurationSource" ref="sharedRepositoryConfigurationSource" />
+      <bean class="com.opengamma.engine.function.config.FunctionRepositoryFactoryBean">
+        <property name="functionConfigurationSource" ref="sharedFunctionConfigurationSource" />
       </bean>
     </constructor-arg>
     <constructor-arg>
@@ -91,6 +91,7 @@
     <property name="minimumJobCost" value="10000000" />
     <property name="maximumJobCost" value="10000000000" />
     <property name="functionCosts" ref="functionCosts" />
+    <property name="cacheManager" ref="standardCacheManager" />
   </bean>
   <bean id="graphExecutorTuner" class="com.opengamma.engine.exec.MultipleNodeExecutorTuner">
     <constructor-arg ref="graphExecutor" />
@@ -109,7 +110,11 @@
   
   <bean id="viewProcessWorkerFactory" class="com.opengamma.engine.view.worker.StaticSequencePartitioningViewProcessWorkerFactory">
     <constructor-arg>
-      <bean class="com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory" />
+      <bean class="com.opengamma.engine.view.worker.ParallelRecompilationViewProcessWorkerFactory">
+        <constructor-arg>
+          <bean class="com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory" />
+        </constructor-arg>
+      </bean>
     </constructor-arg>
     <property name="saturation" value="2" />
   </bean>

@@ -35,6 +35,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -108,8 +109,8 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //TODO
-    final String curveName = "SAMEDAY_" + spreadCurveName;
-    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(configSource, now, curveName);
+    final String curveName = getCurvePrefix() + "_" + spreadCurveName;
+    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
     HistoricalTimeSeries fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currency)) {
@@ -197,7 +198,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(getBucketedCS01Requirement(security));
-    requirements.add(getCreditSpreadCurveHTSRequirement(security, "SAMEDAY_" + spreadCurveName, samplingPeriod));
+    requirements.add(getCreditSpreadCurveHTSRequirement(security, getCurvePrefix() + "_" + spreadCurveName, samplingPeriod));
     final Set<String> resultCurrencies = constraints.getValues(CURRENCY);
     if (resultCurrencies != null && resultCurrencies.size() == 1) {
       final ValueRequirement ccyConversionTSRequirement = getCurrencyConversionTSRequirement(position, currency, resultCurrencies);
@@ -209,7 +210,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     return requirements;
   }
 
-  private ValueRequirement getCurrencyConversionTSRequirement(final Position position, final String currencyString, final Set<String> resultCurrencies) {
+  protected ValueRequirement getCurrencyConversionTSRequirement(final Position position, final String currencyString, final Set<String> resultCurrencies) {
     final String resultCurrency = Iterables.getOnlyElement(resultCurrencies);
     if (!resultCurrency.equals(currencyString)) {
       final ValueProperties.Builder properties = ValueProperties.builder();
@@ -220,15 +221,19 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     return null;
   }
 
-  private ValueRequirement getBucketedCS01Requirement(final Security security) {
+  protected ValueRequirement getBucketedCS01Requirement(final Security security) {
     final ValueProperties properties = ValueProperties.builder()
         .get();
     return new ValueRequirement(ValueRequirementNames.BUCKETED_CS01, ComputationTargetSpecification.of(security), properties);
   }
 
-  private ValueRequirement getCreditSpreadCurveHTSRequirement(final Security security, final String curveName, final String samplingPeriod) {
-    return HistoricalTimeSeriesFunctionUtils.createCreditSpreadCurveHTSRequirement(security, curveName, "PX_LAST", null, DateConstraint.VALUATION_TIME.minus(samplingPeriod),
-        true, DateConstraint.VALUATION_TIME, true);
+  protected ValueRequirement getCreditSpreadCurveHTSRequirement(final Security security, final String curveName, final String samplingPeriod) {
+    return HistoricalTimeSeriesFunctionUtils.createCreditSpreadCurveHTSRequirement(security, curveName, MarketDataRequirementNames.MARKET_VALUE,
+        null, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true, DateConstraint.VALUATION_TIME, true);
+  }
+
+  protected String getCurvePrefix() {
+    return "SAMEDAY";
   }
 
   private Period getSamplingPeriod(final String samplingPeriodName) {
@@ -254,7 +259,8 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     int i = 0;
     for (final CurveNodeWithIdentifier node : nodes) {
       final ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
-      final HistoricalTimeSeries hts = htsBundle.get("PX_LAST", id);
+      final HistoricalTimeSeries hts = htsBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
+      //      final HistoricalTimeSeries hts = htsBundle.get("PX_LAST", id);
       if (hts == null) {
         throw new OpenGammaRuntimeException("Could not get historical time series for " + id);
       }
@@ -269,7 +275,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
           nodeTimeSeries = nodeTimeSeries.multiply(fxSeries.getTimeSeries());
         }
       }
-      nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries.divide(10000));
+      nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries.multiply(10000));
       final double sensitivity = cs01[i++];
       if (pnlSeries == null) {
         pnlSeries = nodeTimeSeries.multiply(sensitivity);

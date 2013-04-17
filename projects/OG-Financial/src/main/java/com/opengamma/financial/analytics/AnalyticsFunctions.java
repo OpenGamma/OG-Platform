@@ -7,10 +7,10 @@ package com.opengamma.financial.analytics;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
 import com.opengamma.financial.analytics.covariance.CovarianceFunctions;
@@ -24,14 +24,14 @@ import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
+public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
    * 
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new AnalyticsFunctions().getObjectCreating();
   }
 
@@ -274,33 +274,33 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
   }
 
-  protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {
+  protected FunctionConfigurationSource cashFlowFunctionConfiguration() {
     return CashFlowFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource covarianceFunctionConfiguration() {
+  protected FunctionConfigurationSource covarianceFunctionConfiguration() {
     return CovarianceFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource irCurveFunctionConfiguration() {
+  protected FunctionConfigurationSource irCurveFunctionConfiguration() {
     return IRCurveFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource modelFunctionConfiguration() {
+  protected FunctionConfigurationSource modelFunctionConfiguration() {
     return ModelFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource timeSeriesFunctionConfiguration() {
+  protected FunctionConfigurationSource timeSeriesFunctionConfiguration() {
     return TimeSeriesFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource volatilityFunctionConfiguration() {
+  protected FunctionConfigurationSource volatilityFunctionConfiguration() {
     return VolatilityFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), covarianceFunctionConfiguration(), irCurveFunctionConfiguration(),
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), covarianceFunctionConfiguration(), irCurveFunctionConfiguration(),
         modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 
