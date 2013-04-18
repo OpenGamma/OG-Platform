@@ -66,7 +66,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyCDSSecurity;
 import com.opengamma.financial.security.cds.StandardCDSSecurity;
-import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -140,7 +139,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
       throw new OpenGammaRuntimeException("Could not get credit spread curve historical time series");
     }
     final HistoricalTimeSeriesBundle hts = (HistoricalTimeSeriesBundle) htsObject;
-    final NavigableSet<CurveNodeWithIdentifier> nodes = new TreeSet<>(curveSpecification.getNodes());
+    final NavigableSet<CurveNodeWithIdentifier> nodes = getNodes(now, security, curveSpecification.getNodes());
     DoubleTimeSeries<?> pnlSeries = getPnLSeries(nodes, bucketedCS01, hts, schedule, samplingFunction, fxSeries, isInverse);
     if (pnlSeries == null) {
       throw new OpenGammaRuntimeException("Could not get any values for security " + position.getSecurity());
@@ -159,8 +158,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getPosition().getSecurity();
     return security instanceof StandardCDSSecurity ||
-        security instanceof LegacyCDSSecurity ||
-        security instanceof CreditDefaultSwapOptionSecurity;
+        security instanceof LegacyCDSSecurity;
   }
 
   @Override
@@ -236,6 +234,10 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     return "SAMEDAY";
   }
 
+  protected NavigableSet<CurveNodeWithIdentifier> getNodes(final LocalDate now, final FinancialSecurity security, final Set<CurveNodeWithIdentifier> allNodes) {
+    return new TreeSet<>(allNodes);
+  }
+
   private Period getSamplingPeriod(final String samplingPeriodName) {
     return Period.parse(samplingPeriodName);
   }
@@ -253,7 +255,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     DoubleTimeSeries<?> pnlSeries = null;
     final int nNodes = nodes.size();
     if (bucketedCS01.size() != nNodes) {
-      throw new OpenGammaRuntimeException("Number of nodes in credit spread curve does not match number of bucketed CS01 values");
+      throw new OpenGammaRuntimeException("Number of nodes in credit spread curve (" + nNodes + ") does not match number of bucketed CS01 values (" + bucketedCS01.size() + ")");
     }
     final double[] cs01 = bucketedCS01.getValues();
     int i = 0;
