@@ -439,6 +439,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   @Override
   public void close() {
     flush();
+    _executorService.shutdown();
   }
   
   private ManageablePortfolioNode findNode(String[] path, ManageablePortfolioNode startNode) {
