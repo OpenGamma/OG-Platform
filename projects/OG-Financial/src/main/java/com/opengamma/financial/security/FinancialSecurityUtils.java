@@ -1268,6 +1268,12 @@ public class FinancialSecurityUtils {
           return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
         }
 
+        @Override
+        public CurrencyAmount visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getNotional();
+          return CurrencyAmount.of(currency, notional);
+        }
       });
       return notional;
     }

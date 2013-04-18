@@ -31,6 +31,8 @@ import com.opengamma.financial.property.UnitProperties;
  */
 public class SummingFunction extends MissingInputsFunction {
 
+  public static final String IGNORE_ROOT_NODE = "SummingFunction.IGNORE_ROOT_NODE";
+
   /**
    * The number of positions that made up the sum.
    */
@@ -68,8 +70,12 @@ public class SummingFunction extends MissingInputsFunction {
 
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      // Applies to any portfolio node
-      return true;
+      // Applies to any portfolio node, except the root if "Don't aggregate root node" is set
+      if (context.getPortfolio().getAttributes().get(IGNORE_ROOT_NODE) == null) {
+        return true;
+      } else {
+        return target.getPortfolioNode().getParentNodeId() != null;
+      }
     }
 
     @Override
