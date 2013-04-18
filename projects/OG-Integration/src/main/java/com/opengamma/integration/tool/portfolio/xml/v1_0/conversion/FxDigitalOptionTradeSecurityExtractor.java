@@ -24,20 +24,23 @@ public class FxDigitalOptionTradeSecurityExtractor extends TradeSecurityExtracto
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
+    FxDigitalOptionTrade trade = getTrade();
+    Currency payoutCurrency = trade.getPayoutCurrency();
+    FxOptionCalculator calculator = new FxOptionCalculator(trade, trade.getPayout(), payoutCurrency);
 
-    Currency payoutCurrency = _trade.getPayoutCurrency();
-    FxOptionCalculator calculator = new FxOptionCalculator(_trade, _trade.getPayout(), payoutCurrency);
-
-    ManageableSecurity security = new FXDigitalOptionSecurity(calculator.getPutCurrency(),
-                                                              calculator.getCallCurrency(),
-                                                              calculator.getPutAmount(),
-                                                              calculator.getCallAmount(),
-                                                              payoutCurrency,
-                                                              calculator.getExpiry(),
-                                                              calculator.getSettlementDate(),
-                                                              calculator.isLong());
+    ManageableSecurity security = new FXDigitalOptionSecurity(
+        calculator.getPutCurrency(),
+        calculator.getCallCurrency(),
+        calculator.getPutAmount(),
+        calculator.getCallAmount(),
+        payoutCurrency,
+        calculator.getExpiry(),
+        calculator.getSettlementDate(),
+        calculator.isLong());
     return securityArray(addIdentifier(security));
   }
+
 }
