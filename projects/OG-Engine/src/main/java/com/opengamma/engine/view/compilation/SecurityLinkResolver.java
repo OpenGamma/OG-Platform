@@ -168,7 +168,7 @@ public final class SecurityLinkResolver {
       for (Object future : securityLinkMap.values()) {
         ((Future<SecurityLink>) future).cancel(false);
       }
-      throw new OpenGammaRuntimeException("Unable to resolve all securities");
+      throw new OpenGammaRuntimeException("Unable to resolve all securities. Missing: " + securityLinkMap);
     }
   }
 
