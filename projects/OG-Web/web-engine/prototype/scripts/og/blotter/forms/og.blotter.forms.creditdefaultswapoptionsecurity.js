@@ -27,6 +27,10 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
                         portfolio: data.nodeId, trade: data.trade}),
+                    new ui.Dropdown({
+                        form: form, resource: 'blotter.exercisetypes', index: 'security.exerciseType',
+                        value: data.security.exerciseType, placeholder: 'Select Exercise Type'
+                    }),
                     cds_select = new ui.Dropdown({
                         form: form, placeholder: 'Select CDS Type',
                         data_generator: function (handler) {handler(og.blotter.util.cds_types);}
@@ -69,7 +73,7 @@ $.register_module({
                 new_block.html(function (html) {
                     $('#' + cds_id).replaceWith(html);
                 });
-                form.children[1] = new_block;
+                form.children[2] = new_block;
             };
             constructor.load();
             constructor.submit = function (handler) {

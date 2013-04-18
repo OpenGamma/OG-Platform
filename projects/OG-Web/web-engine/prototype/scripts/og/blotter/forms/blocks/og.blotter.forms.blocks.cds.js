@@ -9,6 +9,7 @@ $.register_module({
         var Block = og.common.util.ui.Block;
         var CDS = function (config) {
             var block = this, form = config.form, data = config.data, ui = og.common.util.ui, buy, sell, ref,
+                option = config.option ? config.option : "", 
                 children = [
                     buy = new og.blotter.forms.blocks.Security({
                         form: form, label: 'Protection Buyer', security: data.security.protectionBuyer,
