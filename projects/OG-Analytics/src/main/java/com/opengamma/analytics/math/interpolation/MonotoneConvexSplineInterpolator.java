@@ -13,10 +13,13 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Monotone Convex Interpolation 
- * Given a data set (t_i,r_i), derive forward rates, f(t)=\frac{\partial r(t) t}{\partial t}, by "interpolateFwds" method or (spot rates) * (time), r(t) * t, by "interpolate" method
+ * Monotone Convex Interpolation based on 
+ * P. S. Hagan, G. West, "interpolation Methods for Curve Construction"
+ * Applied Mathematical Finance, Vol. 13, No. 2, 89–129, June 2006
+ * 
+ * Given a data set (t_i, r_i*t_i), derive forward rates, f(t)=\frac{\partial r(t) t}{\partial t}, by "interpolateFwds" method or (spot rates) * (time), r(t) * t, by "interpolate" method
  * by applying the interpolation to forward rates f_i computed from spot rates r_i
- * When we apply this spline to interest rates, DO INCLUDE THE TRIVIAL POINT (t_0,r_0) = (0,0)
+ * When we apply this spline to interest rates, DO INCLUDE THE TRIVIAL POINT (t_0,r_0*t_0) = (0,0). In this case r_0 = 0 is automatically assumed. 
  * Note that f(t_i) = (original) f_i does NOT necessarily hold due to forward modification for ensuring positivity
  */
 public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpolator {
@@ -36,7 +39,7 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
    * Determine r(t)t = \int _{xValues_0}^{x} f(s) ds  for t >= min{xValues}
    * Extrapolation by a linear function in the region t > max{xValues} 
    * @param xValues Data t_i
-   * @param yValues Data r(t_i)
+   * @param yValues Data r_i*t_i
    * @return PiecewisePolynomialResult for r(t)t
    */
   @Override
@@ -63,8 +66,19 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
       }
     }
 
+    for (int i = 0; i < nDataPts; ++i) {
+      if (xValues[i] == 0.) {
+        ArgumentChecker.isTrue(yValues[i] == 0., "r_i * t_i = 0 if t_i =0");
+      }
+    }
+
+    double[] spotTmp = new double[nDataPts];
+    for (int i = 0; i < nDataPts; ++i) {
+      spotTmp[i] = xValues[i] == 0. ? 0. : yValues[i] / xValues[i];
+    }
+
     _time = Arrays.copyOf(xValues, nDataPts);
-    _spotRates = Arrays.copyOfRange(yValues, 0, nDataPts);
+    _spotRates = Arrays.copyOf(spotTmp, nDataPts);
 
     parallelBinarySort(nDataPts);
 
@@ -93,13 +107,6 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
     throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
   }
 
-  /**
-   * Compute the value of r(t) at t = x
-   * @param xValues Data t_i
-   * @param yValues Data r(t_i)
-   * @param x Key should be larger than min{xValues}
-   * @return r(x)
-   */
   @Override
   public double interpolate(final double[] xValues, final double[] yValues, final double x) {
 
@@ -241,8 +248,19 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
       }
     }
 
+    for (int i = 0; i < nDataPts; ++i) {
+      if (xValues[i] == 0.) {
+        ArgumentChecker.isTrue(yValues[i] == 0., "r_i * t_i = 0 if t_i =0");
+      }
+    }
+
+    double[] spotTmp = new double[nDataPts];
+    for (int i = 0; i < nDataPts; ++i) {
+      spotTmp[i] = xValues[i] == 0. ? 0. : yValues[i] / xValues[i];
+    }
+
     _time = Arrays.copyOf(xValues, nDataPts);
-    _spotRates = Arrays.copyOfRange(yValues, 0, nDataPts);
+    _spotRates = Arrays.copyOf(spotTmp, nDataPts);
 
     parallelBinarySort(nDataPts);
 
@@ -353,7 +371,7 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
    * Derive r(t) * t from f(t)
    * @param knots 
    * @param coefMatrix 
-   * @return coefmatrix of r(t)
+   * @return coefmatrix of r(t) * t
    */
   private DoubleMatrix2D integration(final double[] knots, final double[][] coefMatrix) {
     final int nCoefs = coefMatrix[0].length + 1;
