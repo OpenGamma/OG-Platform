@@ -92,7 +92,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final String currency = FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties constraints = desiredValue.getConstraints();
-    String desiredCurrency;
+    final String desiredCurrency;
     final Set<String> desiredCurrencies = constraints.getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencies != null && !desiredCurrencies.isEmpty()) {
       desiredCurrency = Iterables.getOnlyElement(desiredCurrencies);
@@ -111,7 +111,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     //TODO
     final String curveName = getCurvePrefix() + "_" + spreadCurveName;
     final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
-    HistoricalTimeSeries fxSeries = null;
+    DoubleTimeSeries<?> fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currency)) {
       final Object fxSeriesObject = inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
@@ -119,7 +119,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
         throw new OpenGammaRuntimeException("Could not get historical FX series");
       }
       @SuppressWarnings("unchecked")
-      final Map.Entry<UnorderedCurrencyPair, HistoricalTimeSeries> entry = Iterables.getOnlyElement(((Map<UnorderedCurrencyPair, HistoricalTimeSeries>) fxSeriesObject).entrySet());
+      final Map.Entry<UnorderedCurrencyPair, DoubleTimeSeries<?>> entry = Iterables.getOnlyElement(((Map<UnorderedCurrencyPair, DoubleTimeSeries<?>>) fxSeriesObject).entrySet());
       final Object currencyPairObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
       if (currencyPairObject == null) {
         throw new OpenGammaRuntimeException("Could not get currency pairs");
@@ -249,7 +249,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   }
 
   private DoubleTimeSeries<?> getPnLSeries(final Set<CurveNodeWithIdentifier> nodes, final LocalDateLabelledMatrix1D bucketedCS01, final HistoricalTimeSeriesBundle htsBundle,
-      final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction, final HistoricalTimeSeries fxSeries, final boolean isInverse) {
+      final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction, final DoubleTimeSeries<?> fxSeries, final boolean isInverse) {
     DoubleTimeSeries<?> pnlSeries = null;
     final int nNodes = nodes.size();
     if (bucketedCS01.size() != nNodes) {
@@ -260,7 +260,6 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     for (final CurveNodeWithIdentifier node : nodes) {
       final ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
       final HistoricalTimeSeries hts = htsBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
-      //      final HistoricalTimeSeries hts = htsBundle.get("PX_LAST", id);
       if (hts == null) {
         throw new OpenGammaRuntimeException("Could not get historical time series for " + id);
       }
@@ -270,9 +269,9 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(hts.getTimeSeries(), schedule);
       if (fxSeries != null) {
         if (isInverse) {
-          nodeTimeSeries = nodeTimeSeries.divide(fxSeries.getTimeSeries());
+          nodeTimeSeries = nodeTimeSeries.divide(fxSeries);
         } else {
-          nodeTimeSeries = nodeTimeSeries.multiply(fxSeries.getTimeSeries());
+          nodeTimeSeries = nodeTimeSeries.multiply(fxSeries);
         }
       }
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries.multiply(10000));
