@@ -24,6 +24,7 @@ import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -44,11 +45,13 @@ import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -83,11 +86,19 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
+    final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
+    final Object recoveryRateObject = inputs.getValue(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
+    if (recoveryRateObject == null) {
+      throw new OpenGammaRuntimeException("Could not get recovery rate");
+    }
+    final double recoveryRate = (Double) recoveryRateObject;
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(_converter);
     definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
+    definition = definition.withRecoveryRate(recoveryRate);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -145,9 +156,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     if (yieldCurveCalculationMethodNames == null || yieldCurveCalculationMethodNames.size() != 1) {
       return null;
     }
-    final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context));
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(securitySource);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
+    final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
     //    final Set<String> spreadCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE);
     //    if (spreadCurveNames == null || spreadCurveNames.size() != 1) {
     //      return null;
@@ -166,7 +179,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts);
     }
     final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
-    return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement);
+    final ValueRequirement recoveryRateRequirement = new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId());
+    return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement, recoveryRateRequirement);
   }
 
   @Override
