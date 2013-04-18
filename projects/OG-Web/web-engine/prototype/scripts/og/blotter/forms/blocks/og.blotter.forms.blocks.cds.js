@@ -9,7 +9,7 @@ $.register_module({
         var Block = og.common.util.ui.Block;
         var CDS = function (config) {
             var block = this, form = config.form, data = config.data, ui = og.common.util.ui, buy, sell, ref,
-                option = config.option ? config.option : "", 
+                prefix = config.prefix ? config.prefix : 'security.', 
                 children = [
                     buy = new og.blotter.forms.blocks.Security({
                         form: form, label: 'Protection Buyer', security: data.security.protectionBuyer,
@@ -91,7 +91,7 @@ $.register_module({
                  */
                 generator: function (handler, tmpl, data) {
                     handler(tmpl(data));
-                    if (config.option) {
+                    if (config.prefix) {
                         buy.create_autocomplete();
                         sell.create_autocomplete();
                         ref.create_autocomplete();   

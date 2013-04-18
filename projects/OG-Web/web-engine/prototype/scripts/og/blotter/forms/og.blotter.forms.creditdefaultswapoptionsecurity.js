@@ -68,7 +68,7 @@ $.register_module({
                         stdvanilla = ~cds.type.indexOf('standardvanillacdssecurity'), 
                         index = ~cds.type.indexOf('creditdefaultswapindexsecurity'); 
                     new_block = new og.blotter.forms.blocks.cds({form: form, data: data, standard: standard, 
-                        stdvanilla: stdvanilla, legacy: legacy, index: index, option: 'underlying.'});
+                        stdvanilla: stdvanilla, legacy: legacy, index: index, prefix: 'underlying.'});
                 }
                 new_block.html(function (html) {
                     $('#' + cds_id).replaceWith(html);
