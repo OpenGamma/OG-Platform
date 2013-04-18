@@ -38,6 +38,7 @@ public class ForwardFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(FXForwardCurrencyExposureFunction.class));
     functions.add(functionConfiguration(FXForwardYCNSFunction.class));
     functions.add(functionConfiguration(FXForwardPresentValueCurveSensitivityFunction.class));
+    functions.add(functionConfiguration(FXForwardPointsMethodPresentValueFunction.class));
   }
 
 }
