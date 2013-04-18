@@ -56,6 +56,7 @@ $.register_module({
                                 filter: slick_manager.data[dd.row].filter
                             }
                         }));
+                        $(document).trigger('mousedown.blurkill');
                     });
 
                     grid.onViewportChanged.subscribe(function () {
