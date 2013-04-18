@@ -484,7 +484,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
       if (path[0].equals(childNode.getName())) {
-        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length - 1), childNode);
+        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length), childNode);
         if (result != null) {
           return result;
         }
