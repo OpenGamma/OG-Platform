@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -35,7 +35,7 @@ public interface IdentifierResolver {
    * @param versionCorrection the version/correction time to perform the resolution at, not null
    * @return the map of identifier bundles to resolved object identifiers, not null
    */
-  Map<ExternalIdBundle, UniqueId> resolveExternalIds(Set<ExternalIdBundle> identifiers, VersionCorrection versionCorrection);
+  Map<ExternalIdBundle, UniqueId> resolveExternalIds(Collection<ExternalIdBundle> identifiers, VersionCorrection versionCorrection);
 
   /**
    * Resolves the object loosely specified by an object identifier to an exact unique identifier.
@@ -54,6 +54,6 @@ public interface IdentifierResolver {
    * @param versionCorrection the version/correction time to perform the resolution at, not null
    * @return the map of object identifiers to unique identifiers, not null
    */
-  Map<ObjectId, UniqueId> resolveObjectIds(Set<ObjectId> identifiers, VersionCorrection versionCorrection);
+  Map<ObjectId, UniqueId> resolveObjectIds(Collection<ObjectId> identifiers, VersionCorrection versionCorrection);
 
 }

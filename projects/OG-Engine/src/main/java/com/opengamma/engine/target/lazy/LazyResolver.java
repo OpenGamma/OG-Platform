@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.target.lazy;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
@@ -74,6 +74,7 @@ public interface LazyResolver {
       super(parent, underlying);
     }
 
+    @Override
     protected Resolver<T> getUnderlying() {
       return (Resolver<T>) super.getUnderlying();
     }
@@ -84,7 +85,7 @@ public interface LazyResolver {
     }
 
     @Override
-    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
       return getUnderlying().resolveExternalIds(identifiers, versionCorrection);
     }
 
@@ -94,7 +95,7 @@ public interface LazyResolver {
     }
 
     @Override
-    public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
       return getUnderlying().resolveObjectIds(identifiers, versionCorrection);
     }
 

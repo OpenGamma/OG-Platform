@@ -13,9 +13,6 @@ import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -23,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.PoolExecutor;
+import com.opengamma.util.PoolExecutor.CompletionListener;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -121,15 +120,29 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   protected InMemoryCompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant,
-      final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final ExecutorService executorService) {
+      final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final PoolExecutor poolExecutor) {
     final InMemoryCompiledFunctionRepository compiled = new InMemoryCompiledFunctionRepository(context);
-    final ExecutorCompletionService<CompiledFunctionDefinition> completionService = new ExecutorCompletionService<CompiledFunctionDefinition>(executorService);
-    int numCompiles = 0;
+    final AtomicInteger failures = new AtomicInteger();
+    final PoolExecutor.Service<CompiledFunctionDefinition> jobs = poolExecutor.createService(new CompletionListener<CompiledFunctionDefinition>() {
+
+      @Override
+      public void success(final CompiledFunctionDefinition result) {
+        compiled.addFunction(result);
+      }
+
+      @Override
+      public void failure(final Throwable error) {
+        // Don't propagate the error outwards; it just won't be in the compiled repository
+        s_logger.debug("Error compiling function definition", error);
+        failures.incrementAndGet();
+      }
+
+    });
     for (final FunctionDefinition function : functions.getAllFunctions()) {
       if (addFunctionFromCachedRepository(before, after, compiled, function, atInstant)) {
         continue;
       }
-      completionService.submit(new Callable<CompiledFunctionDefinition>() {
+      jobs.execute(new Callable<CompiledFunctionDefinition>() {
         @Override
         public CompiledFunctionDefinition call() throws Exception {
           try {
@@ -141,25 +154,12 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
           }
         }
       });
-      numCompiles++;
     }
-    final AtomicInteger failures = new AtomicInteger();
-    for (int i = 0; i < numCompiles; i++) {
-      Future<CompiledFunctionDefinition> future;
-      try {
-        future = completionService.take();
-      } catch (final InterruptedException e1) {
-        Thread.interrupted();
-        throw new OpenGammaRuntimeException("Interrupted while compiling function definitions.");
-      }
-      try {
-        final CompiledFunctionDefinition compiledFunction = future.get();
-        compiled.addFunction(compiledFunction);
-      } catch (final Exception e) {
-        // Don't propagate the error outwards; it just won't be in the compiled repository
-        s_logger.debug("Error compiling function definition", e);
-        failures.incrementAndGet();
-      }
+    try {
+      jobs.join();
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      throw new OpenGammaRuntimeException("Interrupted while compiling function definitions.");
     }
     if (failures.get() != 0) {
       s_logger.error("Encountered {} errors while compiling repository", failures);
@@ -197,7 +197,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   @Override
-  public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final Instant atInstant) {
+  public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final PoolExecutor executor, final Instant atInstant) {
     clearInvalidCache(context.getFunctionInitId());
     final Pair<FunctionRepository, Instant> key = Pair.of(repository, atInstant);
     // Try a previous compilation

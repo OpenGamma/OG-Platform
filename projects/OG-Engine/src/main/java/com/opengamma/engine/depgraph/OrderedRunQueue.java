@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
@@ -191,7 +193,7 @@ import com.opengamma.engine.target.ComputationTargetTypeMap;
         } else {
           if (ctr1 instanceof ComputationTargetSpecification) {
             if (ctr2 instanceof ComputationTargetSpecification) {
-              return ctr1.getSpecification().getUniqueId().compareTo(ctr2.getSpecification().getUniqueId());
+              return ObjectUtils.compare(ctr1.getSpecification().getUniqueId(), ctr2.getSpecification().getUniqueId());
             } else {
               // Do requirement -> specification resolution (r2) first
               return -1;

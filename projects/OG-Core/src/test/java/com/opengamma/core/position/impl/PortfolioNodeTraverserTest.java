@@ -10,11 +10,7 @@ import static org.testng.Assert.fail;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
@@ -23,6 +19,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -219,39 +216,7 @@ public class PortfolioNodeTraverserTest {
   @Test
   public void testParallelNoSlaveThreads() {
     final Callback cb = new Callback();
-    PortfolioNodeTraverser.parallel(cb, new AbstractExecutorService() {
-
-      @Override
-      public void shutdown() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public List<Runnable> shutdownNow() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isShutdown() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isTerminated() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-        return false;
-      }
-
-      @Override
-      public void execute(final Runnable command) {
-        // No-op; don't want to run the command so that calling thread does the full traversal
-      }
-
-    }).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
+    PortfolioNodeTraverser.parallel(cb, new PoolExecutor(0, getClass().getSimpleName())).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
     // With a single thread (the caller) should be depth first 
     assertParallelOrder(cb);
   }
@@ -268,7 +233,7 @@ public class PortfolioNodeTraverserTest {
         super.visit(type, uniqueId);
       }
     };
-    PortfolioNodeTraverser.parallel(cb, Executors.newCachedThreadPool()).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
+    PortfolioNodeTraverser.parallel(cb, new PoolExecutor(8, getClass().getSimpleName())).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
     assertParallelOrder(cb);
   }
 

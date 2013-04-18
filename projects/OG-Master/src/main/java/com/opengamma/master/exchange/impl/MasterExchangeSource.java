@@ -6,7 +6,10 @@
 package com.opengamma.master.exchange.impl;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
+import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
@@ -23,8 +26,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * An {@code ExchangeSource} implemented using an underlying {@code ExchangeMaster}.
  * <p>
- * The {@link ExchangeSource} interface provides exchanges to the application via a narrow API.
- * This class provides the source on top of a standard {@link ExchangeMaster}.
+ * The {@link ExchangeSource} interface provides exchanges to the application via a narrow API. This class provides the source on top of a standard {@link ExchangeMaster}.
  */
 @PublicSPI
 public class MasterExchangeSource
@@ -34,7 +36,7 @@ public class MasterExchangeSource
   /**
    * Creates an instance with an underlying master which does not override versions.
    * 
-   * @param master  the master, not null
+   * @param master the master, not null
    */
   public MasterExchangeSource(final ExchangeMaster master) {
     super(master);
@@ -43,35 +45,53 @@ public class MasterExchangeSource
   /**
    * Creates an instance with an underlying master optionally overriding the requested version.
    * 
-   * @param master  the master, not null
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
+   * @param master the master, not null
+   * @param versionCorrection the version-correction locator to search at, null to not override versions
    */
   public MasterExchangeSource(final ExchangeMaster master, VersionCorrection versionCorrection) {
     super(master, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public Collection<? extends Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);
     searchRequest.setVersionCorrection(getVersionCorrection());
-    return getMaster().search(searchRequest).getExchanges();
+    return (List) getMaster().search(searchRequest).getExchanges();
   }
 
   @Override
   public ManageableExchange getSingle(ExternalId identifier) {
-    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
-    searchRequest.setPagingRequest(PagingRequest.ONE);
-    searchRequest.setVersionCorrection(getVersionCorrection());
-    return getMaster().search(searchRequest).getFirstExchange();
+    return getSingle(identifier.toBundle());
   }
 
   @Override
   public ManageableExchange getSingle(ExternalIdBundle identifiers) {
-    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
+    return getSingle(identifiers, getVersionCorrection());
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Collection<Exchange>> getAll(Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection) {
+    return AbstractSourceWithExternalBundle.getAll(this, bundles, versionCorrection);
+  }
+
+  @Override
+  public Collection<Exchange> get(ExternalIdBundle bundle) {
+    return get(bundle, getVersionCorrection());
+  }
+
+  @Override
+  public ManageableExchange getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);
     searchRequest.setPagingRequest(PagingRequest.ONE);
-    searchRequest.setVersionCorrection(getVersionCorrection());
+    searchRequest.setVersionCorrection(versionCorrection);
     return getMaster().search(searchRequest).getFirstExchange();
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Exchange> getSingle(Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection) {
+    return AbstractSourceWithExternalBundle.getSingle(this, bundles, versionCorrection);
   }
 
 }

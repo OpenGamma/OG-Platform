@@ -6,11 +6,9 @@
 package com.opengamma.financial.currency.rest;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.AbstractSource;
+import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.financial.currency.CurrencyMatrix;
@@ -19,12 +17,11 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
  * Provides remote access to a {@link CurrencyMatrixSource}.
  */
-public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements CurrencyMatrixSource {
+public class RemoteCurrencyMatrixSource extends AbstractRemoteSource<CurrencyMatrix> implements CurrencyMatrixSource {
 
   private final ChangeManager _changeManager;
 
@@ -67,11 +64,6 @@ public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements 
     ArgumentChecker.notNull(identifier, "identifier");
     URI uri = DataCurrencyMatrixSourceResource.uriGetMatrix(getBaseUri(), identifier, versionCorrection);
     return accessRemote(uri).get(CurrencyMatrix.class);
-  }
-
-  @Override
-  public Map<UniqueId, CurrencyMatrix> get(final Collection<UniqueId> identifiers) {
-    return AbstractSource.get(this, identifiers);
   }
 
   // ChangeProvider

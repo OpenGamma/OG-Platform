@@ -6,8 +6,10 @@
 package com.opengamma.engine.target.resolver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
@@ -105,9 +107,17 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
     return UniqueId.of(scheme.toString(), value.toString());
   }
 
+  // TODO: Should we always do the resolution in a single thread
+
   @Override
   public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
     return identifier.atLatestVersion();
+  }
+
+  @Override
+  public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+    // resolving an object id is so trivial, the overhead of multi-threading is never justified
+    return resolveObjectIdsSingleThread(this, identifiers, versionCorrection);
   }
 
   // ObjectResolver

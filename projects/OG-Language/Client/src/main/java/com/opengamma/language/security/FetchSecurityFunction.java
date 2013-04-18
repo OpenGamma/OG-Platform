@@ -72,7 +72,7 @@ public class FetchSecurityFunction extends AbstractFunctionInvoker implements Pu
     } else {
       if (uniqueId == null) {
         try {
-          final Collection<Security> securities = sessionContext.getGlobalContext().getSecuritySource().get(identifiers);
+          final Collection<? extends Security> securities = sessionContext.getGlobalContext().getSecuritySource().get(identifiers);
           if (securities.size() == 1) {
             return securities.iterator().next();
           } else {
