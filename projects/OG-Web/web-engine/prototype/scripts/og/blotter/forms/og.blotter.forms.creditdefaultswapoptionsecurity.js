@@ -45,7 +45,12 @@ $.register_module({
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
-                    if(data.security.length) return;
+                    if (data.underlying) {
+                        var $cds_select = $('#' + cds_select.id), type = data.underlying.type.toLowerCase();
+                        swap_cds({type: type});
+                        $cds_select.val(type);
+                    }
+                    if (data.security.length) return;
 
                 });
                 form.on('form:submit', function (result){
