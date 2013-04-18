@@ -36,20 +36,19 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting
- * it to a view process, handling events from the engine and forwarding data to the
+ * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
-/* package */ class AnalyticsViewClientConnection /*implements ChangeListener*/ {
+/* package */class AnalyticsViewClientConnection /*implements ChangeListener*/{
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
 
-  private final AnalyticsView _view;
+  private AbstractViewHolder _view = new PendingViewHolder();
   private final ViewClient _viewClient;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
-  private final List<AutoCloseable> _listeners;
+  private List<AutoCloseable> _listeners;
 
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
@@ -61,18 +60,13 @@ import com.opengamma.util.ArgumentChecker;
    * @param viewClient Connects this class to the calculation engine
    * @param view The object that encapsulates the state of the view user interface
    */
-  /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
-                                              AggregatedViewDefinition aggregatedViewDef,
-                                              ViewClient viewClient,
-                                              AnalyticsView view,
-                                              List<AutoCloseable> listeners,
-                                              ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
-                                              NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
+  /* package */AnalyticsViewClientConnection(ViewRequest viewRequest,
+      AggregatedViewDefinition aggregatedViewDef,
+      ViewClient viewClient,
+      ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
+      NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
-    ArgumentChecker.notNull(view, "view");
-    ArgumentChecker.notNull(listeners, "listeners");
-    _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = aggregatedViewDef;
     _marketDataSpecRepo = marketDataSpecificationRepository;
@@ -85,22 +79,28 @@ import com.opengamma.util.ArgumentChecker;
             .setMarketDataSpecifications(actualMarketDataSpecs)
             .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection())
             .create();
-    EnumSet<ViewExecutionFlags> flags =
-        ExecutionFlags.triggersEnabled().parallelCompilation(parallelViewRecompilation).get();
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.triggersEnabled().parallelCompilation(parallelViewRecompilation).get();
     _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, flags);
-    _listeners = listeners;
     // this recalcs periodically or when market data changes. might need to give
     // the user the option to specify the behaviour
   }
 
+  /* package */void setView(AnalyticsView view) {
+    ArgumentChecker.notNull(view, "view");
+    _view = _view.withView(view);
+  }
+
+  /* package */void setListeners(List<AutoCloseable> listeners) {
+    ArgumentChecker.notNull(listeners, "listeners");
+    assert _listeners == null;
+    _listeners = listeners;
+  }
+
   /**
-   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture of
-   * data sources including live sources, multiple live sources combined, live
-   * sources backed by historical data and pure historical data. The new UI only shows live sources, and the names of
-   * those sources don't match the names in the old UI (which include something to tell
-   * the user it's a live source). The real data sources are looked up using the old names so this method rebuilds the
-   * list of data sources and replaces the new source specs with the old ones.
-   *
+   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture of data sources including live sources, multiple live sources combined, live
+   * sources backed by historical data and pure historical data. The new UI only shows live sources, and the names of those sources don't match the names in the old UI (which include something to tell
+   * the user it's a live source). The real data sources are looked up using the old names so this method rebuilds the list of data sources and replaces the new source specs with the old ones.
+   * 
    * @param requestedMarketDataSpecs The market data sources requested by the user
    * @return The specs needed to look up the sources the user requested
    */
@@ -124,7 +124,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Connects to the engine in order to start receiving results. This should only be called once.
    */
-  /* package */ void start() {
+  /* package */void start() {
     _viewClient.setResultListener(new Listener());
     _viewClient.setViewCycleAccessSupported(true);
     _viewClient.setResultMode(ViewResultMode.FULL_THEN_DELTA);
@@ -139,18 +139,20 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Disconects from the engine and releases all resources. This should only be called once.
    */
-  /* package */ void close() {
+  /* package */void close() {
     try {
       _viewClient.detachFromViewProcess();
       _viewClient.shutdown();
     } finally {
       _cycleReference.release();
       _aggregatedViewDef.close();
-      for (AutoCloseable listener : _listeners) {
-        try {
-          listener.close();
-        } catch (Exception e) {
-          s_logger.warn("Failed to close listener " + listener, e);
+      if (_listeners != null) {
+        for (AutoCloseable listener : _listeners) {
+          try {
+            listener.close();
+          } catch (Exception e) {
+            s_logger.warn("Failed to close listener " + listener, e);
+          }
         }
       }
     }
@@ -159,13 +161,12 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @return The view to which this object sends data received from the engine.
    */
-  /* package */ AnalyticsView getView() {
-    return _view;
+  /* package */AnalyticsView getView() {
+    return _view.getView();
   }
 
   /**
-   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public
-   * callback methods.
+   * Base listener for view results. This is an inner class to avoid polluting the interface of the parent class with public callback methods.
    */
   private class Listener extends AbstractViewResultListener {
 
@@ -200,5 +201,101 @@ import com.opengamma.util.ArgumentChecker;
     public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
       s_logger.warn("Compilation of the view definition failed", exception);
     }
+
   }
+
+  private abstract static class AbstractViewHolder {
+
+    protected abstract AnalyticsView getView();
+
+    protected abstract AbstractViewHolder withView(AnalyticsView view);
+
+    protected abstract void updateResults(ViewResultModel results, ViewCycle viewCycle);
+
+    protected abstract void updateStructure(CompiledViewDefinition compiledViewDefinition);
+
+  }
+
+  private static final class PendingViewHolder extends AbstractViewHolder {
+
+    private ViewHolder _realView;
+    private ViewResultModel _results;
+    private ViewCycle _viewCycle;
+    private CompiledViewDefinition _compiledViewDefinition;
+
+    @Override
+    protected synchronized AnalyticsView getView() {
+      if (_realView != null) {
+        return _realView.getView();
+      } else {
+        throw new IllegalStateException();
+      }
+    }
+
+    @Override
+    protected synchronized AbstractViewHolder withView(final AnalyticsView view) {
+      _realView = new ViewHolder(view);
+      if (_compiledViewDefinition != null) {
+        _realView.updateStructure(_compiledViewDefinition);
+        _compiledViewDefinition = null;
+      }
+      if (_results != null) {
+        _realView.updateResults(_results, _viewCycle);
+        _results = null;
+        _viewCycle = null;
+      }
+      return _realView;
+    }
+
+    @Override
+    protected synchronized void updateResults(final ViewResultModel results, final ViewCycle viewCycle) {
+      if (_realView != null) {
+        _realView.updateResults(results, viewCycle);
+      } else {
+        _results = results;
+        _viewCycle = viewCycle;
+      }
+    }
+
+    @Override
+    protected synchronized void updateStructure(final CompiledViewDefinition compiledViewDefinition) {
+      if (_realView != null) {
+        _realView.updateStructure(compiledViewDefinition);
+      } else {
+        _compiledViewDefinition = compiledViewDefinition;
+      }
+    }
+
+  }
+
+  private static final class ViewHolder extends AbstractViewHolder {
+
+    private final AnalyticsView _view;
+
+    public ViewHolder(final AnalyticsView view) {
+      _view = view;
+    }
+
+    @Override
+    protected AnalyticsView getView() {
+      return _view;
+    }
+
+    @Override
+    protected AbstractViewHolder withView(final AnalyticsView view) {
+      throw new IllegalStateException();
+    }
+
+    @Override
+    protected void updateResults(final ViewResultModel results, final ViewCycle viewCycle) {
+      _view.updateResults(results, viewCycle);
+    }
+
+    @Override
+    protected void updateStructure(final CompiledViewDefinition compiledViewDefinition) {
+      _view.updateStructure(compiledViewDefinition);
+    }
+
+  }
+
 }
