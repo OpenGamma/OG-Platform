@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -433,7 +434,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       if (_originalRoot != null) {
         _originalNode = findNode(newPath, _originalRoot);
       }
-      _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+      _currentNode = JodaBeanUtils.clone(getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode()));
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -572,7 +573,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
     }
     // Set current node to the root node
-    _currentNode = _portfolioDocument.getPortfolio().getRootNode();
+    _currentNode = JodaBeanUtils.clone(_portfolioDocument.getPortfolio().getRootNode());
   }
 
   public PortfolioMaster getPortfolioMaster() {
