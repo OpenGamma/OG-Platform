@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.api.rest.views',
     dependencies: ['og.api.common', 'og.api.rest'],
     obj: function () {
-        var common = og.api.common, api = og.api.rest, str = common.str, check = common.check;
+        var common = og.api.common, api = og.api.rest, str = common.str, check = common.check, STALL = common.STALL;
         return { // all requests that begin with /views
             root: 'views',
             get: common.not_available_get,
