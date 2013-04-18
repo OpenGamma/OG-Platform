@@ -35,7 +35,7 @@ $.register_module({
                 if (!scheme.length || !id.length) return false;
                 return  scheme + '~' + id;
             };
-            block.create_autocomplete = function () {
+            block.create_autocomplete = function() {
                 og.api.rest.blotter.idschemes.get({cache_for:60000}).pipe(function(result) {
                     var obj = result.data;
                     Object.keys(obj).forEach(function(key) { 
@@ -61,7 +61,7 @@ $.register_module({
                     callback(); 
                 });                           
             };
-            form.on('form:load', function(){
+            form.on('form:load', function() {
                 block.create_autocomplete();
             });
         };

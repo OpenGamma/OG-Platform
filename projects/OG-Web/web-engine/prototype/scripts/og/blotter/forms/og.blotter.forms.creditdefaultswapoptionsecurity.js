@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util, cds_select,
-            cds_id = 'blotter-cds-block';
+            cds_id = 'blotter-cds-block', prefix = 'underlying';
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: config.type, externalIdBundle: "", attributes: {}}, 
                 trade: util.otc_trade};}
@@ -73,12 +73,14 @@ $.register_module({
                         stdvanilla = ~cds.type.indexOf('standardvanillacdssecurity'), 
                         index = ~cds.type.indexOf('creditdefaultswapindexsecurity'); 
                     new_block = new og.blotter.forms.blocks.cds({form: form, data: data, standard: standard, 
-                        stdvanilla: stdvanilla, legacy: legacy, index: index, prefix: 'underlying.'});
+                        stdvanilla: stdvanilla, legacy: legacy, index: index, prefix: prefix});
                 }
                 new_block.html(function (html) {
                     $('#' + cds_id).replaceWith(html);
+                    util.set_cds_data(prefix, data);
                 });
                 form.children[2] = new_block;
+                
             };
             constructor.load();
             constructor.submit = function (handler) {
