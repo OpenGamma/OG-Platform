@@ -73,7 +73,7 @@ public class SummingFunction extends MissingInputsFunction {
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       // Applies to any portfolio node, except the root if "Don't aggregate root node" is set
       Portfolio portfolio = context.getPortfolio();
-      if (portfolio != null && portfolio.getAttributes().get(IGNORE_ROOT_NODE) == null) {
+      if (portfolio == null || portfolio.getAttributes().get(IGNORE_ROOT_NODE) == null) {
         return true;
       } else {
         return target.getPortfolioNode().getParentNodeId() != null;
