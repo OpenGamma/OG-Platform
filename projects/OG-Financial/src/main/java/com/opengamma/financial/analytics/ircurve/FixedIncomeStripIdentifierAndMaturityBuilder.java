@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.Collection;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
@@ -15,6 +17,7 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
@@ -53,7 +56,7 @@ import com.opengamma.util.time.Tenor;
  * Converts specifications into fully resolved security definitions
  */
 public class FixedIncomeStripIdentifierAndMaturityBuilder {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(FixedIncomeStripIdentifierAndMaturityBuilder.class);
   private static final LocalTime CASH_EXPIRY_TIME = LocalTime.of(11, 00);
 
   private final RegionSource _regionSource;
@@ -322,26 +325,63 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private FRASecurity getFRA(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final SnapshotDataBundle marketValues, final Tenor tenor) {
     final ExternalId fraIdentifier = strip.getSecurity();
     final int months = tenor.getPeriod().getMonths();
-    final ConventionBundle fraConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months
-        + "M_FRA"));
-    if (fraConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention for " + fraIdentifier + ": tried "
-          + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_FRA"));
-    }
-    final ExternalId underlyingIdentifier = fraConvention.getSwapFloatingLegInitialRate();
-    final ConventionBundle iborConvention = _conventionBundleSource.getConventionBundle(underlyingIdentifier);
-    final Period fraPeriod = iborConvention.getPeriod();
+    final ExternalId underlyingId = getUnderlyingId(spec, strip);
+    Period fraPeriod;
     final Currency ccy = spec.getCurrency();
-    final BusinessDayConvention businessDayConvention = iborConvention.getBusinessDayConvention();
-    final boolean eom = iborConvention.isEOMConvention();
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fraConvention.getSwapFloatingLegRegion());
+    BusinessDayConvention businessDayConvention;
+    boolean eom;
+    Calendar calendar;
+    ExternalId underlyingIdentifier;
+    int settlementDays;
+    if (underlyingId == null) {
+      s_logger.info("Could not get convention for underlying from {}; trying tenor-based convention", strip);
+      final ConventionBundle fraConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months
+          + "M_FRA"));
+      if (fraConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get convention for " + fraIdentifier + ": tried "
+            + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_FRA"));
+      }
+      underlyingIdentifier = fraConvention.getSwapFloatingLegInitialRate();
+      final ConventionBundle iborConvention = _conventionBundleSource.getConventionBundle(underlyingIdentifier);
+      underlyingIdentifier = fraConvention.getSwapFloatingLegInitialRate();
+      fraPeriod = iborConvention.getPeriod();
+      businessDayConvention = iborConvention.getBusinessDayConvention();
+      eom = iborConvention.isEOMConvention();
+      calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fraConvention.getSwapFloatingLegRegion());
+      settlementDays = iborConvention.getSettlementDays();
+    } else {
+      ConventionBundle fraConvention = _conventionBundleSource.getConventionBundle(underlyingId);
+      if (fraConvention == null || fraConvention.getIdentifiers().size() != 1) {
+        s_logger.info("Could not get unique convention for underlying from {}; trying tenor-based convention", strip);
+        fraConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months
+            + "M_FRA"));
+        if (fraConvention == null) {
+          throw new OpenGammaRuntimeException("Could not get convention for " + fraIdentifier + ": tried "
+              + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_FRA"));
+        }
+        final ConventionBundle iborConvention = _conventionBundleSource.getConventionBundle(fraConvention.getSwapFloatingLegInitialRate());
+        fraPeriod = iborConvention.getPeriod();
+        businessDayConvention = fraConvention.getSwapFloatingLegBusinessDayConvention();
+        eom = fraConvention.isEOMConvention();
+        calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fraConvention.getSwapFloatingLegRegion());
+        underlyingIdentifier = underlyingId;
+        settlementDays = fraConvention.getSwapFloatingLegSettlementDays();
+      } else {
+        fraPeriod = fraConvention.getPeriod();
+        businessDayConvention = fraConvention.getBusinessDayConvention();
+        eom = fraConvention.isEOMConvention();
+        calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fraConvention.getRegion());
+        underlyingIdentifier = Iterables.getOnlyElement(fraConvention.getIdentifiers());
+        settlementDays = fraConvention.getSettlementDays();
+      }
+    }
     final ZonedDateTime curveDate = spec.getCurveDate().atStartOfDay(ZoneOffset.UTC); // TODO: review?
-    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, iborConvention.getSettlementDays(), calendar);
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, settlementDays, calendar);
     final Period endPeriod = strip.getMaturity().getPeriod();
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, businessDayConvention, calendar, eom);
     final Period startPeriod = endPeriod.minus(fraPeriod).normalized(); // TODO: check period >0?
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar, eom);
-    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(startDate, -iborConvention.getSettlementDays(), calendar);
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(startDate, -settlementDays, calendar);
     if (marketValues.getDataPoint(strip.getSecurity()) == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + strip);
     }
@@ -354,36 +394,70 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
 
   private SwapSecurity getSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final SnapshotDataBundle marketValues, final Tenor resetTenor) {
     final ExternalId swapIdentifier = strip.getSecurity();
-    final int months = resetTenor.getPeriod().getMonths();
-    ConventionBundle swapConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months
-        + "M_SWAP"));
-    if (swapConvention == null) {
-      swapConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
-    }
-    if (swapConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention for " + swapIdentifier + ": tried "
-          + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_SWAP") + " and "
-          + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
-    }
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, swapConvention.getSwapFloatingLegRegion());
-    final ZonedDateTime curveDate = spec.getCurveDate().atStartOfDay(ZoneOffset.UTC);
-    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, swapConvention.getSwapFixedLegSettlementDays(), calendar);
-    final ZonedDateTime maturityDate = spotDate.plus(strip.getMaturity().getPeriod());
-    final String counterparty = "";
-    final ExternalId floatingRateId = swapConvention.getSwapFloatingLegInitialRate();
-    if (floatingRateId == null) {
-      throw new OpenGammaRuntimeException("Could not get floating rate id from convention");
-    }
     final Double rate = marketValues.getDataPoint(swapIdentifier);
     if (rate == null) {
       throw new OpenGammaRuntimeException("No market data for " + swapIdentifier);
     }
-    final double fixedRate = rate;
-    final FloatingInterestRateLeg iborLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), swapConvention.getSwapFloatingLegFrequency(),
-        swapConvention.getSwapFloatingLegRegion(), swapConvention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, floatingRateId,
-        FloatingRateType.IBOR);
-    final FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(), swapConvention.getSwapFixedLegFrequency(), swapConvention.getSwapFixedLegRegion(),
-        swapConvention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate);
+    final int months = resetTenor.getPeriod().getMonths();
+    final ConventionBundle fixedLegConvention = getFixedLegConvention(spec, swapIdentifier);
+    final ZonedDateTime curveDate = spec.getCurveDate().atStartOfDay(ZoneOffset.UTC);
+    final String counterparty = "";
+    Calendar calendar;
+    ExternalId floatingRateId;
+    FloatingInterestRateLeg iborLeg;
+    final ExternalId underlyingId = getUnderlyingId(spec, strip);
+    if (underlyingId == null) {
+      s_logger.info("Could not get convention for underlying from {}; trying tenor-based convention", strip);
+      final ExternalId id = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_SWAP");
+      ConventionBundle floatingLegConvention = _conventionBundleSource.getConventionBundle(id);
+      if (floatingLegConvention == null) {
+        floatingLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+            spec.getCurrency().getCode() + "_" + months + "_SWAP"));
+        if (floatingLegConvention == null) {
+          throw new OpenGammaRuntimeException("Could not get floating leg convention for swap strip " + strip);
+        }
+      }
+      calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, floatingLegConvention.getSwapFloatingLegRegion());
+      floatingRateId = floatingLegConvention.getSwapFloatingLegInitialRate();
+      if (floatingRateId == null) {
+        throw new OpenGammaRuntimeException("Could not get floating rate id from convention");
+      }
+      iborLeg = new FloatingInterestRateLeg(floatingLegConvention.getSwapFloatingLegDayCount(), floatingLegConvention.getSwapFloatingLegFrequency(),
+          floatingLegConvention.getSwapFloatingLegRegion(), floatingLegConvention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, floatingRateId,
+          FloatingRateType.IBOR);
+    } else {
+      final ConventionBundle underlyingConvention = _conventionBundleSource.getConventionBundle(underlyingId);
+      if (underlyingConvention == null || underlyingConvention.getIdentifiers().size() != 1) {
+        s_logger.info("Could not get unique convention for underlying from {}; trying tenor-based convention", strip);
+        ConventionBundle floatingLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+            spec.getCurrency().getCode() + "_" + months + "M_SWAP"));
+        if (floatingLegConvention == null) {
+          floatingLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+              spec.getCurrency().getCode() + "_" + months + "_SWAP"));
+          if (floatingLegConvention == null) {
+            throw new OpenGammaRuntimeException("Could not get floating leg convention for swap strip " + strip);
+          }
+        }
+        calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, floatingLegConvention.getSwapFloatingLegRegion());
+        floatingRateId = floatingLegConvention.getSwapFloatingLegInitialRate();
+        if (floatingRateId == null) {
+          throw new OpenGammaRuntimeException("Could not get floating rate id from convention");
+        }
+        iborLeg = new FloatingInterestRateLeg(floatingLegConvention.getSwapFloatingLegDayCount(), floatingLegConvention.getSwapFloatingLegFrequency(),
+            floatingLegConvention.getSwapFloatingLegRegion(), floatingLegConvention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, floatingRateId,
+            FloatingRateType.IBOR);
+      } else {
+        calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, underlyingConvention.getRegion());
+        final ExternalId underlyingTicker = Iterables.getOnlyElement(underlyingConvention.getIdentifiers());
+        iborLeg = new FloatingInterestRateLeg(underlyingConvention.getDayCount(), PeriodFrequency.of(underlyingConvention.getPeriod()),
+            underlyingConvention.getRegion(), underlyingConvention.getBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, underlyingTicker,
+            FloatingRateType.IBOR);
+      }
+    }
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, fixedLegConvention.getSwapFixedLegSettlementDays(), calendar);
+    final ZonedDateTime maturityDate = spotDate.plus(strip.getMaturity().getPeriod());
+    final FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(fixedLegConvention.getSwapFixedLegDayCount(), fixedLegConvention.getSwapFixedLegFrequency(),
+        fixedLegConvention.getSwapFixedLegRegion(), fixedLegConvention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, rate);
     final SwapSecurity swap = new SwapSecurity(curveDate, spotDate, maturityDate, counterparty, iborLeg, fixedLeg);
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
@@ -451,8 +525,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
         convention.getBasisSwapPayFloatingLegFrequency(), convention.getBasisSwapPayFloatingLegRegion(), convention.getBasisSwapPayFloatingLegBusinessDayConvention(), new InterestRateNotional(
             spec.getCurrency(), 1), false, payLegFloatRateBloombergTicker, FloatingRateType.IBOR), new FloatingSpreadIRLeg(convention.getBasisSwapReceiveFloatingLegDayCount(),
-        convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
-        new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
+                convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+                new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -472,12 +546,10 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, swapConvention.getSwapFixedLegSettlementDays(), calendar);
     final ZonedDateTime maturityDate = spotDate.plus(strip.getMaturity().getPeriod());
     final String counterparty = "";
-    Double rate = marketValues.getDataPoint(swapIdentifier);
+    final Double rate = marketValues.getDataPoint(swapIdentifier);
     if (rate == null) {
-      rate = 0.;
-      //throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
+      throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }
-    final double fixedRate = rate;
     Frequency floatingFrequency;
     final ExternalId floatingReferenceRateId;
     if (underlyingStrip.getResetTenor() != null) {
@@ -499,7 +571,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
         swapConvention.getSwapFloatingLegRegion(), swapConvention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, floatingReferenceRateId,
         FloatingRateType.OIS);
     final FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(), swapConvention.getSwapFixedLegFrequency(), swapConvention.getSwapFixedLegRegion(),
-        swapConvention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate);
+        swapConvention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, rate);
     final SwapSecurity swap = new SwapSecurity(curveDate, spotDate, maturityDate, counterparty, oisLeg, fixedLeg);
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
@@ -536,4 +608,27 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     throw new OpenGammaRuntimeException("Cannot handle index type " + indexType);
   }
+
+  private ExternalId getUnderlyingId(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip) {
+    if (strip.getStrip().getIndexType() == null) {
+      return null;
+    }
+    final String tenorString = strip.getStrip().getResetTenor().getPeriod().toTotalMonths() + "m";
+    final String fixingRateName = spec.getCurrency().getCode() + " " + strip.getStrip().getIndexType().name().toUpperCase() + " " + tenorString;
+    return ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, fixingRateName);
+  }
+
+  private ConventionBundle getFixedLegConvention(final InterpolatedYieldCurveSpecification spec, final ExternalId swapIdentifier) {
+    ConventionBundle fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+        spec.getCurrency().getCode() + "_SWAP"));
+    if (fixedLegConvention == null) {
+      fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+          spec.getCurrency().getCode() + "_SWAP"));
+      if (fixedLegConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get fixed leg convention for " + swapIdentifier);
+      }
+    }
+    return fixedLegConvention;
+  }
+
 }
