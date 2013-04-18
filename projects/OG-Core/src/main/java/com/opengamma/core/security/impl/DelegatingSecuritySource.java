@@ -21,8 +21,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A source of securities that uses the scheme of the unique identifier to determine which
- * underlying source should handle the request.
+ * A source of securities that uses the scheme of the unique identifier to determine which underlying source should handle the request.
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
@@ -32,16 +31,16 @@ public class DelegatingSecuritySource extends AbstractSecuritySource implements 
    * The change manager
    */
   private final ChangeManager _changeManager;
-  
+
   /**
    * The uniqueId scheme delegator.
    */
   private final UniqueIdSchemeDelegator<SecuritySource> _delegator;
-  
+
   /**
    * Creates an instance specifying the default delegate.
    * 
-   * @param defaultSource  the source to use when no scheme matches, not null
+   * @param defaultSource the source to use when no scheme matches, not null
    */
   public DelegatingSecuritySource(SecuritySource defaultSource) {
     _delegator = new UniqueIdSchemeDelegator<SecuritySource>(defaultSource);
@@ -51,8 +50,8 @@ public class DelegatingSecuritySource extends AbstractSecuritySource implements 
   /**
    * Creates an instance specifying the default delegate.
    * 
-   * @param defaultSource  the source to use when no scheme matches, not null
-   * @param schemePrefixToSourceMap  the map of sources by scheme to switch on, not null
+   * @param defaultSource the source to use when no scheme matches, not null
+   * @param schemePrefixToSourceMap the map of sources by scheme to switch on, not null
    */
   public DelegatingSecuritySource(SecuritySource defaultSource, Map<String, SecuritySource> schemePrefixToSourceMap) {
     _delegator = new UniqueIdSchemeDelegator<SecuritySource>(defaultSource, schemePrefixToSourceMap);
@@ -72,7 +71,7 @@ public class DelegatingSecuritySource extends AbstractSecuritySource implements 
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return _delegator.chooseDelegate(uniqueId.getScheme()).get(uniqueId);
   }
-  
+
   @Override
   public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
@@ -92,7 +91,7 @@ public class DelegatingSecuritySource extends AbstractSecuritySource implements 
     }
     return _delegator.getDefaultDelegate().get(bundle);
   }
-  
+
   @Override
   public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -118,7 +117,7 @@ public class DelegatingSecuritySource extends AbstractSecuritySource implements 
     }
     return _delegator.getDefaultDelegate().getSingle(bundle);
   }
-  
+
   @Override
   public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -140,10 +139,11 @@ public class DelegatingSecuritySource extends AbstractSecuritySource implements 
 
   /**
    * Gets the delegator.
+   * 
    * @return the delegator
    */
   public UniqueIdSchemeDelegator<SecuritySource> getDelegator() {
     return _delegator;
   }
-  
+
 }

@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
@@ -71,7 +71,7 @@ public class PositionSourceResolver {
     }
 
     @Override
-    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
       return Collections.emptyMap();
     }
 
@@ -85,7 +85,7 @@ public class PositionSourceResolver {
     }
 
     @Override
-    public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
       return AbstractIdentifierResolver.resolveObjectIds(this, identifiers, versionCorrection);
     }
 
@@ -116,7 +116,7 @@ public class PositionSourceResolver {
     }
 
     @Override
-    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
       return Collections.emptyMap();
     }
 
@@ -130,7 +130,7 @@ public class PositionSourceResolver {
     }
 
     @Override
-    public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
       return AbstractIdentifierResolver.resolveObjectIds(this, identifiers, versionCorrection);
     }
 

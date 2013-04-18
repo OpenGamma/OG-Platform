@@ -14,6 +14,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.MapMaker;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.WeakInstanceCache;
+import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
 import com.opengamma.util.tuple.Pair;
@@ -31,7 +32,7 @@ public final class ViewExecutionCacheLock {
   private static final class Locks {
 
     private final Lock _broad = new ReentrantLock();
-    private final Map2<Instant, VersionCorrection, Lock> _fine = new WeakValueHashMap2<Instant, VersionCorrection, Lock>();
+    private final Map2<VersionCorrection, Instant, Lock> _fine = new WeakValueHashMap2<VersionCorrection, Instant, Lock>(HashMap2.STRONG_KEYS);
 
   }
 
@@ -71,10 +72,10 @@ public final class ViewExecutionCacheLock {
    */
   public Pair<Lock, Lock> get(final ViewExecutionCacheKey cacheKey, final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
     final Locks locks = getOrCreateLocks(cacheKey);
-    Lock lock = locks._fine.get(valuationTime, resolverVersionCorrection);
+    Lock lock = locks._fine.get(resolverVersionCorrection, valuationTime);
     if (lock == null) {
       lock = new ReentrantLock();
-      final Lock previous = locks._fine.putIfAbsent(valuationTime, resolverVersionCorrection, lock);
+      final Lock previous = locks._fine.putIfAbsent(resolverVersionCorrection, valuationTime, lock);
       if (previous != null) {
         lock = previous;
       }

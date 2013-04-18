@@ -12,13 +12,9 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * C1 cubic interpolation preserving monotonicity based on 
- * Fritsch, F. N.; Carlson, R. E. (1980) 
- * "Monotone Piecewise Cubic Interpolation", SIAM Journal on Numerical Analysis 17 (2): 238–246. 
- * Fritsch, F. N. and Butland, J. (1984)
- * "A method for constructing local monotone piecewise cubic interpolants", SIAM Journal on Scientific and Statistical Computing 5 (2): 300-304.
+ * 
  */
-public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomialInterpolator {
+public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
   private double[] _xValuesSrt;
   private double[] _yValuesSrt;
@@ -26,7 +22,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
   /**
    * 
    */
-  public PiecewiseCubicHermiteSplineInterpolator() {
+  public LinearInterpolator() {
     _xValuesSrt = null;
     _yValuesSrt = null;
 
@@ -86,17 +82,19 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
     final int dim = yValuesMatrix.length;
 
     for (int i = 0; i < nDataPts; ++i) {
-      ArgumentChecker.isFalse(Double.isNaN(xValues[i]), "xValues containing NaN");
-      ArgumentChecker.isFalse(Double.isInfinite(xValues[i]), "xValues containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(xValues[i]), "xData containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(xValues[i]), "xData containing Infinity");
       for (int j = 0; j < dim; ++j) {
         ArgumentChecker.isFalse(Double.isNaN(yValuesMatrix[j][i]), "yValuesMatrix containing NaN");
         ArgumentChecker.isFalse(Double.isInfinite(yValuesMatrix[j][i]), "yValuesMatrix containing Infinity");
       }
     }
 
-    for (int i = 0; i < nDataPts; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
+    for (int k = 0; k < dim; ++k) {
+      for (int i = 0; i < nDataPts; ++i) {
+        for (int j = i + 1; j < nDataPts; ++j) {
+          ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
+        }
       }
     }
 
@@ -136,74 +134,20 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
   /**
    * @param xValues X values of data
    * @param yValues Y values of data
-   * @return Coefficient matrix whose i-th row vector is {a3, a2, a1, a0} of f(x) = a3 * (x-x_i)^3 + a2 * (x-x_i)^2 +... for the i-th interval
+   * @return Coefficient matrix whose i-th row vector is {a1, a0} of f(x) = a1 * (x-x_i) + a0 for the i-th interval
    */
   private DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
 
     final int nDataPts = xValues.length;
 
-    double[][] res = new double[nDataPts - 1][4];
-    double[] intervals = new double[nDataPts - 1];
-    double[] grads = new double[nDataPts - 1];
+    double[][] res = new double[nDataPts - 1][2];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
-      intervals[i] = xValues[i + 1] - xValues[i];
-      grads[i] = (yValues[i + 1] - yValues[i]) / intervals[i];
+      res[i][1] = yValues[i];
+      res[i][0] = (yValues[i + 1] - yValues[i]) / (xValues[i + 1] - xValues[i]);
     }
 
-    if (nDataPts == 2) {
-      res[0][2] = grads[0];
-      res[0][3] = xValues[0];
-    } else {
-      double[] derivatives = slopeFinder(intervals, grads);
-      for (int i = 0; i < nDataPts - 1; ++i) {
-        res[i][0] = -2. * yValues[i + 1] / intervals[i] / intervals[i] / intervals[i] + 2. * yValues[i] / intervals[i] / intervals[i] / intervals[i] + derivatives[i + 1] / intervals[i] /
-            intervals[i] +
-            derivatives[i] / intervals[i] / intervals[i];
-        res[i][1] = 3. * yValues[i + 1] / intervals[i] / intervals[i] - 3. * yValues[i] / intervals[i] / intervals[i] - derivatives[i + 1] / intervals[i] - 2. * derivatives[i] / intervals[i];
-        res[i][2] = derivatives[i];
-        res[i][3] = yValues[i];
-      }
-    }
     return new DoubleMatrix2D(res);
-  }
-
-  /**
-   * @param intervals 
-   * @param grads 
-   * @return A set of the first derivatives at knots
-   */
-  private double[] slopeFinder(final double[] intervals, final double[] grads) {
-    final int nInts = intervals.length;
-    double[] res = new double[nInts + 1];
-
-    res[0] = endpointSlope(intervals[0], intervals[1], grads[0], grads[1]);
-    res[nInts] = endpointSlope(intervals[nInts - 1], intervals[nInts - 2], grads[nInts - 1], grads[nInts - 2]);
-
-    for (int i = 1; i < nInts; ++i) {
-      if (Math.signum(grads[i]) != Math.signum(grads[i - 1]) | (grads[i] == 0 | grads[i - 1] == 0)) {
-        res[i] = 0.;
-      } else {
-        final double den1 = 2. * intervals[i] + intervals[i - 1];
-        final double den2 = intervals[i] + 2. * intervals[i - 1];
-        res[i] = 3. * (intervals[i] + intervals[i - 1]) / (den1 / grads[i - 1] + den2 / grads[i]);
-      }
-    }
-
-    return res;
-  }
-
-  private double endpointSlope(final double ints1, final double ints2, final double grads1, final double grads2) {
-    final double val = (2. * ints1 + ints2) * grads1 / (ints1 + ints2) - ints1 * grads2 / (ints1 + ints2);
-
-    if (Math.signum(val) != Math.signum(grads1)) {
-      return 0.;
-    } else {
-      if (Math.signum(grads1) != Math.signum(grads2) && Math.abs(val) > 3. * Math.abs(grads1)) {
-        return 3. * grads1;
-      }
-    }
-    return val;
   }
 
   /**

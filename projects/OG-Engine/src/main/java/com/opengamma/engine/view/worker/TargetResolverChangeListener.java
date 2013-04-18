@@ -62,9 +62,11 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
   public boolean isChanged(final ObjectId identifier) {
     TargetState state = _targets.get(identifier);
     if (state == TargetState.WAITING) {
+      s_logger.debug("No change to {}", identifier);
       return false;
     }
     // Either new, or has changed; set to WAITING and return TRUE
+    s_logger.debug("New or changed identifier {} ({})", identifier, state);
     _targets.put(identifier, TargetState.WAITING);
     return true;
   }
@@ -88,7 +90,7 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
       if (_targets.replace(oid, state, TargetState.CHANGED)) {
         // If the state changed to anything else, we either don't need the notification or another change message overtook
         // this one and a cycle has already been triggered.
-        s_logger.info("Received change notification for {}", event.getObjectId());
+        s_logger.info("Received change notification for {}", oid);
         onChanged();
       }
     }
