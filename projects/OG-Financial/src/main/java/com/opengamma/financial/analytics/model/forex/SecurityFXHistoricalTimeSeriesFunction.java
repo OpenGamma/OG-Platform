@@ -54,15 +54,10 @@ public class SecurityFXHistoricalTimeSeriesFunction extends AbstractFunction.Non
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties() {
-    final ValueProperties.Builder properties = super.createValueProperties();
-    properties.withAny(ValuePropertyNames.CURRENCY);
-    return properties;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, target.toSpecification(), createValueProperties().get()));
+    final ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.CURRENCY).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, target.toSpecification(), properties));
   }
 
   private ValueRequirement createRequirement(final FunctionCompilationContext context, final Currency desiredCurrency, final Currency securityCurrency) {
@@ -87,7 +82,7 @@ public class SecurityFXHistoricalTimeSeriesFunction extends AbstractFunction.Non
       final ValueRequirement htsRequirement = createRequirement(context, desiredCurrency, securityCurrency);
       return htsRequirement != null ? ImmutableSet.of(htsRequirement) : null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     for (final Currency securityCurrency : securityCurrencies) {
       final ValueRequirement htsRequirement = createRequirement(context, desiredCurrency, securityCurrency);
       if (htsRequirement != null) {
