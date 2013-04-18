@@ -10,6 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardForwardPointsDefaults;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.DeprecatedFunctions;
 
 /**
@@ -39,6 +40,7 @@ public class ForwardFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(FXForwardYCNSFunction.class));
     functions.add(functionConfiguration(FXForwardPresentValueCurveSensitivityFunction.class));
     functions.add(functionConfiguration(FXForwardPointsMethodPresentValueFunction.class));
+    functions.add(functionConfiguration(FXForwardForwardPointsDefaults.class, "USD", "EUR", "DEFAULT"));
   }
 
 }
