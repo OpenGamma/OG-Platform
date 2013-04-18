@@ -19,7 +19,7 @@ $.register_module({
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', type_s = '.type', source_s = '.source',
                 extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom',
                 date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
-                corrections_s = '.corrections', types = [], datasources, default_source,
+                corrections_s = '.corrections', types = [], datasources, default_source, events = og.common.events,
                 sources = {
                     live: {
                         type:'Live',
@@ -184,6 +184,7 @@ $.register_module({
                     og.common.events.on('datasources:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
                     og.common.events.on('datasources:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
                     menu.fire('initialized', [initialized = true]);
+                    events.fire.call(form, 'datasources:initialized');
                 }
             };
 
