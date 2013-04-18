@@ -469,7 +469,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public void close() {
     // Execute remaining position writing threads, which will update the portfolio nodes with any written positions'
     // object IDs
-    _executorService.shutdown();
+    if (_executorService != null) {
+      _executorService.shutdown();
+    }
 
     // Write the portfolio (include the node tree) to the portfolio master
     flush();
