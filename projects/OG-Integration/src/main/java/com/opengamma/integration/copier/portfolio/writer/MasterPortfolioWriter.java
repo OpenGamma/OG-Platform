@@ -208,13 +208,22 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         return new ObjectsPair<>(addedDoc.getPosition(),
             securities);
       } else {
+        // update position map (huh?)
+        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+
         _executorService.submit(new Runnable() {
           @Override
           public void run() {
-            PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
+            try {
+              // Update the position in the position master
+              PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
-            // update position map (huh?)
-            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+              // Add the new position to the portfolio node
+              _currentNode.addPosition(addedDoc.getUniqueId());
+            } catch (Exception e) {
+              s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+              return;
+            }
           }
         });
 
@@ -300,18 +309,23 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
             writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
       } else {
+        // update position map (huh?)
+        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), position);
+
         _executorService.submit(new Runnable() {
           @Override
           public void run() {
             PositionDocument addedDoc;
             try {
+              // Add the new position to the position master
               addedDoc = _positionMaster.add(new PositionDocument(position));
+
+              // Add the new position to the portfolio node
+              _currentNode.addPosition(addedDoc.getUniqueId());
             } catch (Exception e) {
               s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
               return;
             }
-            // update position map (huh?)
-            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
           }
         });
 
@@ -438,8 +452,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   @Override
   public void close() {
-    flush();
+    // Execute remaining position writing threads, which will update the portfolio nodes with any written positions'
+    // object IDs
     _executorService.shutdown();
+
+    // Write the portfolio (include the node tree) to the portfolio master
+    flush();
   }
   
   private ManageablePortfolioNode findNode(String[] path, ManageablePortfolioNode startNode) {
