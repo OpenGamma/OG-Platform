@@ -23,6 +23,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
+
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.EUR, Currency.EUR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
@@ -58,7 +59,7 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
     other = SmileDeltaTermStructureVannaVolgaDataBundle.from(CURVES, SMILES, CCYS);
     assertEquals(FX_DATA, other);
     assertEquals(FX_DATA.hashCode(), other.hashCode());
-    other = new SmileDeltaTermStructureVannaVolgaDataBundle(TestsDataSetsForex.createCurvesForex(), SMILES, CCYS);
+    other = new SmileDeltaTermStructureVannaVolgaDataBundle(TestsDataSetsForex.createCurvesForex2(), SMILES, CCYS);
     assertFalse(FX_DATA.equals(other));
     other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, TestsDataSetsForex.smile3points(REFERENCE_DATE, Interpolator1DFactory.LOG_LINEAR_INSTANCE), CCYS);
     assertFalse(FX_DATA.equals(other));
@@ -72,12 +73,11 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
     assertEquals(FX_DATA, FX_DATA.copy());
   }
 
-
   @Test
   public void testBuilders() {
     final SmileDeltaTermStructureVannaVolgaDataBundle fxData = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, CCYS);
     assertEquals(FX_DATA, fxData);
-    SmileDeltaTermStructureVannaVolgaDataBundle other = fxData.with(TestsDataSetsForex.createCurvesForex());
+    SmileDeltaTermStructureVannaVolgaDataBundle other = fxData.with(TestsDataSetsForex.createCurvesForex2());
     assertEquals(FX_DATA, fxData);
     assertFalse(other.equals(fxData));
     other = FX_DATA.with(TestsDataSetsForex.smile3points(REFERENCE_DATE, Interpolator1DFactory.LOG_LINEAR_INSTANCE));

@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -72,7 +70,7 @@ public class CapFloorCMSDefinitionTest {
   // CMS cap
   private static final double STRIKE = 0.04;
   private static final double HIGH_FIXING_RATE = STRIKE + 0.01;
-  private static final DoubleTimeSeries<ZonedDateTime> HIGH_FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {HIGH_FIXING_RATE});
+  private static final DoubleTimeSeries<ZonedDateTime> HIGH_FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE }, new double[] {HIGH_FIXING_RATE });
   //  private static final double LOW_FIXING_RATE = STRIKE - 0.01;
   //  private static final DoubleTimeSeries<ZonedDateTime> LOW_FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {LOW_FIXING_RATE});
   private static final boolean IS_CAP = true;
@@ -81,7 +79,7 @@ public class CapFloorCMSDefinitionTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = " Funding";
   private static final String FORWARD_CURVE_NAME = " Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CapFloorCMS CMS_CAP = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);

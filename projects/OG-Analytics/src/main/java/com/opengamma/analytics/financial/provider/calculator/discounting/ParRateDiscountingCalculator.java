@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
-import com.opengamma.analytics.financial.forex.provider.ForexDiscountingProviderMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
@@ -46,7 +46,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
 
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
-  private static final ForexDiscountingProviderMethod METHOD_FOREX = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
 
   // TODO: Add FRA
 
