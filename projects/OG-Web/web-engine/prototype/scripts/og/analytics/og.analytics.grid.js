@@ -282,12 +282,14 @@ $.register_module({
                     if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
                     if (0 === cell.col && grid.state.nodes[has](cell.row))
                         return new og.analytics.NodeMenu(grid, cell, event).display();
+                    return false;
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
                     var col = cell.col, columns = grid.meta.columns;
-                    return grid.fire('contextmenu', event, null, ['description', 'header', 'type']
+                    grid.fire('contextmenu', event, null, ['description', 'header', 'type']
                         .reduce(function (acc, key) {return (acc[key] = columns[key + 's'][col]), acc;}, {col: col}));
+                    return false;
                 })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
                     in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
