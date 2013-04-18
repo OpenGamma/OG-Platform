@@ -352,7 +352,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
             return null;
           }
         }
-        if (differences != null && differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class) {
+        if (differences != null && (differences.isEmpty() || (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class))) {
           // It's already there, don't update or add it
           return foundSecurity;
         } else {
