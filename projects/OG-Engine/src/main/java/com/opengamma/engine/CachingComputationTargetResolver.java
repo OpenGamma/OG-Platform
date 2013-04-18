@@ -21,6 +21,9 @@ public interface CachingComputationTargetResolver extends ComputationTargetResol
 
   // [PLAT-444]: move to com.opengamma.engine.target
 
+  /**
+   * 
+   */
   interface AtVersionCorrection extends ComputationTargetResolver.AtVersionCorrection {
 
     void cacheTargets(Collection<? extends UniqueIdentifiable> targets);
@@ -71,6 +74,7 @@ public interface CachingComputationTargetResolver extends ComputationTargetResol
    */
   void cacheTargets(Collection<? extends UniqueIdentifiable> targets, VersionCorrection versionCorrection);
 
+  @Override
   AtVersionCorrection atVersionCorrection(VersionCorrection versionCorrection);
 
 }

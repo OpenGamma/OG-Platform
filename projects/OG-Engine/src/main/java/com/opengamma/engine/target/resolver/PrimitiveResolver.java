@@ -148,6 +148,11 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
   }
 
   @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
+  @Override
   public ChangeManager changeManager() {
     return DummyChangeManager.INSTANCE;
   }
