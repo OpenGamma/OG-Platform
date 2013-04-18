@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.copier.portfolio.writer;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -151,7 +152,21 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public void addAttribute(String key, String value) {
     _portfolioDocument.getPortfolio().addAttribute(key, value);
   }
-  
+
+  /**
+   * Returns the sum of the quantities for the specified positions. This is separated out into a method to allow
+   * custom behaviour for different clients. For instance, in one case the sums of the quantities of all the trades
+   * of both positions might be required, whereas in another case the preference might be to sum the quantities of
+   * the positions themselves without regard to the quantities specified in their trades (this is the default behaviour).
+   * This is not featured in the PortfolioWriter interface, and as such is a hack.
+   * @param position1 the first position
+   * @param position2 the second position
+   * @return the sum of the positions' quantities
+   */
+  protected BigDecimal sumPositionQuantities(final ManageablePosition position1, final ManageablePosition position2) {
+    return position1.getQuantity().add(position2.getQuantity());
+  }
+
   /**
    * WritePosition checks if the position exists in the previous version of the portfolio.
    * If so, the existing position is reused.
@@ -172,7 +187,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         ManageableSecurity writtenSecurity = writeSecurity(security);
         if (writtenSecurity != null) {
           writtenSecurities.add(writtenSecurity);
-        }        
+        }
       }
     }
 
@@ -190,7 +205,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // Add new quantity to existing position's quantity
       final ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
-      existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
+      existingPosition.setQuantity(sumPositionQuantities(existingPosition, position));
 
       // Add new trades to existing position's trades
       for (ManageableTrade trade : position.getTrades()) {
