@@ -3,12 +3,12 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.api.rest.marketdatasnapshots',
+    name: 'og.api.rest.timeseriesresolverkeys',
     dependencies: ['og.api.common', 'og.api.rest'],
     obj: function () {
         var common = og.api.common, api = og.api.rest;
-        return { // all requests that begin with /marketdatasnapshots
-            root: 'marketdatasnapshots',
+        return { // all requests that begin with /timeseriesresolverkeys
+            root: 'timeseriesresolverkeys',
             get: api.simple_get,
             put: common.not_available_put,
             del: common.not_available_del

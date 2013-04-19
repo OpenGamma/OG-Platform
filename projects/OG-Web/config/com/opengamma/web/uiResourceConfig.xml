@@ -312,6 +312,7 @@
     <fragment>/scripts/og/api/og.api.rest.regions.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.securities.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.timeseries.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.timeseriesresolverkeys.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.updates.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.subscribe.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.valuerequirementnames.js</fragment>
