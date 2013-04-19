@@ -20,11 +20,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
@@ -46,6 +49,7 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -124,7 +128,12 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
     final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final InstrumentDefinition<?> definition = security.accept(converter);
     final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
-    final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
+    final FXForwardCurveInstrumentProvider provider = forwardCurveSpecification.getCurveInstrumentProvider();
+    final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
+    final double spotFX = (Double) inputs.getValue(spotRequirement);
+    final FXMatrix fxMatrix = new FXMatrix();
+    fxMatrix.addCurrency(receiveCurrency, payCurrency, spotFX);
+    final YieldCurveBundle yieldCurves = new YieldCurveBundle(fxMatrix, allCurveNames, curves);
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     return getResult(forex, yieldCurves, fxForwardCurve, target, desiredValues, inputs, spec, executionContext);
@@ -211,7 +220,9 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
     final ValueRequirement payFundingCurve = getPayCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
     final ValueRequirement receiveFundingCurve = getReceiveCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
-    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement, fxForwardCurveRequirement);
+    final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
+    final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
+    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement, fxForwardCurveRequirement, spotRequirement);
   }
 
   @Override
@@ -364,7 +375,9 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
       tList.add(DateUtils.getDifferenceInYears(now, now.plus(tenor.getPeriod())));
       fxList.add(fxForward);
     }
-    return InterpolatedDoublesCurve.from(tList.toDoubleArray(), fxList.toDoubleArray(), Interpolator1DFactory.LINEAR_INSTANCE);
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    return InterpolatedDoublesCurve.from(tList.toDoubleArray(), fxList.toDoubleArray(), interpolator);
   }
 
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurveName, final String receiveCurveName,
