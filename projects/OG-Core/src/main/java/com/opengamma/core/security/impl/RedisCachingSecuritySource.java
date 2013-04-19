@@ -26,6 +26,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -35,9 +36,43 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 // TODO kirk 2013-04-16 -- Redis allows TTL to be set on values.
 // To match a typical cache, we should give the option to set that.
+// Note that as unique id lookups never change, we'd probably need a different
+// TTL on the unique ID lookups from any other form of ID lookup.
 /**
  * A caching {@link SecuritySource} which is only capable of satisfying
- * calls by UniqueId ({@link #get(UniqueId)}).
+ * certain very specific calls. It is <em>not</em> intended to be a general purpose
+ * cache.
+ * <p/>
+ * <strong>This class is a work in progress and is <em>NOT</em> production capable.
+ * The javadocs below are for indication of expected future functionality when
+ * fully completed.</strong>
+ * <p/>
+ * While the results of other calls will be used to populate the cache, only three
+ * calls can be satisfied from the cache:
+ * <ul>
+ *   <li>{@link #get(UniqueId)}</li>
+ *   <li>{@link #get(ExternalIdBundle)}</li>
+ *   <li>{@link #get(ExternalIdBundle, VersionCorrection)}</li>
+ * <ul>
+ * <p/>
+ * In addition, this implementation <strong>does not support {@link ExternalId} changes</strong>.
+ * While {@link #get(UniqueId)} by definition can always be cached, because a {@link Security}
+ * never changes within a particular unique identifier, external identifiers can change over time.
+ * <em>This implementation may return incorrect results if used in an environment where
+ * external identifiers <strong>that are used for lookups</strong> are used.</em>
+ * <p/>
+ * This fundamentally limits the utility of this source to the the following conditions:
+ * <ul>
+ *   <li>Identifier changes (such as ticker rolls or corporate actions) happen as part of a
+ *       maintenance window, during which time the Redis cache is cleared as well; and/or</li>
+ *   <li>The only external identifiers used for lookups are ones that will never change
+ *       (because they are surrogate keys into an existing system that guarantees consistency
+ *       and uniqueness over time).</li>
+ * </ul>
+ * <p/>
+ * Where there are multiple instances of the same {@code RedisCachingSecuritySource} being
+ * pointed at the same repository (given as a combination of the same pool and same prefix),
+ * by default, all instances will attempt to update the Redis instance, which is not ideal.
  */
 public class RedisCachingSecuritySource extends AbstractSecuritySource implements SecuritySource {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisCachingSecuritySource.class);
@@ -243,7 +278,14 @@ public class RedisCachingSecuritySource extends AbstractSecuritySource implement
         s_logger.warn("Storing security type {} id {} bundle {} to Redis",
             new Object[] {security.getSecurityType(), security.getUniqueId(), security.getExternalIdBundle()});
         byte[] fudgeData = convertToFudge(security);
-        jedis.set(redisKey, fudgeData);
+        _lock.writeLock().lock();
+        try {
+          jedis.set(redisKey, fudgeData);
+          processBundle(security.getExternalIdBundle(), security.getUniqueId().getObjectId(), jedis);
+          //processObjectVersionToUniqueIdMap(security.getUniqueId(), jedis);
+        } finally {
+          _lock.writeLock().unlock();
+        }
       } finally {
         _lock.readLock().unlock();
       }
@@ -251,6 +293,21 @@ public class RedisCachingSecuritySource extends AbstractSecuritySource implement
       getJedisPool().returnResource(jedis);
     }
     
+  }
+  
+  /**
+   * This should only be called when the write lock has been locked.
+   * @param bundle bundle of the security
+   * @param objectId id of the security
+   * @param jedis open connection to Redis
+   */
+  protected void processBundle(ExternalIdBundle bundle, ObjectId objectId, Jedis jedis) {
+    byte[] valueData = toRedisData(objectId);
+    
+    for (ExternalId externalId: bundle) {
+      byte[] keyData = toRedisKey(externalId);
+      jedis.sadd(keyData, valueData);
+    }
   }
   
   /**
@@ -265,10 +322,31 @@ public class RedisCachingSecuritySource extends AbstractSecuritySource implement
     return bytes;
   }
 
-  private static byte[] toRedisKey(UniqueId uniqueId) {
+  private byte[] toRedisKey(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    String key = uniqueId.toString();
+    String key = getRedisPrefix() + "U-" + uniqueId.toString();
     byte[] bytes = Charsets.UTF_8.encode(key).array();
+    return bytes;
+  }
+
+  private byte[] toRedisKey(ExternalId externalId) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    String key = getRedisPrefix() + "E-" + externalId.toString();
+    byte[] bytes = Charsets.UTF_8.encode(key).array();
+    return bytes;
+  }
+
+  /*private byte[] toRedisKey(ObjectId objectId) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    String key = getRedisPrefix() + "O-" + objectId.toString();
+    byte[] bytes = Charsets.UTF_8.encode(key).array();
+    return bytes;
+  }*/
+
+  private byte[] toRedisData(ObjectId objectId) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    String data = objectId.toString();
+    byte[] bytes = Charsets.UTF_8.encode(data).array();
     return bytes;
   }
 
