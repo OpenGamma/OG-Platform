@@ -11,7 +11,7 @@ $.register_module({
             cds_id = 'blotter-cds-block', prefix = 'underlying';
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {
-                data = {security: {type: config.type, externalIdBundle: "", attributes: {}}, 
+                data = {security: {type: 'CreditDefaultSwapOptionSecurity', externalIdBundle: "", attributes: {}}, 
                 trade: util.otc_trade, underlying: {attributes: {}}};
             }
             data.nodeId = config.node ? config.node.id : null;
