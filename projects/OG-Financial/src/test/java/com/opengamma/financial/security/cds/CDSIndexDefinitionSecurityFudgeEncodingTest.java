@@ -26,9 +26,9 @@ public class CDSIndexDefinitionSecurityFudgeEncodingTest extends FinancialTestBa
     CreditDefaultSwapIndexComponent component1 = new CreditDefaultSwapIndexComponent("A", ExternalSchemes.markItRedCode("SZRTY"), 10.5, ExternalSchemes.isinSecurityId("ABC3456"));
     CreditDefaultSwapIndexComponent component2 = new CreditDefaultSwapIndexComponent("B", ExternalSchemes.markItRedCode("ERT234"), 5.7, ExternalSchemes.isinSecurityId("ABC7890"));
     CDSIndexComponentBundle components = CDSIndexComponentBundle.of(component1, component2);
-    CreditDefaultSwapIndexDefinitionSecurity security = new CreditDefaultSwapIndexDefinitionSecurity("1", "5", "CDX", Currency.USD,
+    CreditDefaultSwapIndexDefinitionSecurity security = new CreditDefaultSwapIndexDefinitionSecurity("1", "5", "CDX", Currency.USD, 0.4,
         CDSIndexTerms.of(Tenor.ONE_WEEK, Tenor.ONE_YEAR), 
-        components );
+        components);
     security.setName("TEST_CDSINDEX_SEC");
     security.addExternalId(ExternalSchemes.markItRedCode("CDXI234"));
     s_cdsIndexDefnSecurity = security;
@@ -39,5 +39,4 @@ public class CDSIndexDefinitionSecurityFudgeEncodingTest extends FinancialTestBa
     assertEquals(s_cdsIndexDefnSecurity, cycleObject(CreditDefaultSwapIndexDefinitionSecurity.class,
                                                      s_cdsIndexDefnSecurity));
   }
-
 }

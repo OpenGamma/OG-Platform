@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 
-public class CDSIndexComponentBundleTest {
+public class CDSIndexDefinitionComponentBundleTest {
 
   private static Comparator<CreditDefaultSwapIndexComponent> WEIGHT_COMPARATOR =
       new Comparator<CreditDefaultSwapIndexComponent>() {

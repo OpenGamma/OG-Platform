@@ -25,7 +25,7 @@ import com.opengamma.util.time.Tenor;
  * A Fudge builder for {@link CreditDefaultSwapIndexDefinitionSecurity}.
  */
 @FudgeBuilderFor(CreditDefaultSwapIndexDefinitionSecurity.class)
-public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<CreditDefaultSwapIndexDefinitionSecurity> {
+public class CDSIndexDefinitionSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<CreditDefaultSwapIndexDefinitionSecurity> {
   
   /** Field name. */
   public static final String VERSION_FLD = "version";
@@ -36,6 +36,8 @@ public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   /** Field name. */
   public static final String CURRENCY_FLD = "currency";
   /** Field name. */
+  public static final String RECOVERY_RATE_FLD = "recoveryRate";
+  /** Field name. */
   public static final String TERMS_FLD = "terms";
   /** Field name. */
   public static final String COMPONENTS_FLD = "components";
@@ -43,7 +45,7 @@ public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CreditDefaultSwapIndexDefinitionSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    CDSIndexSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
+    CDSIndexDefinitionSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
@@ -53,6 +55,7 @@ public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     addToMessage(msg, SERIES_FLD, security.getSeries());
     addToMessage(msg, FAMILY_FLD, security.getFamily());
     addToMessage(msg, CURRENCY_FLD, security.getCurrency());
+    addToMessage(msg, RECOVERY_RATE_FLD, security.getRecoveryRate());
     for (Tenor tenor : security.getTerms()) {
       addToMessage(serializer, msg, TERMS_FLD, tenor, Tenor.class);
     }
@@ -64,7 +67,7 @@ public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   @Override
   public CreditDefaultSwapIndexDefinitionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     CreditDefaultSwapIndexDefinitionSecurity security = new CreditDefaultSwapIndexDefinitionSecurity();
-    CDSIndexSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, security);
+    CDSIndexDefinitionSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, security);
     return security;
   }
 
@@ -88,6 +91,7 @@ public class CDSIndexSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     security.setSeries(msg.getString(SERIES_FLD));
     security.setFamily(msg.getString(FAMILY_FLD));
     security.setCurrency(msg.getValue(Currency.class, CURRENCY_FLD));
+    security.setRecoveryRate(msg.getDouble(RECOVERY_RATE_FLD));
   }
 
 }
