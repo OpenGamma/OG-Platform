@@ -111,6 +111,11 @@ public class CompiledFunctionService {
 
     });
     getFunctionCompilationContext().setFunctionReinitializer(_reinitializer);
+    synchronized (initialized) {
+      for (final FunctionDefinition definition : functions) {
+        initialized.remove(definition);
+      }
+    }
     for (final FunctionDefinition definition : functions) {
       jobs.execute(new Callable<FunctionDefinition>() {
         @Override
@@ -128,7 +133,6 @@ public class CompiledFunctionService {
           }
         }
       });
-      initialized.remove(definition);
     }
     try {
       jobs.join();
