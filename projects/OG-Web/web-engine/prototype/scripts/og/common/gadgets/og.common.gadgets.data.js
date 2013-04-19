@@ -133,6 +133,10 @@ $.register_module({
                     }
                     if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)
                         dataman.fire('data', get_viewport_data(dataman));
+                })
+                .on('fatal', function (message) {
+                    try {dataman.fire('fatal', message);}
+                    catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
                 });
             dataman.id = dataman.cell.id;
             dataman.meta = {viewport: {rows: [], cols: []}};
@@ -147,12 +151,14 @@ $.register_module({
             return dataman;
         };
         var Gadget = function (config) {
+            var gadget = this;
             if (!formatters[config.type]) // return null or a primitive because this is a constructor
                 return $(config.selector).html('Data gadget cannot render ' + config.type), null;
-            Grid.call(this, {
+            Grid.call(gadget, {
                 selector: config.selector, child: config.child, show_sets: false, show_views: false,
                 source: config.source, dataman: DataMan.partial(config.row, config.col, config.type),
             });
+            gadget.on('fatal', function (message) {$(config.selector).html(message);});
         };
         Gadget.prototype = Object.create(Grid.prototype);
         Gadget.prototype.label = 'datagadget';

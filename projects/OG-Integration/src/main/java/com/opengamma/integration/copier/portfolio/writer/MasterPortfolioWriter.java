@@ -237,7 +237,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
               // Add the new position to the portfolio node
               _currentNode.addPosition(addedDoc.getUniqueId());
             } catch (Exception e) {
-              s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+              s_logger.error("Unable to update position " + existingPosition.getUniqueId() + ": " + e.getMessage());
               return;
             }
           }
@@ -306,48 +306,24 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         // TODO also confirm that all the associated trades are identical
       }
 
-      if (!_multithread) {
-        // Add the new position to the position master
-        PositionDocument addedDoc;
-        try {
-          addedDoc = _positionMaster.add(new PositionDocument(position));
-        } catch (Exception e) {
-          s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
-          return null;
-        }
-        // Add the new position to the portfolio
-        _currentNode.addPosition(addedDoc.getUniqueId());
-
-        // Update position map
-        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
-
-        // Return the new position
-        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
-            writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
-      } else {
-        // update position map (huh?)
-        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), position);
-
-        _executorService.submit(new Runnable() {
-          @Override
-          public void run() {
-            PositionDocument addedDoc;
-            try {
-              // Add the new position to the position master
-              addedDoc = _positionMaster.add(new PositionDocument(position));
-
-              // Add the new position to the portfolio node
-              _currentNode.addPosition(addedDoc.getUniqueId());
-            } catch (Exception e) {
-              s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
-              return;
-            }
-          }
-        });
-
-        // Return the updated position
-        return new ObjectsPair<>(position, writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+      // Add the new position to the position master
+      // Can't launch a thread since we need the position id immediately, to be stored with the pos document in the map
+      PositionDocument addedDoc;
+      try {
+        addedDoc = _positionMaster.add(new PositionDocument(position));
+      } catch (Exception e) {
+        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+        return null;
       }
+      // Add the new position to the portfolio
+      _currentNode.addPosition(addedDoc.getUniqueId());
+
+      // Update position map
+      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+
+      // Return the new position
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
+          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
     }
   }
 

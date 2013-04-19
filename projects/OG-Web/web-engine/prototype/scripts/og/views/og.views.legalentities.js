@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.views.legal_entities',
+    name: 'og.views.legalentities',
     dependencies: [
         'og.api.rest',
         'og.api.text',
