@@ -15,7 +15,6 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
