@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
  */
-public final class CouponArithmeticAverageON extends Coupon {
+public final class CouponArithmeticAverageONSpread extends Coupon {
 
   /**
    * The overnight index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.
@@ -32,13 +32,21 @@ public final class CouponArithmeticAverageON extends Coupon {
    */
   private final double[] _fixingPeriodAccrualFactors;
   /**
-   * The interest accrued over the periods already fixed multiplied by the accrual factors, i.e. the sum (\delta_i r_i).
+   * The interest accrued over the periods already fixed multiplied by the accrual factors, i.e. the sum (\delta_i r_i). The spread is not included in the value.
    */
   private final double _rateAccrued;
   /**
    * The accrual factor (or year fraction) associated to the remaining fixing period in the Index day count convention.
    */
   private final double _fixingPeriodRemainingAccrualFactor;
+  /**
+   * The spread rate paid above the arithmetic average.
+   */
+  private final double _spread;
+  /**
+   * The fixed amount related to the spread.
+   */
+  private final double _spreadAmount;
 
   // TODO: Implement the rate cut-off mechanism (the two last periods use the same fixing)
 
@@ -53,15 +61,18 @@ public final class CouponArithmeticAverageON extends Coupon {
    * @param fixingPeriodAccrualFactors The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    * @param rateAccrued The interest accrued over the periods already fixed.
    * @param fixingPeriodRemainingAccrualFactor ??
+   * @param spread The spread rate paid above the arithmetic average.
    */
-  private CouponArithmeticAverageON(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
-      double rateAccrued, double fixingPeriodRemainingAccrualFactor) {
+  private CouponArithmeticAverageONSpread(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes,
+      double[] fixingPeriodAccrualFactors, double rateAccrued, double fixingPeriodRemainingAccrualFactor, final double spread) {
     super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
     _index = index;
     _fixingPeriodTimes = fixingPeriodTimes;
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
     _rateAccrued = rateAccrued;
     _fixingPeriodRemainingAccrualFactor = fixingPeriodRemainingAccrualFactor;
+    _spread = spread;
+    _spreadAmount = spread * paymentYearFraction * notional;
   }
 
   /**
@@ -73,10 +84,11 @@ public final class CouponArithmeticAverageON extends Coupon {
    * @param fixingPeriodTimes The times of the remaining fixing. The length is one greater than the number of periods, as it includes accrual start and end.
    * @param fixingPeriodAccrualFactors The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    * @param rateAccrued The interest accrued over the periods already fixed.
+   * @param spread The spread rate paid above the arithmetic average.
    * @return The coupon.
    */
-  public static CouponArithmeticAverageON from(double paymentTime, double paymentAccrualFactor, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
-      double rateAccrued) {
+  public static CouponArithmeticAverageONSpread from(double paymentTime, double paymentAccrualFactor, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
+      double rateAccrued, final double spread) {
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.notNull(fixingPeriodTimes, "Fixing Times");
     ArgumentChecker.notNull(fixingPeriodAccrualFactors, "Accrual Factors");
@@ -84,8 +96,8 @@ public final class CouponArithmeticAverageON extends Coupon {
     for (int loopp = 0; loopp < fixingPeriodAccrualFactors.length; loopp++) {
       fixingPeriodRemainingAccrualFactor += fixingPeriodAccrualFactors[loopp];
     }
-    return new CouponArithmeticAverageON(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
-        fixingPeriodRemainingAccrualFactor);
+    return new CouponArithmeticAverageONSpread(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
+        fixingPeriodRemainingAccrualFactor, spread);
   }
 
   /**
@@ -128,6 +140,22 @@ public final class CouponArithmeticAverageON extends Coupon {
     return _fixingPeriodRemainingAccrualFactor;
   }
 
+  /**
+   * Returns the spread rate paid above the arithmetic average.
+   * @return The spread.
+   */
+  public double getSpread() {
+    return _spread;
+  }
+
+  /**
+   * Returns the fixed amount related to the spread.
+   * @return The amount.
+   */
+  public double getSpreadAmount() {
+    return _spreadAmount;
+  }
+
   @Override
   public Coupon withNotional(double notional) {
     return null; // TODO
@@ -136,13 +164,13 @@ public final class CouponArithmeticAverageON extends Coupon {
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageON(this, data);
+    return visitor.visitCouponArithmeticAverageONSpread(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageON(this);
+    return visitor.visitCouponArithmeticAverageONSpread(this);
   }
 
   @Override
@@ -156,6 +184,10 @@ public final class CouponArithmeticAverageON extends Coupon {
     result = prime * result + Arrays.hashCode(_fixingPeriodTimes);
     result = prime * result + _index.hashCode();
     temp = Double.doubleToLongBits(_rateAccrued);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_spread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_spreadAmount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -171,7 +203,7 @@ public final class CouponArithmeticAverageON extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponArithmeticAverageON other = (CouponArithmeticAverageON) obj;
+    CouponArithmeticAverageONSpread other = (CouponArithmeticAverageONSpread) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }
@@ -185,6 +217,12 @@ public final class CouponArithmeticAverageON extends Coupon {
       return false;
     }
     if (Double.doubleToLongBits(_rateAccrued) != Double.doubleToLongBits(other._rateAccrued)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spreadAmount) != Double.doubleToLongBits(other._spreadAmount)) {
       return false;
     }
     return true;

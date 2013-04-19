@@ -82,7 +82,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
   /**
    * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
    * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
-   * of the first leg (as computed by the PresentValueBasisPointCalculator).
+   * of the first leg (as computed by the PresentValueMarketQuoteSensitivityDiscountingCalculator).
    * @param swap The swap.
    * @param multicurves The multi-curves provider.
    * @return The par spread.

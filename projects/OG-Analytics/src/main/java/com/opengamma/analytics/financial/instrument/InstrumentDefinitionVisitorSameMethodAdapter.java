@@ -71,6 +71,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -358,6 +361,8 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
     return visit(bond);
   }
 
+  // -----     Payment and coupon     -----
+
   @Override
   public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final DATA_TYPE data) {
     return visit(payment, data);
@@ -489,6 +494,36 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
+    return visit(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
@@ -517,6 +552,8 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
   public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
     return visit(payment);
   }
+
+  // -----     Annuity     -----
 
   @Override
   public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final DATA_TYPE data) {
