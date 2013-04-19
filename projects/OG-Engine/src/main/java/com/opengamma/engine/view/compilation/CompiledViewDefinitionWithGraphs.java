@@ -28,7 +28,7 @@ public interface CompiledViewDefinitionWithGraphs extends CompiledViewDefinition
   CompiledViewDefinitionWithGraphs withResolverVersionCorrection(VersionCorrection resolverVersionCorrection);
 
   /**
-   * Gets all of the dependency graph explorers.
+   * Gets all of the dependefncy graph explorers.
    * 
    * @return the dependency graph explorers, not null
    */

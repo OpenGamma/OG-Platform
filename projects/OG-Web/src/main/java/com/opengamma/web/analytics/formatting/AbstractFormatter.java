@@ -44,7 +44,6 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public Object formatInlineCell(T value, ValueSpecification valueSpec, Object inlineKey) {
-    // TODO should this throw an exception?
     return "";
   }
 

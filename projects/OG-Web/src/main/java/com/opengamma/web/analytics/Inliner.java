@@ -67,7 +67,7 @@ import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
     LocalDateLabelledMatrix1D matrix = (LocalDateLabelledMatrix1D) value;
     List<ColumnMeta> meta = Lists.newArrayListWithCapacity(matrix.size());
     for (int i = 0; i < matrix.size(); i++) {
-      meta.add(new ColumnMeta(matrix.getKeys()[i], matrix.getKeys()[i].toString()));
+      meta.add(new ColumnMeta(matrix.getKeys()[i], matrix.getKeys()[i].toString(), Double.class));
     }
     return meta;
   }
@@ -78,9 +78,12 @@ import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
   private final Comparable _key;
   private final String _header;
 
-  /* package */ ColumnMeta(Comparable key, String header) {
+  private final Class<?> _columnType;
+
+  /* package */ ColumnMeta(Comparable key, String header, Class<?> columnType) {
     _key = key;
     _header = header;
+    _columnType = columnType;
   }
 
   @SuppressWarnings("unchecked")
@@ -99,6 +102,10 @@ import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 
   /* package */ String getHeader() {
     return _header;
+  }
+
+  /* package */ Class<?> getColumnType() {
+    return _columnType;
   }
 
   @Override
