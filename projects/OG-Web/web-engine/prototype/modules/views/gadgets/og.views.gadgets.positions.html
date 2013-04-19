@@ -31,7 +31,7 @@
         <tbody class="og-js-identifiers">
           {{if securities[0]}}
             {{each securities}}
-              <tr><td><span><em>${$value.scheme.lang()}</em></span></td><td>${$value.value.lang()}</td></tr>
+              <tr><td><span><em>${$value.scheme.lang()}</em></span></td><td>${$value.value}</td></tr>
             {{/each}}
           {{else}}
             <tr><td colspan="2">(no value)</td></tr>

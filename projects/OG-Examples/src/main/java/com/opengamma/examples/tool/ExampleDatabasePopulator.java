@@ -29,7 +29,6 @@ import com.opengamma.examples.loader.ExampleHolidayLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
-import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
@@ -112,7 +111,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
     loadTimeSeriesRating();
-    loadYieldCurves();
     loadSimulatedHistoricalData();
     loadMultiCurrencySwapPortfolio();
     loadAUDSwapPortfolio();
@@ -232,16 +230,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       final ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
       timeSeriesRatingLoader.run(getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadYieldCurves() {
-    final Log log = new Log("Creating yield curve definitions");
-    try {
-      YieldCurveConfigPopulator.populateSyntheticCurveConfigMaster(getToolContext().getConfigMaster());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

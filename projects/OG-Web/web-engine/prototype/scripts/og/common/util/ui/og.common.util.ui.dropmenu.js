@@ -60,6 +60,7 @@ $.register_module({
                     menu.$dom.menu.blurkill(menu.close.bind(menu));
                 });
                 menu.$dom.menu.show();
+                og.views.common.layout.main.allowOverflow('north');
                 menu.state = 'open';
                 menu.opened = true;
                 menu.$dom.toggle.addClass('og-active');
@@ -74,6 +75,7 @@ $.register_module({
             menu.state = 'closed';
             menu.opened = menu.init_blurkill = false;
             menu.fire(events.closed);
+            og.views.common.layout.main.resetOverflow('north');
             return menu;
         };
         DropMenu.prototype.menu_handler = function () {

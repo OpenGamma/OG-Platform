@@ -96,7 +96,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final ForexOptionVanillaVannaVolgaMethod METHOD_VANNA_VOLGA = ForexOptionVanillaVannaVolgaMethod.getInstance();
   private static final ForexOptionVanillaBlackSmileMethod METHOD_BLACK = ForexOptionVanillaBlackSmileMethod.getInstance();
 
-  private static final ForexDiscountingProviderMethod METHOD_DISC = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
 
   //  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
   //  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));

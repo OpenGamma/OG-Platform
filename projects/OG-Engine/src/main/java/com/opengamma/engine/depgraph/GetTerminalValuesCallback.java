@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -23,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -517,7 +517,7 @@ import com.opengamma.util.tuple.Pair;
       } else {
         s_logger.debug("Considering {} for {}", node, resolvedValue);
         // Update the output values for the node with the union. The input values will be dealt with by the caller.
-        List<ValueSpecification> replacements = null;
+        Map<ValueSpecification, ValueSpecification> replacements = null;
         boolean matched = false;
         for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) {
           if (outputValues.contains(output)) {
@@ -529,6 +529,9 @@ import com.opengamma.util.tuple.Pair;
           final ValueProperties outputProperties = output.getProperties();
           for (final ValueSpecification outputValue : outputValues) {
             if (outputName == outputValue.getValueName()) {
+              if ((replacements != null) && replacements.containsKey(outputValue)) {
+                continue;
+              }
               if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
                 // Found match
                 matched = true;
@@ -538,11 +541,11 @@ import com.opengamma.util.tuple.Pair;
                       .instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
                   s_logger.debug("Replacing {} with {} in reused node", outputValue, newOutputValue);
                   if (replacements == null) {
-                    replacements = new ArrayList<ValueSpecification>(outputValues.size() * 2);
+                    replacements = Maps.newHashMapWithExpectedSize(outputValues.size());
                   }
-                  replacements.add(outputValue);
-                  replacements.add(newOutputValue);
+                  replacements.put(outputValue, newOutputValue);
                 }
+                break;
               }
             }
           }
@@ -551,10 +554,9 @@ import com.opengamma.util.tuple.Pair;
           continue;
         }
         if (replacements != null) {
-          final Iterator<ValueSpecification> replacement = replacements.iterator();
-          while (replacement.hasNext()) {
-            final ValueSpecification oldValue = replacement.next();
-            final ValueSpecification newValue = replacement.next();
+          for (Map.Entry<ValueSpecification, ValueSpecification> replacement : replacements.entrySet()) {
+            final ValueSpecification oldValue = replacement.getKey();
+            final ValueSpecification newValue = replacement.getValue();
             final int newConsumers = node.replaceOutputValue(oldValue, newValue);
             DependencyNode n = _spec2Node.remove(oldValue);
             assert n == node;

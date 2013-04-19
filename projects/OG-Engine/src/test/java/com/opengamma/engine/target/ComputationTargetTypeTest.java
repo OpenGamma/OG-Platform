@@ -250,6 +250,8 @@ public class ComputationTargetTypeTest {
     final ComputationTargetType t1 = ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(HistoricalTimeSeries.class);
     final ComputationTargetType t2 = ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION.or(HistoricalTimeSeries.class));
     assertEquals(t1, t2);
+    final ComputationTargetType t3 = ComputationTargetType.multiple(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.of(HistoricalTimeSeries.class));
+    assertEquals(t1, t3);
   }
 
 }

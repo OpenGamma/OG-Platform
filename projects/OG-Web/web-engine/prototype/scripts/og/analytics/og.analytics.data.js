@@ -30,7 +30,7 @@ $.register_module({
                 data.parent.kill();
                 parents = parents.filter(function (parent) {return parent.id !== data.parent.id;});
             };
-            $(window).on('unload', function () {
+            $(window).on('beforeunload', function () {
                 children.forEach(function (child) {try {child.kill();} catch (error) {}});  // should be no parents left
                 parents.forEach(function (parent) {try {parent.kill();} catch (error) {}}); // but just in case
             });

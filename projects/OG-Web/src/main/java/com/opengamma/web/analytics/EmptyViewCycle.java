@@ -5,14 +5,27 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
 import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.resource.EngineResourceReference;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValueResult;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ComputationCacheResponse;
 import com.opengamma.engine.view.cycle.ComputationCycleQuery;
@@ -21,13 +34,14 @@ import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleState;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * {@link ViewCycle} implementation that acts as a placeholder when a calculation cycle hasn't completed and there isn't a cycle available. This is cleaner than using a null cycle reference and being
  * forced to do a null check everywhere it's used. Only a single instance of this class should ever exist.
  */
-/*package*/final class EmptyViewCycle implements ViewCycle {
+/*package*/ final class EmptyViewCycle implements ViewCycle {
 
   /** Reference to the empty cycle. */
   /* package */static final EngineResourceReference<ViewCycle> REFERENCE = new EmptyViewCycleReference();
@@ -47,6 +61,8 @@ import com.opengamma.util.tuple.Pair;
     EMPTY_RESULTS_RESPONSE = new ComputationResultsResponse();
     EMPTY_RESULTS_RESPONSE.setResults(ImmutableMap.<ValueSpecification, ComputedValueResult>of());
   }
+
+  private final CompiledViewDefinitionWithGraphs _compiledViewDef = new EmptyViewDefinition();
 
   private EmptyViewCycle() {
   }
@@ -73,7 +89,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public CompiledViewDefinitionWithGraphs getCompiledViewDefinition() {
-    throw new UnsupportedOperationException("getCompiledViewDefinition not supported");
+    return _compiledViewDef;
   }
 
   @Override
@@ -91,7 +107,7 @@ import com.opengamma.util.tuple.Pair;
     return EMPTY_RESULTS_RESPONSE;
   }
 
-  /*package*/static final class EmptyViewCycleReference implements EngineResourceReference<ViewCycle> {
+  private static final class EmptyViewCycleReference implements EngineResourceReference<ViewCycle> {
 
     private EmptyViewCycleReference() {
     }
@@ -107,4 +123,96 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
+  private static class EmptyViewDefinition implements CompiledViewDefinitionWithGraphs {
+
+    private final DependencyGraphExplorer _dependencyGraphExplorer = new EmptyDependencyGraphExplorer();
+
+    @Override
+    public VersionCorrection getResolverVersionCorrection() {
+      throw new UnsupportedOperationException("getResolverVersionCorrection not implemented");
+    }
+
+    @Override
+    public String getCompilationIdentifier() {
+      throw new UnsupportedOperationException("getCompilationIdentifier not implemented");
+    }
+
+    @Override
+    public CompiledViewDefinitionWithGraphs withResolverVersionCorrection(VersionCorrection resolverVersionCorrection) {
+      throw new UnsupportedOperationException("withResolverVersionCorrection not implemented");
+    }
+
+    @Override
+    public ViewDefinition getViewDefinition() {
+      throw new UnsupportedOperationException("getViewDefinition not implemented");
+    }
+
+    @Override
+    public Portfolio getPortfolio() {
+      throw new UnsupportedOperationException("getPortfolio not implemented");
+    }
+
+    @Override
+    public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration) {
+      throw new UnsupportedOperationException("getCompiledCalculationConfiguration not implemented");
+    }
+
+    @Override
+    public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
+      throw new UnsupportedOperationException("getCompiledCalculationConfigurations not implemented");
+    }
+
+    @Override
+    public Set<ValueSpecification> getMarketDataRequirements() {
+      throw new UnsupportedOperationException("getMarketDataRequirements not implemented");
+    }
+
+    @Override
+    public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
+      throw new UnsupportedOperationException("getTerminalValuesRequirements not implemented");
+    }
+
+    @Override
+    public Set<ComputationTargetSpecification> getComputationTargets() {
+      throw new UnsupportedOperationException("getComputationTargets not implemented");
+    }
+
+    @Override
+    public Instant getValidFrom() {
+      throw new UnsupportedOperationException("getValidFrom not implemented");
+    }
+
+    @Override
+    public Instant getValidTo() {
+      throw new UnsupportedOperationException("getValidTo not implemented");
+    }
+
+    @Override
+    public Collection<DependencyGraphExplorer> getDependencyGraphExplorers() {
+      throw new UnsupportedOperationException("getDependencyGraphExplorers not implemented");
+    }
+
+    @Override
+    public DependencyGraphExplorer getDependencyGraphExplorer(String calcConfig) {
+      return _dependencyGraphExplorer;
+    }
+
+    @Override
+    public Map<ComputationTargetReference, UniqueId> getResolvedIdentifiers() {
+      throw new UnsupportedOperationException("getResolvedIdentifiers not implemented");
+    }
+  }
+
+  private static class EmptyDependencyGraphExplorer implements DependencyGraphExplorer {
+
+    @Override
+    public DependencyGraph getWholeGraph() {
+      throw new UnsupportedOperationException("getWholeGraph not implemented");
+    }
+
+    @Override
+    public DependencyGraph getSubgraphProducing(ValueSpecification output) {
+      return null;
+    }
+  }
 }

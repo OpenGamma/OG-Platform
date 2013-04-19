@@ -49,7 +49,7 @@ start() {
     RETVAL=6
     return
   fi
-  exec $SETSID $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
+  exec $SETSID $JAVA_CMD $MEM_OPTS $GC_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
   -Dlogback.configurationFile=$LOGBACK_CONFIG \
   -cp $CLASSPATH \
   com.opengamma.component.OpenGammaComponentServer \
@@ -69,7 +69,7 @@ debug() {
     return
   fi
   echo
-  $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
+  $JAVA_CMD $MEM_OPTS $GC_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
   -Dlogback.configurationFile=$LOGBACK_CONFIG \
   -cp $CLASSPATH \
   com.opengamma.component.OpenGammaComponentServer \

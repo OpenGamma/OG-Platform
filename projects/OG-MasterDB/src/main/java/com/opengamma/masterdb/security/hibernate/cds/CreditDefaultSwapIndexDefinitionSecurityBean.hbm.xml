@@ -20,6 +20,8 @@
     
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
 
+    <property name="recoveryRate" column="recovery_rate" type="double" not-null="true" />
+
     <set name="tenors" table="sec_cdsid_tenor" cascade="save-update">
       <key column="cdsid_id" />
       <many-to-many class="com.opengamma.masterdb.security.hibernate.TenorBean" column="tenor_id"/>

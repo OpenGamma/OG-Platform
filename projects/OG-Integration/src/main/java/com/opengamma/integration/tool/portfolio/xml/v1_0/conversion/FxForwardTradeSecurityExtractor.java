@@ -7,7 +7,6 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.id.ExternalId;
@@ -29,22 +28,23 @@ public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxFo
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
+    FxForwardTrade trade = getTrade();
+    ExternalId region = extractRegion(trade.getPaymentCalendars());
+    boolean nonDeliverable = checkNonDeliverable(trade);
 
-    ExternalId region = extractRegion(_trade.getPaymentCalendars());
-    boolean nonDeliverable = checkNonDeliverable(_trade);
-
-    Currency payCurrency = _trade.getPayCurrency();
-    double payAmount = _trade.getPayAmount().doubleValue();
-    Currency receiveCurrency = _trade.getReceiveCurrency();
-    double receiveAmount = _trade.getReceiveAmount().doubleValue();
-    ZonedDateTime forwardDate = convertLocalDate(_trade.getMaturityDate());
+    Currency payCurrency = trade.getPayCurrency();
+    double payAmount = trade.getPayAmount().doubleValue();
+    Currency receiveCurrency = trade.getReceiveCurrency();
+    double receiveAmount = trade.getReceiveAmount().doubleValue();
+    ZonedDateTime forwardDate = convertLocalDate(trade.getMaturityDate());
 
     ManageableSecurity security = nonDeliverable ?
         // todo - expiry should be used in construction of NonDeliverableFXForwardSecurity
         new NonDeliverableFXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate,
-                                            region, _trade.getSettlementCurrency().equals(_trade.getReceiveCurrency())) :
+                                            region, trade.getSettlementCurrency().equals(trade.getReceiveCurrency())) :
         new FXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region);
 
     return securityArray(addIdentifier(security));
@@ -61,4 +61,5 @@ public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxFo
           "Either both settlementCurrency and fxExpiry elements must be present, or neither");
     }
   }
+
 }

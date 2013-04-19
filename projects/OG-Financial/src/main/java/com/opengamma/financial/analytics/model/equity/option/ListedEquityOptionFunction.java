@@ -105,7 +105,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     _valueRequirementNames = valueRequirementNames;
   }
 
-  //TODO: INDUSTRIALISE: The types we're concerned about: EquityOptionSecurity, EquityIndexOptionSecurity, EquityIndexFutureOptionSecurity
   @Override
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.EQUITY_OPTION_SECURITY
@@ -213,26 +212,22 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final double strike;
     final Expiry expiry;
     final boolean isCall;
-    final boolean isAmerican;
     final Security security = target.getSecurity();
     if (security instanceof EquityOptionSecurity) {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       strike = option.getStrike();
       expiry = option.getExpiry();
       isCall = option.getOptionType().equals(OptionType.CALL);
-      isAmerican = option.getExerciseType().getName().equalsIgnoreCase("American");
     } else if (security instanceof EquityIndexOptionSecurity) {
       final EquityIndexOptionSecurity option = (EquityIndexOptionSecurity) security;
       strike = option.getStrike();
       expiry = option.getExpiry();
       isCall = option.getOptionType().equals(OptionType.CALL);
-      isAmerican = option.getExerciseType().getName().equalsIgnoreCase("American");
     } else if (security instanceof EquityIndexFutureOptionSecurity) {
       final EquityIndexFutureOptionSecurity option = (EquityIndexFutureOptionSecurity) security;
       strike = option.getStrike();
       expiry = option.getExpiry();
       isCall = option.getOptionType().equals(OptionType.CALL);
-      isAmerican = option.getExerciseType().getName().equalsIgnoreCase("American");
     } else {
       throw new OpenGammaRuntimeException("Security type not handled," + security.getName());
     }
@@ -259,19 +254,16 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final Double spotOptionPrice = (Double) optionPriceValue.getValue();
     final double forwardOptionPrice = spotOptionPrice / discountFactor;
 
+    // TODO: Have been running into problems, primarily from illiquid option prices, hence we test
     final double impliedVol;
-    if (isAmerican) {
-      try {
-        impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);  
-      } catch(Exception e) {
-        // --- Testing for implied vol problems
-        final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
-        throw new OpenGammaRuntimeException("American Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")!, " + security);
-      }
+    final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
+    if (intrinsic > forwardOptionPrice) {
+      s_logger.warn("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
+      impliedVol = 0.0;
     } else {
-      impliedVol =  BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
+      impliedVol =  BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall); 
     }
-    
+
     final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol);
     final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = new BlackVolatilitySurfaceMoneyness(surface, forwardCurve);
     return impliedVolatilitySurface;

@@ -33,7 +33,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
   /**
    * The security type.
    */
-  public static final String SECURITY_TYPE = "CDS_INDEX";
+  public static final String SECURITY_TYPE = "CDS_INDEX_DEFINITION";
   /**
    * The version number.
    */
@@ -55,6 +55,11 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
   /**
+   * The recovery rate for the index.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Double _recoveryRate;
+  /**
    * The terms.
    */
   @PropertyDefinition(validate = "notNull")
@@ -64,7 +69,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
    */
   @PropertyDefinition(validate = "notNull")
   private CDSIndexComponentBundle _components;
-  
+
   /**
    * Creates an instance
    */
@@ -74,11 +79,12 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
   
   /**
    * Creates an instance.
-   * 
+   *
    * @param version  the version, not null
    * @param series  the series, not null
    * @param family  the family, not null
    * @param currency  the currency, not null
+   * @param recoveryRate the recovery rate for the index, not null
    * @param terms the terms, not null
    * @param components the components, not null
    */
@@ -86,6 +92,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
                                                   String series,
                                                   String family,
                                                   Currency currency,
+                                                  Double recoveryRate,
                                                   CDSIndexTerms terms,
                                                   CDSIndexComponentBundle components) {
     super(SECURITY_TYPE);
@@ -93,6 +100,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
     setSeries(series);
     setFamily(family);
     setCurrency(currency);
+    setRecoveryRate(recoveryRate);
     setTerms(terms);
     setComponents(components);
   }
@@ -135,6 +143,8 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
         return getTerms();
       case -447446250:  // components
         return getComponents();
+      case 2002873877:  // recoveryRate
+        return getRecoveryRate();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -160,6 +170,9 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
       case -447446250:  // components
         setComponents((CDSIndexComponentBundle) newValue);
         return;
+      case 2002873877:  // recoveryRate
+        setRecoveryRate((Double) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -172,6 +185,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_terms, "terms");
     JodaBeanUtils.notNull(_components, "components");
+    JodaBeanUtils.notNull(_recoveryRate, "recoveryRate");
     super.validate();
   }
 
@@ -188,6 +202,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getTerms(), other.getTerms()) &&
           JodaBeanUtils.equal(getComponents(), other.getComponents()) &&
+          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
           super.equals(obj);
     }
     return false;
@@ -202,6 +217,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTerms());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComponents());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     return hash ^ super.hashCode();
   }
 
@@ -363,6 +379,32 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the recovery rate for the index.
+   * @return the value of the property, not null
+   */
+  public Double getRecoveryRate() {
+    return _recoveryRate;
+  }
+
+  /**
+   * Sets the recovery rate for the index.
+   * @param recoveryRate  the new value of the property, not null
+   */
+  public void setRecoveryRate(Double recoveryRate) {
+    JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
+    this._recoveryRate = recoveryRate;
+  }
+
+  /**
+   * Gets the the {@code recoveryRate} property.
+   * @return the property, not null
+   */
+  public final Property<Double> recoveryRate() {
+    return metaBean().recoveryRate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code CreditDefaultSwapIndexDefinitionSecurity}.
    */
   public static class Meta extends FinancialSecurity.Meta {
@@ -402,6 +444,11 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
     private final MetaProperty<CDSIndexComponentBundle> _components = DirectMetaProperty.ofReadWrite(
         this, "components", CreditDefaultSwapIndexDefinitionSecurity.class, CDSIndexComponentBundle.class);
     /**
+     * The meta-property for the {@code recoveryRate} property.
+     */
+    private final MetaProperty<Double> _recoveryRate = DirectMetaProperty.ofReadWrite(
+        this, "recoveryRate", CreditDefaultSwapIndexDefinitionSecurity.class, Double.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -411,7 +458,8 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
         "family",
         "currency",
         "terms",
-        "components");
+        "components",
+        "recoveryRate");
 
     /**
      * Restricted constructor.
@@ -434,6 +482,8 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
           return _terms;
         case -447446250:  // components
           return _components;
+        case 2002873877:  // recoveryRate
+          return _recoveryRate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -500,6 +550,14 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
      */
     public final MetaProperty<CDSIndexComponentBundle> components() {
       return _components;
+    }
+
+    /**
+     * The meta-property for the {@code recoveryRate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> recoveryRate() {
+      return _recoveryRate;
     }
 
   }

@@ -174,7 +174,6 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    */
   public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final Tenor resetTenor,
       final IndexType indexType, final String conventionName) {
-    ArgumentChecker.isTrue(instrumentType == StripInstrumentType.SWAP || instrumentType == StripInstrumentType.OIS_SWAP, "Strip type for this constructor must be a swap or OIS");
     ArgumentChecker.notNull(curveNodePointTime, "curve node tenor");
     ArgumentChecker.notNull(resetTenor, "reset tenor");
     ArgumentChecker.notNull(conventionName, "convention name");
@@ -308,13 +307,10 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   }
 
   /**
-   * Gets the reset tenor for a basis swap
-   * @return The receive tenor
+   * Gets the reset tenor.
+   * @return The reset tenor
    */
   public Tenor getResetTenor() {
-    if (_instrumentType != StripInstrumentType.SWAP && _instrumentType != StripInstrumentType.OIS_SWAP) {
-      throw new IllegalStateException("Cannot get the receive tenor for an instrument that is not a swap or OIS; have " + toString());
-    }
     return _resetTenor;
   }
 
@@ -341,13 +337,10 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   }
 
   /**
-   * Gets the receive tenor for a basis swap
+   * Gets the index type.
    * @return The receive tenor
    */
   public IndexType getIndexType() {
-    if (_instrumentType != StripInstrumentType.SWAP && _instrumentType != StripInstrumentType.OIS_SWAP) {
-      throw new IllegalStateException("Cannot get the index type for an instrument that is not a swap or OIS; have " + toString());
-    }
     return _indexType;
   }
 

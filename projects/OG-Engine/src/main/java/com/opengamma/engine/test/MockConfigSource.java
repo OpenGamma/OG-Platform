@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
@@ -26,7 +27,7 @@ import com.opengamma.id.VersionCorrection;
 /**
  * A mock config source for testing.
  */
-public class MockConfigSource implements ConfigSource {
+public class MockConfigSource extends AbstractSource<ConfigItem<?>> implements ConfigSource {
 
   /**
    * The map of data.
@@ -112,16 +113,6 @@ public class MockConfigSource implements ConfigSource {
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
-  }
-
-  @Override
-  public Map<UniqueId, ConfigItem<?>> get(final Collection<UniqueId> uniqueIds) {
-    final Map<UniqueId, ConfigItem<?>> map = newHashMap();
-    for (final UniqueId uniqueId : uniqueIds) {
-      final ConfigItem<?> item = get(uniqueId);
-      map.put(uniqueId, item);
-    }
-    return map;
   }
 
   public ConfigItem<ViewDefinition> put(final ViewDefinition viewDefinition) {

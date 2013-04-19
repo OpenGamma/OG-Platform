@@ -32,6 +32,9 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CopyStrategyConfiguration;
+import net.sf.ehcache.config.SearchAttribute;
+import net.sf.ehcache.config.Searchable;
 
 /**
  * A cache for search results, providing common search caching logic across caching masters and across search types.
@@ -104,21 +107,27 @@ public class EHCachingSearchCache {
 
     // Load cache configuration
     if (cacheManager.getCache(name + CACHE_NAME_SUFFIX) == null) {
-      s_logger.warn("Could not load cache configuration for " + name + CACHE_NAME_SUFFIX + ", using defaultCache configuration instead");
-      cacheManager.addCache(name + CACHE_NAME_SUFFIX);
+      // If cache config not found, set up programmatically
+      s_logger.warn("Could not load a cache configuration for " + name + CACHE_NAME_SUFFIX
+                  + ", building a default configuration programmatically instead");
+      getCacheManager().addCache(new Cache(tweakCacheConfiguration(new CacheConfiguration(name + CACHE_NAME_SUFFIX,
+                                                                                          10000))));
     }
-    _searchRequestCache = cacheManager.getCache(name + CACHE_NAME_SUFFIX);
-    CacheConfiguration cacheConfiguration = _searchRequestCache.getCacheConfiguration();
-
-    // Make copies of cached objects (use default Serializable copy)
-    cacheConfiguration.setCopyOnRead(true);
-    cacheConfiguration.setCopyOnWrite(true);
+     _searchRequestCache = cacheManager.getCache(name + CACHE_NAME_SUFFIX);
 
     // Async prefetch executor service
     ExecutorServiceFactoryBean execBean = new ExecutorServiceFactoryBean();
     execBean.setNumberOfThreads(MAX_PREFETCH_CONCURRENCY);
     execBean.setStyle(ExecutorServiceFactoryBean.Style.CACHED);
     _executorService = execBean.getObjectCreating();
+  }
+
+  private CacheConfiguration tweakCacheConfiguration(CacheConfiguration cacheConfiguration) {
+    // Make copies of cached objects (use default Serializable copy)
+    cacheConfiguration.setCopyOnRead(true);
+    cacheConfiguration.setCopyOnWrite(true);
+    cacheConfiguration.setStatistics(true);
+    return cacheConfiguration;
   }
 
   /**

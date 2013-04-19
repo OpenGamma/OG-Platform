@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.credit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,10 +15,11 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.core.AbstractSourceWithExternalBundle;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.region.Region;
@@ -56,7 +56,7 @@ import com.opengamma.util.money.Currency;
 public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
 
   private CreditDefaultSwapSecurityConverterDeprecated _converter;
-  protected static final String[] s_requirements = { ValueRequirementNames.ACCRUED_DAYS, ValueRequirementNames.ACCRUED_PREMIUM, ValueRequirementNames.CLEAN_PRICE, ValueRequirementNames.PRINCIPAL };
+  protected static final String[] s_requirements = {ValueRequirementNames.ACCRUED_DAYS, ValueRequirementNames.ACCRUED_PREMIUM, ValueRequirementNames.CLEAN_PRICE, ValueRequirementNames.PRINCIPAL };
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -68,7 +68,8 @@ public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+      throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
 
     final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
@@ -167,7 +168,7 @@ public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
     return region;
   }
 
-  class TestRegionSource implements RegionSource {
+  class TestRegionSource extends AbstractSourceWithExternalBundle<Region> implements RegionSource {
 
     private final AtomicLong _count = new AtomicLong(0);
     private final Region _testRegion;
@@ -177,11 +178,11 @@ public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
     }
 
     @Override
-    public Collection<? extends Region> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+    public Collection<Region> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
       _count.getAndIncrement();
-      Collection<? extends Region> result = Collections.emptyList();
+      Collection<Region> result = Collections.emptyList();
       if (_testRegion.getExternalIdBundle().equals(bundle) && versionCorrection.equals(VersionCorrection.LATEST)) {
-        result = Collections.singleton(getTestRegion());
+        result = Collections.singleton((Region) getTestRegion());
       }
       return result;
     }
@@ -228,7 +229,7 @@ public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
 
     /**
      * Gets the count.
-     *
+     * 
      * @return the count
      */
     public AtomicLong getCount() {
@@ -236,17 +237,9 @@ public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
     }
 
     @Override
-    public Map<UniqueId, Region> get(final Collection<UniqueId> uniqueIds) {
-      final Map<UniqueId, Region> result = Maps.newHashMap();
-      for (final UniqueId uniqueId : uniqueIds) {
-        try {
-          final Region security = get(uniqueId);
-          result.put(uniqueId, security);
-        } catch (final DataNotFoundException ex) {
-          // do nothing
-        }
-      }
-      return result;
+    public ChangeManager changeManager() {
+      return DummyChangeManager.INSTANCE;
     }
+
   }
 }

@@ -29,8 +29,11 @@ public final class FunctionConfigurationDefinitionAggregator {
   public FunctionConfigurationSource aggregate(String configDefinitionName) {
     ArgumentChecker.notNull(configDefinitionName, "configDefinitionName");
     FunctionConfigurationDefinition configDefinition = _configSource.getSingle(FunctionConfigurationDefinition.class, configDefinitionName, VersionCorrection.LATEST);
-   
-    return new SimpleFunctionConfigurationSource(functionAggregator(configDefinition));
+    FunctionConfigurationBundle bundle = new FunctionConfigurationBundle();
+    if (configDefinition != null) {
+      bundle = functionAggregator(configDefinition);
+    }
+    return new SimpleFunctionConfigurationSource(bundle);
   }
 
   private FunctionConfigurationBundle functionAggregator(final FunctionConfigurationDefinition configDefinition) {
@@ -48,7 +51,9 @@ public final class FunctionConfigurationDefinitionAggregator {
     for (String configDefinitionName : configDefinition.getFunctionConfigurationDefinitions()) {
       if (!visitedConfigs.contains(configDefinitionName)) {
         FunctionConfigurationDefinition linkedConfig = _configSource.getSingle(FunctionConfigurationDefinition.class, configDefinitionName, VersionCorrection.LATEST);
-        functionAggregatorHelper(functions, visitedConfigs, linkedConfig);
+        if (linkedConfig != null) {
+          functionAggregatorHelper(functions, visitedConfigs, linkedConfig);
+        }
       }
     }
   }

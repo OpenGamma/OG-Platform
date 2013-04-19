@@ -8,7 +8,6 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -17,7 +16,6 @@ import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AbstractFxOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AdditionalCashflow;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.BuySell;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 

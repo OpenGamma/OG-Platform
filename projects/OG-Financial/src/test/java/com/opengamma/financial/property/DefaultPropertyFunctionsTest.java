@@ -11,11 +11,8 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
@@ -353,38 +350,6 @@ public class DefaultPropertyFunctionsTest {
 
   private CompiledFunctionResolver createFunctionResolver(final FunctionCompilationContext ctx) {
     final CompiledFunctionService cfs = new CompiledFunctionService(createFunctionRepository(), new CachingFunctionRepositoryCompiler(), ctx);
-    cfs.setExecutorService(new AbstractExecutorService() {
-
-      @Override
-      public void shutdown() {
-      }
-
-      @Override
-      public List<Runnable> shutdownNow() {
-        return null;
-      }
-
-      @Override
-      public boolean isShutdown() {
-        return false;
-      }
-
-      @Override
-      public boolean isTerminated() {
-        return false;
-      }
-
-      @Override
-      public boolean awaitTermination(final long timeout, final TimeUnit unit) {
-        return false;
-      }
-
-      @Override
-      public void execute(final Runnable command) {
-        command.run();
-      }
-
-    });
     cfs.initialize();
     final FunctionResolver resolver = new DefaultFunctionResolver(cfs, createPrioritizer());
     return resolver.compile(Instant.now());

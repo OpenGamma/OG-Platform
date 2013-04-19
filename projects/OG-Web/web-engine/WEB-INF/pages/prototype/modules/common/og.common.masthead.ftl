@@ -1,9 +1,9 @@
 <section class="OG-masthead">
   <ul>
     <li><a href="login.ftl" class="og-home"><span class="OG-logo-light-small"></span><span>OpenGamma</span></a></li>
-    <li><a href="analytics.ftl" class="og-analytics">Analyse</a></li>
-    <li><a href="analytics2.ftl" class="og-analytics-beta">Analyse &#946;</a></li>
-    <li><a href="blotter.ftl" class="og-blotter">Book</a></li>
+    <li><a href="analytics.ftl" class="og-analytics">Analytics</a></li>
+    <li><a href="analytics2.ftl" class="og-analytics-beta">Analytics &#946;</a></li>
+    <li><a href="blotter.ftl" class="og-blotter">Booking</a></li>
     <li>
       <a href="admin.ftl#/configs/" class="og-configs">Configure</a>
       <div class="og-menu og-active OG-shadow">
@@ -12,7 +12,7 @@
             <td>
               <header>Legal Entities</header>
               <ul>
-                <li><a href="admin.ftl#/legal_entities/">Legal Entities</a></li>
+                <li><a href="admin.ftl#/legalentities/">Legal Entities</a></li>
                 <li><a href="admin.ftl#/exchanges/">Exchanges</a></li>
                 <li><a href="admin.ftl#/portfolios/">Portfolios</a></li>
               </ul>

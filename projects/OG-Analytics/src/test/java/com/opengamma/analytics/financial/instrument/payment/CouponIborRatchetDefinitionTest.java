@@ -46,15 +46,15 @@ public class CouponIborRatchetDefinitionTest {
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
   private static final DayCount DAY_COUNT_PAYMENT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final double ACCRUAL_FACTOR = DAY_COUNT_PAYMENT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
-  private static final double[] MAIN_COEF = new double[] {0.4, 0.5, 0.0010};
-  private static final double[] FLOOR_COEF = new double[] {0.75, 0.00, 0.00};
-  private static final double[] CAP_COEF = new double[] {1.50, 1.00, 0.0050};
+  private static final double[] MAIN_COEF = new double[] {0.4, 0.5, 0.0010 };
+  private static final double[] FLOOR_COEF = new double[] {0.75, 0.00, 0.00 };
+  private static final double[] CAP_COEF = new double[] {1.50, 1.00, 0.0050 };
   private static final double NOTIONAL = 1000000; //1m
   private static final CouponIborRatchetDefinition RATCHET_IBOR_DEFINITION = new CouponIborRatchetDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
       FIXING_DATE, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
 

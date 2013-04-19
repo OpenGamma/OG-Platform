@@ -8,15 +8,21 @@ package com.opengamma.engine.target;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.engine.target.resolver.ObjectResolver;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Implementation of the {@code NULL} computation target type. This is an explicit type for null or empty targets.
  */
-/* package */final class NullComputationTargetType extends ComputationTargetType {
+/* package */final class NullComputationTargetType extends ComputationTargetType implements ObjectResolver<UniqueIdentifiable> {
 
   private static final long serialVersionUID = 1L;
+
+  // ComputationTargetType
 
   @Override
   public boolean isCompatible(final UniqueIdentifiable target) {
@@ -107,6 +113,23 @@ import com.opengamma.id.UniqueIdentifiable;
   @Override
   public int hashCode() {
     return NullComputationTargetType.class.hashCode();
+  }
+
+  // ObjectResolver
+
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
+  }
+
+  @Override
+  public UniqueIdentifiable resolveObject(UniqueId uniqueId, VersionCorrection versionCorrection) {
+    return null;
+  }
+
+  @Override
+  public boolean isDeepResolver() {
+    return false;
   }
 
 }

@@ -26,4 +26,11 @@ public interface ObjectResolver<T extends UniqueIdentifiable> extends ChangeProv
    */
   T resolveObject(UniqueId uniqueId, VersionCorrection versionCorrection);
 
+  /**
+   * Reports whether this resolver will perform deep resolution based on the version/correction timestamp.
+   * 
+   * @return true if deep-resolution is performed, false if the version/correction timestamp will be ignored
+   */
+  boolean isDeepResolver();
+
 }

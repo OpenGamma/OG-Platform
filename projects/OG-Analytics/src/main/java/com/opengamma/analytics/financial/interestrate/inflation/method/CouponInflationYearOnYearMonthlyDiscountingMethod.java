@@ -105,7 +105,7 @@ public class CouponInflationYearOnYearMonthlyDiscountingMethod {
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexEndBar));
     listPrice.add(new DoublesPair(coupon.getReferenceStartTime(), estimatedIndexStartBar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
-    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPriceIndex(resultMapDisc, resultMapPrice);
     return MultipleCurrencyInflationSensitivity.of(coupon.getCurrency(), inflationSensitivity);
   }
 

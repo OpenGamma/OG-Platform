@@ -58,12 +58,12 @@ public class InflationSensitivityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDsc2() {
-    InflationSensitivity.ofYieldDiscountingAndPrice(null, new HashMap<String, List<DoublesPair>>());
+    InflationSensitivity.ofYieldDiscountingAndPriceIndex(null, new HashMap<String, List<DoublesPair>>());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullPrice2() {
-    InflationSensitivity.ofYieldDiscountingAndPrice(new HashMap<String, List<DoublesPair>>(), null);
+    InflationSensitivity.ofYieldDiscountingAndPriceIndex(new HashMap<String, List<DoublesPair>>(), null);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class InflationSensitivityTest {
     assertEquals("InflationSensitivity: of", mapFwd, of.getForwardSensitivities());
     assertEquals("InflationSensitivity: of", mapIn, of.getPriceCurveSensitivities());
 
-    InflationSensitivity ofDscIn = InflationSensitivity.ofYieldDiscountingAndPrice(mapDsc, mapIn);
+    InflationSensitivity ofDscIn = InflationSensitivity.ofYieldDiscountingAndPriceIndex(mapDsc, mapIn);
     assertEquals("InflationSensitivity: of", mapDsc, ofDscIn.getYieldDiscountingSensitivities());
     assertEquals("InflationSensitivity: of", mapIn, ofDscIn.getPriceCurveSensitivities());
     AssertSensivityObjects.assertEquals("InflationSensitivity: of", InflationSensitivity.of(mapDsc, new HashMap<String, List<ForwardSensitivity>>(), mapIn), ofDscIn, TOLERANCE);
@@ -140,7 +140,7 @@ public class InflationSensitivityTest {
     sensi11.put(CURVE_NAME_1, SENSI_DATA_1);
     final Map<String, List<DoublesPair>> sensi22 = new HashMap<String, List<DoublesPair>>();
     sensi22.put(CURVE_NAME_2, SENSI_DATA_2);
-    InflationSensitivity pvSensiDscIn = InflationSensitivity.ofYieldDiscountingAndPrice(sensi11, sensi22);
+    InflationSensitivity pvSensiDscIn = InflationSensitivity.ofYieldDiscountingAndPriceIndex(sensi11, sensi22);
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscIn.plus(pvSensiDscIn).cleaned(), pvSensiDscIn.multipliedBy(2.0).cleaned(), TOLERANCE);
   }
 

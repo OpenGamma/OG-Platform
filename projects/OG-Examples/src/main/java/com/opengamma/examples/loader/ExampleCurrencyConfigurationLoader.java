@@ -22,7 +22,6 @@ public class ExampleCurrencyConfigurationLoader extends AbstractTool<ToolContext
   @Override
   protected void doRun() throws Exception {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
-    new YieldCurveConfigPopulator(configMaster, false);
     CurrencyPairsConfigPopulator.populateCurrencyPairsConfigMaster(configMaster);
     CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(configMaster);
   }

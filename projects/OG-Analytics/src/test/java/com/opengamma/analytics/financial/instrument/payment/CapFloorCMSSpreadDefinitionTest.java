@@ -74,7 +74,7 @@ public class CapFloorCMSSpreadDefinitionTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_1_NAME = "Forward 1";
   //  private static final String FORWARD_CURVE_2_NAME = "Forward 2";
-  private static final String[] CURVES_2_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_1_NAME};
+  private static final String[] CURVES_2_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_1_NAME };
   //  private static final String[] CURVES_3_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_1_NAME, FORWARD_CURVE_2_NAME};
   private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
   private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_2_NAME);

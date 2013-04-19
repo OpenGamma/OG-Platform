@@ -93,7 +93,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethod {
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[0], estimatedIndexMonth0Bar));
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[1], estimatedIndexMonth1Bar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
-    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPriceIndex(resultMapDisc, resultMapPrice);
     return MultipleCurrencyInflationSensitivity.of(coupon.getCurrency(), inflationSensitivity);
   }
 

@@ -8,9 +8,12 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.pricing;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,8 +25,8 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // TODO : Work - in - Progress
 
-  // TODO : Where do we carry out the calibration of the CDS's in the underlying pool?
   // TODO : Make sure the Buy/sell convention is coded correctly
+  // TODO : Need to make sure sort out the LegacyVanillaCreditDefaultSwapDefinition etc issues with the object hierarchy
 
   // NOTE : We pass in market data as vectors of objects. That is, we pass in a vector of yieldCurves
   // NOTE : (hence in principle each Obligor in the UnderlyingPool can have their cashflows discounted
@@ -32,12 +35,16 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Calculate the present value of an Index CDS position
+  private static final GenerateCreditDefaultSwapPremiumLegSchedule PREMIUM_LEG_SCHEDULE_CALCULATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-  public double getPresentValueIndexCreditDefaultSwap(
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the present value of an Index CDS position based on the values of its intrinsic constituents
+
+  public double getIntrinsicPresentValueIndexCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final IndexCreditDefaultSwapDefinition indexCDS,
-      final double indexSpread,
+      final double[] breakevenSpreads,
       final ISDADateCurve[] yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
@@ -48,15 +55,17 @@ public class PresentValueIndexCreditDefaultSwap {
     ArgumentChecker.notNull(yieldCurves, "Yield Curves");
     ArgumentChecker.notNull(hazardRateCurves, "Hazard Rate Curves");
 
-    ArgumentChecker.notNegative(indexSpread, "Index spread");
+    for (int i = 0; i < indexCDS.getUnderlyingPool().getNumberOfObligors(); i++) {
+      ArgumentChecker.notNegative(breakevenSpreads[i], "breakeven spread");
+    }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the value of the premium leg (including accrued if required)
-    double presentValueIndexPremiumLeg = calculateIndexPremiumLeg(valuationDate, indexCDS, yieldCurves, hazardRateCurves);
+    double presentValueIndexPremiumLeg = (indexCDS.getIndexCoupon() / 10000.0) * calculateIndexPremiumLeg(valuationDate, indexCDS, yieldCurves, hazardRateCurves);
 
     // Calculate the value of the contingent leg
-    double presentValueIndexContingentLeg = calculateIndexContingentLeg(valuationDate, indexCDS, yieldCurves, hazardRateCurves);
+    double presentValueIndexContingentLeg = calculateIndexContingentLeg(valuationDate, indexCDS, breakevenSpreads, yieldCurves, hazardRateCurves);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
     double presentValue = -presentValueIndexPremiumLeg + presentValueIndexContingentLeg;
@@ -80,18 +89,17 @@ public class PresentValueIndexCreditDefaultSwap {
       final ISDADateCurve[] yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
-    final int numberofObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    double[] breakevenSpreads = new double[indexCDS.getUnderlyingPool().getNumberOfObligors()];
 
-    double presentValueIndexPremiumLeg = 0.0;
-
-    for (int i = 0; i < numberofObligors; i++) {
-
-      final double pv = 0.0;
-
-      presentValueIndexPremiumLeg += pv;
+    // Build a vector of dummy breakeven spreads
+    for (int i = 0; i < breakevenSpreads.length; i++) {
+      breakevenSpreads[i] = 1.0;
     }
 
-    return presentValueIndexPremiumLeg;
+    // Calculate the intrinsic value of the premium leg
+    final double presentValueIndexPremiumLeg = calculateIndexRiskydV01(valuationDate, indexCDS, breakevenSpreads, yieldCurves, hazardRateCurves);
+
+    return indexCDS.getNotional() * presentValueIndexPremiumLeg;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -100,21 +108,84 @@ public class PresentValueIndexCreditDefaultSwap {
   private double calculateIndexContingentLeg(
       final ZonedDateTime valuationDate,
       final IndexCreditDefaultSwapDefinition indexCDS,
+      final double[] breakevenSpreads,
       final ISDADateCurve[] yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
-    final int numberofObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    // Calculate the intrinsic value of the premium leg
+    final double presentValueIndexContingentLeg = calculateIndexRiskydV01(valuationDate, indexCDS, breakevenSpreads, yieldCurves, hazardRateCurves);
 
-    double presentValueIndexContingentLeg = 0.0;
+    return indexCDS.getNotional() * presentValueIndexContingentLeg;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the risky dV01 for all the index constituents 
+
+  private double calculateIndexRiskydV01(
+      final ZonedDateTime valuationDate,
+      final IndexCreditDefaultSwapDefinition indexCDS,
+      final double[] breakevenSpreads,
+      final ISDADateCurve[] yieldCurves,
+      final HazardRateCurve[] hazardRateCurves) {
+
+    double indexRiskydV01 = 0.0;
+
+    final int numberofObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
 
     for (int i = 0; i < numberofObligors; i++) {
 
-      final double pv = 0.0;
+      // Extract out the CDS associated with obligor i
+      LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) indexCDS.getUnderlyingCDS()[i];
 
-      presentValueIndexContingentLeg += pv;
+      // Calculate the risky dV01 for obligor i
+      final double riskydV01 = calculateRiskydV01(valuationDate, cds, breakevenSpreads[i], yieldCurves[i], hazardRateCurves[i]);
+
+      // Add this to the running total
+      indexRiskydV01 += riskydV01;
     }
 
-    return presentValueIndexContingentLeg;
+    return indexRiskydV01 / numberofObligors;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the risky dV01 for an individual obligor
+
+  private double calculateRiskydV01(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final double breakevenSpread,
+      final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve) {
+
+    double riskydV01 = 0.0;
+
+    // Construct the schedule of payments on the premium leg
+    final ZonedDateTime[] premiumLegSchedule = PREMIUM_LEG_SCHEDULE_CALCULATOR.constructCreditDefaultSwapPremiumLegSchedule(cds);
+
+    // Loop  over each payment date in the schedule
+    for (int i = 1; i < premiumLegSchedule.length; i++) {
+
+      // Does this payment occur in the future ...
+      if (premiumLegSchedule[i].isAfter(valuationDate)) {
+
+        // ... yes, add it to the risky discounted cashflows
+
+        final double timeToPreviousCashflow = TimeCalculator.getTimeBetween(valuationDate, premiumLegSchedule[i - 1]);
+        final double timeToCurrentCashflow = TimeCalculator.getTimeBetween(valuationDate, premiumLegSchedule[i]);
+        final double dcf = TimeCalculator.getTimeBetween(premiumLegSchedule[i - 1], premiumLegSchedule[i]);
+
+        final double discountFactor = yieldCurve.getDiscountFactor(timeToCurrentCashflow);
+
+        final double survivalProbabilityToPreviousCashflow = hazardRateCurve.getSurvivalProbability(timeToPreviousCashflow);
+        final double survivalProbabilityToCurrentCashflow = hazardRateCurve.getSurvivalProbability(timeToCurrentCashflow);
+
+        riskydV01 += (dcf * discountFactor * (survivalProbabilityToPreviousCashflow + survivalProbabilityToCurrentCashflow));
+      }
+    }
+
+    return 0.5 * (breakevenSpread / 10000.0) * riskydV01;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

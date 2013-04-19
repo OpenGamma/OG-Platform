@@ -56,6 +56,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -303,6 +304,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
   private ValueRequirement getYCNSRequirement(final String payCurveName, final String payCurveCalculationConfigName, final String receiveCurveName,
       final String receiveCurveCalculationConfigName, final String currencyName, final String curveName, final Security security) {
     final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)

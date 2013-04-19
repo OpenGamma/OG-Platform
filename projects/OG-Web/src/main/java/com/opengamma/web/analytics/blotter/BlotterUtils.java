@@ -42,6 +42,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
@@ -56,6 +57,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -109,7 +111,9 @@ import com.opengamma.util.time.Expiry;
       LegacyFixedRecoveryCDSSecurity.meta(),
       StandardVanillaCDSSecurity.meta(),
       StandardRecoveryLockCDSSecurity.meta(),
-      StandardFixedRecoveryCDSSecurity.meta());
+      StandardFixedRecoveryCDSSecurity.meta(),
+      CreditDefaultSwapIndexSecurity.meta(),
+      CreditDefaultSwapOptionSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);
@@ -222,6 +226,13 @@ import com.opengamma.util.time.Expiry;
   private static final PropertyFilter s_swaptionUnderlyingFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
 
   /**
+   * Filters out the underlying ID field of {@link CreditDefaultSwapOptionSecurity} when building the HTML showing the security
+   * structure. The back end creates the underlying security and fills this field in so it's of no interest
+   * to the client.
+   */
+  private static final PropertyFilter s_cdsOptionUnderlyingFilter = new PropertyFilter(CreditDefaultSwapOptionSecurity.meta().underlyingId());
+
+  /**
    * Filters out the {@code securityType} field for all securities when building the HTML showing the security
    * structure. This value is read-only in each security type and is of no interest to the client.
    */
@@ -271,7 +282,7 @@ import com.opengamma.util.time.Expiry;
   }
 
   /* package */ static BeanTraverser structureBuildingTraverser() {
-    return new BeanTraverser(s_externalIdBundleFilter, s_securityTypeFilter, s_swaptionUnderlyingFilter, s_fxRegionFilter);
+    return new BeanTraverser(s_externalIdBundleFilter, s_securityTypeFilter, s_swaptionUnderlyingFilter, s_cdsOptionUnderlyingFilter, s_fxRegionFilter);
   }
 
   /* package */

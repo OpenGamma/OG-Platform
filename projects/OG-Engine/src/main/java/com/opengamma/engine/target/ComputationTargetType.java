@@ -171,9 +171,28 @@ public abstract class ComputationTargetType implements Serializable {
     return or(of(clazz));
   }
 
+  /**
+   * Creates a composite type that is either this instance or the alternative.
+   * 
+   * @param alternative the alternative type to this one, not null
+   * @return the composite type instance, not null
+   */
   public ComputationTargetType or(final ComputationTargetType alternative) {
     ArgumentChecker.notNull(alternative, "alternative");
     return s_computationTargetTypes.get(new MultipleComputationTargetType(this, alternative));
+  }
+
+  /**
+   * Creates a composite type that is any of the given alternatives.
+   * <p>
+   * {@code multiple(a, b, c)} will give the same result as {@code a.or(b).or(c)} but is more efficient.
+   * 
+   * @param alternatives the alternative types to this one, not null, not containing null, and with at least two different types
+   * @return the composite type instance, not null
+   */
+  public static ComputationTargetType multiple(final ComputationTargetType... alternatives) {
+    ArgumentChecker.notNull(alternatives, "alternatives");
+    return s_computationTargetTypes.get(new MultipleComputationTargetType(alternatives));
   }
 
   /**
