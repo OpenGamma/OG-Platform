@@ -166,6 +166,24 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * @return the sum of the positions' quantities
    */
   protected BigDecimal sumPositionQuantities(final ManageablePosition position1, final ManageablePosition position2) {
+
+    int tradeQty1 = 0;
+    for (ManageableTrade trade : position1.getTrades()) {
+      tradeQty1 += trade.getQuantity().intValue();
+    }
+    if (tradeQty1 != position1.getQuantity().intValue()) {
+      s_logger.warn("Position " + position1.getUniqueId() + "'s quantity is " + position1.getQuantity()
+                    + " but its trades' quantities add up to " + tradeQty1);
+    }
+    int tradeQty2 = 0;
+    for (ManageableTrade trade : position1.getTrades()) {
+      tradeQty2 += trade.getQuantity().intValue();
+    }
+    if (tradeQty2 != position2.getQuantity().intValue()) {
+      s_logger.warn("Position " + position2.getUniqueId() + "'s quantity is " + position2.getQuantity()
+                    + " but its trades' quantities add up to " + tradeQty1);
+    }
+
     return position1.getQuantity().add(position2.getQuantity());
   }
 
