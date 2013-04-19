@@ -32,6 +32,9 @@ $.register_module({
                         buffer: 17
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
+                    $(obj.selector).click(function () {
+                        $(document).trigger('mousedown.blurkill');
+                    });
                     grid.setSelectionModel(new Slick.RowSelectionModel);
                     $(window).on('resize', function () {
                         setTimeout(function () {
@@ -56,7 +59,6 @@ $.register_module({
                                 filter: slick_manager.data[dd.row].filter
                             }
                         }));
-                        $(document).trigger('mousedown.blurkill');
                     });
 
                     grid.onViewportChanged.subscribe(function () {
