@@ -5,9 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +37,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -138,7 +135,7 @@ public class InstrumentTestHelper {
       fixings.add(FIXING_RATE);
       date = date.plusDays(1);
     }
-    IBOR_FIXING_SERIES = new ListLocalDateDoubleTimeSeries(dates, fixings);
+    IBOR_FIXING_SERIES = ImmutableLocalDateDoubleTimeSeries.of(dates, fixings);
   }
 
   public static final class SemiAnnualDayCount extends DayCount {

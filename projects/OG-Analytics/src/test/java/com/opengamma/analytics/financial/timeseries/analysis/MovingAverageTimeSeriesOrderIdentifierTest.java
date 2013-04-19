@@ -16,9 +16,9 @@ import cern.jet.random.engine.MersenneTwister64;
 import com.opengamma.analytics.financial.timeseries.model.MovingAverageTimeSeriesModel;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -46,7 +46,7 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
       coeffs[i] = 1. / (i + 5);
     }
     MA3 = MA_MODEL.getSeries(coeffs, order, dates);
-    RANDOM = new ArrayLocalDateDoubleTimeSeries(dates, random);
+    RANDOM = ImmutableLocalDateDoubleTimeSeries.of(dates, random);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -71,12 +71,12 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS() {
-    MA_IDENTIFIER.getOrder(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    MA_IDENTIFIER.getOrder(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    MA_IDENTIFIER.getOrder(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2)}, new double[] {0.1, 0.2}));
+    MA_IDENTIFIER.getOrder(ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2)}, new double[] {0.1, 0.2}));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

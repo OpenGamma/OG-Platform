@@ -14,11 +14,13 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.analytics.math.statistics.distribution.StudentTDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
 public class StudentTDistributionMaximumLikelihoodEstimatorTest {
+
   private static final DistributionParameterEstimator<Double> ESTIMATOR = new StudentTDistributionMaximumLikelihoodEstimator();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -31,7 +33,7 @@ public class StudentTDistributionMaximumLikelihoodEstimatorTest {
     ESTIMATOR.evaluate(new double[0]);
   }
 
-  @Test
+  @Test(groups = TestGroup.UNIT_SLOW)
   public void test() {
     final int n = 500000;
     final double eps = 5e-2;

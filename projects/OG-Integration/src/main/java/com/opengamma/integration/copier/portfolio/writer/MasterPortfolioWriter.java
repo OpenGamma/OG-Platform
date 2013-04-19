@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
@@ -265,7 +266,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
       // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
+      return new ObjectsPair<>(addedDoc.getPosition(),
           writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
 
     } else {
@@ -276,34 +277,42 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         // Filter positions in current node of original portfolio
         searchReq.setPositionObjectIds(_originalNode.getPositionIds());
 
-        // Filter positions with same external ids
-        ExternalIdSearch externalIdSearch = new ExternalIdSearch();
-        externalIdSearch.addExternalIds(position.getSecurityLink().getExternalIds());
-        externalIdSearch.setSearchType(ExternalIdSearchType.ALL);
-        searchReq.setSecurityIdSearch(externalIdSearch);
-
         // Filter positions with the same quantity
+        // (comment these out and update the existing position if it should be reused when qty doesn't match even when
+        // loader is run without keep option)
         searchReq.setMinQuantity(position.getQuantity());
         searchReq.setMaxQuantity(position.getQuantity());
 
         // Search
         PositionSearchResult searchResult = _positionMaster.search(searchReq);
 
-        PositionDocument firstDocument = searchResult.getFirstDocument();
-        if (firstDocument != null) {
-          ManageablePosition existingPosition = firstDocument.getPosition();
-          // Add the existing position to the portfolio
-          _currentNode.addPosition(existingPosition.getUniqueId());
+        // Find a position that matches the required security external ids
+        for (ManageablePosition existingPosition : searchResult.getPositions()) {
+          if (writtenSecurities.get(0).getUniqueId().getObjectId().equals(existingPosition.getSecurityLink().getObjectId())) {
+            // Add the existing position to the portfolio
+            _currentNode.addPosition(existingPosition.getUniqueId());
 
-          // Update position map
-          _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+            // Update position map
+            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
 
-          // Return the existing position
-          return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(existingPosition,
-              writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+            // Return the existing position
+            return new ObjectsPair<>(existingPosition,
+                writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+          }
+          for (ExternalId id : existingPosition.getSecurityLink().getExternalIds()) {
+            if (securities[0].getExternalIdBundle().contains(id) && existingPosition.getQuantity().equals(position.getQuantity())) {
+              // Add the existing position to the portfolio
+              _currentNode.addPosition(existingPosition.getUniqueId());
+
+              // Update position map
+              _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+
+              // Return the existing position
+              return new ObjectsPair<>(existingPosition,
+                  writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+            }
+          }
         }
-
-        // TODO also confirm that all the associated trades are identical
       }
 
       // Add the new position to the position master
@@ -409,8 +418,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       if (_originalRoot != null) {
         _originalNode = findNode(newPath, _originalRoot);
+        _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+      } else {
+        _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
       }
-      _currentNode = JodaBeanUtils.clone(getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode()));
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -514,10 +525,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _originalRoot = null;
       _originalNode = null;
 
+      // Set current node to the root node
+      _currentNode = rootNode;
+
     } else {
       _portfolioDocument = portSearchResult.getFirstDocument();
 
-      // If it doesn't, create it (add) 
+      // If it doesn't, create it (add)
       if (_portfolioDocument == null) {
         // Create a new root node
         ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
@@ -528,28 +542,46 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         _portfolioDocument = _portfolioMaster.add(_portfolioDocument);
         _originalRoot = null;
         _originalNode = null;
-        
+
+        // Set current node to the root node
+        _currentNode = rootNode;
+
       // If it does, create a new version of the existing portfolio (update)
       } else {
         ManageablePortfolio portfolio = _portfolioDocument.getPortfolio();
         _originalRoot = portfolio.getRootNode();
         _originalNode = _originalRoot;
 
-        ManageablePortfolioNode rootNode;
         if (_keepCurrentPositions) {
           // Use the original root node
-          rootNode = _originalRoot;
+          portfolio.setRootNode(cloneTree(_originalRoot));
+          _portfolioDocument.setPortfolio(portfolio);
+
+          // Set current node to the root node
+          _currentNode = portfolio.getRootNode();
         } else {
           // Create a new root node
-          rootNode = new ManageablePortfolioNode(portfolioName);
-        }
+          ManageablePortfolioNode rootNode;
+          rootNode = JodaBeanUtils.clone(_originalRoot);
+          rootNode.setChildNodes(new ArrayList<ManageablePortfolioNode>());
+          rootNode.setPositionIds(new ArrayList<ObjectId>());
+          portfolio.setRootNode(rootNode);
+          _portfolioDocument.setPortfolio(portfolio);
 
-        portfolio.setRootNode(rootNode);
-        _portfolioDocument.setPortfolio(portfolio);
+          // Set current node to the root node
+          _currentNode = rootNode;
+        }
       }
     }
-    // Set current node to the root node
-    _currentNode = JodaBeanUtils.clone(_portfolioDocument.getPortfolio().getRootNode());
+  }
+
+  private static ManageablePortfolioNode cloneTree(final ManageablePortfolioNode originalRoot) {
+    ManageablePortfolioNode newRoot = JodaBeanUtils.clone(originalRoot);
+    newRoot.setChildNodes(new ArrayList<ManageablePortfolioNode>());
+    for (ManageablePortfolioNode child : originalRoot.getChildNodes()) {
+      newRoot.addChildNode(cloneTree(child));
+    }
+    return newRoot;
   }
 
   public PortfolioMaster getPortfolioMaster() {
