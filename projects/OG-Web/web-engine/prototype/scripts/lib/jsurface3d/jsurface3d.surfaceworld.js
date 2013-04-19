@@ -378,11 +378,11 @@
             $selector.on('handle_over', function () {
                 js3d.slice.reset_handle_material();
                 handle_hittest[0].object.material = matlib.get_material('phong', settings.slice_handle_color_hover);
-                $selector.css({cursor: 'pointer'});
+                $selector.find('canvas').css({cursor: 'pointer'});
             });
             $selector.on('handle_out', function () {
                 js3d.slice.reset_handle_material();
-                $selector.css({cursor: 'default'});
+                $selector.find('canvas').css({cursor: 'default'});
             });
             $selector.on('slice_handle_click', function () {
                 slice_enabled = true;

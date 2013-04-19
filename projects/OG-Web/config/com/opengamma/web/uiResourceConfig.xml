@@ -479,7 +479,16 @@
     <bundle idref="blotter.js" />
   </bundle>
   <bundle id="env.js">
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.cellmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/env/og.env.curve.js</fragment>
+    <fragment>/scripts/og/env/og.env.data.js</fragment>
     <fragment>/scripts/og/env/og.env.surface.js</fragment>
     <fragment>/scripts/og/env/og.env.timeseries.js</fragment>
     <fragment>/scripts/og/env/og.env.timeseries_multiple.js</fragment>
