@@ -142,14 +142,18 @@ $.register_module({
             var clean_up = function (grid) {
                 $('.' + line).remove();
                 $(document).off(namespace);
-                grid.selector.clear();
             };
             var mousemove = function (grid, event) {
                 $('.' + line).css({left: Math.max(event.pageX - 3, (start_left - start_width) + min_size)});
             };
             var mouseup = function (grid, event) {
+                var new_width = Math.max(min_size, start_width + (event.pageX - start_left)),
+                    selection = grid.selector.selection();
                 clean_up(grid);
-                grid.state.col_override[index] = Math.max(min_size, start_width + (event.pageX - start_left));
+                if (selection && ~selection.cols.indexOf(index))
+                    selection.cols.forEach(function (col) {grid.state.col_override[col] = new_width;});
+                else
+                    grid.state.col_override[index] = new_width;
                 grid.resize();
             };
             return function (event, $target) {
@@ -597,6 +601,14 @@ $.register_module({
                 row_value: grid.data[data_index - col_index].v
             };
         };
+        Grid.prototype.cell_coords = function (row, col) {
+            var grid = this, meta = grid.meta, state = grid.state, top, bottom, left, right;
+            top = state.available.indexOf(row) * meta.row_height;
+            bottom = top + meta.row_height;
+            left = col ? meta.columns.scan.all[col - 1] : 0;
+            right = left + meta.columns.widths[col];
+            return {top: top, bottom: bottom, left: left, right: right};
+        };
         Grid.prototype.col_widths = function () {
             var grid = this, state = grid.state, meta = grid.meta, avg_col_width, fixed_width,
                 fixed_cols = meta.columns.fixed, scroll_cols = meta.columns.scroll, scroll_data_width,
@@ -719,6 +731,7 @@ $.register_module({
             if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
             else sheet.appendChild(document.createTextNode(css));
             grid.offset = grid.elements.parent.offset();
+            grid.fire('resize');
             return viewport.call(grid, render_header);
         };
         Grid.prototype.toggle = function (bool) {
