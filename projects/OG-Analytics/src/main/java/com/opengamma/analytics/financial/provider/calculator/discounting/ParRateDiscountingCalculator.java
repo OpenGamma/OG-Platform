@@ -48,7 +48,11 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
 
-  // TODO: Add FRA
+  //     -----     Payment/Coupon     ------
+
+  // TODO: add FRA
+
+  //     -----     Swap     -----
 
   /**
    * Computes the par rate of a swap with one fixed leg.
@@ -96,7 +100,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
     return METHOD_IR_FUT.parRate(futures, multicurves);
   }
 
-  // -----     Forex     ------
+  //     -----     Forex     ------
 
   /**
    * Computes the forward forex rate.
