@@ -30,7 +30,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
@@ -169,7 +169,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
                 ? timeSeries.subSeries(start, includeStart, end, includeEnd).head(maxPoints)
                 : timeSeries.subSeries(start, includeStart, end, includeEnd).tail(-maxPoints);
           hts.setUniqueId(UID);
-          hts.setTimeSeries(lddts.toLocalDateDoubleTimeSeries());
+          hts.setTimeSeries(lddts);
           when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(startInput, endInput, maxPoints))).thenReturn(hts);
           when(_mockMaster.search(request)).thenReturn(searchResult);
           

@@ -9,19 +9,22 @@ $.register_module({
         var util = this, bools = {"false": false, "true": true};
         return util = {
             /* Util methods */
-            create_name : function (data){
+            create_name : function (data) {
                 return data.security.type + " " + data.trade.tradeDate;
             },
-            check_radio : function (name, value){
+            create_underlying_name : function (data) {
+                return data.underlying.type + " " + data.trade.tradeDate;
+            },
+            check_radio : function (name, value) {
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
             },
-            set_select : function (name, value){
+            set_select : function (name, value) {
                 $('select[name="'+ name +'"]').val(value);
             },
-            check_checkbox : function (name, value){
+            check_checkbox : function (name, value) {
                 $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
             },
-            add_date_picker : function (selector){
+            add_date_picker : function (selector) {
                 $(selector).datepicker({ dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true });
             },
             add_time_picker : function (selector) {
@@ -53,6 +56,25 @@ $.register_module({
             set_initial_focus : function () {
                 $('input[name="trade.counterparty"]').focus();
             },
+            set_cds_data : function (prefix, data) {
+                util.add_date_picker('.blotter-date');
+                util.add_time_picker('.blotter-time');
+                if(data[prefix].length) return;
+                util.check_radio(prefix + '.buy', data[prefix].buy);
+                util.check_checkbox(prefix + '.protectionStart', data[prefix].protectionStart);
+                util.check_checkbox(prefix + '.includeAccruedPremium', data[prefix].includeAccruedPremium);
+                util.check_checkbox(prefix + '.adjustEffectiveDate', data[prefix].adjustEffectiveDate);
+                util.check_checkbox(prefix + '.adjustCashSettlementDate', data[prefix].adjustCashSettlementDate);
+                util.check_checkbox(prefix + '.adjustMaturityDate', data[prefix].adjustMaturityDate);
+                util.check_checkbox(prefix + '.immAdjustMaturityDate', data[prefix].immAdjustMaturityDate);
+                util.check_checkbox(prefix + '.adjustSettlementDate', data[prefix].adjustSettlementDate);
+                if(data[prefix].notional)
+                    util.set_select(prefix + '.notional.currency', data[prefix].notional.currency);
+                if(data[prefix].upfrontPayment)
+                    util.set_select(prefix + '.upfrontPayment.currency', data[prefix].upfrontPayment.currency);
+                if(data[prefix].upfrontAmount)
+                    util.set_select(prefix + '.upfrontAmount.currency', data[prefix].upfrontAmount.currency);
+            },
             /* Util data */
             otc_trade : {
                 attributes: {},
@@ -67,6 +89,15 @@ $.register_module({
                 {text:'Floating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
                 {text:'Floating Spread Interest Rate Leg', value:'FloatingSpreadIRLeg'},
                 {text:'Fixed Interest Rate Leg', value:'FixedInterestRateLeg'}
+            ],
+            cds_types : [
+                {text:'CDS Index', value:'CreditDefaultSwapIndexSecurity'},
+                {text:'Legacy Fixed Recovery CDS', value:'LegacyFixedRecoveryCDSSecurity'},
+                {text:'Legacy Recovery Lock CDS', value:'LegacyRecoveryLockCDSSecurity'},
+                {text:'Legacy Vanilla CDS', value:'LegacyVanillaCDSSecurity'},
+                {text:'Standard Fixed Recovery CDS', value:'StandardFixedRecoveryCDSSecurity'},
+                {text:'Standard Recovery Lock CDS', value:'StandardRecoveryLockCDSSecurity'},
+                {text:'Standard Vanilla CDS', value:'StandardVanillaCDSSecurity'}
             ]
         };
     }

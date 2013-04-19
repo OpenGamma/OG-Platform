@@ -8,26 +8,26 @@ package com.opengamma.util.fudgemsg.timeseries;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 
 /**
- * Fudge message builder (serializer/deserializer) for ZonedDateTimeDoubleTimeSeries.
+ * Fudge message encoder/decoder (builder) for ZonedDateTimeDoubleTimeSeries
  */
+@FudgeBuilderFor(ZonedDateTimeDoubleTimeSeries.class)
 public class ZonedDateTimeDoubleTimeSeriesFudgeBuilder implements FudgeBuilder<ZonedDateTimeDoubleTimeSeries> {
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ZonedDateTimeDoubleTimeSeries object) {
-    // TODO Auto-generated method stub
-    return null;
+    return DoubleTimeSeriesFudgeBuilder.INSTANCE.buildMessage(serializer, object);
   }
 
   @Override
   public ZonedDateTimeDoubleTimeSeries buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    // TODO Auto-generated method stub
-    return null;
+    return (ZonedDateTimeDoubleTimeSeries) DoubleTimeSeriesFudgeBuilder.INSTANCE.buildObject(deserializer, message);
   }
 
 }

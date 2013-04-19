@@ -17,8 +17,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
@@ -30,9 +29,9 @@ public class FadeInOptionDefinitionTest {
   private static final double DIFF = 5;
   private static final double LOWER = 50 - DIFF;
   private static final double UPPER = 50 + DIFF;
-  private static final DoubleTimeSeries<?> ALL_WITHIN_RANGE = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
+  private static final DoubleTimeSeries<?> ALL_WITHIN_RANGE = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
       new double[] {SPOT, SPOT, SPOT, SPOT, SPOT});
-  private static final DoubleTimeSeries<?> ONE_WITHIN_RANGE = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
+  private static final DoubleTimeSeries<?> ONE_WITHIN_RANGE = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
       new double[] {SPOT + 2 * DIFF, SPOT + 3 * DIFF, SPOT, SPOT - 1.5 * DIFF, SPOT - 4 * DIFF});
   private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.06));
   private static final double B = 0.04;

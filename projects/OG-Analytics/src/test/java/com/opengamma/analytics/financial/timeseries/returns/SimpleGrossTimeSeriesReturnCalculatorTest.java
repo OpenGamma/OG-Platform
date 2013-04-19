@@ -19,8 +19,8 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.timeseries.TimeSeriesException;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
 
 /**
@@ -43,7 +43,7 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testWithBadInputs() {
-    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1) }, new double[] {4});
+    final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1) }, new double[] {4});
     CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {ts});
   }
 
@@ -62,8 +62,8 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
         returns[i - 1] = random / data[i - 1];
       }
     }
-    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
-    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    final LocalDateDoubleTimeSeries priceTS = ImmutableLocalDateDoubleTimeSeries.of(times, data);
+    final LocalDateDoubleTimeSeries returnTS = ImmutableLocalDateDoubleTimeSeries.of(Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {priceTS}).equals(returnTS));
   }
 
@@ -86,8 +86,8 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     data[n - 2] = 0;
     times[n - 1] = LocalDate.ofEpochDay(n - 1);
     data[n - 1] = RANDOM.nextDouble();
-    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
-    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns);
+    final LocalDateDoubleTimeSeries priceTS = ImmutableLocalDateDoubleTimeSeries.of(times, data);
+    final LocalDateDoubleTimeSeries returnTS = ImmutableLocalDateDoubleTimeSeries.of(Arrays.copyOfRange(times, 1, n - 2), returns);
     final TimeSeriesReturnCalculator strict = new SimpleGrossTimeSeriesReturnCalculator(CalculationMode.STRICT);
     final LocalDateDoubleTimeSeries[] tsArray = new LocalDateDoubleTimeSeries[] {priceTS};
     try {
@@ -114,9 +114,9 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
         returns[i - 1] = random / data[i - 1];
       }
     }
-    final LocalDateDoubleTimeSeries dividendTS = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] { LocalDate.ofEpochDay(300) }, new double[] {3});
-    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
-    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    final LocalDateDoubleTimeSeries dividendTS = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] { LocalDate.ofEpochDay(300) }, new double[] {3});
+    final LocalDateDoubleTimeSeries priceTS = ImmutableLocalDateDoubleTimeSeries.of(times, data);
+    final LocalDateDoubleTimeSeries returnTS = ImmutableLocalDateDoubleTimeSeries.of(Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {priceTS, dividendTS}).equals(returnTS));
   }
 
@@ -143,9 +143,9 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
         }
       }
     }
-    final LocalDateDoubleTimeSeries dividendTS = new ArrayLocalDateDoubleTimeSeries(dividendTimes, dividendData);
-    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
-    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    final LocalDateDoubleTimeSeries dividendTS = ImmutableLocalDateDoubleTimeSeries.of(dividendTimes, dividendData);
+    final LocalDateDoubleTimeSeries priceTS = ImmutableLocalDateDoubleTimeSeries.of(times, data);
+    final LocalDateDoubleTimeSeries returnTS = ImmutableLocalDateDoubleTimeSeries.of(Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {priceTS, dividendTS}).equals(returnTS));
   }
 }

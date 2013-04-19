@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -35,7 +35,7 @@ public class VarianceSwapDefinitionTest {
   private static final double volStrike = 0.25;
   private static final double volNotional = 1.0E6;
 
-  private final DoubleTimeSeries<LocalDate> emptyTimeSeries = new ArrayLocalDateDoubleTimeSeries(new LocalDate[0], new double[0]);
+  private final DoubleTimeSeries<LocalDate> emptyTimeSeries = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   @Test
   public void forwardStarting() {

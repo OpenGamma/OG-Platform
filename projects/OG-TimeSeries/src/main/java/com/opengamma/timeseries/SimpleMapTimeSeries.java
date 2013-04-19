@@ -5,6 +5,7 @@
  */
 package com.opengamma.timeseries;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import java.util.TreeMap;
  * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  * @param <V> the value being viewed over time, such as {@code Double}
  */
-public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
+public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -48,9 +49,9 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
    * @param valueType  the value type, not null
    */
   @SuppressWarnings("unchecked")
-  public SimpleMapTimeSeries(final Class<T> dateTimeType, final Class<V> valueType) {
-    ArgumentChecker.notNull(dateTimeType, "dateTimeType");
-    ArgumentChecker.notNull(valueType, "valueType");
+  public SimpleMapTimeSeries(Class<T> dateTimeType, Class<V> valueType) {
+    TimeSeriesUtils.notNull(dateTimeType, "dateTimeType");
+    TimeSeriesUtils.notNull(valueType, "valueType");
     _map = new TreeMap<T, V>();
     _times = (T[]) Array.newInstance(dateTimeType, 0);
     _values = (V[]) Array.newInstance(valueType, 0);
@@ -62,11 +63,11 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
    * @param dateTimes  the date-times, not null
    * @param values  the values, not null
    */
-  public SimpleMapTimeSeries(final T[] dateTimes, final V[] values) {
-    ArgumentChecker.notNull(dateTimes, "dateTimes");
-    ArgumentChecker.notNull(values, "values");
-    ArgumentChecker.isTrue(dateTimes.length == values.length, "Arrays must be same length");
-    final NavigableMap<T, V> newMap = new TreeMap<T, V>();
+  public SimpleMapTimeSeries(T[] dateTimes, V[] values) {
+    TimeSeriesUtils.notNull(dateTimes, "dateTimes");
+    TimeSeriesUtils.notNull(values, "values");
+    TimeSeriesUtils.isTrue(dateTimes.length == values.length, "Arrays must be same length");
+    NavigableMap<T, V> newMap = new TreeMap<T, V>();
     for (int i = 0; i < dateTimes.length; i++) {
       newMap.put(dateTimes[i], values[i]);
     }
@@ -83,15 +84,15 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
    * @param oldValues  the old value array, not null
    */
   @SuppressWarnings("unchecked")
-  private SimpleMapTimeSeries(final NavigableMap<T, V> map, final T[] oldDateTimes, final V[] oldValues) {
-    ArgumentChecker.notNull(map, "map");
-    ArgumentChecker.notNull(oldDateTimes, "oldDateTimes");
-    ArgumentChecker.notNull(oldValues, "oldValues");
+  private SimpleMapTimeSeries(NavigableMap<T, V> map, T[] oldDateTimes, V[] oldValues) {
+    TimeSeriesUtils.notNull(map, "map");
+    TimeSeriesUtils.notNull(oldDateTimes, "oldDateTimes");
+    TimeSeriesUtils.notNull(oldValues, "oldValues");
     _map = map;
     _times = (T[]) Array.newInstance(oldDateTimes.getClass().getComponentType(), map.size());
     _values = (V[]) Array.newInstance(oldValues.getClass().getComponentType(), map.size());
     int i = 0;
-    for (final T oldDateTime : oldDateTimes) {
+    for (T oldDateTime : oldDateTimes) {
       if (map.containsKey(oldDateTime)) {
         _times[i] = oldDateTime;
         _values[i++] = map.get(oldDateTime);
@@ -111,17 +112,22 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   }
 
   @Override
-  public V getValue(final T dateTime) {
+  public boolean containsTime(T dateTime) {
+    return _map.containsKey(dateTime);
+  }
+
+  @Override
+  public V getValue(T dateTime) {
     return _map.get(dateTime);
   }
 
   @Override
-  public T getTimeAt(final int index) {
+  public T getTimeAtIndex(int index) {
     return _times[index];
   }
 
   @Override
-  public V getValueAt(final int index) {
+  public V getValueAtIndex(int index) {
     return _values[index];
   }
 
@@ -151,7 +157,7 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   }
 
   @Override
-  public Iterator<T> timeIterator() {
+  public Iterator<T> timesIterator() {
     return _map.keySet().iterator();
   }
 
@@ -161,35 +167,35 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   }
 
   @Override
-  public TimeSeries<T, V> subSeries(final T startTime, final boolean includeStart, final T endTime, final boolean includeEnd) {
+  public TimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd) {
     return new SimpleMapTimeSeries<T, V>(_map.subMap(startTime, includeStart, endTime, includeEnd), _times, _values);
   }
 
   @Override
-  public TimeSeries<T, V> subSeries(final T startTimeInclusive, final T endTimeExclusive) {
+  public TimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive) {
     return new SimpleMapTimeSeries<T, V>((NavigableMap<T, V>) _map.subMap(startTimeInclusive, endTimeExclusive), _times, _values);
   }
 
   @Override
-  public TimeSeries<T, V> head(final int numItems) {
-    final T element = getTimeAt(numItems);
+  public TimeSeries<T, V> head(int numItems) {
+    T element = getTimeAtIndex(numItems);
     return new SimpleMapTimeSeries<T, V>(_map.headMap(element, true), _times, _values);
   }
 
   @Override
-  public TimeSeries<T, V> tail(final int numItems) {
-    final T element = getTimeAt(size() - numItems);
+  public TimeSeries<T, V> tail(int numItems) {
+    T element = getTimeAtIndex(size() - numItems);
     return new SimpleMapTimeSeries<T, V>(_map.tailMap(element, true), _times, _values);
   }
 
   @Override
-  public TimeSeries<T, V> lag(final int lagCount) {
+  public TimeSeries<T, V> lag(int lagCount) {
     if (lagCount == 0) {
       return this;
     } else {
-      final NavigableMap<T, V> newMap = new TreeMap<T, V>();
-      final Iterator<T> times = timeIterator();
-      final Iterator<V> values = valuesIterator();
+      NavigableMap<T, V> newMap = new TreeMap<T, V>();
+      Iterator<T> times = timesIterator();
+      Iterator<V> values = valuesIterator();
       if (lagCount > 0) {
         if (lagCount < _times.length) {
           for (int i = 0; i < lagCount; i++) {
@@ -234,14 +240,14 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   }
 
   @Override
-  public TimeSeries<T, V> newInstance(final T[] dateTimes, final V[] values) {
+  public TimeSeries<T, V> newInstance(T[] dateTimes, V[] values) {
     return new SimpleMapTimeSeries<T, V>(dateTimes, values);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return ToStringHelper.toString(this);
+    return TimeSeriesUtils.toString(this);
   }
 
 }

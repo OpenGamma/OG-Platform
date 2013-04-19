@@ -8,13 +8,13 @@ package com.opengamma.web.analytics.formatting;
 import java.util.List;
 import java.util.Map;
 
-import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  *
@@ -40,12 +40,11 @@ import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
   }
 
   private Map<String, Object> formatExpanded(LocalDateDoubleTimeSeries value) {
-    ZonedDateTimeDoubleTimeSeries series = value.toZonedDateTimeDoubleTimeSeries();
-    List<Object[]> data = Lists.newArrayListWithCapacity(series.size());
-    for (Map.Entry<ZonedDateTime, Double> entry : series) {
-      long timeMillis = entry.getKey().toInstant().toEpochMilli();
-      Double vol = entry.getValue();
-      data.add(new Object[]{timeMillis, vol});
+    List<Object[]> data = Lists.newArrayListWithCapacity(value.size());
+    for (LocalDateDoubleEntryIterator it = value.iterator(); it.hasNext(); ) {
+      LocalDate date = it.nextTime();
+      long epochMillis = date.toEpochDay() * 86400;
+      data.add(new Object[]{epochMillis, it.currentValue()});
     }
     Map<String, String> templateData = ImmutableMap.of("data_field", "Historical Time Series",
                                                        "observation_time", "Historical Time Series");

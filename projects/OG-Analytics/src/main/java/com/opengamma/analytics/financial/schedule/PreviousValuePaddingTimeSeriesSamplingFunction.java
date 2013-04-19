@@ -10,9 +10,9 @@ import java.util.List;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,10 +21,10 @@ import com.opengamma.util.ArgumentChecker;
 public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFunction {
 
   @Override
-  public DoubleTimeSeries<?> getSampledTimeSeries(final DoubleTimeSeries<?> ts, final LocalDate[] schedule) {
+  public LocalDateDoubleTimeSeries getSampledTimeSeries(final DateDoubleTimeSeries<?> ts, final LocalDate[] schedule) {
     ArgumentChecker.notNull(ts, "time series");
     ArgumentChecker.notNull(schedule, "schedule");
-    final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries localDateTS = ImmutableLocalDateDoubleTimeSeries.of(ts);
     final LocalDate[] tsDates = localDateTS.timesArray();
     final double[] values = localDateTS.valuesArrayFast();
     final List<LocalDate> scheduledDates = new ArrayList<>();
@@ -53,6 +53,6 @@ public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSerie
         scheduledData.add(values[dateIndex - 1]);
       }
     }
-    return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
+    return ImmutableLocalDateDoubleTimeSeries.of(scheduledDates, scheduledData);
   }
 }

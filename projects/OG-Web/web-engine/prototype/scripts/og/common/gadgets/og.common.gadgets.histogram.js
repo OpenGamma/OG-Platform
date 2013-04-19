@@ -29,7 +29,7 @@ $.register_module({
                     range = max - min, interval = range / buckets;
                 // 2D count array, 1D is the label made up of the lower bound of the bucket
                 for (; i < buckets; i++) {
-                    label = (min + (interval * i))/length;
+                    label = (min + (interval * i))/*/length*/;
                     count[i] = [label, 0];
                 }
                 // 2D count array, 2D is the number of occurances in [bound, next bound)
@@ -44,7 +44,7 @@ $.register_module({
                 if (count.map(function(v) { return v[1]; }).reduce(function(a,b) { return a + b; }) != length)
                     og.dev.warn('bucket totals to not match dataset length');
                 */
-                return {histogram_data: count, interval: interval/length};
+                return {histogram_data: count, interval: interval/*/length*/};
             };
             /*normpdf = function (x, mu, sigma, constant) {
                 var diff = x-mu;

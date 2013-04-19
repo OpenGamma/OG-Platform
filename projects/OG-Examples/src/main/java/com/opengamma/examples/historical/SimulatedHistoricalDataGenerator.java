@@ -28,8 +28,9 @@ import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
@@ -131,16 +132,16 @@ public class SimulatedHistoricalDataGenerator {
   }
 
   public static LocalDateDoubleTimeSeries getHistoricalDataPoints(final Random random, final Double finishValue, final int tsLength) {
-    final MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate now = LocalDate.now();
     final LocalDate stopDate = DateUtils.previousWeekDay(now.minusMonths(tsLength));
     double currentValue = finishValue;
     do {
       currentValue = wiggleValue(random, currentValue, finishValue);
-      result.putDataPoint(now, currentValue);
+      bld.put(now, currentValue);
       now = DateUtils.previousWeekDay(now);
     } while (now.isAfter(stopDate));
-    return result;
+    return bld.build();
   }
 
   private static double wiggleValue(final Random random, final double value, final double centre) {

@@ -18,9 +18,9 @@ $.register_module({
                     padding: '2px', backgroundColor: '#000', opacity: 0.50, zIndex: 6, color: '#fff'
                 }).appendTo("body").fadeIn(200);
             };
-            percentage = function (val, points) {
+            /*percentage = function (val, points) {
                 return (val*100).toFixed(points || 2) +"%";  
-            };
+            };*/
             load_plots = function () {
                 var previousPoint = null;
                 options = {
@@ -36,8 +36,8 @@ $.register_module({
                         fill: true,
                         align: 'left', // or "center"
                         horizontal: false
-                    },
-                    xaxis: {tickFormatter: function (val, axis) {return percentage(val);}}
+                    }/*,
+                    xaxis: {tickFormatter: function (val, axis) {return percentage(val);}}*/
                 };
                 var data = [
                     {
@@ -73,7 +73,8 @@ $.register_module({
                         if (previousPoint != item.dataIndex) {
                             var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.interval,
                                 occur = y == 1 ? ' occurrence ' : ' occurrences ',
-                                msg = y + occur + 'in range<br/>' + percentage(x, 5) + ' to ' + percentage(delta,5);
+                                //msg = y + occur + 'in range<br/>' + percentage(x, 5) + ' to ' + percentage(delta,5);
+                                msg = y + occur + 'in range<br/>' + x.toFixed(5) + ' to ' + x.toFixed(5);
                                 previousPoint = item.dataIndex;
                             $('#tooltip').remove();
                             show_tooltip(pos.pageX, pos.pageY, msg);

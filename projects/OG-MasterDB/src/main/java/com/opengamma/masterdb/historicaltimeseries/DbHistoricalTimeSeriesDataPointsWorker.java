@@ -37,8 +37,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -127,7 +127,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       result = namedJdbc.query(sqlExists, args, new ManageableHTSExtractor(oid));
       if (result != null) {
         // The time series doc exists or existed at some point, it's just that there are no data-points
-        result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+        result.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
         return result;
       } else {
         // The time series with the supplied id never existed
@@ -149,7 +149,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       args.addValue("order", "DESC");
     } else {
       // Zero datapoints requested
-      result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+      result.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
       return result;
     }
 
@@ -160,7 +160,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       result.setTimeSeries(series);
     } else {
       //TODO: this is a hack, most of the places that call with this condition want some kind of metadata, which it would be cheaper for us to expose specifically
-      result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+      result.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     }
     return result;
   }
@@ -204,9 +204,9 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     Date result = getDbConnector().getJdbcTemplate().queryForObject(sql, Date.class, queryArgs);
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
-      if (series.getTimeAt(0).isAfter(maxDate) == false) {
+      if (series.getEarliestTime().isAfter(maxDate) == false) {
         throw new IllegalArgumentException("Unable to update data points of time-series " + uniqueId +
-            " as the update starts at " + series.getTimeAt(0) +
+            " as the update starts at " + series.getEarliestTime() +
             " which is before the latest data point in the database at " + maxDate);
       }
     }
@@ -437,7 +437,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
           throw new OpenGammaRuntimeException("Unexpected duplicate data point entry");
         }
       }
-      return new ArrayLocalDateDoubleTimeSeries(dates, values);
+      return ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     }
   }
 

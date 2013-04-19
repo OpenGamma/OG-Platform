@@ -5,48 +5,118 @@
  */
 package com.opengamma.timeseries.date;
 
-import java.util.Date;
-
-import com.opengamma.timeseries.AbstractIntObjectTimeSeries;
-import com.opengamma.timeseries.AbstractLongObjectTimeSeries;
-import com.opengamma.timeseries.DateTimeConverter;
-import com.opengamma.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
+import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
+import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 
 /**
+ * A time series that stores {@code Object} data values against dates.
+ * <p>
+ * The "time" key to the time-series is a date.
+ * See {@link DateTimeSeries} for details about the "time" represented as an {@code int}.
  * 
- * @param <T> The type of the data
+ * @param <T>  the date type
+ * @param <V>  the value being viewed over time
  */
-public interface DateObjectTimeSeries<T> extends ObjectTimeSeries<Date, T>, FastBackedObjectTimeSeries<Date, T> {
+public interface DateObjectTimeSeries<T, V>
+    extends ObjectTimeSeries<T, V>, DateTimeSeries<T, V> {
 
-  /** */
-  public abstract static class Integer<T> extends AbstractIntObjectTimeSeries<Date, T> implements DateObjectTimeSeries<T> {
-    public Integer(final DateTimeConverter<Date> converter, final FastIntObjectTimeSeries<T> timeSeries) {
-      super(converter, timeSeries);
-    }
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> subSeries(T startTime, T endTime);
 
-    @Override
-    public ObjectTimeSeries<Date, T> newInstance(final Date[] dateTimes, final T[] values) {
-      return newInstanceFast(dateTimes, values);
-    }
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
-    public abstract DateObjectTimeSeries<T> newInstanceFast(Date[] dateTimes, T[] values);
-   
-  }
+  DateObjectTimeSeries<T, V> subSeriesFast(int startTime, int endTime);
 
-  /** */
-  public abstract static class Long<T> extends AbstractLongObjectTimeSeries<Date, T> implements DateObjectTimeSeries<T> {
-    public Long(final DateTimeConverter<Date> converter, final FastLongObjectTimeSeries<T> timeSeries) {
-      super(converter, timeSeries);
-    }
+  DateObjectTimeSeries<T, V> subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
-    @Override
-    public ObjectTimeSeries<Date, T> newInstance(final Date[] dateTimes, final T[] values) {
-      return newInstanceFast(dateTimes, values);
-    }
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> head(int numItems);
 
-    public abstract DateObjectTimeSeries<T> newInstanceFast(Date[] dateTimes, T[] values);
-  }
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> tail(int numItems);
+
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> lag(int lagCount);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Applies a unary operator to each value in the time series.
+   * 
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  DateObjectTimeSeries<T, V> operate(UnaryOperator<V> operator);
+
+  /**
+   * Applies a binary operator to each value in the time series.
+   * 
+   * @param other  the single value passed into the binary operator
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  DateObjectTimeSeries<T, V> operate(V other, BinaryOperator<V> operator);
+
+  /**
+   * Applies a binary operator to each value in this time series and
+   * another time-series, returning the intersection of times.
+   * 
+   * @param otherTimeSeries  the other time-series, not null
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  DateObjectTimeSeries<T, V> operate(DateObjectTimeSeries<?, V> otherTimeSeries, BinaryOperator<V> operator);
+
+  /**
+   * Applies a binary operator to each value in this time series and
+   * another time-series, returning the union of times.
+   * 
+   * @param otherTimeSeries  the other time-series, not null
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  DateObjectTimeSeries<T, V> unionOperate(DateObjectTimeSeries<?, V> otherTimeSeries, BinaryOperator<V> operator);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from this series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  DateObjectTimeSeries<T, V> intersectionFirstValue(DateObjectTimeSeries<?, V> other);
+
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from the other series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  DateObjectTimeSeries<T, V> intersectionSecondValue(DateObjectTimeSeries<?, V> other);
+
+  /**
+   * Creates a new time-series combining both series where there are no
+   * overlapping date-times.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   * @throws RuntimeException if there are overlapping date-times
+   */
+  DateObjectTimeSeries<T, V> noIntersectionOperation(DateObjectTimeSeries<?, V> other);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a builder containing the same data as this time-series.
+   * <p>
+   * The builder has methods to modify the time-series.
+   * Entries can be added, or removed via the iterator.
+   * 
+   * @return the builder, not null
+   */
+  DateObjectTimeSeriesBuilder<T, V> toBuilder();
+
 }
