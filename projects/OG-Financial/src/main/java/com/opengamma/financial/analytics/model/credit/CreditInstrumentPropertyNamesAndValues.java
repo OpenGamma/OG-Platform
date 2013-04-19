@@ -31,6 +31,12 @@ public class CreditInstrumentPropertyNamesAndValues {
   public static final String PROPERTY_SPREAD_CURVE = "CreditSpreadCurve";
   /** Property name for shifts of the spread curve */
   public static final String PROPERTY_SPREAD_CURVE_SHIFT = "CreditSpreadCurveShift";
+  /** Property name for the credit spread curve shift type */
+  public static final String PROPERTY_SPREAD_CURVE_SHIFT_TYPE = "CreditSpreadCurveShiftType";
+  /** Property name for an additive credit spread curve shift */
+  public static final String ADDITIVE_SPREAD_CURVE_SHIFT = "Additive";
+  /** Property name for a multiplicative credit spread curve shift */
+  public static final String MULTIPLICATIVE_SPREAD_CURVE_SHIFT = "Multiplicative";
 
   /** Property name for number of integration points to use when valuing a CDS */
   public static final String PROPERTY_N_INTEGRATION_POINTS = "IntegrationPoints";
