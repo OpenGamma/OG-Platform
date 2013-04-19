@@ -15,17 +15,19 @@ import com.opengamma.util.functional.Function2;
 
 /**
  * {@link ObjectResolver} implementation that will use a sequence of resolvers in turn if the first fails.
- *
+ * 
  * @param <T> the type to be resolved
  */
 public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectResolver<T> {
 
   private final ObjectResolver<? extends T> _first;
   private final ObjectResolver<? extends T> _second;
+  private final boolean _deep;
 
   public ChainedResolver(final ObjectResolver<? extends T> first, final ObjectResolver<? extends T> second) {
     _first = first;
     _second = second;
+    _deep = first.isDeepResolver() || second.isDeepResolver();
   }
 
   protected ObjectResolver<? extends T> getFirst() {
@@ -48,6 +50,11 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
   @Override
   public ChangeManager changeManager() {
     return new PassthroughChangeManager(getFirst(), getSecond());
+  }
+
+  @Override
+  public boolean isDeepResolver() {
+    return _deep;
   }
 
   /**

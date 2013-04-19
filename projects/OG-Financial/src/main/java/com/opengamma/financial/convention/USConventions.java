@@ -26,7 +26,6 @@ import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Contains information used to construct standard versions of USD instruments.
@@ -147,6 +146,7 @@ public class USConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_SWAP")), "USD_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency, 2, simpleNameSecurityId("USD LIBOR 3m"),
         usgb, true);
+
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_3M_SWAP")), "USD_3M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, quarterly, 2, simpleNameSecurityId("USD LIBOR 3m"), usgb, true);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_6M_SWAP")), "USD_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay,

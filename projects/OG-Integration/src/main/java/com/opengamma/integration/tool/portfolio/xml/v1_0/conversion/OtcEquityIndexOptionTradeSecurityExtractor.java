@@ -24,17 +24,20 @@ public class OtcEquityIndexOptionTradeSecurityExtractor extends TradeSecurityExt
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
-
-    EquityIndexOptionSecurity security = new EquityIndexOptionSecurity(_trade.getOptionType(),
-                                                                       _trade.getStrike().doubleValue(),
-                                                                       _trade.getNotionalCurrency(),
-                                                                       _trade.getUnderlyingId().toExternalId(),
-                                                                       _trade.getExerciseType().convert(),
-                                                                       new Expiry(convertLocalDate(_trade.getExpiryDate())),
-                                                                       1,
-                                                                       "OTC");
+    OtcEquityIndexOptionTrade trade = getTrade();
+    EquityIndexOptionSecurity security = new EquityIndexOptionSecurity(
+        trade.getOptionType(),
+        trade.getStrike().doubleValue(),
+        trade.getNotionalCurrency(),
+        trade.getUnderlyingId().toExternalId(),
+        trade.getExerciseType().convert(),
+        new Expiry(convertLocalDate(trade.getExpiryDate())),
+        1,
+        "OTC");
     return securityArray(addIdentifier(security));
   }
+
 }

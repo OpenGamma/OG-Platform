@@ -44,6 +44,11 @@ public final class CurrencyPair implements UniqueIdentifiable {
           return parse(uniqueId.getValue());
         }
 
+        @Override
+        public boolean isDeepResolver() {
+          return false;
+        }
+
       });
 
   /**

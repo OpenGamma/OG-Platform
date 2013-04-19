@@ -40,6 +40,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -90,7 +91,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
-      CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
+      final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
       if (currencyPair == null) {
         return null;
       }
@@ -140,10 +141,11 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
       final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
           ValueProperties.builder()
-              .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
-              .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
-              .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-              .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
+          .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+          .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
+          .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
+          .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
+          .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
       final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
       final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
       final ValueRequirement fxSpotRequirement = ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(payCurrency, receiveCurrency);

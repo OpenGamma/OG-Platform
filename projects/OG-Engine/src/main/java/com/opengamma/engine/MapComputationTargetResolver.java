@@ -8,6 +8,11 @@ package com.opengamma.engine;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.engine.target.resolver.ObjectResolver;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -34,10 +39,37 @@ public class MapComputationTargetResolver extends DefaultComputationTargetResolv
     return resolved;
   }
 
+  @Override
+  public ObjectResolver<?> getResolver(final ComputationTargetSpecification specification) {
+    final ComputationTarget resolved = _backingMap.get(specification);
+    if (resolved != null) {
+      return new ObjectResolver<UniqueIdentifiable>() {
+
+        @Override
+        public ChangeManager changeManager() {
+          return DummyChangeManager.INSTANCE;
+        }
+
+        @Override
+        public UniqueIdentifiable resolveObject(UniqueId uniqueId, VersionCorrection versionCorrection) {
+          return resolved.getUniqueId();
+        }
+
+        @Override
+        public boolean isDeepResolver() {
+          return false;
+        }
+
+      };
+    } else {
+      return super.getResolver(specification);
+    }
+  }
+
   /**
    * Adds a target to the resolver.
-   *
-   * @param target  the target to add, not null
+   * 
+   * @param target the target to add, not null
    */
   public void addTarget(final ComputationTarget target) {
     ArgumentChecker.notNull(target, "target");
@@ -46,7 +78,7 @@ public class MapComputationTargetResolver extends DefaultComputationTargetResolv
 
   /**
    * Returns a string suitable for debugging.
-   *
+   * 
    * @return the string, not null
    */
   @Override

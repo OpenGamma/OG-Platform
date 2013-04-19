@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.copier.portfolio.writer;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -151,7 +153,21 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public void addAttribute(String key, String value) {
     _portfolioDocument.getPortfolio().addAttribute(key, value);
   }
-  
+
+  /**
+   * Returns the sum of the quantities for the specified positions. This is separated out into a method to allow
+   * custom behaviour for different clients. For instance, in one case the sums of the quantities of all the trades
+   * of both positions might be required, whereas in another case the preference might be to sum the quantities of
+   * the positions themselves without regard to the quantities specified in their trades (this is the default behaviour).
+   * This is not featured in the PortfolioWriter interface, and as such is a hack.
+   * @param position1 the first position
+   * @param position2 the second position
+   * @return the sum of the positions' quantities
+   */
+  protected BigDecimal sumPositionQuantities(final ManageablePosition position1, final ManageablePosition position2) {
+    return position1.getQuantity().add(position2.getQuantity());
+  }
+
   /**
    * WritePosition checks if the position exists in the previous version of the portfolio.
    * If so, the existing position is reused.
@@ -172,7 +188,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         ManageableSecurity writtenSecurity = writeSecurity(security);
         if (writtenSecurity != null) {
           writtenSecurities.add(writtenSecurity);
-        }        
+        }
       }
     }
 
@@ -190,7 +206,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // Add new quantity to existing position's quantity
       final ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
-      existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
+      existingPosition.setQuantity(sumPositionQuantities(existingPosition, position));
 
       // Add new trades to existing position's trades
       for (ManageableTrade trade : position.getTrades()) {
@@ -208,13 +224,22 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         return new ObjectsPair<>(addedDoc.getPosition(),
             securities);
       } else {
+        // update position map (huh?)
+        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+
         _executorService.submit(new Runnable() {
           @Override
           public void run() {
-            PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
+            try {
+              // Update the position in the position master
+              PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
-            // update position map (huh?)
-            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+              // Add the new position to the portfolio node
+              _currentNode.addPosition(addedDoc.getUniqueId());
+            } catch (Exception e) {
+              s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+              return;
+            }
           }
         });
 
@@ -300,18 +325,23 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
             writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
       } else {
+        // update position map (huh?)
+        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), position);
+
         _executorService.submit(new Runnable() {
           @Override
           public void run() {
             PositionDocument addedDoc;
             try {
+              // Add the new position to the position master
               addedDoc = _positionMaster.add(new PositionDocument(position));
+
+              // Add the new position to the portfolio node
+              _currentNode.addPosition(addedDoc.getUniqueId());
             } catch (Exception e) {
               s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
               return;
             }
-            // update position map (huh?)
-            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
           }
         });
 
@@ -352,7 +382,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
             return null;
           }
         }
-        if (differences != null && differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class) {
+        if (differences != null && (differences.isEmpty() || (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class))) {
           // It's already there, don't update or add it
           return foundSecurity;
         } else {
@@ -404,7 +434,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       if (_originalRoot != null) {
         _originalNode = findNode(newPath, _originalRoot);
       }
-      _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+      _currentNode = JodaBeanUtils.clone(getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode()));
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -438,6 +468,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   @Override
   public void close() {
+    // Execute remaining position writing threads, which will update the portfolio nodes with any written positions'
+    // object IDs
+    if (_executorService != null) {
+      _executorService.shutdown();
+    }
+
+    // Write the portfolio (include the node tree) to the portfolio master
     flush();
   }
   
@@ -450,7 +487,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
       if (path[0].equals(childNode.getName())) {
-        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length - 1), childNode);
+        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length), childNode);
         if (result != null) {
           return result;
         }
@@ -536,7 +573,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
     }
     // Set current node to the root node
-    _currentNode = _portfolioDocument.getPortfolio().getRootNode();
+    _currentNode = JodaBeanUtils.clone(_portfolioDocument.getPortfolio().getRootNode());
   }
 
   public PortfolioMaster getPortfolioMaster() {

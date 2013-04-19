@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -44,9 +43,9 @@ public class CurveBuildingBlock {
     _unit.putAll(block);
   }
 
-  public void add(String name, int start, int number) {
-    _unit.put(name, new ObjectsPair<Integer, Integer>(start, number));
-  }
+  //  public void add(String name, int start, int number) {
+  //    _unit.put(name, new ObjectsPair<Integer, Integer>(start, number));
+  //  }
 
   /**
    * Returns the start index of the given string in the array of all parameters.

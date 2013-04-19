@@ -14,25 +14,25 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Pricing method for Forex transactions (spot or forward) by discounting each payment.
  */
-public final class ForexDiscountingProviderMethod {
+public final class ForexDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final ForexDiscountingProviderMethod INSTANCE = new ForexDiscountingProviderMethod();
+  private static final ForexDiscountingMethod INSTANCE = new ForexDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static ForexDiscountingProviderMethod getInstance() {
+  public static ForexDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private ForexDiscountingProviderMethod() {
+  private ForexDiscountingMethod() {
   }
 
   /**

@@ -46,7 +46,7 @@ public final class ForexSwapDiscountingProviderMethod {
   /**
    * Forex method by discounting.
    */
-  private static final ForexDiscountingProviderMethod METHOD_FX = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();
 
   /**
    * Compute the present value by discounting the payments in their own currency.

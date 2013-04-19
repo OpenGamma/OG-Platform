@@ -27,6 +27,11 @@ public class UnorderedCurrencyPairResolver implements ObjectResolver<UnorderedCu
   }
 
   @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
+  @Override
   public ChangeManager changeManager() {
     return DummyChangeManager.INSTANCE;
   }

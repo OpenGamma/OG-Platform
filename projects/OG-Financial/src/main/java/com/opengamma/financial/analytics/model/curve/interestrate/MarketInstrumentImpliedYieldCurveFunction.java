@@ -410,12 +410,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
       final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), curveName, curveName);
 
-      InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
+      final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
         if (!_calcTypeParRate) {
           // Scale notional to 1 - this is to better condition the jacobian matrix
           // Set trade price to current market value - so the present value will be zero once fit
-          definition = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);
+          //definition = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);
         }
         marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }

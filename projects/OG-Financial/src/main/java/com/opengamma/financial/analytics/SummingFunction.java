@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
@@ -30,6 +31,8 @@ import com.opengamma.financial.property.UnitProperties;
  * Able to sum a particular requirement name from a set of underlying positions. If any values are not produced (because of missing market data or computation errors) a partial sum is produced.
  */
 public class SummingFunction extends MissingInputsFunction {
+
+  public static final String IGNORE_ROOT_NODE = "SummingFunction.IGNORE_ROOT_NODE";
 
   /**
    * The number of positions that made up the sum.
@@ -68,8 +71,13 @@ public class SummingFunction extends MissingInputsFunction {
 
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      // Applies to any portfolio node
-      return true;
+      // Applies to any portfolio node, except the root if "Don't aggregate root node" is set
+      Portfolio portfolio = context.getPortfolio();
+      if (portfolio == null || portfolio.getAttributes().get(IGNORE_ROOT_NODE) == null) {
+        return true;
+      } else {
+        return target.getPortfolioNode().getParentNodeId() != null;
+      }
     }
 
     @Override

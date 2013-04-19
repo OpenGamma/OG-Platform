@@ -36,7 +36,12 @@ public class ConfigItemTargetResolver implements ObjectResolver<UniqueIdentifiab
 
   @Override
   public UniqueIdentifiable resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
-    return (UniqueIdentifiable) _source.get(uniqueId.getObjectId(), versionCorrection).getValue();
+    return (UniqueIdentifiable) _source.get(uniqueId).getValue();
+  }
+
+  @Override
+  public boolean isDeepResolver() {
+    return false;
   }
 
 }

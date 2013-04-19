@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -59,7 +58,7 @@ public class CouponIborGearingDefinitionTest {
       FIXING_DATE, INDEX, SPREAD, FACTOR);
 
   private static final double FIXING_RATE = 0.04;
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FIXING_RATE});
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
@@ -172,7 +171,7 @@ public class CouponIborGearingDefinitionTest {
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(referenceDate, FIXING_END_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
+    final String[] curves = {fundingCurve, forwardCurve };
     final CouponIborGearing coupon = new CouponIborGearing(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
         FIXING_ACCRUAL_FACTOR, SPREAD, FACTOR, forwardCurve);
     Payment couponConverted = COUPON_DEFINITION.toDerivative(referenceDate, curves);
@@ -190,7 +189,7 @@ public class CouponIborGearingDefinitionTest {
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, ACCRUAL_END_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
+    final String[] curves = {fundingCurve, forwardCurve };
     final CouponFixed coupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE * FACTOR + SPREAD);
     final Payment couponConverted = COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS, curves);
     assertEquals("CouponIborGearingDefinition: toDerivative", coupon, couponConverted);
@@ -208,14 +207,14 @@ public class CouponIborGearingDefinitionTest {
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(referenceDate, FIXING_END_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
+    final String[] curves = {fundingCurve, forwardCurve };
     // The fixing is known
     final CouponFixed coupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE * FACTOR + SPREAD);
     final Payment couponConverted = COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS, curves);
     assertEquals(coupon, couponConverted);
     // The fixing is not known
-    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR)},
-        new double[] {FIXING_RATE});
+    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR) },
+        new double[] {FIXING_RATE });
     final CouponIborGearing coupon2 = new CouponIborGearing(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
         FIXING_ACCRUAL_FACTOR, SPREAD, FACTOR, forwardCurve);
     final Payment couponConverted2 = COUPON_DEFINITION.toDerivative(referenceDate, fixingTS2, curves);

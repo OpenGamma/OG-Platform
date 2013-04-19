@@ -63,6 +63,11 @@ public interface LazyResolver {
       return getUnderlying().changeManager();
     }
 
+    @Override
+    public boolean isDeepResolver() {
+      return true;
+    }
+
   }
 
   /**

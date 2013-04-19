@@ -71,6 +71,11 @@ public class SecuritySourceResolver extends AbstractIdentifierResolver implement
   }
 
   @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
+  @Override
   public ChangeManager changeManager() {
     return getUnderlying().changeManager();
   }
