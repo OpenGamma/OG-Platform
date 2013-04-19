@@ -279,7 +279,8 @@ public class BloombergHTSMasterUpdater {
       s_logger.info("Got {} new points for series {} {}", new Object[] {timeSeries.size(), dataField, identifierTS.getKey()});
       
       LocalDate latestTime = timeSeries.getLatestTime();
-      timeSeries = timeSeries.subSeries(_startDate, true, latestTime, true);
+      LocalDate startDate = (_startDate != null ? _startDate : DEFAULT_START_DATE);
+      timeSeries = timeSeries.subSeries(startDate, true, latestTime, true);
       if (timeSeries != null && timeSeries.isEmpty() == false) {
         // metaDataKeyMap holds the object id of the series to be updated
         ExternalIdBundle idBundle = identifierTS.getKey();
