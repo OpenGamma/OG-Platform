@@ -282,12 +282,14 @@ $.register_module({
                     if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
                     if (0 === cell.col && grid.state.nodes[has](cell.row))
                         return new og.analytics.NodeMenu(grid, cell, event).display();
+                    return false;
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
                     var col = cell.col, columns = grid.meta.columns;
-                    return grid.fire('contextmenu', event, null, ['description', 'header', 'type']
+                    grid.fire('contextmenu', event, null, ['description', 'header', 'type']
                         .reduce(function (acc, key) {return (acc[key] = columns[key + 's'][col]), acc;}, {col: col}));
+                    return false;
                 })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
                     in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
@@ -460,11 +462,8 @@ $.register_module({
                 return result;
             };
             return function (data, loading) { // TODO handle scenario where grid was busy when data stopped ticking
-                var grid = this, meta = grid.meta, reorder;
+                var grid = this, meta = grid.meta;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
-                reorder = meta.viewport.cols.slice(1).reduce(function (acc, val) {
-                    return (acc.value = acc.value || val < acc.last), (acc.last = val), acc;
-                }, {last: meta.viewport.cols[0], value: false}).value;
                 grid.data = data;
                 grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body

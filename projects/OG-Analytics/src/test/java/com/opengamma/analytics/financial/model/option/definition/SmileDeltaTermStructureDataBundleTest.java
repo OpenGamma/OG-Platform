@@ -58,7 +58,7 @@ public class SmileDeltaTermStructureDataBundleTest {
     other = SmileDeltaTermStructureDataBundle.from(CURVES, SMILES, CCYS);
     assertEquals(FX_DATA, other);
     assertEquals(FX_DATA.hashCode(), other.hashCode());
-    other = new SmileDeltaTermStructureDataBundle(TestsDataSetsForex.createCurvesForex(), SMILES, CCYS);
+    other = new SmileDeltaTermStructureDataBundle(TestsDataSetsForex.createCurvesForex2(), SMILES, CCYS);
     assertFalse(FX_DATA.equals(other));
     other = new SmileDeltaTermStructureDataBundle(CURVES, TestsDataSetsForex.smile5points(REFERENCE_DATE, 1), CCYS);
     assertFalse(FX_DATA.equals(other));
@@ -76,7 +76,7 @@ public class SmileDeltaTermStructureDataBundleTest {
   public void testBuilders() {
     final SmileDeltaTermStructureDataBundle fxData = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, CCYS);
     assertEquals(FX_DATA, fxData);
-    SmileDeltaTermStructureDataBundle other = fxData.with(TestsDataSetsForex.createCurvesForex());
+    SmileDeltaTermStructureDataBundle other = fxData.with(TestsDataSetsForex.createCurvesForex2());
     assertEquals(FX_DATA, fxData);
     assertFalse(other.equals(fxData));
     other = FX_DATA.with(TestsDataSetsForex.smile5points(REFERENCE_DATE, 0.1));

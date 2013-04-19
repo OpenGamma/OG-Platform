@@ -59,6 +59,7 @@ $.register_module({
                                 handler: function (result) {
                                     if (result.error) return view.error(result.message);
                                     routes.go(routes.hash(view.rules.load, args, {del: ['id']}));
+                                    setTimeout(function () {view.search(args);});
                                 }, id: routes.current().args.id
                             });
                         },

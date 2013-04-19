@@ -271,4 +271,9 @@ public final class ValuePropertyNames {
    * Controls the number formatting of the barrier distance - e.g. abs, percentage
    */
   public static final String BARRIER_DISTANCE_OUTPUT_FORMAT = "BarrierDistanceOutputFormat";
+  
+  /**
+   * The name of a property that provides the name of a forward curve.
+   */
+  public static final String FORWARD_CURVE_NAME = "ForwardCurveName";
 }

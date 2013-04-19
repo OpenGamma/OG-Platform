@@ -10,6 +10,7 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
@@ -22,7 +23,7 @@ public class MonotoneConvexSplineInterpolatorTest {
   private static final double INF = 1. / 0.;
 
   /**
-   * Check introduction of new knots, modification of forward rates, and try all types of polynomials which interpolate data points 
+   * Check introduction of new knots, modification of forward rates, and try all types of polynomials which interpolate adjacent data points 
    * 
    */
   @Test
@@ -30,6 +31,12 @@ public class MonotoneConvexSplineInterpolatorTest {
 
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27. };
     final double[] yValues = new double[] {3., 2., 2., 2., 3., 2.5, 2., 2., 3., 3., 2.5, 2., 2., 4., 5., 5., 4.9, 5., 6., 8., 3., -2., -1.5, -1., -2., -1.5, -1., };
+    final int nData = xValues.length;
+    double[] yValuesInput = new double[nData];
+    for (int i = 0; i < nData; ++i) {
+      yValuesInput[i] = yValues[i] * xValues[i];
+    }
+
     final double[][] xValuesMatrix = new double[][] { {1., 2. }, {3., 4. } };
     final double[] xValuesMod = new double[] {1., 2., 3., 4. + 1.e-14, 5., 6. + 1.e-14, 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27. };
     final double[][] xValuesModMatrix = new double[][] { {1., 2. }, {3., 4. + 1.e-14 } };
@@ -41,12 +48,11 @@ public class MonotoneConvexSplineInterpolatorTest {
 
     final double[] modifiedFwds = new double[] {0.75, 1.5, 2., 4., 0., -2, -2, 4., 6., -5., -7., -7., 4., 24.5, 10., 4.15, 5., 13.4, 35., -194., -214., -214., 10., -52., -52., 11.5, 12.25, };
     final double[][] modifiedFwdsMatrix = new double[][] { {0.75, 1.5 }, {2., 4. } };
-    final int nData = xValues.length;
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
-    PiecewisePolynomialResult resultInt = interpolator.interpolate(xValues, yValues);
-    DoubleMatrix1D values = interpolator.interpolate(xValues, yValues, xValues);
-    DoubleMatrix2D valuesMatrix = interpolator.interpolate(xValues, yValues, xValuesMatrix);
+    PiecewisePolynomialResult resultInt = interpolator.interpolate(xValues, yValuesInput);
+    DoubleMatrix1D values = interpolator.interpolate(xValues, yValuesInput, xValues);
+    DoubleMatrix2D valuesMatrix = interpolator.interpolate(xValues, yValuesInput, xValuesMatrix);
 
     assertEquals(resultInt.getDimensions(), 1);
     assertEquals(resultInt.getNumberOfIntervals(), knotsExp.length - 1);
@@ -57,12 +63,12 @@ public class MonotoneConvexSplineInterpolatorTest {
       assertEquals(resultInt.getKnots().getData()[i], knotsExp[i], ref * EPS);
     }
     for (int i = 1; i < nData - 1; ++i) {
-      final double ref = yValues[i] * xValues[i] == 0. ? 1. : Math.abs(yValues[i] * xValues[i]);
-      assertEquals(values.getData()[i], yValues[i] * xValues[i], ref * EPS);
+      final double ref = yValuesInput[i] == 0. ? 1. : Math.abs(yValuesInput[i]);
+      assertEquals(values.getData()[i], yValuesInput[i], ref * EPS);
     }
     {
-      final double ref = yValues[1] * xValues[1] == 0. ? 1. : Math.abs(yValues[1] * xValues[1]);
-      assertEquals(interpolator.interpolate(xValues, yValues, xValues[1]), yValues[1] * xValues[1], ref * EPS * 10);
+      final double ref = yValuesInput[1] == 0. ? 1. : Math.abs(yValuesInput[1]);
+      assertEquals(interpolator.interpolate(xValues, yValuesInput, xValues[1]), yValuesInput[1], ref * EPS * 10);
     }
     for (int i = 0; i < 2; ++i) {
       for (int j = 0; j < 2; ++j) {
@@ -71,9 +77,9 @@ public class MonotoneConvexSplineInterpolatorTest {
       }
     }
 
-    PiecewisePolynomialResult resultExt = interpolator.interpolateFwds(xValues, yValues);
-    DoubleMatrix1D valuesFwds = interpolator.interpolateFwds(xValues, yValues, xValuesMod);
-    DoubleMatrix2D valuesFwdsMatrix = interpolator.interpolateFwds(xValues, yValues, xValuesModMatrix);
+    PiecewisePolynomialResult resultExt = interpolator.interpolateFwds(xValues, yValuesInput);
+    DoubleMatrix1D valuesFwds = interpolator.interpolateFwds(xValues, yValuesInput, xValuesMod);
+    DoubleMatrix2D valuesFwdsMatrix = interpolator.interpolateFwds(xValues, yValuesInput, xValuesModMatrix);
 
     assertEquals(resultExt.getDimensions(), 1);
     assertEquals(resultExt.getNumberOfIntervals(), knotsExp.length - 1);
@@ -89,7 +95,7 @@ public class MonotoneConvexSplineInterpolatorTest {
     }
     {
       final double ref = modifiedFwds[1] == 0. ? 1. : Math.abs(modifiedFwds[1]);
-      assertEquals(interpolator.interpolateFwds(xValues, yValues, xValuesMod[1]), modifiedFwds[1], ref * EPS * 10);
+      assertEquals(interpolator.interpolateFwds(xValues, yValuesInput, xValuesMod[1]), modifiedFwds[1], ref * EPS * 10);
     }
     for (int i = 0; i < 2; ++i) {
       for (int j = 0; j < 2; ++j) {
@@ -100,13 +106,39 @@ public class MonotoneConvexSplineInterpolatorTest {
   }
 
   /**
+   * 
+   */
+  @Test
+  public void linearTest() {
+
+    final double[] xValues = new double[] {2., 3., 4., 5., 6. };
+    final double[] yValues = new double[] {2., 3., 4., 5., 6. };
+
+    MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
+
+    final int nPts = 301;
+    for (int i = 0; i < nPts; ++i) {
+      final double key = 1. + 6. / (nPts - 1) * i;
+      //      System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
+      final double ref = key == 0. ? 1. : Math.abs(key);
+      assertEquals(interpolator.interpolate(xValues, yValues, key), key, ref * EPS);
+    }
+
+  }
+
+  /**
    * yValues are constant
    */
   @Test
   public void constTest() {
 
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6. };
-    final double[] yValues = new double[] {1., 1., 1., 1., 1., 1. };
+    final double[] yValuesTmp = new double[] {1., 1., 1., 1., 1., 1. };
+    final int nData = xValues.length;
+    final double[] yValues = new double[nData];
+    for (int i = 0; i < xValues.length; ++i) {
+      yValues[i] = yValuesTmp[i] * xValues[i];
+    }
 
     final double[][] coefMatInt = new double[][] { {0., 0., 1., 1. }, {0., 0., 1., 2. }, {0., 0., 1., 3. }, {0., 0., 1., 4. }, {0., 0., 1., 5. }, {0., 0., 1., 6. } };
     final double[][] coefMatIntFwds = new double[][] { {0., 0., 1. }, {0., 0., 1. }, {0., 0., 1. }, {0., 0., 1. }, {0., 0., 1. } };
@@ -137,7 +169,7 @@ public class MonotoneConvexSplineInterpolatorTest {
 
     for (int i = 0; i < coefMatIntFwds.length; ++i) {
       for (int j = 0; j < coefMatIntFwds[0].length; ++j) {
-        final double ref = coefMatInt[i][j] == 0. ? 1. : Math.abs(coefMatIntFwds[i][j]);
+        final double ref = coefMatIntFwds[i][j] == 0. ? 1. : Math.abs(coefMatIntFwds[i][j]);
         assertEquals(result.getCoefMatrix().getData()[i][j], coefMatIntFwds[i][j], ref * EPS);
       }
     }
@@ -155,10 +187,15 @@ public class MonotoneConvexSplineInterpolatorTest {
   @Test
   public void positiveTest() {
     final boolean print = false;
-    System.out.println("MonotoneConvexSplineInterpolatorTest");
+    //   System.out.println("MonotoneConvexSplineInterpolatorTest");
 
     final double[] xValues = new double[] {0., 0.1, 1., 2., 6., 9., 30 };
     final double[] yValues = new double[] {0., 2., 2., 2., 3., 2., 1. };
+    final int nData = xValues.length;
+    double[] yValuesInput = new double[nData];
+    for (int i = 0; i < nData; ++i) {
+      yValuesInput[i] = xValues[i] * yValues[i];
+    }
 
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
 
@@ -166,9 +203,9 @@ public class MonotoneConvexSplineInterpolatorTest {
     for (int i = 0; i < nPts; ++i) {
       final double key = 30. / nPts + 30. / nPts * i;
       if (print) {
-        System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
+        System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValuesInput, key));
       }
-      assertTrue(interpolator.interpolateFwds(xValues, yValues, key) >= 0.);
+      assertTrue(interpolator.interpolateFwds(xValues, yValuesInput, key) >= 0.);
     }
 
     if (print) {
@@ -178,9 +215,9 @@ public class MonotoneConvexSplineInterpolatorTest {
     for (int i = 0; i < nPts + 100; ++i) {
       final double key = 30. / nPts + 30. / nPts * i;
       if (print) {
-        System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
+        System.out.println(key + "\t" + interpolator.interpolate(xValues, yValuesInput, key));
       }
-      assertTrue(interpolator.interpolate(xValues, yValues, key) >= 0.);
+      assertTrue(interpolator.interpolate(xValues, yValuesInput, key) >= 0.);
     }
   }
 
@@ -191,10 +228,16 @@ public class MonotoneConvexSplineInterpolatorTest {
   public void monotonicTest() {
     final boolean print = false;
     MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
-    //   System.out.println("MonotoneConvexSplineInterpolatorTest");
+    //  System.out.println("MonotoneConvexSplineInterpolatorTest");
 
     final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9 };
-    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3 };
+    final int nData = xValues.length;
+    final double[] yValuesTmp = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3 };
+    double[] yValues = new double[nData];
+    for (int i = 0; i < nData; ++i) {
+      yValues[i] = yValuesTmp[i] * xValues[i];
+    }
+
     final int nPts = 300;
     double old = yValues[0] * xValues[0];
     for (int i = 0; i < nPts; ++i) {
@@ -658,6 +701,30 @@ public class MonotoneConvexSplineInterpolatorTest {
   }
 
   /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void zeroDataSpotsTest() {
+    final double[] xValues = new double[] {0., 2., 1., 4. };
+    final double[] yValues = new double[] {1., 3., 2., 1. };
+
+    MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
+    interpolator.interpolate(xValues, yValues);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void zeroDataFwdsTest() {
+    final double[] xValues = new double[] {0., 2., 1., 4. };
+    final double[] yValues = new double[] {1., 3., 2., 1. };
+
+    MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
+    interpolator.interpolateFwds(xValues, yValues);
+  }
+
+  /**
    * Tests below for debugging
    */
   @Test(enabled = false)
@@ -676,17 +743,19 @@ public class MonotoneConvexSplineInterpolatorTest {
     System.out.println(result.getCoefMatrix());
     System.out.println(result.getKnots());
 
-    final int nPts = 300;
-    for (int i = 0; i < nPts + 1; ++i) {
-      final double key = 1. + 3. / nPts * i;
-      System.out.println(key + "\t" + interpolator.interpolateFwds(xValues, yValues, key));
+    PiecewisePolynomialFunction1D func = new PiecewisePolynomialFunction1D();
+
+    final int nPts = 101;
+    for (int i = 0; i < nPts; ++i) {
+      final double key = 0. + 5. / (nPts - 1) * i;
+      System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key) + "\t" + func.integrate(result, 0., key));
     }
 
     System.out.println("\n");
 
-    for (int i = 0; i < nPts + 1; ++i) {
-      final double key = 1. + 3. / nPts * i;
-      System.out.println(key + "\t" + interpolator.interpolate(xValues, yValues, key));
+    for (int i = 0; i < nPts; ++i) {
+      final double key = 0. + 5. / (nPts - 1) * i;
+      System.out.println(key + "\t" + func.evaluate(result, key).getData()[0]);
     }
 
   }

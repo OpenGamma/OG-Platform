@@ -3,36 +3,6 @@
 
 	<import file="${common.dir}/common.xml"/>
 
-  <path id="JRuby">
-    <fileset file="libs/jruby-complete-1.7.3.jar"/> <!-- Location of JRuby jar file -->
-  </path>
-
-  <target name="compileSCSS">
-    <echo message="Compiling scss files..." />
-    <property name="filesIn" value="web-engine/sass/**/[^_]*.scss" />
-    <property name="fileOutDir" value="web-engine/sass_out" />
-
-
-    <script language="ruby" classpathref="lib.path.id.full">
-      <![CDATA[
-            require 'sass'
-            require 'sass/exec'
-
-            files = Dir.glob($project.getProperty('filesIn'))
-            Dir.mkdir($project.getProperty('fileOutDir')) unless File.exists?($project.getProperty('fileOutDir'))
-            files.each do
-                | file |
-                puts "     [sass compiler] " + file + " -> " + $project.getProperty('fileOutDir') + "/" + File.basename(file, ".*") + ".css"
-                opts = Sass::Exec::Scss.new(["--load-path", File.dirname(file), file, File.join($project.getProperty('fileOutDir'), File.basename(file, ".*") + ".css")])
-                opts.parse
-            end
-        ]]>
-    </script>
-    <echo message="Done compiling scss files!" />
-  </target>
-
-
-
 	<target name="publish" depends="zip-webapp,zip-resources,common.publish" />
 
 	<target name="publish-local" depends="zip-webapp,zip-resources,common.publish-local" />

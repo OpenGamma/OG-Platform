@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
@@ -71,7 +72,8 @@ public class SummingFunction extends MissingInputsFunction {
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       // Applies to any portfolio node, except the root if "Don't aggregate root node" is set
-      if (context.getPortfolio().getAttributes().get(IGNORE_ROOT_NODE) == null) {
+      Portfolio portfolio = context.getPortfolio();
+      if (portfolio == null || portfolio.getAttributes().get(IGNORE_ROOT_NODE) == null) {
         return true;
       } else {
         return target.getPortfolioNode().getParentNodeId() != null;

@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.copier.portfolio.writer;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,11 +16,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
@@ -151,7 +154,39 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public void addAttribute(String key, String value) {
     _portfolioDocument.getPortfolio().addAttribute(key, value);
   }
-  
+
+  /**
+   * Returns the sum of the quantities for the specified positions. This is separated out into a method to allow
+   * custom behaviour for different clients. For instance, in one case the sums of the quantities of all the trades
+   * of both positions might be required, whereas in another case the preference might be to sum the quantities of
+   * the positions themselves without regard to the quantities specified in their trades (this is the default behaviour).
+   * This is not featured in the PortfolioWriter interface, and as such is a hack.
+   * @param position1 the first position
+   * @param position2 the second position
+   * @return the sum of the positions' quantities
+   */
+  protected BigDecimal sumPositionQuantities(final ManageablePosition position1, final ManageablePosition position2) {
+
+    int tradeQty1 = 0;
+    for (ManageableTrade trade : position1.getTrades()) {
+      tradeQty1 += trade.getQuantity().intValue();
+    }
+    if (tradeQty1 != position1.getQuantity().intValue()) {
+      s_logger.warn("Position " + position1.getUniqueId() + "'s quantity is " + position1.getQuantity()
+                    + " but its trades' quantities add up to " + tradeQty1);
+    }
+    int tradeQty2 = 0;
+    for (ManageableTrade trade : position1.getTrades()) {
+      tradeQty2 += trade.getQuantity().intValue();
+    }
+    if (tradeQty2 != position2.getQuantity().intValue()) {
+      s_logger.warn("Position " + position2.getUniqueId() + "'s quantity is " + position2.getQuantity()
+                    + " but its trades' quantities add up to " + tradeQty1);
+    }
+
+    return position1.getQuantity().add(position2.getQuantity());
+  }
+
   /**
    * WritePosition checks if the position exists in the previous version of the portfolio.
    * If so, the existing position is reused.
@@ -172,7 +207,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         ManageableSecurity writtenSecurity = writeSecurity(security);
         if (writtenSecurity != null) {
           writtenSecurities.add(writtenSecurity);
-        }        
+        }
       }
     }
 
@@ -190,7 +225,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // Add new quantity to existing position's quantity
       final ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
-      existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
+      existingPosition.setQuantity(sumPositionQuantities(existingPosition, position));
 
       // Add new trades to existing position's trades
       for (ManageableTrade trade : position.getTrades()) {
@@ -208,13 +243,22 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         return new ObjectsPair<>(addedDoc.getPosition(),
             securities);
       } else {
+        // update position map (huh?)
+        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+
         _executorService.submit(new Runnable() {
           @Override
           public void run() {
-            PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
+            try {
+              // Update the position in the position master
+              PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
-            // update position map (huh?)
-            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+              // Add the new position to the portfolio node
+              _currentNode.addPosition(addedDoc.getUniqueId());
+            } catch (Exception e) {
+              s_logger.error("Unable to update position " + existingPosition.getUniqueId() + ": " + e.getMessage());
+              return;
+            }
           }
         });
 
@@ -240,7 +284,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
       // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
+      return new ObjectsPair<>(addedDoc.getPosition(),
           writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
 
     } else {
@@ -251,73 +295,62 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         // Filter positions in current node of original portfolio
         searchReq.setPositionObjectIds(_originalNode.getPositionIds());
 
-        // Filter positions with same external ids
-        ExternalIdSearch externalIdSearch = new ExternalIdSearch();
-        externalIdSearch.addExternalIds(position.getSecurityLink().getExternalIds());
-        externalIdSearch.setSearchType(ExternalIdSearchType.ALL);
-        searchReq.setSecurityIdSearch(externalIdSearch);
-
         // Filter positions with the same quantity
+        // (comment these out and update the existing position if it should be reused when qty doesn't match even when
+        // loader is run without keep option)
         searchReq.setMinQuantity(position.getQuantity());
         searchReq.setMaxQuantity(position.getQuantity());
 
         // Search
         PositionSearchResult searchResult = _positionMaster.search(searchReq);
 
-        PositionDocument firstDocument = searchResult.getFirstDocument();
-        if (firstDocument != null) {
-          ManageablePosition existingPosition = firstDocument.getPosition();
-          // Add the existing position to the portfolio
-          _currentNode.addPosition(existingPosition.getUniqueId());
+        // Find a position that matches the required security external ids
+        for (ManageablePosition existingPosition : searchResult.getPositions()) {
+          if (writtenSecurities.get(0).getUniqueId().getObjectId().equals(existingPosition.getSecurityLink().getObjectId())) {
+            // Add the existing position to the portfolio
+            _currentNode.addPosition(existingPosition.getUniqueId());
 
-          // Update position map
-          _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+            // Update position map
+            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
 
-          // Return the existing position
-          return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(existingPosition,
-              writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
-        }
-
-        // TODO also confirm that all the associated trades are identical
-      }
-
-      if (!_multithread) {
-        // Add the new position to the position master
-        PositionDocument addedDoc;
-        try {
-          addedDoc = _positionMaster.add(new PositionDocument(position));
-        } catch (Exception e) {
-          s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
-          return null;
-        }
-        // Add the new position to the portfolio
-        _currentNode.addPosition(addedDoc.getUniqueId());
-
-        // Update position map
-        _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
-
-        // Return the new position
-        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
-            writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
-      } else {
-        _executorService.submit(new Runnable() {
-          @Override
-          public void run() {
-            PositionDocument addedDoc;
-            try {
-              addedDoc = _positionMaster.add(new PositionDocument(position));
-            } catch (Exception e) {
-              s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
-              return;
-            }
-            // update position map (huh?)
-            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+            // Return the existing position
+            return new ObjectsPair<>(existingPosition,
+                writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
           }
-        });
+          for (ExternalId id : existingPosition.getSecurityLink().getExternalIds()) {
+            if (securities[0].getExternalIdBundle().contains(id) && existingPosition.getQuantity().equals(position.getQuantity())) {
+              // Add the existing position to the portfolio
+              _currentNode.addPosition(existingPosition.getUniqueId());
 
-        // Return the updated position
-        return new ObjectsPair<>(position, writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+              // Update position map
+              _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+
+              // Return the existing position
+              return new ObjectsPair<>(existingPosition,
+                  writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+            }
+          }
+        }
       }
+
+      // Add the new position to the position master
+      // Can't launch a thread since we need the position id immediately, to be stored with the pos document in the map
+      PositionDocument addedDoc;
+      try {
+        addedDoc = _positionMaster.add(new PositionDocument(position));
+      } catch (Exception e) {
+        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+        return null;
+      }
+      // Add the new position to the portfolio
+      _currentNode.addPosition(addedDoc.getUniqueId());
+
+      // Update position map
+      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
+
+      // Return the new position
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
+          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
     }
   }
 
@@ -352,7 +385,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
             return null;
           }
         }
-        if (differences != null && differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class) {
+        if (differences != null && (differences.isEmpty() || (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class))) {
           // It's already there, don't update or add it
           return foundSecurity;
         } else {
@@ -403,8 +436,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       if (_originalRoot != null) {
         _originalNode = findNode(newPath, _originalRoot);
+        _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+      } else {
+        _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
       }
-      _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -438,6 +473,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   @Override
   public void close() {
+    // Execute remaining position writing threads, which will update the portfolio nodes with any written positions'
+    // object IDs
+    if (_executorService != null) {
+      _executorService.shutdown();
+    }
+
+    // Write the portfolio (include the node tree) to the portfolio master
     flush();
   }
   
@@ -450,7 +492,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
       if (path[0].equals(childNode.getName())) {
-        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length - 1), childNode);
+        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length), childNode);
         if (result != null) {
           return result;
         }
@@ -501,10 +543,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _originalRoot = null;
       _originalNode = null;
 
+      // Set current node to the root node
+      _currentNode = rootNode;
+
     } else {
       _portfolioDocument = portSearchResult.getFirstDocument();
 
-      // If it doesn't, create it (add) 
+      // If it doesn't, create it (add)
       if (_portfolioDocument == null) {
         // Create a new root node
         ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
@@ -515,28 +560,46 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         _portfolioDocument = _portfolioMaster.add(_portfolioDocument);
         _originalRoot = null;
         _originalNode = null;
-        
+
+        // Set current node to the root node
+        _currentNode = rootNode;
+
       // If it does, create a new version of the existing portfolio (update)
       } else {
         ManageablePortfolio portfolio = _portfolioDocument.getPortfolio();
         _originalRoot = portfolio.getRootNode();
         _originalNode = _originalRoot;
 
-        ManageablePortfolioNode rootNode;
         if (_keepCurrentPositions) {
           // Use the original root node
-          rootNode = _originalRoot;
+          portfolio.setRootNode(cloneTree(_originalRoot));
+          _portfolioDocument.setPortfolio(portfolio);
+
+          // Set current node to the root node
+          _currentNode = portfolio.getRootNode();
         } else {
           // Create a new root node
-          rootNode = new ManageablePortfolioNode(portfolioName);
-        }
+          ManageablePortfolioNode rootNode;
+          rootNode = JodaBeanUtils.clone(_originalRoot);
+          rootNode.setChildNodes(new ArrayList<ManageablePortfolioNode>());
+          rootNode.setPositionIds(new ArrayList<ObjectId>());
+          portfolio.setRootNode(rootNode);
+          _portfolioDocument.setPortfolio(portfolio);
 
-        portfolio.setRootNode(rootNode);
-        _portfolioDocument.setPortfolio(portfolio);
+          // Set current node to the root node
+          _currentNode = rootNode;
+        }
       }
     }
-    // Set current node to the root node
-    _currentNode = _portfolioDocument.getPortfolio().getRootNode();
+  }
+
+  private static ManageablePortfolioNode cloneTree(final ManageablePortfolioNode originalRoot) {
+    ManageablePortfolioNode newRoot = JodaBeanUtils.clone(originalRoot);
+    newRoot.setChildNodes(new ArrayList<ManageablePortfolioNode>());
+    for (ManageablePortfolioNode child : originalRoot.getChildNodes()) {
+      newRoot.addChildNode(cloneTree(child));
+    }
+    return newRoot;
   }
 
   public PortfolioMaster getPortfolioMaster() {

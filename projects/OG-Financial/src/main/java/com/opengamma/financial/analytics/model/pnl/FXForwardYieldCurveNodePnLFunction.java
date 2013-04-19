@@ -56,6 +56,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -71,6 +72,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
@@ -302,6 +304,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
   private ValueRequirement getYCNSRequirement(final String payCurveName, final String payCurveCalculationConfigName, final String receiveCurveName,
       final String receiveCurveCalculationConfigName, final String currencyName, final String curveName, final Security security) {
     final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
@@ -371,7 +374,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
       if (dbNodeTimeSeries.getTimeSeries().isEmpty()) {
         throw new OpenGammaRuntimeException("Time series " + id + " is empty");
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {
         pnlSeries = nodeTimeSeries.multiply(sensitivity);
@@ -393,7 +396,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {
         pnlSeries = nodeTimeSeries.multiply(values[i]);

@@ -52,6 +52,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -98,7 +99,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    DoubleTimeSeries<?> pnlSeries = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), schedule);
+    DateDoubleTimeSeries<?> pnlSeries = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), schedule);
     pnlSeries = DIFFERENCE.evaluate(pnlSeries);
     pnlSeries = pnlSeries.multiply(pv);
     final ValueProperties resultProperties = getResultProperties(desiredValue, currency.getCode());

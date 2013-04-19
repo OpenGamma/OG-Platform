@@ -43,7 +43,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -126,7 +126,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final ZonedDateTime BOND_SETTLEMENT_DATE_FRN = DateUtils.getUTCDate(2011, 8, 24);
   private static final double BOND_SETTLEMENT_TIME_FRN = TimeCalculator.getTimeBetween(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FRN);
   private static final double QUANTITY_FRN = 100000000; //100m
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {BOND_DESCRIPTION_DEFINITION_FRN.getCoupons().getNthPayment(0)
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {BOND_DESCRIPTION_DEFINITION_FRN.getCoupons().getNthPayment(0)
       .getFixingDate()}, new double[] {FIRST_FIXING});
   private static final AnnuityPaymentFixed NOMINAL_TR_1_FRN = (AnnuityPaymentFixed) BOND_DESCRIPTION_DEFINITION_FRN.getNominal().toDerivative(REFERENCE_DATE, NOT_USED_A)
       .trimBefore(BOND_SETTLEMENT_TIME_FRN);

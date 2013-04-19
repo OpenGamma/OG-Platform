@@ -65,6 +65,11 @@ public abstract class AbstractSourceResolver<T extends UniqueIdentifiable, S ext
     }
   }
 
+  @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
   // IdentifierResolver
 
   @Override

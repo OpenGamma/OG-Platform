@@ -12,7 +12,11 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
-public class CreditCurveNodeIdentifier {
+/**
+ * Generates identifiers for CDS curve spreads whcih can be stored in the
+ * HTS or snapshots.
+ */
+public final class CreditCurveNodeIdentifier {
 
   /**
    * The separator used in the id construction.
@@ -42,7 +46,7 @@ public class CreditCurveNodeIdentifier {
   /**
    * The generated id for this curve.
    */
-  protected final String _idValue;
+  private final String _idValue;
 
   /**
    * Create an identifier for a CDS Index with the specified red code and term.
@@ -124,6 +128,11 @@ public class CreditCurveNodeIdentifier {
     _externalId = ExternalId.of(creditCurveScheme, idValue);
   }
 
+  /**
+   * Return the external id.
+   *
+   * @return the external id
+   */
   public ExternalId getExternalId() {
     return _externalId;
   }

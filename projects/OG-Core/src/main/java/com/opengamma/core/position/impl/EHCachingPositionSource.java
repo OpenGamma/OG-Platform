@@ -284,14 +284,13 @@ public class EHCachingPositionSource implements PositionSource {
       final Element e = _portfolioCache.get(key);
       if (e != null) {
         s_logger.debug("getPortfolioByUniqueId: EHCache hit on {}/{}", uniqueId, versionCorrection);
-        final Portfolio portfolio = (Portfolio) e.getObjectValue();
+        Portfolio portfolio = (Portfolio) e.getObjectValue();
         f = _frontCacheByUID.putIfAbsent(versionCorrection, uniqueId, portfolio);
         if (f instanceof Portfolio) {
           s_logger.debug("getPortfolioByUniqueId: Late front cache hit on {}/{}", uniqueId, versionCorrection);
           return (Portfolio) f;
         }
-        addToFrontCache(portfolio.getRootNode(), versionCorrection);
-        // TODO: recreate the portfolio object as we might have found an existing node inmemory
+        portfolio = addToFrontCache(portfolio, versionCorrection);
         return portfolio;
       } else {
         s_logger.debug("getPortfolioByUniqueId: Cache miss on {}/{}", uniqueId, versionCorrection);
@@ -300,14 +299,13 @@ public class EHCachingPositionSource implements PositionSource {
       s_logger.debug("getPortfolioByUniqueId: Pass through on {}/{}", uniqueId, versionCorrection);
       key = null;
     }
-    final Portfolio portfolio = getUnderlying().getPortfolio(uniqueId, versionCorrection);
+    Portfolio portfolio = getUnderlying().getPortfolio(uniqueId, versionCorrection);
     f = _frontCacheByUID.putIfAbsent(versionCorrection, portfolio.getUniqueId(), portfolio);
     if (f instanceof Portfolio) {
       s_logger.debug("getPortfolioByUniqueId: Late front cache hit on {}/{}", uniqueId, versionCorrection);
       return (Portfolio) f;
     }
-    addToFrontCache(portfolio.getRootNode(), versionCorrection);
-    // TODO: recreate the portfolio object as we might have found an existing node inmemory
+    portfolio = addToFrontCache(portfolio, versionCorrection);
     if (key != null) {
       _portfolioCache.put(new Element(key, portfolio));
     } else {

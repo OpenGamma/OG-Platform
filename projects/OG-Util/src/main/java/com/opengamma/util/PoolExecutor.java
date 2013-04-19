@@ -67,7 +67,6 @@ public class PoolExecutor implements Executor {
     }
 
     protected void postResult(final T result) {
-      decrementAndNotify();
       if ((_listener != null) && !_shutdown) {
         s_logger.debug("Result available from {} - {} remaining", this, _pending);
         _listener.success(result);
@@ -77,7 +76,6 @@ public class PoolExecutor implements Executor {
     }
 
     protected void postException(final Throwable error) {
-      decrementAndNotify();
       if ((_listener != null) && !_shutdown) {
         s_logger.debug("Error available from {} - {} remaining", this, _pending);
         _listener.failure(error);
@@ -234,6 +232,8 @@ public class PoolExecutor implements Executor {
         _service.postResult(callImpl());
       } catch (Throwable t) {
         _service.postException(t);
+      } finally {
+        _service.decrementAndNotify();
       }
     }
 

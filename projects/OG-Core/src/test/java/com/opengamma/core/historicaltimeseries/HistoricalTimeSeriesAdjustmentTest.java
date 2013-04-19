@@ -13,7 +13,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -23,7 +23,7 @@ import com.opengamma.util.test.TestGroup;
 public class HistoricalTimeSeriesAdjustmentTest {
 
   private HistoricalTimeSeries createTestSeries() {
-    return new SimpleHistoricalTimeSeries(UniqueId.of("HTS", "Test"), new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.now() }, new double[] {100d }));
+    return new SimpleHistoricalTimeSeries(UniqueId.of("HTS", "Test"), ImmutableLocalDateDoubleTimeSeries.of(LocalDate.now(), 100d));
   }
 
   public void testNoOp() {

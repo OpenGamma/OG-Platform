@@ -29,7 +29,7 @@ public class ChainedResolverTest {
     Mockito.when(first.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.USD);
     Mockito.when(second.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.GBP);
     assertEquals(chained.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST), Currency.USD);
-    Mockito.verifyZeroInteractions(second);
+    Mockito.verify(second, Mockito.only()).isDeepResolver();
   }
 
   @SuppressWarnings("unchecked")
@@ -41,5 +41,5 @@ public class ChainedResolverTest {
     Mockito.when(second.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.GBP);
     assertEquals(chained.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST), Currency.GBP);
   }
-  
+
 }

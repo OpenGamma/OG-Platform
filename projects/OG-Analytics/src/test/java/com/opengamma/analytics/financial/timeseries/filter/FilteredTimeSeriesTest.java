@@ -11,18 +11,18 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class FilteredTimeSeriesTest {
-  private static final LocalDateDoubleTimeSeries FILTERED = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+  private static final LocalDateDoubleTimeSeries FILTERED = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
                                                                                                                 LocalDate.ofEpochDay(4), LocalDate.ofEpochDay(5), 
                                                                                                                 LocalDate.ofEpochDay(10)}, 
                                                                                                new double[] {1, 2, 3, 4, 5});
-  private static final LocalDateDoubleTimeSeries REJECTED = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(6), 
+  private static final LocalDateDoubleTimeSeries REJECTED = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(6), 
                                                                                                                    LocalDate.ofEpochDay(7), LocalDate.ofEpochDay(8), 
                                                                                                                    LocalDate.ofEpochDay(9)},
                                                                                                   new double[] {1, 2, 3, 4, 5});

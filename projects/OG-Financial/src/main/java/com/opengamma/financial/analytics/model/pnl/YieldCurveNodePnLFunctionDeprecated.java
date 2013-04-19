@@ -56,6 +56,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -258,7 +259,7 @@ public class YieldCurveNodePnLFunctionDeprecated extends AbstractFunction.NonCom
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " using the field " + MarketDataRequirementNames.MARKET_VALUE);
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {
         pnlSeries = nodeTimeSeries.multiply(sensitivity);

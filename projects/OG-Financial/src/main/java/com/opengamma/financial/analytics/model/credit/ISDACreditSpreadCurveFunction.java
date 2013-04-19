@@ -80,6 +80,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           if (marketSpreadObject != null) {
             tenors.add(strip.getCurveNode().getResolvedMaturity());
             marketSpreads.add(10000 * (Double) marketSpreadObject);
+          } else {
+            throw new OpenGammaRuntimeException("Could not get spread data for " + strip.getIdentifier());
           }
         }
         if (tenors.size() == 0) {

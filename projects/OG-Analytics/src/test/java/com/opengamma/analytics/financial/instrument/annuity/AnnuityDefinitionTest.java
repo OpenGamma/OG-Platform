@@ -28,7 +28,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -43,7 +44,7 @@ public class AnnuityDefinitionTest {
   private static final AnnuityDefinition<PaymentDefinition> FIXED_FLOAT_DEFINITION;
   private static ZonedDateTime FIXING_DATE;
   private static final double FIXING_RATE = 0.02;
-  private static ArrayZonedDateTimeDoubleTimeSeries FIXING_TS;
+  private static ZonedDateTimeDoubleTimeSeries FIXING_TS;
   private static final double ACCRUAL_FACTOR = 1. / 12;
   private static final double FLOAT_NOTIONAL = 1234;
 
@@ -65,7 +66,7 @@ public class AnnuityDefinitionTest {
     }
     FIXED_DEFINITION = new AnnuityDefinition<PaymentFixedDefinition>(FIXED_PAYMENTS);
     FIXED_FLOAT_DEFINITION = new AnnuityDefinition<PaymentDefinition>(FIXED_FLOAT_PAYMENTS);
-    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
+    FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FIXING_RATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

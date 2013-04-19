@@ -7,12 +7,14 @@ package com.opengamma.analytics.financial.schedule;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public interface TimeSeriesSamplingFunction {
 
-  DoubleTimeSeries<?> getSampledTimeSeries(final DoubleTimeSeries<?> ts, final LocalDate[] schedule);
+  LocalDateDoubleTimeSeries getSampledTimeSeries(final DateDoubleTimeSeries<?> ts, final LocalDate[] schedule);
+
 }

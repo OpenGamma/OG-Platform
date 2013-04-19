@@ -93,6 +93,11 @@ public class PrimitiveComputationTargetType<T extends UniqueIdentifiable> extend
   }
 
   @Override
+  public boolean isDeepResolver() {
+    return _resolver.isDeepResolver();
+  }
+
+  @Override
   public ChangeManager changeManager() {
     return _resolver.changeManager();
   }

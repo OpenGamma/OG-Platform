@@ -40,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  * it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
-/* package */ class AnalyticsViewClientConnection /*implements ChangeListener*/ {
+/* package */ class AnalyticsViewClientConnection {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
 
@@ -125,6 +125,7 @@ import com.opengamma.util.ArgumentChecker;
    * Connects to the engine in order to start receiving results. This should only be called once.
    */
   /* package */ void start() {
+    s_logger.debug("Starting client connection");
     _viewClient.setResultListener(new Listener());
     _viewClient.setViewCycleAccessSupported(true);
     _viewClient.setResultMode(ViewResultMode.FULL_THEN_DELTA);
@@ -193,6 +194,7 @@ import com.opengamma.util.ArgumentChecker;
 
     @Override
     public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+      s_logger.debug("View definition compiled: '{}'", compiledViewDefinition.getViewDefinition().getName());
       _view.updateStructure(compiledViewDefinition);
     }
 

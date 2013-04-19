@@ -47,7 +47,7 @@ public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
     if (x.size() < _h) {
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
     }
-    final double[] autocorrelations = _calculator.evaluate(x.toFastLongDoubleTimeSeries());
+    final double[] autocorrelations = _calculator.evaluate(x);
     final double upper = _criticalValue / Math.sqrt(x.size());
     final double lower = -upper;
     double violations = 0;

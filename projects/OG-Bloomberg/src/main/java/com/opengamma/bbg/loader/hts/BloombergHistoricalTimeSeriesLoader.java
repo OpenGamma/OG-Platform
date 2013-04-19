@@ -44,7 +44,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.AbstractHistoricalTimeSeriesLoader;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.monitor.OperationTimer;

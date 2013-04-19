@@ -23,11 +23,12 @@ public class ListedTradeSecurityExtractor extends TradeSecurityExtractor<ListedS
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
-
     // Security extraction is handled by the listed security definition
-    ListedSecurityDefinition listedSecurity = _trade.getListedSecurityDefinition();
+    ListedSecurityDefinition listedSecurity = getTrade().getListedSecurityDefinition();
     return listedSecurity.getSecurityExtractor().extract();
   }
+
 }

@@ -44,6 +44,11 @@ public class PositionSourceResolver {
       }
     }
 
+    @Override
+    public boolean isDeepResolver() {
+      return false;
+    }
+
   }
 
   private static class PositionResolver extends PositionSourceResolver implements Resolver<Position> {
@@ -61,6 +66,11 @@ public class PositionSourceResolver {
       } catch (DataNotFoundException e) {
         return null;
       }
+    }
+
+    @Override
+    public boolean isDeepResolver() {
+      return false;
     }
 
     // IdentifierResolver
@@ -108,6 +118,11 @@ public class PositionSourceResolver {
       }
     }
 
+    @Override
+    public boolean isDeepResolver() {
+      return true;
+    }
+
     // IdentifierResolver
 
     @Override
@@ -151,6 +166,11 @@ public class PositionSourceResolver {
       } catch (DataNotFoundException e) {
         return null;
       }
+    }
+
+    @Override
+    public boolean isDeepResolver() {
+      return true;
     }
 
   }

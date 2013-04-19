@@ -16,9 +16,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -32,13 +31,13 @@ public class StandardOptionWithSpotTimeSeriesDataBundleTest {
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA));
   private static final double SPOT = 100;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
-  private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2}, new double[] {3, 4});
+  private static final LocalDateDoubleTimeSeries TS = ImmutableLocalDateDoubleTimeSeries.of(new int[] {19700101, 19700102}, new double[] {3, 4});
   private static final YieldAndDiscountCurve OTHER_CURVE = YieldCurve.from(ConstantDoublesCurve.from(R + 1));
   private static final double OTHER_B = B + 1;
   private static final VolatilitySurface OTHER_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA + 1));
   private static final double OTHER_SPOT = SPOT + 1;
   private static final ZonedDateTime OTHER_DATE = DateUtils.getDateOffsetWithYearFraction(DATE, 1);
-  private static final DoubleTimeSeries<?> OTHER_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2}, new double[] {5, 6});
+  private static final LocalDateDoubleTimeSeries OTHER_TS = ImmutableLocalDateDoubleTimeSeries.of(new int[] {19700101, 19700102}, new double[] {5, 6});
   private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, SURFACE, SPOT, DATE, TS);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

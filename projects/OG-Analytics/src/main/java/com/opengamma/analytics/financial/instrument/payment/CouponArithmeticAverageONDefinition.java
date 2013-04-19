@@ -6,11 +6,9 @@
 package com.opengamma.analytics.financial.instrument.payment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -29,7 +27,6 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
- * FIXME: Class under construction, don't use yet.
  */
 public class CouponArithmeticAverageONDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
@@ -165,40 +162,6 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return null;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Arrays.hashCode(_fixingPeriodAccrualFactor);
-    result = prime * result + Arrays.hashCode(_fixingPeriodDate);
-    result = prime * result + _index.hashCode();
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final CouponArithmeticAverageONDefinition other = (CouponArithmeticAverageONDefinition) obj;
-    if (!Arrays.equals(_fixingPeriodAccrualFactor, other._fixingPeriodAccrualFactor)) {
-      return false;
-    }
-    if (!Arrays.equals(_fixingPeriodDate, other._fixingPeriodDate)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_index, other._index)) {
-      return false;
-    }
-    return true;
   }
 
 }

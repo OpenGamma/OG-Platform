@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.instrument.bond;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -34,7 +35,7 @@ import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -326,7 +327,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
-    return toDerivative(date, spot, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[0], new double[0]));
+    return toDerivative(date, spot, ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC));
   }
 
   @Override

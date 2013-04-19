@@ -93,12 +93,7 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
    * @param inputs {@link FunctionInputs}
    */
   protected Double getMarketPrice(final Security security, final FunctionInputs inputs) {
-    final ValueRequirement marketPriceRequirement = getMarketPriceRequirement(security);
-    final Object marketPriceObject = inputs.getValue(marketPriceRequirement);
-    if (marketPriceObject == null) {
-      s_logger.error("Could not get " + marketPriceRequirement);
-    }
-    return (Double) marketPriceObject;
+    return (Double)inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
   }
 
 }

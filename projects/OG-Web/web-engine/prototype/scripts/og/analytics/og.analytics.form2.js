@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Form2',
     dependencies: [],
     obj: function () {
-        var constructor, callback, form,
+        var constructor, callback, form, events = og.common.events,
             tashes = { form_container:  'og.analytics.form_tash' },
             selectors = {
                 form_container: 'OG-analytics-form',
@@ -52,6 +52,10 @@ $.register_module({
                 dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
             });
             dom.menus.views.find('input').select();
+            dom.load_btn = $('.'+selectors.load_btn).addClass('og-disabled').attr('disabled', 'disabled');
+            events.on.call(form, 'datasources:initialized', function () {
+                dom.load_btn.removeClass('og-disabled').removeAttr('disabled');
+            });
         };
 
         var load_form = function (data) {
@@ -63,7 +67,7 @@ $.register_module({
                 temporal: data.temporal
             };
             callback(query);
-            $('.'+selectors.load_btn).focus(0);
+            dom.load_btn.focus(0);
         };
 
         var keydown_handler = function (event) {

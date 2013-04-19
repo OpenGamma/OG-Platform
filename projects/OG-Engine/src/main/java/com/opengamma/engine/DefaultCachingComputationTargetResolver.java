@@ -8,12 +8,14 @@ package com.opengamma.engine;
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.google.common.collect.MapMaker;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -61,8 +63,17 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't re-query EHCache for them.
    */
-  private final Map2<VersionCorrection, UniqueId, UniqueIdentifiable> _frontObjectCache =
+  private final Map2<VersionCorrection, UniqueId, UniqueIdentifiable> _frontObjectCacheDeep =
       new WeakValueHashMap2<VersionCorrection, UniqueId, UniqueIdentifiable>(HashMap2.STRONG_KEYS);
+
+  /**
+   * The cache of "live" target values that have already been resolved. These are keyed by unique identifier so that target specifications which specify different scopes can be satisfied by the same
+   * object.
+   * <p>
+   * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
+   * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't re-query EHCache for them.
+   */
+  private final ConcurrentMap<UniqueId, UniqueIdentifiable> _frontObjectCache = new MapMaker().weakValues().makeMap();
 
   /**
    * The cache of "live" targets that have already been resolved. These are keyed by their exact target specifications.
@@ -70,14 +81,22 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't re-query EHCache for them.
    */
-  private final Map2<VersionCorrection, ComputationTargetSpecification, ComputationTarget> _frontTargetCache =
+  private final Map2<VersionCorrection, ComputationTargetSpecification, ComputationTarget> _frontTargetCacheDeep =
       new WeakValueHashMap2<VersionCorrection, ComputationTargetSpecification, ComputationTarget>(HashMap2.STRONG_KEYS);
+
+  /**
+   * The cache of "live" targets that have already been resolved. These are keyed by their exact target specifications.
+   * <p>
+   * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
+   * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't re-query EHCache for them.
+   */
+  private final ConcurrentMap<ComputationTargetSpecification, ComputationTarget> _frontTargetCache = new MapMaker().weakValues().makeMap();
 
   private final VersionCorrectionLockListener _frontCacheCleaner = new VersionCorrectionLockListener() {
     @Override
     public void versionCorrectionUnlocked(final VersionCorrection unlocked, final Collection<VersionCorrection> stillLocked) {
-      _frontObjectCache.retainAllKey1(stillLocked);
-      _frontTargetCache.retainAllKey1(stillLocked);
+      _frontObjectCacheDeep.retainAllKey1(stillLocked);
+      _frontTargetCacheDeep.retainAllKey1(stillLocked);
     }
   };
 
@@ -114,8 +133,8 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
    * Empties the cache. This is provided for test/diagnostics only and should not be called in a production system.
    */
   public void clear() {
-    _frontObjectCache.clear();
-    _frontTargetCache.clear();
+    _frontObjectCacheDeep.clear();
+    _frontTargetCacheDeep.clear();
     _computationTarget.removeAll();
   }
 
@@ -137,19 +156,20 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     if (specification == ComputationTargetSpecification.NULL) {
       return ComputationTarget.NULL;
     }
-    ComputationTarget result = _frontTargetCache.get(versionCorrection, specification);
+    final boolean isDeep = getResolver(specification).isDeepResolver();
+    ComputationTarget result = isDeep ? _frontTargetCacheDeep.get(versionCorrection, specification) : _frontTargetCache.get(specification);
     if (result != null) {
       return result;
     }
     final UniqueId uid = specification.getUniqueId();
-    UniqueIdentifiable target = _frontObjectCache.get(versionCorrection, uid);
+    UniqueIdentifiable target = isDeep ? _frontObjectCacheDeep.get(versionCorrection, uid) : _frontObjectCache.get(uid);
     if (target != null) {
       // The cached object may be from an earlier lookup with a different resolution strategy. For example
       // CTSpec[PRIMITIVE, Foo~Bar] will store the UniqueId object in the cache which is not suitable to
       // return for CTSpec[SECURITY, Foo~Bar].
       if (specification.getType().isCompatible(target)) {
         result = ComputationTargetResolverUtils.createResolvedTarget(specification, target);
-        final ComputationTarget newResult = _frontTargetCache.putIfAbsent(versionCorrection, specification, result);
+        final ComputationTarget newResult = isDeep ? _frontTargetCacheDeep.putIfAbsent(versionCorrection, specification, result) : _frontTargetCache.putIfAbsent(specification, result);
         if (newResult != null) {
           return newResult;
         } else {
@@ -157,18 +177,18 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         }
       }
     }
-    final Pair<UniqueId, VersionCorrection> key = Pair.of(uid, versionCorrection);
+    final Object key = isDeep ? Pair.of(uid, versionCorrection) : uid;
     final Element e = _computationTarget.get(key);
     if (e != null) {
       target = (UniqueIdentifiable) e.getValue();
       if (specification.getType().isCompatible(target)) {
-        final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(versionCorrection, uid, target);
+        final UniqueIdentifiable existing = isDeep ? _frontObjectCacheDeep.putIfAbsent(versionCorrection, uid, target) : _frontObjectCache.putIfAbsent(uid, target);
         if (existing != null) {
           result = ComputationTargetResolverUtils.createResolvedTarget(specification, existing);
         } else {
           result = ComputationTargetResolverUtils.createResolvedTarget(specification, target);
         }
-        final ComputationTarget newResult = _frontTargetCache.putIfAbsent(versionCorrection, specification, result);
+        final ComputationTarget newResult = isDeep ? _frontTargetCacheDeep.putIfAbsent(versionCorrection, specification, result) : _frontTargetCache.put(specification, result);
         if (newResult != null) {
           return newResult;
         } else {
@@ -178,11 +198,11 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     }
     result = super.resolve(specification, versionCorrection);
     if (result != null) {
-      final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(versionCorrection, uid, result.getValue());
+      final UniqueIdentifiable existing = isDeep ? _frontObjectCacheDeep.putIfAbsent(versionCorrection, uid, result.getValue()) : _frontObjectCache.putIfAbsent(uid, result.getValue());
       if (existing == null) {
         addToCacheImpl(key, result.getValue());
       }
-      final ComputationTarget newResult = _frontTargetCache.putIfAbsent(versionCorrection, specification, result);
+      final ComputationTarget newResult = isDeep ? _frontTargetCacheDeep.putIfAbsent(versionCorrection, specification, result) : _frontTargetCache.putIfAbsent(specification, result);
       if (newResult != null) {
         result = newResult;
       }
@@ -263,7 +283,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     cacheTargets(nodes, VersionCorrection.LATEST);
   }
 
-  private void addToCacheImpl(final Pair<UniqueId, VersionCorrection> key, final UniqueIdentifiable target) {
+  private void addToCacheImpl(final Object key, final UniqueIdentifiable target) {
     // Don't allow re-entrance to the cache; serialization of a LazyResolver can try to write entries to the
     // cache. Put them into the frontCache only so that we can do a quick lookup if they stay in memory. The
     // problem is that spooling a big root portfolio node to disk can try to resolve and cache all of the
@@ -296,7 +316,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   public void cacheTargets(final Collection<? extends UniqueIdentifiable> targets, final VersionCorrection versionCorrection) {
     for (final UniqueIdentifiable target : targets) {
       final UniqueId uid = target.getUniqueId();
-      if (_frontObjectCache.putIfAbsent(versionCorrection, uid, target) == null) {
+      if (_frontObjectCacheDeep.putIfAbsent(versionCorrection, uid, target) == null) {
         addToCacheImpl(Pair.of(uid, versionCorrection), target);
       }
     }

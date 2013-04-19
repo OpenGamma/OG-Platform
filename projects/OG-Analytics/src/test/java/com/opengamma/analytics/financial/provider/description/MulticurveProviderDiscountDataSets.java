@@ -35,7 +35,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -215,7 +216,7 @@ public class MulticurveProviderDiscountDataSets {
       DateUtils.getUTCDate(2012, 5, 1), DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1), DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1),
       DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1),
       DateUtils.getUTCDate(2013, 1, 1) };
-  private static final ArrayZonedDateTimeDoubleTimeSeries UKRPI_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(UKRPI_DATE, UKRPI_VALUE);
+  private static final ZonedDateTimeDoubleTimeSeries UKRPI_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(UKRPI_DATE, UKRPI_VALUE);
   // US : CPI-U 2009-2011
   private static final double[] USCPI_VALUE_2009 = new double[] {211.143, 212.193, 212.709, 213.240, 213.856, 215.693, 215.351, 215.834, 215.969, 216.177, 216.330, 215.949, 214.537 };
   private static final double[] USCPI_VALUE_2010 = new double[] {216.687, 216.741, 217.631, 218.009, 218.178, 217.965, 218.011, 218.312, 218.439, 218.711, 218.803, 219.179, 218.056 };
@@ -242,7 +243,7 @@ public class MulticurveProviderDiscountDataSets {
       DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1), DateUtils.getUTCDate(2012, 5, 1), DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1),
       DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1), DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1),
       DateUtils.getUTCDate(2013, 1, 1) };
-  private static final ArrayZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(USCPI_DATE, USCPI_VALUE);
+  private static final ZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(USCPI_DATE, USCPI_VALUE);
 
   // Europe : EURO HICP-X 2009-2011
   private static final double[] EUROHICPX_VALUE_2008 = new double[] {105.80, 106.17, 107.21, 107.55, 108.23, 108.64, 108.47, 108.32, 108.52, 108.55, 108.02, 107.88 };
@@ -273,7 +274,7 @@ public class MulticurveProviderDiscountDataSets {
       DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1), DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1), DateUtils.getUTCDate(2012, 5, 1),
       DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1), DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1), DateUtils.getUTCDate(2012, 10, 1),
       DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1), DateUtils.getUTCDate(2013, 1, 1) };
-  private static final ArrayZonedDateTimeDoubleTimeSeries EUROHICPX_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(EUROHICPX_DATE, EUROHICPX_VALUE);
+  private static final ZonedDateTimeDoubleTimeSeries EUROHICPX_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(EUROHICPX_DATE, EUROHICPX_VALUE);
 
   /**
    * Returns a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).

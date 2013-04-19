@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -25,7 +26,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -183,7 +184,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
    */
   public void toDerivativeFirstDaymonth() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 1);
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1)}, new double[] {0.0010});
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(2012, 3, 1), 0.0010);
     final FederalFundsFutureSecurity futureFedFundExpected = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
     final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
@@ -195,7 +196,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
    */
   public void toDerivativeSecondDayMonthNoFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 2);
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1)}, new double[] {0.0010});
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(2012, 3, 1), 0.0010);
     final FederalFundsFutureSecurity futureFedFundExpected = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
     final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
@@ -208,7 +209,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   public void toDerivativeSecondDayMonthFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 2);
     final double[] rateFixing = new double[] {0.0010, 0.0011};
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2)}, rateFixing);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(
+        new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2)}, rateFixing, ZoneOffset.UTC);
     final double accruedInterest = FIXING_ACCURAL_FACTOR[0] * rateFixing[1];
     final double[] fixingPeriodAccrualFactor = new double[FIXING_ACCURAL_FACTOR.length - 1];
     System.arraycopy(FIXING_ACCURAL_FACTOR, 1, fixingPeriodAccrualFactor, 0, fixingPeriodAccrualFactor.length);
@@ -230,7 +232,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
     final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6)};
     final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013};
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
     final double accruedInterest = FIXING_ACCURAL_FACTOR[0] * rateFixing[1] + FIXING_ACCURAL_FACTOR[1] * rateFixing[2] + FIXING_ACCURAL_FACTOR[2] * rateFixing[3];
     final double[] fixingPeriodAccrualFactor = new double[FIXING_ACCURAL_FACTOR.length - 3];
     System.arraycopy(FIXING_ACCURAL_FACTOR, 3, fixingPeriodAccrualFactor, 0, fixingPeriodAccrualFactor.length);
@@ -253,7 +255,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
     final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
         DateUtils.getUTCDate(2012, 3, 7)};
     final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
     final double accruedInterest = FIXING_ACCURAL_FACTOR[0] * rateFixing[1] + FIXING_ACCURAL_FACTOR[1] * rateFixing[2] + FIXING_ACCURAL_FACTOR[2] * rateFixing[3] + FIXING_ACCURAL_FACTOR[3] * rateFixing[4];
     final double[] fixingPeriodAccrualFactor = new double[FIXING_ACCURAL_FACTOR.length - 4];
     System.arraycopy(FIXING_ACCURAL_FACTOR, 4, fixingPeriodAccrualFactor, 0, fixingPeriodAccrualFactor.length);
@@ -283,7 +285,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
     for (int loopfix = 0; loopfix < dateFixing.length - 1; loopfix++) {
       accruedInterest += FIXING_ACCURAL_FACTOR[loopfix] * rateFixing[loopfix + 1];
     }
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
     final double[] fixingPeriodAccrualFactor = new double[] {FIXING_ACCURAL_FACTOR[FIXING_ACCURAL_FACTOR.length - 1]};
     final double[] fixingPeriodTime = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 2]),
         TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 1])};
@@ -309,7 +311,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
     for (int loopfix = 0; loopfix < dateFixing.length - 1; loopfix++) {
       accruedInterest += FIXING_ACCURAL_FACTOR[loopfix] * rateFixing[loopfix + 1];
     }
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
     final double[] fixingPeriodAccrualFactor = new double[0];
     final double[] fixingPeriodTime = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 1])};
     final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,

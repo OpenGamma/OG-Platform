@@ -31,4 +31,9 @@ public class CurrencyResolver implements ObjectResolver<Currency> {
     return DummyChangeManager.INSTANCE;
   }
 
+  @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
 }

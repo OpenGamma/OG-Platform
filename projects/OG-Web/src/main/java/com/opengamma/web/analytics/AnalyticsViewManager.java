@@ -26,7 +26,6 @@ import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -130,18 +129,12 @@ public class AnalyticsViewManager {
     VersionCorrection versionCorrection = request.getPortfolioVersionCorrection();
     // this can be null for a primitives-only view
     UniqueId portfolioId = viewDef.getPortfolioId();
-    Portfolio portfolio;
     Supplier<Portfolio> portfolioSupplier;
     ObjectId portfolioObjectId;
-    Portfolio resolvedPortfolio;
     if (portfolioId != null) {
       portfolioObjectId = portfolioId.getObjectId();
-      // TODO confirm the correct versioning behaviour
-      portfolio = _positionSource.getPortfolio(portfolioObjectId, VersionCorrection.LATEST);
-      resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio, _portfolioResolutionExecutor, _securitySource);
     } else {
       portfolioObjectId = null;
-      resolvedPortfolio = null;
     }
     portfolioSupplier = new PortfolioSupplier(portfolioObjectId,
                                               versionCorrection,
@@ -154,7 +147,8 @@ public class AnalyticsViewManager {
     ViewportListener viewportListener = new LoggingViewportListener(viewClient);
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
-    AnalyticsView view = new SimpleAnalyticsView(resolvedPortfolio,
+    boolean primitivesOnly = portfolioId == null;
+    AnalyticsView view = new SimpleAnalyticsView(primitivesOnly,
                                                  versionCorrection,
                                                  viewId,
                                                  portfolioGridId,

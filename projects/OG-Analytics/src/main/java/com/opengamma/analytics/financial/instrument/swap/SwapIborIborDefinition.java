@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -109,7 +109,7 @@ public class SwapIborIborDefinition extends SwapDefinition {
   }
 
   @Override
-  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
     ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
