@@ -15,6 +15,9 @@ $.register_module({
             create_underlying_name : function (data) {
                 return data.underlying.type + " " + data.trade.tradeDate;
             },
+            create_cds_name : function (data) {
+                return data.security.type + " on " + data.underlying.type + " " + data.trade.tradeDate;
+            },
             check_radio : function (name, value) {
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
             },

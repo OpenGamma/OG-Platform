@@ -22,14 +22,14 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     data: data,
                     processor: function (data) {
-                        data.security.name = util.create_name(data);
                         data.security.buy = data.underlying.buy;
                         data.security.protectionBuyer = data.underlying.protectionBuyer;
                         data.security.protectionSeller = data.underlying.protectionSeller;
                         data.security.currency = data.underlying.notional.currency;
                         data.security.notional = data.underlying.notional.amount;
                         data.underlying.type = $('#' + cds_select.id).val();
-                        data.underlying.name = util.create_name(data);
+                        data.underlying.name = util.create_underlying_name(data);
+                        data.security.name = util.create_cds_name(data);
                         data.security.maturityDate = data.underlying.startDate;
                         util.cleanup(data);
                     }
