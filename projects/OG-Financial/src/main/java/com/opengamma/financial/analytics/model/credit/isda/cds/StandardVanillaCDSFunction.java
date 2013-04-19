@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -176,7 +177,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, spreadCurveName);
     if (creditSpreadCurveShifts != null) {
-      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts);
+      final Set<String> creditSpreadCurveShiftTypes = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT_TYPE);
+      if (creditSpreadCurveShiftTypes == null || creditSpreadCurveShiftTypes.size() != 1) {
+        return null;
+      }
+      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts).with(PROPERTY_SPREAD_CURVE_SHIFT_TYPE, creditSpreadCurveShiftTypes);
     }
     final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
     final ValueRequirement recoveryRateRequirement = new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId());
