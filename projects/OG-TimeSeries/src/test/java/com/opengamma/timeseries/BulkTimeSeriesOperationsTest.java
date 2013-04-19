@@ -13,10 +13,8 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
-import com.opengamma.timeseries.BulkTimeSeriesOperations;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 @Test(groups = "unit")
 public class BulkTimeSeriesOperationsTest {
@@ -99,10 +97,10 @@ public class BulkTimeSeriesOperationsTest {
   };
 
   public void testBulkIntersection() {
-    LocalDateDoubleTimeSeries one = new ArrayLocalDateDoubleTimeSeries(DATES1, VALUES1);
-    LocalDateDoubleTimeSeries two = new ArrayLocalDateDoubleTimeSeries(DATES2, VALUES2);
-    LocalDateDoubleTimeSeries three = new ArrayLocalDateDoubleTimeSeries(DATES3, VALUES3);
-    LocalDateDoubleTimeSeries four = new ArrayLocalDateDoubleTimeSeries(DATES4, VALUES4);
+    LocalDateDoubleTimeSeries one = ImmutableLocalDateDoubleTimeSeries.of(DATES1, VALUES1);
+    LocalDateDoubleTimeSeries two = ImmutableLocalDateDoubleTimeSeries.of(DATES2, VALUES2);
+    LocalDateDoubleTimeSeries three = ImmutableLocalDateDoubleTimeSeries.of(DATES3, VALUES3);
+    LocalDateDoubleTimeSeries four = ImmutableLocalDateDoubleTimeSeries.of(DATES4, VALUES4);
 
     LocalDateDoubleTimeSeries[] inputs = new LocalDateDoubleTimeSeries[] {one, two, three, four };
     DoubleTimeSeries<LocalDate>[] intersection = BulkTimeSeriesOperations.intersection(inputs);

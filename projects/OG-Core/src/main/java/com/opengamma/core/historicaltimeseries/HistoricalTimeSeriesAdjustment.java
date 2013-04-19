@@ -8,7 +8,7 @@ package com.opengamma.core.historicaltimeseries;
 import java.util.Stack;
 
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Historical time series adjustment operations that can be string encoded.

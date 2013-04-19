@@ -5,6 +5,9 @@
  */
 package com.opengamma.timeseries;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 /**
  * Simple argument checker throwing {@code IllegalArgumentException}.
  */
@@ -160,6 +163,64 @@ public class TimeSeriesUtils {
       return (a == b);
     }
     return (Math.abs(a - b) < 1E-15);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts the series to a string.
+   * 
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @param ts  the series, not null
+   * @return the string, not null
+   */
+  public static <K, V> String toString(TimeSeries<K, V> ts) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(ts.getClass().getSimpleName());
+    sb.append("["); 
+    Iterator<Entry<K, V>> iterator = ts.iterator();
+    while (iterator.hasNext()) {
+      Entry<?, ?> next = iterator.next();
+      sb.append("(");
+      sb.append(next.getKey());
+      sb.append(", ");
+      sb.append(next.getValue());
+      sb.append(")");
+      if (iterator.hasNext()) {
+        sb.append(", ");
+      }
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the specified boolean is true.
+   * This will normally be the result of a caller-specific check.
+   * 
+   * @param trueIfValid  a boolean resulting from testing an argument, may be null
+   * @param message  the error message, not null
+   * @throws IllegalArgumentException if the test value is false
+   */
+  static void isTrue(boolean trueIfValid, String message) {
+    if (trueIfValid == false) {
+      throw new IllegalArgumentException(message);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the specified parameter is non-null.
+   * 
+   * @param parameter  the parameter to check, may be null
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is null
+   */
+  static void notNull(Object parameter, String name) {
+    if (parameter == null) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be null");
+    }
   }
 
 }

@@ -21,8 +21,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.time.LocalDateRange;
@@ -44,7 +44,7 @@ public class EHCachingHistoricalTimeSeriesProvider extends AbstractHistoricalTim
   /**
    * The object representing a cache miss.
    */
-  private static final LocalDateDoubleTimeSeries NO_HTS = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries NO_HTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   /**
    * The underlying provider.

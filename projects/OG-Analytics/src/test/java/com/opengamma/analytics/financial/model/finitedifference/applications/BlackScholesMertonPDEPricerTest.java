@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT_SLOW)
 public class BlackScholesMertonPDEPricerTest {
   private static final BjerksundStenslandModel AMERICAN_APPOX_PRCIER = new BjerksundStenslandModel();
   private static final BlackScholesMertonPDEPricer PRICER = new BlackScholesMertonPDEPricer();
@@ -249,8 +251,7 @@ public class BlackScholesMertonPDEPricerTest {
     System.out.println(b + "\t" + bsPrice + "\t" + bsPrice2 + "\t" + amAprox + "\t" + pdePrice + "\t" + pdePricePC + "\t" + (1 - pdePrice / bsPrice));
   }
 
-  @Test
-  (enabled = false)
+  @Test(enabled = false)
   public void debugTest() {
     System.out.println("BlackScholesMertonPDEPricerTest.debugTest");
     final BjerksundStenslandModel amPricer = new BjerksundStenslandModel();

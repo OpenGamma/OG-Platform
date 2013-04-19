@@ -68,6 +68,7 @@ import com.opengamma.financial.security.cds.LegacyCDSSecurity;
 import com.opengamma.financial.security.cds.StandardCDSSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -268,7 +269,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
       if (hts.getTimeSeries().isEmpty()) {
         throw new OpenGammaRuntimeException("Time series for " + id + " is empty");
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(hts.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(hts.getTimeSeries(), schedule);
       if (fxSeries != null) {
         if (isInverse) {
           nodeTimeSeries = nodeTimeSeries.divide(fxSeries);

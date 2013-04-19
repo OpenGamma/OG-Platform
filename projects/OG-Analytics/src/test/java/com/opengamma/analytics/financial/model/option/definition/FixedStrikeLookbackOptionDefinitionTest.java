@@ -16,8 +16,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
@@ -32,9 +31,9 @@ public class FixedStrikeLookbackOptionDefinitionTest {
   private static final FixedStrikeLookbackOptionDefinition PUT = new FixedStrikeLookbackOptionDefinition(STRIKE, EXPIRY, false);
   private static final double SPOT = 100;
   private static final double DIFF = 10;
-  private static final DoubleTimeSeries<?> HIGH_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT + DIFF,
+  private static final DoubleTimeSeries<?> HIGH_TS = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT + DIFF,
       SPOT});
-  private static final DoubleTimeSeries<?> LOW_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT - DIFF,
+  private static final DoubleTimeSeries<?> LOW_TS = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT - DIFF,
       SPOT});
   private static final StandardOptionWithSpotTimeSeriesDataBundle HIGH_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.1)), 0.05,
       new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), HIGH_TS);
