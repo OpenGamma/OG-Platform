@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -38,7 +39,6 @@ import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.cache.ViewComputationCache;
 import com.opengamma.engine.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.calcnode.MutableExecutionLog;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -59,9 +59,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -79,7 +77,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogLevel;
-import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -451,6 +448,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return operation;
   }
 
+  private static final DefaultAggregatedExecutionLog MARKET_DATA_LOG = DefaultAggregatedExecutionLog.indicatorLogMode(EnumSet.of(LogLevel.WARN));
+
   private void prepareInputs(final MarketDataSnapshot snapshot) {
     int missingMarketData = 0;
     final Set<ValueSpecification> allRequiredMarketData = getCompiledViewDefinition().getMarketDataRequirements();
@@ -480,10 +479,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataSpec, getValuationTime());
           missingMarketData++;
           // TODO provide elevated logs if requested from market data providers
-          final ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
-          final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Market Data", marketDataSpec.getTargetSpecification(), executionLog);
-          final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
-          computedValueResult = new ComputedValueResult(marketDataSpec, MissingMarketDataSentinel.getInstance(), aggregatedExecutionLog);
+          computedValueResult = new ComputedValueResult(marketDataSpec, MissingMarketDataSentinel.getInstance(), MARKET_DATA_LOG);
         } else {
           computedValueResult = new ComputedValueResult(marketDataSpec, marketDataValue, AggregatedExecutionLog.EMPTY);
           fragmentResultModel.addMarketData(computedValueResult);

@@ -6,13 +6,19 @@
 package com.opengamma.engine.exec;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.AggregatedExecutionLog;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.util.ArgumentChecker;
@@ -21,11 +27,12 @@ import com.opengamma.util.log.LogLevel;
 /**
  * Default implementation of {@link AggregatedExecutionLog}.
  * <p>
- * In {@link ExecutionLogMode#INDICATORS} mode, the root log and dependent logs are inspected to obtain an aggregate of
- * the log levels, but no individual logs are stored. In {@link ExecutionLogMode#FULL} mode, individual non-empty logs
- * are also stored.
+ * In {@link ExecutionLogMode#INDICATORS} mode, the root log and dependent logs are inspected to obtain an aggregate of the log levels, but no individual logs are stored. In
+ * {@link ExecutionLogMode#FULL} mode, individual non-empty logs are also stored.
  */
-public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
+public final class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
+
+  private static volatile Map<EnumSet<LogLevel>, DefaultAggregatedExecutionLog> s_indicatorInstances = Collections.emptyMap();
 
   private final EnumSet<LogLevel> _logLevels;
   private final List<ExecutionLogWithContext> _logs;
@@ -33,58 +40,85 @@ public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
    * Flag to indicate whether the execution log at the root level was empty and has been excluded.
    */
   private final boolean _emptyRoot;
-  
+
   /**
-   * Constructs an instance for a root level with possible logs from its dependencies. 
+   * Constructs an instance for a root level with possible logs from its dependencies when the full logging mode is being used.
    * 
-   * @param rootLog  the root log, not null
-   * @param dependentLogs  the dependent logs, if any, may be null or empty
-   * @param logMode  the mode describing the outputs required, not null
+   * @param node the node this log has come from, not null
+   * @param rootLog the root log, not null
+   * @param dependentLogs the dependent logs, if any, may be null or empty
+   * @return the log instance
    */
-  public DefaultAggregatedExecutionLog(ExecutionLogWithContext rootLog, List<AggregatedExecutionLog> dependentLogs, ExecutionLogMode logMode) {
+  public static DefaultAggregatedExecutionLog fullLogMode(DependencyNode node, ExecutionLog rootLog, Collection<AggregatedExecutionLog> dependentLogs) {
+    ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(rootLog, "rootLog");
-    ArgumentChecker.notNull(logMode, "logMode");
-    _logLevels = EnumSet.copyOf(rootLog.getExecutionLog().getLogLevels());
-    if (logMode == ExecutionLogMode.FULL) {
-      _logs = new ArrayList<ExecutionLogWithContext>();
-      _emptyRoot = rootLog.getExecutionLog().isEmpty();
-      if (!_emptyRoot) {
-        _logs.add(rootLog);
-      }
-    } else {
-      _logs = null;
-      _emptyRoot = false;
+    EnumSet<LogLevel> logLevels = rootLog.getLogLevels();
+    boolean logLevelsCopied = false;
+    final List<ExecutionLogWithContext> logs = new ArrayList<ExecutionLogWithContext>();
+    boolean emptyRoot = rootLog.isEmpty();
+    if (!emptyRoot) {
+      logs.add(ExecutionLogWithContext.of(node, rootLog));
     }
     if (dependentLogs != null) {
       for (AggregatedExecutionLog dependentLog : dependentLogs) {
-        _logLevels.addAll(dependentLog.getLogLevels());
-        if (_logs != null && dependentLog.getLogs() != null) {
-          _logs.addAll(dependentLog.getLogs());
+        final EnumSet<LogLevel> dependentLogLevels = dependentLog.getLogLevels();
+        if (logLevelsCopied) {
+          logLevels.addAll(dependentLogLevels);
+        } else {
+          if (!logLevels.equals(dependentLogLevels)) {
+            logLevels = EnumSet.copyOf(logLevels);
+            logLevels.addAll(dependentLogLevels);
+            logLevelsCopied = true;
+          }
+        }
+        if (logs != null && dependentLog.getLogs() != null) {
+          logs.addAll(dependentLog.getLogs());
         }
       }
     }
+    return new DefaultAggregatedExecutionLog(logLevels, logs, emptyRoot);
   }
-  
+
+  /**
+   * Constructs an instance for a root level with possible logs from its dependencies when the indicator-only logging mode is being used.
+   * 
+   * @param rootLogLevels the root log indicators, not null
+   * @return the log instance
+   */
+  public static DefaultAggregatedExecutionLog indicatorLogMode(EnumSet<LogLevel> rootLogLevels) {
+    Map<EnumSet<LogLevel>, DefaultAggregatedExecutionLog> indicators = s_indicatorInstances;
+    final DefaultAggregatedExecutionLog existing = indicators.get(rootLogLevels);
+    if (existing != null) {
+      return existing;
+    }
+    final DefaultAggregatedExecutionLog log = new DefaultAggregatedExecutionLog(rootLogLevels, null, false);
+    indicators = new HashMap<EnumSet<LogLevel>, DefaultAggregatedExecutionLog>(indicators);
+    indicators.put(rootLogLevels, log);
+    s_indicatorInstances = indicators;
+    return log;
+
+  }
+
   /**
    * Constructs an instance from the internal fields.
    * <p>
-   * Intended for deserialisation. Performs no consistency checking of the inputs.
+   * Public for deserialization only. Performs no consistency checking of the inputs.
    * 
-   * @param logLevels  an overview of the log levels, not null
-   * @param logs  the individual logs, null if not available
-   * @param emptyRoot  true if the root log was empty, false otherwise
+   * @param logLevels an overview of the log levels, not null
+   * @param logs the individual logs, null if not available
+   * @param emptyRoot true if the root log was empty, false otherwise
    */
   public DefaultAggregatedExecutionLog(EnumSet<LogLevel> logLevels, List<ExecutionLogWithContext> logs, boolean emptyRoot) {
     _logLevels = logLevels;
     _logs = logs;
     _emptyRoot = emptyRoot;
   }
-  
+
   @Override
   public EnumSet<LogLevel> getLogLevels() {
     return _logLevels;
   }
-  
+
   @Override
   public ExecutionLogWithContext getRootLog() {
     return _logs != null && !_emptyRoot ? _logs.get(0) : null;
@@ -94,7 +128,7 @@ public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
   public List<ExecutionLogWithContext> getLogs() {
     return _logs;
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public int hashCode() {
@@ -122,12 +156,12 @@ public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
     DefaultAggregatedExecutionLog other = (DefaultAggregatedExecutionLog) obj;
     return ObjectUtils.equals(_logLevels, other._logLevels) && ObjectUtils.equals(_logs, other._logs) && _emptyRoot == other._emptyRoot;
   }
-  
+
   //-------------------------------------------------------------------------  
   @Override
   public String toString() {
     StrBuilder sb = new StrBuilder()
-      .append("AggLog[");
+        .append("AggLog[");
     if (!getLogLevels().isEmpty()) {
       sb.append("aggLevels=").append(getLogLevels());
       if (getLogs() != null) {

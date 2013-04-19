@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.cycle;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -31,7 +30,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.util.TerminatableJob;
@@ -95,8 +93,12 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
               inputLogs.add(nodeResult.getAggregatedExecutionLog());
             }
             final ExecutionLogMode executionLogMode = logModes.getLogMode(node);
-            final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
-            final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
+            final AggregatedExecutionLog aggregatedExecutionLog;
+            if (executionLogMode == ExecutionLogMode.FULL) {
+              aggregatedExecutionLog = DefaultAggregatedExecutionLog.fullLogMode(node, jobResultItem.getExecutionLog(), inputLogs);
+            } else {
+              aggregatedExecutionLog = DefaultAggregatedExecutionLog.indicatorLogMode(jobResultItem.getExecutionLog().getLogLevels());
+            }
             final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
             final Set<ValueSpecification> nodeTerminals = node.getTerminalOutputValues();
             for (ValueSpecification output : node.getOutputValues()) {
