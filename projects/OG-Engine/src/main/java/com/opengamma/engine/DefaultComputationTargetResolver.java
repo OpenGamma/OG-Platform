@@ -217,26 +217,19 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
 
         @Override
         public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTargetTypeMap<ComputationTargetType> data) {
-          ComputationTargetType result = null;
+          final ComputationTargetType[] result = new ComputationTargetType[types.size()];
+          int i = 0;
           boolean changed = false;
           for (final ComputationTargetType type : types) {
             final ComputationTargetType newType = type.accept(this, data);
             if ((newType != null) && (newType != type)) {
-              if (result == null) {
-                result = newType;
-              } else {
-                result = result.or(newType);
-              }
+              result[i++] = newType;
               changed = true;
             } else {
-              if (result == null) {
-                result = type;
-              } else {
-                result = result.or(type);
-              }
+              result[i++] = type;
             }
           }
-          return changed ? result : null;
+          return changed ? ComputationTargetType.multiple(result) : null;
         }
 
         @Override
