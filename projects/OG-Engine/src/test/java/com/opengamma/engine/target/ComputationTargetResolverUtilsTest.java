@@ -9,7 +9,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
@@ -36,25 +35,25 @@ public class ComputationTargetResolverUtilsTest {
     ComputationTarget target = ComputationTargetResolverUtils.createResolvedTarget(
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()), POSITION);
     assertEquals(target.getType(), ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.of(SimplePosition.class)));
-    assertEquals(target.getContextIdentifiers(), Arrays.asList(NODE.getUniqueId()));
+    assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE));
     assertSame(target.getValue(), POSITION);
     // Rewrite to remove the union type
     target = ComputationTargetResolverUtils.createResolvedTarget(new ComputationTargetSpecification(ComputationTargetType.POSITION.or(ComputationTargetType.TRADE), POSITION.getUniqueId()), POSITION);
     assertEquals(target.getType(), ComputationTargetType.of(SimplePosition.class));
-    assertEquals(target.getContextIdentifiers(), null);
+    assertEquals(target.getContextSpecification(), null);
     assertSame(target.getValue(), POSITION);
     // Rewrite the nested type
     target = ComputationTargetResolverUtils.createResolvedTarget(
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()).containing(ComputationTargetType.POSITION.or(ComputationTargetType.TRADE),
             POSITION.getUniqueId()), POSITION);
     assertEquals(target.getType(), ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.of(SimplePosition.class)));
-    assertEquals(target.getContextIdentifiers(), Arrays.asList(NODE.getUniqueId()));
+    assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE));
     assertSame(target.getValue(), POSITION);
     target = ComputationTargetResolverUtils.createResolvedTarget(
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()).containing(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()).containing(
             ComputationTargetType.POSITION.or(ComputationTargetType.TRADE), POSITION.getUniqueId()), POSITION);
     assertEquals(target.getType(), ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.PORTFOLIO_NODE).containing(ComputationTargetType.of(SimplePosition.class)));
-    assertEquals(target.getContextIdentifiers(), Arrays.asList(NODE.getUniqueId(), NODE.getUniqueId()));
+    assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()));
     assertSame(target.getValue(), POSITION);
   }
 

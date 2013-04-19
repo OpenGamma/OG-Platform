@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -147,30 +148,25 @@ public class ResolutionRule {
     }
     final UniqueId uid = target.getUniqueId();
     if (uid != null) {
-      final List<UniqueId> context = target.getContextIdentifiers();
+      ComputationTargetSpecification targetSpec = target.toSpecification();
       for (ValueSpecification result : results) {
         if (!uid.equals(result.getTargetSpecification().getUniqueId())) {
           s_logger.warn("Invalid UID for result {} on target {}", result, target);
           return false;
         }
-        if (context == null) {
-          if (result.getTargetSpecification().getParent() != null) {
-            s_logger.warn("Invalid parent context of result {} on target {}", result, target);
+        ComputationTargetReference a = result.getTargetSpecification().getParent();
+        ComputationTargetReference b = targetSpec.getParent();
+        while ((a != null) && (b != null)) {
+          if (!a.getSpecification().getUniqueId().equals(b.getSpecification().getUniqueId())) {
+            s_logger.warn("Parent context mismatch of result {} on target {}", result, target);
             return false;
           }
-        } else {
-          ComputationTargetReference ref = result.getTargetSpecification().getParent();
-          for (int i = context.size(); --i >= 0;) {
-            if (ref == null) {
-              s_logger.warn("Missing parent context of result {} on target {}", result, target);
-              return false;
-            }
-            if (!context.get(i).equals(ref.getSpecification().getUniqueId())) {
-              s_logger.warn("Parent context mismatch of result {} on target {}", result, target);
-              return false;
-            }
-            ref = ref.getParent();
-          }
+          a = a.getParent();
+          b = b.getParent();
+        }
+        if ((a != null) || (b != null)) {
+          s_logger.warn("Invalid parent context of result {} on target {}", result, target);
+          return false;
         }
       }
     } else {
@@ -213,7 +209,7 @@ public class ResolutionRule {
       for (ValueSpecification resultSpec : resultSpecs) {
         if ((valueName == resultSpec.getValueName())
             && (resultSpec.getTargetSpecification().getUniqueId() == null) // This is not necessary if functions are well behaved or the "isValidResultsOnTarget" check was used
-          && constraints.isSatisfiedBy(resultSpec.getProperties())) {
+            && constraints.isSatisfiedBy(resultSpec.getProperties())) {
           validSpec = resultSpec;
           break;
         }
@@ -234,92 +230,95 @@ public class ResolutionRule {
     return "ResolutionRule[" + getParameterizedFunction() + " at priority " + getPriority() + "]";
   }
 
-  private static ComputationTargetTypeVisitor<List<ComputationTargetType>, List<ComputationTargetType>> s_adjustNestedTarget =
-      new ComputationTargetTypeVisitor<List<ComputationTargetType>, List<ComputationTargetType>>() {
-
-        @Override
-        public List<ComputationTargetType> visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final List<ComputationTargetType> data) {
-          // Multiple target types will have been removed during resolution
-          throw new IllegalStateException();
-        }
-
-        @Override
-        public List<ComputationTargetType> visitNestedComputationTargetTypes(final List<ComputationTargetType> targetTypes, final List<ComputationTargetType> ruleTypes) {
-          if (targetTypes.size() == ruleTypes.size()) {
-            return targetTypes;
-          } else if (targetTypes.size() > ruleTypes.size()) {
-            return targetTypes.subList(targetTypes.size() - ruleTypes.size(), targetTypes.size());
-          } else {
-            // Target type is not compatible with the rule
-            return null;
-          }
-        }
-
-        @Override
-        public List<ComputationTargetType> visitNullComputationTargetType(final List<ComputationTargetType> data) {
-          // NULL should not be getting this far
-          throw new IllegalStateException();
-        }
-
-        @Override
-        public List<ComputationTargetType> visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final List<ComputationTargetType> data) {
-          // Single class is not compatible with the rule
-          return null;
-        }
-
-      };
-
-  private static ComputationTargetTypeVisitor<ComputationTarget, ComputationTarget> s_adjustTarget = new ComputationTargetTypeVisitor<ComputationTarget, ComputationTarget>() {
+  private static ComputationTargetTypeVisitor<Void, List<ComputationTargetType>> s_getNestedTargetTypes = new ComputationTargetTypeVisitor<Void, List<ComputationTargetType>>() {
 
     @Override
-    public ComputationTarget visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTarget target) {
+    public List<ComputationTargetType> visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void unused) {
+      // Multiple target types will have been removed during resolution
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public List<ComputationTargetType> visitNestedComputationTargetTypes(final List<ComputationTargetType> targetTypes, final Void unused) {
+      return targetTypes;
+    }
+
+    @Override
+    public List<ComputationTargetType> visitNullComputationTargetType(final Void unused) {
+      // NULL should not be getting this far
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public List<ComputationTargetType> visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void unused) {
+      // Single class is not compatible with the rule
+      return null;
+    }
+
+  };
+
+  private static ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetType> s_getAdjustedTargetType = new ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetType>() {
+
+    @Override
+    public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTarget target) {
       for (ComputationTargetType type : types) {
-        final ComputationTarget adjusted = type.accept(this, target);
-        if (adjusted != null) {
+        final ComputationTargetType adjusted = type.accept(this, target);
+        if (adjusted == ComputationTargetType.NULL) {
+          return type;
+        } else if (adjusted != null) {
           return adjusted;
         }
       }
+      // Target not compatible
       return null;
     }
 
     @Override
-    public ComputationTarget visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTarget target) {
-      // Target needs to be a nested type at least as long as the function type. It will be truncated if it is longer.
-      final List<ComputationTargetType> adjustedTypes = target.getType().accept(s_adjustNestedTarget, types);
-      if (adjustedTypes == null) {
+    public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTarget target) {
+      final List<ComputationTargetType> targetTypes = target.getType().accept(s_getNestedTargetTypes, null);
+      if (targetTypes == null) {
+        // Target not compatible
         return null;
       }
-      ComputationTargetType type = null;
-      for (ComputationTargetType adjustedType : adjustedTypes) {
-        if (type == null) {
-          type = adjustedType;
-        } else {
-          type = type.containing(adjustedType);
+      final int length = targetTypes.size();
+      if (length < types.size()) {
+        // Target does not match the type - not enough context
+        return null;
+      }
+      final ComputationTargetType leafType = targetTypes.get(length - 1);
+      final ComputationTargetType adjustedLeaf = leafType.accept(this, target);
+      if (adjustedLeaf == null) {
+        // Target not compatible at leaf type
+        return null;
+      }
+      if (adjustedLeaf == ComputationTargetType.NULL) {
+        if (length == types.size()) {
+          // Exact match
+          return ComputationTargetType.NULL;
         }
       }
-      List<UniqueId> uids = target.getContextIdentifiers();
-      if (uids.size() > adjustedTypes.size()) {
-        uids = uids.subList(uids.size() - adjustedTypes.size(), uids.size());
+      int i = length - types.size();
+      ComputationTargetType type = targetTypes.get(i);
+      while (++i < length - 1) {
+        type = type.containing(targetTypes.get(i));
       }
-      return new ComputationTarget(type, uids, target.getValue());
+      return type.containing(adjustedLeaf);
     }
 
     @Override
-    public ComputationTarget visitNullComputationTargetType(final ComputationTarget target) {
-      return target;
+    public ComputationTargetType visitNullComputationTargetType(final ComputationTarget target) {
+      return ComputationTargetType.NULL;
     }
 
     @Override
-    public ComputationTarget visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTarget target) {
+    public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTarget target) {
       final Class<? extends UniqueIdentifiable> clazz = target.getValue().getClass();
-      if (type.isAssignableFrom(clazz)) {
-        if (target.getContextIdentifiers() == null) {
-          // Target has no context, so use as is
-          return target;
-        } else {
-          // Target has context - trim this off to leave just the leaf type
-          return new ComputationTarget(ComputationTargetType.of(target.getValue().getClass()), target.getValue());
-        }
+      if (type.equals(clazz)) {
+        // Target type is correct
+        return ComputationTargetType.NULL;
+      } else if (type.isAssignableFrom(clazz)) {
+        // Target type is the target's leaf type
+        return target.getLeafSpecification().getType();
       } else {
         // Target is not compatible with the function type
         return null;
@@ -342,7 +341,17 @@ public class ResolutionRule {
    * @return the reduced target, or null if the reduction is not possible
    */
   private static ComputationTarget adjustTarget(final ComputationTargetType type, final ComputationTarget target) {
-    return type.accept(s_adjustTarget, target);
+    final ComputationTargetType adjusted = type.accept(s_getAdjustedTargetType, target);
+    if (adjusted == null) {
+      // Not compatible
+      return null;
+    } else if (adjusted == ComputationTargetType.NULL) {
+      // Exact match
+      return target;
+    } else {
+      // Type replacement
+      return new ComputationTarget(target.toSpecification().replaceType(adjusted).getSpecification(), target.getValue());
+    }
   }
 
   /**

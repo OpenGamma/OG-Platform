@@ -10,7 +10,6 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -300,8 +299,10 @@ public class DefaultCompiledFunctionResolverTest {
     resolver.compileRules();
     Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> result = resolver.resolveFunction("Value", target, ValueProperties.none()).next();
     assertEquals(result.getFirst(), pfn);
-    result = resolver.resolveFunction("Value",
-        new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(UniqueId.of("Node", "0")), target.getValue()), ValueProperties.none())
+    result = resolver.resolveFunction(
+        "Value",
+        new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Node", "0")).containing(ComputationTargetType.POSITION, target.getUniqueId()),
+            target.getValue()), ValueProperties.none())
         .next();
     assertEquals(result.getFirst(), pfn);
   }
@@ -350,9 +351,9 @@ public class DefaultCompiledFunctionResolverTest {
     resolver.addRule(new ResolutionRule(pfn, ApplyToAllTargets.INSTANCE, 0));
     resolver.compileRules();
     assertFalse(resolver.resolveFunction("Value", target, ValueProperties.none()).hasNext());
-    Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> result = resolver.resolveFunction("Value",
-        new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.of(SimplePosition.class)), Arrays.asList(UniqueId.of("Node", "0")), target.getValue()),
-        ValueProperties.none()).next();
+    Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> result = resolver.resolveFunction(
+        "Value", new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Node", "0")).containing(ComputationTargetType.of(SimplePosition.class),
+            target.getUniqueId()), target.getValue()), ValueProperties.none()).next();
     assertEquals(result.getFirst(), pfn);
   }
 

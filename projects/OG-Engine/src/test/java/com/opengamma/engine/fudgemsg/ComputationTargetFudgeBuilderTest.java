@@ -6,12 +6,12 @@
 package com.opengamma.engine.fudgemsg;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -33,15 +33,19 @@ public class ComputationTargetFudgeBuilderTest extends AbstractFudgeBuilderTestC
   }
 
   public void testNested_1() {
-    assertEncodeDecodeCycle(ComputationTarget.class, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(UniqueId.of("Prt", "Foo")),
-        new SimplePosition(UniqueId.of("Pos", "Foo"), BigDecimal.ONE, ExternalId.of("Sec", "Bar"))));
+    assertEncodeDecodeCycle(ComputationTarget.class,
+        new ComputationTarget(
+            new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Prt", "Foo")).containing(ComputationTargetType.POSITION, UniqueId.of("Pos", "Foo")),
+            new SimplePosition(UniqueId.of("Pos", "Foo"), BigDecimal.ONE, ExternalId.of("Sec", "Bar"))));
   }
 
   public void testNested_2() {
     assertEncodeDecodeCycle(
         ComputationTarget.class,
-        new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.PORTFOLIO_NODE).containing(ComputationTargetType.POSITION), Arrays.asList(
-            UniqueId.of("Prt", "Foo"), UniqueId.of("Prt", "Bar")), new SimplePosition(UniqueId.of("Pos", "Foo"), BigDecimal.ONE, ExternalId.of("Sec", "Bar"))));
+        new ComputationTarget(
+            new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Prt", "Foo")).containing(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Prt", "Bar")).containing(
+                ComputationTargetType.POSITION, UniqueId.of("Pos", "Foo")),
+            new SimplePosition(UniqueId.of("Pos", "Foo"), BigDecimal.ONE, ExternalId.of("Sec", "Bar"))));
   }
 
 }
