@@ -15,6 +15,7 @@ $.register_module({
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'CDS Option';
+                console.log(data);
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.cds_option_tash',
                     selector: '.OG-blotter-form-block',
@@ -27,9 +28,12 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
                         portfolio: data.nodeId, trade: data.trade}),
-                    new ui.Dropdown({
-                        form: form, resource: 'blotter.exercisetypes', index: 'security.exerciseType',
-                        value: data.security.exerciseType, placeholder: 'Select Exercise Type'
+                    new form.Block({
+                        module: 'og.blotter.forms.blocks.cds_option_tash',
+                        extras: {strike: data.security.strike},
+                        children: [ new ui.Dropdown({ form: form, resource: 'blotter.exercisetypes', 
+                            index: 'security.exerciseType', value: data.security.exerciseType, 
+                            placeholder: 'Select Exercise Type'})]
                     }),
                     cds_select = new ui.Dropdown({
                         form: form, placeholder: 'Select CDS Type',
@@ -51,6 +55,8 @@ $.register_module({
                         $cds_select.val(type);
                     }
                     if (data.security.length) return;
+                    util.check_radio('security.payer', data.security.payer);
+                    util.check_radio('security.knockOut', data.security.knockOut);
 
                 });
                 form.on('form:submit', function (result){
