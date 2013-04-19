@@ -133,7 +133,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         }
         final Double spot = (Double) inputs.getValue(spotRequirement);
         final Map<ExternalId, Double> data = new HashMap<ExternalId, Double>();
-        boolean isRegular = specification.isMarketQuoteConvention();
+        final boolean isRegular = specification.isMarketQuoteConvention();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
@@ -161,6 +161,17 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, curveName).get();
         return new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties);
+      }
+
+
+      @Override
+      public boolean canHandleMissingRequirements() {
+        return true;
+      }
+
+      @Override
+      public boolean canHandleMissingInputs() {
+        return true;
       }
     };
   }

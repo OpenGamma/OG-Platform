@@ -211,7 +211,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
     final ValueRequirement payFundingCurve = getPayCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
     final ValueRequirement receiveFundingCurve = getReceiveCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
-    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);//, fxForwardCurveRequirement);
+    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement, fxForwardCurveRequirement);
   }
 
   @Override
