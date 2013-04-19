@@ -76,6 +76,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -412,6 +414,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
     return getException(payment);
   }
 
