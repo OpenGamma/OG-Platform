@@ -9,8 +9,11 @@ $.register_module({
         var util = this, bools = {"false": false, "true": true};
         return util = {
             /* Util methods */
-            create_name : function (data){
+            create_name : function (data) {
                 return data.security.type + " " + data.trade.tradeDate;
+            },
+            create_underlying_name : function (data) {
+                return data.underlying.type + " " + data.trade.tradeDate;
             },
             check_radio : function (name, value) {
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
@@ -56,7 +59,6 @@ $.register_module({
             set_cds_data : function (prefix, data) {
                 util.add_date_picker('.blotter-date');
                 util.add_time_picker('.blotter-time');
-                util.set_initial_focus();
                 if(data[prefix].length) return;
                 util.check_radio(prefix + '.buy', data[prefix].buy);
                 util.check_checkbox(prefix + '.protectionStart', data[prefix].protectionStart);
@@ -89,13 +91,13 @@ $.register_module({
                 {text:'Fixed Interest Rate Leg', value:'FixedInterestRateLeg'}
             ],
             cds_types : [
-                {text:'CDS Index', value:'creditdefaultswapindexsecurity'},
-                {text:'Legacy Fixed Recovery CDS', value:'legacyfixedrecoverycdssecurity'},
-                {text:'Legacy Recovery Lock CDS', value:'legacyrecoverylockcdssecurity'},
-                {text:'Legacy Vanilla CDS', value:'legacyvanillacdssecurity'},
-                {text:'Standard Fixed Recovery CDS', value:'standardfixedrecoverycdssecurity'},
-                {text:'Standard Recovery Lock CDS', value:'standardrecoverylockcdssecurity'},
-                {text:'Standard Vanilla CDS', value:'standardvanillacdssecurity'}
+                {text:'CDS Index', value:'CreditDefaultSwapIndexSecurity'},
+                {text:'Legacy Fixed Recovery CDS', value:'LegacyFixedRecoveryCDSSecurity'},
+                {text:'Legacy Recovery Lock CDS', value:'LegacyRecoveryLockCDSSecurity'},
+                {text:'Legacy Vanilla CDS', value:'LegacyVanillaCDSSecurity'},
+                {text:'Standard Fixed Recovery CDS', value:'StandardFixedRecoveryCDSSecurity'},
+                {text:'Standard Recovery Lock CDS', value:'StandardRecoveryLockCDSSecurity'},
+                {text:'Standard Vanilla CDS', value:'StandardVanillaCDSSecurity'}
             ]
         };
     }

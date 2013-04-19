@@ -34,7 +34,10 @@ $.register_module({
                     })
                 );
                 form.dom();
-                form.on('form:submit', function (result){
+                form.on('form:load' , function () {
+                    util.set_initial_focus();
+                });
+                form.on('form:submit', function (result) {
                     $.when(config.handler(result.data)).then(validate);
                 });
             };
