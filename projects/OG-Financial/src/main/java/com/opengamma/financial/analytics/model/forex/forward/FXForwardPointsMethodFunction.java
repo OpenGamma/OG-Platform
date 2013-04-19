@@ -78,7 +78,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock).minusYears(2);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
@@ -161,6 +161,10 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    final String calculationMethod = desiredValue.getConstraint(ValuePropertyNames.CALCULATION_METHOD);
+    if (!CalculationPropertyNamesAndValues.FORWARD_POINTS.equals(calculationMethod)) {
+      return null;
+    }
     final Set<String> payCurveNames = constraints.getValues(ValuePropertyNames.PAY_CURVE);
     if (payCurveNames == null || payCurveNames.size() != 1) {
       return null;
@@ -207,7 +211,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
     final ValueRequirement payFundingCurve = getPayCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
     final ValueRequirement receiveFundingCurve = getReceiveCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
-    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement, fxForwardCurveRequirement);
+    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);//, fxForwardCurveRequirement);
   }
 
   @Override
