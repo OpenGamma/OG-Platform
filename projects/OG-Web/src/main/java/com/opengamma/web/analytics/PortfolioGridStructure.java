@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -183,8 +182,10 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
     GridColumn labelColumn = new GridColumn("Name", "", null, new PortfolioLabelRenderer(rows));
-    GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
-    return new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn), false);
+    // TODO make the quantity column optional until it's replaced with a function
+    //GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
+    //return new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn), false);
+    return new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
   }
 
   /* package */ static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {
