@@ -24,39 +24,44 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
-public class FXForwardPointsMethodPresentValueFunction extends FXForwardPointsMethodFunction {
+public class FXForwardPointsMethodFCNSFunction extends FXForwardPointsMethodFunction {
   private static final ForexForwardPointsMethod CALCULATOR = ForexForwardPointsMethod.getInstance();
 
-  public FXForwardPointsMethodPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+  public FXForwardPointsMethodFCNSFunction() {
+    super(ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final DoublesCurve forwardPoints, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final FunctionExecutionContext executionContext,
       final FXForwardCurveDefinition fxForwardCurveDefinition) {
-    final MultipleCurrencyAmount mca = CALCULATOR.presentValue(fxForward, data, forwardPoints);
-    if (mca.size() != 1) {
-      throw new OpenGammaRuntimeException("Expecting a single value for present value");
+    final double[] sensitivities = CALCULATOR.presentValueForwardPointsSensitivity(fxForward, data, forwardPoints);
+    final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
+    final int n = sensitivities.length;
+    if (tenors.length != n) {
+      throw new OpenGammaRuntimeException("Number of sensitivities did not match number of tenors in curve");
     }
-    final CurrencyAmount ca = mca.getCurrencyAmounts()[0];
+    final Double[] times = new Double[n];
+    final String[] labels = new String[n];
+    for (int i = 0; i < n; i++) {
+      times[i] = Double.valueOf(i);
+      labels[i] = tenors[i].getPeriod().toString();
+    }
+    final DoubleLabelledMatrix1D matrix = new DoubleLabelledMatrix1D(times, labels, sensitivities);
     final String currency = ((FinancialSecurity) target.getSecurity()).accept(ForexVisitors.getReceiveCurrencyVisitor()).getCode();
-    if (!ca.getCurrency().getCode().equals(currency)) {
-      throw new OpenGammaRuntimeException("Property currency did not match result currency");
-    }
     final ValueProperties properties = getResultProperties(Iterables.getOnlyElement(desiredValues), currency).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, ca.getAmount()));
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, matrix));
   }
 
   @Override
@@ -83,6 +88,7 @@ public class FXForwardPointsMethodPresentValueFunction extends FXForwardPointsMe
         .with(ValuePropertyNames.FORWARD_CURVE_NAME, forwardCurveName)
         .with(ValuePropertyNames.CURRENCY, ((FinancialSecurity) target.getSecurity()).accept(ForexVisitors.getReceiveCurrencyVisitor()).getCode());
   }
+
 
   protected ValueProperties.Builder getResultProperties(final ValueRequirement desiredValue, final String currency) {
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);

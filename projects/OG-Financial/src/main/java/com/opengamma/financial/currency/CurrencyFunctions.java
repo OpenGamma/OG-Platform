@@ -66,6 +66,7 @@ public class CurrencyFunctions extends AbstractFunctionConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_VEGA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_VOMMA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES);
     addCurrencyConversionFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_CS01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);

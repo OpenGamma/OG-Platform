@@ -5,13 +5,12 @@
  */
 package com.opengamma.financial.analytics.model.forex.forward;
 
-import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.ForexForwardPointsMethod;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.engine.ComputationTarget;
@@ -25,38 +24,33 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * 
  */
-public class FXForwardPointsMethodPresentValueFunction extends FXForwardPointsMethodFunction {
+public class FXForwardPointsMethodYCNSFunction extends FXForwardPointsMethodFunction {
   private static final ForexForwardPointsMethod CALCULATOR = ForexForwardPointsMethod.getInstance();
 
-  public FXForwardPointsMethodPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+  public FXForwardPointsMethodYCNSFunction() {
+    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final DoublesCurve forwardPoints, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final FunctionExecutionContext executionContext,
       final FXForwardCurveDefinition fxForwardCurveDefinition) {
-    final MultipleCurrencyAmount mca = CALCULATOR.presentValue(fxForward, data, forwardPoints);
-    if (mca.size() != 1) {
-      throw new OpenGammaRuntimeException("Expecting a single value for present value");
-    }
-    final CurrencyAmount ca = mca.getCurrencyAmounts()[0];
+    final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
+    final MultipleCurrencyInterestRateCurveSensitivity sensitivities = CALCULATOR.presentValueCurveSensitivity(fxForward, data, forwardPoints);
     final String currency = ((FinancialSecurity) target.getSecurity()).accept(ForexVisitors.getReceiveCurrencyVisitor()).getCode();
-    if (!ca.getCurrency().getCode().equals(currency)) {
-      throw new OpenGammaRuntimeException("Property currency did not match result currency");
-    }
     final ValueProperties properties = getResultProperties(Iterables.getOnlyElement(desiredValues), currency).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, ca.getAmount()));
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
+    final String curveName = Iterables.getOnlyElement(properties.getValues(ValuePropertyNames.CURVE));
+    return null;
+    //return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, data, properties, curveSpec, spec);
   }
 
   @Override
