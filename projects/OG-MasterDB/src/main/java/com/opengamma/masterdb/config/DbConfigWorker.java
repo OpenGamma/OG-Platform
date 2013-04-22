@@ -168,7 +168,6 @@ import com.yammer.metrics.Timer;
     } finally {
       context.stop();
     }
-
   }
 
   private byte[] serializeToFudge(final Object configObj) {
@@ -183,7 +182,6 @@ import com.yammer.metrics.Timer;
     ArgumentChecker.notNull(request, "request");
     
     Timer.Context context = _metaDataTimer.time();
-    
     try {
       ConfigMetaDataResult result = new ConfigMetaDataResult();
       if (request.isConfigTypes()) {
@@ -201,7 +199,6 @@ import com.yammer.metrics.Timer;
     } finally {
       context.stop();
     }
-    
   }
 
   //-------------------------------------------------------------------------
@@ -272,7 +269,6 @@ import com.yammer.metrics.Timer;
     } finally {
       context.stop();
     }
-
   }
 
   //-------------------------------------------------------------------------
