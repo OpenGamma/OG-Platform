@@ -51,7 +51,7 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
         .get();
-    final ValueRequirement fxPvRequirement = new ValueRequirement(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
+    final ValueRequirement fxPvRequirement = new ValueRequirement(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), desiredValue.getConstraints());
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = getPayCurrency(security);
     final Currency receiveCurrency = getReceiveCurrency(security);
