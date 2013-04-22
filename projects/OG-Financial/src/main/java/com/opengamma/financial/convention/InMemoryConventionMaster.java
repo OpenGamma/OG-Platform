@@ -8,8 +8,9 @@ package com.opengamma.financial.convention;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.opengamma.financial.convention.percurrency.USConventions;
+import com.opengamma.financial.convention.percurrency.ZAConventions;
 import com.opengamma.id.UniqueId;
-
 /**
  * 
  */
@@ -20,6 +21,12 @@ public class InMemoryConventionMaster implements ConventionMaster {
    * 
    */
   public InMemoryConventionMaster() {
+    init();
+  }
+
+  protected void init() {
+    USConventions.addFixedIncomeInstrumentConventions(this);
+    ZAConventions.addFixedIncomeInstrumentConventions(this);
   }
 
   @Override
