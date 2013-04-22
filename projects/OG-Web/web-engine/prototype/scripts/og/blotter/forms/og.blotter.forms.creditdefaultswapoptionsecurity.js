@@ -62,6 +62,7 @@ $.register_module({
                         var $cds_select = $('#' + cds_select.id), type = data.underlying.type;
                         swap_cds({type: type});
                         $cds_select.val(type);
+                        $cds_select.prop("disabled", true);
                     }
                     if (data.security.length) return;
                     util.check_radio('security.payer', data.security.payer);
