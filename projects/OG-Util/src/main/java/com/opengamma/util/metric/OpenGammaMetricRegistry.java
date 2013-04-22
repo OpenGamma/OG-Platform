@@ -29,11 +29,14 @@ public final class OpenGammaMetricRegistry {
     return s_instance;
   }
   
-  public static synchronized void setRegistryName(String registryName) {
+  public static synchronized void setRegistry(MetricRegistry metricRegistry) {
+    ArgumentChecker.notNull(metricRegistry, "metricRegistry");
+    s_instance = metricRegistry;
+  }
+  
+  public static synchronized void createBasicDebuggingRegistry(String registryName) {
     ArgumentChecker.notEmpty(registryName, "registryName");
     s_instance = new MetricRegistry(registryName);
-    // NOTE kirk 2013-04-22 -- The below is just while I'm working on
-    // instrumentation. Needs a much better configuration form for this.
     Slf4jReporter logReporter = Slf4jReporter.forRegistry(s_instance)
                                           .outputTo(LoggerFactory.getLogger(OpenGammaMetricRegistry.class))
                                           .convertRatesTo(TimeUnit.SECONDS)
@@ -47,7 +50,7 @@ public final class OpenGammaMetricRegistry {
   private static void initializeIfNecessary() {
     if (s_instance == null) {
       String throwAwayName = System.getProperty("user.name") + "-" + System.currentTimeMillis();
-      setRegistryName(throwAwayName);
+      createBasicDebuggingRegistry(throwAwayName);
     }
   }
 
