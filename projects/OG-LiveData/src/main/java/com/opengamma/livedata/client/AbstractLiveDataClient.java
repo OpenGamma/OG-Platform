@@ -39,13 +39,17 @@ import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.metric.MetricProvider;
+import com.yammer.metrics.Gauge;
+import com.yammer.metrics.Meter;
+import com.yammer.metrics.MetricRegistry;
 
 /**
  * A base class that handles all the in-memory requirements
  * for a {@link LiveDataClient} implementation.
  */
 @PublicAPI
-public abstract class AbstractLiveDataClient implements LiveDataClient {
+public abstract class AbstractLiveDataClient implements LiveDataClient, MetricProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:
   private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
@@ -72,6 +76,22 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   private final Set<LiveDataSpecification> _activeSubscriptionSpecifications =
     new HashSet<LiveDataSpecification>();
   
+  private Meter _inboundTickMeter;
+  
+  @Override
+  public void registerMetrics(MetricRegistry registry, String namePrefix) {
+    _inboundTickMeter = registry.meter(namePrefix + ".ticks.count");    
+    // REVIEW kirk 2013-04-22 -- This might be better as a Counter.
+    registry.register(namePrefix + ".subscriptions.count", new Gauge<Integer>() {
+        @Override
+        public Integer getValue() {
+          return _activeSubscriptionSpecifications.size();
+        }
+      });
+  }
+
+
+
   public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
     ArgumentChecker.notNull(messageSender, "Message Sender");
     _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getFudgeContext(), getTimer(), getHeartbeatPeriod());
@@ -360,7 +380,8 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
   
   protected void valueUpdate(LiveDataValueUpdateBean update) {
-    
+
+    _inboundTickMeter.mark();
     s_logger.debug("{}", update);
 
     _pendingSubscriptionReadLock.lock();
