@@ -20,14 +20,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(HazardRateCurve.class);
     addFormatter(new Formatter<HazardRateCurve>(Format.EXPANDED) {
       @Override
-      Object format(HazardRateCurve value, ValueSpecification valueSpec) {
+      Object format(HazardRateCurve value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public List<Double[]> formatCell(HazardRateCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatCell(HazardRateCurve value, ValueSpecification valueSpec, Object inlineKey) {
     List<Double[]> data = new ArrayList<>();
     double[] xData = value.getShiftedTimePoints();
     for (int i = 0; i < xData.length; i++) {

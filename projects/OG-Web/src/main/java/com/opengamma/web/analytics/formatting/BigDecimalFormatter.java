@@ -173,14 +173,14 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     super(BigDecimal.class);
     addFormatter(new Formatter<BigDecimal>(Format.HISTORY) {
       @Override
-      Object format(BigDecimal value, ValueSpecification valueSpec) {
+      Object format(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
         return getFormatter(valueSpec).getRoundedValue(value);
       }
     });
     addFormatter(new Formatter<BigDecimal>(Format.EXPANDED) {
       @Override
-      Object format(BigDecimal value, ValueSpecification valueSpec) {
-        return formatCell(value, valueSpec);
+      Object format(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
+        return formatCell(value, valueSpec, inlineKey);
       }
     });
   }
@@ -219,7 +219,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   }
 
   @Override
-  public String formatCell(BigDecimal value, ValueSpecification valueSpec) {
+  public String formatCell(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
     DoubleValueFormatter formatter = getFormatter(valueSpec);
     String formattedNumber = formatter.format(value);
     String formattedValue;

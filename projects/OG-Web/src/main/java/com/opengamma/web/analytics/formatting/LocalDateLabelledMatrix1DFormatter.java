@@ -35,15 +35,29 @@ import com.opengamma.util.ArgumentChecker;
     _doubleFormatter = doubleFormatter;
     addFormatter(new Formatter<LocalDateLabelledMatrix1D>(Format.EXPANDED) {
       @Override
-      Object format(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec) {
+      Object format(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value, valueSpec);
+      }
+    });
+    addFormatter(new Formatter<LocalDateLabelledMatrix1D>(Format.HISTORY) {
+      @Override
+      Object format(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec, Object inlineKey) {
+        if (inlineKey == null) {
+          throw new IllegalArgumentException("HISTORY formatting only supported for inline values for " +
+                                                 "LocalDateLabelledMatrix1D");
+        }
+        return formatInline(value, valueSpec, Format.HISTORY, inlineKey);
       }
     });
   }
 
   @Override
-  public String formatCell(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec) {
-    return "Vector (" + value.getKeys().length + ")";
+  public Object formatCell(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec, Object inlineKey) {
+    if (inlineKey == null) {
+      return "Vector (" + value.getKeys().length + ")";
+    } else {
+      return formatInline(value, valueSpec, Format.CELL, inlineKey);
+    }
   }
 
   private Map<String, Object> formatExpanded(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec) {
@@ -52,7 +66,7 @@ import com.opengamma.util.ArgumentChecker;
     List<List<String>> results = Lists.newArrayListWithCapacity(length);
     for (int i = 0; i < length; i++) {
       String label = value.getLabels()[i].toString();
-      String formattedValue = _doubleFormatter.formatCell(value.getValues()[i], valueSpec);
+      String formattedValue = _doubleFormatter.formatCell(value.getValues()[i], valueSpec, null);
       List<String> rowResults = ImmutableList.of(label, formattedValue);
       results.add(rowResults);
     }
@@ -63,19 +77,21 @@ import com.opengamma.util.ArgumentChecker;
     return resultsMap;
   }
 
-  @Override
-  public String formatInlineCell(LocalDateLabelledMatrix1D matrix, ValueSpecification valueSpec, Object inlineKey) {
+  private Object formatInline(LocalDateLabelledMatrix1D matrix,
+                              ValueSpecification valueSpec,
+                              Format format,
+                              Object inlineKey) {
     // if there are matrices of different lengths on different rows then the shorter ones will be missing values for
     // the last columns
     LocalDate dateKey = (LocalDate) inlineKey;
     int index = 0;
     for (LocalDate localDate : matrix.getKeys()) {
       if (dateKey.equals(localDate)) {
-        return _doubleFormatter.formatCell(matrix.getValues()[index], valueSpec);
+        return _doubleFormatter.format(matrix.getValues()[index], valueSpec, format, inlineKey);
       }
       index++;
     }
-    return "";
+    return null;
   }
 
   @Override

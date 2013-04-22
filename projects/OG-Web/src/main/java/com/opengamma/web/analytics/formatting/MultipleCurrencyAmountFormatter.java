@@ -31,14 +31,14 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
     _doubleFormatter = doubleFormatter;
     addFormatter(new Formatter<MultipleCurrencyAmount>(Format.EXPANDED) {
       @Override
-      Object format(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
+      Object format(MultipleCurrencyAmount value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value, valueSpec);
       }
     });
   }
 
   @Override
-  public String formatCell(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
+  public String formatCell(MultipleCurrencyAmount value, ValueSpecification valueSpec, Object inlineKey) {
     return "Vector (" + value.size() + ")";
   }
 
@@ -47,7 +47,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
     CurrencyAmount[] currencyAmounts = value.getCurrencyAmounts();
     List<List<String>> results = Lists.newArrayListWithCapacity(currencyAmounts.length);
     for (CurrencyAmount currencyAmount : currencyAmounts) {
-      String formattedValue = _doubleFormatter.formatCell(currencyAmount.getAmount(), valueSpec);
+      String formattedValue = _doubleFormatter.formatCell(currencyAmount.getAmount(), valueSpec, null);
       List<String> rowResults = ImmutableList.of(currencyAmount.getCurrency().getCode(), formattedValue);
       results.add(rowResults);
     }
@@ -56,7 +56,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
     return resultsMap;
   }
 
-    @Override
+  @Override
   public DataType getDataType() {
     return DataType.LABELLED_MATRIX_1D;
   }

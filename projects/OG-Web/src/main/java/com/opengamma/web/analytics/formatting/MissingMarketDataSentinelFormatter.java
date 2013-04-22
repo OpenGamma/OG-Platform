@@ -14,14 +14,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(MissingMarketDataSentinel.class);
     addFormatter(new Formatter<MissingMarketDataSentinel>(Format.HISTORY) {
       @Override
-      Object format(MissingMarketDataSentinel value, ValueSpecification valueSpec) {
+      Object format(MissingMarketDataSentinel value, ValueSpecification valueSpec, Object inlineKey) {
         return null;
       }
     });
   }
 
   @Override
-  public Object formatCell(MissingMarketDataSentinel value, ValueSpecification valueSpec) {
+  public Object formatCell(MissingMarketDataSentinel value, ValueSpecification valueSpec, Object inlineKey) {
     return "Missing market data";
   }
 

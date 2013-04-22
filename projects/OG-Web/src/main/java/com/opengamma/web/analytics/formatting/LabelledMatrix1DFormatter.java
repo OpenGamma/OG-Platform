@@ -31,14 +31,14 @@ import com.opengamma.util.ArgumentChecker;
     _doubleFormatter = doubleFormatter;
     addFormatter(new Formatter<LabelledMatrix1D>(Format.EXPANDED) {
       @Override
-      Object format(LabelledMatrix1D value, ValueSpecification valueSpec) {
+      Object format(LabelledMatrix1D value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value, valueSpec);
       }
     });
   }
 
   @Override
-  public String formatCell(LabelledMatrix1D value, ValueSpecification valueSpec) {
+  public String formatCell(LabelledMatrix1D value, ValueSpecification valueSpec, Object inlineKey) {
     return "Vector (" + value.getKeys().length + ")";
   }
 
@@ -49,7 +49,7 @@ import com.opengamma.util.ArgumentChecker;
     for (int i = 0; i < length; i++) {
       Object labelObject = value.getLabels()[i];
       String label = labelObject instanceof ExternalId ? ((ExternalId) labelObject).getValue() : labelObject.toString();
-      String formattedValue = _doubleFormatter.formatCell(value.getValues()[i], valueSpec);
+      String formattedValue = _doubleFormatter.formatCell(value.getValues()[i], valueSpec, null);
       List<String> rowResults = ImmutableList.of(label, formattedValue);
       results.add(rowResults);
     }

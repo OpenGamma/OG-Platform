@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueSpecification;
     super(ValueProperties.class);
     addFormatter(new Formatter<ValueProperties>(Format.EXPANDED) {
       @Override
-      Map<String, Object> format(ValueProperties properties, ValueSpecification valueSpec) {
+      Map<String, Object> format(ValueProperties properties, ValueSpecification valueSpec, Object inlineKey) {
         Set<String> names = properties.getProperties();
         List<List<String>> matrix = Lists.newArrayListWithCapacity(names.size());
         List<String> yLabels = Lists.newArrayListWithCapacity(names.size());
@@ -50,7 +50,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatCell(ValueProperties properties, ValueSpecification valueSpec) {
+  public Object formatCell(ValueProperties properties, ValueSpecification valueSpec, Object inlineKey) {
     return "Value Properties (" + properties.getProperties().size() + ")";
   }
 
