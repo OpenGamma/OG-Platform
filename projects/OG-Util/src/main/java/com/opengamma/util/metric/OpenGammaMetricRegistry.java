@@ -19,21 +19,45 @@ import com.yammer.metrics.Slf4jReporter;
  * The component system will configure this at startup.
  */
 public final class OpenGammaMetricRegistry {
+
+  /**
+   * The singleton instance.
+   */
+  private static MetricRegistry s_instance;
+
+  /**
+   * Creates an instance.
+   */
   private OpenGammaMetricRegistry() {
   }
-  
-  private static MetricRegistry s_instance;
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the registry, not null
+   */
   public static MetricRegistry getInstance() {
     initializeIfNecessary();
     return s_instance;
   }
-  
+
+  /**
+   * Sets the default registry.
+   * This should only be set at startup.
+   * 
+   * @param metricRegistry  the registry, not null
+   */
   public static synchronized void setRegistry(MetricRegistry metricRegistry) {
     ArgumentChecker.notNull(metricRegistry, "metricRegistry");
     s_instance = metricRegistry;
   }
-  
+
+  /**
+   * Creates a basic registry.
+   * 
+   * @param registryName  the name, not null
+   */
   public static synchronized void createBasicDebuggingRegistry(String registryName) {
     ArgumentChecker.notEmpty(registryName, "registryName");
     s_instance = new MetricRegistry(registryName);
@@ -46,7 +70,7 @@ public final class OpenGammaMetricRegistry {
     JmxReporter jmxReporter = JmxReporter.forRegistry(s_instance).build();
     jmxReporter.start();
   }
-  
+
   private static void initializeIfNecessary() {
     if (s_instance == null) {
       String throwAwayName = System.getProperty("user.name") + "-" + System.currentTimeMillis();
