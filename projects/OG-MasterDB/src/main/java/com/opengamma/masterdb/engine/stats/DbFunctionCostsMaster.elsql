@@ -27,6 +27,22 @@
 
 
 -- ==========================================================================
+@NAME(DeleteOld)
+  DELETE FROM eng_functioncosts
+  WHERE configuration = :configuration
+    AND function_name = :function
+    AND id NOT IN (
+      @PAGING(:offset_zero,:keep_rows)
+        SELECT id
+        FROM eng_functioncosts
+        WHERE configuration = :configuration
+          AND function_name = :function
+        ORDER BY
+          version_instant DESC
+    )
+
+
+-- ==========================================================================
 @NAME(GetSchemaVersion)
   SELECT version_value
   FROM eng_schema_version
