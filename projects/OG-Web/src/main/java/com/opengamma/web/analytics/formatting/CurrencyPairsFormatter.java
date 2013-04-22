@@ -26,7 +26,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
     super(CurrencyPairs.class);
     addFormatter(new Formatter<CurrencyPairs>(Format.EXPANDED) {
       @Override
-      Object format(CurrencyPairs pairs, ValueSpecification valueSpec) {
+      Object format(CurrencyPairs pairs, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(pairs);
       }
     });
@@ -43,7 +43,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
   }
 
   @Override
-  public Object formatCell(CurrencyPairs pairs, ValueSpecification valueSpec) {
+  public Object formatCell(CurrencyPairs pairs, ValueSpecification valueSpec, Object inlineKey) {
     return "Currency Pairs (" + pairs.getPairs().size() + ")";
   }
 

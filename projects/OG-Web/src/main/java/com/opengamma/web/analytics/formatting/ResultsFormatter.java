@@ -136,16 +136,10 @@ public class ResultsFormatter {
     return value instanceof MissingInput;
   }
 
-  // TODO I'm not keen on this interface. format is ignored if inlineIndex is non-null
-  // TODO handle history for inline cells?
   @SuppressWarnings("unchecked")
   public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Object inlineKey) {
     TypeFormatter formatter = getFormatter(value, valueSpec);
-    if (inlineKey == null) {
-      return formatter.format(value, valueSpec, format);
-    } else {
-      return formatter.formatInlineCell(value, valueSpec, inlineKey);
-    }
+    return formatter.format(value, valueSpec, format, inlineKey);
   }
   
   /**

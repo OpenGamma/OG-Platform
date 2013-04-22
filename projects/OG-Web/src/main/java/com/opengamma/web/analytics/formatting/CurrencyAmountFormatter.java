@@ -24,26 +24,26 @@ import com.opengamma.util.money.CurrencyAmount;
     _bigDecimalFormatter = bigDecimalFormatter;
     addFormatter(new Formatter<CurrencyAmount>(Format.EXPANDED) {
       @Override
-      Object format(CurrencyAmount value, ValueSpecification valueSpec) {
+      Object format(CurrencyAmount value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value, valueSpec);
       }
     });
     addFormatter(new Formatter<CurrencyAmount>(Format.HISTORY) {
       @Override
-      Object format(CurrencyAmount value, ValueSpecification valueSpec) {
+      Object format(CurrencyAmount value, ValueSpecification valueSpec, Object inlineKey) {
         return formatHistory(value, valueSpec);
       }
     });
   }
 
   @Override
-  public String formatCell(CurrencyAmount value, ValueSpecification valueSpec) {
+  public String formatCell(CurrencyAmount value, ValueSpecification valueSpec, Object inlineKey) {
     double amount = value.getAmount();
     BigDecimal bigDecimal = convertToBigDecimal(amount);
     if (bigDecimal == null) {
       return Double.toString(amount);
     } else {
-      return value.getCurrency().getCode() + " " + _bigDecimalFormatter.formatCell(bigDecimal, valueSpec);
+      return value.getCurrency().getCode() + " " + _bigDecimalFormatter.formatCell(bigDecimal, valueSpec, inlineKey);
     }
   }
 
@@ -53,7 +53,7 @@ import com.opengamma.util.money.CurrencyAmount;
     if (bigDecimal == null) {
       return Double.toString(amount);
     } else {
-      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.EXPANDED);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.EXPANDED, null);
     }
   }
 
@@ -63,7 +63,7 @@ import com.opengamma.util.money.CurrencyAmount;
     if (bigDecimal == null) {
       return null;
     } else {
-      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.HISTORY);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.HISTORY, null);
     }
   }
 

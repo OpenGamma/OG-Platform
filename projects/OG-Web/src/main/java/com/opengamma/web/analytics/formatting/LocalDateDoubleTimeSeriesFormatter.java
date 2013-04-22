@@ -25,7 +25,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
     super(LocalDateDoubleTimeSeries.class);
     addFormatter(new Formatter<LocalDateDoubleTimeSeries>(Format.EXPANDED) {
       @Override
-      Object format(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec) {
+      Object format(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
@@ -33,7 +33,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
   }
 
   @Override
-  public String formatCell(LocalDateDoubleTimeSeries timeSeries, ValueSpecification valueSpec) {
+  public String formatCell(LocalDateDoubleTimeSeries timeSeries, ValueSpecification valueSpec, Object inlineKey) {
     String text = "Time-series ";
     text += timeSeries.isEmpty() ? "(empty)" : "(" + timeSeries.getEarliestTime() + " to " + timeSeries.getLatestTime() + ")";
     return text;
