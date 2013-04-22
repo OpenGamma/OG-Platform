@@ -74,7 +74,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   private Timer _getByOidInstantsTimer = new Timer();
   private Timer _getByIdTimer = new Timer();
   private Timer _historyTimer = new Timer();
-  private Timer _searchWithPagingTimer = new Timer();
+  private Timer _searchTimer = new Timer();
   private Timer _addTimer = new Timer();
   private Timer _updateTimer = new Timer();
   private Timer _removeTimer = new Timer();
@@ -98,7 +98,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     _getByOidInstantsTimer = registry.timer(namePrefix + ".getByOidInstants");
     _getByIdTimer = registry.timer(namePrefix + ".getById");
     _historyTimer = registry.timer(namePrefix + ".history");
-    _searchWithPagingTimer = registry.timer(namePrefix + ".searchWithPaging");
+    _searchTimer = registry.timer(namePrefix + ".search");
     _addTimer = registry.timer(namePrefix + ".add");
     _updateTimer = registry.timer(namePrefix + ".update");
     _updateTimer = registry.timer(namePrefix + ".remove");
@@ -309,6 +309,27 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Searches for documents with paging.
+   *
+   * @param <T>  the type of the document
+   * @param pagingRequest  the paging request, not null
+   * @param sql  the array of SQL, query and count, not null
+   * @param args  the query arguments, not null
+   * @param extractor  the extractor of results, not null
+   * @param result  the object to populate, not null
+   */
+  protected <T extends AbstractDocument> void doSearch(
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<T>> extractor, final AbstractDocumentsResult<T> result) {
+    
+    Timer.Context context = _searchTimer.time();
+    try {
+      searchWithPaging(pagingRequest, sql, args, extractor, result);
+    } finally {
+      context.stop();
+    }
+  }
 
   /**
    * Searches for documents with paging.
@@ -321,27 +342,22 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param result  the object to populate, not null
    */
   protected <T extends AbstractDocument> void searchWithPaging(
-    final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
-    final ResultSetExtractor<List<T>> extractor, final AbstractDocumentsResult<T> result) {
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<T>> extractor, final AbstractDocumentsResult<T> result) {
     s_logger.debug("with args {}", args);
     
-    Timer.Context context = _searchWithPagingTimer.time();
-    try {
-      final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
-      if (pagingRequest.equals(PagingRequest.ALL)) {
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    if (pagingRequest.equals(PagingRequest.ALL)) {
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      result.setPaging(Paging.of(pagingRequest, result.getDocuments()));
+    } else {
+      s_logger.debug("executing sql {}", sql[1]);
+      final int count = namedJdbc.queryForInt(sql[1], args);
+      result.setPaging(Paging.of(pagingRequest, count));
+      if (count > 0 && pagingRequest.equals(PagingRequest.NONE) == false) {
+        s_logger.debug("executing sql {}", sql[0]);
         result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-        result.setPaging(Paging.of(pagingRequest, result.getDocuments()));
-      } else {
-        s_logger.debug("executing sql {}", sql[1]);
-        final int count = namedJdbc.queryForInt(sql[1], args);
-        result.setPaging(Paging.of(pagingRequest, count));
-        if (count > 0 && pagingRequest.equals(PagingRequest.NONE) == false) {
-          s_logger.debug("executing sql {}", sql[0]);
-          result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-        }
       }
-    } finally {
-      context.stop();
     }
   }
 

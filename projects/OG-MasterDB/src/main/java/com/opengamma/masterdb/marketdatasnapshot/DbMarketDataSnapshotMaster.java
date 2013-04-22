@@ -131,7 +131,7 @@ public class DbMarketDataSnapshotMaster
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new MarketDataSnapshotDocumentExtractor(request.isIncludeData()), result);
+    doSearch(request.getPagingRequest(), sql, args, new MarketDataSnapshotDocumentExtractor(request.isIncludeData()), result);
     return result;
   }
 
