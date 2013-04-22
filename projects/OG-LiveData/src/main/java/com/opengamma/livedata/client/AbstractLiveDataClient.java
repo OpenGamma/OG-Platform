@@ -39,7 +39,7 @@ import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.metric.MetricProvider;
+import com.opengamma.util.metric.MetricProducer;
 import com.yammer.metrics.Gauge;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
@@ -49,7 +49,7 @@ import com.yammer.metrics.MetricRegistry;
  * for a {@link LiveDataClient} implementation.
  */
 @PublicAPI
-public abstract class AbstractLiveDataClient implements LiveDataClient, MetricProvider {
+public abstract class AbstractLiveDataClient implements LiveDataClient, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:
   private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
@@ -381,7 +381,9 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
   
   protected void valueUpdate(LiveDataValueUpdateBean update) {
 
-    _inboundTickMeter.mark();
+    if (_inboundTickMeter != null) {
+      _inboundTickMeter.mark();
+    }
     s_logger.debug("{}", update);
 
     _pendingSubscriptionReadLock.lock();
