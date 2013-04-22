@@ -18,25 +18,27 @@ import com.opengamma.engine.value.ValueSpecification;
     super(NotCalculatedSentinel.class);
     addFormatter(new Formatter<NotCalculatedSentinel>(Format.HISTORY) {
       @Override
-      Object format(NotCalculatedSentinel value, ValueSpecification valueSpec) {
+      Object format(NotCalculatedSentinel value, ValueSpecification valueSpec, Object inlineKey) {
         return null;
       }
     });
     addFormatter(new Formatter<NotCalculatedSentinel>(Format.EXPANDED) {
       @Override
-      Object format(NotCalculatedSentinel value, ValueSpecification valueSpec) {
+      Object format(NotCalculatedSentinel value, ValueSpecification valueSpec, Object inlineKey) {
         return value.toString();
       }
     });
   }
 
   /**
+   *
    * @param value The value
    * @param valueSpec Its specification
+   * @param inlineKey
    * @return Description of the value (which is the reason the calculation failed)
    */
   @Override
-  public Object formatCell(NotCalculatedSentinel value, ValueSpecification valueSpec) {
+  public Object formatCell(NotCalculatedSentinel value, ValueSpecification valueSpec, Object inlineKey) {
     return value.toString();
   }
 

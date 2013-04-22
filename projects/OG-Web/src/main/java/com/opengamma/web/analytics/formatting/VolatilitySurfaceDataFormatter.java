@@ -30,14 +30,14 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     addFormatter(new Formatter<VolatilitySurfaceData>(Format.EXPANDED) {
       @SuppressWarnings("unchecked")
       @Override
-      Object format(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+      Object format(VolatilitySurfaceData value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public String formatCell(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+  public String formatCell(VolatilitySurfaceData value, ValueSpecification valueSpec, Object inlineKey) {
     int xSize = value.getUniqueXValues().size();
     int ySize = Sets.newHashSet(value.getYs()).size();
     return "Volatility Surface (" + xSize + " x " + ySize + ")";

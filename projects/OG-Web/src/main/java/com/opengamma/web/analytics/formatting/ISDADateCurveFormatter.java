@@ -29,14 +29,14 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
     super(ISDADateCurve.class);
     addFormatter(new Formatter<ISDADateCurve>(Format.EXPANDED) {
       @Override
-      Object format(ISDADateCurve value, ValueSpecification valueSpec) {
+      Object format(ISDADateCurve value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public List<Double[]> formatCell(ISDADateCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatCell(ISDADateCurve value, ValueSpecification valueSpec, Object inlineKey) {
     List<Double[]> data = new ArrayList<>();
     DoublesCurve curve = value.getCurve();
     if (curve instanceof InterpolatedDoublesCurve) {

@@ -27,7 +27,7 @@ import com.opengamma.web.analytics.FungibleTradeTarget;
   }
 
   @Override
-  public Map<String, Object> formatCell(FungibleTradeTarget target, ValueSpecification valueSpec) {
+  public Map<String, Object> formatCell(FungibleTradeTarget target, ValueSpecification valueSpec, Object inlineKey) {
     return ImmutableMap.<String, Object>of(NAME, target.getName(),
                                            NODE_ID, target.getNodeId().getObjectId(),
                                            POSITION_ID, target.getPositionId().getObjectId(),
