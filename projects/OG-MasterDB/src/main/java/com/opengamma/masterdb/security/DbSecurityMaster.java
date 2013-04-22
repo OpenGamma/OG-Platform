@@ -52,6 +52,8 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
+import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.Timer;
 
 /**
  * A security master implementation using a database for persistence.
@@ -97,6 +99,15 @@ public class DbSecurityMaster
    */
   private SecurityMasterDetailProvider _detailProvider;
 
+  // -----------------------------------------------------------------
+  // TIMERS FOR METRICS GATHERING
+  // By default these do nothing. Registration will replace them
+  // so that they actually do something.
+  // -----------------------------------------------------------------
+  private Timer _insertTimer = new Timer();
+  private Timer _metaDataTimer = new Timer();
+  private Timer _searchTimer = new Timer();
+
   /**
    * Creates an instance.
    * 
@@ -105,6 +116,14 @@ public class DbSecurityMaster
   public DbSecurityMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbSecurityMaster.class));
+  }
+
+  @Override
+  public void registerMetrics(MetricRegistry registry, String namePrefix) {
+    super.registerMetrics(registry, namePrefix);
+    _insertTimer = registry.timer(namePrefix + ".insert");
+    _metaDataTimer = registry.timer(namePrefix + ".metaData");
+    _searchTimer = registry.timer(namePrefix + ".search");
   }
 
   //-------------------------------------------------------------------------
@@ -132,16 +151,23 @@ public class DbSecurityMaster
   @Override
   public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
-    SecurityMetaDataResult result = new SecurityMetaDataResult();
-    if (request.isSecurityTypes()) {
-      final String sql = getElSqlBundle().getSql("SelectTypes");
-      List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
-      result.getSecurityTypes().addAll(securityTypes);
+    
+    Timer.Context context = _metaDataTimer.time();
+    
+    try {
+      SecurityMetaDataResult result = new SecurityMetaDataResult();
+      if (request.isSecurityTypes()) {
+        final String sql = getElSqlBundle().getSql("SelectTypes");
+        List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
+        result.getSecurityTypes().addAll(securityTypes);
+      }
+      if (request.isSchemaVersion()) {
+        result.setSchemaVersion(String.valueOf(getSchemaVersion()));
+      }
+      return result;
+    } finally {
+      context.stop();
     }
-    if (request.isSchemaVersion()) {
-      result.setSchemaVersion(String.valueOf(getSchemaVersion()));
-    }
-    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -152,59 +178,66 @@ public class DbSecurityMaster
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
-    final SecuritySearchResult result = new SecuritySearchResult(vc);
+    Timer.Context context = _searchTimer.time();
     
-    final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
-    final List<ObjectId> objectIds = request.getObjectIds();
-    if ((objectIds != null && objectIds.size() == 0) ||
-        (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
-      result.setPaging(Paging.of(request.getPagingRequest(), 0));
+    try {
+      final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+      final SecuritySearchResult result = new SecuritySearchResult(vc);
+      
+      final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
+      final List<ObjectId> objectIds = request.getObjectIds();
+      if ((objectIds != null && objectIds.size() == 0) ||
+          (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
+        result.setPaging(Paging.of(request.getPagingRequest(), 0));
+        return result;
+      }
+      
+      final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+        .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+        .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
+        .addValueNullIgnored("sec_type", request.getSecurityType())
+        .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
+        .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
+      if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
+        int i = 0;
+        for (ExternalId id : externalIdSearch) {
+          args.addValue("key_scheme" + i, id.getScheme().getName());
+          args.addValue("key_value" + i, id.getValue());
+          i++;
+        }
+        args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
+        args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
+        args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
+      }
+      if (objectIds != null) {
+        StringBuilder buf = new StringBuilder(objectIds.size() * 10);
+        for (ObjectId objectId : objectIds) {
+          checkScheme(objectId);
+          buf.append(extractOid(objectId)).append(", ");
+        }
+        buf.setLength(buf.length() - 2);
+        args.addValue("sql_search_object_ids", buf.toString());
+      }
+      args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
+      args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+      args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
+      
+      final SecurityMasterDetailProvider detailProvider = getDetailProvider();  // lock against change
+      if (detailProvider != null) {
+        detailProvider.extendSearch(request, args);
+      }
+      
+      String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
+      searchWithPaging(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
+      if (request.isFullDetail()) {
+        loadDetail(detailProvider, result.getDocuments());
+      }
       return result;
+      
+    } finally {
+      context.stop();
     }
-    
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("sec_type", request.getSecurityType())
-      .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
-      .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
-    if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
-      int i = 0;
-      for (ExternalId id : externalIdSearch) {
-        args.addValue("key_scheme" + i, id.getScheme().getName());
-        args.addValue("key_value" + i, id.getValue());
-        i++;
-      }
-      args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
-      args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
-      args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
-    }
-    if (objectIds != null) {
-      StringBuilder buf = new StringBuilder(objectIds.size() * 10);
-      for (ObjectId objectId : objectIds) {
-        checkScheme(objectId);
-        buf.append(extractOid(objectId)).append(", ");
-      }
-      buf.setLength(buf.length() - 2);
-      args.addValue("sql_search_object_ids", buf.toString());
-    }
-    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
-    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
-    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
-    
-    final SecurityMasterDetailProvider detailProvider = getDetailProvider();  // lock against change
-    if (detailProvider != null) {
-      detailProvider.extendSearch(request, args);
-    }
-    
-    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
-    if (request.isFullDetail()) {
-      loadDetail(detailProvider, result.getDocuments());
-    }
-    return result;
   }
 
   /**
@@ -279,83 +312,90 @@ public class DbSecurityMaster
     ArgumentChecker.notNull(document.getSecurity().getName(), "document.security.name");
     ArgumentChecker.notNull(document.getSecurity().getSecurityType(), "document.security.securityTYpe");
     ArgumentChecker.notNull(document.getSecurity().getExternalIdBundle(), "document.security.externalIdBundle");
-
-    final long docId = nextId("sec_security_seq");
-    final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
-    // the arguments for inserting into the security table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-      .addValue("doc_id", docId)
-      .addValue("doc_oid", docOid)
-      .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-      .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-      .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-      .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", document.getSecurity().getName())
-      .addValue("sec_type", document.getSecurity().getSecurityType());
-    if (document.getSecurity() instanceof RawSecurity) {
-      docArgs.addValue("detail_type", "R");
-    } else if (document.getSecurity().getClass() == ManageableSecurity.class) {
-      docArgs.addValue("detail_type", "M");
-    } else {
-      docArgs.addValue("detail_type", "D");
-    }
-    // the arguments for inserting into the idkey tables
-    final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
-    final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
-    for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
-      final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+    
+    Timer.Context context = _insertTimer.time();
+    try {
+      final long docId = nextId("sec_security_seq");
+      final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
+      // the arguments for inserting into the security table
+      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
-        .addValue("key_scheme", id.getScheme().getName())
-        .addValue("key_value", id.getValue());
-      assocList.add(assocArgs);
-      if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
-        // select avoids creating unnecessary id, but id may still not be used
-        final long idKeyId = nextId("sec_idkey_seq");
-        final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
-          .addValue("idkey_id", idKeyId)
+        .addValue("doc_oid", docOid)
+        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+        .addValue("name", document.getSecurity().getName())
+        .addValue("sec_type", document.getSecurity().getSecurityType());
+      if (document.getSecurity() instanceof RawSecurity) {
+        docArgs.addValue("detail_type", "R");
+      } else if (document.getSecurity().getClass() == ManageableSecurity.class) {
+        docArgs.addValue("detail_type", "M");
+      } else {
+        docArgs.addValue("detail_type", "D");
+      }
+      // the arguments for inserting into the idkey tables
+      final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
+      final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
+      final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
+      for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
+        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+          .addValue("doc_id", docId)
           .addValue("key_scheme", id.getScheme().getName())
           .addValue("key_value", id.getValue());
-        idKeyList.add(idkeyArgs);
+        assocList.add(assocArgs);
+        if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
+          // select avoids creating unnecessary id, but id may still not be used
+          final long idKeyId = nextId("sec_idkey_seq");
+          final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+            .addValue("idkey_id", idKeyId)
+            .addValue("key_scheme", id.getScheme().getName())
+            .addValue("key_value", id.getValue());
+          idKeyList.add(idkeyArgs);
+        }
       }
-    }
-    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
-    final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
-    final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
-    getJdbcTemplate().update(sqlDoc, docArgs);
-    getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
-    // set the uniqueId
-    final UniqueId uniqueId = createUniqueId(docOid, docId);
-    document.getSecurity().setUniqueId(uniqueId);
-    document.setUniqueId(uniqueId);
-    
-    // store the detail
-    if (document.getSecurity() instanceof RawSecurity) {
-      storeRawSecurityDetail((RawSecurity) document.getSecurity());
-    } else {
-      final SecurityMasterDetailProvider detailProvider = getDetailProvider();
-      if (detailProvider != null) {
-        detailProvider.storeSecurityDetail(document.getSecurity());
+      final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+      final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
+      final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
+      getJdbcTemplate().update(sqlDoc, docArgs);
+      getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+      getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+      // set the uniqueId
+      final UniqueId uniqueId = createUniqueId(docOid, docId);
+      document.getSecurity().setUniqueId(uniqueId);
+      document.setUniqueId(uniqueId);
+      
+      // store the detail
+      if (document.getSecurity() instanceof RawSecurity) {
+        storeRawSecurityDetail((RawSecurity) document.getSecurity());
+      } else {
+        final SecurityMasterDetailProvider detailProvider = getDetailProvider();
+        if (detailProvider != null) {
+          detailProvider.storeSecurityDetail(document.getSecurity());
+        }
       }
+      
+      // store attributes
+      Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
+      final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
+      for (Map.Entry<String, String> entry : attributes.entrySet()) {
+        final long securityAttrId = nextId("sec_security_attr_seq");
+        final DbMapSqlParameterSource attributeArgs = new DbMapSqlParameterSource()
+                .addValue("attr_id", securityAttrId)
+                .addValue("security_id", docId)
+                .addValue("security_oid", docOid)
+                .addValue("key", entry.getKey())
+                .addValue("value", entry.getValue());
+        securityAttributeList.add(attributeArgs);
+      }
+      final String sqlAttributes = getElSqlBundle().getSql("InsertAttributes");
+      getJdbcTemplate().batchUpdate(sqlAttributes, securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
+      return document;
+      
+    } finally {
+      context.stop();
     }
-    
-    // store attributes
-    Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
-    final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
-    for (Map.Entry<String, String> entry : attributes.entrySet()) {
-      final long securityAttrId = nextId("sec_security_attr_seq");
-      final DbMapSqlParameterSource attributeArgs = new DbMapSqlParameterSource()
-              .addValue("attr_id", securityAttrId)
-              .addValue("security_id", docId)
-              .addValue("security_oid", docOid)
-              .addValue("key", entry.getKey())
-              .addValue("value", entry.getValue());
-      securityAttributeList.add(attributeArgs);
-    }
-    final String sqlAttributes = getElSqlBundle().getSql("InsertAttributes");
-    getJdbcTemplate().batchUpdate(sqlAttributes, securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
-    return document;
+
   }
 
   private void storeRawSecurityDetail(RawSecurity security) {
