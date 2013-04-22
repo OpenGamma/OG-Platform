@@ -21,6 +21,7 @@ import com.opengamma.financial.aggregation.AssetClassAggregationFunction;
 import com.opengamma.financial.aggregation.CdsObligorNameAggregationFunction;
 import com.opengamma.financial.aggregation.CdsObligorTickerAggregationFunction;
 import com.opengamma.financial.aggregation.CdsRedCodeAggregationFunction;
+import com.opengamma.financial.aggregation.CdsSeniorityAggregationFunction;
 import com.opengamma.financial.aggregation.CurrencyAggregationFunction;
 import com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction;
 import com.opengamma.financial.aggregation.GICSAggregationFunction;
@@ -78,6 +79,7 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
                                                                     getToolContext().getOrganizationSource(),
                                                                     GICSAggregationFunction.Level.SECTOR, false, false));
     _aggregationFunctions.put("RedCode", new CdsRedCodeAggregationFunction(getToolContext().getSecuritySource()));
+    _aggregationFunctions.put("Seniority", new CdsSeniorityAggregationFunction(getToolContext().getSecuritySource()));
   }
   
   private AggregationFunction<?>[] createAggregationFunctions(String[] aggregatorNames) {

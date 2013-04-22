@@ -14,7 +14,7 @@ import com.opengamma.core.security.SecuritySource;
  * Aggregation function which which extract the short name from the reference
  * entity on a CDS security.
  */
-public class CdsObligorNameAggregationFunction extends AbstractCdsAggregationFunction<Obligor> {
+public class CdsObligorNameAggregationFunction extends AbstractRedCodeHandlingCdsAggregationFunction<Obligor> {
 
   private static final String NAME = "Reference Entity Names";
 
