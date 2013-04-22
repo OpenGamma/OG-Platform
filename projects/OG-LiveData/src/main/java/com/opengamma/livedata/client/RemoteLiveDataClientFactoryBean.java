@@ -21,7 +21,7 @@ import com.opengamma.util.jms.JmsConnector;
 /**
  * Creates a {@link JmsLiveDataClient}.
  */
-public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDataClient> implements DisposableBean {
+public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<DistributedLiveDataClient> implements DisposableBean {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteLiveDataClientFactoryBean.class);
   
   private JmsConnector _jmsConnector;
@@ -62,7 +62,7 @@ public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDa
   }
   
   @Override
-  protected LiveDataClient createObject() {
+  protected DistributedLiveDataClient createObject() {
     final JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
     
     JmsByteArrayRequestSender jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(getSubscriptionTopic(), jmsTemplate);
