@@ -211,12 +211,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       ArgumentChecker.notNull(trade.getCounterpartyExternalId(), "position.trade.counterpartyexternalid");
       ArgumentChecker.notNull(trade.getTradeDate(), "position.trade.tradedate");
     }
-
+    
     final long positionId = nextId("pos_master_seq");
     final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
     final UniqueId positionUid = createUniqueId(positionOid, positionId);
     final ManageablePosition position = document.getPosition();
-
+    
     // the arguments for inserting into the position table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource().addValue("position_id", positionId).addValue("position_oid", positionOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant()).addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
@@ -224,12 +224,10 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
         .addValue("quantity", position.getQuantity(), Types.DECIMAL)
         .addValue("provider_scheme",
-            position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null,
-                Types.VARCHAR)
-                .addValue("provider_value",
-                    position.getProviderId() != null ? position.getProviderId().getValue() : null,
-                        Types.VARCHAR);
-
+            position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null, Types.VARCHAR)
+        .addValue("provider_value",
+            position.getProviderId() != null ? position.getProviderId().getValue() : null, Types.VARCHAR);
+    
     // the arguments for inserting into the pos_attribute table
     final List<DbMapSqlParameterSource> posAttrList = Lists.newArrayList();
     for (final Entry<String, String> entry : position.getAttributes().entrySet()) {
@@ -241,7 +239,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addValue("value", entry.getValue());
       posAttrList.add(posAttrArgs);
     }
-
+    
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
     final Set<Pair<String, String>> schemeValueSet = Sets.newHashSet();
@@ -252,7 +250,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       posAssocList.add(assocArgs);
       schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
     }
-
+    
     // the arguments for inserting into the trade table
     final List<DbMapSqlParameterSource> tradeList = Lists.newArrayList();
     final List<DbMapSqlParameterSource> tradeAssocList = Lists.newArrayList();
@@ -261,7 +259,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       final long tradeId = nextId("pos_master_seq");
       final long tradeOid = (trade.getUniqueId() != null ? extractOid(trade.getUniqueId()) : tradeId);
       final ExternalId counterpartyId = trade.getCounterpartyExternalId();
-
+      
       final DbMapSqlParameterSource tradeArgs = new DbMapSqlParameterSource().addValue("trade_id", tradeId)
           .addValue("trade_oid", tradeOid)
           .addValue("position_id", positionId)
@@ -270,27 +268,22 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addDate("trade_date", trade.getTradeDate())
           .addTimeAllowNull("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
           .addValue("zone_offset",
-              trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getTotalSeconds() : null,
-                  Types.INTEGER)
-                  .addValue("cparty_scheme", counterpartyId.getScheme().getName())
-                  .addValue("cparty_value", counterpartyId.getValue())
-                  .addValue("provider_scheme",
-                      position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null,
-                          Types.VARCHAR)
-                          .addValue("provider_value",
-                              position.getProviderId() != null ? position.getProviderId().getValue() : null,
-                                  Types.VARCHAR)
-                                  .addValue("premium_value", trade.getPremium(), Types.DOUBLE)
-                                  .addValue("premium_currency",
-                                      trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null,
-                                          Types.VARCHAR)
-                                          .addDateAllowNull("premium_date", trade.getPremiumDate())
-                                          .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
-                                          .addValue("premium_zone_offset",
-                                              trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getTotalSeconds() : null,
-                                                  Types.INTEGER);
+              trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getTotalSeconds() : null, Types.INTEGER)
+          .addValue("cparty_scheme", counterpartyId.getScheme().getName())
+          .addValue("cparty_value", counterpartyId.getValue())
+          .addValue("provider_scheme",
+              position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null, Types.VARCHAR)
+          .addValue("provider_value",
+              position.getProviderId() != null ? position.getProviderId().getValue() : null, Types.VARCHAR)
+          .addValue("premium_value", trade.getPremium(), Types.DOUBLE)
+          .addValue("premium_currency",
+              trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null, Types.VARCHAR)
+          .addDateAllowNull("premium_date", trade.getPremiumDate())
+          .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
+          .addValue("premium_zone_offset",
+              trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getTotalSeconds() : null, Types.INTEGER);
       tradeList.add(tradeArgs);
-
+      
       // trade attributes
       final Map<String, String> attributes = new HashMap<String, String>(trade.getAttributes());
       for (final Entry<String, String> entry : attributes.entrySet()) {
@@ -302,7 +295,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             .addValue("value", entry.getValue());
         tradeAttributeList.add(tradeAttributeArgs);
       }
-
+      
       // set the trade uniqueId
       final UniqueId tradeUid = createUniqueId(tradeOid, tradeId);
       IdUtils.setInto(trade, tradeUid);
@@ -315,7 +308,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
       }
     }
-
+    
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
     final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
     for (final Pair<String, String> pair : schemeValueSet) {
@@ -328,7 +321,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         idKeyList.add(idkeyArgs);
       }
     }
-
+    
     final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
     final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
     final String sqlPosition2IdKey = getElSqlBundle().getSql("InsertPosition2IdKey");
@@ -343,7 +336,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     getJdbcTemplate().batchUpdate(sqlTrade2IdKey, tradeAssocList.toArray(new DbMapSqlParameterSource[tradeAssocList.size()]));
     getJdbcTemplate().batchUpdate(sqlPositionAttributes, posAttrList.toArray(new DbMapSqlParameterSource[posAttrList.size()]));
     getJdbcTemplate().batchUpdate(sqlTradeAttributes, tradeAttributeList.toArray(new DbMapSqlParameterSource[tradeAttributeList.size()]));
-
+    
     // set the uniqueId
     position.setUniqueId(positionUid);
     document.setUniqueId(positionUid);
