@@ -297,6 +297,10 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     if ((constraints.getProperties() == null) || constraints.getProperties().isEmpty()) {
       return null;
     }
+    final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
+    if (calculationMethod == null || calculationMethod.isEmpty()) {
+      return null;
+    }
     for (final String property : constraints.getProperties()) {
       if (ValuePropertyNames.CALCULATION_METHOD.equals(property)) {
         if (!constraints.getValues(property).contains(getCalculationMethod())) {
