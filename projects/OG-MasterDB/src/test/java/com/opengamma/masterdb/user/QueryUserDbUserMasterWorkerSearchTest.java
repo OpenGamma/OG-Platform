@@ -611,7 +611,6 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     UserSearchResult test = _usrMaster.search(request);
     
-    System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
   }

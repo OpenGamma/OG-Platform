@@ -129,7 +129,6 @@ public class DbUserMasterTest extends DbTest {
     UserDocument doc6 = addUser("user-6", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), "E-4", "E-5", "E-6", "E-7", "E-8");
 
     UserDocument user = _userMaster.get(UniqueId.of("DbUsr", "1006"));
-    System.out.println(user);
     
     Collection<? extends OGUser> users = findUsers(ExternalIdBundle.of(ExternalId.of("A", "1")), VersionCorrection.LATEST);
     assertNotNull(users);
@@ -144,7 +143,6 @@ public class DbUserMasterTest extends DbTest {
     
     users = findUsers(ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), VersionCorrection.LATEST);
     user = _userMaster.get(UniqueId.of("DbUsr", "1006"));
-    System.out.println(user);
     assertNotNull(users);
     assertEquals(3, users.size());
     assertTrue("Docs was " + users, users.contains(doc4.getUser()));

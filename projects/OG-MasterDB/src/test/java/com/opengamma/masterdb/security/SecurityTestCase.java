@@ -603,7 +603,6 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     final int[] parameterIndex = new int[parameters.length];
     int longest = 0;
     for (int i = 0; i < parameters.length; i++) {
-      // System.out.println(clazz + ", " + i + ", " + parameters[i]);
       parameterValues[i] = getTestObjects(parameters[i], clazz);
       if (parameterValues[i].size() > longest) {
         longest = parameterValues[i].size();
@@ -653,7 +652,6 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     final List<?>[] parameterValues = new List<?>[mps.size()];
     int longest = 0;
     for (int i = 0; i < mps.size(); i++) {
-      // System.out.println(clazz + ", " + i + ", " + parameters[i]);
       parameterValues[i] = getTestObjects(mps.get(i).propertyType(), clazz);
       if (parameterValues[i].size() > longest) {
         longest = parameterValues[i].size();

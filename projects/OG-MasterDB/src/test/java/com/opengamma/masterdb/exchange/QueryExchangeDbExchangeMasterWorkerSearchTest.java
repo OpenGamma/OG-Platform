@@ -455,7 +455,6 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     ExchangeSearchResult test = _exgMaster.search(request);
     
-    System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
   }
