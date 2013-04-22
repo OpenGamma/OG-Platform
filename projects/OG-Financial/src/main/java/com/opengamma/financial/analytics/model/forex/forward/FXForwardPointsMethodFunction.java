@@ -130,7 +130,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
     final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
     final FXForwardCurveInstrumentProvider provider = forwardCurveSpecification.getCurveInstrumentProvider();
     final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
-    final double spotFX = (Double) inputs.getValue(spotRequirement);
+    final double spotFX = 1. / (Double) inputs.getValue(spotRequirement);
     final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(receiveCurrency, payCurrency, spotFX);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(fxMatrix, allCurveNames, curves);
