@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * from the reference entity on the CDS. If applied to securities with no
  * reference entity, the result of {@link #classifyPosition(Position)} will be "N/A".
  */
-public class ObligorMarkitSectorAggregationFunction extends AbstractCdsAggregationFunction<Obligor> {
+public class ObligorMarkitSectorAggregationFunction extends AbstractRedCodeHandlingCdsAggregationFunction<Obligor> {
 
   public static final String NAME = "Markit Sectors";
 
