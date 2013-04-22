@@ -131,7 +131,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
     final FXForwardCurveInstrumentProvider provider = forwardCurveSpecification.getCurveInstrumentProvider();
     final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
     final double spotFX;
-    if (baseQuotePairs.getCurrencyPair(receiveCurrency, payCurrency).getBase().equals(payCurrency)) {
+    if (baseQuotePairs.getCurrencyPair(receiveCurrency, payCurrency).getBase().equals(receiveCurrency)) {
       spotFX = (Double) inputs.getValue(spotRequirement);
     } else {
       spotFX = 1. / (Double) inputs.getValue(spotRequirement);
