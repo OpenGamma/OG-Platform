@@ -138,7 +138,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     private double _yieldCurveBump = 1;
     private InterestRateBumpType _yieldBumpCurveType = InterestRateBumpType.ADDITIVE_PARALLEL;
     private InterestRateBumpType _bucketedYieldBumpCurveType = InterestRateBumpType.ADDITIVE;
-    private double _recoveryRateBump = 0.0001;
+    private double _recoveryRateBump = 0.01;
     private RecoveryRateBumpType _recoveryRateCurveType = RecoveryRateBumpType.ADDITIVE;
     private PriceType _priceType = PriceType.CLEAN;
     private String _spreadCurveShiftType = CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;

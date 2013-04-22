@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -48,10 +49,14 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
-        .get();
-    final ValueRequirement fxPvRequirement = new ValueRequirement(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), desiredValue.getConstraints());
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
+    if (calculationMethod != null && calculationMethod.size() == 1) {
+      if (!CalculationPropertyNamesAndValues.DISCOUNTING.equals(Iterables.getOnlyElement(calculationMethod))) {
+        return null;
+      }
+    }
+    final ValueRequirement fxPvRequirement = new ValueRequirement(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), constraints);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = getPayCurrency(security);
     final Currency receiveCurrency = getReceiveCurrency(security);
