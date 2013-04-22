@@ -911,7 +911,8 @@ public class PresentValueCreditDefaultSwap {
   }
 
   @Deprecated
-  public HazardRateCurve calibrateHazardRateCurve(final ZonedDateTime valuationDate,
+  public HazardRateCurve calibrateHazardRateCurve(
+      final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
@@ -940,7 +941,7 @@ public class PresentValueCreditDefaultSwap {
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
     //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
 
-    // ********************************** REMEMBER THIS **********************************************************************************************
+    // ********************************** REMEMBER THIS i.e. PriceType == CLEAN for the standard ISDA model *****************************************************************************
     final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, marketSpreads, yieldCurve, PriceType.CLEAN);
 
     final double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
