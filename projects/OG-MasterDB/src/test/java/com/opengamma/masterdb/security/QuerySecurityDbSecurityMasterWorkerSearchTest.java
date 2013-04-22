@@ -587,7 +587,6 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     
-    System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
   }
