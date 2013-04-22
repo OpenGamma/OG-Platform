@@ -59,12 +59,14 @@ $.register_module({
                     cellmenu.current = cell;
                     hide =
                         // Hide the cell menu if...
-                        !cell.value.logLevel &&                                 // always show if log exists
-                        ((cell.col === ((!primitives && !depgraph) && 1))       // Second column of portfolio
+                        !cell.value.logLevel                                    // always show if log exists
+                        && ((cell.col === ((!primitives && !depgraph)           // Second column fixed column
+                            && (grid.meta.columns.fixed.length === 2)))
                         || ((depgraph || primitives) && cell.col < 1)           // 1st column of depgraph or primitives
                         || (type === 'NODE')                                    // Is node
+                        || (grid.source.blotter && cell.col > 0)                // All blotter cols other than first
                         || (cell.right > parent.width())                        // End of the cell not visible
-                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type)));    // Unsupported type on depgraph
+                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type))); // Unsupported type on depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 })
                 .on('cellhoverout', function () {
