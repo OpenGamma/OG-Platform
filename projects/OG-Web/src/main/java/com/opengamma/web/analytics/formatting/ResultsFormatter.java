@@ -137,6 +137,7 @@ public class ResultsFormatter {
   }
 
   // TODO I'm not keen on this interface. format is ignored if inlineIndex is non-null
+  // TODO handle history for inline cells?
   @SuppressWarnings("unchecked")
   public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Object inlineKey) {
     TypeFormatter formatter = getFormatter(value, valueSpec);

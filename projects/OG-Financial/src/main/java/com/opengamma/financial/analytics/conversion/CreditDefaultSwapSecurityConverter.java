@@ -136,7 +136,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, recoveryRate, includeAccruedPremium, protectionStart, coupon);
+        amount, 0.5, includeAccruedPremium, protectionStart, coupon);
   }
 
   @Override
@@ -160,7 +160,6 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final DebtSeniority debtSeniority = security.getDebtSeniority();
     final RestructuringClause restructuringClause = security.getRestructuringClause();
     final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final StubType stubType = security.getStubType().toAnalyticsType();
@@ -171,7 +170,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
+        amount, 0.5, includeAccruedPremium, protectionStart, parSpread);
   }
 
   private PeriodFrequency getPeriodFrequency(final Frequency frequency) {

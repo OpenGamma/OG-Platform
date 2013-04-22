@@ -15,7 +15,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -36,7 +35,8 @@ public class FXForwardForwardPointsDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.PRESENT_VALUE
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES
   };
   private final Map<UnorderedCurrencyPair, String> _currencyPairToForwardCurveNames;
 
@@ -69,7 +69,7 @@ public class FXForwardForwardPointsDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final String calculationMethod = desiredValue.getConstraint(ValuePropertyNames.FORWARD_CURVE_NAME);
+    final String calculationMethod = desiredValue.getConstraint(ValuePropertyNames.CALCULATION_METHOD);
     if (!CalculationPropertyNamesAndValues.FORWARD_POINTS.equals(calculationMethod)) {
       return null;
     }
@@ -81,10 +81,10 @@ public class FXForwardForwardPointsDefaults extends DefaultPropertyFunction {
     }
     return null;
   }
-
-  @Override
-  public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_FORWARD_DEFAULTS;
-  }
+  //
+  //  @Override
+  //  public String getMutualExclusionGroup() {
+  //    return OpenGammaFunctionExclusions.FX_FORWARD_DEFAULTS;
+  //  }
 
 }

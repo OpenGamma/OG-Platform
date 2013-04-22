@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.Period;
 import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
@@ -19,7 +18,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Formats {@link NodalObjectsCurve}s with {@link Tenor} x values and {@link Double} y values.
  */
 /* package */ class NodalObjectsCurveFormatter extends AbstractFormatter<NodalObjectsCurve> {
 
@@ -37,8 +36,8 @@ import com.opengamma.util.time.Tenor;
 
   @Override
   public List<Double[]> formatCell(NodalObjectsCurve value, ValueSpecification valueSpec) {
-    if (value.size() != 0 && value.getXData()[0] instanceof String && value.getYData()[0] instanceof Double) {
-      final Tenor[] tenors = getTenors(value.getXData());
+    if (value.size() != 0 && (value.getXData()[0] instanceof Tenor) && (value.getYData()[0] instanceof Double)) {
+      final Tenor[] tenors = (Tenor[]) value.getXData();
       final Object[] ys = value.getYData();
       ParallelArrayBinarySort.parallelBinarySort(tenors, ys);
       List<Double[]> data = new ArrayList<>();
@@ -47,38 +46,35 @@ import com.opengamma.util.time.Tenor;
         data.add(new Double[] {x, (Double) ys[i]});
       }
       return data;
+    } else {
+      s_logger.info("Unable to format curve {}", value);
+      return null;
     }
-    s_logger.warn("Unable to format curve of type {}", value.getClass());
-    return null;
   }
 
   private List<Double[]> formatExpanded(NodalObjectsCurve value) {
-    final Tenor[] tenors = getTenors(value.getXData());
-    final Object[] ys = value.getYData();
-    ParallelArrayBinarySort.parallelBinarySort(tenors, ys);
-    int dataLength = tenors.length;
-    Double[] xs = new Double[dataLength];
-    for (int i = 0; i < dataLength; i++) {
-      xs[i] = Double.valueOf(tenors[i].getPeriod().get(ChronoUnit.YEARS));
+    if (value.size() != 0 && (value.getXData()[0] instanceof Tenor) && (value.getYData()[0] instanceof Double)) {
+      final Tenor[] tenors = (Tenor[]) value.getXData();
+      final Object[] ys = value.getYData();
+      ParallelArrayBinarySort.parallelBinarySort(tenors, ys);
+      int dataLength = tenors.length;
+      Double[] xs = new Double[dataLength];
+      for (int i = 0; i < dataLength; i++) {
+        xs[i] = (double) tenors[i].getPeriod().get(ChronoUnit.YEARS);
+      }
+      List<Double[]> detailedData = new ArrayList<>();
+      for (int i = 0; i < ys.length; i++) {
+        detailedData.add(new Double[]{xs[i], (Double) ys[i]});
+      }
+      return detailedData;
+    } else {
+      s_logger.info("Unable to format curve {}", value);
+      return null;
     }
-    
-    List<Double[]> detailedData = new ArrayList<>();
-    for (int i = 0; i < ys.length; i++) {
-      detailedData.add(new Double[]{xs[i], (Double) ys[i]});
-    }
-    return detailedData;
   }
 
   @Override
   public DataType getDataType() {
     return DataType.CURVE;
-  }
-  
-  private Tenor[] getTenors(final Comparable[] xs) {
-    final Tenor[] tenors = new Tenor[xs.length];
-    for (int i = 0; i < xs.length; i++) {
-      tenors[i] = new Tenor(Period.parse((String) xs[i]));
-    }
-    return tenors;
   }
 }

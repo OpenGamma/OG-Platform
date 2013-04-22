@@ -14,7 +14,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -72,8 +72,8 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
 
     Security security = resolveSecurity(position);
 
-    if (security instanceof CreditDefaultSwapSecurity) {
-      CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
+    if (security instanceof AbstractCreditDefaultSwapSecurity) {
+      AbstractCreditDefaultSwapSecurity cds = (AbstractCreditDefaultSwapSecurity) security;
       T extracted = _redCodeExtractor.extract(cds);
       if (extracted != null) {
 

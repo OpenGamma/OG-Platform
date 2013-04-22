@@ -141,6 +141,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     private double _recoveryRateBump = 0.0001;
     private RecoveryRateBumpType _recoveryRateCurveType = RecoveryRateBumpType.ADDITIVE;
     private PriceType _priceType = PriceType.CLEAN;
+    private String _spreadCurveShiftType = CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
       _perCurrencyInfo.clear();
@@ -263,6 +264,14 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       return _priceType;
     }
 
+    public void setSpreadCurveShiftType(final String spreadCurveShiftType) {
+      _spreadCurveShiftType = spreadCurveShiftType;
+    }
+
+    public String getSpreadCurveShiftType() {
+      return _spreadCurveShiftType;
+    }
+
     protected void addISDAYieldCurveDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
       int i = 0;
@@ -376,6 +385,10 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(StandardVanillaCDSPriceTypeDefaults.class, args));
     }
 
+    protected void addSpreadCurveShiftDefaults(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(SpreadCurveShiftDefaults.class, CreditInstrumentPropertyNamesAndValues.ADDITIVE_SPREAD_CURVE_SHIFT));
+    }
+
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
@@ -390,7 +403,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       addStandardVanillaBucketedIR01Defaults(functions);
       addStandardVanillaRR01Defaults(functions);
       addStandardVanillaPriceTypeDefaults(functions);
-
+      addSpreadCurveShiftDefaults(functions);
     }
   }
 

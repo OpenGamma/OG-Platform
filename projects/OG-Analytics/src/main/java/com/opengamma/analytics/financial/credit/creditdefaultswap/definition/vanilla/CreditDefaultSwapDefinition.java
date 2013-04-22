@@ -42,7 +42,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   // NOTE : We are enforcing the condition that the three obligors have to be different entities
 
-  // NOTE : There are no builder methods in this class because it is abstract
+  // NOTE : There are no builder methods implemented in this class because it is abstract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -238,7 +238,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Abstract builder methods
+  // Abstract builder methods (have to be implemented in classes which derive from this one)
 
   public abstract CreditDefaultSwapDefinition withStartDate(ZonedDateTime startDate);
 

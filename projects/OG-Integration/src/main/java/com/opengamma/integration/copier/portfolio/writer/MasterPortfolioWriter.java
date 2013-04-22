@@ -12,8 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +26,6 @@ import org.threeten.bp.Instant;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -59,7 +60,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MasterPortfolioWriter.class);
 
-  private static final int NUMBER_OF_THREADS = 20;
+  private static final int NUMBER_OF_THREADS = 30;
 
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
@@ -147,6 +148,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     createPortfolio(portfolioName);
 
+    _securityIdToPosition = new HashMap<>();
     setPath(new String[0]);
   }
 
@@ -183,7 +185,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     ArgumentChecker.notNull(securities, "securities");
 
     // Write securities
-    final List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
+    final List<ManageableSecurity> writtenSecurities = new ArrayList<>();
     for (ManageableSecurity security : securities) {
       if (security != null || !_discardIncompleteOptions) { // latter term preserves old behaviour
         ManageableSecurity writtenSecurity = writeSecurity(security);
@@ -225,26 +227,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         return new ObjectsPair<>(addedDoc.getPosition(),
             securities);
       } else {
-        // update position map (huh?)
+        // update position map
         _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
 
-        _executorService.submit(new Runnable() {
-          @Override
-          public void run() {
-            try {
-              // Update the position in the position master
-              PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
-
-              // Add the new position to the portfolio node
-              _currentNode.addPosition(addedDoc.getUniqueId());
-            } catch (Exception e) {
-              s_logger.error("Unable to update position " + existingPosition.getUniqueId() + ": " + e.getMessage());
-              return;
-            }
-          }
-        });
-
-        // Return the updated position
+         // Return the updated position
         return new ObjectsPair<>(existingPosition, securities);
       }
     }
@@ -331,7 +317,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
       // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
+      return new ObjectsPair<>(addedDoc.getPosition(),
           writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
     }
   }
@@ -397,7 +383,17 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       return null;
     }
   }
-  
+
+  private void testQuantities(ManageablePosition position) {
+    int tradeQty = 0;
+    for (ManageableTrade trade : position.getTrades()) {
+      tradeQty += trade.getQuantity().intValue();
+    }
+    if (tradeQty != position.getQuantity().intValue()) {
+      s_logger.warn("Position quantity and total trade quantities do not match for " + position);
+    }
+  }
+
   @Override
   public String[] getCurrentPath() {
     Stack<ManageablePortfolioNode> stack = 
@@ -416,15 +412,42 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     if (!Arrays.equals(newPath, _currentPath)) {
 
+      // Update positions in position map, concurrently, and wait for their completion
+      if (_mergePositions && _multithread) {
+        List<Callable<Integer>> tasks = new ArrayList<>();
+        for (final ManageablePosition position : _securityIdToPosition.values()) {
+          testQuantities(position);
+          tasks.add(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+              try {
+                 // Update the position in the position master
+                 PositionDocument addedDoc = _positionMaster.update(new PositionDocument(position));
+                 // Add the new position to the portfolio node
+                 _currentNode.addPosition(addedDoc.getUniqueId());
+              } catch (Exception e) {
+                s_logger.error("Unable to update position " + position.getUniqueId() + ": " + e.getMessage());
+              }
+              return 0;
+            }
+          });
+        }
+        try {
+          List<Future<Integer>> futures = _executorService.invokeAll(tasks);
+        } catch (Exception e) {
+          s_logger.warn("ExecutorService invokeAll failed: " + e.getMessage());
+        }
+      }
+
+      // Reset position map
+      _securityIdToPosition = new HashMap<>();
+
       if (_originalRoot != null) {
         _originalNode = findNode(newPath, _originalRoot);
         _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
       } else {
         _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
       }
-
-      // Reset position map
-      _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
 
       // If keeping original portfolio nodes and merging positions, populate position map with existing positions in node
       if (_keepCurrentPositions && _mergePositions && _originalNode != null) {

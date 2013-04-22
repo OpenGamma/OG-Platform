@@ -138,7 +138,7 @@ public class PortfolioGridStructure extends MainGridStructure {
     for (GridColumn column : getColumnStructure().getColumns()) {
       ColumnSpecification colSpec = column.getSpecification();
       if (Inliner.isDisplayableInline(column.getType(), column.getSpecification())) {
-        // order set of the union of the column metadata for the whole set. need this to figure out how many unique
+        // ordered set of the union of the column metadata for the whole set. need this to figure out how many unique
         // columns are required
         SortedSet<ColumnMeta> allColumnMeta = Sets.newTreeSet();
         // traverse every result in the column and get the column metadata
@@ -167,16 +167,6 @@ public class PortfolioGridStructure extends MainGridStructure {
                                         inlineColumnMeta);
     } else {
       return this;
-    }
-  }
-
-  private Integer max(Integer count1, Integer count2) {
-    if (count1 == null) {
-      return count2;
-    } else if (count2 == null) {
-      return count1;
-    } else {
-      return Math.max(count1, count2);
     }
   }
 
@@ -212,7 +202,6 @@ public class PortfolioGridStructure extends MainGridStructure {
         // ensure columnSpec isn't a duplicate
         if (columnSpecs.add(columnSpec)) {
           SortedSet<ColumnMeta> meta = inlineColumnMeta.get(columnSpec);
-          //if (true) { // column can't be inlined
           if (meta == null) { // column can't be inlined
             columns.add(GridColumn.forSpec(columnSpec, columnType, targetLookup));
           } else {
@@ -224,7 +213,7 @@ public class PortfolioGridStructure extends MainGridStructure {
               } else {
                 header = columnMeta.getHeader();
               }
-              columns.add(GridColumn.forSpec(header, columnSpec, columnType, targetLookup, columnMeta.getKey(), inlineIndex));
+              columns.add(GridColumn.forSpec(header, columnSpec, columnMeta.getColumnType(), targetLookup, columnMeta.getKey(), inlineIndex));
             }
           }
         }

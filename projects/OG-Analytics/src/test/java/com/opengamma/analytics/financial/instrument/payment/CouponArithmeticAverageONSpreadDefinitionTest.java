@@ -1,6 +1,7 @@
 package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -29,12 +30,14 @@ public class CouponArithmeticAverageONSpreadDefinitionTest {
   private static final Period TENOR_3M = Period.ofMonths(3);
   private static final double NOTIONAL = 100000000; // 100m
   private static final double SPREAD = 0.0010; // 10 bps
+  private static final int PAYMENT_LAG = 2;
   private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, TENOR_3M, USDLIBOR3M);
   private static final double ACCURAL_FACTOR = USDLIBOR3M.getDayCount().getDayCountFraction(EFFECTIVE_DATE, ACCRUAL_END_DATE);
-  private static final CouponArithmeticAverageONSpreadDefinition FEDFUND_CPN_3M_DEF = new CouponArithmeticAverageONSpreadDefinition(Currency.USD, ACCRUAL_END_DATE, EFFECTIVE_DATE, ACCRUAL_END_DATE,
+  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE, -1 + FEDFUND.getPublicationLag() + PAYMENT_LAG, NYC);
+  private static final CouponArithmeticAverageONSpreadDefinition FEDFUND_CPN_3M_DEF = new CouponArithmeticAverageONSpreadDefinition(Currency.USD, PAYMENT_DATE, EFFECTIVE_DATE, ACCRUAL_END_DATE,
       ACCURAL_FACTOR, NOTIONAL, FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, SPREAD);
 
-  private static final CouponArithmeticAverageONSpreadDefinition FEDFUND_CPN_3M_FROM_DEF = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, 0,
+  private static final CouponArithmeticAverageONSpreadDefinition FEDFUND_CPN_3M_FROM_DEF = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG,
       MOD_FOL, true, SPREAD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -87,7 +90,7 @@ public class CouponArithmeticAverageONSpreadDefinitionTest {
 
   @Test
   public void getter() {
-    assertEquals("CouponArithmeticAverageONSpreadDefinition: getter", FEDFUND_CPN_3M_DEF.getPaymentDate(), ACCRUAL_END_DATE);
+    assertEquals("CouponArithmeticAverageONSpreadDefinition: getter", FEDFUND_CPN_3M_DEF.getPaymentDate(), PAYMENT_DATE);
     assertEquals("CouponArithmeticAverageONSpreadDefinition: getter", FEDFUND_CPN_3M_DEF.getAccrualStartDate(), EFFECTIVE_DATE);
     assertEquals("CouponArithmeticAverageONSpreadDefinition: getter", FEDFUND_CPN_3M_DEF.getAccrualEndDate(), ACCRUAL_END_DATE);
     assertEquals("CouponArithmeticAverageONSpreadDefinition: getter", FEDFUND_CPN_3M_DEF.getFixingPeriodDate()[0], EFFECTIVE_DATE);
@@ -101,6 +104,29 @@ public class CouponArithmeticAverageONSpreadDefinitionTest {
   @Test
   public void from() {
     assertEquals("CouponArithmeticAverageONSpreadDefinition: from", FEDFUND_CPN_3M_DEF, FEDFUND_CPN_3M_FROM_DEF);
+  }
+
+  @Test
+  public void equalHash() {
+    assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF, FEDFUND_CPN_3M_DEF);
+    final CouponArithmeticAverageONSpreadDefinition other = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG,
+        MOD_FOL, true, SPREAD);
+    assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF, other);
+    assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.hashCode(), other.hashCode());
+    CouponArithmeticAverageONSpreadDefinition modified;
+    IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA", NYC);
+    modified = CouponArithmeticAverageONSpreadDefinition.from(modifiedIndex, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG, MOD_FOL, true, SPREAD);
+    assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
+    modified = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE.plusDays(1), ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, SPREAD);
+    assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
+    modified = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE.plusDays(1), NOTIONAL, PAYMENT_LAG, SPREAD);
+    assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
+    modified = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL + 1000, PAYMENT_LAG, SPREAD);
+    assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
+    modified = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG + 1, SPREAD);
+    assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
+    modified = CouponArithmeticAverageONSpreadDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, SPREAD + 0.0010);
+    assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
   }
 
   //TODO: toDerivatives

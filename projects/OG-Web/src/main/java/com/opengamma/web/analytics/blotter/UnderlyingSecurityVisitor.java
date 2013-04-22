@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.blotter;
 
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
@@ -29,6 +30,13 @@ public class UnderlyingSecurityVisitor extends FinancialSecurityVisitorSameValue
 
   @Override
   public ManageableSecurity visitSwaptionSecurity(SwaptionSecurity security) {
+    SecuritySearchResult result = _securityMaster.search(new SecuritySearchRequest(security.getUnderlyingId()));
+    ManageableSecurity underlying = result.getSingleSecurity();
+    return _securityMaster.get(underlying.getUniqueId().getObjectId(), _versionCorrection).getSecurity();
+  }
+
+  @Override
+  public ManageableSecurity visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
     SecuritySearchResult result = _securityMaster.search(new SecuritySearchRequest(security.getUnderlyingId()));
     ManageableSecurity underlying = result.getSingleSecurity();
     return _securityMaster.get(underlying.getUniqueId().getObjectId(), _versionCorrection).getSecurity();

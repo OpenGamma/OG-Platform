@@ -80,7 +80,7 @@ public final class ForexForwardPointsMethod {
   }
 
   /**
-   * Computes the present value curve sensitivity for forex by forward point method. 
+   * Computes the present value curve sensitivity for forex by forward point method.
    * The sensitivity is only to the final discounting, not to the forward points.
    * @param fx The Forex derivative.
    * @param curves The curve bundle containing the discounting curves.
@@ -98,7 +98,7 @@ public final class ForexForwardPointsMethod {
     final double pvBar = 1.0;
     final double df2Bar = (amount2 + amount1 * (fxRate + fwdPts)) * pvBar;
     final DoublesPair s = new DoublesPair(payTime, -payTime * df2 * df2Bar);
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     return MultipleCurrencyInterestRateCurveSensitivity.of(fx.getCurrency2(), InterestRateCurveSensitivity.of(fx.getPaymentCurrency2().getFundingCurveName(), list));
   }

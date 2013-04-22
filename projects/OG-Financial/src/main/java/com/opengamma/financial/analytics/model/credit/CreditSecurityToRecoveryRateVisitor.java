@@ -52,10 +52,4 @@ public final class CreditSecurityToRecoveryRateVisitor extends FinancialSecurity
     return underlyingSwap.accept(this);
   }
 
-  //  @Override
-  //  public CdsRecoveryRateIdentifier visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
-  //    final ExternalId redCode = security.getReferenceEntity();
-  //    final Currency currency = security.getNotional().getCurrency();
-  //    return CdsRecoveryRateIdentifier.forSamedayCds(redCode.getValue(), currency, seniority, restructuringClause);
-  //  }
 }

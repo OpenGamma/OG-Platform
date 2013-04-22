@@ -11,7 +11,7 @@ import com.opengamma.core.security.SecuritySource;
 
 /**
  * Simple aggregator function to allow positions to be aggregated by RED code. This is
- * generally only applicable to CDS securities, and if applied to securities with no
+ * generally only applicable to CDS-like securities, and if applied to securities with no
  * RED code, the result of {@link #classifyPosition(Position)} will be "N/A".
  */
 public class CdsRedCodeAggregationFunction extends AbstractCdsAggregationFunction<String> {

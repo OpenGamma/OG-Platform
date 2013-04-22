@@ -199,6 +199,14 @@ public final class ValueRequirementNames {
    */
   public static final String FX_FORWARD_CURVE_MARKET_DATA = "FXForwardCurveMarketData";
   /**
+   * The raw FX forward points and spot market data
+   */
+  public static final String FX_FORWARD_POINTS_CURVE_MARKET_DATA = "FXForwardPointsCurveMarketData";
+  /**
+   * The sensitivities of an fx instrument to each of the nodal points in a FX forward points curve.
+   */
+  public static final String FX_FORWARD_POINTS_NODE_SENSITIVITIES = "FX Forward Points Node Sensitivities";
+  /**
    * The raw forward swap and spot market data that is used in curve construction
    */
   public static final String FORWARD_SWAP_CURVE_MARKET_DATA = "ForwardSwapCurveMarketData";
