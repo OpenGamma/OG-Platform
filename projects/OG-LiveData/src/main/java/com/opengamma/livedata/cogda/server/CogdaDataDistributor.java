@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
@@ -29,6 +28,9 @@ import com.opengamma.livedata.server.LastKnownValueStore;
 import com.opengamma.livedata.server.LastKnownValueStoreProvider;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.metric.MetricProducer;
+import com.yammer.metrics.Meter;
+import com.yammer.metrics.MetricRegistry;
 
 /**
  * Listens to a channel of raw data updates, normalizes, writes to the LKV store, and then
@@ -47,7 +49,7 @@ import com.opengamma.util.ArgumentChecker;
  * In general, if not bootstrapping for the first time, the first and second ways should be
  * sufficient.
  */
-public abstract class CogdaDataDistributor implements Lifecycle {
+public abstract class CogdaDataDistributor implements Lifecycle, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaDataDistributor.class);
   // Constructor injectors:
   private final String _externalIdScheme;
@@ -63,7 +65,9 @@ public abstract class CogdaDataDistributor implements Lifecycle {
       new ConcurrentHashMap<LiveDataSpecification, LastKnownValueStore>();
   private final ConcurrentMap<LiveDataSpecification, FieldHistoryStore> _normalizationState =
       new ConcurrentHashMap<LiveDataSpecification, FieldHistoryStore>();
-  private AtomicLong _ticksReceived = new AtomicLong(0L);
+  
+  // Metrics:
+  private Meter _tickMeter = new Meter();
   
   public CogdaDataDistributor(
       String externalIdScheme,
@@ -77,6 +81,11 @@ public abstract class CogdaDataDistributor implements Lifecycle {
     _normalization = Collections.unmodifiableMap(constructNormalizationRules(normalizationSchemes));
   }
   
+  @Override
+  public void registerMetrics(MetricRegistry registry, String namePrefix) {
+    _tickMeter = registry.meter(namePrefix + ".ticks");
+  }
+
   /**
    * Gets the externalIdScheme.
    * @return the externalIdScheme
@@ -200,7 +209,7 @@ public abstract class CogdaDataDistributor implements Lifecycle {
    * @param fields updated fields
    */
   public void updateReceived(ExternalId id, FudgeMsg fields) {
-    _ticksReceived.incrementAndGet();
+    _tickMeter.mark();
     // Iterate over all normalization schemes.
     for (Map.Entry<String, NormalizationRuleSet> normalizationEntry : _normalization.entrySet()) {
       LiveDataSpecification ldspec = new LiveDataSpecification(normalizationEntry.getKey(), id);
@@ -237,8 +246,4 @@ public abstract class CogdaDataDistributor implements Lifecycle {
     getNormalizedMessageSender().send(msg);
   }
   
-  public long getNumTicksReceived() {
-    return _ticksReceived.get();
-  }
-
 }
