@@ -76,9 +76,9 @@ import com.yammer.metrics.Timer;
   // By default these do nothing. Registration will replace them
   // so that they actually do something.
   // -----------------------------------------------------------------
-  private Timer _insertTimer = new Timer();
-  private Timer _metaDataTimer = new Timer();
   private Timer _searchTimer = new Timer();
+  private Timer _metaDataTimer = new Timer();
+  private Timer _insertTimer = new Timer();
 
   /**
    * SQL order by.

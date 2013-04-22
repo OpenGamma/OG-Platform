@@ -153,10 +153,10 @@ public class DbPortfolioMaster
     
     if (request.isIncludePositions()) {
       String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true, true), result);
+      doSearch(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true, true), result);
     } else {
       String[] sql = {getElSqlBundle().getSql("SearchNoPositions", args), getElSqlBundle().getSql("SearchCount", args)};
-      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(false, true), result);
+      doSearch(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(false, true), result);
     }
     return result;
   }

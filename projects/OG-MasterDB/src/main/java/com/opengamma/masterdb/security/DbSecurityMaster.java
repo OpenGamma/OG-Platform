@@ -104,9 +104,8 @@ public class DbSecurityMaster
   // By default these do nothing. Registration will replace them
   // so that they actually do something.
   // -----------------------------------------------------------------
-  private Timer _insertTimer = new Timer();
   private Timer _metaDataTimer = new Timer();
-  private Timer _searchTimer = new Timer();
+  private Timer _insertTimer = new Timer();
 
   /**
    * Creates an instance.
@@ -123,7 +122,6 @@ public class DbSecurityMaster
     super.registerMetrics(registry, namePrefix);
     _insertTimer = registry.timer(namePrefix + ".insert");
     _metaDataTimer = registry.timer(namePrefix + ".metaData");
-    _searchTimer = registry.timer(namePrefix + ".search");
   }
 
   //-------------------------------------------------------------------------
@@ -153,7 +151,6 @@ public class DbSecurityMaster
     ArgumentChecker.notNull(request, "request");
     
     Timer.Context context = _metaDataTimer.time();
-    
     try {
       SecurityMetaDataResult result = new SecurityMetaDataResult();
       if (request.isSecurityTypes()) {
@@ -178,66 +175,59 @@ public class DbSecurityMaster
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    Timer.Context context = _searchTimer.time();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final SecuritySearchResult result = new SecuritySearchResult(vc);
     
-    try {
-      final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
-      final SecuritySearchResult result = new SecuritySearchResult(vc);
-      
-      final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
-      final List<ObjectId> objectIds = request.getObjectIds();
-      if ((objectIds != null && objectIds.size() == 0) ||
-          (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
-        result.setPaging(Paging.of(request.getPagingRequest(), 0));
-        return result;
-      }
-      
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-        .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-        .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
-        .addValueNullIgnored("sec_type", request.getSecurityType())
-        .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
-        .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
-      if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
-        int i = 0;
-        for (ExternalId id : externalIdSearch) {
-          args.addValue("key_scheme" + i, id.getScheme().getName());
-          args.addValue("key_value" + i, id.getValue());
-          i++;
-        }
-        args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
-        args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
-        args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
-      }
-      if (objectIds != null) {
-        StringBuilder buf = new StringBuilder(objectIds.size() * 10);
-        for (ObjectId objectId : objectIds) {
-          checkScheme(objectId);
-          buf.append(extractOid(objectId)).append(", ");
-        }
-        buf.setLength(buf.length() - 2);
-        args.addValue("sql_search_object_ids", buf.toString());
-      }
-      args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
-      args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
-      args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
-      
-      final SecurityMasterDetailProvider detailProvider = getDetailProvider();  // lock against change
-      if (detailProvider != null) {
-        detailProvider.extendSearch(request, args);
-      }
-      
-      String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-      searchWithPaging(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
-      if (request.isFullDetail()) {
-        loadDetail(detailProvider, result.getDocuments());
-      }
+    final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
+    final List<ObjectId> objectIds = request.getObjectIds();
+    if ((objectIds != null && objectIds.size() == 0) ||
+        (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
-      
-    } finally {
-      context.stop();
     }
+    
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("sec_type", request.getSecurityType())
+      .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
+      .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
+    if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
+      int i = 0;
+      for (ExternalId id : externalIdSearch) {
+        args.addValue("key_scheme" + i, id.getScheme().getName());
+        args.addValue("key_value" + i, id.getValue());
+        i++;
+      }
+      args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
+      args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
+      args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
+    }
+    if (objectIds != null) {
+      StringBuilder buf = new StringBuilder(objectIds.size() * 10);
+      for (ObjectId objectId : objectIds) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      args.addValue("sql_search_object_ids", buf.toString());
+    }
+    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
+    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
+    
+    final SecurityMasterDetailProvider detailProvider = getDetailProvider();  // lock against change
+    if (detailProvider != null) {
+      detailProvider.extendSearch(request, args);
+    }
+    
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
+    doSearch(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
+    if (request.isFullDetail()) {
+      loadDetail(detailProvider, result.getDocuments());
+    }
+    return result;
   }
 
   /**

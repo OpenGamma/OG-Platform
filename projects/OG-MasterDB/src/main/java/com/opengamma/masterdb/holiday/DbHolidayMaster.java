@@ -175,7 +175,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
     final String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new HolidayDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new HolidayDocumentExtractor(), result);
     return result;
   }
 

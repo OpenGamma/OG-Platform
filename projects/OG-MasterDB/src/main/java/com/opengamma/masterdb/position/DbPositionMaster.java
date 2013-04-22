@@ -157,7 +157,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
 
     final String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args) };
-    searchWithPaging(request.getPagingRequest(), sql, args, new PositionDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new PositionDocumentExtractor(), result);
     return result;
   }
 
