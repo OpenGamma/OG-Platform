@@ -26,11 +26,9 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneId;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Connector;
-import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.time.DateUtils;
 
@@ -75,16 +73,10 @@ public class DbConnector implements Connector {
    * The transaction template.
    */
   private final TransactionTemplate _transactionTemplate;
-
   /**
-   * The current {@link #now} time. This is a cached value based on the {@link System#nanoTime} clock for up to {@link #NOW_CACHE_TTL} to avoid hammering the database with "SELECT NOW" queries.
+   * The clock.
    */
-  private volatile Instant _now;
-
-  /**
-   * The {@link System#nanoTime} clock when {@link #_now} was retrieved.
-   */
-  private volatile long _nowTimestamp;
+  private final DbClock _clock = new DbClock(this);
 
   /**
    * Creates an instance.
@@ -232,19 +224,21 @@ public class DbConnector implements Connector {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the current instant based on a cached database clock.
+   * 
+   * @return the current instant, may be null
+   */
+  public Instant now() {
+    return _clock.instant();
+  }
+
+  /**
    * Gets the current instant using the database clock.
    * 
    * @return the current database instant, may be null
    */
-  public Instant now() {
-    final long sysTime = System.nanoTime();
-    long diff = sysTime - _nowTimestamp;
-    if ((_now == null) || (diff < 0) || (diff > NOW_CACHE_TTL)) {
-      final Timestamp ts = getJdbcTemplate().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
-      _now = DbDateUtils.fromSqlTimestamp(ts);
-      _nowTimestamp = sysTime;
-    }
-    return _now;
+  Timestamp nowDb() {
+    return getJdbcTemplate().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
   }
 
   /**
@@ -255,42 +249,7 @@ public class DbConnector implements Connector {
    * @return the database time-source, may be null
    */
   public Clock timeSource() {
-    return new Clock() {
-      @Override
-      public Instant instant() {
-        return now();
-      }
-
-      @Override
-      public ZoneId getZone() {
-        return OpenGammaClock.getZone();
-      }
-
-      @Override
-      public Clock withZone(ZoneId zone) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public long millis() {
-        return instant().toEpochMilli();
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        return (obj == this);
-      }
-
-      @Override
-      public int hashCode() {
-        return System.identityHashCode(this);
-      }
-
-      @Override
-      public String toString() {
-        return "DbClock";
-      }
-    };
+    return _clock;
   }
 
   //-------------------------------------------------------------------------
