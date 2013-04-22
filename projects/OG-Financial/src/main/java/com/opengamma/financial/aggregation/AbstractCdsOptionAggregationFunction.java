@@ -15,6 +15,7 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @param <T> The type of data that this implementation will extract
  */
-public abstract class AbstractCdsAggregationFunction<T> implements AggregationFunction<String> {
+public abstract class AbstractCdsOptionAggregationFunction<T> implements AggregationFunction<String> {
 
   /**
    * Classification indicating that this aggregation does not apply to the security.
@@ -43,16 +44,18 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
   /**
    * The extractor which will process the red code and return the required type, not null.
    */
-  private final CdsValueExtractor<T> _extractor;
+  private final CdsOptionValueExtractor<T> _extractor;
+
+
 
   /**
    * Creates the aggregation function.
    *
    * @param name the name to be used for this aggregation, not null
    * @param securitySource the security source used for resolution of the CDS security, not null
-   * @param extractor the extractor which will process the cds and return the required type, not null
+   * @param extractor the extractor which will process the cds option and return the required type, not null
    */
-  public AbstractCdsAggregationFunction(String name, SecuritySource securitySource, CdsValueExtractor<T> extractor) {
+  public AbstractCdsOptionAggregationFunction(String name, SecuritySource securitySource, CdsOptionValueExtractor<T> extractor) {
 
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(securitySource, "securitySource");
@@ -72,9 +75,9 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
     Security security = resolveSecurity(position);
 
 
-    if (security instanceof AbstractCreditDefaultSwapSecurity) {
-      AbstractCreditDefaultSwapSecurity cds = (AbstractCreditDefaultSwapSecurity) security;
-      T extracted = _extractor.extract(cds);
+    if (security instanceof CreditDefaultSwapOptionSecurity) {
+      CreditDefaultSwapOptionSecurity cdsOption = (CreditDefaultSwapOptionSecurity) security;
+      T extracted = _extractor.extract(cdsOption);
       if (extracted != null) {
         return handleExtractedData(extracted);
       }else{
