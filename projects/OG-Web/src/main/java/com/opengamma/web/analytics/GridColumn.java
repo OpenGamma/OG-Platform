@@ -31,8 +31,16 @@ import com.opengamma.util.ArgumentChecker;
   /** Null if this column doesn't display exploded data, otherwise the index in the set of exploded data columns */
   private final Integer _inlineIndex;
 
+  /**
+   * If a column's data can be displayed inline across multiple columns the type of data displayed
+   * in the cells will not be the same as the column's underlying data type. e.g. if a column contains a vector
+   * of double values the cells will contain doubles when but the underlying type of the first column will be a
+   * vector.
+   */
+  private final Class<?> _underlyingType;
+
   /* package */ GridColumn(String header, String description, Class<?> type, CellRenderer renderer) {
-    this(header, description, type, renderer, null, null, null);
+    this(header, description, type, null, renderer, null, null, null);
   }
 
   /* package */ GridColumn(String header,
@@ -40,12 +48,13 @@ import com.opengamma.util.ArgumentChecker;
                            Class<?> type,
                            CellRenderer renderer,
                            ColumnSpecification columnSpec) {
-    this(header, description, type, renderer, columnSpec, null, null);
+    this(header, description, type, null, renderer, columnSpec, null, null);
   }
 
   /* package */ GridColumn(String header,
                            String description,
                            Class<?> type,
+                           Class<?> underlyingType,
                            CellRenderer renderer,
                            ColumnSpecification columnSpec,
                            Object inlineKey,
@@ -62,6 +71,7 @@ import com.opengamma.util.ArgumentChecker;
       _description = header;
     }
     _type = type;
+    _underlyingType = underlyingType;
     _inlineKey = inlineKey;
   }
 
@@ -74,16 +84,18 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ static GridColumn forSpec(ColumnSpecification columnSpec,
                                           Class<?> columnType,
                                           TargetLookup targetLookup) {
-    return forSpec(columnSpec.getValueName(), columnSpec, columnType, targetLookup, null, null);
+    return forSpec(columnSpec.getValueName(), columnSpec, columnType, null, targetLookup, null, null);
   }
 
   /**
    * Factory method to create a column for inlined values. These are single values (e.g. vectors) displayed over
    * multiple columns.
-   * @param headerSuffix The header suffix. Header is derived from the value name (common to all columns for the value)
-   * and the suffix
+   * @param header The column header
    * @param columnSpec Specification of the column's value
-   * @param columnType The type of the column's value
+   * @param columnType The type displayed in the column
+   * @param underlyingType The type of the column's underlying data, can be different from the type displayed in the
+   * column for types that are displayed inline, e.g. vectors of doubles where the double values are displayed but
+   * the underlying type is a vector
    * @param targetLookup For looking up values to populate the column
    * @param inlineIndex The index of the individual data item in this column. This is used to extract each cell's data
    * from the value.
@@ -92,6 +104,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ static GridColumn forSpec(String header,
                                           ColumnSpecification columnSpec,
                                           Class<?> columnType,
+                                          Class<?> underlyingType,
                                           TargetLookup targetLookup,
                                           Object inlineKey,
                                           Integer inlineIndex) {
@@ -99,6 +112,7 @@ import com.opengamma.util.ArgumentChecker;
     return new GridColumn(header,
                           createDescription(columnSpec.getValueProperties()),
                           columnType,
+                          underlyingType,
                           renderer,
                           columnSpec,
                           inlineKey,
@@ -135,6 +149,20 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ Integer getInlineIndex() {
     return _inlineIndex;
+  }
+
+  /**
+   * @return If this column's data can be displayed inline (e.g. a vector) this returns the underlying type which
+   * won't be the type displayed in the cells. e.g. for a vector of doubles the underlying type is vector but the
+   * type of values displayed in the cells is double. If the column's data can't be displayed inline this method
+   * returns the same value as {@link #getType()}.
+   */
+  /* package */ Class<?> getUnderlyingType() {
+    if (_underlyingType != null) {
+      return _underlyingType;
+    } else {
+      return _type;
+    }
   }
 
   /* package */ ResultsCell buildResults(int rowIndex, ResultsCache cache) {
