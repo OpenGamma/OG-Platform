@@ -3,6 +3,7 @@
   "cds_version":"${security.version}",
   "series":"${security.series}",
   "family":"${security.family}",
+  "recovery":"${security.recoveryRate}",
   "currency":"${security.currency}",
   "terms":[<#list terms as tenor>"${tenor}"<#if tenor_has_next>,</#if></#list>],
   "components":[<#list components as component>
