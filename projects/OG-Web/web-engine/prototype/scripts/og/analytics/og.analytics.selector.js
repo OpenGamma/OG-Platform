@@ -29,6 +29,7 @@ $.register_module({
                 $(document).off(namespace);
                 auto_scroll.timeout = auto_scroll.scroll = clearTimeout(auto_scroll.timeout), null;
                 if (selection) selector.fire('select', selection);
+                selector.render(); // render again just to give clipboard the chance to make a selection
                 selector.busy(false);
             };
             var initialize = function () {
