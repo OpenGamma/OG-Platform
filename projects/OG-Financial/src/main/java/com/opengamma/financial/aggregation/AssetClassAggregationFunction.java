@@ -114,7 +114,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CDS = "CDS"; // TODO: is this the correct abbreviation?
   /* package */static final String EQUITY_INDEX_FUTURE_OPTIONS = "Equity Index Future Options";
   /* package */static final String DELIVERABLE_SWAP_FUTURES = "Deliverable Swap Futures";
-  /* package */static final String CDX = "CDX";
+  /* package */static final String CDX = "CDS Indices";
   /* package */static final String CREDIT_DEFAULT_SWAP_OPTIONS = "CDS Options";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
