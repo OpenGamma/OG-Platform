@@ -43,10 +43,10 @@ import com.opengamma.util.ArgumentChecker;
       @Override
       Object format(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec, Object inlineKey) {
         if (inlineKey == null) {
-          throw new IllegalArgumentException("HISTORY formatting only supported for inline values for " +
-                                                 "LocalDateLabelledMatrix1D");
+          return null;
+        } else {
+          return formatInline(value, valueSpec, Format.HISTORY, inlineKey);
         }
-        return formatInline(value, valueSpec, Format.HISTORY, inlineKey);
       }
     });
   }
