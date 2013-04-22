@@ -49,9 +49,9 @@ public class ISDACreditDefaultSwapValueOnDefaultCalculator {
     final double lossGivenDefault = cds.getNotional() * (1 - cds.getRecoveryRate());
     double valueOnDefault = 0.0;
     if (cds.getBuySellProtection() == BuySellProtection.BUY) {
-      valueOnDefault = -Math.abs(presentValue) + lossGivenDefault;
+      valueOnDefault = -presentValue + lossGivenDefault;
     } else {
-      valueOnDefault = -Math.abs(presentValue) - lossGivenDefault;
+      valueOnDefault = -presentValue - lossGivenDefault;
     }
     return valueOnDefault;
   }
