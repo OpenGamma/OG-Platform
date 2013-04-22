@@ -74,9 +74,9 @@ public final class CurveDefinitionBuilders {
    */
   @FudgeBuilderFor(InterpolatedCurveDefinition.class)
   public static final class InterpolatedCurveDefinitionFudgeBuilder implements FudgeBuilder<InterpolatedCurveDefinition> {
-    private static final String INTERPOLATOR_NAME_FIELD = "interpolator";
-    private static final String RIGHT_EXTRAPOLATOR_NAME_FIELD = "rightExtrapolator";
-    private static final String LEFT_EXTRAPOLATOR_NAME_FIELD = "leftExtrapolator";
+    private static final String INTERPOLATOR_NAME_FIELD = "interpolatorName";
+    private static final String RIGHT_EXTRAPOLATOR_NAME_FIELD = "rightExtrapolatorName";
+    private static final String LEFT_EXTRAPOLATOR_NAME_FIELD = "leftExtrapolatorName";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InterpolatedCurveDefinition object) {
