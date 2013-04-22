@@ -14,7 +14,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @param <T> The type of data that this implementation will extract
  */
-public abstract class AbstractCdsAggregationFunction<T> implements AggregationFunction<String> {
+public abstract class AbstractCdsAggregationFunction_BAK<T> implements AggregationFunction<String> {
 
   /**
    * Classification indicating that this aggregation does not apply to the security.
@@ -43,7 +43,7 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
   /**
    * The extractor which will process the red code and return the required type, not null.
    */
-  private final CdsValueExtractor<T> _extractor;
+  private final CdsRedCodeExtractor<T> _redCodeExtractor;
 
   /**
    * Creates the aggregation function.
@@ -52,13 +52,14 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
    * @param securitySource the security source used for resolution of the CDS security, not null
    * @param redCodeHandler the extractor which will process the red code and return the required type, not null
    */
-  public AbstractCdsAggregationFunction(String name, SecuritySource securitySource, CdsValueExtractor extractor) {
+  public AbstractCdsAggregationFunction_BAK(String name, SecuritySource securitySource, RedCodeHandler<T> redCodeHandler) {
 
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(redCodeHandler, "redCodeHandler");
     _name = name;
     _securitySource = securitySource;
-    _extractor = extractor;
+    _redCodeExtractor = new CdsRedCodeExtractor<>(redCodeHandler);
   }
 
   @Override
@@ -71,14 +72,12 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
 
     Security security = resolveSecurity(position);
 
-
-    if (security instanceof AbstractCreditDefaultSwapSecurity) {
-      AbstractCreditDefaultSwapSecurity cds = (AbstractCreditDefaultSwapSecurity) security;
-      T extracted = _extractor.extract(cds);
+    if (security instanceof CreditDefaultSwapSecurity) {
+      CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
+      T extracted = _redCodeExtractor.extract(cds);
       if (extracted != null) {
+
         return handleExtractedData(extracted);
-      }else{
-        return NOT_APPLICABLE;
       }
     }
 
@@ -92,10 +91,6 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
    * @return the string which should be used as the classifier value
    */
   protected abstract String handleExtractedData(T extracted);
-
-  public SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
 
   private Security resolveSecurity(Position position) {
 
