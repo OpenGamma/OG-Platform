@@ -118,10 +118,10 @@ public class DbSecurityMaster
   }
 
   @Override
-  public void registerMetrics(MetricRegistry registry, String namePrefix) {
-    super.registerMetrics(registry, namePrefix);
-    _insertTimer = registry.timer(namePrefix + ".insert");
-    _metaDataTimer = registry.timer(namePrefix + ".metaData");
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    super.registerMetrics(summaryRegistry, detailedRegistry, namePrefix);
+    _insertTimer = summaryRegistry.timer(namePrefix + ".insert");
+    _metaDataTimer = summaryRegistry.timer(namePrefix + ".metaData");
   }
 
   //-------------------------------------------------------------------------

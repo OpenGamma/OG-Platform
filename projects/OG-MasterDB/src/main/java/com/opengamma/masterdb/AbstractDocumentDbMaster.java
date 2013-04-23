@@ -94,18 +94,18 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   @Override
-  public void registerMetrics(MetricRegistry registry, String namePrefix) {
-    _getByOidInstantsTimer = registry.timer(namePrefix + ".getByOidInstants");
-    _getByIdTimer = registry.timer(namePrefix + ".getById");
-    _historyTimer = registry.timer(namePrefix + ".history");
-    _searchTimer = registry.timer(namePrefix + ".search");
-    _addTimer = registry.timer(namePrefix + ".add");
-    _updateTimer = registry.timer(namePrefix + ".update");
-    _updateTimer = registry.timer(namePrefix + ".remove");
-    _correctTimer = registry.timer(namePrefix + ".correct");
-    _replaceVersionTimer = registry.timer(namePrefix + ".replaceVersion");
-    _replaceVersionsTimer = registry.timer(namePrefix + ".replaceVersions");
-    _replaceAllVersionsTimer = registry.timer(namePrefix + ".replaceAllVersions");
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    _getByOidInstantsTimer = summaryRegistry.timer(namePrefix + ".getByOidInstants");
+    _getByIdTimer = summaryRegistry.timer(namePrefix + ".getById");
+    _historyTimer = summaryRegistry.timer(namePrefix + ".history");
+    _searchTimer = summaryRegistry.timer(namePrefix + ".search");
+    _addTimer = summaryRegistry.timer(namePrefix + ".add");
+    _updateTimer = summaryRegistry.timer(namePrefix + ".update");
+    _updateTimer = summaryRegistry.timer(namePrefix + ".remove");
+    _correctTimer = summaryRegistry.timer(namePrefix + ".correct");
+    _replaceVersionTimer = summaryRegistry.timer(namePrefix + ".replaceVersion");
+    _replaceVersionsTimer = summaryRegistry.timer(namePrefix + ".replaceVersions");
+    _replaceAllVersionsTimer = summaryRegistry.timer(namePrefix + ".replaceAllVersions");
   }
 
   //-------------------------------------------------------------------------

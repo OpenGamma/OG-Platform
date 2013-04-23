@@ -94,7 +94,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
     
     // create
     DbSecurityMaster master = new DbSecurityMaster(getDbConnector());
-    master.registerMetrics(OpenGammaMetricRegistry.getInstance(), "DbSecurityMaster-" + getClassifier());
+    master.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "DbSecurityMaster-" + getClassifier());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }

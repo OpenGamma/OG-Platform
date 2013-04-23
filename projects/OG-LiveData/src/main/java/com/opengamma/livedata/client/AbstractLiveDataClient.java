@@ -79,10 +79,10 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
   private Meter _inboundTickMeter;
   
   @Override
-  public synchronized void registerMetrics(MetricRegistry registry, String namePrefix) {
-    _inboundTickMeter = registry.meter(namePrefix + ".ticks.count");    
+  public synchronized void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    _inboundTickMeter = summaryRegistry.meter(namePrefix + ".ticks.count");    
     // REVIEW kirk 2013-04-22 -- This might be better as a Counter.
-    registry.register(namePrefix + ".subscriptions.count", new Gauge<Integer>() {
+    summaryRegistry.register(namePrefix + ".subscriptions.count", new Gauge<Integer>() {
         @Override
         public Integer getValue() {
           return _activeSubscriptionSpecifications.size();

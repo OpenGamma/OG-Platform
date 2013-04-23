@@ -79,7 +79,7 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
     
     // create
     DbConfigMaster master = new DbConfigMaster(getDbConnector());
-    master.registerMetrics(OpenGammaMetricRegistry.getInstance(), "DbConfigMaster-" + getClassifier());
+    master.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "DbConfigMaster-" + getClassifier());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
