@@ -61,7 +61,7 @@ $.register_module({
                         // Hide the cell menu if...
                         !cell.value.logLevel                                    // always show if log exists
                         && ((cell.col === ((!primitives && !depgraph)           // Second column fixed column
-                            && (grid.meta.columns.fixed.length === 2)))
+                            && (grid.meta.columns.fixed.length === 2)) && (cell.col < 2))
                         || ((depgraph || primitives) && cell.col < 1)           // 1st column of depgraph or primitives
                         || (type === 'NODE')                                    // Is node
                         || (grid.source.blotter && cell.col > 0)                // All blotter cols other than first
