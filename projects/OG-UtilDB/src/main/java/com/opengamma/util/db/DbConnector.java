@@ -42,7 +42,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class DbConnector implements Connector {
 
-  private static final long NOW_CACHE_TTL = 500000000;
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbConnector.class);
 
   static {
@@ -76,7 +76,7 @@ public class DbConnector implements Connector {
   /**
    * The clock.
    */
-  private final DbClock _clock = new DbClock(this);
+  private final DbClock _clock;
 
   /**
    * Creates an instance.
@@ -102,6 +102,7 @@ public class DbConnector implements Connector {
     _jdbcTemplate = jdbcTemplate;
     _hibernateTemplate = hibernateTemplate;
     _transactionTemplate = transactionTemplate;
+    _clock = new DbClock(this);  // late initialization
   }
 
   //-------------------------------------------------------------------------

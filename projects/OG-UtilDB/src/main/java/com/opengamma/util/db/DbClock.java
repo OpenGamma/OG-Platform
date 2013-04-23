@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.temporal.TemporalUnit;
 
 import com.opengamma.util.OpenGammaClock;
 
@@ -27,6 +28,10 @@ class DbClock extends Clock {
    * The connector.
    */
   private final DbConnector _connector;
+  /**
+   * The timestamp precision.
+   */
+  private final TemporalUnit _precision;
   /**
    * The zone.
    */
@@ -60,6 +65,7 @@ class DbClock extends Clock {
    */
   DbClock(DbConnector connector, ZoneId zone) {
     _connector = Objects.requireNonNull(connector, "connector");
+    _precision = _connector.getDialect().getTimestampPrecision();
     _zone = zone;
     long now = System.nanoTime();
     long base = now - 2_000_000_000L;
@@ -80,7 +86,7 @@ class DbClock extends Clock {
       try {
         // recheck, as per double checked locking
         if (nowNanos - (_nowNanoTime + 1_000_000_000L) > 0 || _nowInstant == null) {
-          _nowInstant = DbDateUtils.fromSqlTimestamp(_connector.nowDb());
+          _nowInstant = DbDateUtils.fromSqlTimestamp(_connector.nowDb()).truncatedTo(_precision);
           _nowNanoTime = System.nanoTime();
           return _nowInstant;
         } else {
@@ -95,6 +101,8 @@ class DbClock extends Clock {
     try {
       nowNanos = System.nanoTime();
       long interpolate = Math.max(nowNanos - _nowNanoTime, 0);
+      int precisionNano = _precision.getDuration().getNano();
+      interpolate = (interpolate / precisionNano) * precisionNano;
       result = _nowInstant.plusNanos(interpolate);
     } finally {
       _lock.readLock().unlock();
