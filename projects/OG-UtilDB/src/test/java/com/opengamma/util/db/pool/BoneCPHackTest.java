@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.async;
+package com.opengamma.util.db.pool;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
+import com.opengamma.util.async.BlockingOperation;
 import com.opengamma.util.db.pool.BoneCPHack;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
