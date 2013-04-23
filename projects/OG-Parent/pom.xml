@@ -588,21 +588,21 @@
         <version>0.9.17</version>
       </dependency>
       <dependency>
-	<groupId>com.yammer.metrics</groupId>
-	<artifactId>metrics-core</artifactId>
-	<version>3.0.0-BETA1</version>
-	<exclusions>
-	  <exclusion>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-api</artifactId>
-	  </exclusion>
-	</exclusions>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>3.0.0-BETA1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-	<groupId>com.yammer.metrics</groupId>
-	<artifactId>metrics-logback</artifactId>
-	<version>3.0.0-BETA1</version>
-	<exclusions>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-logback</artifactId>
+        <version>3.0.0-BETA1</version>
+        <exclusions>
           <exclusion>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -611,7 +611,22 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
           </exclusion>
-	</exclusions>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-ganglia</artifactId>
+        <version>3.0.0-BETA1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Spring -->
