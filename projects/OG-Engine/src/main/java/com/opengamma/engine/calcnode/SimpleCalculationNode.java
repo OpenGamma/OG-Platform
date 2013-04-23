@@ -648,8 +648,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     if (!missing.isEmpty()) {
       for (final ValueSpecification output : missing) {
-        s_logger.debug("Function {} didn't produce required result {}", invoker, output);
-        newResults.add(new ComputedValue(output, NotCalculatedSentinel.EVALUATION_ERROR));
+        s_logger.error("Function {} didn't produce required result {}", invoker, output);
+        newResults.add(new ComputedValue(output, "")); //NotCalculatedSentinel.EVALUATION_ERROR
       }
       resultItemBuilder.withMissingOutputs(missing);
     }
