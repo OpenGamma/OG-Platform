@@ -17,9 +17,12 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -73,7 +76,12 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
       String redCode = ((CreditDefaultSwapSecurity) underlying).getReferenceEntity().getValue();
       Organization organisation = _organizationSource.getOrganizationByRedCode(redCode);
       return organisation.getObligor().getObligorShortName();
-    } else if (security instanceof AbstractCreditDefaultSwapSecurity) {
+
+    } else if (security instanceof CreditDefaultSwapIndexSecurity) {
+      CreditDefaultSwapIndexSecurity cdsIndex = (CreditDefaultSwapIndexSecurity) security;
+      final CreditDefaultSwapIndexDefinitionSecurity definition = (CreditDefaultSwapIndexDefinitionSecurity) _securitySource.getSingle(ExternalIdBundle.of(cdsIndex.getReferenceEntity()));
+      return definition.getName();
+    } else if (security instanceof CreditDefaultSwapSecurity) {
       AbstractCreditDefaultSwapSecurity cds = (AbstractCreditDefaultSwapSecurity) security;
       String redCode = cds.getReferenceEntity().getValue();
       Organization organisation = _organizationSource.getOrganizationByRedCode(redCode);
