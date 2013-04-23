@@ -98,6 +98,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(CurrencyPairsFunction.class));
     functions.add(functionConfiguration(DV01Function.class));
     functions.add(functionConfiguration(NotionalFunction.class));
+    functions.add(functionConfiguration(QuantityFunction.class));
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
     addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
