@@ -55,12 +55,12 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
         throw new OpenGammaRuntimeException("Can currently only use this code for credit spread strips");
       }
     }
-    return new CurveSpecification(curveDate, curveName, curveDefinition, securities);
+    return new CurveSpecification(curveDate, curveName, securities);
 
   }
 
   private CurveNodeIdMapper getBuilderConfig(final Instant valuationTime, final Map<String, CurveNodeIdMapper> cache, final String curveSpecificationName) {
-    Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
+    final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     CurveNodeIdMapper builderSpecDoc = cache.get(curveSpecificationName);
     if (builderSpecDoc != null) {
       return builderSpecDoc;
