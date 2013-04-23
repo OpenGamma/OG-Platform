@@ -13,6 +13,20 @@ $.register_module({
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
             width,
             mapping = og.common.gadgets.mapping;
+        var hide_menu = function (grid, cell) {
+            var depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
+                portfolio = !depgraph && !primitives, blotter = !!grid.source.blotter;
+            if (!!cell.value.logLevel) return false;                                    // always show if log exists
+            if (cell.right > grid.elements.parent.width()) return true;                 // end of the cell not visible
+            if (blotter && cell.col) return true;                                       // all blotter cols except 1st
+            if (cell.type === 'NODE') return true;                                      // is node
+            if (!portfolio && cell.col === 0) return true;                              // 1st column of non-portfolio
+            if ((depgraph && ~mapping.depgraph_blacklist.indexOf(cell.type)))           // unsupported type on depgraph
+                return true;
+            if (portfolio && cell.col === 1 && grid.meta.columns.fixed.length === 2)    // 2nd fixed column
+                return true;
+            return false;                                                               // OTHERWISE: show cell menu
+        };
         var constructor = function (grid) {
             var cellmenu = this, depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
                 parent = grid.elements.parent, inplace_config, timer, singlepanel = og.analytics.containers.initialize;
@@ -53,21 +67,10 @@ $.register_module({
                 });
                 grid.on('cellhoverin', function (cell) {
                     if (cellmenu.frozen || cellmenu.busy()) return;
-                    var type = cell.type, hide;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
                     cellmenu.current = cell;
-                    hide =
-                        // Hide the cell menu if...
-                        !cell.value.logLevel                                    // always show if log exists
-                        && ((cell.col === ((!primitives && !depgraph)           // Second column fixed column
-                            && (grid.meta.columns.fixed.length === 2)) && (cell.col < 2))
-                        || ((depgraph || primitives) && cell.col < 1)           // 1st column of depgraph or primitives
-                        || (type === 'NODE')                                    // Is node
-                        || (grid.source.blotter && cell.col > 0)                // All blotter cols other than first
-                        || (cell.right > parent.width())                        // End of the cell not visible
-                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type))); // Unsupported type on depgraph
-                    if (hide) cellmenu.hide(); else cellmenu.show();
+                    if (hide_menu(grid, cell)) cellmenu.hide(); else cellmenu.show();
                 })
                 .on('cellhoverout', function () {
                     clearTimeout(timer);
