@@ -164,17 +164,17 @@ public class ViewportResultsJsonWriter {
     List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
     for (Object historyValue : history) {
       Object formattedValue = _formatter.format(historyValue, cellValueSpec, TypeFormatter.Format.HISTORY, inlineKey);
-      if (formattedValue != null) {
+      if (formattedValue != ResultsFormatter.VALUE_UNAVAILABLE) {
         formattedHistory.add(formattedValue);
       }
     }
     // it's possible for an object to have history but not to have any formatted history if it's inlined. some inline
     // keys won't have a value for some inlined results. in that case the cell will have empty history although
     // there is history for the underlying value
-    if (!formattedHistory.isEmpty()) {
-      return formattedHistory;
-    } else {
+    if (formattedHistory.isEmpty()) {
       return null;
+    } else {
+      return formattedHistory;
     }
   }
 }

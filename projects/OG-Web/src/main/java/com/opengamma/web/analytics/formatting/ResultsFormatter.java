@@ -19,6 +19,23 @@ import com.opengamma.web.analytics.ValueTypes;
  */
 public class ResultsFormatter {
 
+  /**
+   * Marker value returned to indicate there is no formatted value available for a combination of value, formatter
+   * and inline key. This can happen for cells displaying inline values where the underlying value has no entry
+   * for the column's key. It is also possible for complex values (e.g. vectors) where the history is stored
+   * but can only be formatted when displayed inline as single values.
+   */
+  public static final Object VALUE_UNAVAILABLE = new Object() {
+
+    /**
+     * @return An empty string - this means the grid shows an empty cell for an unavailable value.
+     */
+    @Override
+    public String toString() {
+      return "";
+    }
+  };
+
   private static final Logger s_logger = LoggerFactory.getLogger(ResultsFormatter.class);
 
   /** For formatting null values. */
@@ -136,6 +153,17 @@ public class ResultsFormatter {
     return value instanceof MissingInput;
   }
 
+  /**
+   * Formats a value for conversion to JSON and sending to the client.
+   * @param value The value to be formatted, possibly null
+   * @param valueSpec The specification of the value, null if the value wasn't calculated by the engine
+   * @param format The type of formatting
+   * @param inlineKey The key for extracting a single value from the value, possibly null. This is used for values
+   * that can be displayed inline across multiple cells, e.g. vectors of doubles that are displayed across multiple
+   * columns of double values.
+   * @return The formatted value. Can be null (indicating an error) or {@link #VALUE_UNAVAILABLE} if the object
+   * can't be formatted as requested or if the value doesn't have an entry for the specified key.
+   */
   @SuppressWarnings("unchecked")
   public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Object inlineKey) {
     TypeFormatter formatter = getFormatter(value, valueSpec);

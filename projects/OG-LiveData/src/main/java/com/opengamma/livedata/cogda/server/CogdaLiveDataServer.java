@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -40,6 +39,9 @@ import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.metric.MetricProducer;
+import com.yammer.metrics.Meter;
+import com.yammer.metrics.MetricRegistry;
 
 /**
  * The base server process for any Cogda Live Data Server.
@@ -56,7 +58,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * Because the {@link UserSource} will be hit for every authorization question, it is <strong>critical</strong>
  * that the source caches requests in some form.
  */
-public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionReceiver, Lifecycle {
+public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionReceiver, Lifecycle, MetricProducer {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaLiveDataServer.class);
@@ -74,9 +76,11 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
   private final Set<CogdaClientConnection> _clients = new CopyOnWriteArraySet<CogdaClientConnection>();
   // TODO kirk 2012-07-23 -- This is absolutely the wrong executor here.
   private final Executor _valueUpdateSendingExecutor = Executors.newFixedThreadPool(5);
-  private final AtomicLong _ticksReceived = new AtomicLong(0L);
   private UserSource _userSource;
   private boolean _checkPassword = true;
+  
+  // Metrics:
+  private Meter _tickMeter = new Meter();
   
   public CogdaLiveDataServer(LastKnownValueStoreProvider lkvStoreProvider) {
     this(lkvStoreProvider, OpenGammaFudgeContext.getInstance());
@@ -88,6 +92,11 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
     _lastKnownValueStoreProvider = lkvStoreProvider;
     _connectionReceiver = new ServerSocketFudgeConnectionReceiver(fudgeContext, this);
     _connectionReceiver.setLazyFudgeMsgReads(false);
+  }
+
+  @Override
+  public synchronized void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    _tickMeter = summaryRegistry.meter(namePrefix + ".ticks");
   }
 
   /**
@@ -177,7 +186,7 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
   }
   
   public void liveDataReceived(LiveDataValueUpdate valueUpdate) {
-    _ticksReceived.incrementAndGet();
+    _tickMeter.mark();
     
     // REVIEW kirk 2013-03-27 -- Does this loop need to be done in an executor
     // task or something? If nothing else, connection.liveDataReceived() can
@@ -271,10 +280,6 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
 
   public int getNumClients() {
     return _clients.size();
-  }
-  
-  public long getNumTicksReceived() {
-    return _ticksReceived.get();
   }
   
   public Set<String> getActiveUsers() {

@@ -102,9 +102,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   }
 
   @Override
-  public void registerMetrics(MetricRegistry registry, String namePrefix) {
-    super.registerMetrics(registry, namePrefix);
-    _insertTimer = registry.timer(namePrefix + ".insert");
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    super.registerMetrics(summaryRegistry, detailedRegistry, namePrefix);
+    _insertTimer = summaryRegistry.timer(namePrefix + ".insert");
   }
 
   //-------------------------------------------------------------------------
