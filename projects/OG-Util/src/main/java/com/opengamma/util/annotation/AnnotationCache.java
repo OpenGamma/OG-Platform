@@ -93,7 +93,6 @@ public final class AnnotationCache {
    * Returns the classes from the cache that contain function annotations.
    * 
    * @return the classes
-   * @throws ClassNotFoundException if entries in the cache are invalid
    */
   public Collection<Class<?>> getClasses() {
     if (getClassNames().isEmpty()) {
