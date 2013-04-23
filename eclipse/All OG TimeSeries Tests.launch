@@ -12,10 +12,11 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.timeseries"/>
-<listEntry value="com.opengamma.timeseries.fast.integer"/>
-<listEntry value="com.opengamma.timeseries.fast.longint"/>
-<listEntry value="com.opengamma.timeseries.object"/>
-<listEntry value="com.opengamma.timeseries.yearoffset"/>
+<listEntry value="com.opengamma.timeseries.date"/>
+<listEntry value="com.opengamma.timeseries.date.localdate"/>
+<listEntry value="com.opengamma.timeseries.precise"/>
+<listEntry value="com.opengamma.timeseries.precise.instant"/>
+<listEntry value="com.opengamma.timeseries.precise.zdt"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>

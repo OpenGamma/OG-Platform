@@ -30,7 +30,7 @@ $.register_module({
                             if (!req.term || val && matcher.test(val)) acc.push({label: htmlize(val)});
                             return acc;
                         }, []));
-                    }
+                    } else $('input', '.og-view.og-autocombo').removeClass('ui-autocomplete-loading');
                 });
             };
         };

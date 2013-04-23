@@ -142,14 +142,18 @@ $.register_module({
             var clean_up = function (grid) {
                 $('.' + line).remove();
                 $(document).off(namespace);
-                grid.selector.clear();
             };
             var mousemove = function (grid, event) {
                 $('.' + line).css({left: Math.max(event.pageX - 3, (start_left - start_width) + min_size)});
             };
             var mouseup = function (grid, event) {
+                var new_width = Math.max(min_size, start_width + (event.pageX - start_left)),
+                    selection = grid.selector.selection();
                 clean_up(grid);
-                grid.state.col_override[index] = Math.max(min_size, start_width + (event.pageX - start_left));
+                if (selection && ~selection.cols.indexOf(index))
+                    selection.cols.forEach(function (col) {grid.state.col_override[col] = new_width;});
+                else
+                    grid.state.col_override[index] = new_width;
                 grid.resize();
             };
             return function (event, $target) {
@@ -282,12 +286,14 @@ $.register_module({
                     if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
                     if (0 === cell.col && grid.state.nodes[has](cell.row))
                         return new og.analytics.NodeMenu(grid, cell, event).display();
+                    return false;
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
                     var col = cell.col, columns = grid.meta.columns;
-                    return grid.fire('contextmenu', event, null, ['description', 'header', 'type']
+                    grid.fire('contextmenu', event, null, ['description', 'header', 'type']
                         .reduce(function (acc, key) {return (acc[key] = columns[key + 's'][col]), acc;}, {col: col}));
+                    return false;
                 })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
                     in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
@@ -460,11 +466,8 @@ $.register_module({
                 return result;
             };
             return function (data, loading) { // TODO handle scenario where grid was busy when data stopped ticking
-                var grid = this, meta = grid.meta, reorder;
+                var grid = this, meta = grid.meta;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
-                reorder = meta.viewport.cols.slice(1).reduce(function (acc, val) {
-                    return (acc.value = acc.value || val < acc.last), (acc.last = val), acc;
-                }, {last: meta.viewport.cols[0], value: false}).value;
                 grid.data = data;
                 grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body
@@ -598,6 +601,14 @@ $.register_module({
                 row_value: grid.data[data_index - col_index].v
             };
         };
+        Grid.prototype.cell_coords = function (row, col) {
+            var grid = this, meta = grid.meta, state = grid.state, top, bottom, left, right;
+            top = state.available.indexOf(row) * meta.row_height;
+            bottom = top + meta.row_height;
+            left = col ? meta.columns.scan.all[col - 1] : 0;
+            right = left + meta.columns.widths[col];
+            return {top: top, bottom: bottom, left: left, right: right};
+        };
         Grid.prototype.col_widths = function () {
             var grid = this, state = grid.state, meta = grid.meta, avg_col_width, fixed_width,
                 fixed_cols = meta.columns.fixed, scroll_cols = meta.columns.scroll, scroll_data_width,
@@ -720,6 +731,7 @@ $.register_module({
             if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
             else sheet.appendChild(document.createTextNode(css));
             grid.offset = grid.elements.parent.offset();
+            grid.fire('resize');
             return viewport.call(grid, render_header);
         };
         Grid.prototype.toggle = function (bool) {

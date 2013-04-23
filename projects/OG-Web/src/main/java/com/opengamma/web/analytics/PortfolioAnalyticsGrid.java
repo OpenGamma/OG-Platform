@@ -42,6 +42,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   /* package */ PortfolioAnalyticsGrid withUpdatedStructure(ResultsCache cache) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(cache);
     // TODO this smells bad but avoids throwing away any viewports, depgraphs etc
+    // TODO implement equals()?
     if (updatedStructure == _gridStructure) {
       return this;
     } else {

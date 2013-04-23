@@ -16,9 +16,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestGroup;
 
@@ -32,28 +30,14 @@ public class SimpleHistoricalTimeSeriesFudgeEncodingTest {
   private static final double[] VALUES = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
   private static final LocalDate[] TIMES = testTimes();
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-  
+
   @Test
-  public void test_cycling_array() {
+  public void test_cycling() {
     SimpleHistoricalTimeSeries simpleHistoricalTimeSeries = new SimpleHistoricalTimeSeries(UID, 
-        new ArrayLocalDateDoubleTimeSeries(TIMES, VALUES));
+        ImmutableLocalDateDoubleTimeSeries.of(TIMES, VALUES));
     cycleTimeSeries(simpleHistoricalTimeSeries);
   }
-  
-  @Test
-  public void test_cycling_list() {
-    SimpleHistoricalTimeSeries simpleHistoricalTimeSeries = new SimpleHistoricalTimeSeries(UID, 
-        new ListLocalDateDoubleTimeSeries(TIMES, VALUES));
-    cycleTimeSeries(simpleHistoricalTimeSeries);
-  }
-  
-  @Test
-  public void test_cycling_map() {
-    SimpleHistoricalTimeSeries simpleHistoricalTimeSeries = new SimpleHistoricalTimeSeries(UID, 
-        new MapLocalDateDoubleTimeSeries(TIMES, VALUES));
-    cycleTimeSeries(simpleHistoricalTimeSeries);
-  }
-  
+
   private void cycleTimeSeries(final SimpleHistoricalTimeSeries original) {
     FudgeMsgEnvelope msgEnvelope = _fudgeContext.toFudgeMsg(original);
     assertNotNull(msgEnvelope);

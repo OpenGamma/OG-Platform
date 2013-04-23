@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.api.common',
     dependencies: [],
     obj: function () {
-        var module = this, common, warn = og.dev.warn, MAX_INT = Math.pow(2, 31) - 1, request_id = 1,
-            has = 'hasOwnProperty', cache = window['sessionStorage'];
+        var module = this, common, warn = og.dev.warn, MAX_INT = Math.pow(2, 31) - 1, PAGE = 1, PAGE_SIZE = 50,
+            request_id = 1, has = 'hasOwnProperty', cache = window['sessionStorage'];
         /** @ignore */
         var check_dependencies = function (bundle, dependencies) {
             var config = bundle.config, method = bundle.method, self = 'check_dependencies';
@@ -57,13 +57,19 @@ $.register_module({
                         obj.or.join(' & ') + '} must exist');
             });
         };
-        var str = function (val) {
+        var not_available = function (method) {
+            throw new Error(this.root + '#' + method + ' does not exist in the REST API');
+        };
+        var not_implemented = function (method) {
+            throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
+        };
+        var str = function (val) { // convert all incoming params into strings (eg, 0 ought to be truthy, not falsey)
             return val === void 0 ? ''
                 : $.isArray(val) ? val.join('\n')
                     : typeof val === 'object' ? JSON.stringify(val)
                         : '' + val;
         };
-        return common = {
+        common = {
             cache_clear: function (prefix) {
                 try { // if cache is restricted, bail
                     if (!prefix) return cache.clear();
@@ -108,13 +114,17 @@ $.register_module({
                         return (params.bundle.config[has](val)) && (acc[val] = params.bundle.config[val]), acc;
                     }, {type: 'GET'});
             },
+            INSTANT: 0, /* 0ms */
             loading_end: function () {/*global ajax loading events end here*/},
             loading_start: function (loading_method) {
                 if (loading_method) loading_method();
                 /*global ajax loading events start here*/
             },
-            PAGE: 1,
-            PAGE_SIZE: 50,
+            paginate: function (config) {
+                var from = str(config.from), to = str(config.to);
+                return from ? {'pgIdx': from, 'pgSze': to ? +to - +from : str(config.page_size) || PAGE_SIZE}
+                    : {'pgSze': str(config.page_size) || PAGE_SIZE, 'pgNum': str(config.page) || PAGE};
+            },
             Promise: function () {
                 var deferred = new $.Deferred, promise = deferred.promise();
                 promise.abort = function () {return og.api.rest.abort(promise), promise;};
@@ -122,7 +132,18 @@ $.register_module({
                 promise.id = ++request_id;
                 return promise;
             },
+            request_expired: function (request, current) {
+                return (current.page !== request.current.page) || request.dependencies.some(function (field) {
+                    return current.args[field] !== request.current.args[field];
+                });
+            },
+            STALL: 500, /* 500ms */
             str: str
         };
+        ['del', 'get', 'put'].forEach(function (val) {
+            common['not_available_' + val] = not_available.partial(val);
+            common['not_implemented_' + val] = not_implemented.partial(val);
+        });
+        return common;
     }
 });

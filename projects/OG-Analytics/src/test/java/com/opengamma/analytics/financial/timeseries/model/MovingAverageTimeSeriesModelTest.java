@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesSta
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

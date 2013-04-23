@@ -26,13 +26,11 @@ import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -71,7 +69,6 @@ public class AnalyticsViewManager {
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
-                              MarketDataSnapshotMaster snapshotMaster,
                               ComputationTargetResolver targetResolver,
                               NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
                               BlotterColumnMapper blotterColumnMapper,
@@ -82,7 +79,6 @@ public class AnalyticsViewManager {
                               PositionMaster positionMaster) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMapper");
@@ -104,14 +100,6 @@ public class AnalyticsViewManager {
     _positionMaster = positionMaster;
     // TODO something more sophisticated / configurable here
     _portfolioResolutionExecutor = Executors.newFixedThreadPool(4);
-  }
-
-  protected NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
-    return _marketDataSpecificationRepository;
-  }
-
-  protected ExecutionFlags.ParallelRecompilationMode getParallelViewRecompilation() {
-    return _parallelViewRecompilation;
   }
 
   /**
@@ -141,18 +129,12 @@ public class AnalyticsViewManager {
     VersionCorrection versionCorrection = request.getPortfolioVersionCorrection();
     // this can be null for a primitives-only view
     UniqueId portfolioId = viewDef.getPortfolioId();
-    Portfolio portfolio;
     Supplier<Portfolio> portfolioSupplier;
     ObjectId portfolioObjectId;
-    Portfolio resolvedPortfolio;
     if (portfolioId != null) {
       portfolioObjectId = portfolioId.getObjectId();
-      // TODO confirm the correct versioning behaviour
-      portfolio = _positionSource.getPortfolio(portfolioObjectId, VersionCorrection.LATEST);
-      resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio, _portfolioResolutionExecutor, _securitySource);
     } else {
       portfolioObjectId = null;
-      resolvedPortfolio = null;
     }
     portfolioSupplier = new PortfolioSupplier(portfolioObjectId,
                                               versionCorrection,
@@ -165,7 +147,8 @@ public class AnalyticsViewManager {
     ViewportListener viewportListener = new LoggingViewportListener(viewClient);
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
-    AnalyticsView view = new SimpleAnalyticsView(resolvedPortfolio,
+    boolean primitivesOnly = portfolioId == null;
+    AnalyticsView view = new SimpleAnalyticsView(primitivesOnly,
                                                  versionCorrection,
                                                  viewId,
                                                  portfolioGridId,
@@ -183,8 +166,13 @@ public class AnalyticsViewManager {
     AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, timingView);
     AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, timingView, _positionSource);
     List<AutoCloseable> listeners = Lists.newArrayList(securityListener, positionListener, portfolioListener);
-    AnalyticsViewClientConnection connection =
-        new AnalyticsViewClientConnection(this, request, aggregatedViewDef, viewClient, timingView, listeners);
+    AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
+                                                                                 aggregatedViewDef,
+                                                                                 viewClient,
+                                                                                 timingView,
+                                                                                 listeners,
+                                                                                 _parallelViewRecompilation,
+                                                                                 _marketDataSpecificationRepository);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView
@@ -201,6 +189,7 @@ public class AnalyticsViewManager {
   public void deleteView(String viewId) {
     AnalyticsViewClientConnection connection = _viewConnections.remove(viewId);
     if (connection == null) {
+      s_logger.debug("Received request to delete unknown view ID {}", viewId);
       throw new DataNotFoundException("No view found with ID " + viewId);
     }
     s_logger.debug("Closing view with ID {}", viewId);
@@ -216,6 +205,7 @@ public class AnalyticsViewManager {
   public AnalyticsView getView(String viewId) {
     AnalyticsViewClientConnection connection = _viewConnections.get(viewId);
     if (connection == null) {
+      s_logger.debug("Received request for unknown view ID {}", viewId);
       throw new DataNotFoundException("No view found with ID " + viewId);
     }
     return connection.getView();

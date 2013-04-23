@@ -307,7 +307,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   /**
    * Generic message for unsupported methods in FinancialSecurityVisitor implementations
-   * 
+   *
    * @param clazz the implementation class, not null
    * @param security the financial security, not null
    * @return the message, not null;
@@ -444,6 +444,27 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
+
+    public Builder<T> creditDefaultSwapOptionSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return visitor.visitCreditDefaultSwapOptionSecurity(security);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> creditDefaultSwapIndexSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return visitor.visitCreditDefaultSwapIndexSecurity(security);
+        }
+      };
+      return this;
+    }
+
 
     public Builder<T> equityIndexDividendFutureOptionVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
@@ -1294,6 +1315,26 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> creditDefaultSwapOptionSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> creditDefaultSwapIndexSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
     public Builder<T> futureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -1615,6 +1656,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
         @Override
         public T visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
           return value;
         }
       };

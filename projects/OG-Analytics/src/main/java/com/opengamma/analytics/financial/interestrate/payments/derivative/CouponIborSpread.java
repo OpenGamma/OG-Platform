@@ -47,8 +47,6 @@ public class CouponIborSpread extends CouponFloating {
    */
   private final String _forwardCurveName;
 
-  //TODO: Should the spread be in CouponIbor or in a more generic coupon?
-
   /**
    * Constructor from all details.
    * @param currency The payment currency.

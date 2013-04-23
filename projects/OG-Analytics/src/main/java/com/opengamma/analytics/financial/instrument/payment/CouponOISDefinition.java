@@ -12,7 +12,6 @@ import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -27,7 +26,8 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -177,7 +177,12 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     }
 
     // FIXME Historical time series do not have time information to begin with.
-    final LocalDateDoubleTimeSeries indexFixingDateSeries = indexFixingTimeSeries.toDateDoubleTimeSeries().toLocalDateDoubleTimeSeries(ZoneOffset.UTC);
+    ZonedDateTime[] instants = indexFixingTimeSeries.timesArray();
+    LocalDate[] dates = new LocalDate[indexFixingTimeSeries.size()];
+    for (int i = 0; i < instants.length; i++) {
+      dates[i] = instants[i].toLocalDate();
+    }
+    final LocalDateDoubleTimeSeries indexFixingDateSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, indexFixingTimeSeries.valuesArray());
 
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;

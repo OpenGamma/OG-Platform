@@ -49,6 +49,8 @@ import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.Paging;
+import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.Timer;
 
 /**
  * A holiday master implementation using a database for persistence.
@@ -85,6 +87,13 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     ORDER_BY_MAP.put(HolidaySearchSortOrder.NAME_DESC, "name DESC");
   }
 
+  // -----------------------------------------------------------------
+  // TIMERS FOR METRICS GATHERING
+  // By default these do nothing. Registration will replace them
+  // so that they actually do something.
+  // -----------------------------------------------------------------
+  private Timer _insertTimer = new Timer();
+  
   /**
    * Creates an instance.
    * 
@@ -93,6 +102,12 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   public DbHolidayMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbHolidayMaster.class));
+  }
+
+  @Override
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    super.registerMetrics(summaryRegistry, detailedRegistry, namePrefix);
+    _insertTimer = summaryRegistry.timer(namePrefix + ".insert");
   }
 
   //-------------------------------------------------------------------------
@@ -175,7 +190,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
     final String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new HolidayDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new HolidayDocumentExtractor(), result);
     return result;
   }
 
@@ -240,57 +255,61 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       default:
         throw new IllegalArgumentException("Holiday type not set");
     }
-    final long docId = nextId("hol_holiday_seq");
-    final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
-    // the arguments for inserting into the holiday table
-    final ManageableHoliday holiday = document.getHoliday();
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-      .addValue("doc_id", docId)
-      .addValue("doc_oid", docOid)
-      .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-      .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-      .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-      .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", document.getName())
-      .addValue("provider_scheme",
-          document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null,
-          Types.VARCHAR)
-      .addValue("provider_value",
-          document.getProviderId() != null ? document.getProviderId().getValue() : null,
-          Types.VARCHAR)
-      .addValue("hol_type", holiday.getType().name())
-      .addValue("region_scheme",
-          holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getScheme().getName() : null,
-          Types.VARCHAR)
-      .addValue("region_value",
-          holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getValue() : null,
-          Types.VARCHAR)
-      .addValue("exchange_scheme",
-          holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getScheme().getName() : null,
-          Types.VARCHAR)
-      .addValue("exchange_value",
-          holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null,
-          Types.VARCHAR)
-      .addValue("currency_iso",
-          holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null,
-          Types.VARCHAR);
-    // the arguments for inserting into the date table
-    final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
-    for (LocalDate date : holiday.getHolidayDates()) {
-      final DbMapSqlParameterSource dateArgs = new DbMapSqlParameterSource()
+    
+    try (Timer.Context context = _insertTimer.time()) {
+      final long docId = nextId("hol_holiday_seq");
+      final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
+      // the arguments for inserting into the holiday table
+      final ManageableHoliday holiday = document.getHoliday();
+      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
-        .addDate("hol_date", date);
-      dateList.add(dateArgs);
+        .addValue("doc_oid", docOid)
+        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+        .addValue("name", document.getName())
+        .addValue("provider_scheme",
+            document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null,
+            Types.VARCHAR)
+        .addValue("provider_value",
+            document.getProviderId() != null ? document.getProviderId().getValue() : null,
+            Types.VARCHAR)
+        .addValue("hol_type", holiday.getType().name())
+        .addValue("region_scheme",
+            holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getScheme().getName() : null,
+            Types.VARCHAR)
+        .addValue("region_value",
+            holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getValue() : null,
+            Types.VARCHAR)
+        .addValue("exchange_scheme",
+            holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getScheme().getName() : null,
+            Types.VARCHAR)
+        .addValue("exchange_value",
+            holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null,
+            Types.VARCHAR)
+        .addValue("currency_iso",
+            holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null,
+            Types.VARCHAR);
+      // the arguments for inserting into the date table
+      final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
+      for (LocalDate date : holiday.getHolidayDates()) {
+        final DbMapSqlParameterSource dateArgs = new DbMapSqlParameterSource()
+          .addValue("doc_id", docId)
+          .addDate("hol_date", date);
+        dateList.add(dateArgs);
+      }
+      final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+      final String sqlDate = getElSqlBundle().getSql("InsertDate");
+      getJdbcTemplate().update(sqlDoc, docArgs);
+      getJdbcTemplate().batchUpdate(sqlDate, dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
+      // set the uniqueId
+      final UniqueId uniqueId = createUniqueId(docOid, docId);
+      holiday.setUniqueId(uniqueId);
+      document.setUniqueId(uniqueId);
+      return document;
     }
-    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
-    final String sqlDate = getElSqlBundle().getSql("InsertDate");
-    getJdbcTemplate().update(sqlDoc, docArgs);
-    getJdbcTemplate().batchUpdate(sqlDate, dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
-    // set the uniqueId
-    final UniqueId uniqueId = createUniqueId(docOid, docId);
-    holiday.setUniqueId(uniqueId);
-    document.setUniqueId(uniqueId);
-    return document;
+    
   }
 
   //-------------------------------------------------------------------------

@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.target;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -50,7 +50,7 @@ public class PrimitiveComputationTargetType<T extends UniqueIdentifiable> extend
     }
 
     @Override
-    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
       return _resolver.resolveExternalIds(identifiers, versionCorrection);
     }
 
@@ -60,7 +60,7 @@ public class PrimitiveComputationTargetType<T extends UniqueIdentifiable> extend
     }
 
     @Override
-    public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
       return _resolver.resolveObjectIds(identifiers, versionCorrection);
     }
 
@@ -90,6 +90,11 @@ public class PrimitiveComputationTargetType<T extends UniqueIdentifiable> extend
   @Override
   public T resolveObject(final UniqueId identifier, final VersionCorrection versionCorrection) {
     return _resolver.resolveObject(identifier, versionCorrection);
+  }
+
+  @Override
+  public boolean isDeepResolver() {
+    return _resolver.isDeepResolver();
   }
 
   @Override

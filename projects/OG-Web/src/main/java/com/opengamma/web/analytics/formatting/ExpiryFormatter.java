@@ -23,8 +23,8 @@ import com.opengamma.util.time.Expiry;
   }
 
   @Override
-  public Object formatCell(Expiry value, ValueSpecification valueSpec) {
-    return _zonedDateTimeFormatter.formatCell(value.getExpiry(), valueSpec);
+  public Object formatCell(Expiry value, ValueSpecification valueSpec, Object inlineKey) {
+    return _zonedDateTimeFormatter.formatCell(value.getExpiry(), valueSpec, inlineKey);
   }
 
   @Override

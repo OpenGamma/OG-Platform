@@ -45,13 +45,4 @@ public class CogdaDataDistributorMBean {
     }
   }
 
-  @ManagedAttribute(description = "The number of ticks received since restart.")
-  public long getNumTicksReceived() {
-    try {
-      return getDistributor().getNumTicksReceived();
-    } catch (RuntimeException e) {
-      s_logger.error("getNumTicksReceived() failed", e);
-      throw new RuntimeException(e.getMessage());
-    }
-  }
 }

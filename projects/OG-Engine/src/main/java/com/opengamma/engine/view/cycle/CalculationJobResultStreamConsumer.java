@@ -139,7 +139,7 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
     } catch (InterruptedException e) {
       s_logger.debug("Interrupted while waiting for computation job results");
       Thread.interrupted();
-      terminate();
+      super.terminate();
     }
   }
 

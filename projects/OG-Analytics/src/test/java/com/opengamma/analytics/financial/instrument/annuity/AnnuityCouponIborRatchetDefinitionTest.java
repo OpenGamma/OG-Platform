@@ -31,7 +31,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -144,7 +144,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void toDerivativesFixingNotUsed() {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         FIRST_CPN_RATE, MAIN_COEF, FLOOR_COEF, CAP_COEF);
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {REFERENCE_DATE }, new double[] {0.0 });
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(REFERENCE_DATE, 0.0);
     final AnnuityCouponIborRatchet annuity = annuityDefinition.toDerivative(REFERENCE_DATE, fixingTS, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
@@ -161,7 +161,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void toDerivativesIborNotFixed() {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         MAIN_COEF, FLOOR_COEF, CAP_COEF);
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {REFERENCE_DATE.minusDays(1) }, new double[] {0.02 });
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(REFERENCE_DATE.minusDays(1), 0.02);
     final AnnuityCouponIborRatchet annuity = annuityDefinition.toDerivative(REFERENCE_DATE, fixingTS, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     cpn[0] = ((CouponIborGearingDefinition) annuityDefinition.getNthPayment(0)).toDerivative(REFERENCE_DATE, fixingTS, CURVES_NAMES);
@@ -181,7 +181,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void toDerivativesIborFixed() {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         MAIN_COEF, FLOOR_COEF, CAP_COEF);
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {REFERENCE_DATE }, new double[] {0.02 });
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(REFERENCE_DATE, 0.02);
     final AnnuityCouponIborRatchet annuity = annuityDefinition.toDerivative(REFERENCE_DATE, fixingTS, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     cpn[0] = ((CouponIborGearingDefinition) annuityDefinition.getNthPayment(0)).toDerivative(REFERENCE_DATE, fixingTS, CURVES_NAMES);
@@ -203,7 +203,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         FIRST_CPN_RATE, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     final double fixing = 0.01;
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 12, 5) }, new double[] {fixing });
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(2011, 12, 5), fixing);
     final Annuity<Coupon> annuity = annuityDefinition.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON - 1];
     double rate = MAIN_COEF[0] * FIRST_CPN_RATE + MAIN_COEF[1] * fixing + MAIN_COEF[2];

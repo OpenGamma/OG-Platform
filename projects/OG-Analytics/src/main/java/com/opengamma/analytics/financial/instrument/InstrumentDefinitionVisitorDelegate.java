@@ -58,6 +58,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
@@ -69,6 +71,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -352,6 +357,8 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
     return _delegate.visitBondFutureOptionPremiumTransactionDefinition(bond);
   }
 
+  // -----     Payment and coupon     -----
+
   @Override
   public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final DATA_TYPE data) {
     return _delegate.visitPaymentFixedDefinition(payment, data);
@@ -483,6 +490,36 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment) {
+    return _delegate.visitCouponArithmeticAverageONDefinition(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONSpreadDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment) {
+    return _delegate.visitCouponArithmeticAverageONSpreadDefinition(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONSpreadSimplifiedDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
+    return _delegate.visitCouponArithmeticAverageONSpreadSimplifiedDefinition(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponCMSDefinition(payment, data);
   }
@@ -511,6 +548,8 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
     return _delegate.visitCapFloorCMSSpreadDefinition(payment);
   }
+
+  // -----     Annuity     -----
 
   @Override
   public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final DATA_TYPE data) {
@@ -690,6 +729,26 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitCapFloorInflationZeroCouponMonthlyDefinition(final CapFloorInflationZeroCouponMonthlyDefinition coupon) {
     return _delegate.visitCapFloorInflationZeroCouponMonthlyDefinition(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearInterpolationDefinition(final CapFloorInflationYearOnYearInterpolationDefinition coupon, final DATA_TYPE data) {
+    return _delegate.visitCapFloorInflationYearOnYearInterpolationDefinition(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearInterpolationDefinition(final CapFloorInflationYearOnYearInterpolationDefinition coupon) {
+    return _delegate.visitCapFloorInflationYearOnYearInterpolationDefinition(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearMonthlyDefinition(final CapFloorInflationYearOnYearMonthlyDefinition coupon, final DATA_TYPE data) {
+    return _delegate.visitCapFloorInflationYearOnYearMonthlyDefinition(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearMonthlyDefinition(final CapFloorInflationYearOnYearMonthlyDefinition coupon) {
+    return _delegate.visitCapFloorInflationYearOnYearMonthlyDefinition(coupon);
   }
 
   @Override

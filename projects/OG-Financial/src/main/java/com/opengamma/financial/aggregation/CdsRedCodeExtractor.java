@@ -10,13 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.obligor.definition.Obligor;
-import com.opengamma.core.organization.Organization;
-import com.opengamma.core.organization.OrganizationSource;
-import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class uses an organization source to extract the Obligor from a CDS.
@@ -40,7 +35,7 @@ public class CdsRedCodeExtractor<T> {
    * @param cds the CDS to extract the RED code  from
    * @return the RED code if found, null otherwise
    */
-  public T extract(CreditDefaultSwapSecurity cds) {
+  public T extract(AbstractCreditDefaultSwapSecurity cds) {
 
     ExternalId refEntityId = cds.getReferenceEntity();
     if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {

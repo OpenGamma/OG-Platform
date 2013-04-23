@@ -14,7 +14,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.threeten:threetenbp:0.8.1" level="project" />
-    <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:6.4.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.testng:testng:6.3.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: junit:junit:3.8.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.beanshell:bsh:2.0b4" level="project" />

@@ -45,6 +45,7 @@ public final class CreditDefaultSwapIndexDefinitionSecurityBeanOperation extends
     bean.setVersion(security.getVersion());
     bean.setSeries(security.getSeries());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
+    bean.setRecoveryRate(security.getRecoveryRate());
     bean.setFamily(secMasterSession.getOrCreateCDSIFamilyBean(security.getFamily()));
     
     final Set<TenorBean> tenors = bean.getTenors();
@@ -81,8 +82,9 @@ public final class CreditDefaultSwapIndexDefinitionSecurityBeanOperation extends
     final CreditDefaultSwapIndexDefinitionSecurity security = new CreditDefaultSwapIndexDefinitionSecurity(bean.getVersion(),
         bean.getSeries(), 
         bean.getFamily().getName(), 
-        currencyBeanToCurrency(bean.getCurrency()), 
-        CDSIndexTerms.of(tenors), 
+        currencyBeanToCurrency(bean.getCurrency()),
+        bean.getRecoveryRate(),
+        CDSIndexTerms.of(tenors),
         CDSIndexComponentBundle.of(components));
     
     return security;

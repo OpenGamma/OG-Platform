@@ -59,17 +59,21 @@ public class PSplineFitter {
     return _gls.solve(x, y, sigma, bSplines, sizes, lambda, differenceOrder);
   }
 
-  public DoubleMatrix2D getDiffMatrix(final int m, final int k) {
+  /**
+   * The penalty matrix, P, such the for weights vector, w, (w^T)*P*w is a quadratic penalty term. P is constructed as P = (D^T)*D, where
+   * D is the kth order difference matrix such that D*x is the kth order difference vector of x (with first k terms zero) 
+   * @param m Length of the weights vector.
+   * @param k Difference order. Require m > k 
+   * @return The penalty matrix P.
+   */
+  public DoubleMatrix2D getPenaltyMatrix(final int m, final int k) {
     Validate.isTrue(k < m, "differce order too high");
 
-    final double[][] data = new double[m][m];
     if (m == 0) {
-      for (int i = 0; i < m; i++) {
-        data[i][i] = 1.0;
-      }
-      return new DoubleMatrix2D(data);
+      return DoubleMatrixUtils.getIdentityMatrix2D(m);
     }
-
+      
+    final double[][] data = new double[m][m];
     final int[] coeff = new int[k + 1];
 
     int sign = 1;
@@ -89,10 +93,10 @@ public class PSplineFitter {
     return (DoubleMatrix2D) _algebra.multiply(dt, d);
   }
 
-  public DoubleMatrix2D getDiffMatrix(final int[] size, final int k, final int indices) {
+  public DoubleMatrix2D getPenaltyMatrix(final int[] size, final int k, final int indices) {
     final int dim = size.length;
 
-    final DoubleMatrix2D d = getDiffMatrix(size[indices], k);
+    final DoubleMatrix2D d = getPenaltyMatrix(size[indices], k);
 
     int preProduct = 1;
     int postProduct = 1;

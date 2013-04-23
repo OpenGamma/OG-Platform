@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatCell(ZonedDateTime value, ValueSpecification valueSpec) {
+  public Object formatCell(ZonedDateTime value, ValueSpecification valueSpec, Object inlineKey) {
     return s_formatter.format(value);
   }
 

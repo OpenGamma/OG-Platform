@@ -181,7 +181,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
       copy.setRootNode(copyNode(portfolio.getRootNode(), maxNodes, maxPositions));
       portfolio = copy;
     }
-    return PortfolioCompiler.resolvePortfolio(portfolio, getCompiledFunctionService().getExecutorService(), getSecuritySource());
+    return PortfolioCompiler.resolvePortfolio(portfolio, getCompiledFunctionService().getExecutorService().asService(), getSecuritySource());
   }
 
 }

@@ -84,6 +84,7 @@ $.register_module({
                                     var args = routes.current().args;
                                     if (result.error) return view.error(result.message);
                                     routes.go(routes.hash(view.rules.load, args));
+                                    setTimeout(function () {view.search(args);});
                                 }
                             });
                         },

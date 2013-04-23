@@ -48,6 +48,13 @@ $.register_module({
                 }
             };
         };
+        var viewport = function (new_viewport) {
+            var dataman = this;
+            if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []), dataman;
+            dataman.meta.viewport = new_viewport;
+            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', get_viewport_data(dataman));});
+            return dataman;
+        }
         formatters = {
             CURVE: function (dataman, data) {
                 if (!data || !data.length) return;
@@ -133,26 +140,49 @@ $.register_module({
                     }
                     if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)
                         dataman.fire('data', get_viewport_data(dataman));
+                })
+                .on('fatal', function (message) {
+                    try {dataman.fire('fatal', message);}
+                    catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
                 });
             dataman.id = dataman.cell.id;
             dataman.meta = {viewport: {rows: [], cols: []}};
         };
-        ['fire', 'off', 'on'].forEach(function (key) {DataMan.prototype[key] = og.common.events[key];});
-        DataMan.prototype.kill = function () {this.cell.kill();};
-        DataMan.prototype.viewport = function (new_viewport) {
-            var dataman = this;
-            if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []), dataman;
-            dataman.meta.viewport = new_viewport;
-            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', get_viewport_data(dataman));});
-            return dataman;
+        var RestDataMan = function (resource, rest_options, type) {
+            var dataman = this, format = formatters[type].partial(dataman);
+            og.api.rest[resource].get(rest_options).pipe(function (result) {
+                if (result.error) dataman.fire('fatal', result.message);
+                var message, viewport = dataman.meta.viewport;
+                try {dataman.formatted = format(result.data)} catch (error) {
+                    og.dev.warn(message = module.name + ': formatting ' + type + ' failed, ' + error.message);
+                    return dataman.kill(), dataman.fire('fatal', message);
+                }
+                if (!dataman.formatted) return; // only a clipboard will ever be in this state
+                if (dataman.formatted.meta) {
+                    Object.keys(dataman.formatted.meta) // populate dataman.meta
+                        .forEach(function (key) {dataman.meta[key] = dataman.formatted.meta[key];});
+                    dataman.fire('meta', dataman.meta);
+                }
+                if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)
+                    dataman.fire('data', get_viewport_data(dataman));
+            });
+            dataman.meta = {viewport: {rows: [], cols: []}};
         };
+        ['fire', 'off', 'on'].forEach(function (key)
+            {DataMan.prototype[key] = RestDataMan.prototype[key] = og.common.events[key];});
+        DataMan.prototype.kill = function () {if (this.cell) this.cell.kill();};
+        DataMan.prototype.viewport = RestDataMan.prototype.viewport = viewport;
         var Gadget = function (config) {
+            var gadget = this;
             if (!formatters[config.type]) // return null or a primitive because this is a constructor
                 return $(config.selector).html('Data gadget cannot render ' + config.type), null;
-            Grid.call(this, {
+            Grid.call(gadget, {
                 selector: config.selector, child: config.child, show_sets: false, show_views: false,
-                source: config.source, dataman: DataMan.partial(config.row, config.col, config.type),
+                source: config.source, dataman: config.rest_options
+                    ? RestDataMan.partial(config.resource, config.rest_options, config.type)
+                    : DataMan.partial(config.row, config.col, config.type)
             });
+            gadget.on('fatal', function (message) {$(config.selector).html(message);});
         };
         Gadget.prototype = Object.create(Grid.prototype);
         Gadget.prototype.label = 'datagadget';

@@ -29,6 +29,7 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -370,6 +371,14 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
 
       @Override
       public Set<ValueRequirement> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
+            .get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
+      @Override
+      public Set<ValueRequirement> visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
             .get();

@@ -199,6 +199,14 @@ public final class ValueRequirementNames {
    */
   public static final String FX_FORWARD_CURVE_MARKET_DATA = "FXForwardCurveMarketData";
   /**
+   * The raw FX forward points and spot market data
+   */
+  public static final String FX_FORWARD_POINTS_CURVE_MARKET_DATA = "FXForwardPointsCurveMarketData";
+  /**
+   * The sensitivities of an fx instrument to each of the nodal points in a FX forward points curve.
+   */
+  public static final String FX_FORWARD_POINTS_NODE_SENSITIVITIES = "FX Forward Points Node Sensitivities";
+  /**
    * The raw forward swap and spot market data that is used in curve construction
    */
   public static final String FORWARD_SWAP_CURVE_MARKET_DATA = "ForwardSwapCurveMarketData";
@@ -1361,6 +1369,12 @@ public final class ValueRequirementNames {
    * The object referenced by a target specification. Can be used to load an item, referenced by a target specification, directly from a database and receive it as an input to a function.
    */
   public static final String TARGET = "Target";
+
+  // TODO what section should this be in
+  /**
+   * The quantity of a position or trade.
+   */
+  public static final String QUANTITY = "Quantity";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

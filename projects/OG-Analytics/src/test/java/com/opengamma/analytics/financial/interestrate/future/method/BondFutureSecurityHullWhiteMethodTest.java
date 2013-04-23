@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import org.testng.annotations.Test;

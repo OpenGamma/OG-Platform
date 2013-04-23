@@ -75,11 +75,13 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final List<Tenor> tenors = new ArrayList<>();
         final List<Double> marketSpreads = new ArrayList<>();
         for (final CurveNodeWithIdentifier strip : curveSpecification.getNodes()) {
-          //final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+          //          final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
           final Object marketSpreadObject = inputs.getValue(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
           if (marketSpreadObject != null) {
             tenors.add(strip.getCurveNode().getResolvedMaturity());
             marketSpreads.add(10000 * (Double) marketSpreadObject);
+          } else {
+            throw new OpenGammaRuntimeException("Could not get spread data for " + strip.getIdentifier());
           }
         }
         if (tenors.size() == 0) {
@@ -122,8 +124,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
           for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
             if (strip.getCurveNode() instanceof CreditSpreadNode) {
-              //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
               requirements.add(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+              //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
             }
           }
           return requirements;
@@ -135,8 +137,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
             final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
             for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
               if (strip.getCurveNode() instanceof CreditSpreadNode) {
-                //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
                 requirements.add(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+                //                requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
               }
             }
             return requirements;

@@ -12,9 +12,9 @@ $.register_module({
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
             blank_ids = "<table class='" + ids_selector + "'></table>", validate;
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
+            if (config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
-            if(data.trade.securityIdBundle) securityId = data.trade.securityIdBundle.split(',')[0];
+            if (data.trade.securityIdBundle) securityId = data.trade.securityIdBundle.split(',')[0];
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Fungible Trade';

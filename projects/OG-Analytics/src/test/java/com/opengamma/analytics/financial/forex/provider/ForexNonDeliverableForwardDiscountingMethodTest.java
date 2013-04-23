@@ -53,7 +53,7 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
 
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
-  private static final ForexDiscountingProviderMethod METHOD_FX = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final CurrencyExposureDiscountingCalculator CEC = CurrencyExposureDiscountingCalculator.getInstance();

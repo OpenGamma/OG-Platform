@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,23 +50,20 @@ import com.opengamma.id.VersionCorrection;
 
       @Override
       public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void data) {
-        final List<ComputationTargetType> result = new ArrayList<ComputationTargetType>(types.size());
+        final ComputationTargetType[] result = new ComputationTargetType[types.size()];
+        int i = 0;
         boolean different = false;
         for (final ComputationTargetType type : types) {
           final ComputationTargetType leafType = type.accept(this, null);
           if (leafType != null) {
-            result.add(leafType);
+            result[i++] = leafType;
             different = true;
           } else {
-            result.add(type);
+            result[i++] = type;
           }
         }
         if (different) {
-          ComputationTargetType type = result.get(0);
-          for (int i = 1; i < result.size(); i++) {
-            type = type.or(result.get(i));
-          }
-          return type;
+          return ComputationTargetType.multiple(result);
         } else {
           return null;
         }

@@ -75,7 +75,13 @@ public class JensenAlphaFunction extends AbstractFunction.NonCompiledInvoker {
     final ValueProperties constraints = desiredValue.getConstraints();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final HistoricalTimeSeries marketTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket());
+    if (marketTS == null) {
+      throw new OpenGammaRuntimeException("Market value series was not availble");
+    }
     final HistoricalTimeSeries riskFreeRateTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate());
+    if (riskFreeRateTS == null) {
+      throw new OpenGammaRuntimeException("Risk free rate series was not available");
+    }
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L was null");

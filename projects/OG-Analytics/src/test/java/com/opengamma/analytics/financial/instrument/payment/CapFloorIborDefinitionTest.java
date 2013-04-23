@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -24,7 +23,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -54,9 +53,9 @@ public class CapFloorIborDefinitionTest {
   private static final double STRIKE = 0.02;
   private static final boolean IS_CAP = true;
   private static final double HIGH_FIXING_RATE = 0.04;
-  private static final DoubleTimeSeries<ZonedDateTime> HIGH_FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {HIGH_FIXING_RATE});
+  private static final DoubleTimeSeries<ZonedDateTime> HIGH_FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {FIXING_DATE }, new double[] {HIGH_FIXING_RATE });
   private static final double LOW_FIXING_RATE = 0.02;
-  private static final DoubleTimeSeries<ZonedDateTime> LOW_FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {LOW_FIXING_RATE});
+  private static final DoubleTimeSeries<ZonedDateTime> LOW_FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {FIXING_DATE }, new double[] {LOW_FIXING_RATE });
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27); //For conversion to derivative
 
   // Coupon with standard payment and accrual dates.
@@ -123,12 +122,12 @@ public class CapFloorIborDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateInConversion1() {
-    IBOR_CAP.toDerivative(null, new String[] {"A", "S"});
+    IBOR_CAP.toDerivative(null, new String[] {"A", "S" });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateInConversion2() {
-    IBOR_CAP.toDerivative(null, HIGH_FIXING_TS, new String[] {"A", "S"});
+    IBOR_CAP.toDerivative(null, HIGH_FIXING_TS, new String[] {"A", "S" });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -153,12 +152,12 @@ public class CapFloorIborDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDateAfterFixingNoTS() {
-    IBOR_CAP.toDerivative(FIXING_DATE.plusDays(3), new String[] {"A", "D"});
+    IBOR_CAP.toDerivative(FIXING_DATE.plusDays(3), new String[] {"A", "D" });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
-    IBOR_CAP.toDerivative(FIXING_DATE, null, new String[] {"E", "R"});
+    IBOR_CAP.toDerivative(FIXING_DATE, null, new String[] {"E", "R" });
   }
 
   @Test
@@ -170,7 +169,7 @@ public class CapFloorIborDefinitionTest {
     final double fixingPeriodEndTime = actAct.getDayCountFraction(REFERENCE_DATE, IBOR_CAP.getFixingPeriodEndDate());
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
+    final String[] curves = {fundingCurve, forwardCurve };
     final CapFloorIbor expectedCapIbor = new CapFloorIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
         ACCRUAL_FACTOR_FIXING, forwardCurve, STRIKE, IS_CAP);
     final CapFloorIbor convertedCapIborDefinition = (CapFloorIbor) IBOR_CAP.toDerivative(REFERENCE_DATE, curves);
@@ -185,7 +184,7 @@ public class CapFloorIborDefinitionTest {
     double paymentTime = actAct.getDayCountFraction(date, PAYMENT_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
+    final String[] curves = {fundingCurve, forwardCurve };
     CouponFixed expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, HIGH_FIXING_RATE - STRIKE);
     assertEquals(expectedFixedCoupon, IBOR_CAP.toDerivative(date, HIGH_FIXING_TS, curves));
     expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, 0);

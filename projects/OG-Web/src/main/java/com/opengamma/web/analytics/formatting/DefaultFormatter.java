@@ -20,7 +20,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public String formatCell(Object value, ValueSpecification valueSpec) {
+  public String formatCell(Object value, ValueSpecification valueSpec, Object inlineKey) {
     return trim(value.toString());
   }
 

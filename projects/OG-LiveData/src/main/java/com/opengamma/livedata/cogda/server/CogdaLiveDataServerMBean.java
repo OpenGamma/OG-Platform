@@ -67,16 +67,6 @@ public class CogdaLiveDataServerMBean {
     }
   }
 
-  @ManagedAttribute(description = "Number of ticks received since restart.")
-  public long getNumTicksReceived() {
-    try {
-      return getServer().getNumTicksReceived();
-    } catch (RuntimeException e) {
-      s_logger.error("getNumTicksReceived() failed", e);
-      throw new RuntimeException(e.getMessage());
-    }
-  }
-  
   @ManagedAttribute(description = "Names of all actively connected users.")
   public Set<String> getActiveUsers() {
     try {

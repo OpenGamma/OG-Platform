@@ -9,7 +9,8 @@ $.register_module({
         return function (obj) {
             var $new_obj = [], html, disabled_cl = 'OG-disabled',
                 toolbar_tmpl = '\
-                    <div class="OG-icon og-icon-tools-${id} og-js-${id} ${enabled}" data-tooltip="${tooltip}">\
+                    <div class="OG-icon og-icon-tools-${id} og-js-${id} ${enabled}" data-tooltip="${tooltip}"\
+                        data-tooltip-type="small">\
                       {{if label}} <span>${label}</span> {{/if}}\
                     </div>\
                     {{if divider}} <div class="og-divider"></div> {{/if}}';

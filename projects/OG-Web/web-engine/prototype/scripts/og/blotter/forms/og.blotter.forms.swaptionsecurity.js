@@ -14,7 +14,7 @@ $.register_module({
                 data = config.details.data; data.id = config.details.data.trade.uniqueId;
             } else { 
                 data = {underlying: {type: "SwapSecurity", externalIdBundle: "", attributes: {}}, 
-                    trade: og.blotter.util.otc_trade, security: {type: "SwaptionSecurity", name: "SwaptionSecurity ABC", 
+                    trade: og.blotter.util.otc_trade, security: {type: "SwaptionSecurity", 
                     externalIdBundle: ""}};
             }
             data.nodeId = config.node ? config.node.id : null;

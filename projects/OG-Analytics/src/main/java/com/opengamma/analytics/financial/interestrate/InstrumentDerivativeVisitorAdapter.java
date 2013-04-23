@@ -61,6 +61,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
@@ -74,6 +76,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -414,6 +418,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
+    return getException(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponCMS(final CouponCMS payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
@@ -502,6 +526,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitCapFloorInflationZeroCouponMonthly(final CapFloorInflationZeroCouponMonthly coupon, final DATA_TYPE data) {
+    return getException(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearInterpolation(final CapFloorInflationYearOnYearInterpolation coupon) {
+    return getException(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearInterpolation(final CapFloorInflationYearOnYearInterpolation coupon, final DATA_TYPE data) {
+    return getException(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearMonthly(final CapFloorInflationYearOnYearMonthly coupon) {
+    return getException(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationYearOnYearMonthly(final CapFloorInflationYearOnYearMonthly coupon, final DATA_TYPE data) {
     return getException(coupon, data);
   }
 

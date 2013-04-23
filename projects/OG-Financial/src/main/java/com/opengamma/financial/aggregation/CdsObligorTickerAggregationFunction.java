@@ -14,7 +14,7 @@ import com.opengamma.core.security.SecuritySource;
  * Aggregation function which which extract the ticker from the reference
  * entity on a CDS security.
  */
-public class CdsObligorTickerAggregationFunction extends AbstractCdsAggregationFunction<Obligor> {
+public class CdsObligorTickerAggregationFunction extends AbstractRedCodeHandlingCdsAggregationFunction<Obligor> {
 
   private static final String NAME = "Reference Entity Tickers";
 

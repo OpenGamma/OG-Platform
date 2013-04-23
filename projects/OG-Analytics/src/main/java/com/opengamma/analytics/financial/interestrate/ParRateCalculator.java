@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -60,14 +61,19 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
    * The methods and calculators.
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+
   private static final CouponOISDiscountingMethod METHOD_OIS = CouponOISDiscountingMethod.getInstance();
   private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
   //  private static final CouponIborGearingDiscountingMethod METHOD_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
+  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
+
   private static final InterestRateFutureTransactionDiscountingMethod METHOD_IRFUT_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
-  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
+
+  //     -----     Deposit     -----
 
   // TODO: review
   @Override
@@ -94,28 +100,41 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
     return METHOD_DEPOSIT_ZERO.parRate(deposit, curves);
   }
 
+  //     -----     Payment/Coupon     ------
+
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     return METHOD_FRA.parRate(fra, curves);
   }
 
-  /**
-   * {@inheritDoc}
-   * Compute the future rate (1-price) without convexity adjustment.
-   */
   @Override
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return METHOD_IRFUT_TRANSACTION.parRate(future, curves);
+  public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
+    return METHOD_IBOR.parRate(payment, data);
   }
 
-  /**
-   * {@inheritDoc}
-   * Compute the future rate (1-price) without convexity adjustment.
-   */
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    return METHOD_IRFUT_SECURITY.parRate(future, curves);
+  public Double visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle data) {
+    final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
+    return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingAccrualFactor();
   }
+
+  @Override
+  public Double visitCouponIborGearing(final CouponIborGearing payment, final YieldCurveBundle data) {
+    final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
+    return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingAccrualFactor();
+  }
+
+  @Override
+  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+    return METHOD_OIS.parRate(payment, data);
+  }
+
+  @Override
+  public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
+    return visitCouponIborSpread(payment.toCoupon(), data);
+  }
+
+  //     -----     Swap     -----
 
   /**
    * Computes the par rate of a swap with one fixed leg.
@@ -156,6 +175,26 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
     return -pvSecond / pvbp;
   }
 
+  //     -----     Futures     -----
+
+  /**
+   * {@inheritDoc}
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return METHOD_IRFUT_TRANSACTION.parRate(future, curves);
+  }
+
+  /**
+   * {@inheritDoc}
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  @Override
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    return METHOD_IRFUT_SECURITY.parRate(future, curves);
+  }
+
   // TODO: review
   @Override
   public Double visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
@@ -165,6 +204,10 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
     final double t = fx.getPaymentTime();
     return fx.getSpotForexRate() * curve2.getDiscountFactor(t) / curve1.getDiscountFactor(t);
   }
+
+  //     -----     Forex     ------: see ForwardRateForexCalculator
+
+  //     -----     Bond     -----
 
   // TODO: review
   /**
@@ -186,33 +229,6 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
     final double pvann = unitCouponAnnuity.accept(PVC, curves);
     final double matPV = bond.getNominal().accept(PVC, curves);
     return (1 - matPV) / pvann;
-  }
-
-  @Override
-  public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
-    return METHOD_IBOR.parRate(payment, data);
-  }
-
-  @Override
-  public Double visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle data) {
-    final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
-    return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingAccrualFactor();
-  }
-
-  @Override
-  public Double visitCouponIborGearing(final CouponIborGearing payment, final YieldCurveBundle data) {
-    final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
-    return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingAccrualFactor();
-  }
-
-  @Override
-  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
-    return METHOD_OIS.parRate(payment, data);
-  }
-
-  @Override
-  public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
-    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
 }

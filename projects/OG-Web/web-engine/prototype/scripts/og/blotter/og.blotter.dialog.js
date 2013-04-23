@@ -49,9 +49,6 @@ $.register_module({
                             constructor.populate($(event.target).attr('data-type'), config);
                             $('.OG-blotter-trade-select').hide();
                         });
-                        /*.on('change', function (event) {
-                            constructor.populate($(event.target).val(), config);
-                        });*/
                         constructor.create_dialog();
                         setup_existing();
                     });

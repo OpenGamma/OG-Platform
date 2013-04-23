@@ -37,6 +37,7 @@ import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -187,7 +188,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
     final Set<ExternalId> externalIds = newHashSet();
     for (final String name : names) {
       s_logger.info("Processing curve " + name);
-      YieldCurveDefinition curveDefinition = configSource.getSingle(YieldCurveDefinition.class, name, null);
+      YieldCurveDefinition curveDefinition = configSource.getSingle(YieldCurveDefinition.class, name, VersionCorrection.LATEST);
       if (curveDefinition != null) {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {

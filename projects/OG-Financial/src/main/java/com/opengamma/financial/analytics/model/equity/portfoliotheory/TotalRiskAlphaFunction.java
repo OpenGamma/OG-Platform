@@ -72,7 +72,13 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     final ValueProperties constraints = desiredValue.getConstraints();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final HistoricalTimeSeries marketTSObject = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket());
+    if (marketTSObject == null) {
+      throw new OpenGammaRuntimeException("Market value series was not available");
+    }
     final HistoricalTimeSeries riskFreeTSObject = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate());
+    if (riskFreeTSObject == null) {
+      throw new OpenGammaRuntimeException("Risk free series was not available");
+    }
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L series was null");

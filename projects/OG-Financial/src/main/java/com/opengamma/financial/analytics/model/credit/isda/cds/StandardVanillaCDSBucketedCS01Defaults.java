@@ -34,7 +34,10 @@ public class StandardVanillaCDSBucketedCS01Defaults extends DefaultPropertyFunct
   private final Map<String, String> _currencyToSpreadBumpType;
 
   public StandardVanillaCDSBucketedCS01Defaults(final String priority, final String... perCurrencyDefaults) {
-    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY).or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY), true);
+    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
+        .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
     ArgumentChecker.isTrue(perCurrencyDefaults.length % 3 == 0, "Must have one spread curve bump, spread bump type and price type per currency");

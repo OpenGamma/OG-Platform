@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Calculates the value gamma of an equity index or equity option using the Bjerksund Stensland gamma.
  */
-public class EquityOptionBjerksundStenslandValueGammaFunction extends EquityOptionBAWFunction {
+public class EquityOptionBjerksundStenslandValueGammaFunction extends EquityOptionBjerksundStenslandFunction {
   /** Value delta calculator */
   private static final ValueGreekCalculator CALCULATOR = ValueGammaCalculator.getInstance();
 

@@ -65,7 +65,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
   /**
    * Methods.
    */
-  private static final ForexDiscountingProviderMethod METHOD_FOREX = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
 
   /**
    * Computes the present value of the vanilla option with the Black function and a volatility from a volatility surface.
