@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.examples.tool.ExampleDatabaseCreator"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG-Examples"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="og-examples"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Xms1024m -Xmx8192m -XX:MaxPermSize=512M"/>
 </launchConfiguration>

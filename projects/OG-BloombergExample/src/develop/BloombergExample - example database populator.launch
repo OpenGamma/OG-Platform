@@ -14,6 +14,6 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.bloombergexample.tool.ExampleDatabasePopulator"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="c classpath:toolcontext/toolcontext-bloombergexample-dev.properties"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG-BloombergExample"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="og-bloombergexample"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms1200m -Xmx1200m -XX:MaxPermSize=150m  -Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Dcommandmonitor.secret=OpenGamma"/>
 </launchConfiguration>
