@@ -168,9 +168,6 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
     GridColumn labelColumn = new GridColumn("Name", "", null, new PortfolioLabelRenderer(rows));
-    // TODO make the quantity column optional until it's replaced with a function
-    //GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
-    //return new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn), false);
     return new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
   }
 
