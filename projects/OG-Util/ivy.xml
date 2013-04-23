@@ -42,6 +42,7 @@
     <dependency org="org.jboss" name="javassist" rev="3.9.0" />
     <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3[" />
     <dependency org="net.sourceforge.ehcache" name="ehcache" rev="2.6.3" />
+    <dependency org="com.yammer.metrics" name="metrics-core" rev="3.0.0-BETA1" />
     <exclude org="org.junit" />
   </dependencies>
 </ivy-module>

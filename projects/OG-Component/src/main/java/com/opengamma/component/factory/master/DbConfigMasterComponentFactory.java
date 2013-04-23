@@ -28,6 +28,7 @@ import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.masterdb.config.DbConfigMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
  * Component factory for the database config master.
@@ -78,6 +79,7 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
     
     // create
     DbConfigMaster master = new DbConfigMaster(getDbConnector());
+    master.registerMetrics(OpenGammaMetricRegistry.getInstance(), "DbConfigMaster-" + getClassifier());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }

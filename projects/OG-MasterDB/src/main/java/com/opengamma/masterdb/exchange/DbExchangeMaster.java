@@ -145,7 +145,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new ExchangeDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new ExchangeDocumentExtractor(), result);
     return result;
   }
 

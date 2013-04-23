@@ -128,8 +128,8 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       versionAsOf = Instant.now(getClock());
     }
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("configuration", configuration)
-      .addValue("function", functionId)
+      .addValue("configuration", configuration.trim())
+      .addValue("function", functionId.trim())
       .addTimestamp("version_instant", versionAsOf)
       .addValue("paging_offset", 0)
       .addValue("paging_fetch", 1);
@@ -149,14 +149,24 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
     costs.setVersion(Instant.now(getClock()));
     
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("configuration", costs.getConfigurationName())
-      .addValue("function", costs.getFunctionId())
+      .addValue("configuration", costs.getConfigurationName().trim())
+      .addValue("function", costs.getFunctionId().trim())
       .addTimestamp("version_instant", costs.getVersion())
       .addValue("invocation_cost", costs.getInvocationCost())
       .addValue("data_input_cost", costs.getDataInputCost())
       .addValue("data_output_cost", costs.getDataOutputCost());
     final String sql = getElSqlBundle().getSql("InsertCosts", args);
     getDbConnector().getJdbcTemplate().update(sql, args);
+    
+    // delete older data
+    final DbMapSqlParameterSource deleteArgs = new DbMapSqlParameterSource()
+      .addValue("configuration", costs.getConfigurationName().trim())
+      .addValue("function", costs.getFunctionId().trim())
+      .addValue("offset_zero", 0)
+      .addValue("keep_rows", 20);
+    final String deleteSql = getElSqlBundle().getSql("DeleteOld", deleteArgs);
+    getDbConnector().getJdbcTemplate().update(deleteSql, deleteArgs);
+    
     return costs;
   }
 

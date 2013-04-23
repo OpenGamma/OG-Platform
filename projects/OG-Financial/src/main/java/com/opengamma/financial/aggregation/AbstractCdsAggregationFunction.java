@@ -50,9 +50,9 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
    *
    * @param name the name to be used for this aggregation, not null
    * @param securitySource the security source used for resolution of the CDS security, not null
-   * @param redCodeHandler the extractor which will process the red code and return the required type, not null
+   * @param extractor the extractor which will process the cds and return the required type, not null
    */
-  public AbstractCdsAggregationFunction(String name, SecuritySource securitySource, CdsValueExtractor extractor) {
+  public AbstractCdsAggregationFunction(String name, SecuritySource securitySource, CdsValueExtractor<T> extractor) {
 
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(securitySource, "securitySource");
