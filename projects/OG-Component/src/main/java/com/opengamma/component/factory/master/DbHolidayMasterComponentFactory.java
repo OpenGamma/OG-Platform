@@ -28,6 +28,7 @@ import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.masterdb.holiday.DbHolidayMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
  * Component factory for the database holiday master.
@@ -78,6 +79,7 @@ public class DbHolidayMasterComponentFactory extends AbstractDbMasterComponentFa
     
     // create
     DbHolidayMaster master = new DbHolidayMaster(getDbConnector());
+    master.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "DbHolidayMaster-" + getClassifier());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
