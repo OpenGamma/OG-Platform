@@ -73,17 +73,17 @@ public abstract class AbstractFudgeBuilderTestCase {
   }
 
   private <T> T cycleObjectProxy(final Class<T> clazz, final T object) {
-    getLogger().error("cycle object {} of class by proxy {}", object, clazz);
+    getLogger().debug("cycle object {} of class by proxy {}", object, clazz);
 
     final MutableFudgeMsg msgOut = getFudgeSerializer().newMessage();
     getFudgeSerializer().addToMessage(msgOut, "test", null, object);
-    getLogger().error("message out by proxy {}", msgOut);
+    getLogger().debug("message out by proxy {}", msgOut);
 
     final FudgeMsg msgIn = _proxy.proxy(clazz, msgOut);
-    getLogger().error("message in by proxy {}", msgIn);
+    getLogger().debug("message in by proxy {}", msgIn);
 
     final T cycled = getFudgeDeserializer().fieldValueToObject(clazz, msgIn.getByName("test"));
-    getLogger().error("created object by proxy {}", cycled);
+    getLogger().debug("created object by proxy {}", cycled);
     assertTrue(clazz.isAssignableFrom(cycled.getClass()));
     return cycled;
   }
@@ -93,13 +93,13 @@ public abstract class AbstractFudgeBuilderTestCase {
 
     final MutableFudgeMsg msgOut = getFudgeSerializer().newMessage();
     getFudgeSerializer().addToMessage(msgOut, "test", null, object);
-    getLogger().error("message out by bytes {}", msgOut);
+    getLogger().debug("message out by bytes {}", msgOut);
 
     final FudgeMsg msgIn = cycleMessage(msgOut);
-    getLogger().error("message in by bytes {}", msgIn);
+    getLogger().debug("message in by bytes {}", msgIn);
 
     final T cycled = getFudgeDeserializer().fieldValueToObject(clazz, msgIn.getByName("test"));
-    getLogger().error("created object by bytes {}", cycled);
+    getLogger().debug("created object by bytes {}", cycled);
     assertTrue(clazz.isAssignableFrom(cycled.getClass()));
     return cycled;
   }
