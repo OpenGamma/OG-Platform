@@ -11,6 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Dialect;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.threeten.bp.temporal.ChronoUnit;
+import org.threeten.bp.temporal.TemporalUnit;
 
 import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.util.paging.PagingRequest;
@@ -260,6 +262,17 @@ public abstract class DbDialect {
     return new DefaultLobHandler();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the precision of a timestamp, the default is microseconds.
+   * 
+   * @return the precision of a timestamp, default is Microseconds, not null
+   */
+  public TemporalUnit getTimestampPrecision() {
+    return ChronoUnit.MICROS;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Closes the dialect at server shutdown.
    * <p>
