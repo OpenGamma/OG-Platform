@@ -6,7 +6,9 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.examples.tool.ExampleDatabaseCreator"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="og-examples"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Xms1024m -Xmx8192m -XX:MaxPermSize=512M"/>
 </launchConfiguration>
