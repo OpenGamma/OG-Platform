@@ -9,7 +9,7 @@ $.register_module({
         var module = this, loading_template;
         return function (config) {
             var gadget = this, selector = config.selector, $selector, $plot, options = {}, plot_template,
-                alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30;;
+                alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30;
             gadget.resize = function () {
                 height = $selector.parent().height();
                 width = $selector.width();
@@ -57,14 +57,9 @@ $.register_module({
             }
             var load_plots = function () {
                 var previousPoint = null;
-                options = {
-                    grid: {
-                        borderWidth: 0, labelMargin: 4, color: '#999', minBorderMargin: 0, backgroundColor: '#fff',
-                        hoverable: true, aboveData: false
-                    },
-                    legend: {show: false},
-                    bars: { show: true, lineWidth: 0, barWidth: 0, fill: true, align: 'left', horizontal: false }
-                };
+                options = {grid: { borderWidth: 0, labelMargin: 4, color: '#999', minBorderMargin: 0,
+                    backgroundColor: '#fff', hoverable: true, aboveData: false}, legend: {show: false},
+                    bars: {show: true, lineWidth: 0, barWidth: 0, fill: true, align: 'left', horizontal: false}};
                 $plot = $.plot($(selector + ' .og-histogram-plot'), get_data(), options);
                 $(selector).bind('plothover', function (event, pos, item) {
                     if (item) {
@@ -76,8 +71,7 @@ $.register_module({
                             $('#tooltip').remove();
                             show_tooltip(pos.pageX, pos.pageY, msg);
                         }
-                    }
-                    else {
+                    } else {
                         $("#tooltip").remove();
                         previousPoint = null;
                     }

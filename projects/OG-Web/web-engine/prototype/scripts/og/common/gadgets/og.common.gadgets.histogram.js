@@ -81,7 +81,7 @@ $.register_module({
                     var input, data = typeof value.v !== 'undefined' ? value.v : value;
                     if (!histogram && data && (typeof data === 'object')) {
                         prepare_data(data);
-                        input = $.extend(true, {}, config, histogram_data(data), normpdf_data(),
+                        input = $.extend(true, {}, config, histogram_data(data)/*, normpdf_data()*/,
                             {callback: bucket_data}, bucket_range());
                         histogram = new og.common.gadgets.HistogramPlot(input);
                     }
