@@ -21,21 +21,36 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.Config;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Contains maps of tenors to curve instrument providers (which generates market data tickers) for {@link CurveNode} types. These
+ * maps are then used to generate market data requests in curve construction.
  */
 @Config
 public class CurveNodeIdMapper {
+  /**
+   * The names of the curve instrument providers.
+   */
   public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
 
-  private final Map<Tenor, CurveInstrumentProvider> _creditSpreadIds;
+  private final Map<Tenor, CurveInstrumentProvider> _cashNodeIds;
+  private final Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
+  private final Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
 
-  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> creditSpreadIds) {
-    _creditSpreadIds = creditSpreadIds;
+  /**
+   * @param cashNodeIds The cash node ids
+   * @param creditSpreadNodeIds The credit spread node ids
+   * @param swapNodeIds The swap node ids
+   */
+  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds, final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
+    _cashNodeIds = cashNodeIds;
+    _creditSpreadNodeIds = creditSpreadNodeIds;
+    _swapNodeIds = swapNodeIds;
   }
 
   private static List<String> getCurveIdMapperNames() {
@@ -54,21 +69,95 @@ public class CurveNodeIdMapper {
     return ImmutableList.copyOf(list);
   }
 
-  public Map<Tenor, CurveInstrumentProvider> getCreditSpreadIds() {
-    return Collections.unmodifiableMap(_creditSpreadIds);
-  }
-
-  public ExternalId getCreditSpreadId(final LocalDate curveDate, final Tenor tenor) {
-    if (_creditSpreadIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get credit spread id provider");
+  /**
+   * Gets the cash node ids.
+   * @return The cash node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getCashNodeIds() {
+    if (_cashNodeIds != null) {
+      return Collections.unmodifiableMap(_cashNodeIds);
     }
-    return getStaticSecurity(_creditSpreadIds, curveDate, tenor);
+    return null;
   }
 
+  /**
+   * Gets the credit spread node ids.
+   * @return The credit spread node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getCreditSpreadNodeIds() {
+    if (_creditSpreadNodeIds != null) {
+      return Collections.unmodifiableMap(_creditSpreadNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the swap node ids.
+   * @return The swap node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getSwapNodeIds() {
+    if (_swapNodeIds != null) {
+      return Collections.unmodifiableMap(_swapNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the external id of the cash node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id of the security
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getCashNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_cashNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get cash node id provider");
+    }
+    return getStaticSecurity(_cashNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the external id of the credit spread node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getCreditSpreadNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_creditSpreadNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get credit spread node id provider");
+    }
+    return getStaticSecurity(_creditSpreadNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the external id of the swap node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id of the security
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getSwapNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_swapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get swap node id provider");
+    }
+    return getStaticSecurity(_swapNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the unique tenors for all curve node types sorted by period.
+   * @return All unique tenors
+   */
   public SortedSet<Tenor> getAllTenors() {
     final SortedSet<Tenor> allTenors = new TreeSet<>();
-    if (_creditSpreadIds != null) {
-      allTenors.addAll(_creditSpreadIds.keySet());
+    if (_cashNodeIds != null) {
+      allTenors.addAll(_cashNodeIds.keySet());
+    }
+    if (_creditSpreadNodeIds != null) {
+      allTenors.addAll(_creditSpreadNodeIds.keySet());
+    }
+    if (_swapNodeIds != null) {
+      allTenors.addAll(_swapNodeIds.keySet());
     }
     return allTenors;
   }
@@ -90,16 +179,24 @@ public class CurveNodeIdMapper {
       return false;
     }
     final CurveNodeIdMapper other = (CurveNodeIdMapper) o;
-    return ObjectUtils.equals(_creditSpreadIds, other._creditSpreadIds);
+    return ObjectUtils.equals(_cashNodeIds, other._cashNodeIds) &&
+        ObjectUtils.equals(_creditSpreadNodeIds, other._creditSpreadNodeIds) &&
+        ObjectUtils.equals(_swapNodeIds, other._swapNodeIds);
   }
 
   @Override
   public int hashCode() {
-    return _creditSpreadIds.hashCode();
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_cashNodeIds == null) ? 0 : _cashNodeIds.hashCode());
+    result = prime * result + ((_creditSpreadNodeIds == null) ? 0 : _creditSpreadNodeIds.hashCode());
+    result = prime * result + ((_swapNodeIds == null) ? 0 : _swapNodeIds.hashCode());
+    return result;
   }
 
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }
+
 }
