@@ -1210,7 +1210,7 @@
     <tests.testng.parallel>classes</tests.testng.parallel>
     <tests.testng.threads>4</tests.testng.threads>
     <tests.testng.includedgroups></tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration</tests.testng.excludedgroups>
+    <tests.testng.excludedgroups>integration,unitdb,unitslow</tests.testng.excludedgroups>
     <joda.beans.indent>2</joda.beans.indent>
     <joda.beans.prefix>_</joda.beans.prefix>
     <joda.beans.stopOnError>false</joda.beans.stopOnError>
