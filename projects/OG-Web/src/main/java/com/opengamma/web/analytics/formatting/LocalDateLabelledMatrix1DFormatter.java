@@ -43,7 +43,7 @@ import com.opengamma.util.ArgumentChecker;
       @Override
       Object format(LocalDateLabelledMatrix1D value, ValueSpecification valueSpec, Object inlineKey) {
         if (inlineKey == null) {
-          return null;
+          return ResultsFormatter.VALUE_UNAVAILABLE;
         } else {
           return formatInline(value, valueSpec, Format.HISTORY, inlineKey);
         }
@@ -91,7 +91,7 @@ import com.opengamma.util.ArgumentChecker;
       }
       index++;
     }
-    return null;
+    return ResultsFormatter.VALUE_UNAVAILABLE;
   }
 
   @Override
