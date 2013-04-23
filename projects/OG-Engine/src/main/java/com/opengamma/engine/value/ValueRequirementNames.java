@@ -1370,6 +1370,12 @@ public final class ValueRequirementNames {
    */
   public static final String TARGET = "Target";
 
+  // TODO what section should this be in
+  /**
+   * The quantity of a position or trade.
+   */
+  public static final String QUANTITY = "Quantity";
+
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.
