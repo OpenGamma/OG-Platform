@@ -11,3 +11,11 @@
   z-index: 2;
   position: absolute;
 }
+
+.og-histogram-plot {
+    top: 30px;
+}
+
+.og-bucket-select {
+    margin: 0 6px;
+}
