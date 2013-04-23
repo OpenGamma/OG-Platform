@@ -7,6 +7,8 @@ package com.opengamma.util;
 
 import java.util.Arrays;
 
+import com.opengamma.OpenGammaRuntimeException;
+
 /**
  * A counter that keeps track of how many times something has happened
  * in the recent past.
@@ -77,7 +79,8 @@ public class PerformanceCounter {
   /**
    * Resets the counter.
    */
-  public void reset() {
+  public final void reset() {
+    // final, as this is called in the constructor
     long timestamp = System.currentTimeMillis();
     reset(timestamp);
   }
@@ -115,7 +118,7 @@ public class PerformanceCounter {
     }
     long secondsSinceLastHit = getSecondsSinceInception(timestamp) - getSecondsSinceInception(_lastHitTimestamp);
     if (secondsSinceLastHit < 0) {
-      throw new RuntimeException("Seconds since last hit should never be negative" + secondsSinceLastHit);
+      throw new OpenGammaRuntimeException("Seconds since last hit should never be negative" + secondsSinceLastHit);
     }
     
     if (secondsSinceLastHit >= _secondsOfHistoryToKeep) {
