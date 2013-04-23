@@ -5,29 +5,32 @@
  */
 package com.opengamma.component.factory.metric;
 
+import info.ganglia.gmetric4j.gmetric.GMetric;
+import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
+
 import java.util.LinkedHashMap;
-
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.util.metric.OpenGammaMetricRegistry;
-import com.yammer.metrics.JmxReporter;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Slf4jReporter;
-
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
+import com.yammer.metrics.JmxReporter;
+import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.Slf4jReporter;
+import com.yammer.metrics.ganglia.GangliaReporter;
 
 /**
  * 
@@ -42,6 +45,21 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   @PropertyDefinition
   private boolean _slf4jPublish = true;
+
+  @PropertyDefinition
+  private boolean _gangliaPublish = true;
+
+  @PropertyDefinition
+  private String _gangliaAddress;
+  
+  @PropertyDefinition
+  private Integer _gangliaPort;
+
+  @PropertyDefinition
+  private String _gangliaAddressingMode;
+  
+  @PropertyDefinition
+  private Integer _gangliaTtl = 1;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -59,6 +77,19 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
           .convertDurationsTo(TimeUnit.MILLISECONDS)
           .build();
       logReporter.start(1, TimeUnit.MINUTES);
+    }
+    
+    if (isGangliaPublish()) {
+      ArgumentChecker.notNull(getGangliaAddress(), "gangliaAddress");
+      ArgumentChecker.notNull(getGangliaPort(), "gangliaPort");
+      ArgumentChecker.notNull(getGangliaAddressingMode(), "gangliaAddressingMode");
+      ArgumentChecker.notNull(getGangliaTtl(), "gangliaTtl");
+      GMetric ganglia = new GMetric(getGangliaAddress(), getGangliaPort(), UDPAddressingMode.valueOf(getGangliaAddressingMode()), getGangliaTtl(), true);
+      GangliaReporter gangliaReporter = GangliaReporter.forRegistry(metricRegistry)
+          .convertRatesTo(TimeUnit.SECONDS)
+          .convertDurationsTo(TimeUnit.MILLISECONDS)
+          .build(ganglia);
+      gangliaReporter.start(1, TimeUnit.MINUTES);
     }
     
     OpenGammaMetricRegistry.setRegistry(metricRegistry);
@@ -91,6 +122,16 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
         return isJmxPublish();
       case 283122412:  // slf4jPublish
         return isSlf4jPublish();
+      case 113968702:  // gangliaPublish
+        return isGangliaPublish();
+      case -798358237:  // gangliaAddress
+        return getGangliaAddress();
+      case 44258738:  // gangliaPort
+        return getGangliaPort();
+      case -772603358:  // gangliaAddressingMode
+        return getGangliaAddressingMode();
+      case 555621019:  // gangliaTtl
+        return getGangliaTtl();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -106,6 +147,21 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
         return;
       case 283122412:  // slf4jPublish
         setSlf4jPublish((Boolean) newValue);
+        return;
+      case 113968702:  // gangliaPublish
+        setGangliaPublish((Boolean) newValue);
+        return;
+      case -798358237:  // gangliaAddress
+        setGangliaAddress((String) newValue);
+        return;
+      case 44258738:  // gangliaPort
+        setGangliaPort((Integer) newValue);
+        return;
+      case -772603358:  // gangliaAddressingMode
+        setGangliaAddressingMode((String) newValue);
+        return;
+      case 555621019:  // gangliaTtl
+        setGangliaTtl((Integer) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -127,6 +183,11 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getRegistryName(), other.getRegistryName()) &&
           JodaBeanUtils.equal(isJmxPublish(), other.isJmxPublish()) &&
           JodaBeanUtils.equal(isSlf4jPublish(), other.isSlf4jPublish()) &&
+          JodaBeanUtils.equal(isGangliaPublish(), other.isGangliaPublish()) &&
+          JodaBeanUtils.equal(getGangliaAddress(), other.getGangliaAddress()) &&
+          JodaBeanUtils.equal(getGangliaPort(), other.getGangliaPort()) &&
+          JodaBeanUtils.equal(getGangliaAddressingMode(), other.getGangliaAddressingMode()) &&
+          JodaBeanUtils.equal(getGangliaTtl(), other.getGangliaTtl()) &&
           super.equals(obj);
     }
     return false;
@@ -138,6 +199,11 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegistryName());
     hash += hash * 31 + JodaBeanUtils.hashCode(isJmxPublish());
     hash += hash * 31 + JodaBeanUtils.hashCode(isSlf4jPublish());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isGangliaPublish());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddress());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaPort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddressingMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaTtl());
     return hash ^ super.hashCode();
   }
 
@@ -219,6 +285,131 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the gangliaPublish.
+   * @return the value of the property
+   */
+  public boolean isGangliaPublish() {
+    return _gangliaPublish;
+  }
+
+  /**
+   * Sets the gangliaPublish.
+   * @param gangliaPublish  the new value of the property
+   */
+  public void setGangliaPublish(boolean gangliaPublish) {
+    this._gangliaPublish = gangliaPublish;
+  }
+
+  /**
+   * Gets the the {@code gangliaPublish} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> gangliaPublish() {
+    return metaBean().gangliaPublish().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the gangliaAddress.
+   * @return the value of the property
+   */
+  public String getGangliaAddress() {
+    return _gangliaAddress;
+  }
+
+  /**
+   * Sets the gangliaAddress.
+   * @param gangliaAddress  the new value of the property
+   */
+  public void setGangliaAddress(String gangliaAddress) {
+    this._gangliaAddress = gangliaAddress;
+  }
+
+  /**
+   * Gets the the {@code gangliaAddress} property.
+   * @return the property, not null
+   */
+  public final Property<String> gangliaAddress() {
+    return metaBean().gangliaAddress().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the gangliaPort.
+   * @return the value of the property
+   */
+  public Integer getGangliaPort() {
+    return _gangliaPort;
+  }
+
+  /**
+   * Sets the gangliaPort.
+   * @param gangliaPort  the new value of the property
+   */
+  public void setGangliaPort(Integer gangliaPort) {
+    this._gangliaPort = gangliaPort;
+  }
+
+  /**
+   * Gets the the {@code gangliaPort} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> gangliaPort() {
+    return metaBean().gangliaPort().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the gangliaAddressingMode.
+   * @return the value of the property
+   */
+  public String getGangliaAddressingMode() {
+    return _gangliaAddressingMode;
+  }
+
+  /**
+   * Sets the gangliaAddressingMode.
+   * @param gangliaAddressingMode  the new value of the property
+   */
+  public void setGangliaAddressingMode(String gangliaAddressingMode) {
+    this._gangliaAddressingMode = gangliaAddressingMode;
+  }
+
+  /**
+   * Gets the the {@code gangliaAddressingMode} property.
+   * @return the property, not null
+   */
+  public final Property<String> gangliaAddressingMode() {
+    return metaBean().gangliaAddressingMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the gangliaTtl.
+   * @return the value of the property
+   */
+  public Integer getGangliaTtl() {
+    return _gangliaTtl;
+  }
+
+  /**
+   * Sets the gangliaTtl.
+   * @param gangliaTtl  the new value of the property
+   */
+  public void setGangliaTtl(Integer gangliaTtl) {
+    this._gangliaTtl = gangliaTtl;
+  }
+
+  /**
+   * Gets the the {@code gangliaTtl} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> gangliaTtl() {
+    return metaBean().gangliaTtl().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code MetricRepositoryFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -243,13 +434,43 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
     private final MetaProperty<Boolean> _slf4jPublish = DirectMetaProperty.ofReadWrite(
         this, "slf4jPublish", MetricRepositoryFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code gangliaPublish} property.
+     */
+    private final MetaProperty<Boolean> _gangliaPublish = DirectMetaProperty.ofReadWrite(
+        this, "gangliaPublish", MetricRepositoryFactory.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code gangliaAddress} property.
+     */
+    private final MetaProperty<String> _gangliaAddress = DirectMetaProperty.ofReadWrite(
+        this, "gangliaAddress", MetricRepositoryFactory.class, String.class);
+    /**
+     * The meta-property for the {@code gangliaPort} property.
+     */
+    private final MetaProperty<Integer> _gangliaPort = DirectMetaProperty.ofReadWrite(
+        this, "gangliaPort", MetricRepositoryFactory.class, Integer.class);
+    /**
+     * The meta-property for the {@code gangliaAddressingMode} property.
+     */
+    private final MetaProperty<String> _gangliaAddressingMode = DirectMetaProperty.ofReadWrite(
+        this, "gangliaAddressingMode", MetricRepositoryFactory.class, String.class);
+    /**
+     * The meta-property for the {@code gangliaTtl} property.
+     */
+    private final MetaProperty<Integer> _gangliaTtl = DirectMetaProperty.ofReadWrite(
+        this, "gangliaTtl", MetricRepositoryFactory.class, Integer.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "registryName",
         "jmxPublish",
-        "slf4jPublish");
+        "slf4jPublish",
+        "gangliaPublish",
+        "gangliaAddress",
+        "gangliaPort",
+        "gangliaAddressingMode",
+        "gangliaTtl");
 
     /**
      * Restricted constructor.
@@ -266,6 +487,16 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
           return _jmxPublish;
         case 283122412:  // slf4jPublish
           return _slf4jPublish;
+        case 113968702:  // gangliaPublish
+          return _gangliaPublish;
+        case -798358237:  // gangliaAddress
+          return _gangliaAddress;
+        case 44258738:  // gangliaPort
+          return _gangliaPort;
+        case -772603358:  // gangliaAddressingMode
+          return _gangliaAddressingMode;
+        case 555621019:  // gangliaTtl
+          return _gangliaTtl;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -308,6 +539,46 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Boolean> slf4jPublish() {
       return _slf4jPublish;
+    }
+
+    /**
+     * The meta-property for the {@code gangliaPublish} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> gangliaPublish() {
+      return _gangliaPublish;
+    }
+
+    /**
+     * The meta-property for the {@code gangliaAddress} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> gangliaAddress() {
+      return _gangliaAddress;
+    }
+
+    /**
+     * The meta-property for the {@code gangliaPort} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> gangliaPort() {
+      return _gangliaPort;
+    }
+
+    /**
+     * The meta-property for the {@code gangliaAddressingMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> gangliaAddressingMode() {
+      return _gangliaAddressingMode;
+    }
+
+    /**
+     * The meta-property for the {@code gangliaTtl} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> gangliaTtl() {
+      return _gangliaTtl;
     }
 
   }
