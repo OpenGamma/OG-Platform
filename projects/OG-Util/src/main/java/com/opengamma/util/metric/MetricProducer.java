@@ -15,9 +15,10 @@ public interface MetricProducer {
   /**
    * A call to tell the class to register its metrics with the given registry.
    * 
-   * @param registry   the registry to register with, not null
+   * @param summaryRegistry   the registry to register summary statistics to, not null
+   * @param detailRegistry    the registry to publish very detailed statistics to, not null
    * @param namePrefix  the prefix for the actual metrics themselves, not null
    */
-  void registerMetrics(MetricRegistry registry, String namePrefix);
+  void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix);
 
 }

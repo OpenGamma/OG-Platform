@@ -32,7 +32,7 @@ public abstract class CogdaRecordChunker implements MetricProducer {
    */
   private static final int ESTIMATE_SYMBOL_COUNT = 10000;
   private final ConcurrentMap<String, Meter> _symbolStatistics = new ConcurrentHashMap<String, Meter>(ESTIMATE_SYMBOL_COUNT);
-  private MetricRegistry _metricRegistry;
+  private MetricRegistry _detailedRegistry;
   private String _metricNamePrefix;
   private Meter _tickMeter;
   private Lock _metricsModificationLock = new ReentrantLock();
@@ -47,10 +47,10 @@ public abstract class CogdaRecordChunker implements MetricProducer {
   private InputStreamFactory _inputStreamFactory;
 
   @Override
-  public synchronized void registerMetrics(MetricRegistry registry, String namePrefix) {
-    _metricRegistry = registry;
+  public synchronized void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    _detailedRegistry = detailedRegistry;
     _metricNamePrefix = namePrefix;
-    _tickMeter = registry.meter(namePrefix + ".total");
+    _tickMeter = summaryRegistry.meter(namePrefix + ".total");
   }
 
   /**
@@ -101,7 +101,7 @@ public abstract class CogdaRecordChunker implements MetricProducer {
       try {
         perSymbolMeter = _symbolStatistics.get(symbol);
         if (perSymbolMeter == null) {
-          perSymbolMeter = _metricRegistry.meter(_metricNamePrefix + "." + symbol);
+          perSymbolMeter = _detailedRegistry.meter(_metricNamePrefix + "." + symbol);
           _symbolStatistics.put(symbol, perSymbolMeter);
         }
       } finally {

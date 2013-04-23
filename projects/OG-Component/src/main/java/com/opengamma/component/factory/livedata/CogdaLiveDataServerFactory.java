@@ -70,7 +70,7 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
     if (getListenPort() != null) {
       liveDataServer.setPortNumber(getListenPort());
     }
-    liveDataServer.registerMetrics(OpenGammaMetricRegistry.getInstance(), "CogdaLiveDataServer");
+    liveDataServer.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "CogdaLiveDataServer");
     
     CogdaLiveDataServerUpdateListener updateListener = new CogdaLiveDataServerUpdateListener(liveDataServer);
     

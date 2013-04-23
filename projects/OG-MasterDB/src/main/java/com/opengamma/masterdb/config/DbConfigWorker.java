@@ -105,11 +105,11 @@ import com.yammer.metrics.Timer;
   }
 
   @Override
-  public void registerMetrics(MetricRegistry registry, String namePrefix) {
-    super.registerMetrics(registry, namePrefix);
-    _insertTimer = registry.timer(namePrefix + ".insert");
-    _metaDataTimer = registry.timer(namePrefix + ".metaData");
-    _searchTimer = registry.timer(namePrefix + ".search");
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    super.registerMetrics(summaryRegistry, detailedRegistry, namePrefix);
+    _insertTimer = summaryRegistry.timer(namePrefix + ".insert");
+    _metaDataTimer = summaryRegistry.timer(namePrefix + ".metaData");
+    _searchTimer = summaryRegistry.timer(namePrefix + ".search");
   }
 
   //-------------------------------------------------------------------------

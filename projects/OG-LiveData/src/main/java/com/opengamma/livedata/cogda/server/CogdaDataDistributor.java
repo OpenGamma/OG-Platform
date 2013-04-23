@@ -82,8 +82,8 @@ public abstract class CogdaDataDistributor implements Lifecycle, MetricProducer 
   }
   
   @Override
-  public void registerMetrics(MetricRegistry registry, String namePrefix) {
-    _tickMeter = registry.meter(namePrefix + ".ticks");
+  public synchronized void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    _tickMeter = summaryRegistry.meter(namePrefix + ".ticks");
   }
 
   /**
