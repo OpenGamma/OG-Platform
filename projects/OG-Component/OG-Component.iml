@@ -45,6 +45,9 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:0.9.17" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:0.9.17" level="project" />
     <orderEntry type="library" name="Maven: com.yammer.metrics:metrics-core:3.0.0-BETA1" level="project" />
+    <orderEntry type="library" name="Maven: com.yammer.metrics:metrics-ganglia:3.0.0-BETA1" level="project" />
+    <orderEntry type="library" name="Maven: info.ganglia.gmetric4j:gmetric4j:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.acplt:oncrpc:1.0.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:3.0.7.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-asm:3.0.7.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-beans:3.0.7.RELEASE" level="project" />
