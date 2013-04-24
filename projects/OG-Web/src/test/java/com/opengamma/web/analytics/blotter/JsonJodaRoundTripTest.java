@@ -68,7 +68,7 @@ public class JsonJodaRoundTripTest {
     BeanTraverser traverser = new BeanTraverser(s_propertyFilter);
     JSONObject json = (JSONObject) traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
     assertNotNull(json);
-    System.out.println(json);
+//    System.out.println(json);
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(FXForwardSecurity.meta()));
@@ -113,7 +113,7 @@ public class JsonJodaRoundTripTest {
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
     JSONObject json = (JSONObject) traverser.traverse(SwapSecurity.meta(), writingVisitor);
     assertNotNull(json);
-    System.out.println(json);
+//    System.out.println(json);
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(
@@ -152,7 +152,7 @@ public class JsonJodaRoundTripTest {
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
     JSONObject json = (JSONObject) traverser.traverse(BondFutureSecurity.meta(), writingVisitor);
     assertNotNull(json);
-    System.out.println(json);
+//    System.out.println(json);
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(

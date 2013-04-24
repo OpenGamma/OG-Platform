@@ -23,7 +23,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.UNIT, enabled = false)
 public class JsonBeanStructureVisitorTest {
 
   static {
@@ -49,4 +49,5 @@ public class JsonBeanStructureVisitorTest {
     System.out.println(new BeanTraverser().traverse(SwapSecurity.meta(), visitor));
     System.out.println(new BeanTraverser().traverse(FixedInterestRateLeg.meta(), visitor));
   }
+
 }
