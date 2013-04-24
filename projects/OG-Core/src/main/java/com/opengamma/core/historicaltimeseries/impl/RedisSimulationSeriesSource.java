@@ -21,8 +21,11 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -124,10 +127,10 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
       _jedisPool.returnResource(jedis);
     }
     
-    return composeFromRedisValues(valuesFromRedis);
+    return composeFromRedisValues(uniqueId, valuesFromRedis);
   }
 
-  private static HistoricalTimeSeries composeFromRedisValues(Map<String, String> valuesFromRedis) {
+  private static HistoricalTimeSeries composeFromRedisValues(UniqueId uniqueId, Map<String, String> valuesFromRedis) {
     
     int[] dates = new int[valuesFromRedis.size()];
     double[] values = new double[valuesFromRedis.size()];
@@ -139,9 +142,11 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
       i++;
     }
     
-    //ParallelArrayBinary
+    ParallelArrayBinarySort.parallelBinarySort(dates, values);
     
-    return null;
+    LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
+    HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(uniqueId, ts);
+    return hts;
   }
 
   // ------------------------------------------------------------------------
