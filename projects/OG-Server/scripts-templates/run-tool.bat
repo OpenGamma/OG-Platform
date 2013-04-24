@@ -4,12 +4,12 @@
 ::
 :: ---------------------------------------------------------------------------
 if "%OS%" == "Windows_NT" setlocal
-set BASEDIR=%~dp0..
+set BASEDIR=%~dp0\..
 set SCRIPTDIR=%BASEDIR%\scripts
 
 
 :: ---------------------------------------------------------------------------
-:: Tool runner utility 
+:: Tool runner utility
 ::
 :: Environment Variable Prerequisites
 ::
@@ -18,16 +18,16 @@ set SCRIPTDIR=%BASEDIR%\scripts
 ::
 ::
 ::   JAVA_HOME       Must point at your Java Development Kit installation.
-::        
+::
 ::
 ::   JRE_HOME        Must point at your Java Runtime installation.
 ::                   Defaults to JAVA_HOME if empty. If JRE_HOME and JAVA_HOME
 ::                   are both set, JRE_HOME is used.
 ::
 
-:: --------------------------------------------------------------------------- 
-::     JRE_HOME setup     
-  
+:: ---------------------------------------------------------------------------
+::     JRE_HOME setup
+
 if not "%JRE_HOME%" == "" goto gotJRE
 set JRE_HOME=%JAVA_HOME%
 
@@ -40,8 +40,8 @@ if "%JRE_HOME%" == "" (
 :gotJRE
 
 
-:: --------------------------------------------------------------------------- 
-::     JAVA_CMD setup       
+:: ---------------------------------------------------------------------------
+::     JAVA_CMD setup
 
 :: check if we got JAVA_CMD set
 if not "%JAVA_CMD%" == "" goto gotJavaCmd
@@ -51,7 +51,7 @@ set JAVA_CMD=%JRE_HOME%\bin\java
 :gotJavaCmd
 
 if exist "%JAVA_CMD%.exe" (
-    echo "Using %JAVA_CMD% java command" 
+    echo "Using %JAVA_CMD% java command"
 ) else (
     echo "Java command is not defined. Plese set JAVA_CMD environment variable pointing to java executable"
     pause
@@ -59,7 +59,7 @@ if exist "%JAVA_CMD%.exe" (
 )
 
 :: ---------------------------------------------------------------------------
-::     CLASS PATH  
+::     CLASS PATH
 
 setLocal EnableDelayedExpansion
 set _CLASSPATH=
@@ -69,7 +69,7 @@ for /R "%BASEDIR%\lib" %%G in (.) do (
 
 
 rem Get standard environment variables
-if exist %HOMEDRIVE%%HOMEPATH%/.opengamma/tools.bat (
+if exist "%HOMEDRIVE%%HOMEPATH%"/.opengamma/tools.bat (
     CALL "%HOMEDRIVE%%HOMEPATH%/.opengamma/tools.bat"
 )
 
@@ -84,16 +84,16 @@ SET GC_OPTS=-XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSIncrementalP
 SET CLASSPATH=!_CLASSPATH!
 
 if not "%PROJECTJAR%" == "" (
-    if exist %BASEDIR%\%PROJECTJAR% (
-        SET CLASSPATH=%BASEDIR%\%PROJECTJAR%;%CLASSPATH%
+    if exist "%BASEDIR%\%PROJECTJAR%" (
+        SET CLASSPATH="%BASEDIR%\%PROJECTJAR%;%CLASSPATH%"
     ) else (
-        if exist %BASEDIR%\build\%PROJECTJAR% ( 
-            SET CLASSPATH=%BASEDIR%\build\%PROJECTJAR%;%CLASSPATH%
+        if exist "%BASEDIR%\build\%PROJECTJAR%" (
+            SET CLASSPATH="%BASEDIR%\build\%PROJECTJAR%;%CLASSPATH%"
         )
     )
 )
 
 SET CLASSPATH=%BASEDIR%\config;%CLASSPATH%
 
-"%JAVA_CMD%" %MEM_OPTS% %GC_OPT% -cp %CLASSPATH% %*
+"%JAVA_CMD%" %MEM_OPTS% %GC_OPTS% -cp "%CLASSPATH%" %*
 
