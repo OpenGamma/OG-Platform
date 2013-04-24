@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -43,7 +43,7 @@ public final class DeliverableSwapFuturesTransactionHullWhiteMethod extends Deli
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final DeliverableSwapFuturesTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MultipleCurrencyAmount presentValue(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     return presentValueFromPrice(futures, METHOD_SECURITY.price(futures.getUnderlying(), hwMulticurves));
   }
 
@@ -53,7 +53,7 @@ public final class DeliverableSwapFuturesTransactionHullWhiteMethod extends Deli
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The present value curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final DeliverableSwapFuturesTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     return presentValueCurveSensitivity(futures, METHOD_SECURITY.priceCurveSensitivity(futures.getUnderlying(), hwMulticurves));
   }
 

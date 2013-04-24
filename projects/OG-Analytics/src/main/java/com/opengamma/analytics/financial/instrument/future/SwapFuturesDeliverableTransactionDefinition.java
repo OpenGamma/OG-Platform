@@ -13,19 +13,19 @@ import com.opengamma.analytics.financial.ExpiredException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of an interest rate future security.
  */
-public class DeliverableSwapFuturesTransactionDefinition implements InstrumentDefinitionWithData<InstrumentDerivative, Double> {
+public class SwapFuturesDeliverableTransactionDefinition implements InstrumentDefinitionWithData<InstrumentDerivative, Double> {
 
   /**
    * The underlying swap futures security.
    */
-  private final DeliverableSwapFuturesSecurityDefinition _underlying;
+  private final SwapFuturesDeliverableSecurityDefinition _underlying;
   /**
    * The date at which the transaction was done.
    */
@@ -46,7 +46,7 @@ public class DeliverableSwapFuturesTransactionDefinition implements InstrumentDe
    * @param transactionPrice The price at which the transaction was done.
    * @param quantity The quantity/number of contract.
    */
-  public DeliverableSwapFuturesTransactionDefinition(final DeliverableSwapFuturesSecurityDefinition underlying, final ZonedDateTime transactionDate,
+  public SwapFuturesDeliverableTransactionDefinition(final SwapFuturesDeliverableSecurityDefinition underlying, final ZonedDateTime transactionDate,
       final double transactionPrice, final int quantity) {
     ArgumentChecker.notNull(underlying, "Underlying");
     ArgumentChecker.notNull(transactionDate, "Transaction date");
@@ -60,7 +60,7 @@ public class DeliverableSwapFuturesTransactionDefinition implements InstrumentDe
    * Returns the underlying futures security.
    * @return The underlying.
    */
-  public DeliverableSwapFuturesSecurityDefinition getUnderlying() {
+  public SwapFuturesDeliverableSecurityDefinition getUnderlying() {
     return _underlying;
   }
 
@@ -92,7 +92,7 @@ public class DeliverableSwapFuturesTransactionDefinition implements InstrumentDe
   /**
    * @param lastMarginPrice The price on which the last margining was done.
    */
-  public DeliverableSwapFuturesTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
+  public SwapFuturesDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final LocalDate date = dateTime.toLocalDate();
@@ -107,8 +107,8 @@ public class DeliverableSwapFuturesTransactionDefinition implements InstrumentDe
     } else { // Transaction is today
       referencePrice = _transactionPrice;
     }
-    final DeliverableSwapFuturesSecurity underlying = _underlying.toDerivative(dateTime, yieldCurveNames);
-    final DeliverableSwapFuturesTransaction future = new DeliverableSwapFuturesTransaction(underlying, referencePrice, _quantity);
+    final SwapFuturesDeliverableSecurity underlying = _underlying.toDerivative(dateTime, yieldCurveNames);
+    final SwapFuturesDeliverableTransaction future = new SwapFuturesDeliverableTransaction(underlying, referencePrice, _quantity);
     return future;
   }
 
@@ -159,7 +159,7 @@ public class DeliverableSwapFuturesTransactionDefinition implements InstrumentDe
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeliverableSwapFuturesTransactionDefinition other = (DeliverableSwapFuturesTransactionDefinition) obj;
+    SwapFuturesDeliverableTransactionDefinition other = (SwapFuturesDeliverableTransactionDefinition) obj;
     if (_quantity != other._quantity) {
       return false;
     }
