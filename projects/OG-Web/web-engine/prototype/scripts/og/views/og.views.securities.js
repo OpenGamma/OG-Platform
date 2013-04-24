@@ -153,7 +153,7 @@ $.register_module({
                                         json.template_data['underlyingExternalId'],
                                     anchor = '<a class="og-js-live-anchor" href="' + routes.prefix() + hash + '">' +
                                         text + '</a>';
-                                    $('.OG-layout-admin-details-center .OG-js-underlying-id').html(anchor);
+                                $('.OG-layout-admin-details-center .OG-js-underlying-id').html(anchor);
                             }
                         }());
                         ui.toolbar(view.options.toolbar.active);
