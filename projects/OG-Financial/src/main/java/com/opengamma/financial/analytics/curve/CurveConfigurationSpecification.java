@@ -78,7 +78,7 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 486583532:  // targetSpec
         return getTargetSpec();
@@ -89,7 +89,7 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 486583532:  // targetSpec
         setTargetSpec((ComputationTargetSpecification) newValue);
@@ -108,12 +108,12 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CurveConfigurationSpecification other = (CurveConfigurationSpecification) obj;
+      CurveConfigurationSpecification other = (CurveConfigurationSpecification) obj;
       return JodaBeanUtils.equal(getTargetSpec(), other.getTargetSpec()) &&
           JodaBeanUtils.equal(getPriority(), other.getPriority());
     }
@@ -141,7 +141,7 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
    * Sets the computation target specification.
    * @param targetSpec  the new value of the property, not null
    */
-  public void setTargetSpec(final ComputationTargetSpecification targetSpec) {
+  public void setTargetSpec(ComputationTargetSpecification targetSpec) {
     JodaBeanUtils.notNull(targetSpec, "targetSpec");
     this._targetSpec = targetSpec;
   }
@@ -167,7 +167,7 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
    * Sets the priority of the this computation configuration specification (lower is higher priority, with zero the highest)
    * @param priority  the new value of the property
    */
-  public void setPriority(final int priority) {
+  public void setPriority(int priority) {
     this._priority = priority;
   }
 
@@ -214,7 +214,7 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 486583532:  // targetSpec
           return _targetSpec;
