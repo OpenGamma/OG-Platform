@@ -610,4 +610,18 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     }
     return newRoot;
   }
+
+  // TODO are these methods necessary? they're not used
+  public PortfolioMaster getPortfolioMaster() {
+    return _portfolioMaster;
+  }
+
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
+  }
+
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
 }
