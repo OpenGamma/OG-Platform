@@ -25,10 +25,17 @@ $.register_module({
             };
             auto_scroll.timeout = auto_scroll.scroll = null;
             var clean_up = function () {
-                var selection = selector.selection();
+                var selection = selector.selection(), sheet, css;
                 $(document).off(namespace);
                 auto_scroll.timeout = auto_scroll.scroll = clearTimeout(auto_scroll.timeout), null;
-                if (selection) selector.fire('select', selection);
+                if (selection) {
+                    selector.fire('select', selection);
+                    grid.elements.selector_style.empty();
+                    css = selection.rows.map(function (row) {return grid.id + ' .OG-g-' + row + ' .c0';})
+                        .join(', ') + ' {font-weight: bold;}';
+                    if ((sheet = grid.elements.selector_style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
+                    else sheet.appendChild(document.createTextNode(css));
+                }
                 selector.render(); // render again just to give clipboard the chance to make a selection
                 selector.busy(false);
             };
@@ -86,16 +93,23 @@ $.register_module({
             })(false);
             selector.grid = grid;
             selector.rectangle = null;
+            grid.elements.selector_style = $('<style type="text/css" />').appendTo('head');
             grid.on('mousedown', mousedown) // initialize
                 .on('render', selector.render, selector)
-                .on('resize', selector.resize, selector);
+                .on('resize', selector.resize, selector)
+                .on('kill', selector.kill, selector);
         };
         Selector.prototype.clear = function () {
             var selector = this, grid = selector.grid;
+            grid.elements.selector_style.empty();
             $(selector.grid.id + ' ' + overlay).remove();
             selector.rectangle = null;
         };
         Selector.prototype.fire = og.common.events.fire;
+        Selector.prototype.kill = function () {
+            var selector = this, grid = selector.grid;
+            try {grid.elements.selector_style.remove();} catch (error) {}
+        };
         Selector.prototype.off = og.common.events.off;
         Selector.prototype.on = og.common.events.on;
         Selector.prototype.render = function (rectangle) {

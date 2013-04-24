@@ -361,7 +361,6 @@ $.register_module({
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             verify_state.call(grid);
             if (!reorder_cols.call(grid)) populate_cols.call(grid);
-            meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
             grid.resize(config[has]('collapse_level'));
             render_rows.call(grid, null, true);
@@ -441,12 +440,10 @@ $.register_module({
                     grid_row = state.available.indexOf(rows[0]), types = meta.columns.types, type,
                     total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
                     col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
-                    widths = meta.columns.widths, row_class = meta.row_class, result = {rows: [], loading: loading};
+                    widths = meta.columns.widths, result = {rows: [], loading: loading};
                 if (loading) return result;
                 for (i = 0; i < row_len; i += 1) {
-                    result.rows.push({
-                        top: row_height * grid_row++, cells: (cells = []), row_class: row_class[data_row = rows[i]]
-                    });
+                    result.rows.push({top: row_height * grid_row++, cells: (cells = []), data_row: data_row = rows[i]});
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (; j < col_end; j += 1) {
                         index = i * total_cols + j;
@@ -465,7 +462,7 @@ $.register_module({
                 }
                 return result;
             };
-            return function (data, loading) { // TODO handle scenario where grid was busy when data stopped ticking
+            return function (data, loading, quiet) { // TODO handle scenario where grid was busy when data stopped
                 var grid = this, meta = grid.meta;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
                 grid.data = data;
@@ -480,7 +477,7 @@ $.register_module({
                     if (grid.elements.notified) grid.elements.notified = (grid.elements.notified.remove(), null);
                 }
                 grid.busy(false);
-                grid.fire('render');
+                if (!quiet) grid.fire('render');
             };
         })();
         var set_css = function (id, sets, offset) {
@@ -652,6 +649,7 @@ $.register_module({
             var grid = this;
             try {grid.dataman.kill();} catch (error) {}
             try {grid.elements.style.remove();} catch (error) {}
+            try {grid.fire('kill');} catch (error) {}
         };
         Grid.prototype.label = 'grid';
         Grid.prototype.nearest_cell = function (x, y) {
