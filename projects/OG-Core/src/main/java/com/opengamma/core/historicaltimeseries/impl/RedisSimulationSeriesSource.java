@@ -32,7 +32,10 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ParallelArrayBinarySort;
+import com.opengamma.util.metric.MetricProducer;
 import com.opengamma.util.tuple.Pair;
+import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.Timer;
 
 /**
  * An extremely minimal and lightweight {@code HistoricalTimeSeriesSource} that pulls data
@@ -55,11 +58,12 @@ import com.opengamma.util.tuple.Pair;
  * See <a href="http://jira.opengamma.com/browse/PLAT-3385">PLAT-3385</a> for the original
  * requirement.
  */
-public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, HistoricalTimeSeriesResolver {
+public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, HistoricalTimeSeriesResolver, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSource.class);
   private final JedisPool _jedisPool;
   private final String _redisPrefix;
   private LocalDate _currentSimulationExecutionDate = LocalDate.now();
+  private Timer _getSeriesTimer = new Timer();
   
   public RedisSimulationSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
@@ -103,6 +107,15 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
    */
   public void setCurrentSimulationExecutionDate(LocalDate currentSimulationExecutionDate) {
     _currentSimulationExecutionDate = currentSimulationExecutionDate;
+  }
+
+  // ------------------------------------------------------------------------
+  // METRICS:
+  // ------------------------------------------------------------------------
+  
+  @Override
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
+    _getSeriesTimer = summaryRegistry.timer(namePrefix + ".get");
   }
 
   // ------------------------------------------------------------------------
@@ -168,32 +181,34 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     // This is the only method that needs implementation.
     
-    // We ignore all parameters except for the UniqueId.
-    String redisKey = toRedisKey(uniqueId, getCurrentSimulationExecutionDate());
-    Map<String, String> valuesFromRedis = null;
-    Jedis jedis = _jedisPool.getResource();
-    try {
-      valuesFromRedis = jedis.hgetAll(redisKey);
-    } catch (Exception e) {
-      s_logger.error("Unable to load points from redis for " + uniqueId, e);
-      _jedisPool.returnBrokenResource(jedis);
-      throw new OpenGammaRuntimeException("Unable to load points from redis for " + uniqueId, e);
-    } finally {
-      _jedisPool.returnResource(jedis);
+    try (Timer.Context context = _getSeriesTimer.time()) {
+      // We ignore all parameters except for the UniqueId.
+      String redisKey = toRedisKey(uniqueId, getCurrentSimulationExecutionDate());
+      Map<String, String> valuesFromRedis = null;
+      Jedis jedis = _jedisPool.getResource();
+      try {
+        valuesFromRedis = jedis.hgetAll(redisKey);
+      } catch (Exception e) {
+        s_logger.error("Unable to load points from redis for " + uniqueId, e);
+        _jedisPool.returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to load points from redis for " + uniqueId, e);
+      } finally {
+        _jedisPool.returnResource(jedis);
+      }
+      
+      if ((valuesFromRedis == null) || valuesFromRedis.isEmpty()) {
+        return null;
+      }
+      
+      LocalDateDoubleTimeSeries ts = composeFromRedisValues(valuesFromRedis);
+      
+      if (start != null) {
+        ArgumentChecker.notNull(end, "end");
+        ts = ts.subSeries(start, includeStart, end, includeEnd);
+      }
+      
+      return new SimpleHistoricalTimeSeries(uniqueId, ts);
     }
-    
-    if ((valuesFromRedis == null) || valuesFromRedis.isEmpty()) {
-      return null;
-    }
-    
-    LocalDateDoubleTimeSeries ts = composeFromRedisValues(valuesFromRedis);
-    
-    if (start != null) {
-      ArgumentChecker.notNull(end, "end");
-      ts = ts.subSeries(start, includeStart, end, includeEnd);
-    }
-    
-    return new SimpleHistoricalTimeSeries(uniqueId, ts);
   }
 
   private static LocalDateDoubleTimeSeries composeFromRedisValues(Map<String, String> valuesFromRedis) {
