@@ -14,5 +14,5 @@ public interface CurveConfigurationVisitor<RETURN_TYPE> {
 
   RETURN_TYPE visitOvernightCurveConfiguration(OvernightCurveConfiguration configuration);
 
-  RETURN_TYPE visitForwardCurveConfiguration(ForwardCurveConfiguration configuration);
+  RETURN_TYPE visitForwardIborCurveConfiguration(ForwardIborCurveConfiguration configuration);
 }
