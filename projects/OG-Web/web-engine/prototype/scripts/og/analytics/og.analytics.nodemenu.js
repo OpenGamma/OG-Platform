@@ -13,7 +13,7 @@ $.register_module({
         };
         NodeMenu.prototype.display = function () {
             var menu = this;
-            return og.common.util.ui.contextmenu({zindex: 4, items: menu.items()}, menu.event, menu.cell);
+            return og.common.util.ui.contextmenu({zindex: 5, items: menu.items()}, menu.event, menu.cell);
         };
         NodeMenu.prototype.items = function () {
             var menu = this, grid = menu.grid, event = menu.event, cell = menu.cell, dry = true,
