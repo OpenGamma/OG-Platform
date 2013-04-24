@@ -52,11 +52,18 @@ import com.opengamma.util.tuple.Pair;
 public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSource.class);
   private final JedisPool _jedisPool;
+  private final String _redisPrefix;
   private LocalDate _currentSimulationExecutionDate = LocalDate.now();
   
   public RedisSimulationSeriesSource(JedisPool jedisPool) {
+    this(jedisPool, "");
+  }
+  
+  public RedisSimulationSeriesSource(JedisPool jedisPool, String redisPrefix) {
     ArgumentChecker.notNull(jedisPool, "jedisPool");
+    ArgumentChecker.notNull(redisPrefix, "redisPrefix");
     _jedisPool = jedisPool;
+    _redisPrefix = redisPrefix;
   }
 
   /**
@@ -67,6 +74,14 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
     return _jedisPool;
   }
   
+  /**
+   * Gets the redisPrefix.
+   * @return the redisPrefix
+   */
+  protected String getRedisPrefix() {
+    return _redisPrefix;
+  }
+
   /**
    * Gets the currentSimulationExecutionDate.
    * @return the currentSimulationExecutionDate
@@ -106,6 +121,40 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
     }
   }
   
+  /**
+   * Completely empty the underlying Redis server.
+   * You should only call this if you really know what you're doing.
+   */
+  public void completelyClearRedis() {
+    Jedis jedis = _jedisPool.getResource();
+    try {
+      jedis.flushDB();
+    } catch (Exception e) {
+      s_logger.error("Unable to clear database", e);
+      _jedisPool.returnBrokenResource(jedis);
+      throw new OpenGammaRuntimeException("Unable to clear database", e);
+    } finally {
+      _jedisPool.returnResource(jedis);
+    }
+  }
+  
+  public void clearExecutionDate(LocalDate simulationExecutionDate) {
+    final String keysPattern = _redisPrefix + "*_" + simulationExecutionDate.toString();
+    Jedis jedis = _jedisPool.getResource();
+    try {
+      Set<String> keys = jedis.keys(keysPattern);
+      if (!keys.isEmpty()) {
+        jedis.del(keys.toArray(new String[0]));
+      }
+    } catch (Exception e) {
+      s_logger.error("Unable to clear execution date " + simulationExecutionDate, e);
+      _jedisPool.returnBrokenResource(jedis);
+      throw new OpenGammaRuntimeException("Unable to clear execution date " + simulationExecutionDate, e);
+    } finally {
+      _jedisPool.returnResource(jedis);
+    }
+  }
+  
   // ------------------------------------------------------------------------
   // SUPPORTED HISTORICAL TIME SERIES SOURCE OPERATIONS:
   // ------------------------------------------------------------------------
@@ -125,6 +174,10 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
       throw new OpenGammaRuntimeException("Unable to load points from redis for " + uniqueId, e);
     } finally {
       _jedisPool.returnResource(jedis);
+    }
+    
+    if ((valuesFromRedis == null) || valuesFromRedis.isEmpty()) {
+      return null;
     }
     
     return composeFromRedisValues(uniqueId, valuesFromRedis);
@@ -153,11 +206,13 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
   // UTILITY METHODS:
   // ------------------------------------------------------------------------
   
-  private static String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
+  private String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
     StringBuilder sb = new StringBuilder();
     
+    sb.append(_redisPrefix);
+    sb.append('_');
     sb.append(uniqueId);
-    sb.append('*');
+    sb.append('_');
     sb.append(simulationExecutionDate.toString());
     
     return sb.toString();
