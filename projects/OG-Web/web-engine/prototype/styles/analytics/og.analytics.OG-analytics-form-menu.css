@@ -127,7 +127,7 @@
     }
 
     .OG-analytics-form-menu.og-menu-datasources tr td select.source{
-        width: 100%;
+        width: auto;
         min-width: 256px;
     }
 
