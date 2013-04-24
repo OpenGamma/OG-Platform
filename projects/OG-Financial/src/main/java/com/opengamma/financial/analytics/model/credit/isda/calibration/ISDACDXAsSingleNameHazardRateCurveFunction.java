@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHaz
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
@@ -56,6 +55,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 

@@ -26,10 +26,15 @@ public interface SourceWithExternalBundle<V extends UniqueIdentifiable & Externa
   /**
    * Gets all objects at the given version-correction that match the specified external identifier bundle.
    * <p>
-   * A bundle represents the set of external identifiers which in theory map to a single object. Unfortunately, not all external identifiers uniquely identify a single version of a single object.
-   * 
-   * @param bundle the bundle keys to match, not null
-   * @param versionCorrection the version-correction, not null
+   * A bundle represents the set of external identifiers which in theory map to a single object.
+   * Unfortunately, not all external identifiers uniquely identify a single version of a single object.
+   * The default behavior in standard implementations should be to return any
+   * element with <strong>any</strong> external identifier that matches <strong>any</strong>
+   * identifier in the bundle. While specific implementations may modify this behavior,
+   * this should be explicitly documented to avoid confusion. 
+   *
+   * @param bundle  the bundle keys to match, not null
+   * @param versionCorrection  the version-correction, not null
    * @return all objects matching the bundle, empty if no matches, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid
    * @throws RuntimeException if an error occurs

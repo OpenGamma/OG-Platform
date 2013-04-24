@@ -11,8 +11,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.financial.analytics.QuickSorter.ArrayQuickSorter;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * @param <S>
