@@ -11,6 +11,7 @@ import java.util.Arrays;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * Monotone Convex Interpolation based on 
@@ -79,8 +80,7 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
 
     _time = Arrays.copyOf(xValues, nDataPts);
     _spotRates = Arrays.copyOf(spotTmp, nDataPts);
-
-    parallelBinarySort(nDataPts);
+    ParallelArrayBinarySort.parallelBinarySort(_time, _spotRates);
 
     final DoubleMatrix2D coefMatrix = solve(_time, _spotRates);
     final DoubleMatrix2D coefMatrixIntegrate = integration(_time, coefMatrix.getData());
@@ -261,8 +261,7 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
 
     _time = Arrays.copyOf(xValues, nDataPts);
     _spotRates = Arrays.copyOf(spotTmp, nDataPts);
-
-    parallelBinarySort(nDataPts);
+    ParallelArrayBinarySort.parallelBinarySort(_time, _spotRates);
 
     final DoubleMatrix2D coefMatrix = solve(_time, _spotRates);
 
@@ -542,45 +541,4 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
     return Math.min(Math.max(a, b), c);
   }
 
-  /**
-   * A set of methods below is for sorting xValues and yValues in the ascending order in terms of xValues
-   * @param nDataPts 
-   */
-  protected void parallelBinarySort(final int nDataPts) {
-    dualArrayQuickSort(_time, _spotRates, 0, nDataPts - 1);
-  }
-
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
-      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
-      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
-    }
-  }
-
-  private static int partition(final double[] keys, final double[] values, final int left, final int right,
-      final int pivot) {
-    final double pivotValue = keys[pivot];
-    swap(keys, values, pivot, right);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i] <= pivotValue) {
-        swap(keys, values, i, storeIndex);
-        storeIndex++;
-      }
-    }
-    swap(keys, values, storeIndex, right);
-    return storeIndex;
-  }
-
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
-    double t = keys[first];
-    keys[first] = keys[second];
-    keys[second] = t;
-
-    t = values[first];
-    values[first] = values[second];
-    values[second] = t;
-  }
 }

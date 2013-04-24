@@ -10,16 +10,16 @@ import java.util.Collection;
 
 import com.opengamma.financial.convention.percurrency.USConventions;
 import com.opengamma.financial.convention.percurrency.ZAConventions;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 /**
  * 
  */
 public class InMemoryConventionMaster implements ConventionMaster {
-  private final ExternalIdBundleMapper<Convention> _mapper = new ExternalIdBundleMapper<>(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName());
+  /** In-memory scheme */
+  public static final ExternalScheme IN_MEMORY_UNIQUE_SCHEME = ExternalScheme.of("In-memory");
+  private final ExternalIdBundleMapper<Convention> _mapper = new ExternalIdBundleMapper<>(IN_MEMORY_UNIQUE_SCHEME.getName());
 
-  /**
-   * 
-   */
   public InMemoryConventionMaster() {
     init();
   }

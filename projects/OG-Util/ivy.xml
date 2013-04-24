@@ -44,6 +44,7 @@
     <dependency org="net.sourceforge.ehcache" name="ehcache" rev="2.6.3" />
     <dependency org="com.yammer.metrics" name="metrics-core" rev="3.0.0-BETA1" />
     <dependency org="com.yammer.metrics" name="metrics-ganglia" rev="3.0.0-BETA1" />
-    <exclude org="org.junit" />
+    <dependency org="redis" name="jedis" rev="2.1.0"/>
+    <exclude org="org.junit"/>
   </dependencies>
 </ivy-module>

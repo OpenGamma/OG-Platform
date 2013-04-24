@@ -10,28 +10,19 @@ import java.util.Arrays;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
- * Shape-preserving C2 cubic spline interpolation, where two extra knots are introduced between individual data points
+ * Shape-preserving C2 cubic spline interpolation based on  
+ * S. Pruess "Shape preserving C2 cubic spline interpolation"
+ *  IMA Journal of Numerical Analysis (1993) 13 (4): 493-507. 
+ * where two extra knots are introduced between individual data points
  * As the position of the new knots are data dependent, the matrix form of yValues producing multi-splines is not relevant
  */
 public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialInterpolator {
 
   private static final double INF = 1. / 0.;
   private static final double ERROR = 1.e-13;
-
-  private double[] _xValuesSrt;
-  private double[] _yValuesSrt;
-
-  /**
-   * Default constructor
-   */
-  public ShapePreservingCubicSplineInterpolator() {
-
-    _xValuesSrt = null;
-    _yValuesSrt = null;
-
-  }
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
@@ -57,13 +48,12 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
       }
     }
 
-    _xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-    _yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+    double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-    parallelBinarySort(nDataPts);
-
-    final double[] intervals = intervalsCalculator(_xValuesSrt);
-    final double[] slopes = slopesCalculator(_yValuesSrt, intervals);
+    final double[] intervals = intervalsCalculator(xValuesSrt);
+    final double[] slopes = slopesCalculator(yValuesSrt, intervals);
     final double[] beta = betaCalculator(slopes);
     double[] first = firstDiffFinder(intervals, slopes);
     double[] rValues = rValuesCalculator(slopes, first);
@@ -85,9 +75,9 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
 
     final double[] second = secondDiffFinder(intervals, beta, rValues);
     final double[] tau = tauFinder(intervals, slopes, beta, first, second);
-    final double[] knots = knotsProvider(_xValuesSrt, intervals, tau);
+    final double[] knots = knotsProvider(xValuesSrt, intervals, tau);
 
-    final double[][] coefMatrix = solve(_yValuesSrt, intervals, slopes, first, second, tau);
+    final double[][] coefMatrix = solve(yValuesSrt, intervals, slopes, first, second, tau);
 
     for (int i = 0; i < coefMatrix.length; ++i) {
       for (int j = 0; j < coefMatrix[0].length; ++j) {
@@ -576,47 +566,6 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
     }
 
     return res;
-  }
-
-  /**
-   * A set of methods below is for sorting xValues and yValues in the ascending order in terms of xValues
-   */
-  private void parallelBinarySort(final int nDataPts) {
-    dualArrayQuickSort(_xValuesSrt, _yValuesSrt, 0, nDataPts - 1);
-  }
-
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
-      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
-      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
-    }
-  }
-
-  private static int partition(final double[] keys, final double[] values, final int left, final int right,
-      final int pivot) {
-    final double pivotValue = keys[pivot];
-    swap(keys, values, pivot, right);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i] <= pivotValue) {
-        swap(keys, values, i, storeIndex);
-        storeIndex++;
-      }
-    }
-    swap(keys, values, storeIndex, right);
-    return storeIndex;
-  }
-
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
-    double t = keys[first];
-    keys[first] = keys[second];
-    keys[second] = t;
-
-    t = values[first];
-    values[first] = values[second];
-    values[second] = t;
   }
 
 }
