@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -67,10 +68,10 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         String curveName;
         try {
           curveName = "SAMEDAY_" + idName;
-          curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
+          curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
         } catch (final Exception e) {
           curveName = idName;
-          curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), idName);
+          curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), idName);
         }
         final List<Tenor> tenors = new ArrayList<>();
         final List<Double> marketSpreads = new ArrayList<>();
@@ -121,7 +122,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         try {
-          final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
+          final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
           for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
             if (strip.getCurveNode() instanceof CreditSpreadNode) {
               requirements.add(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
@@ -134,7 +135,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           //TODO backwards compatibility - remove when upstream functions select the correct prefix
           curveName = Iterables.getOnlyElement(curveNames);
           try {
-            final CurveSpecification specification = CreditFunctionUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
+            final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
             for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
               if (strip.getCurveNode() instanceof CreditSpreadNode) {
                 requirements.add(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));

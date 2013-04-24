@@ -5,29 +5,24 @@
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -42,90 +37,104 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
-import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.curve.InterpolatedCurveSpecification;
+import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.time.Tenor;
 
 /**
  *
  */
 public class InterpolatedYieldCurveFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldCurveFunction.class);
-  private static final LastTimeCalculator LAST_DATE_CALCULATOR = LastTimeCalculator.getInstance();
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(compilationContext);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(compilationContext);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(compilationContext);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(compilationContext);
-    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(compilationContext);
-    final InterestRateInstrumentTradeOrSecurityConverter securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
-    final FixedIncomeConverterDataProvider definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-        final Clock snapshotClock = executionContext.getValuationClock();
-        final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-        final HistoricalTimeSeriesBundle timeSeries = (HistoricalTimeSeriesBundle) inputs.getValue(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES);
-        final ValueRequirement desiredValue = desiredValues.iterator().next();
-        final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-        final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-        final ValueProperties inputProperties = ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, curveName).get();
-        final Object specificationObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), inputProperties));
-        if (specificationObject == null) {
-          throw new OpenGammaRuntimeException("Could not get interpolated yield curve specification");
+        String curveName = null;
+        String curveCalculationConfig = null;
+        for (final ValueRequirement desiredValue : desiredValues) {
+          if (desiredValue.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+            curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+            curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+            break;
+          }
         }
-        final Object dataObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, target.toSpecification(), inputProperties));
+        final Object specificationObject = inputs.getValue(ValueRequirementNames.CURVE_SPECIFICATION);
+        if (specificationObject == null) {
+          throw new OpenGammaRuntimeException("Could not get curve specification");
+        }
+        if (!(specificationObject instanceof InterpolatedCurveSpecification)) {
+          throw new OpenGammaRuntimeException("Curve specification was not an InterpolatedCurveSpecification");
+        }
+        final Object dataObject = inputs.getValue(ValueRequirementNames.CURVE_MARKET_DATA);
         if (dataObject == null) {
           throw new OpenGammaRuntimeException("Could not get yield curve data");
         }
-        final InterpolatedYieldCurveSpecificationWithSecurities specification = (InterpolatedYieldCurveSpecificationWithSecurities) specificationObject;
+        final InterpolatedCurveSpecification specification = (InterpolatedCurveSpecification) specificationObject;
         final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
         final int n = marketData.size();
         final double[] times = new double[n];
         final double[] yields = new double[n];
+        final double[][] jacobian = new double[n][n];
+        Boolean isYield = null;
         int i = 0;
-        for (final FixedIncomeStripWithSecurity strip : specification.getStrips()) {
-          final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
+        for (final CurveNodeWithIdentifier node : specification.getNodes()) {
+          if (node.getCurveNode() instanceof ContinuouslyCompoundedRateNode) {
+            if (i == 0) {
+              isYield = true;
+            } else {
+              if (!isYield) {
+                throw new OpenGammaRuntimeException("Was expecting only continuously-compounded rate nodes; have " + node.getCurveNode());
+              }
+            }
+          } else if (node.getCurveNode() instanceof DiscountFactorNode) {
+            if (i == 0) {
+              isYield = false;
+            } else {
+              if (isYield) {
+                throw new OpenGammaRuntimeException("Was expecting only discount factor nodes; have " + node.getCurveNode());
+              }
+            }
+          } else {
+            throw new OpenGammaRuntimeException("Can only handle discount factor or continuously-compounded rate nodes; have " + node.getCurveNode());
+          }
+          //TODO add check to make sure it's only discounting or rate curve nodes
+          final Double marketValue = marketData.getDataPoint(node.getIdentifier());
+          final Tenor maturity = node.getCurveNode().getResolvedMaturity();
           if (marketValue == null) {
-            throw new OpenGammaRuntimeException("Could not get market data for " + strip);
+            throw new OpenGammaRuntimeException("Could not get market data for " + node);
           }
-          final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-          final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), curveName, curveName);
-          final InstrumentDefinition<?> definition = securityConverter.visit(financialSecurity);
-          final InstrumentDerivative derivative = definitionConverter.convert(financialSecurity, definition, now, curveNames, timeSeries);
-          if (derivative == null) {
-            throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
-          }
-          times[i] = derivative.accept(LAST_DATE_CALCULATOR);
-          yields[i++] = marketValue;
+          times[i] = maturity.getPeriod().toTotalMonths() / 12.; //TODO
+          yields[i] = marketValue;
+          jacobian[i][i] = 1;
+          i++;
         }
-        final Interpolator1D interpolator = specification.getInterpolator();
+        final String interpolatorName = specification.getInterpolatorName();
+        final String rightExtrapolatorName = specification.getRightExtrapolatorName();
+        final String leftExtrapolatorName = specification.getLeftExtrapolatorName();
+        final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
         final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(times, yields, interpolator);
-        final ValueProperties properties = createValueProperties()
+        final ValueProperties curveProperties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
-            .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-            .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
             .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME).get();
-        final ValueSpecification result = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
-        return Collections.singleton(new ComputedValue(result, YieldCurve.from(curve)));
+        final ValueProperties jacobianProperties = createValueProperties()
+            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME).get();
+        final ValueSpecification curveSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), curveProperties);
+        final ValueSpecification jacobianSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, target.toSpecification(), jacobianProperties);
+        return Sets.newHashSet(new ComputedValue(curveSpec, YieldCurve.from(curve)), new ComputedValue(jacobianSpec, jacobian));
       }
 
+      //TODO should eventually be NULL
       @Override
       public ComputationTargetType getTargetType() {
         return ComputationTargetType.CURRENCY;
@@ -133,13 +142,18 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        final ValueProperties properties = createValueProperties()
+        final ValueProperties curveProperties = createValueProperties()
             .withAny(ValuePropertyNames.CURVE)
-            .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
-            .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
             .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME)
             .get();
-        return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties));
+        final ValueProperties jacobianProperties = createValueProperties()
+            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME)
+            .get();
+        final ValueSpecification curveSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), curveProperties);
+        final ValueSpecification jacobianSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, target.toSpecification(), jacobianProperties);
+        return Sets.newHashSet(curveSpec, jacobianSpec);
       }
 
       @Override
@@ -150,23 +164,12 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           s_logger.error("Could not get curve name from constraints {}", constraints);
           return null;
         }
-        final Set<String> leftInterpolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-        if (leftInterpolatorNames == null || leftInterpolatorNames.size() != 1) {
-          return null;
-        }
-        final Set<String> rightInterpolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-        if (rightInterpolatorNames == null || rightInterpolatorNames.size() != 1) {
-          return null;
-        }
-        final String curveName = curveNames.iterator().next();
-        final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(3);
-        final ComputationTargetSpecification targetSpec = target.toSpecification();
+        final String curveName = Iterables.getOnlyElement(curveNames);
+        final Set<ValueRequirement> requirements = new HashSet<>();
         final ValueProperties properties = ValueProperties.builder()
             .with(ValuePropertyNames.CURVE, curveName).get();
-        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, properties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, curveName)
-            .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveName).get()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
+        requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
         return requirements;
       }
 

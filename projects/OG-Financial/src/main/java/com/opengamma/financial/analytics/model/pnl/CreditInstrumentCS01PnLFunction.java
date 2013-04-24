@@ -53,8 +53,8 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -110,7 +110,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //TODO
     final String curveName = getCurvePrefix() + "_" + spreadCurveName;
-    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
+    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
     DoubleTimeSeries<?> fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currency)) {
