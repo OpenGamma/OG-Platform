@@ -219,6 +219,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       if (!_multithread) {
         // Save the updated existing position to the position master
         PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
+        s_logger.debug("Updated position {}, delta position {}", existingPosition, position);
 
         // update position map (huh?)
         _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
@@ -241,6 +242,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       PositionDocument addedDoc;
       try {
         addedDoc = _positionMaster.add(new PositionDocument(position));
+        s_logger.debug("Added position {}", position);
       } catch (Exception e) {
         s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage(), e);
         return null;
@@ -306,6 +308,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       PositionDocument addedDoc;
       try {
         addedDoc = _positionMaster.add(new PositionDocument(position));
+        s_logger.debug("Added position {}", position);
       } catch (Exception e) {
         s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
         return null;
@@ -423,6 +426,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
               try {
                  // Update the position in the position master
                  PositionDocument addedDoc = _positionMaster.update(new PositionDocument(position));
+                s_logger.debug("Updated position {}", position);
                  // Add the new position to the portfolio node
                  _currentNode.addPosition(addedDoc.getUniqueId());
               } catch (Exception e) {
@@ -606,17 +610,4 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     }
     return newRoot;
   }
-
-  public PortfolioMaster getPortfolioMaster() {
-    return _portfolioMaster;
-  }
-
-  public PositionMaster getPositionMaster() {
-    return _positionMaster;
-  }
-
-  public SecurityMaster getSecurityMaster() {
-    return _securityMaster;
-  }
-
 }
