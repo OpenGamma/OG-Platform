@@ -10,23 +10,12 @@ import java.util.Arrays;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * 
  */
 public class LinearInterpolator extends PiecewisePolynomialInterpolator {
-
-  private double[] _xValuesSrt;
-  private double[] _yValuesSrt;
-
-  /**
-   * 
-   */
-  public LinearInterpolator() {
-    _xValuesSrt = null;
-    _yValuesSrt = null;
-
-  }
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
@@ -52,12 +41,11 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    _xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-    _yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+    double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-    parallelBinarySort(nDataPts);
-
-    final DoubleMatrix2D coefMatrix = solve(_xValuesSrt, _yValuesSrt);
+    final DoubleMatrix2D coefMatrix = solve(xValuesSrt, yValuesSrt);
 
     for (int i = 0; i < coefMatrix.getNumberOfRows(); ++i) {
       for (int j = 0; j < coefMatrix.getNumberOfColumns(); ++j) {
@@ -66,7 +54,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(_xValuesSrt), coefMatrix, coefMatrix.getNumberOfColumns(), 1);
+    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.getNumberOfColumns(), 1);
   }
 
   @Override
@@ -98,16 +86,15 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    _xValuesSrt = new double[nDataPts];
+    double[] xValuesSrt = new double[nDataPts];
     DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
 
     for (int i = 0; i < dim; ++i) {
-      _xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-      _yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
+      xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+      double[] yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
+      ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-      parallelBinarySort(nDataPts);
-
-      coefMatrix[i] = solve(_xValuesSrt, _yValuesSrt);
+      coefMatrix[i] = solve(xValuesSrt, yValuesSrt);
     }
 
     final int nIntervals = coefMatrix[0].getNumberOfRows();
@@ -127,7 +114,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(_xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
 
   }
 
@@ -148,48 +135,6 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     }
 
     return new DoubleMatrix2D(res);
-  }
-
-  /**
-   * A set of methods below is for sorting xValues and yValues in the ascending order in terms of xValues
-   * @param nDataPts 
-   */
-  protected void parallelBinarySort(final int nDataPts) {
-    dualArrayQuickSort(_xValuesSrt, _yValuesSrt, 0, nDataPts - 1);
-  }
-
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
-      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
-      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
-    }
-  }
-
-  private static int partition(final double[] keys, final double[] values, final int left, final int right,
-      final int pivot) {
-    final double pivotValue = keys[pivot];
-    swap(keys, values, pivot, right);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i] <= pivotValue) {
-        swap(keys, values, i, storeIndex);
-        storeIndex++;
-      }
-    }
-    swap(keys, values, storeIndex, right);
-    return storeIndex;
-  }
-
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
-    double t = keys[first];
-    keys[first] = keys[second];
-    keys[second] = t;
-
-    t = values[first];
-    values[first] = values[second];
-    values[second] = t;
   }
 
 }

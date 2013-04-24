@@ -9,28 +9,14 @@ import java.util.Arrays;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * 
  */
 public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
 
-  private double[] _xValuesSrt;
-  private double[] _yValuesSrt;
-  private double[][] _yValuesMatrixSrt;
-
   private CubicSplineSolver _solver;
-
-  /**
-   * Default constructor
-   */
-  public NaturalSplineInterpolator() {
-
-    _xValuesSrt = null;
-    _yValuesSrt = null;
-    _yValuesMatrixSrt = null;
-
-  }
 
   /**
    * @param xValues X values of data
@@ -61,26 +47,25 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    _xValuesSrt = new double[nDataPts];
-    _yValuesSrt = new double[nDataPts];
+    double[] xValuesSrt = new double[nDataPts];
+    double[] yValuesSrt = new double[nDataPts];
 
-    _xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-    _yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+    yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     _solver = new CubicSplineNaturalSolver();
+    ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-    parallelBinarySort(nDataPts);
-
-    final DoubleMatrix2D coefMatrix = _solver.solve(_xValuesSrt, _yValuesSrt);
+    final DoubleMatrix2D coefMatrix = _solver.solve(xValuesSrt, yValuesSrt);
     final int nCoefs = coefMatrix.getNumberOfColumns();
 
-    for (int i = 0; i < _solver.getKnotsMat1D(_xValuesSrt).getNumberOfElements() - 1; ++i) {
+    for (int i = 0; i < _solver.getKnotsMat1D(xValuesSrt).getNumberOfElements() - 1; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
         ArgumentChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
         ArgumentChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
       }
     }
 
-    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(_xValuesSrt), coefMatrix, nCoefs, 1);
+    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), coefMatrix, nCoefs, 1);
 
   }
 
@@ -119,20 +104,19 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    _xValuesSrt = new double[nDataPts];
-    _yValuesMatrixSrt = new double[dim][nDataPts];
+    double[] xValuesSrt = new double[nDataPts];
+    double[][] yValuesMatrixSrt = new double[dim][nDataPts];
 
     _solver = new CubicSplineNaturalSolver();
     for (int i = 0; i < dim; ++i) {
-      _xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-      _yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
+      xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+      double[] yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
+      ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-      parallelBinarySort(nDataPts);
-
-      _yValuesMatrixSrt[i] = Arrays.copyOf(_yValuesSrt, nDataPts);
+      yValuesMatrixSrt[i] = Arrays.copyOf(yValuesSrt, nDataPts);
     }
 
-    DoubleMatrix2D[] coefMatrix = _solver.solveMultiDim(_xValuesSrt, new DoubleMatrix2D(_yValuesMatrixSrt));
+    DoubleMatrix2D[] coefMatrix = _solver.solveMultiDim(xValuesSrt, new DoubleMatrix2D(yValuesMatrixSrt));
 
     final int nIntervals = coefMatrix[0].getNumberOfRows();
     final int nCoefs = coefMatrix[0].getNumberOfColumns();
@@ -151,49 +135,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(_xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
-
-  }
-
-  /**
-   * A set of methods below is for sorting xValues and yValues in the ascending order in terms of xValues
-   */
-  private void parallelBinarySort(final int nDataPts) {
-    dualArrayQuickSort(_xValuesSrt, _yValuesSrt, 0, nDataPts - 1);
-  }
-
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
-      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
-      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
-    }
-  }
-
-  private static int partition(final double[] keys, final double[] values, final int left, final int right,
-      final int pivot) {
-    final double pivotValue = keys[pivot];
-    swap(keys, values, pivot, right);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i] <= pivotValue) {
-        swap(keys, values, i, storeIndex);
-        storeIndex++;
-      }
-    }
-    swap(keys, values, storeIndex, right);
-    return storeIndex;
-  }
-
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
-    double t = keys[first];
-    keys[first] = keys[second];
-    keys[second] = t;
-
-    t = values[first];
-    values[first] = values[second];
-    values[second] = t;
+    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
 }
