@@ -38,18 +38,27 @@ public class CurveNodeIdMapper {
   public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
 
   private final Map<Tenor, CurveInstrumentProvider> _cashNodeIds;
+  private final Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
   private final Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
+  private final Map<Tenor, CurveInstrumentProvider> _discountFactorNodeIds;
   private final Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
 
   /**
    * @param cashNodeIds The cash node ids
+   * @param continuouslyCompoundedRateIds The continuously-compounded rate ids
    * @param creditSpreadNodeIds The credit spread node ids
+   * @param discountFactorNodeIds The discount factor node ids
    * @param swapNodeIds The swap node ids
    */
-  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds, final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
+  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
+      final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
     _cashNodeIds = cashNodeIds;
+    _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateIds;
     _creditSpreadNodeIds = creditSpreadNodeIds;
+    _discountFactorNodeIds = discountFactorNodeIds;
     _swapNodeIds = swapNodeIds;
   }
 
@@ -81,12 +90,34 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the continuously-compounded rate node ids.
+   * @return The continuously-compounded rate node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getContinuouslyCompoundedRateNodeIds() {
+    if (_continuouslyCompoundedRateNodeIds != null) {
+      return Collections.unmodifiableMap(_continuouslyCompoundedRateNodeIds);
+    }
+    return null;
+  }
+
+  /**
    * Gets the credit spread node ids.
    * @return The credit spread node ids
    */
   public Map<Tenor, CurveInstrumentProvider> getCreditSpreadNodeIds() {
     if (_creditSpreadNodeIds != null) {
       return Collections.unmodifiableMap(_creditSpreadNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the discount factor node ids.
+   * @return The discount factor node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getDiscountFactorNodeIds() {
+    if (_discountFactorNodeIds != null) {
+      return Collections.unmodifiableMap(_discountFactorNodeIds);
     }
     return null;
   }
@@ -117,6 +148,20 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the external id of the continuously-compounded rate node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id of the security
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getContinuouslyCompoundedRateNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_continuouslyCompoundedRateNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get continuously-compounded rate node id provider");
+    }
+    return getStaticSecurity(_continuouslyCompoundedRateNodeIds, curveDate, tenor);
+  }
+
+  /**
    * Gets the external id of the credit spread node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
    * @param tenor The tenor
@@ -128,6 +173,20 @@ public class CurveNodeIdMapper {
       throw new OpenGammaRuntimeException("Cannot get credit spread node id provider");
     }
     return getStaticSecurity(_creditSpreadNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the external id of the discount factor node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getDiscountFactorNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_discountFactorNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get discount factor node id provider");
+    }
+    return getStaticSecurity(_discountFactorNodeIds, curveDate, tenor);
   }
 
   /**
@@ -153,8 +212,14 @@ public class CurveNodeIdMapper {
     if (_cashNodeIds != null) {
       allTenors.addAll(_cashNodeIds.keySet());
     }
+    if (_continuouslyCompoundedRateNodeIds != null) {
+      allTenors.addAll(_continuouslyCompoundedRateNodeIds.keySet());
+    }
     if (_creditSpreadNodeIds != null) {
       allTenors.addAll(_creditSpreadNodeIds.keySet());
+    }
+    if (_discountFactorNodeIds != null) {
+      allTenors.addAll(_discountFactorNodeIds.keySet());
     }
     if (_swapNodeIds != null) {
       allTenors.addAll(_swapNodeIds.keySet());
@@ -180,7 +245,9 @@ public class CurveNodeIdMapper {
     }
     final CurveNodeIdMapper other = (CurveNodeIdMapper) o;
     return ObjectUtils.equals(_cashNodeIds, other._cashNodeIds) &&
+        ObjectUtils.equals(_continuouslyCompoundedRateNodeIds, other._continuouslyCompoundedRateNodeIds) &&
         ObjectUtils.equals(_creditSpreadNodeIds, other._creditSpreadNodeIds) &&
+        ObjectUtils.equals(_discountFactorNodeIds, other._discountFactorNodeIds) &&
         ObjectUtils.equals(_swapNodeIds, other._swapNodeIds);
   }
 
@@ -189,7 +256,9 @@ public class CurveNodeIdMapper {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((_cashNodeIds == null) ? 0 : _cashNodeIds.hashCode());
+    result = prime * result + ((_continuouslyCompoundedRateNodeIds == null) ? 0 : _continuouslyCompoundedRateNodeIds.hashCode());
     result = prime * result + ((_creditSpreadNodeIds == null) ? 0 : _creditSpreadNodeIds.hashCode());
+    result = prime * result + ((_discountFactorNodeIds == null) ? 0 : _discountFactorNodeIds.hashCode());
     result = prime * result + ((_swapNodeIds == null) ? 0 : _swapNodeIds.hashCode());
     return result;
   }
