@@ -55,6 +55,20 @@ import com.yammer.metrics.Timer;
  * where that time series is the simulation points that should be run. In that case,
  * this class may be appropriate.
  * <p/>
+ * The following constraints must hold for this Source to be of any utility whatsoever:
+ * <ul>
+ *   <li>Historical lookups are not required. Because they are not supported.</li>
+ *   <li>Version corrections are not required. Because they are not supported.</li>
+ *   <li>Each time series has a <b>single</b> {@link ExternalId} when then acts
+ *       as the {@link UniqueId} internally.</li>
+ *   <li>Each external ID has a single time series (thus there is not the capacity to store
+ *       different Data Source, Data Provider, Observation Time, Data Field series).</li>
+ * </ul>
+ * <p/>
+ * Where a method is not supported semantically, an {@link UnsupportedOperationException}
+ * will be thrown. Where use indicates that this class may be being used incorrectly,
+ * a log message will be written at {@code WARN} level.
+ * <p/>
  * See <a href="http://jira.opengamma.com/browse/PLAT-3385">PLAT-3385</a> for the original
  * requirement.
  */
@@ -179,6 +193,29 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
   // ------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(uniqueId);
+    if (ts == null) {
+      return null;
+    }
+    
+    if (start != null) {
+      ArgumentChecker.notNull(end, "end");
+      ts = ts.subSeries(start, includeStart, end, includeEnd);
+    }
+    return new SimpleHistoricalTimeSeries(uniqueId, ts);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(uniqueId);
+    if (ts == null) {
+      return null;
+    } else {
+      return new SimpleHistoricalTimeSeries(uniqueId, ts);
+    }
+  }
+  
+  private LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(UniqueId uniqueId) {
     // This is the only method that needs implementation.
     
     try (Timer.Context context = _getSeriesTimer.time()) {
@@ -201,14 +238,9 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
       }
       
       LocalDateDoubleTimeSeries ts = composeFromRedisValues(valuesFromRedis);
-      
-      if (start != null) {
-        ArgumentChecker.notNull(end, "end");
-        ts = ts.subSeries(start, includeStart, end, includeEnd);
-      }
-      
-      return new SimpleHistoricalTimeSeries(uniqueId, ts);
+      return ts;
     }
+    
   }
 
   private static LocalDateDoubleTimeSeries composeFromRedisValues(Map<String, String> valuesFromRedis) {
@@ -308,11 +340,6 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
   // ------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    throw new UnsupportedOperationException("Unsupported operation.");
-  }
-
-  @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     throw new UnsupportedOperationException("Unsupported operation.");
   }
 
