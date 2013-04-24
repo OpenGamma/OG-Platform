@@ -7,11 +7,11 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * Filter for local monotonicity of cubic spline interpolation based on 
