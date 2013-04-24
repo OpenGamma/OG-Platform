@@ -39,6 +39,9 @@
     <fragment>/styles/common/og.common.OG-tab-overflow-panel.css</fragment>
     <fragment>/styles/common/og.common.OG-tooltip.css</fragment>
   </bundle>
+  <bundle id="gadgets.css">
+    <fragment>/styles/common/gadgets/og.common.gadgets.OG-histogram.css</fragment>
+  </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-message.css</fragment>
@@ -187,6 +190,7 @@
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
+    <bundle idref="gadgets.css" />
     <bundle idref="login.css" />
     <bundle idref="common.util.css" />
     <bundle idref="common.classes.css" />
