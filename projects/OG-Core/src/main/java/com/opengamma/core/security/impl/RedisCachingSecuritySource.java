@@ -39,6 +39,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 // Note that as unique id lookups never change, we'd probably need a different
 // TTL on the unique ID lookups from any other form of ID lookup.
 /**
+ * <bold>DO NOT USE THIS CLASS</bold.
+ * This class is a work in progress and cannot be used in its current state.
+ * <p/>
  * A caching {@link SecuritySource} which is only capable of satisfying
  * certain very specific calls. It is <em>not</em> intended to be a general purpose
  * cache.
