@@ -18,6 +18,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -121,7 +123,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
         final String rightExtrapolatorName = specification.getRightExtrapolatorName();
         final String leftExtrapolatorName = specification.getLeftExtrapolatorName();
         final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-        final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(times, yields, interpolator);
+        final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
         final ValueProperties curveProperties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
@@ -131,10 +133,11 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
             .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME).get();
         final ValueSpecification curveSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), curveProperties);
         final ValueSpecification jacobianSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, target.toSpecification(), jacobianProperties);
-        return Sets.newHashSet(new ComputedValue(curveSpec, YieldCurve.from(curve)), new ComputedValue(jacobianSpec, jacobian));
+        final YieldAndDiscountCurve yieldCurve = isYield ? YieldCurve.from(curve) : DiscountCurve.from(curve);
+        return Sets.newHashSet(new ComputedValue(curveSpec, yieldCurve), new ComputedValue(jacobianSpec, jacobian));
       }
 
-      //TODO should eventually be NULL
+      //TODO should eventually be NULL?
       @Override
       public ComputationTargetType getTargetType() {
         return ComputationTargetType.CURRENCY;
@@ -161,7 +164,6 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
         final ValueProperties constraints = desiredValue.getConstraints();
         final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
         if (curveNames == null || curveNames.size() != 1) {
-          s_logger.error("Could not get curve name from constraints {}", constraints);
           return null;
         }
         final String curveName = Iterables.getOnlyElement(curveNames);

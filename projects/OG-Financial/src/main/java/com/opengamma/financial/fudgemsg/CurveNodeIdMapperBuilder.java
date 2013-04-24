@@ -27,9 +27,9 @@ import com.opengamma.util.time.Tenor;
 @FudgeBuilderFor(CurveNodeIdMapper.class)
 public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper> {
   private static final String CASH_NODE_FIELD = "cashIds";
-  private static final String CONTINUOUSLY_COMPOUNDED_NODE_FIELD = "continuouslyCompoundedNodeIds";
+  private static final String CONTINUOUSLY_COMPOUNDED_NODE_FIELD = "continuouslyCompoundedIds";
   private static final String CREDIT_SPREAD_NODE_FIELD = "creditSpreadIds";
-  private static final String DISCOUNT_FACTOR_NODE_FIELD = "discountFactorNodeIds";
+  private static final String DISCOUNT_FACTOR_NODE_FIELD = "discountFactorIds";
   private static final String SWAP_NODE_FIELD = "swapIds";
 
   @Override
@@ -39,13 +39,13 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     if (object.getCashNodeIds() != null) {
       message.add(CASH_NODE_FIELD, getMessageForField(serializer, object.getCashNodeIds()));
     }
-    if (object.getCreditSpreadNodeIds() != null) {
+    if (object.getContinuouslyCompoundedRateNodeIds() != null) {
       message.add(CONTINUOUSLY_COMPOUNDED_NODE_FIELD, getMessageForField(serializer, object.getContinuouslyCompoundedRateNodeIds()));
     }
     if (object.getCreditSpreadNodeIds() != null) {
       message.add(CREDIT_SPREAD_NODE_FIELD, getMessageForField(serializer, object.getCreditSpreadNodeIds()));
     }
-    if (object.getCreditSpreadNodeIds() != null) {
+    if (object.getDiscountFactorNodeIds() != null) {
       message.add(DISCOUNT_FACTOR_NODE_FIELD, getMessageForField(serializer, object.getDiscountFactorNodeIds()));
     }
     if (object.getSwapNodeIds() != null) {

@@ -18,9 +18,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
@@ -82,8 +84,14 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       if (node instanceof CashNode) {
         final ExternalId identifier = builderConfig.getCashNodeId(curveDate, ((CashNode) node).getMaturityTenor());
         identifiers.add(new CurveNodeWithIdentifier(node, identifier));
+      } else if (node instanceof ContinuouslyCompoundedRateNode) {
+        final ExternalId identifier = builderConfig.getContinuouslyCompoundedRateNodeId(curveDate, ((ContinuouslyCompoundedRateNode) node).getTenor());
+        identifiers.add(new CurveNodeWithIdentifier(node, identifier));
       } else if (node instanceof CreditSpreadNode) {
         final ExternalId identifier = builderConfig.getCreditSpreadNodeId(curveDate, ((CreditSpreadNode) node).getTenor());
+        identifiers.add(new CurveNodeWithIdentifier(node, identifier));
+      } else if (node instanceof DiscountFactorNode) {
+        final ExternalId identifier = builderConfig.getDiscountFactorNodeId(curveDate, ((DiscountFactorNode) node).getTenor());
         identifiers.add(new CurveNodeWithIdentifier(node, identifier));
       } else if (node instanceof SwapNode) {
         final ExternalId identifier = builderConfig.getSwapNodeId(curveDate, ((SwapNode) node).getMaturityTenor());
