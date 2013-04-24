@@ -27,7 +27,6 @@ $.register_module({
                         handler = items[id] && !items[id].disabled && items[id].handler;
                     $(this).remove();
                     if (handler) handler();
-                    return false;
                 });
             return false;
         };
