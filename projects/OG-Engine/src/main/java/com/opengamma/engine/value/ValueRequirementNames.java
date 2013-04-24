@@ -183,6 +183,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
   /**
+   * The raw market data that is used in curve construction.
+   */
+  public static final String CURVE_MARKET_DATA = "CurveMarketData";
+  /**
    * The sensitivities of a cash-flow based fixed-income instrument to each of the nodal points in a yield curve.
    */
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
@@ -190,6 +194,14 @@ public final class ValueRequirementNames {
    * Curve property metadata.
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
+  /**
+   * Curve specifications.
+   */
+  public static final String CURVE_SPECIFICATION = "CurveSpecification";
+  /**
+   * Curve definitions.
+   */
+  public static final String CURVE_DEFINITION = "CurveDefinition";
   /**
    * Curve calculation property metadata
    */

@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
@@ -32,6 +33,12 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testCashNodeBuilder() {
     final CashNode node = new CashNode(Tenor.ONE_DAY, Tenor.ONE_YEAR, ExternalId.of("convention", "name"), "TEST");
     assertEquals(node, cycleObject(CashNode.class, node));
+  }
+
+  @Test
+  public void testContinuouslyCompoundedRateNodeBuilder() {
+    final ContinuouslyCompoundedRateNode node = new ContinuouslyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS);
+    assertEquals(node, cycleObject(ContinuouslyCompoundedRateNode.class, node));
   }
 
   @Test

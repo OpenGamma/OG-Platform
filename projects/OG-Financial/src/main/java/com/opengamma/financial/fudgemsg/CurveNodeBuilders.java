@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -79,6 +80,28 @@ import com.opengamma.util.time.Tenor;
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       return new CashNode(startTenor, maturityTenor, conventionId, curveNodeIdMapperName);
+    }
+  }
+
+  @FudgeBuilderFor(ContinuouslyCompoundedRateNode.class)
+  public static class ContinuouslyCompoundedRateNodeBuilder implements FudgeBuilder<ContinuouslyCompoundedRateNode> {
+    private static final String TENOR_FIELD = "tenor";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ContinuouslyCompoundedRateNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(TENOR_FIELD, object.getTenor());
+      return message;
+    }
+
+    @Override
+    public ContinuouslyCompoundedRateNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
+      final ContinuouslyCompoundedRateNode strip = new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor);
+      return strip;
     }
   }
 
