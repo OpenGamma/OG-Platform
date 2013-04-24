@@ -180,10 +180,17 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
       return null;
     }
     
-    return composeFromRedisValues(uniqueId, valuesFromRedis);
+    LocalDateDoubleTimeSeries ts = composeFromRedisValues(valuesFromRedis);
+    
+    if (start != null) {
+      ArgumentChecker.notNull(end, "end");
+      ts = ts.subSeries(start, includeStart, end, includeEnd);
+    }
+    
+    return new SimpleHistoricalTimeSeries(uniqueId, ts);
   }
 
-  private static HistoricalTimeSeries composeFromRedisValues(UniqueId uniqueId, Map<String, String> valuesFromRedis) {
+  private static LocalDateDoubleTimeSeries composeFromRedisValues(Map<String, String> valuesFromRedis) {
     
     int[] dates = new int[valuesFromRedis.size()];
     double[] values = new double[valuesFromRedis.size()];
@@ -198,8 +205,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource {
     ParallelArrayBinarySort.parallelBinarySort(dates, values);
     
     LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
-    HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(uniqueId, ts);
-    return hts;
+    return ts;
   }
 
   // ------------------------------------------------------------------------
