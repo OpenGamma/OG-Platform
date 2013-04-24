@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
+import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.util.test.TestGroup;
@@ -58,7 +59,15 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
     discountFactorIds.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("m")));
     discountFactorIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("n")));
     discountFactorIds.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("b")));
-    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, swapIds);
+    final Map<Tenor, CurveInstrumentProvider> fraIds = new HashMap<>();
+    fraIds.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("j")));
+    fraIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("k")));
+    fraIds.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("l")));
+    final Map<Tenor, CurveInstrumentProvider> rateFutureIds = new HashMap<>();
+    rateFutureIds.put(Tenor.ONE_YEAR, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
+    rateFutureIds.put(Tenor.TWO_YEARS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
+    rateFutureIds.put(Tenor.EIGHTEEN_MONTHS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
+    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, fraIds, rateFutureIds, swapIds);
     assertEquals(mapper, cycleObject(CurveNodeIdMapper.class, mapper));
   }
 }

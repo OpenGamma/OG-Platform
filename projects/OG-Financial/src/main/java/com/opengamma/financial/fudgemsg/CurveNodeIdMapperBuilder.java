@@ -30,6 +30,8 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   private static final String CONTINUOUSLY_COMPOUNDED_NODE_FIELD = "continuouslyCompoundedIds";
   private static final String CREDIT_SPREAD_NODE_FIELD = "creditSpreadIds";
   private static final String DISCOUNT_FACTOR_NODE_FIELD = "discountFactorIds";
+  private static final String FRA_NODE_FIELD = "fraIds";
+  private static final String RATE_FUTURE_FIELD = "rateFutureIds";
   private static final String SWAP_NODE_FIELD = "swapIds";
 
   @Override
@@ -48,6 +50,12 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     if (object.getDiscountFactorNodeIds() != null) {
       message.add(DISCOUNT_FACTOR_NODE_FIELD, getMessageForField(serializer, object.getDiscountFactorNodeIds()));
     }
+    if (object.getDiscountFactorNodeIds() != null) {
+      message.add(FRA_NODE_FIELD, getMessageForField(serializer, object.getFRANodeIds()));
+    }
+    if (object.getDiscountFactorNodeIds() != null) {
+      message.add(RATE_FUTURE_FIELD, getMessageForField(serializer, object.getRateFutureNodeIds()));
+    }
     if (object.getSwapNodeIds() != null) {
       message.add(SWAP_NODE_FIELD, getMessageForField(serializer, object.getSwapNodeIds()));
     }
@@ -60,8 +68,10 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds = getMapForField(CONTINUOUSLY_COMPOUNDED_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds = getMapForField(CREDIT_SPREAD_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds = getMapForField(DISCOUNT_FACTOR_NODE_FIELD, deserializer, message);
+    final Map<Tenor, CurveInstrumentProvider> fraNodeIds = getMapForField(FRA_NODE_FIELD, deserializer, message);
+    final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = getMapForField(RATE_FUTURE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = getMapForField(SWAP_NODE_FIELD, deserializer, message);
-    return new CurveNodeIdMapper(cashNodeIds, continuouslyCompoundedRateNodeIds, creditSpreadNodeIds, discountFactorNodeIds, swapNodeIds);
+    return new CurveNodeIdMapper(cashNodeIds, continuouslyCompoundedRateNodeIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds, rateFutureNodeIds, swapNodeIds);
   }
 
   private FudgeMsg getMessageForField(final FudgeSerializer serializer, final Map<Tenor, CurveInstrumentProvider> idMap) {
