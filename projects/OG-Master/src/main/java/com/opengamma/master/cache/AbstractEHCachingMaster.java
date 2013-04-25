@@ -163,13 +163,13 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
         .includeAttribute(getUidToDocumentCache().getSearchAttribute("CorrectionToInstant"))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("ObjectId").eq(objectId.toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("VersionFromInstant")
-                         .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
+            .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("VersionToInstant")
-                         .ge(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
+            .gt(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("CorrectionFromInstant")
-                         .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
+            .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("CorrectionToInstant")
-                       .ge(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
+            .gt(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
         .execute();
 
     // Found a matching cached document
