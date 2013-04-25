@@ -56,7 +56,7 @@ public class DefaultComputationTargetResolverTest {
 
   private void assertExpected(final ComputationTarget expected, final ComputationTarget actual) {
     assertTrue(expected.getType().isCompatible(actual.getType()));
-    assertEquals(expected.getContextIdentifiers(), actual.getContextIdentifiers());
+    assertEquals(expected.getContextSpecification(), actual.getContextSpecification());
     assertEquals(expected.getUniqueId(), actual.getUniqueId());
   }
 
@@ -133,7 +133,7 @@ public class DefaultComputationTargetResolverTest {
     final InMemorySecuritySource secSource = new InMemorySecuritySource();
     final MockPositionSource posSource = new MockPositionSource();
     final DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
-    final ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.UNORDERED_CURRENCY_PAIR, UniqueId.of("UnorderedCurrencyPair", "GBPEUR"));
+    final ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.UNORDERED_CURRENCY_PAIR, UniqueId.of("UnorderedCurrencyPair", "EURGBP"));
     final ComputationTarget expected = new ComputationTarget(ComputationTargetType.UNORDERED_CURRENCY_PAIR, UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR));
     assertExpected(expected, test.resolve(spec, VersionCorrection.LATEST));
   }

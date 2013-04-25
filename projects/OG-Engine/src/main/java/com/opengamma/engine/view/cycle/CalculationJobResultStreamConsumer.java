@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.cycle;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -31,7 +30,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.util.TerminatableJob;
@@ -62,7 +60,6 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
       final InMemoryViewComputationResultModel fragmentResultModel = _computationCycle.constructTemplateResultModel();
       final InMemoryViewComputationResultModel fullResultModel = _computationCycle.getResultModel();
       final ExecutionLogModeSource logModes = _computationCycle.getLogModeSource();
-      final Map<ValueSpecification, Set<ValueRequirement>> deprecatedTerminalOutputs = new HashMap<ValueSpecification, Set<ValueRequirement>>();
       final Map<String, Set<ValueSpecification>> terminalOutputsByConfiguration = new HashMap<String, Set<ValueSpecification>>();
       // Block until at least one item is added, then drain any further items
       ExecutionResult result = _resultQueue.take();
@@ -96,14 +93,14 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
               inputLogs.add(nodeResult.getAggregatedExecutionLog());
             }
             final ExecutionLogMode executionLogMode = logModes.getLogMode(node);
-            final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
-            final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
+            final AggregatedExecutionLog aggregatedExecutionLog;
+            if (executionLogMode == ExecutionLogMode.FULL) {
+              aggregatedExecutionLog = DefaultAggregatedExecutionLog.fullLogMode(node, jobResultItem.getExecutionLog(), inputLogs);
+            } else {
+              aggregatedExecutionLog = DefaultAggregatedExecutionLog.indicatorLogMode(jobResultItem.getExecutionLog().getLogLevels());
+            }
             final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
             final Set<ValueSpecification> nodeTerminals = node.getTerminalOutputValues();
-            // Not correct when there are multiple calculation configurations, but it will go soon!
-            for (ValueSpecification terminalOutput : nodeTerminals) {
-              deprecatedTerminalOutputs.put(terminalOutput, allTerminalOutputs.get(terminalOutput));
-            }
             for (ValueSpecification output : node.getOutputValues()) {
               jobExecutionResultCache.put(output, jobExecutionResult);
             }
@@ -112,11 +109,6 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
         }
         result = _resultQueue.poll();
       } while (result != null);
-      if (deprecatedTerminalOutputs.isEmpty()) {
-        return;
-      }
-      fragmentResultModel.addRequirements(deprecatedTerminalOutputs);
-      fullResultModel.addRequirements(deprecatedTerminalOutputs);
       for (Map.Entry<String, Set<ValueSpecification>> terminalOutputs : terminalOutputsByConfiguration.entrySet()) {
         if (terminalOutputs.getValue().isEmpty()) {
           continue;

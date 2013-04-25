@@ -65,9 +65,9 @@ public class GeneratorSwapFixedInflationTest {
 
   public static final GeneratorAttributeIR ATTRIBUTE = new GeneratorAttributeIR(COUPON_TENOR);
 
-  private static final GeneratorSwapFixedInflation GENERATOR_SWAP_INFLATION_LINEAR = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_SWAP_INFLATION_LINEAR = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
       SPOT_LAG, IS_LINEAR);
-  private static final GeneratorSwapFixedInflation GENERATOR_SWAP_INFLATION_PIECEWISE = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_SWAP_INFLATION_PIECEWISE = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
       SPOT_LAG, IS_NOT_LINEAR);
 
   @Test
@@ -110,43 +110,43 @@ public class GeneratorSwapFixedInflationTest {
    */
   public void equalHash() {
     assertEquals(GENERATOR_SWAP_INFLATION_LINEAR, GENERATOR_SWAP_INFLATION_LINEAR);
-    GeneratorSwapFixedInflation generatorDuplicate = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+    GeneratorSwapFixedInflationZeroCoupon generatorDuplicate = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
         SPOT_LAG, IS_LINEAR);
     assertEquals(GENERATOR_SWAP_INFLATION_LINEAR, generatorDuplicate);
     assertEquals(GENERATOR_SWAP_INFLATION_LINEAR.hashCode(), generatorDuplicate.hashCode());
-    GeneratorSwapFixedInflation generatorModified;
+    GeneratorSwapFixedInflationZeroCoupon generatorModified;
     DoubleTimeSeries<ZonedDateTime> modifiedTimeSeries = MulticurveProviderDiscountDataSets.usCpiFrom2009();
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, modifiedTimeSeries, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, modifiedTimeSeries, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
         SPOT_LAG, IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_GPB, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_GPB, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
         SPOT_LAG, IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
     BusinessDayConvention modifiedBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, modifiedBusinessDay, CALENDAR, EOM, MONTH_LAG,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, modifiedBusinessDay, CALENDAR, EOM, MONTH_LAG,
         SPOT_LAG, IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
     Calendar modifiesCalendar = new MondayToFridayCalendar("B");
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, modifiesCalendar, EOM, MONTH_LAG,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, modifiesCalendar, EOM, MONTH_LAG,
         SPOT_LAG, IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, false, MONTH_LAG,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, false, MONTH_LAG,
         SPOT_LAG, IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, 2,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, 2,
         SPOT_LAG, IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
         1, IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
-    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+    generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
         SPOT_LAG, false);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
@@ -163,7 +163,7 @@ public class GeneratorSwapFixedInflationTest {
     final double zeroCpnRate = 0.02;
     final CouponInflationZeroCouponMonthlyDefinition inflationCpn = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX_EUR,
         MONTH_LAG, REFERENCE_START_DATE_MONTHLY, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
     SwapFixedInflationZeroCouponDefinition generateSwap = GENERATOR_SWAP_INFLATION_PIECEWISE.generateInstrument(TODAY, zeroCpnRate, NOTIONAL, ATTRIBUTE);
     assertEquals("Swap zero-coupon inflation constructor", swap, generateSwap);
@@ -178,7 +178,7 @@ public class GeneratorSwapFixedInflationTest {
     final CouponInflationZeroCouponInterpolationDefinition inflationCpn = new CouponInflationZeroCouponInterpolationDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL,
         PRICE_INDEX_EUR,
         MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
     SwapFixedInflationZeroCouponDefinition generateSwap = GENERATOR_SWAP_INFLATION_LINEAR.generateInstrument(TODAY, zeroCpnRate, NOTIONAL, ATTRIBUTE);
     assertEquals("Swap zero-coupon inflation constructor", swap, generateSwap);

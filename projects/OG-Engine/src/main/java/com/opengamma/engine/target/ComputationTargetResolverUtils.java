@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.target;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
@@ -88,27 +86,6 @@ public class ComputationTargetResolverUtils {
 
   };
 
-  private static ComputationTargetReferenceVisitor<UniqueId> s_getContextIdentifier = new ComputationTargetReferenceVisitor<UniqueId>() {
-
-    @Override
-    public UniqueId visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
-      return null;
-    }
-
-    @Override
-    public UniqueId visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
-      return specification.getUniqueId();
-    }
-
-  };
-
-  private static void getContextIdentifiers(final List<UniqueId> contextIdentifiers, final ComputationTargetReference reference) {
-    if (reference.getParent() != null) {
-      getContextIdentifiers(contextIdentifiers, reference.getParent());
-    }
-    contextIdentifiers.add(reference.accept(s_getContextIdentifier));
-  }
-
   /**
    * Creates a {@link ComputationTarget} instance that describes the resolved object. The type in the target will accurately describe the target type to the scoping level of the requested
    * specification. For example a target of type {@code FooSecurity} resolved from a specification of type {@code POSITION/SECURITY} will end up as type {@code POSITION/FooSecurity}.
@@ -118,24 +95,26 @@ public class ComputationTargetResolverUtils {
    * @return the target object instance with the correct logical type, not null
    */
   public static ComputationTarget createResolvedTarget(final ComputationTargetSpecification requestedSpecification, final UniqueIdentifiable target) {
+    ComputationTargetSpecification resolvedSpecification;
     final ComputationTargetType requestedType = requestedSpecification.getType();
-    ComputationTargetType resolvedType = requestedType.accept(s_resolveType, target);
+    final ComputationTargetType resolvedType = requestedType.accept(s_resolveType, target);
     if (resolvedType == null) {
+      // Error
       if (s_logger.isWarnEnabled()) {
         s_logger.warn("Resolved {} to {}, not instanceof {}", new Object[] {requestedSpecification.getUniqueId(), target, requestedType });
       }
-      resolvedType = requestedType;
+      resolvedSpecification = requestedSpecification;
     } else if (resolvedType == ComputationTargetType.NULL) {
-      resolvedType = requestedType;
-    }
-    final List<UniqueId> contextIdentifiers;
-    if (requestedSpecification.getParent() == null) {
-      contextIdentifiers = null;
+      // No-change
+      resolvedSpecification = requestedSpecification;
     } else {
-      contextIdentifiers = new ArrayList<UniqueId>();
-      getContextIdentifiers(contextIdentifiers, requestedSpecification.getParent());
+      // Different type
+      resolvedSpecification = (ComputationTargetSpecification) requestedSpecification.replaceType(resolvedType);
     }
-    return new ComputationTarget(resolvedType, contextIdentifiers, target);
+    if (requestedSpecification.getUniqueId().isLatest() && target.getUniqueId().isVersioned()) {
+      resolvedSpecification = resolvedSpecification.replaceIdentifier(target.getUniqueId());
+    }
+    return new ComputationTarget(resolvedSpecification, target);
   }
 
   @SuppressWarnings("unchecked")

@@ -140,10 +140,11 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
             } else {
               return null;
             }
-            if (target.getContextIdentifiers() == null) {
+            final ComputationTargetReference context = target.getContextSpecification();
+            if (context == null) {
               requirementTarget = new ComputationTargetRequirement(resolver.simplifyType(target.getType()), identifiers);
             } else {
-              requirementTarget = target.getContextSpecification().containing(resolver.simplifyType(target.getLeafSpecification().getType()), identifiers);
+              requirementTarget = context.containing(resolver.simplifyType(target.getLeafSpecification().getType()), identifiers);
             }
           }
         } else if (constraintName.startsWith(PASSTHROUGH_PREFIX)) {
@@ -280,7 +281,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
         targetEids = null;
       }
       final ComputationTargetSpecification targetSpec = target.toSpecification();
-      final ComputationTargetSpecification targetContextSpec = target.getContextSpecification();
+      final ComputationTargetReference targetContextSpec = target.getContextSpecification();
       final ComputationTargetReferenceVisitor<Set<String>> getTargetType = new ComputationTargetReferenceVisitor<Set<String>>() {
 
         @Override

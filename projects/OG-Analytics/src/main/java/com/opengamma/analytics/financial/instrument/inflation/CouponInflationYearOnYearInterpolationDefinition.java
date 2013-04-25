@@ -111,6 +111,28 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   }
 
   /**
+   * Builder for inflation year on year coupon based on an inflation lag and the index publication lag. The fixing date is the publication lag after the last reference month.
+   * The index start value is calculated from a time series. The index value required for the coupon should be in the time series.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param paymentDate The payment date.
+   * @param notional Coupon notional.
+   * @param priceIndex The price index associated to the coupon.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
+   * @return The inflation zero-coupon.
+   */
+  public static CouponInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final int monthLag, final boolean payNotional) {
+    final ZonedDateTime refInterpolatedDateStart = accrualStartDate.minusMonths(monthLag);
+    final ZonedDateTime refInterpolatedDateEnd = paymentDate.minusMonths(monthLag);
+
+    final double weightStart = 1.0 - (refInterpolatedDateStart.getDayOfMonth() - 1.0) / refInterpolatedDateStart.toLocalDate().lengthOfMonth();
+    final double weightEnd = 1.0 - (refInterpolatedDateEnd.getDayOfMonth() - 1.0) / refInterpolatedDateEnd.toLocalDate().lengthOfMonth();
+
+    return from(accrualStartDate, paymentDate, notional, priceIndex, monthLag, payNotional, weightStart, weightEnd);
+  }
+
+  /**
    * Gets the reference date for the index at the coupon start.
    * @return The reference date for the index at the coupon start.
    */

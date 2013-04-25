@@ -16,6 +16,7 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -73,7 +74,7 @@ public abstract class AbstractWeightFunction extends AbstractFunction.NonCompile
 
   protected abstract ComputationTargetSpecification getValueTarget(final ComputationTarget target);
 
-  protected abstract ComputationTargetSpecification getParentTarget(final ComputationTarget target);
+  protected abstract ComputationTargetReference getParentTarget(final ComputationTarget target);
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
