@@ -16,9 +16,9 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class with the description of swap characteristics.
+ * Class with the description of swap inflation zero coupon characteristics.
  */
-public class GeneratorSwapFixedInflation extends GeneratorInstrument<GeneratorAttributeIR> {
+public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The Price index.
@@ -65,7 +65,8 @@ public class GeneratorSwapFixedInflation extends GeneratorInstrument<GeneratorAt
    * @param spotLag Lag between today and the spot date. 
    * @param isLinear TODO
    */
-  public GeneratorSwapFixedInflation(String name, IndexPrice indexPrice, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final BusinessDayConvention businessDayConvention, Calendar calendar,
+  public GeneratorSwapFixedInflationZeroCoupon(String name, IndexPrice indexPrice, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final BusinessDayConvention businessDayConvention,
+      Calendar calendar,
       final boolean endOfMonth,
       int monthLag, int spotLag, boolean isLinear) {
     super(name);
@@ -193,7 +194,7 @@ public class GeneratorSwapFixedInflation extends GeneratorInstrument<GeneratorAt
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapFixedInflation other = (GeneratorSwapFixedInflation) obj;
+    GeneratorSwapFixedInflationZeroCoupon other = (GeneratorSwapFixedInflationZeroCoupon) obj;
     if (_businessDayConvention == null) {
       if (other._businessDayConvention != null) {
         return false;

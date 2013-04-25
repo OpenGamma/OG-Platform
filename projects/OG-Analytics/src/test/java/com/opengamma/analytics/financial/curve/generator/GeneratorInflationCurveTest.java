@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveConstant;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolatedNode;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -36,7 +36,7 @@ public class GeneratorInflationCurveTest {
   private static final double CST = 100;
   private static final GeneratorPriceIndexCurveConstant GENERATOR_PRICE_INDEX_CONSTANT = new GeneratorPriceIndexCurveConstant();
 
-  private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullYieldNodes() {

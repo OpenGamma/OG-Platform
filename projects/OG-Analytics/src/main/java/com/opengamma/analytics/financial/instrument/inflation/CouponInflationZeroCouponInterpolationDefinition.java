@@ -143,7 +143,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
     referenceStartDate[0] = refInterpolatedDate.withDayOfMonth(1);
     referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
-    final double weightStart = 1.0 - (accrualStartDate.getDayOfMonth() - 1.0) / accrualStartDate.toLocalDate().lengthOfMonth();
+    final double weightStart = 1.0 - (refInterpolatedDate.getDayOfMonth() - 1.0) / refInterpolatedDate.toLocalDate().lengthOfMonth();
     final Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceStartDate[0]), priceIndexTimeSeries.getValue(referenceStartDate[1]) };
     double indexStartValue = 0;
     if ((knownIndex[0] != null) && (knownIndex[1] != null)) { // Fixing fully known
