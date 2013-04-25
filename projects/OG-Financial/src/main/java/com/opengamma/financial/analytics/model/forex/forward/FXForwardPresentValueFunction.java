@@ -35,11 +35,11 @@ import com.opengamma.util.money.Currency;
 /**
  * Calculates Present Value on FX Forward instruments.
  */
-public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledInvoker { 
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY);
+    return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY).or(FinancialSecurityTypes.SWAP_SECURITY);
   }
 
   @Override

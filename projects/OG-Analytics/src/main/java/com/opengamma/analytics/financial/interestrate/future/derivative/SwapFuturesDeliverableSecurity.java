@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
+public class SwapFuturesDeliverableSecurity implements InstrumentDerivative {
 
   /**
    * The futures last trading time. The date for which the delivery date is the spot date.
@@ -43,7 +43,7 @@ public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
    * @param underlyingSwap The futures underlying swap.
    * @param notional The notional of the future (also called face value or contract value).
    */
-  public DeliverableSwapFuturesSecurity(final double lastTradingTime, final double deliveryTime, final SwapFixedCoupon<? extends Coupon> underlyingSwap, final double notional) {
+  public SwapFuturesDeliverableSecurity(final double lastTradingTime, final double deliveryTime, final SwapFixedCoupon<? extends Coupon> underlyingSwap, final double notional) {
     ArgumentChecker.notNull(underlyingSwap, "Underlying swap");
     _lastTradingTime = lastTradingTime;
     _deliveryTime = deliveryTime;
@@ -129,7 +129,7 @@ public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final DeliverableSwapFuturesSecurity other = (DeliverableSwapFuturesSecurity) obj;
+    final SwapFuturesDeliverableSecurity other = (SwapFuturesDeliverableSecurity) obj;
     if (Double.doubleToLongBits(_deliveryTime) != Double.doubleToLongBits(other._deliveryTime)) {
       return false;
     }

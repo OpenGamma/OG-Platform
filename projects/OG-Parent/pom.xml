@@ -820,6 +820,19 @@
         <version>9.1.1.B60.25.p2</version>
       </dependency>
 
+
+	  <!--Jruby and gems -->
+	  <dependency>
+	     <groupId>org.jruby</groupId>
+		 <artifactId>jruby-complete</artifactId>
+		 <version>1.6.8</version>
+	  </dependency>
+	  <dependency>
+	     <groupId>me.n4u.sass</groupId>
+		 <artifactId>sass-gems</artifactId>
+		 <version>3.2.1</version>
+      </dependency>
+ 
       <!-- JMS -->
       <dependency>
         <groupId>javax.jms</groupId>
