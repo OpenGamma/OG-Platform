@@ -96,12 +96,12 @@ public final class RubySassCompiler {
     final StringWriter raw = new StringWriter();
     final PrintWriter script = new PrintWriter(raw);
 
-    script.println("  require 'rubygems'                                            ");
-    script.println("  require 'sass/plugin'                                         ");
-    script.println("  require 'sass/engine'                                         ");
-    script.println("  source = '" + sass.replace("'", "\"") + "'                    ");
+    script.println("  require 'rubygems'                                       ");
+    script.println("  require 'sass/plugin'                                    ");
+    script.println("  require 'sass/engine'                                    ");
+    script.println("  source = '" + sass.replace("'", "\"") + "'               ");
     script.println("  engine = Sass::Engine.new(source, {" + _options + "})    ");
-    script.println("  result = engine.render                                        ");
+    script.println("  result = engine.render                                   ");
     script.flush();
     return raw.toString();
   }
