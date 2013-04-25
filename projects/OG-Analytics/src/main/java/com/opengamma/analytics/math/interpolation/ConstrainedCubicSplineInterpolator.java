@@ -124,7 +124,7 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
     double[] res = new double[nData];
 
     for (int i = 1; i < nData - 1; ++i) {
-      res[i] = Math.signum(slopes[i - 1]) * Math.signum(slopes[i]) == -1. ? 0. : 2. * slopes[i] * slopes[i - 1] / (slopes[i] + slopes[i - 1]);
+      res[i] = Math.signum(slopes[i - 1]) * Math.signum(slopes[i]) <= 0. ? 0. : 2. * slopes[i] * slopes[i - 1] / (slopes[i] + slopes[i - 1]);
     }
     res[0] = 1.5 * slopes[0] - 0.5 * res[1];
     res[nData - 1] = 1.5 * slopes[nData - 2] - 0.5 * res[nData - 2];
