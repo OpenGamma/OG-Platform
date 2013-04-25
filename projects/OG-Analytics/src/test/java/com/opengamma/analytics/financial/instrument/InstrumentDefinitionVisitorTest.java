@@ -60,8 +60,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -462,12 +462,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures, final T data) {
+    public String visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesDeliverableSecurityDefinition futures, final T data) {
       return getValue(futures, true);
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
+    public String visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesDeliverableSecurityDefinition futures) {
       return getValue(futures, false);
     }
 
@@ -1132,12 +1132,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures, T data) {
+    public String visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures, T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures) {
+    public String visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures) {
       return null;
     }
 

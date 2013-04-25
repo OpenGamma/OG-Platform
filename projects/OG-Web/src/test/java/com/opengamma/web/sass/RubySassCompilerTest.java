@@ -5,12 +5,13 @@
  */
 package com.opengamma.web.sass;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -52,10 +53,10 @@ public class RubySassCompilerTest {
   
   public void compileSassString() throws Exception {
     
-    final String input = FileUtils.readFileToString(NAVBAR_SCSS);
+    final String input = Files.toString(NAVBAR_SCSS, Charset.defaultCharset());
     final String output = s_compiler.sassConvert(input);
     
-    AssertJUnit.assertEquals(FileUtils.readFileToString(NAVBAR_CSS), output);
+    assertEquals(Files.toString(NAVBAR_CSS, Charset.defaultCharset()), output);
   }
   
   public void updateStyleSheets() throws Exception {
@@ -69,15 +70,15 @@ public class RubySassCompilerTest {
         
     File navbar = new File(cssDir, "navbar.css");
     assertTrue(navbar.exists());
-    AssertJUnit.assertEquals(FileUtils.readFileToString(NAVBAR_CSS), FileUtils.readFileToString(navbar));
+    assertTrue(Files.equal(NAVBAR_CSS, navbar));
     
     File fakeshadow = new File(cssDir, "fakeshadow.css");
     assertTrue(fakeshadow.exists());
-    AssertJUnit.assertEquals(FileUtils.readFileToString(FAKESHADOW_CSS), FileUtils.readFileToString(fakeshadow));
+    assertTrue(Files.equal(FAKESHADOW_CSS, fakeshadow));
     
     File variables = new File(cssDir, "variables.css");
     assertTrue(variables.exists());
-    AssertJUnit.assertEquals(FileUtils.readFileToString(VARIABLES_CSS), FileUtils.readFileToString(variables));
+    assertTrue(Files.equal(VARIABLES_CSS, variables));
     
     FileUtils.deleteDirectory(templateDir);
     FileUtils.deleteDirectory(cssDir);

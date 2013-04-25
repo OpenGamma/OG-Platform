@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -34,24 +34,24 @@ public class DeliverableSwapFuturesTransactionTest {
   private static final double RATE = 0.0200;
 
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, false);
-  private static final DeliverableSwapFuturesSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION =
-      new DeliverableSwapFuturesSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
+  private static final SwapFuturesDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION =
+      new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
 
   private static final String NOT_USED = "NOT USED";
   private static final String[] NOT_USED_A = new String[] {NOT_USED, NOT_USED };
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 3, 28);
 
-  private static final DeliverableSwapFuturesSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFuturesDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
 
   private static final double REF_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%.
   private static final int QUANTITY = 1234;
 
-  private static final DeliverableSwapFuturesTransaction SWAP_FUTURES_TRANSACTION = new DeliverableSwapFuturesTransaction(SWAP_FUTURES_SECURITY, REF_PRICE, QUANTITY);
+  private static final SwapFuturesDeliverableTransaction SWAP_FUTURES_TRANSACTION = new SwapFuturesDeliverableTransaction(SWAP_FUTURES_SECURITY, REF_PRICE, QUANTITY);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSwap() {
-    new DeliverableSwapFuturesTransaction(null, REF_PRICE, QUANTITY);
+    new SwapFuturesDeliverableTransaction(null, REF_PRICE, QUANTITY);
   }
 
   @Test

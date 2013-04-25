@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefinition<DeliverableSwapFuturesSecurity> {
+public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefinition<SwapFuturesDeliverableSecurity> {
 
   /**
    * The futures last trading date. The date for which the delivery date is the spot date.
@@ -48,7 +48,7 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
    * @param underlyingSwap The futures underlying swap.
    * @param notional The notional of the future.
    */
-  public DeliverableSwapFuturesSecurityDefinition(final ZonedDateTime lastTradingDate, final SwapFixedIborDefinition underlyingSwap, final double notional) {
+  public SwapFuturesDeliverableSecurityDefinition(final ZonedDateTime lastTradingDate, final SwapFixedIborDefinition underlyingSwap, final double notional) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(underlyingSwap, "Swap");
     ArgumentChecker.isTrue(Math.abs(underlyingSwap.getFixedLeg().getNthPayment(0).getNotional() - 1.0) < 1.0E-10, "Swap should be receiver of notional 1");
@@ -67,12 +67,12 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
    * @param rate The underlying swap rate.
    * @return The futures.
    */
-  public static DeliverableSwapFuturesSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor, final double notional, final double rate) {
+  public static SwapFuturesDeliverableSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor, final double notional, final double rate) {
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(effectiveDate, -generator.getSpotLag(), generator.getCalendar());
     final SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, tenor, generator, 1.0, rate, false);
-    return new DeliverableSwapFuturesSecurityDefinition(lastTradingDate, swap, notional);
+    return new SwapFuturesDeliverableSecurityDefinition(lastTradingDate, swap, notional);
   }
 
   /**
@@ -108,11 +108,11 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
   }
 
   @Override
-  public DeliverableSwapFuturesSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public SwapFuturesDeliverableSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
     final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
     final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return new DeliverableSwapFuturesSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
+    return new SwapFuturesDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
   }
 
   @Override
@@ -151,7 +151,7 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final DeliverableSwapFuturesSecurityDefinition other = (DeliverableSwapFuturesSecurityDefinition) obj;
+    final SwapFuturesDeliverableSecurityDefinition other = (SwapFuturesDeliverableSecurityDefinition) obj;
     if (!ObjectUtils.equals(_deliveryDate, other._deliveryDate)) {
       return false;
     }

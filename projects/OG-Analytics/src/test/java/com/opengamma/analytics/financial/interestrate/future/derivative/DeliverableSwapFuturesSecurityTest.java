@@ -44,11 +44,11 @@ public class DeliverableSwapFuturesSecurityTest {
   private static final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
   private static final double EFFECTIVE_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EFFECTIVE_DATE);
 
-  private static final DeliverableSwapFuturesSecurity SWAP_FUTURES_SECURITY = new DeliverableSwapFuturesSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, SWAP, NOTIONAL);
+  private static final SwapFuturesDeliverableSecurity SWAP_FUTURES_SECURITY = new SwapFuturesDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, SWAP, NOTIONAL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSwap() {
-    new DeliverableSwapFuturesSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, null, NOTIONAL);
+    new SwapFuturesDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, null, NOTIONAL);
   }
 
   @Test

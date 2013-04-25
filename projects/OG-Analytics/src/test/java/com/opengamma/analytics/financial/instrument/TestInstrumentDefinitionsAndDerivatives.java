@@ -62,7 +62,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -250,7 +250,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_RECEIVE);
   public static final SwapFixedIborDefinition SWAP_FIXED_IBOR = new SwapFixedIborDefinition(ANNUITY_FIXED, ANNUITY_IBOR);
   public static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_PAY, ANNUITY_IBOR_SPREAD_RECEIVE);
-  public static final DeliverableSwapFuturesSecurityDefinition DELIVERABLE_SWAP_FUTURE = new DeliverableSwapFuturesSecurityDefinition(SETTLE_DATE, new SwapFixedIborDefinition(
+  public static final SwapFuturesDeliverableSecurityDefinition DELIVERABLE_SWAP_FUTURE = new SwapFuturesDeliverableSecurityDefinition(SETTLE_DATE, new SwapFixedIborDefinition(
       ANNUITY_FIXED_UNIT_NOTIONAL, ANNUITY_IBOR_UNIT_NOTIONAL), NOTIONAL);
 
   public static final SwaptionCashFixedIborDefinition SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIborDefinition();

@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculat
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
@@ -23,25 +23,25 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute the price for an deliverable swap futures with convexity adjustment from a Hull-White one factor model.
  * <p> Reference: Henrard M., Deliverable Interest Rate Swap Futures: pricing in Gaussian HJM model, September 2012.
  */
-public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
+public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final DeliverableSwapFuturesSecurityHullWhiteMethod INSTANCE = new DeliverableSwapFuturesSecurityHullWhiteMethod();
+  private static final SwapFuturesDeliverableSecurityHullWhiteMethod INSTANCE = new SwapFuturesDeliverableSecurityHullWhiteMethod();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static DeliverableSwapFuturesSecurityHullWhiteMethod getInstance() {
+  public static SwapFuturesDeliverableSecurityHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private DeliverableSwapFuturesSecurityHullWhiteMethod() {
+  private SwapFuturesDeliverableSecurityHullWhiteMethod() {
   }
 
   /**
@@ -63,7 +63,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
    * @param curves The curves and the Hull-White parameters.
    * @return The price.
    */
-  public double price(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public double price(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     final AnnuityPaymentFixed cfe = futures.getUnderlyingSwap().accept(CFEC, curves);
     final int nbCf = cfe.getNumberOfPayments();
     final double[] adjustments = new double[nbCf];
@@ -79,7 +79,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
     return price;
   }
 
-  public InterestRateCurveSensitivity pricecurveSensitivity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public InterestRateCurveSensitivity pricecurveSensitivity(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     final AnnuityPaymentFixed cfe = futures.getUnderlyingSwap().accept(CFEC, curves);
     final int nbCf = cfe.getNumberOfPayments();
     final double[] adjustments = new double[nbCf];
