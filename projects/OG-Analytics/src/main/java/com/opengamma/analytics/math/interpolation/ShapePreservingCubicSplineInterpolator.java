@@ -16,13 +16,13 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * Shape-preserving C2 cubic spline interpolation based on  
  * S. Pruess "Shape preserving C2 cubic spline interpolation"
  *  IMA Journal of Numerical Analysis (1993) 13 (4): 493-507. 
- * where two extra knots are introduced between individual data points
+ * where two extra knots are introduced between adjacent data points
  * As the position of the new knots are data dependent, the matrix form of yValues producing multi-splines is not relevant
  */
 public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialInterpolator {
 
   private static final double INF = 1. / 0.;
-  private static final double ERROR = 1.e-13;
+  private static final double ERROR = 1.e-12;
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
@@ -69,7 +69,7 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
       }
       ++it;
       if (it > 10) {
-        throw new IllegalArgumentException("Spline is not found");
+        throw new IllegalArgumentException("Spline is not found!");
       }
     }
 
@@ -92,45 +92,6 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[][] yValuesMatrix) {
     throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
-  }
-
-  @Override
-  public DoubleMatrix1D interpolate(final double[] xValues, final double[] yValues, final double[] x) {
-    ArgumentChecker.notNull(x, "x");
-
-    final int keyLength = x.length;
-
-    for (int i = 0; i < keyLength; ++i) {
-      ArgumentChecker.isFalse(Double.isInfinite(x[i]), "x containing Infinite");
-      ArgumentChecker.isFalse(Double.isNaN(x[i]), "x containing NaN");
-    }
-
-    double[] res = new double[keyLength];
-
-    final PiecewisePolynomialResult result = interpolate(xValues, yValues);
-    final DoubleMatrix2D coefsMatrix = result.getCoefMatrix();
-    final double[] knots = result.getKnots().getData();
-    final int nKnots = knots.length;
-
-    for (int j = 0; j < keyLength; ++j) {
-      int indicator = 0;
-      if (x[j] <= knots[1]) {
-        indicator = 0;
-      } else {
-        for (int i = 1; i < nKnots - 1; ++i) {
-          if (knots[i] < x[j]) {
-            indicator = i;
-          }
-        }
-      }
-
-      final double[] coefs = coefsMatrix.getRowVector(indicator).getData();
-      res[j] = getValue(coefs, x[j], knots[indicator]);
-      ArgumentChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
-      ArgumentChecker.isFalse(Double.isNaN(res[j]), "Too large input");
-    }
-
-    return new DoubleMatrix1D(res);
   }
 
   /**
@@ -244,10 +205,10 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
     for (int i = 1; i < nData - 1; ++i) {
       res[2 * i] = 2. * first[i - 1] + 4. * first[i] - 6. * slopes[i - 1];
       res[2 * i - 1] = -4. * first[i - 1] - 2. * first[i] + 6. * slopes[i - 1];
-      if (Math.abs(res[2 * i]) <= ERROR) {
+      if (Math.abs(res[2 * i]) <= 0.1 * ERROR) {
         res[2 * i] = 0.;
       }
-      if (Math.abs(res[2 * i - 1]) <= ERROR) {
+      if (Math.abs(res[2 * i - 1]) <= 0.1 * ERROR) {
         res[2 * i - 1] = 0.;
       }
     }
@@ -424,7 +385,7 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
       }
 
       if (minTmp > maxTmp) {
-        res[i] = 0.5 * (minTmp + maxTmp);
+        throw new IllegalArgumentException("Local monotonicity can not be preserved");
       } else {
         if (res[i] < minTmp) {
           res[i] = minTmp != INF ? minTmp : res[i];
@@ -477,29 +438,29 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
       boolean ineq2 = false;
       double bound1 = 6. * slopes[i] * beta[i];
       double bound2 = 6. * slopes[i] * beta[i + 1];
-      double ref1 = bound1 != 0. ? Math.abs(bound1) : 1.;
-      double ref2 = bound2 != 0. ? Math.abs(bound2) : 1.;
+      double ref1 = (4. * first[i] + 2. * first[i + 1] + intervals[i] * second[i] * res[i] * (2. - res[i]) - intervals[i] * second[i + 1] * res[i] * (1. - res[i])) * beta[i];
+      double ref2 = (2. * first[i] + 4. * first[i + 1] + intervals[i] * second[i] * res[i] * (1. - res[i]) - intervals[i] * second[i + 1] * res[i] * (2. - res[i])) * beta[i + 1];
       while (ineq1 == false) {
-        if ((4. * first[i] + 2. * first[i + 1] + intervals[i] * second[i] * res[i] * (2. - res[i]) - intervals[i] * second[i + 1] * res[i] * (1. - res[i])) * beta[i] <= bound1 + ref1 *
-            ERROR * 10.) {
+        if (ref1 - ERROR * Math.abs(ref1) <= bound1 + ERROR * Math.abs(bound1)) {
           ineq1 = true;
         } else {
           res[i] *= 0.8;
         }
-        if (res[i] < ERROR / 10.) {
+        if (res[i] < ERROR / 100.) {
           throw new IllegalArgumentException("Spline is not found");
         }
+        ref1 = (4. * first[i] + 2. * first[i + 1] + intervals[i] * second[i] * res[i] * (2. - res[i]) - intervals[i] * second[i + 1] * res[i] * (1. - res[i])) * beta[i];
       }
       while (ineq2 == false) {
-        if ((2. * first[i] + 4. * first[i + 1] + intervals[i] * second[i] * res[i] * (1. - res[i]) - intervals[i] * second[i + 1] * res[i] * (2. - res[i])) * beta[i + 1] >= bound2 - ref2 *
-            ERROR * 10.) {
+        if (ref2 + ERROR * Math.abs(ref2) >= bound2 - ERROR * Math.abs(bound2)) {
           ineq2 = true;
         } else {
           res[i] *= 0.8;
         }
-        if (res[i] < ERROR / 10.) {
+        if (res[i] < ERROR / 100.) {
           throw new IllegalArgumentException("Spline is not found");
         }
+        ref2 = (2. * first[i] + 4. * first[i + 1] + intervals[i] * second[i] * res[i] * (1. - res[i]) - intervals[i] * second[i + 1] * res[i] * (2. - res[i])) * beta[i + 1];
       }
 
     }
