@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 
 /**
- * Constructs {@link DependencyGraphBuider} instances with common parameters. All dependency graph builders
- * created by a single factory will share the same additional thread allowance.
+ * Constructs {@link DependencyGraphBuider} instances with common parameters. All dependency graph builders created by a single factory will share the same additional thread allowance.
  */
 public class DependencyGraphBuilderFactory {
 
@@ -77,7 +76,7 @@ public class DependencyGraphBuilderFactory {
    * Set whether the graph building algorithm should retain information about failed productions and backtracking options to produce more thorough details of why requirements could not be specified.
    * Enabling this will increase the memory footprint of the graph building algorithm. The default setting is taken from system property {@code DependencyGraphBuilderFactory.enableFailureReporting} if
    * set, otherwise it is off.
-   *
+   * 
    * @param enableFailureReporting true to enable, false to disable
    */
   public void setEnableFailureReporting(final boolean enableFailureReporting) {
@@ -132,20 +131,31 @@ public class DependencyGraphBuilderFactory {
       private final AtomicInteger _threads = new AtomicInteger();
       private final Queue<Runnable> _commands = new ConcurrentLinkedQueue<Runnable>();
 
-      private Runnable wrap(final Runnable command) {
-        return new Runnable() {
-          @Override
-          public void run() {
-            try {
-              s_logger.debug("Starting job execution");
-              command.run();
-            } finally {
-              s_logger.debug("Job execution complete");
-              threadExit();
-              s_logger.debug("Thread exit complete");
-            }
+      class WrappedRunnable implements Runnable {
+
+        private Runnable _command;
+
+        public WrappedRunnable(final Runnable command) {
+          _command = command;
+        }
+
+        @Override
+        public void run() {
+          try {
+            s_logger.debug("Starting job execution");
+            _command.run();
+          } finally {
+            _command = null;
+            s_logger.debug("Job execution complete");
+            threadExit();
+            s_logger.debug("Thread exit complete");
           }
-        };
+        }
+
+      }
+
+      private Runnable wrap(final Runnable command) {
+        return new WrappedRunnable(command);
       }
 
       private void executeImpl(final Runnable command) {
