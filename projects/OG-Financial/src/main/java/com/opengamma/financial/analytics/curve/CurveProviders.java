@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -30,11 +31,11 @@ public class CurveProviders {
   public static Set<ValueRequirement> getValueRequirements(final ComputationTargetSpecification targetSpec, final InstrumentExposureConfiguration exposureConfiguration,
       final ComputationTargetSpecification yieldCurveSpec, final String curveCalculationMethod) {
     final Set<ValueRequirement> requirements = new HashSet<>();
-    //final MyVisitor visitor = new MyVisitor(curveCalculationMethod);
-    for (final Map.Entry<CurveConfigurationSpecification, Collection<CurveConfigurationVisitor<Object>>> entry : exposureConfiguration.getConfigurationsForTargets().entrySet()) {
+    final MyVisitor visitor = new MyVisitor(curveCalculationMethod);
+    for (final Map.Entry<CurveConfigurationSpecification, Collection<CurveConfiguration>> entry : exposureConfiguration.getConfigurationsForTargets().entrySet()) {
       if (entry.getKey().getTargetSpec().equals(targetSpec)) {
-        for (final CurveConfigurationVisitor<Object> configuration : entry.getValue()) {
-          //requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, yieldCurveSpec, (ValueProperties) configuration.accept(visitor)));
+        for (final CurveConfiguration configuration : entry.getValue()) {
+          requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, yieldCurveSpec, configuration.accept(visitor)));
         }
       }
     }
@@ -49,7 +50,7 @@ public class CurveProviders {
     //return new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
   }
 
-  private class MyVisitor implements CurveConfigurationVisitor<ValueProperties> {
+  private static class MyVisitor implements CurveConfigurationVisitor<ValueProperties> {
     private final String _curveCalculationMethod;
 
     public MyVisitor(final String curveCalculationMethod) {
