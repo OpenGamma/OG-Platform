@@ -28,7 +28,8 @@ public final class RubySassCompiler {
   private String _options;
   
   private RubySassCompiler() {
-    _options = ":syntax => :scss, :always_update => true, :style => :expanded";
+    File cacheLocation = new File(new File(System.getProperty("java.io.tmpdir")), "sass-cache");
+    _options = ":syntax => :scss, :always_update => true, :style => :expanded, :cache_location => '" + cacheLocation.toString() + "'";
   }
   
   public static RubySassCompiler getInstance() {
