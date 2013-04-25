@@ -759,6 +759,11 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     }
   }
 
+  private static Instant now() {
+    // TODO: The distributed caches use a message bus for eventual consistency. This should really be (NOW - maximum permitted clock drift - eventual consistency time limit)
+    return Instant.now();
+  }
+
   private VersionCorrection getResolverVersionCorrection(final ViewCycleExecutionOptions viewCycleOptions) {
     VersionCorrection vc = null;
     do {
@@ -781,12 +786,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         if (!_ignoreCompilationValidity) {
           subscribeToTargetResolverChanges();
         }
-        return vc.withLatestFixed(Instant.now());
+        return vc.withLatestFixed(now());
       } else {
-        vc = vc.withLatestFixed(Instant.now());
+        vc = vc.withLatestFixed(now());
       }
     } else if (vc.getVersionAsOf() == null) {
-      vc = vc.withLatestFixed(Instant.now());
+      vc = vc.withLatestFixed(now());
     }
     unsubscribeFromTargetResolverChanges();
     return vc;
