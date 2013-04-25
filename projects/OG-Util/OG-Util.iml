@@ -87,6 +87,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: junit:junit:3.8.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.beanshell:bsh:2.0b4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.beust:jcommander:1.12" level="project" />
+    <orderEntry type="library" name="Maven: redis.clients:jedis:2.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-all:1.9.0" level="project" />
   </component>
 </module>
