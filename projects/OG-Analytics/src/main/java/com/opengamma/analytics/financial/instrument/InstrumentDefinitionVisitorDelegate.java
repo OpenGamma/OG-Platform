@@ -48,8 +48,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -71,6 +71,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -285,22 +288,22 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesDeliverableSecurityDefinition futures, final DATA_TYPE data) {
     return _delegate.visitDeliverableSwapFuturesSecurityDefinition(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
+  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesDeliverableSecurityDefinition futures) {
     return _delegate.visitDeliverableSwapFuturesSecurityDefinition(futures);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final DeliverableSwapFuturesTransactionDefinition futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final SwapFuturesDeliverableTransactionDefinition futures, final DATA_TYPE data) {
     return _delegate.visitDeliverableSwapFuturesTransactionDefinition(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final DeliverableSwapFuturesTransactionDefinition futures) {
+  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final SwapFuturesDeliverableTransactionDefinition futures) {
     return _delegate.visitDeliverableSwapFuturesTransactionDefinition(futures);
   }
 
@@ -353,6 +356,8 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
     return _delegate.visitBondFutureOptionPremiumTransactionDefinition(bond);
   }
+
+  // -----     Payment and coupon     -----
 
   @Override
   public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final DATA_TYPE data) {
@@ -485,6 +490,36 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment) {
+    return _delegate.visitCouponArithmeticAverageONDefinition(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONSpreadDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment) {
+    return _delegate.visitCouponArithmeticAverageONSpreadDefinition(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONSpreadSimplifiedDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
+    return _delegate.visitCouponArithmeticAverageONSpreadSimplifiedDefinition(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponCMSDefinition(payment, data);
   }
@@ -513,6 +548,8 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
     return _delegate.visitCapFloorCMSSpreadDefinition(payment);
   }
+
+  // -----     Annuity     -----
 
   @Override
   public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final DATA_TYPE data) {

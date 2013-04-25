@@ -118,6 +118,7 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
     functions.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
     functions.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
+    functions.add(functionConfiguration(CrossCurrencySwapFXPVFunction.class));
   }
 
 }

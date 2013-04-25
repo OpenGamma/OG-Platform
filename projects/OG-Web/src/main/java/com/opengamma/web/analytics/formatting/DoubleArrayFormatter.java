@@ -16,14 +16,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(double[][].class);
     addFormatter(new Formatter<double[][]>(Format.EXPANDED) {
       @Override
-      Object format(double[][] value, ValueSpecification valueSpec) {
+      Object format(double[][] value, ValueSpecification valueSpec, Object inlineKey) {
         return value;
       }
     });
   }
 
   @Override
-  public Object formatCell(double[][] value, ValueSpecification valueSpec) {
+  public Object formatCell(double[][] value, ValueSpecification valueSpec, Object inlineKey) {
     int rowCount;
     int colCount;
     rowCount = value.length;

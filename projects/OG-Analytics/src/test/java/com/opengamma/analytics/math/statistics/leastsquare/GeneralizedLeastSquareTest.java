@@ -60,7 +60,7 @@ public class GeneralizedLeastSquareTest {
   private static final Function1D<DoubleMatrix1D, Double> VECTOR_TEST_FUNCTION;
 
   static {
-    SIN_FUNCTIONS = new ArrayList<Function1D<Double, Double>>();
+    SIN_FUNCTIONS = new ArrayList<>();
     for (int i = 0; i < WEIGHTS.length; i++) {
       final int k = i;
       final Function1D<Double, Double> func = new Function1D<Double, Double>() {
@@ -72,9 +72,9 @@ public class GeneralizedLeastSquareTest {
       };
       SIN_FUNCTIONS.add(func);
     }
-    TEST_FUNCTION = new BasisFunctionAggregation<Double>(SIN_FUNCTIONS, WEIGHTS);
+    TEST_FUNCTION = new BasisFunctionAggregation<>(SIN_FUNCTIONS, WEIGHTS);
 
-    VECTOR_TRIG_FUNCTIONS = new ArrayList<Function1D<DoubleMatrix1D, Double>>();
+    VECTOR_TRIG_FUNCTIONS = new ArrayList<>();
     for (int i = 0; i < WEIGHTS.length; i++) {
       final int k = i;
       final Function1D<DoubleMatrix1D, Double> func = new Function1D<DoubleMatrix1D, Double>() {
@@ -86,7 +86,7 @@ public class GeneralizedLeastSquareTest {
       };
       VECTOR_TRIG_FUNCTIONS.add(func);
     }
-    VECTOR_TEST_FUNCTION = new BasisFunctionAggregation<DoubleMatrix1D>(VECTOR_TRIG_FUNCTIONS, WEIGHTS);
+    VECTOR_TEST_FUNCTION = new BasisFunctionAggregation<>(VECTOR_TRIG_FUNCTIONS, WEIGHTS);
 
     COS_EXP_FUNCTION = new Function1D<double[], Double>() {
 
@@ -101,9 +101,9 @@ public class GeneralizedLeastSquareTest {
     X = new Double[n];
     Y = new double[n];
     SIGMA = new double[n];
-    X_TRIG = new ArrayList<DoubleMatrix1D>();
-    Y_TRIG = new ArrayList<Double>();
-    SIGMA_TRIG = new ArrayList<Double>();
+    X_TRIG = new ArrayList<>();
+    Y_TRIG = new ArrayList<>();
+    SIGMA_TRIG = new ArrayList<>();
     for (int i = 0; i < n; i++) {
       X[i] = i / 5.0;
       Y[i] = TEST_FUNCTION.evaluate(X[i]);
@@ -116,9 +116,9 @@ public class GeneralizedLeastSquareTest {
       SIGMA_TRIG.add(0.01);
     }
 
-    SIGMA_COS_EXP = new ArrayList<Double>();
-    X_COS_EXP = new ArrayList<double[]>();
-    Y_COS_EXP = new ArrayList<Double>();
+    SIGMA_COS_EXP = new ArrayList<>();
+    X_COS_EXP = new ArrayList<>();
+    Y_COS_EXP = new ArrayList<>();
     for (int i = 0; i < 20; i++) {
       final double[] temp = new double[2];
       temp[0] = 10.0 * RANDOM.nextDouble();
@@ -203,7 +203,7 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X, Y, SIGMA, BASIS_FUNCTIONS);
-    final Function1D<Double, Double> spline = new BasisFunctionAggregation<Double>(BASIS_FUNCTIONS, results.getFitParameters().getData());
+    final Function1D<Double, Double> spline = new BasisFunctionAggregation<>(BASIS_FUNCTIONS, results.getFitParameters().getData());
     assertEquals(0.0, results.getChiSq(), 1e-12);
     assertEquals(-0.023605293, spline.evaluate(0.5), 1e-8);
 
@@ -226,7 +226,7 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X_COS_EXP, Y_COS_EXP, SIGMA_COS_EXP, BASIS_FUNCTIONS_2D);
-    final Function1D<double[], Double> spline = new BasisFunctionAggregation<double[]>(BASIS_FUNCTIONS_2D, results.getFitParameters().getData());
+    final Function1D<double[], Double> spline = new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().getData());
     assertEquals(0.0, results.getChiSq(), 1e-25);
     assertEquals(0.05161579, spline.evaluate(new double[] {4, 3 }), 1e-8);
 

@@ -30,22 +30,24 @@ public class SwaptionTradeSecurityExtractor extends TradeSecurityExtractor<Swapt
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
-
-    SwapTrade swapTrade = _trade.getUnderlyingSwapTrade();
+    SwaptionTrade trade = getTrade();
+    SwapTrade swapTrade = trade.getUnderlyingSwapTrade();
     ManageableSecurity underlying = swapTrade.getSecurityExtractor().extractSecurities()[0];
 
     ExternalId underlyingId = underlying.getExternalIdBundle().getExternalId(ExternalScheme.of("XML_LOADER"));
 
     boolean isPayer = swapTrade.getFixedLeg().getDirection() == SwapLeg.Direction.PAY;
-    Expiry expiry = new Expiry(convertLocalDate(_trade.getExpirationDate()));
+    Expiry expiry = new Expiry(convertLocalDate(trade.getExpirationDate()));
 
-    ManageableSecurity security = new SwaptionSecurity(isPayer, underlyingId, _trade.getBuySell() == BuySell.BUY,
-                                                       expiry, _trade.getSettlementType() == SettlementType.CASH_SETTLED,
-                                                       swapTrade.getFixedLeg().getCurrency(),
-                                                       null, _trade.getExerciseType().convert(),
-                                                       convertLocalDate(_trade.getCashSettlementPaymentDate()));
+    ManageableSecurity security = new SwaptionSecurity(
+        isPayer, underlyingId, trade.getBuySell() == BuySell.BUY,
+        expiry, trade.getSettlementType() == SettlementType.CASH_SETTLED,
+        swapTrade.getFixedLeg().getCurrency(),
+        null, trade.getExerciseType().convert(),
+        convertLocalDate(trade.getCashSettlementPaymentDate()));
 
     return securityArray(addIdentifier(security), underlying);
   }

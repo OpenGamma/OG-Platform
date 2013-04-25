@@ -121,7 +121,7 @@
             -moz-linear-gradient(left,  rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
         background-image:
             linear-gradient(to right,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%),
-            linear-gradient(to right,  rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);;
+            linear-gradient(to right,  rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);
         background-position: left top, right top;
         background-size: 6px 100%, 6px 100%;
         background-repeat: no-repeat;

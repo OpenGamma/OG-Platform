@@ -26,7 +26,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.MarketSecurityVisitor;
 import com.opengamma.util.money.Currency;
 
-
 /**
  * Provides the market price for the security of a position as a value on the position
  */
@@ -37,8 +36,9 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final double marketValue = (Double) inputs.getValue(getRequirement(target));
-    return Collections.singleton(new ComputedValue(getSpecification(target), marketValue));
+    final double marketValue = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.SECURITY_MARKET_PRICE, target.toSpecification(), desiredValue.getConstraints()), marketValue));
   }
 
   @Override
@@ -57,17 +57,11 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueRequirement valueRequirement = getRequirement(target);
-    return Collections.singleton(valueRequirement);
+    return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPositionOrTrade().getSecurity().getUniqueId()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueSpecification spec = getSpecification(target);
-    return Collections.singleton(spec);
-  }
-
-  private ValueSpecification getSpecification(final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     ValueProperties valueProperties;
     if (ccy == null) {
@@ -75,11 +69,7 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
     } else {
       valueProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
     }
-    return new ValueSpecification(ValueRequirementNames.SECURITY_MARKET_PRICE, target.toSpecification(), valueProperties);
-  }
-
-  private ValueRequirement getRequirement(final ComputationTarget target) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPositionOrTrade().getSecurity().getUniqueId());
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.SECURITY_MARKET_PRICE, target.toSpecification(), valueProperties));
   }
 
 }

@@ -1,0 +1,17 @@
+-- SQL for function costs master in SQL server
+-- ElSql didn't handle this case properly, so resorted to TOP
+
+-- ==========================================================================
+@NAME(DeleteOld)
+  DELETE FROM eng_functioncosts
+  WHERE configuration = :configuration
+    AND function_name = :function
+    AND id NOT IN (
+      SELECT TOP(:keep_rows)
+        id
+      FROM eng_functioncosts
+      WHERE configuration = :configuration
+        AND function_name = :function
+      ORDER BY
+        version_instant DESC
+    )

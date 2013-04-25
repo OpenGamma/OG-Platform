@@ -98,6 +98,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(CurrencyPairsFunction.class));
     functions.add(functionConfiguration(DV01Function.class));
     functions.add(functionConfiguration(NotionalFunction.class));
+    functions.add(functionConfiguration(QuantityFunction.class));
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
     addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
@@ -136,6 +137,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_VOMMA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     addUnitScalingFunction(functions, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_BLEED);

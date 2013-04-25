@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.greeks;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.calibration.CalibrateIndexCreditDefaultSwap;
@@ -22,9 +23,8 @@ public class CS01IndexCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Implement the bump and re-price code
-
   // TODO : Add function to bump a subset of obligors specified by the user
+  // TODO : Need to sort out the breakevenSpreads input to the pricer
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -32,6 +32,9 @@ public class CS01IndexCreditDefaultSwap {
 
   // Construct an index present value calculator object
   private static final PresentValueIndexCreditDefaultSwap indexPresentValue = new PresentValueIndexCreditDefaultSwap();
+
+  // Create an object to assist with the spread bumping
+  private static final CreditSpreadBumpers spreadBumper = new CreditSpreadBumpers();
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -46,6 +49,8 @@ public class CS01IndexCreditDefaultSwap {
       final double spreadBump,
       final SpreadBumpType spreadBumpType) {
 
+    // ------------------------------------------------------------------------------------------------------------------------------------------
+
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
     ArgumentChecker.notNull(yieldCurves, "YieldCurves");
@@ -55,125 +60,104 @@ public class CS01IndexCreditDefaultSwap {
 
     ArgumentChecker.notNegative(spreadBump, "Spread bump");
 
-    // Calibrate the hazard rate term structures of each of the obligors in the pool underlying the index
-    final HazardRateCurve[] hazardRateCurves = calibrateHazardRateCurves.getCalibratedHazardRateCurves(valuationDate, indexCDS, marketTenors, marketSpreads, yieldCurves);
+    // ------------------------------------------------------------------------------------------------------------------------------------------
 
     final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfTenors = marketTenors.length;
+
+    // Get the bumped credit spreads
+    double[][] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(numberOfObligors, numberOfTenors, marketSpreads, spreadBump, spreadBumpType);
+
+    // Calibrate the hazard rate term structures of each of the obligors in the pool underlying the index to the unbumped credit spreads
+    final HazardRateCurve[] hazardRateCurves = calibrateHazardRateCurves.getCalibratedHazardRateCurves(valuationDate, indexCDS, marketTenors, marketSpreads, yieldCurves);
+
+    // Calibrate the hazard rate term structures of each of the obligors in the pool underlying the index to the unbumped credit spreads
+    final HazardRateCurve[] bumpedHazardRateCurves = calibrateHazardRateCurves.getCalibratedHazardRateCurves(valuationDate, indexCDS, marketTenors, bumpedMarketSpreads, yieldCurves);
 
     double[] breakevenSpreads = new double[numberOfObligors];
+    double[] bumpedBreakevenSpreads = new double[numberOfObligors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       breakevenSpreads[i] = marketSpreads[i][0];
+      bumpedBreakevenSpreads[i] = bumpedMarketSpreads[i][0];
     }
 
-    // Calculate the value of the index
+    // Calculate the unbumped value of the index
     final double presentValue = indexPresentValue.getIntrinsicPresentValueIndexCreditDefaultSwap(valuationDate, indexCDS, breakevenSpreads, yieldCurves, hazardRateCurves);
 
-    double parallelCS01 = 0.0;
+    // Calculate the unbumped value of the index
+    final double bumpedPresentValue = indexPresentValue.getIntrinsicPresentValueIndexCreditDefaultSwap(valuationDate, indexCDS, bumpedBreakevenSpreads, yieldCurves, bumpedHazardRateCurves);
+
+    // Compute the parallel CS01
+    double parallelCS01 = (bumpedPresentValue - presentValue) / spreadBump;
 
     return parallelCS01;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors) - bump is applied simultaneously to all obligors
+  // Compute the CS01 by bumping each point on the spread curve simultaneously by spreadBump (bump is same for all tenors) - bump is applied one-by-one to each obligor
 
-  public double[] getCS01BucketedAllObligorsIndexCreditDefaultSwap(
+  public double[] getCS01BucketedByObligorIndexCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurve,
+      final ISDADateCurve[] yieldCurves,
       final ZonedDateTime[] marketTenors,
       final double[][] marketSpreads,
       final double spreadBump,
       final SpreadBumpType spreadBumpType) {
 
+    // ------------------------------------------------------------------------------------------------------------------------------------------
+
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
-    ArgumentChecker.notNull(yieldCurve, "YieldCurve");
+    ArgumentChecker.notNull(yieldCurves, "YieldCurve");
     ArgumentChecker.notNull(marketTenors, "Market tenors");
     ArgumentChecker.notNull(marketSpreads, "Market spreads");
     ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
 
     ArgumentChecker.notNegative(spreadBump, "Spread bump");
 
-    int numberOfCreditSpreadTenors = marketTenors.length;
+    // -----------------------------------------------------------------------------------------------------------------------------------------
 
-    double[] bucketedCS01 = new double[numberOfCreditSpreadTenors];
+    final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfTenors = marketTenors.length;
 
-    for (int m = 0; m < numberOfCreditSpreadTenors; m++) {
-      bucketedCS01[m] = 0.0;
+    double[] bucketedByObligorCS01 = new double[numberOfObligors];
+
+    double[] breakevenSpreads = new double[numberOfObligors];
+    double[] bumpedBreakevenSpreads = new double[numberOfObligors];
+
+    for (int j = 0; j < numberOfObligors; j++) {
+      breakevenSpreads[j] = marketSpreads[j][0];
     }
 
-    return bucketedCS01;
-  }
+    // Calibrate the hazard rate term structures of each of the obligors in the pool underlying the index to the unbumped credit spreads
+    final HazardRateCurve[] hazardRateCurves = calibrateHazardRateCurves.getCalibratedHazardRateCurves(valuationDate, indexCDS, marketTenors, marketSpreads, yieldCurves);
 
-  // ------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Compute the CS01 by a parallel bump of each point on the spread curve - bump is applied individually to all obligors one by one
-
-  public double[] getCS01ParallelShiftIndividualObligorsIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType) {
-
-    ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(indexCDS, "Index CDS");
-    ArgumentChecker.notNull(yieldCurve, "YieldCurve");
-    ArgumentChecker.notNull(marketTenors, "Market tenors");
-    ArgumentChecker.notNull(marketSpreads, "Market spreads");
-    ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
-
-    ArgumentChecker.notNegative(spreadBump, "Spread bump");
-
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
-
-    double[] parallelCS01 = new double[numberOfObligors];
+    // Calculate the unbumped value of the index
+    final double presentValue = indexPresentValue.getIntrinsicPresentValueIndexCreditDefaultSwap(valuationDate, indexCDS, breakevenSpreads, yieldCurves, hazardRateCurves);
 
     for (int i = 0; i < numberOfObligors; i++) {
-      parallelCS01[i] = 0.0;
-    }
 
-    return parallelCS01;
-  }
+      // TODO : There is a bug here. The marketSpreads matrix is erroneously being bumped
+      final double[][] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(numberOfObligors, numberOfTenors, i, marketSpreads, spreadBump, spreadBumpType);
 
-  // ------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors) - bump is applied individually to all obligors one by one
-
-  public double[][] getCS01BucketedIndividualObligorsIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType) {
-
-    ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(indexCDS, "Index CDS");
-    ArgumentChecker.notNull(yieldCurve, "YieldCurve");
-    ArgumentChecker.notNull(marketTenors, "Market tenors");
-    ArgumentChecker.notNull(marketSpreads, "Market spreads");
-    ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
-
-    ArgumentChecker.notNegative(spreadBump, "Spread bump");
-
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
-    int numberOfCreditSpreadTenors = marketTenors.length;
-
-    double[][] cs01 = new double[numberOfObligors][numberOfCreditSpreadTenors];
-
-    for (int i = 0; i < numberOfObligors; i++) {
-      for (int m = 0; m < numberOfCreditSpreadTenors; m++) {
-        cs01[i][m] = 0.0;
+      for (int j = 0; j < numberOfObligors; j++) {
+        bumpedBreakevenSpreads[j] = bumpedMarketSpreads[j][0];
       }
+
+      // Calibrate the hazard rate term structures of each of the obligors in the pool underlying the index to the unbumped credit spreads
+      final HazardRateCurve[] bumpedHazardRateCurves = calibrateHazardRateCurves.getCalibratedHazardRateCurves(valuationDate, indexCDS, marketTenors, bumpedMarketSpreads, yieldCurves);
+
+      // Calculate the unbumped value of the index
+      final double bumpedPresentValue = indexPresentValue.getIntrinsicPresentValueIndexCreditDefaultSwap(valuationDate, indexCDS, bumpedBreakevenSpreads, yieldCurves, bumpedHazardRateCurves);
+
+      // Calculate the parallel CS01 for obligor i
+      bucketedByObligorCS01[i] = (bumpedPresentValue - presentValue) / spreadBump;
     }
 
-    return cs01;
+    return bucketedByObligorCS01;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------

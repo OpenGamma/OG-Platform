@@ -26,7 +26,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
 
@@ -68,7 +68,7 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
   public void getHistoricalTimeSeries_UniqueId() {
     LocalDate[] dates = {LocalDate.of(2011, 6, 30)};
     double[] values = {12.34d};
-    ArrayLocalDateDoubleTimeSeries timeSeries = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    ImmutableLocalDateDoubleTimeSeries timeSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     HistoricalTimeSeries series = new SimpleHistoricalTimeSeries(UID, timeSeries);
     
     when(_underlyingSource.getHistoricalTimeSeries(UID)).thenReturn(series);

@@ -156,8 +156,8 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println("CouponArithmeticAverageONDiscountingMethod: " + nbTest + " pv Arithmetic Average ON - Exact: " + (endTime - startTime) + " ms");
-    // Performance note: AA ON pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 10000 coupons.
-    // Performance note: AA ON constr. + pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 460 ms for 10000 coupons.
+    // Performance note: AA ON exact pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 10000 coupons.
+    // Performance note: AA ON exact constr. + pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 460 ms for 10000 coupons.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -169,8 +169,8 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println("CouponArithmeticAverageONDiscountingMethod: " + nbTest + " pv Arithmetic Average ON - Approximation: " + (endTime - startTime) + " ms");
-    // Performance note: AA ON pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 5 ms for 10000 coupons.
-    // Performance note: AA ON constr. + pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 10000 coupons.
+    // Performance note: AA ON approx pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 5 ms for 10000 coupons.
+    // Performance note: AA ON approx constr. + pv: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 10000 coupons.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -178,7 +178,7 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println("CouponArithmeticAverageONDiscountingMethod: " + nbTest + " pvcs Arithmetic Average ON - Exact: " + (endTime - startTime) + " ms");
-    // Performance note: AA ON pvcs: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 220 ms for 10000 coupons.
+    // Performance note: AA ON exact pvcs: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 220 ms for 10000 coupons.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -186,7 +186,7 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println("CouponArithmeticAverageONDiscountingMethod: " + nbTest + " pvcs Arithmetic Average ON - Approximation: " + (endTime - startTime) + " ms");
-    // Performance note: AA ON pvcs: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 12 ms for 10000 coupons.
+    // Performance note: AA ON approx pvcs: 26-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 12 ms for 10000 coupons.
 
   }
 

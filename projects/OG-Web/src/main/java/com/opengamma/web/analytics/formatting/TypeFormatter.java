@@ -20,11 +20,9 @@ public interface TypeFormatter<T> {
     HISTORY,
   }
   
-  Object formatCell(T value, ValueSpecification valueSpec);
+  Object formatCell(T value, ValueSpecification valueSpec, Object inlineKey);
 
-  Object formatInlineCell(T value, ValueSpecification valueSpec, Object inlineKey);
-
-  Object format(T value, ValueSpecification valueSpec, Format format);
+  Object format(T value, ValueSpecification valueSpec, Format format, Object inlineKey);
 
   Class<T> getType();
   

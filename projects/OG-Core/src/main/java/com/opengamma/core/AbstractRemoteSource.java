@@ -9,7 +9,9 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
@@ -34,6 +36,11 @@ public abstract class AbstractRemoteSource<T> extends AbstractRemoteClient imple
   @Override
   public Map<UniqueId, T> get(Collection<UniqueId> uniqueIds) {
     return AbstractSource.get(this, uniqueIds);
+  }
+
+  @Override
+  public Map<ObjectId, T> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
+    return AbstractSource.get(this, objectIds, versionCorrection);
   }
 
 }

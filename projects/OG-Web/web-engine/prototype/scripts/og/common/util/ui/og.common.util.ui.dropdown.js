@@ -10,7 +10,7 @@ $.register_module({
         var Dropdown = function (config) {
             var block = this, resource = config.resource, form = config.form, value = config.value,
                 fields = config.fields || [0], values = fields[0], id = og.common.id('dropdown'),
-                rest_options = $.extend({page: '*', cache_for: 30 * 1000}, config.rest_options),
+                rest_options = $.extend({page: '*', cache_for: 30 * 1000}, config.rest_options), has = 'hasOwnProperty',
                 data_generator = config.data_generator, texts = typeof fields[1] !== 'undefined' ? fields[1] : values,
                 processor = config.processor, meta = rest_options.meta, disabled = !!config.disabled;
             var generator = function (handler, template, template_data) {
@@ -32,7 +32,8 @@ $.register_module({
                     template_data.disabled = !template_data.options.length || disabled;
                     handler(template(template_data));
                 };
-                if (meta) delete rest_options.page; // remove default paging option for meta requests
+                if (meta && !config.rest_options[has]('page')) // remove default paging option for meta requests
+                    delete rest_options.page;
                 if (!data_generator) return resource.split('.')
                     .reduce(function (api, key) {return api[key];}, og.api.rest).get(rest_options).pipe(rest_handler);
                 data_generator(function (data) {

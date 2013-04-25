@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.collections.Sets;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
@@ -61,7 +62,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -120,8 +121,9 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -248,7 +250,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_RECEIVE);
   public static final SwapFixedIborDefinition SWAP_FIXED_IBOR = new SwapFixedIborDefinition(ANNUITY_FIXED, ANNUITY_IBOR);
   public static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_PAY, ANNUITY_IBOR_SPREAD_RECEIVE);
-  public static final DeliverableSwapFuturesSecurityDefinition DELIVERABLE_SWAP_FUTURE = new DeliverableSwapFuturesSecurityDefinition(SETTLE_DATE, new SwapFixedIborDefinition(
+  public static final SwapFuturesDeliverableSecurityDefinition DELIVERABLE_SWAP_FUTURE = new SwapFuturesDeliverableSecurityDefinition(SETTLE_DATE, new SwapFixedIborDefinition(
       ANNUITY_FIXED_UNIT_NOTIONAL, ANNUITY_IBOR_UNIT_NOTIONAL), NOTIONAL);
 
   public static final SwaptionCashFixedIborDefinition SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIborDefinition();
@@ -375,7 +377,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
       data.add(0.01);
       date = date.plusDays(1);
     }
-    final ListZonedDateTimeDoubleTimeSeries ts = new ListZonedDateTimeDoubleTimeSeries(dates, data);
+    final ZonedDateTimeDoubleTimeSeries ts = ImmutableZonedDateTimeDoubleTimeSeries.of(dates, data, ZoneOffset.UTC);
     ALL_DERIVATIVES.add(AG_FUTURE.toDerivative(AG_FUTURE.getSettlementDate(), curveNames));
     ALL_DERIVATIVES.add(AG_FUTURE_OPTION.toDerivative(AG_FUTURE_OPTION.getExpiryDate().minusDays(1), curveNames));
     ALL_DERIVATIVES.add(AG_FWD.toDerivative(AG_FWD.getSettlementDate(), curveNames));
@@ -420,7 +422,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(EQUITY_INDEX_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
     ALL_DERIVATIVES.add(EQUITY_INDEX_FUTURE_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
     ALL_DERIVATIVES.add(EQUITY_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, ArrayUtils.EMPTY_STRING_ARRAY));
+    ALL_DERIVATIVES.add(EQUITY_VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, ArrayUtils.EMPTY_STRING_ARRAY));
     ALL_DERIVATIVES.add(FF_SECURITY.toDerivative(FF_SECURITY.getFixingPeriodDate()[0], curveNames));
     ALL_DERIVATIVES.add(FF_TRANSACTION.toDerivative(FF_TRANSACTION.getTradeDate(), new DoubleTimeSeries[] {ts, ts }, curveNames));
     ALL_DERIVATIVES.add(FRA.toDerivative(FRA.getAccrualStartDate(), ts, curveNames));
@@ -446,16 +448,16 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(METAL_FUTURE_OPTION.toDerivative(METAL_FUTURE_OPTION.getExpiryDate().minusDays(1), curveNames));
     ALL_DERIVATIVES.add(METAL_FWD.toDerivative(METAL_FWD.getSettlementDate(), curveNames));
     ALL_DERIVATIVES.add(PAYMENT_FIXED.toDerivative(PAYMENT_FIXED.getPaymentDate().minusDays(1), curveNames));
-    ALL_DERIVATIVES.add(SWAP.toDerivative(SWAP.getSecondLeg().getPayments()[0].getPaymentDate(), new DoubleTimeSeries[] {ts, ts }, curveNames));
-    ALL_DERIVATIVES.add(SWAP_IBOR_IBOR.toDerivative(SWAP_IBOR_IBOR.getFirstLeg().getPayments()[0].getPaymentDate(), new DoubleTimeSeries[] {ts, ts }, curveNames));
-    ALL_DERIVATIVES.add(SWAP_FIXED_IBOR.toDerivative(SWAP_FIXED_IBOR.getFirstLeg().getPayments()[0].getPaymentDate(), new DoubleTimeSeries[] {ts, ts }, curveNames));
-    ALL_DERIVATIVES.add(SWAP_FIXED_IBOR_SPREAD.toDerivative(SWAP_FIXED_IBOR_SPREAD.getFirstLeg().getPayments()[0].getPaymentDate(), new DoubleTimeSeries[] {ts, ts }, curveNames));
+    ALL_DERIVATIVES.add(SWAP.toDerivative(SWAP.getSecondLeg().getPayments()[0].getPaymentDate(), new ZonedDateTimeDoubleTimeSeries[] {ts, ts }, curveNames));
+    ALL_DERIVATIVES.add(SWAP_IBOR_IBOR.toDerivative(SWAP_IBOR_IBOR.getFirstLeg().getPayments()[0].getPaymentDate(), new ZonedDateTimeDoubleTimeSeries[] {ts, ts }, curveNames));
+    ALL_DERIVATIVES.add(SWAP_FIXED_IBOR.toDerivative(SWAP_FIXED_IBOR.getFirstLeg().getPayments()[0].getPaymentDate(), new ZonedDateTimeDoubleTimeSeries[] {ts, ts }, curveNames));
+    ALL_DERIVATIVES.add(SWAP_FIXED_IBOR_SPREAD.toDerivative(SWAP_FIXED_IBOR_SPREAD.getFirstLeg().getPayments()[0].getPaymentDate(), new ZonedDateTimeDoubleTimeSeries[] {ts, ts }, curveNames));
     ALL_DERIVATIVES.add(SWAPTION_BERMUDA.toDerivative(SWAPTION_BERMUDA.getExpiryDate()[0].minusDays(1), curveNames));
     ALL_DERIVATIVES.add(SWAPTION_CASH.toDerivative(SWAPTION_CASH.getExpiry().getExpiry().minusDays(1), curveNames));
     ALL_DERIVATIVES.add(SWAPTION_PHYS.toDerivative(SWAPTION_PHYS.getExpiry().getExpiry().minusDays(1), curveNames));
     ALL_DERIVATIVES.add(SWAPTION_PHYS_SPREAD.toDerivative(SWAPTION_PHYS_SPREAD.getExpiry().getExpiry().minusDays(10), curveNames));
-    ALL_DERIVATIVES.add(VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(XCCY_SWAP.toDerivative(XCCY_SWAP.getFirstLeg().getPayments()[0].getPaymentDate(), new DoubleTimeSeries[] {ts, ts }, curveNames));
+    ALL_DERIVATIVES.add(VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, ArrayUtils.EMPTY_STRING_ARRAY));
+    ALL_DERIVATIVES.add(XCCY_SWAP.toDerivative(XCCY_SWAP.getFirstLeg().getPayments()[0].getPaymentDate(), new ZonedDateTimeDoubleTimeSeries[] {ts, ts }, curveNames));
   }
 
   public static Set<InstrumentDefinition<?>> getAllInstruments() {

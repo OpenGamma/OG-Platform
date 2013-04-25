@@ -20,7 +20,7 @@ import com.opengamma.util.time.Tenor;
   }
 
   @Override
-  public Period formatCell(Tenor tenor, ValueSpecification valueSpec) {
+  public Period formatCell(Tenor tenor, ValueSpecification valueSpec, Object inlineKey) {
     return tenor.getPeriod();
   }
 

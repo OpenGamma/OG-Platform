@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -80,7 +79,8 @@ public class CapFloorIborTest {
   @Test
   public void withStrike() {
     final double otherStrike = STRIKE + 0.01;
-    final CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_YEAR_FRACTION,
+    final CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION,
         FORWARD_CURVE_NAME, otherStrike, IS_CAP);
     final CapFloorIbor otherCapWith = CAP.withStrike(otherStrike);
     assertEquals("Strike", otherStrike, otherCapWith.getStrike());

@@ -55,7 +55,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -177,7 +178,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
         //throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
         continue;
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       final Double sensitivity = (Double) inputs.getValue(getSensitivityRequirement(factor.getExposureExternalId()));
       if (sensitivity != null) {
@@ -197,7 +198,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
       dates.add(MAGIC_DATE);
       values.add(0d);
       values.add(0d);
-      pnlSeries = new ArrayLocalDateDoubleTimeSeries(dates, values);
+      pnlSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     }
     return pnlSeries;
   }

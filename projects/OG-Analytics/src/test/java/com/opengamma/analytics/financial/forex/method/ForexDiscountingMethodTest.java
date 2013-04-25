@@ -60,6 +60,7 @@ public class ForexDiscountingMethodTest {
   private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityMCSCalculator PVCSC_FX = PresentValueCurveSensitivityMCSCalculator.getInstance();
+  private static final ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
@@ -162,7 +163,6 @@ public class ForexDiscountingMethodTest {
     final FXMatrix fxMatrix = new FXMatrix(CUR_1, CUR_2, fxToday);
     final YieldCurveBundle curvesFx = new YieldCurveBundle(CURVES.getCurvesMap(), fxMatrix, CURVE_CURRENCY);
     final double fwdMethod = METHOD.forwardForexRate(FX, curvesFx);
-    final ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
     final double fwdCalculator = FX.accept(FWDC, curvesFx);
     assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
   }

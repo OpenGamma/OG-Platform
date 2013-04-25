@@ -115,7 +115,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
   private static final ForexOptionVanillaBlackSmileMethod METHOD_OPTION = ForexOptionVanillaBlackSmileMethod.getInstance();
-  private static final ForexDiscountingProviderMethod METHOD_DISC = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
 
   private static final PresentValueForexBlackSmileCalculator PVFBC = PresentValueForexBlackSmileCalculator.getInstance();
   private static final CurrencyExposureForexBlackSmileCalculator CEFBC = CurrencyExposureForexBlackSmileCalculator.getInstance();

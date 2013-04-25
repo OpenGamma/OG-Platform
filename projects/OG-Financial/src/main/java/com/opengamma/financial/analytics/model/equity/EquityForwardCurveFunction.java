@@ -130,7 +130,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     // Spot
     final Double spot = (Double) inputs.getValue(getSpotRequirement(target));
     if (spot == null) {
-      throw new OpenGammaRuntimeException("Failed to get spot value requirement");
+      throw new OpenGammaRuntimeException("Failed to get spot value requirement: " + target.getName());
     }
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     // Curve Currency

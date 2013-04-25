@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.provider.DeliverableSwapFuturesSecurityHullWhiteMethod;
@@ -60,7 +60,7 @@ public final class MarketQuoteCurveSensitivityHullWhiteCalculator extends Instru
   }
 
   @Override
-  public MulticurveSensitivity visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MulticurveSensitivity visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAP_FUT.priceCurveSensitivity(futures, hullWhite);
   }
 

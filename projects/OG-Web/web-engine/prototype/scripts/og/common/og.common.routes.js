@@ -52,8 +52,7 @@ $.register_module({
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common, is_child, opener_og, parent_api, parent_data, api = og.api.rest;
                     $('.OG-js-loading').hide();
-                    $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container')
-                        .css({'visibility': 'visible'});
+                    $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container').css({'visibility': 'visible'});
                     common.layout = (({
                         'analytics.ftl': common.layout.analytics,
                         'analytics2.ftl': common.layout.analytics2,
@@ -71,7 +70,8 @@ $.register_module({
                     if (is_child && parent_api)
                         (og.api.rest = parent_api).on('abandon', function () {document.location.reload();});
                     else if (og.api.rest) api.subscribe();
-                    if (is_child && parent_data) og.analytics.Data = parent_data;
+                    if (is_child && parent_data && og.analytics) // the admin pages do not need og.analytics
+                        og.analytics.Data = parent_data;
                     routes.set_title(routes.title || (routes.get() || ''));
                     routes.handler();
                 });
@@ -95,7 +95,7 @@ $.register_module({
                 if (og.api.rest) og.api.rest.clean();
                 return parsed;
             },
-            set_title: function (title) {document.title = 'OpenGamma: ' + title;},
+            set_title: function (title) {document.title = title + ' - OpenGamma';},
             title: null
         });
     }

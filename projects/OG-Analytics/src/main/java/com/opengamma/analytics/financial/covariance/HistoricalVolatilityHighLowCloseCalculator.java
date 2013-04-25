@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
 
 /**

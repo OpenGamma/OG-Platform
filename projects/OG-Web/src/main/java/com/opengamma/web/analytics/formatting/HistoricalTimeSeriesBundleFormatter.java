@@ -15,7 +15,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
   }
 
   @Override
-  public Object formatCell(HistoricalTimeSeriesBundle bundle, ValueSpecification valueSpec) {
+  public Object formatCell(HistoricalTimeSeriesBundle bundle, ValueSpecification valueSpec, Object inlineKey) {
     return "Time-series Bundle";
   }
 

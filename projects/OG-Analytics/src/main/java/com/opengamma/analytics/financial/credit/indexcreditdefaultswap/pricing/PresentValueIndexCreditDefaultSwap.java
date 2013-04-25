@@ -25,7 +25,6 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // TODO : Work - in - Progress
 
-  // TODO : Where do we carry out the calibration of the CDS's in the underlying pool?
   // TODO : Make sure the Buy/sell convention is coded correctly
   // TODO : Need to make sure sort out the LegacyVanillaCreditDefaultSwapDefinition etc issues with the object hierarchy
 

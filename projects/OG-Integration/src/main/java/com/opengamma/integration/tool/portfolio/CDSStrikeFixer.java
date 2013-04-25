@@ -168,7 +168,7 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
 
           try {
             tenor = new Tenor(Period.ofYears(5));
-            ExternalId timeSeriesId = curveNodeIdMapper.getCreditSpreadId(null /* magic null - ask Elaine */, tenor);
+            ExternalId timeSeriesId = curveNodeIdMapper.getCreditSpreadNodeId(null /* magic null - ask Elaine */, tenor);
 
 
             Double strike = snapshot.getGlobalValues().getValue(timeSeriesId, "PX_LAST").getMarketValue();

@@ -89,25 +89,18 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     _underlying = underlying;
     _cacheManager = cacheManager;
 
+    // Load cache configuration
     if (cacheManager.getCache(name + CACHE_NAME_SUFFIX) == null) {
-      // If cache config not found, set up from scratch
-      s_logger.warn("Could not load cache configuration for " + name + CACHE_NAME_SUFFIX
-                  + ", building configuration on the fly instead");
+      // If cache config not found, set up programmatically
+      s_logger.warn("Could not load a cache configuration for " + name + CACHE_NAME_SUFFIX
+                  + ", building a default configuration programmatically instead");
       getCacheManager().addCache(new Cache(tweakCacheConfiguration(new CacheConfiguration(name + CACHE_NAME_SUFFIX,
                                                                                           10000))));
-    } else {
-      // If cache config found, tweak loaded config
-      tweakCacheConfiguration(cacheManager.getCache(name + CACHE_NAME_SUFFIX).getCacheConfiguration());
     }
-
-
-
-    // Create the self-populating cache decorator
     _uidToDocumentCache = new SelfPopulatingCache(_cacheManager.getCache(name + CACHE_NAME_SUFFIX),
                                                   new UidToDocumentCacheEntryFactory<>(_underlying));
     getCacheManager().replaceCacheWithDecoratedCache(_cacheManager.getCache(name + CACHE_NAME_SUFFIX),
                                                      getUidToDocumentCache());
-
 
     // Listen to change events from underlying, clean this cache accordingly and relay events to our change listeners
     _changeManager = new BasicChangeManager();
@@ -130,9 +123,9 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     // Set searchable index
     Searchable uidToDocumentCacheSearchable = new Searchable();
     uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("ObjectId")
-        .expression("value.getObjectId().toString()"));
+                                                        .expression("value.getObjectId().toString()"));
     uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("VersionFromInstant")
-        .className("com.opengamma.master.cache.InstantExtractor"));
+                                                        .className("com.opengamma.master.cache.InstantExtractor"));
     uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("VersionToInstant")
                                                         .className("com.opengamma.master.cache.InstantExtractor"));
     uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("CorrectionFromInstant")
@@ -147,6 +140,8 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     cacheConfiguration.addCopyStrategy(copyStrategyConfiguration);
     cacheConfiguration.setCopyOnRead(true);
     cacheConfiguration.setCopyOnWrite(true);
+
+    cacheConfiguration.setStatistics(true);
 
     return cacheConfiguration;
   }
@@ -168,13 +163,13 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
         .includeAttribute(getUidToDocumentCache().getSearchAttribute("CorrectionToInstant"))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("ObjectId").eq(objectId.toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("VersionFromInstant")
-                         .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
+            .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("VersionToInstant")
-                         .ge(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
+            .gt(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("CorrectionFromInstant")
-                         .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
+            .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("CorrectionToInstant")
-                       .ge(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
+            .gt(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
         .execute();
 
     // Found a matching cached document
@@ -206,7 +201,9 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
 
     // Invalid result
     } else {
-      throw new DataNotFoundException("Unable to uniquely identify a document with the specified ObjectId/VersionCorrection");
+      throw new DataNotFoundException("Unable to uniquely identify a document with ObjectId " + objectId
+                                      + " and VersionCorrection " + versionCorrection
+                                      + " because more than one cached search result matches: " + results);
     }
   }
 

@@ -34,8 +34,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -55,7 +55,7 @@ public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunct
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final String idName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveName = idName;
-    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
+    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
     final String dataField = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
     final String resolutionKey;
     final Set<String> resolutionKeyConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY);
@@ -94,7 +94,8 @@ public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunct
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
         .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
-        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY);
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY);
   }
 
   @Override

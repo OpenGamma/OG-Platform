@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -23,7 +23,7 @@ public abstract class DeliverableSwapFuturesTransactionMethod {
    * @param price The quoted price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromPrice(final DeliverableSwapFuturesTransaction futures, final double price) {
+  public MultipleCurrencyAmount presentValueFromPrice(final SwapFuturesDeliverableTransaction futures, final double price) {
     double pv = (price - futures.getReferencePrice()) * futures.getUnderlying().getNotional() * futures.getQuantity();
     return MultipleCurrencyAmount.of(futures.getCurrency(), pv);
   }
@@ -34,7 +34,7 @@ public abstract class DeliverableSwapFuturesTransactionMethod {
    * @param priceSensitivity The sensitivity of the futures price.
    * @return The present value rate sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final DeliverableSwapFuturesTransaction futures, final MulticurveSensitivity priceSensitivity) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwapFuturesDeliverableTransaction futures, final MulticurveSensitivity priceSensitivity) {
     Validate.notNull(futures, "Future");
     MulticurveSensitivity result = priceSensitivity.multipliedBy(futures.getUnderlying().getNotional() * futures.getQuantity());
     return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(), result);

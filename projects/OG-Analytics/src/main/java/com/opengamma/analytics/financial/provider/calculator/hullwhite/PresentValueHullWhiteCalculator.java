@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.DeliverableSwapFuturesTransactionHullWhiteMethod;
@@ -77,7 +77,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   }
 
   @Override
-  public MultipleCurrencyAmount visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAPFUT.presentValue(futures, hullWhite);
   }
 

@@ -55,7 +55,7 @@ public class ForexSwapDiscountingProviderMethodTest {
   private static final ForexSwap FX_SWAP = (ForexSwap) FX_SWAP_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
 
   private static final ForexSwapDiscountingProviderMethod METHOD_FX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
-  private static final ForexDiscountingProviderMethod METHOD_FX = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 

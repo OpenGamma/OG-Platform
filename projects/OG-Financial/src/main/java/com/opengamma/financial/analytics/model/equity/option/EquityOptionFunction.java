@@ -83,6 +83,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   private final String[] _valueRequirementNames;
   /** Converts the security to the form used in analytics */
   private EquityOptionsConverter _converter; // set in init(), not constructor
+  /** The type this function operates on */
+  private static final ComputationTargetType TYPE = FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
 
   /**
    * @param valueRequirementNames A list of value requirement names, not null or empty
@@ -188,8 +190,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
-        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
+    return TYPE;
   }
 
   @Override
@@ -221,6 +222,10 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     String forwardCurveCalculationMethod = null;
     ValueProperties.Builder additionalConstraintsBuilder = null;
     if ((constraints.getProperties() == null) || constraints.getProperties().isEmpty()) {
+      return null;
+    }
+    final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
+    if (calculationMethod == null || calculationMethod.isEmpty()) {
       return null;
     }
     for (final String property : constraints.getProperties()) {

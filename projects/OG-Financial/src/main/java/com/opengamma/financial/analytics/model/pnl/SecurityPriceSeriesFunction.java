@@ -44,7 +44,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -74,7 +74,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Period samplingPeriod = getSamplingPeriod(samplingPeriodName);
     final LocalDate startDate = now.minus(samplingPeriod);
     final HistoricalTimeSeries hts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-    final DoubleTimeSeries<?> ts = hts.getTimeSeries();
+    final LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price series for security " + security);
     }
@@ -84,7 +84,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    final DoubleTimeSeries<?> resultTS = samplingFunction.getSampledTimeSeries(ts, schedule);
+    final LocalDateDoubleTimeSeries resultTS = samplingFunction.getSampledTimeSeries(ts, schedule);
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)

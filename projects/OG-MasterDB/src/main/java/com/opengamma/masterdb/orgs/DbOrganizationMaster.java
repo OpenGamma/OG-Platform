@@ -117,7 +117,7 @@ public class DbOrganizationMaster
     }
     
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new OrganizationDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new OrganizationDocumentExtractor(), result);
     return result;
   }
 

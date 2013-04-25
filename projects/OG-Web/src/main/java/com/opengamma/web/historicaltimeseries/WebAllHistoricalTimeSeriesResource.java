@@ -55,7 +55,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.analytics.rest.MasterType;
@@ -369,7 +369,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     } catch (DataNotFoundException ex) {
       // If not there, return an empty collection of data-points
       series = new ManageableHistoricalTimeSeries();
-      series.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+      series.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     }
     data().setTimeSeries(series);
     

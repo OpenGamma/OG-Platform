@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.timeseries.analysis.AutocorrelationFunc
 import com.opengamma.analytics.financial.timeseries.analysis.AutocovarianceFunctionCalculator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

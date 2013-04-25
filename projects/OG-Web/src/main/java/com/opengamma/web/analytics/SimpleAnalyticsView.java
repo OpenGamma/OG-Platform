@@ -20,11 +20,14 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioMapper;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
@@ -41,6 +44,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 /* package */ class SimpleAnalyticsView implements AnalyticsView {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleAnalyticsView.class);
+  private static final Portfolio EMPTY_PORTFOLIO = new SimplePortfolio("", new SimplePortfolioNode(UniqueId.of("EMPTY", "EMPTY"), ""));
 
   private final ResultsCache _cache = new ResultsCache();
   private final ComputationTargetResolver _targetResolver;
@@ -66,7 +70,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
    * @param portfolioSupplier Supplies an up to date version of the portfolio
    * @param showBlotterColumns Whether the blotter columns should be shown in the portfolio analytics grid
    */
-  /* package */ SimpleAnalyticsView(Portfolio portfolio,
+  /* package */ SimpleAnalyticsView(boolean primitivesOnly,
                                     VersionCorrection versionCorrection,
                                     String viewId,
                                     String portoflioCallbackId,
@@ -91,13 +95,12 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     _targetResolver = targetResolver;
     _portfolioSupplier = portfolioSupplier;
     _portfolioEntityExtractor = portfolioEntityExtractor;
-    List<UniqueIdentifiable> entities;
-    if (portfolio != null) {
-      entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
+    Portfolio portfolio;
+    if (primitivesOnly) {
+      portfolio = null;
     } else {
-      entities = Collections.emptyList();
+      portfolio = EMPTY_PORTFOLIO;
     }
-    _cache.put(entities);
     if (showBlotterColumns) {
       _portfolioGrid = PortfolioAnalyticsGrid.forBlotter(portoflioCallbackId,
                                                          portfolio,
@@ -117,6 +120,11 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   @Override
   public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
+    Portfolio portfolio = _compiledViewDefinition.getPortfolio();
+    if (portfolio != null) {
+      List<UniqueIdentifiable> entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
+      _cache.put(entities);
+    }
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable IDs to do that
     _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition);
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,

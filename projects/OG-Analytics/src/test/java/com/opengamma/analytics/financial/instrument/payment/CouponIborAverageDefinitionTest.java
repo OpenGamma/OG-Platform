@@ -26,7 +26,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -65,7 +65,7 @@ public class CouponIborAverageDefinitionTest {
   private static final CouponIborAverageDefinition IBOR_AVERAGE_COUPON_DEFINITION_2 = CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
       NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2);
   private static final double FIXING_RATE = .005;
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27); //For conversion to derivative
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -235,7 +235,7 @@ public class CouponIborAverageDefinitionTest {
     final Payment couponConverted = IBOR_AVERAGE_COUPON_DEFINITION_1.toDerivative(referenceDate, FIXING_TS, "");
     assertEquals(coupon, couponConverted);
     // The fixing is not known
-    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR) },
+    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR) },
         new double[] {FIXING_RATE });
     final CouponIborAverage coupon2 = new CouponIborAverage(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX_1, fixingPeriodStartTime1, fixingPeriodEndTime1,
         IBOR_AVERAGE_COUPON_DEFINITION_1.getFixingPeriodAccrualFactor1(), INDEX_2, fixingPeriodStartTime2, fixingPeriodEndTime2,

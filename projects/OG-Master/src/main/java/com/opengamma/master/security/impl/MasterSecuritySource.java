@@ -7,8 +7,10 @@ package com.opengamma.master.security.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
@@ -25,16 +27,15 @@ import com.opengamma.util.PublicSPI;
 /**
  * A {@code SecuritySource} implemented using an underlying {@code SecurityMaster}.
  * <p>
- * The {@link SecuritySource} interface provides securities to the engine via a narrow API.
- * This class provides the source on top of a standard {@link SecurityMaster}.
+ * The {@link SecuritySource} interface provides securities to the engine via a narrow API. This class provides the source on top of a standard {@link SecurityMaster}.
  */
 @PublicSPI
 public class MasterSecuritySource extends AbstractMasterSource<Security, SecurityDocument, SecurityMaster> implements SecuritySource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.
-   *
-   * @param master  the master, not null
+   * 
+   * @param master the master, not null
    */
   public MasterSecuritySource(final SecurityMaster master) {
     super(master);
@@ -42,9 +43,9 @@ public class MasterSecuritySource extends AbstractMasterSource<Security, Securit
 
   /**
    * Creates an instance with an underlying master optionally overriding the requested version.
-   *
-   * @param master  the master, not null
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
+   * 
+   * @param master the master, not null
+   * @param versionCorrection the version-correction locator to search at, null to not override versions
    */
   public MasterSecuritySource(final SecurityMaster master, VersionCorrection versionCorrection) {
     super(master, versionCorrection);
@@ -75,6 +76,11 @@ public class MasterSecuritySource extends AbstractMasterSource<Security, Securit
   }
 
   @Override
+  public Map<ExternalIdBundle, Collection<Security>> getAll(final Collection<ExternalIdBundle> bundle, final VersionCorrection versionCorrection) {
+    return AbstractSecuritySource.getAll(this, bundle, versionCorrection);
+  }
+
+  @Override
   public ManageableSecurity getSingle(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Collection<ManageableSecurity> securities = getSecuritiesInternal(bundle, getVersionCorrection());
@@ -92,19 +98,24 @@ public class MasterSecuritySource extends AbstractMasterSource<Security, Securit
     return securities.isEmpty() ? null : securities.iterator().next();
   }
 
+  @Override
+  public Map<ExternalIdBundle, Security> getSingle(final Collection<ExternalIdBundle> bundle, final VersionCorrection versionCorrection) {
+    return AbstractSecuritySource.getSingle(this, bundle, versionCorrection);
+  }
+
   @SuppressWarnings({"rawtypes", "unchecked" })
   private Collection<ManageableSecurity> getSecuritiesInternal(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     final SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(bundle);
     request.setVersionCorrection(versionCorrection);
-    return (Collection) search(request).getSecurities();  // cast safe as supplied list will not be altered    
+    return (Collection) search(request).getSecurities(); // cast safe as supplied list will not be altered    
   }
 
   //-------------------------------------------------------------------------
   /**
    * Searches for securities matching the specified search criteria.
-   *
-   * @param request  the search request, not null
+   * 
+   * @param request the search request, not null
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */

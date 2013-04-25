@@ -15,6 +15,7 @@ import com.opengamma.core.ObjectChangeListenerManager;
 import com.opengamma.core.Source;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -164,13 +165,17 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
       }
     };
     _registeredListeners.put(Pair.of(oid, listener), changeListener);
-    getMaster().changeManager().addChangeListener(changeListener);
+    changeManager().addChangeListener(changeListener);
   }
 
   @Override
   public void removeChangeListener(ObjectId oid, ObjectChangeListener listener) {
     ChangeListener changeListener = _registeredListeners.remove(Pair.of(oid, listener));
-    getMaster().changeManager().removeChangeListener(changeListener);
+    changeManager().removeChangeListener(changeListener);
+  }
+
+  public ChangeManager changeManager() {
+    return getMaster().changeManager();
   }
 
   //-------------------------------------------------------------------------

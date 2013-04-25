@@ -19,8 +19,8 @@ import com.opengamma.language.convert.TypeMap;
 import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.AbstractTypeConverter;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Converts a {@link LocalDateDoubleTimeSeries} to/from a 2D value array.
@@ -77,7 +77,7 @@ public class LocalDateDoubleTimeSeriesConverter extends AbstractTypeConverter {
         }
         timeSeriesValues[i++] = (Double) conversionContext.getResult();
       }
-      conversionContext.setResult(new ArrayLocalDateDoubleTimeSeries(timeSeriesDates, timeSeriesValues));
+      conversionContext.setResult(ImmutableLocalDateDoubleTimeSeries.of(timeSeriesDates, timeSeriesValues));
     } else {
       // Converting from LocalDateDoubleTimeSeries to Values[][]
       final LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) value;

@@ -26,32 +26,32 @@ public class FxOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxOpt
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
-
-    FxOptionCalculator calculator = new FxOptionCalculator(_trade, _trade.getNotional(), _trade.getNotionalCurrency());
-
-    ExerciseType exerciseType = _trade.getExerciseType().convert();
-
-    ManageableSecurity security = _trade.getSettlementType() == SettlementType.PHYSICAL ?
-        new FXOptionSecurity(calculator.getPutCurrency(),
-                             calculator.getCallCurrency(),
-                             calculator.getPutAmount(),
-                             calculator.getCallAmount(),
-                             calculator.getExpiry(),
-                             calculator.getSettlementDate(),
-                             calculator.isLong(),
-                             exerciseType) :
-        new NonDeliverableFXOptionSecurity(calculator.getPutCurrency(),
-                                           calculator.getCallCurrency(),
-                                           calculator.getPutAmount(),
-                                           calculator.getCallAmount(),
-                                           calculator.getExpiry(),
-                                           calculator.getSettlementDate(),
-                                           calculator.isLong(),
-                                           exerciseType,
-                                           _trade.getSettlementCurrency().equals(calculator.getCallCurrency().getCode()));
-
+    FxOptionTrade trade = getTrade();
+    FxOptionCalculator calculator = new FxOptionCalculator(trade, trade.getNotional(), trade.getNotionalCurrency());
+    ExerciseType exerciseType = trade.getExerciseType().convert();
+    ManageableSecurity security = trade.getSettlementType() == SettlementType.PHYSICAL ?
+        new FXOptionSecurity(
+            calculator.getPutCurrency(),
+            calculator.getCallCurrency(),
+            calculator.getPutAmount(),
+            calculator.getCallAmount(),
+            calculator.getExpiry(),
+            calculator.getSettlementDate(),
+            calculator.isLong(),
+            exerciseType) :
+        new NonDeliverableFXOptionSecurity(
+            calculator.getPutCurrency(),
+            calculator.getCallCurrency(),
+            calculator.getPutAmount(),
+            calculator.getCallAmount(),
+            calculator.getExpiry(),
+            calculator.getSettlementDate(),
+            calculator.isLong(),
+            exerciseType,
+            trade.getSettlementCurrency().equals(calculator.getCallCurrency().getCode()));
     return securityArray(addIdentifier(security));
   }
 

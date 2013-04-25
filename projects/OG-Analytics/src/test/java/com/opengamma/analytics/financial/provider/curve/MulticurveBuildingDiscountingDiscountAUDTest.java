@@ -62,8 +62,8 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
@@ -103,37 +103,31 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2011, 9, 28);
 
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_EMPTY = new ArrayZonedDateTimeDoubleTimeSeries();
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_ON_AUD_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+  private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON_AUD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_ON_AUD_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON_AUD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
-  @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_OIS_AUD_WITH_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_AUD_WITH_TODAY };
-  @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_OIS_AUD_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_AUD_WITHOUT_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_AUD_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_AUD_WITH_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_AUD_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_AUD_WITHOUT_TODAY };
 
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_IBOR_AUD3M_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_AUD3M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_IBOR_AUD3M_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_AUD3M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0035 });
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_IBOR_AUD6M_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_AUD6M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_IBOR_AUD6M_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_AUD6M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0035 });
 
-  @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_IBOR_AUD3M_WITH_TODAY = new DoubleTimeSeries[] {TS_IBOR_AUD3M_WITH_TODAY };
-  @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_IBOR_AUD3M_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_IBOR_AUD3M_WITHOUT_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_AUD3M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_AUD3M_WITH_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_AUD3M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_AUD3M_WITHOUT_TODAY };
   //  @SuppressWarnings("rawtypes")
   //  private static final DoubleTimeSeries[] TS_FIXED_IBOR_AUD6M_WITH_TODAY = new DoubleTimeSeries[] {TS_IBOR_AUD6M_WITH_TODAY};
   //  @SuppressWarnings("rawtypes")
   //  private static final DoubleTimeSeries[] TS_FIXED_IBOR_AUD6M_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_IBOR_AUD6M_WITHOUT_TODAY};
-  @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_IBOR_AUD3M6M_WITH_TODAY = new DoubleTimeSeries[] {TS_IBOR_AUD3M_WITH_TODAY, TS_IBOR_AUD6M_WITH_TODAY };
-  @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_IBOR_AUD3M6M_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_IBOR_AUD3M_WITHOUT_TODAY, TS_IBOR_AUD6M_WITHOUT_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_AUD3M6M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_AUD3M_WITH_TODAY, TS_IBOR_AUD6M_WITH_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_AUD3M6M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_AUD3M_WITHOUT_TODAY, TS_IBOR_AUD6M_WITHOUT_TODAY };
 
   private static final String CURVE_NAME_DSC_AUD = "AUD Dsc";
   private static final String CURVE_NAME_FWD3_AUD = "AUD Fwd 3M";
@@ -446,17 +440,17 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   }
 
   @SuppressWarnings("rawtypes")
-  private static DoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday) {
+  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday) {
     return withToday ? TS_FIXED_OIS_AUD_WITH_TODAY : TS_FIXED_OIS_AUD_WITHOUT_TODAY;
   }
 
   @SuppressWarnings("rawtypes")
-  private static DoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday) {
+  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday) {
     return withToday ? TS_FIXED_IBOR_AUD3M_WITH_TODAY : TS_FIXED_IBOR_AUD3M_WITHOUT_TODAY; //TODO: get the correct fixing
   }
 
   @SuppressWarnings("rawtypes")
-  private static DoubleTimeSeries[] getTSSwapIborIbor(final Boolean withToday) {
+  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapIborIbor(final Boolean withToday) {
     return withToday ? TS_FIXED_IBOR_AUD3M6M_WITH_TODAY : TS_FIXED_IBOR_AUD3M6M_WITHOUT_TODAY;
   }
 

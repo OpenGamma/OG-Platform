@@ -1,9 +1,13 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
+
+import java.util.Arrays;
+
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -12,7 +16,6 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
- * FIXME: Class under construction, don't use yet.
  */
 public final class CouponArithmeticAverageON extends Coupon {
 
@@ -29,7 +32,7 @@ public final class CouponArithmeticAverageON extends Coupon {
    */
   private final double[] _fixingPeriodAccrualFactors;
   /**
-   * The interest accrued over the periods already fixed.
+   * The interest accrued over the periods already fixed multiplied by the accrual factors, i.e. the sum (\delta_i r_i).
    */
   private final double _rateAccrued;
   /**
@@ -37,11 +40,13 @@ public final class CouponArithmeticAverageON extends Coupon {
    */
   private final double _fixingPeriodRemainingAccrualFactor;
 
+  // TODO: Implement the rate cut-off mechanism (the two last periods use the same fixing)
+
   /**
    * Constructor.
    * @param currency The coupon currency.
    * @param paymentTime The coupon payment time.
-   * @param paymentYearFraction The year fraction of the full coupon.
+   * @param paymentAccrualFactor The year fraction of the full coupon.
    * @param notional The coupon notional.
    * @param index The index associated to the coupon.
    * @param fixingPeriodTimes The times of the remaining fixing. The length is one greater than the number of periods, as it includes accrual start and end.
@@ -62,7 +67,7 @@ public final class CouponArithmeticAverageON extends Coupon {
   /**
    * Builder from financial details.
    * @param paymentTime The coupon payment time.
-   * @param paymentYearFraction The year fraction of the full coupon.
+   * @param paymentAccrualFactor The year fraction of the full coupon.
    * @param notional The coupon notional.
    * @param index The index associated to the coupon.
    * @param fixingPeriodTimes The times of the remaining fixing. The length is one greater than the number of periods, as it includes accrual start and end.
@@ -70,14 +75,16 @@ public final class CouponArithmeticAverageON extends Coupon {
    * @param rateAccrued The interest accrued over the periods already fixed.
    * @return The coupon.
    */
-  public static CouponArithmeticAverageON from(double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
+  public static CouponArithmeticAverageON from(double paymentTime, double paymentAccrualFactor, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
       double rateAccrued) {
     ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(fixingPeriodTimes, "Fixing Times");
+    ArgumentChecker.notNull(fixingPeriodAccrualFactors, "Accrual Factors");
     double fixingPeriodRemainingAccrualFactor = 0.0;
     for (int loopp = 0; loopp < fixingPeriodAccrualFactors.length; loopp++) {
       fixingPeriodRemainingAccrualFactor += fixingPeriodAccrualFactors[loopp];
     }
-    return new CouponArithmeticAverageON(index.getCurrency(), paymentTime, paymentYearFraction, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
+    return new CouponArithmeticAverageON(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
         fixingPeriodRemainingAccrualFactor);
   }
 
@@ -123,7 +130,7 @@ public final class CouponArithmeticAverageON extends Coupon {
 
   @Override
   public Coupon withNotional(double notional) {
-    return null;
+    return null; // TODO
   }
 
   @Override
@@ -136,6 +143,51 @@ public final class CouponArithmeticAverageON extends Coupon {
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponArithmeticAverageON(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_fixingPeriodAccrualFactors);
+    long temp;
+    temp = Double.doubleToLongBits(_fixingPeriodRemainingAccrualFactor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_fixingPeriodTimes);
+    result = prime * result + _index.hashCode();
+    temp = Double.doubleToLongBits(_rateAccrued);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CouponArithmeticAverageON other = (CouponArithmeticAverageON) obj;
+    if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_fixingPeriodRemainingAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodRemainingAccrualFactor)) {
+      return false;
+    }
+    if (!Arrays.equals(_fixingPeriodTimes, other._fixingPeriodTimes)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_index, other._index)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rateAccrued) != Double.doubleToLongBits(other._rateAccrued)) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -14,6 +14,7 @@ import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPro
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD;
@@ -33,7 +34,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CreditDefaultSwapOptionDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
@@ -58,12 +58,15 @@ import com.opengamma.financial.analytics.conversion.CreditDefaultSwapOptionSecur
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
+import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 
@@ -88,7 +91,14 @@ public abstract class ISDACreditDefaultSwapOptionFunction extends AbstractFuncti
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final CreditDefaultSwapOptionSecurityConverter converter = new CreditDefaultSwapOptionSecurityConverter(securitySource, holidaySource, regionSource, organizationSource);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final CreditDefaultSwapOptionDefinition definition = security.accept(converter);
+    final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
+    final Object recoveryRateObject = inputs.getValue(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
+    if (recoveryRateObject == null) {
+      throw new OpenGammaRuntimeException("Could not get recovery rate");
+    }
+    final double recoveryRate = (Double) recoveryRateObject;
+    CreditDefaultSwapOptionDefinition definition = security.accept(converter);
+    definition = definition.withRecoveryRate(recoveryRate);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -181,29 +191,35 @@ public abstract class ISDACreditDefaultSwapOptionFunction extends AbstractFuncti
     final String yieldCurveCalculationMethodName = Iterables.getOnlyElement(yieldCurveCalculationMethodNames);
     final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
         yieldCurveCalculationMethodName);
-    final ValueProperties spreadCurveProperties = ValueProperties.builder()
-        .with(CURVE, spreadCurveName)
-        .get();
-    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
     //final String hazardRateCurveName = Iterables.getOnlyElement(hazardRateCurveNames);
     final String hazardRateCurveCalculationMethod = Iterables.getOnlyElement(hazardRateCurveCalculationMethodNames);
     final Set<String> creditSpreadCurveShifts = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
+    final Set<String> creditSpreadCurveShiftTypes = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT_TYPE);
     final ValueProperties.Builder hazardRateCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, spreadCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, hazardRateCurveCalculationMethod)
         .with(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, yieldCurveCalculationConfigName)
         .with(PROPERTY_YIELD_CURVE_CALCULATION_METHOD, yieldCurveCalculationMethodName)
         .with(PROPERTY_YIELD_CURVE, yieldCurveName);
+    final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder()
+        .with(CURVE, spreadCurveName);
     if (creditSpreadCurveShifts != null) {
-      hazardRateCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts);
+      if (creditSpreadCurveShiftTypes == null || creditSpreadCurveShiftTypes.size() != 1) {
+        return null;
+      }
+      hazardRateCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts).with(PROPERTY_SPREAD_CURVE_SHIFT_TYPE, creditSpreadCurveShiftTypes);
+      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts).with(PROPERTY_SPREAD_CURVE_SHIFT_TYPE, creditSpreadCurveShiftTypes);
     }
+    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
     final ValueRequirement hazardRateCurveRequirement = new ValueRequirement(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), hazardRateCurveProperties.get());
     //    final String volatilitySurfaceName = Iterables.getOnlyElement(volatilitySurfaceNames);
     //    final ValueProperties volatilityProperties = ValueProperties.builder()
     //        .with(SURFACE, volatilitySurfaceName)
     //        .get();
     //    final ValueRequirement volSurfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetSpecification.NULL, volatilityProperties);
-    return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement, hazardRateCurveRequirement); //, volSurfaceRequirement);
+    final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
+    final ValueRequirement recoveryRateRequirement = new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId());
+    return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement, hazardRateCurveRequirement, recoveryRateRequirement); //, volSurfaceRequirement);
   }
 
   @Override

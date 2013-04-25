@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
+import static com.opengamma.engine.value.ValuePropertyNames.AGGREGATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
@@ -60,10 +61,13 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   private static final String FORWARD_3M = "Forward3M";
   private static final String FORWARD_6M = "Forward6M";
   private static final String FUNDING = "Discounting";
+  
+  
 
   private static final String OLD_FORWARD_3M = "FORWARD_3M";
   private static final String OLD_FORWARD_6M = "FORWARD_6M";
   private static final String OLD_FUNDING = "FUNDING";
+  
   
   private static final String FX_SURFACE = "DEFAULT";
 
@@ -88,68 +92,68 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   @Override
   protected void doRun() {
     storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
-    storeViewDefinition(getFXViewDefinition(ExampleDatabasePopulator.FX_PORTFOLIO_NAME));
+    //storeViewDefinition(getFXViewDefinition(ExampleDatabasePopulator.FX_PORTFOLIO_NAME));
     storeViewDefinition(getMultiCurrencySwapViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME));
     storeViewDefinition(getEquityOptionViewDefinition(DemoEquityOptionCollarPortfolioLoader.PORTFOLIO_NAME));
   }
 
   private void addEquityRequirements(final ViewDefinition viewDefinition) {
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR_STDDEV, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL_SERIES, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SHARPE_RATIO, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SECURITY_MARKET_PRICE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    //viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR_STDDEV, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL_SERIES, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SHARPE_RATIO, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SECURITY_MARKET_PRICE, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
   }
 
   private void addEquityOptionRequirements(final ViewDefinition viewDefinition) {
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.CARRY_RHO, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DELTA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DELTA_BLEED, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DRIFTLESS_THETA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ELASTICITY, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA_BLEED, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA_P, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA_P_BLEED, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR_STDDEV, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PNL_SERIES, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PHI, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.RHO, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.SECURITY_MARKET_PRICE, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.SPEED, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.SPEED_P, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.STRIKE_DELTA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.STRIKE_GAMMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.THETA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ULTIMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_DELTA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_GAMMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VANNA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_ULTIMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_VANNA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_VEGA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_VOMMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_BLEED, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_P, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VOMMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VOMMA_P, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZETA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZETA_BLEED, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZOMMA, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZOMMA_P, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DVANNA_DVOL, ValueProperties.none());
-    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DZETA_DVOL, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.CARRY_RHO, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    //viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DELTA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DELTA_BLEED, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DRIFTLESS_THETA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ELASTICITY, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA_BLEED, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA_P, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GAMMA_P_BLEED, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR_STDDEV, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PNL_SERIES, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PHI, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.RHO, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.SECURITY_MARKET_PRICE, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.SPEED, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.SPEED_P, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.STRIKE_DELTA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.STRIKE_GAMMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.THETA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ULTIMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_DELTA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_GAMMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VANNA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_ULTIMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_VANNA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_VEGA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VARIANCE_VOMMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_BLEED, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_P, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VOMMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VOMMA_P, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZETA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZETA_BLEED, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZOMMA, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.ZOMMA_P, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DVANNA_DVOL, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DZETA_DVOL, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
   }
 
   private ViewDefinition getEquityOptionViewDefinition(final String portfolioName) {

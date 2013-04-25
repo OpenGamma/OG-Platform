@@ -83,7 +83,10 @@ public class ViewportResultsJsonWriter {
         valueMap.put(TYPE, _formatter.getDataTypeForValue(cellValue, cellValueSpec).name());
       }
       if (history != null) {
-        valueMap.put(HISTORY, formatHistory(cellValueSpec, history));
+        List<Object> formattedHistoy = formatHistory(cellValueSpec, cell.getInlineKey(), history);
+        if (formattedHistoy != null) {
+          valueMap.put(HISTORY, formattedHistoy);
+        }
       }
       if (cell.isError() || isError(formattedValue)) {
         valueMap.put(ERROR, true);
@@ -151,15 +154,27 @@ public class ViewportResultsJsonWriter {
 
   /**
    * Formats history data as a JSON list.
+   *
    * @param cellValueSpec The cell's value specification, can be null
-   * @param history The history values, not null
-   * @return The formatted history
+   * @param inlineKey If the cell contains a single value derived from an inlined value, this object is the key
+   * to obtain the cell's value from the underlying value.
+   *@param history The history values, not null  @return The formatted history
    */
-  private List<Object> formatHistory(ValueSpecification cellValueSpec, Collection<Object> history) {
+  private List<Object> formatHistory(ValueSpecification cellValueSpec, Object inlineKey, Collection<Object> history) {
     List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
     for (Object historyValue : history) {
-      formattedHistory.add(_formatter.format(historyValue, cellValueSpec, TypeFormatter.Format.HISTORY, null));
+      Object formattedValue = _formatter.format(historyValue, cellValueSpec, TypeFormatter.Format.HISTORY, inlineKey);
+      if (formattedValue != ResultsFormatter.VALUE_UNAVAILABLE) {
+        formattedHistory.add(formattedValue);
+      }
     }
-    return formattedHistory;
+    // it's possible for an object to have history but not to have any formatted history if it's inlined. some inline
+    // keys won't have a value for some inlined results. in that case the cell will have empty history although
+    // there is history for the underlying value
+    if (formattedHistory.isEmpty()) {
+      return null;
+    } else {
+      return formattedHistory;
+    }
   }
 }

@@ -28,7 +28,11 @@ public final class CalculationPropertyNamesAndValues {
   public static final String PDE_METHOD = "PDE";
   /** Pricing from marked / listed price */
   public static final String MARK_TO_MARKET_METHOD = "MarkToMarket";
-  
+  /** Pricing cash-flow instruments using discounting */
+  public static final String DISCOUNTING = "Discounting";
+  /** Pricing FX forwards using a forward points curve */
+  public static final String FORWARD_POINTS = "ForwardPoints";
+
   //Values for PROPERTY_MODEL_TYPE
   /** Analytic */
   public static final String ANALYTIC = "Analytic";

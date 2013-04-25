@@ -14,7 +14,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -36,26 +36,26 @@ public class DeliverableSwapFuturesSecurityDefinitionTest {
   private static final double NOTIONAL = 100000;
   private static final double RATE = 0.0175;
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, false);
-  private static final DeliverableSwapFuturesSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION = new DeliverableSwapFuturesSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
+  private static final SwapFuturesDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION = new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullLastTrading() {
-    new DeliverableSwapFuturesSecurityDefinition(null, SWAP_DEFINITION, NOTIONAL);
+    new SwapFuturesDeliverableSecurityDefinition(null, SWAP_DEFINITION, NOTIONAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSwap() {
-    new DeliverableSwapFuturesSecurityDefinition(LAST_TRADING_DATE, null, NOTIONAL);
+    new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, null, NOTIONAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongSwap1() {
-    new DeliverableSwapFuturesSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 2.0, RATE, false), NOTIONAL);
+    new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 2.0, RATE, false), NOTIONAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongSwap2() {
-    new DeliverableSwapFuturesSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, true), NOTIONAL);
+    new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, true), NOTIONAL);
   }
 
   @Test
@@ -74,7 +74,7 @@ public class DeliverableSwapFuturesSecurityDefinitionTest {
    * Tests the from builder.
    */
   public void from() {
-    DeliverableSwapFuturesSecurityDefinition futuresDefinition = DeliverableSwapFuturesSecurityDefinition.from(EFFECTIVE_DATE, USD6MLIBOR3M, TENOR, NOTIONAL, RATE);
+    SwapFuturesDeliverableSecurityDefinition futuresDefinition = SwapFuturesDeliverableSecurityDefinition.from(EFFECTIVE_DATE, USD6MLIBOR3M, TENOR, NOTIONAL, RATE);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: from", SWAP_FUTURES_SECURITY_DEFINITION, futuresDefinition);
   }
 
@@ -90,8 +90,8 @@ public class DeliverableSwapFuturesSecurityDefinitionTest {
     SwapFixedCoupon<? extends Coupon> underlying = SWAP_DEFINITION.toDerivative(referenceDate, curveNames);
     final double expiryTime = TimeCalculator.getTimeBetween(referenceDate, LAST_TRADING_DATE);
     final double deliveryTime = TimeCalculator.getTimeBetween(referenceDate, EFFECTIVE_DATE);
-    DeliverableSwapFuturesSecurity futuresExpected = new DeliverableSwapFuturesSecurity(expiryTime, deliveryTime, underlying, NOTIONAL);
-    DeliverableSwapFuturesSecurity futuresConverted = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, curveNames);
+    SwapFuturesDeliverableSecurity futuresExpected = new SwapFuturesDeliverableSecurity(expiryTime, deliveryTime, underlying, NOTIONAL);
+    SwapFuturesDeliverableSecurity futuresConverted = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, curveNames);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: toDerivative", futuresExpected, futuresConverted);
   }
 

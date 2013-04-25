@@ -20,8 +20,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
@@ -49,7 +48,7 @@ public class FadeInOptionModelTest {
       t[i] = i;
       s[i] = Math.random() * SPOT;
     }
-    TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, s);
+    TS = ImmutableInstantDoubleTimeSeries.of(t, s);
     DATA = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, SURFACE, SPOT, DATE, TS);
   }
 

@@ -72,9 +72,11 @@ public class TransformedInterpolator1DTest {
 
   @Test(enabled = false)
   public void test() {
+    System.out.println("TransformedInterpolator1DTest");
     for (int i = 0; i < 200; i++) {
       double x = 5.0 * i / 199.0;
-      System.out.println(x + "\t" + INTERPOLATOR_BASE.interpolate(DATA_BUNDLE, x) + "\t" + INTERPOLATOR.interpolate(TRANS_DATA_BUNDLE, x));
+      System.out.println(x + "\t" + INTERPOLATOR_BASE.interpolate(DATA_BUNDLE, x) + "\t" + INTERPOLATOR.interpolate(TRANS_DATA_BUNDLE, x)+
+          "\t"+INTERPOLATOR.interpolate(DATA_BUNDLE, x));
     }
   }
 

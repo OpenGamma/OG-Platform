@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults
 import com.opengamma.financial.analytics.model.credit.isda.ISDAHazardRateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSHazardRateCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSOptionHazardRateCurveFunction;
+import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDXAsSingleNameHazardRateCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedGammaCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedIR01CDSFunction;
@@ -44,6 +45,15 @@ import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditD
 import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionParallelGammaCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionRR01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionVegaFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedGammaCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedIR01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameJumpToDefaultFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelGammaCS01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelIR01Function;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNamePresentValueFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameRR01Function;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -128,9 +138,10 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     private double _yieldCurveBump = 1;
     private InterestRateBumpType _yieldBumpCurveType = InterestRateBumpType.ADDITIVE_PARALLEL;
     private InterestRateBumpType _bucketedYieldBumpCurveType = InterestRateBumpType.ADDITIVE;
-    private double _recoveryRateBump = 0.0001;
+    private double _recoveryRateBump = 0.01;
     private RecoveryRateBumpType _recoveryRateCurveType = RecoveryRateBumpType.ADDITIVE;
     private PriceType _priceType = PriceType.CLEAN;
+    private String _spreadCurveShiftType = CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
       _perCurrencyInfo.clear();
@@ -253,6 +264,14 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       return _priceType;
     }
 
+    public void setSpreadCurveShiftType(final String spreadCurveShiftType) {
+      _spreadCurveShiftType = spreadCurveShiftType;
+    }
+
+    public String getSpreadCurveShiftType() {
+      return _spreadCurveShiftType;
+    }
+
     protected void addISDAYieldCurveDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
       int i = 0;
@@ -366,6 +385,10 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(StandardVanillaCDSPriceTypeDefaults.class, args));
     }
 
+    protected void addSpreadCurveShiftDefaults(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(SpreadCurveShiftDefaults.class, CreditInstrumentPropertyNamesAndValues.ADDITIVE_SPREAD_CURVE_SHIFT));
+    }
+
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
@@ -380,7 +403,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       addStandardVanillaBucketedIR01Defaults(functions);
       addStandardVanillaRR01Defaults(functions);
       addStandardVanillaPriceTypeDefaults(functions);
-
+      addSpreadCurveShiftDefaults(functions);
     }
   }
 
@@ -393,6 +416,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));
     functions.add(functionConfiguration(ISDACDSHazardRateCurveFunction.class));
     functions.add(functionConfiguration(ISDACDSOptionHazardRateCurveFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameHazardRateCurveFunction.class));
     functions.add(functionConfiguration(BucketedSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDAParallelCS01VanillaCDSFunction.class));
     functions.add(functionConfiguration(ISDABucketedCS01VanillaCDSFunction.class));
@@ -417,6 +441,15 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACreditDefaultSwapOptionBucketedGammaCS01Function.class));
     functions.add(functionConfiguration(ISDACreditDefaultSwapOptionRR01Function.class));
     functions.add(functionConfiguration(ISDACreditDefaultSwapOptionVegaFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameParallelCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameParallelGammaCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedGammaCS01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameParallelIR01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedIR01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameRR01Function.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameJumpToDefaultFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNamePresentValueFunction.class));
   }
 
 }

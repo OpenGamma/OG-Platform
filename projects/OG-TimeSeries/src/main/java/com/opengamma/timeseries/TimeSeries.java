@@ -5,7 +5,6 @@
  */
 package com.opengamma.timeseries;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +19,7 @@ import java.util.Map;
  * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  * @param <V> the value being viewed over time, such as {@code Double}
  */
-public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializable {
-  // TODO containsTime
+public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>> {
   // tailSeries/headSeries by time
 
   /**
@@ -43,6 +41,17 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
   boolean isEmpty();
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks if the series contains a value at the date-time specified.
+   * <p>
+   * This method provides {@code Map} style {@code containsKey()} behavior.
+   * The date/time is matched exactly, thus care must be taken with precision in times.
+   * 
+   * @param dateTime  the date-time to retrieve, not null
+   * @return true if the series contains the specified time, false if not
+   */
+  boolean containsTime(T dateTime);
+
   /**
    * Gets the value at the date-time specified.
    * <p>
@@ -66,7 +75,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @return the date-time at the index, null if the implementation permits nulls
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  T getTimeAt(int index);
+  T getTimeAtIndex(int index);
 
   /**
    * Gets the value at the index specified.
@@ -78,25 +87,9 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @return the value at the index, null if the implementation permits nulls
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  V getValueAt(int index);
+  V getValueAtIndex(int index);
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the latest date-time for which there is a data point.
-   * 
-   * @return the latest date-time, not null
-   * @throws java.util.NoSuchElementException if empty
-   */
-  T getLatestTime();
-
-  /**
-   * Gets the value at the latest date-time in the series.
-   * 
-   * @return the value at the latest date-time, not null
-   * @throws java.util.NoSuchElementException if empty
-   */
-  V getLatestValue();
-
   /**
    * Gets the earliest date-time for which there is a data point.
    * 
@@ -112,6 +105,22 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @throws java.util.NoSuchElementException if empty
    */
   V getEarliestValue();
+
+  /**
+   * Gets the latest date-time for which there is a data point.
+   * 
+   * @return the latest date-time, not null
+   * @throws java.util.NoSuchElementException if empty
+   */
+  T getLatestTime();
+
+  /**
+   * Gets the value at the latest date-time in the series.
+   * 
+   * @return the value at the latest date-time, not null
+   * @throws java.util.NoSuchElementException if empty
+   */
+  V getLatestValue();
 
   //-------------------------------------------------------------------------
   /**
@@ -131,7 +140,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * 
    * @return the date-times iterator, not null
    */
-  Iterator<T> timeIterator();
+  Iterator<T> timesIterator();
 
   /**
    * Gets an iterator over the values in the time-series from earliest to latest.
@@ -148,6 +157,19 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * <p>
    * The date-times do not have to match exactly.
    * The sub-series contains all entries between the two date-times via
+   * {@code Comparable}, with inclusive start and exclusive end.
+   * 
+   * @param startTimeInclusive  the start date-time, not null
+   * @param endTimeExclusive  the end date-time, not null
+   * @return the sub-series between the date-times, not null
+   */
+  TimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
+
+  /**
+   * Gets part of this series as a sub-series between two date-times.
+   * <p>
+   * The date-times do not have to match exactly.
+   * The sub-series contains all entries between the two date-times via
    * {@code Comparable}, as modified by the inclusive start/end flags.
    * 
    * @param startTime  the start date-time, not null
@@ -157,19 +179,6 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @return the sub-series between the date-times, not null
    */
   TimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
-
-  /**
-   * Gets part of this series as a sub-series between two date-times.
-   * <p>
-   * The date-times do not have to match exactly.
-   * The sub-series contains all entries between the two date-times via
-   * {@code Comparable}, with inclusive start and exclusive end.
-   * 
-   * @param startTimeInclusive  the start date-time, not null
-   * @param endTimeExclusive  the end date-time, not null
-   * @return the sub-series between the date-times, not null
-   */
-  TimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
 
   /**
    * Gets part of this series as a sub-series, choosing the earliest entries.
@@ -210,7 +219,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @param lagCount  the number of entries to lag by, positive or negative
    * @return the new time-series, not null
    */
-  TimeSeries<T, V> lag(final int lagCount);
+  TimeSeries<T, V> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

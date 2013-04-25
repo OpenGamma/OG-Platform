@@ -34,6 +34,10 @@ public class SoftValueHashMap2<K1, K2, V> extends ReferenceHashMap2<K1, K2, V> {
 
   }
 
+  public SoftValueHashMap2(final KeyStrategy key1Strategy) {
+    super(key1Strategy);
+  }
+
   @Override
   protected Reference<? extends V> createReference(final ReferenceHashMap2<K1, K2, V>.ReferenceMap map, K2 key, V value) {
     return new Ref<K1, K2, V>(value, map, key);

@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 //TODO get rid when checkstyle can actually handle this class declaration
 //CSOFF
-public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? extends Payment, ? extends Payment>, DoubleTimeSeries<ZonedDateTime>[]> {
+public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? extends Payment, ? extends Payment>, ZonedDateTimeDoubleTimeSeries[]> {
   //CSON
   private final AnnuityDefinition<? extends PaymentDefinition> _firstLeg;
   private final AnnuityDefinition<? extends PaymentDefinition> _secondLeg;
@@ -113,8 +113,9 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
+  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(data, "index data time series array");
+    ArgumentChecker.isTrue(data.length >= 2, "Generic swaps require two time series");
     final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
     final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
     return new Swap(firstLeg, secondLeg);

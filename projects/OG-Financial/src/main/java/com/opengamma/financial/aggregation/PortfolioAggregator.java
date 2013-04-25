@@ -201,5 +201,8 @@ public final class PortfolioAggregator {
       savePortfolio.savePortfolio(aggregatedPortfolio, true); // update matching named portfolio.
     }
     s_logger.info("Saved.");
+
+    // Shut down thread pool before returning
+    newFixedThreadPool.shutdown();
   }
 }

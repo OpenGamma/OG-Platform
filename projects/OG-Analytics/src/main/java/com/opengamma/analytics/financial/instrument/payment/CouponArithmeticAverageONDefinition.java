@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -29,9 +29,8 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
- * FIXME: Class under construction, don't use yet.
  */
-public class CouponArithmeticAverageONDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public final class CouponArithmeticAverageONDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The overnight index on which the coupon fixes. The index currency should be the same as the coupon currency.
@@ -54,15 +53,15 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
-   * @param paymentYearFraction Accrual factor of the accrual period.
+   * @param paymentAccrualFactor Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param index The OIS-like index on which the coupon fixes.
    * @param fixingPeriodStartDate The start date of the fixing period.
    * @param fixingPeriodEndDate The end date of the fixing period.
    */
-  public CouponArithmeticAverageONDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
-    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
+  private CouponArithmeticAverageONDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double paymentAccrualFactor, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
     ArgumentChecker.notNull(index, "CouponOISDefinition: index");
     ArgumentChecker.notNull(fixingPeriodStartDate, "CouponOISDefinition: fixingPeriodStartDate");
     ArgumentChecker.notNull(fixingPeriodEndDate, "CouponOISDefinition: fixingPeriodEndDate");
@@ -87,35 +86,38 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
    * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
-   * @param settlementDate The coupon settlement date.
+   * @param fixingPeriodStartDate The coupon settlement date and start of the fixing period.
    * @param tenor The coupon tenor.
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing and the payment (also called spot lag).
+   * @param paymentLag The number of days between last fixing and the payment (also called payment delay).
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The OIS coupon.
    */
-  public static CouponArithmeticAverageONDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
+  public static CouponArithmeticAverageONDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional, final int paymentLag,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
-    return from(index, settlementDate, fixingPeriodEndDate, notional, settlementDays);
+    ArgumentChecker.notNull(index, "Index");
+    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
+    return from(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag);
   }
 
   /**
-   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
+   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one of the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
-   * @param settlementDate The coupon settlement date.
+   * @param fixingPeriodStartDate The coupon settlement date and start of the fixing period.
    * @param fixingPeriodEndDate The last date of the fixing period. Interest accrues up to this date. If publicationLag==0, 1 day following publication. If lag==1, the publication date.
    * @param notional The notional.
-   * @param paymentLag The number of days between last fixing date and the payment fate (also called payment lag).
+   * @param paymentLag The number of days between last fixing and the payment (also called payment delay).
    * @return The OIS coupon.
    */
-  public static CouponArithmeticAverageONDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
+  public static CouponArithmeticAverageONDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
       final int paymentLag) {
+    ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing Period End Date");
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, index.getCalendar());
-    final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, fixingPeriodEndDate);
-    return new CouponArithmeticAverageONDefinition(index.getCurrency(), paymentDate, settlementDate, fixingPeriodEndDate, paymentYearFraction, notional, index, settlementDate, fixingPeriodEndDate);
+    final double paymentAccrualFactor = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate);
+    return new CouponArithmeticAverageONDefinition(index.getCurrency(), paymentDate, fixingPeriodStartDate, fixingPeriodEndDate, paymentAccrualFactor,
+        notional, index, fixingPeriodStartDate, fixingPeriodEndDate);
   }
 
   /**
@@ -152,19 +154,19 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
 
   @Override
   public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    return null;
+    return null; // TODO
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return null;
+    return visitor.visitCouponArithmeticAverageONDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return null;
+    return visitor.visitCouponArithmeticAverageONDefinition(this);
   }
 
   @Override
@@ -178,7 +180,7 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -188,7 +190,7 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponArithmeticAverageONDefinition other = (CouponArithmeticAverageONDefinition) obj;
+    CouponArithmeticAverageONDefinition other = (CouponArithmeticAverageONDefinition) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactor, other._fixingPeriodAccrualFactor)) {
       return false;
     }

@@ -53,6 +53,9 @@ public abstract class EquityFutureOptionFunction extends FutureOptionFunction {
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
+    if (calculationMethod == null || calculationMethod.isEmpty()) {
+      return null;
+    }
     if (calculationMethod != null && calculationMethod.size() == 1) {
       if (!getCalculationMethod().equals(Iterables.getOnlyElement(calculationMethod))) {
         return null;

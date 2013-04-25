@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public String formatCell(final VolatilityCubeData value, final ValueSpecification valueSpec) {
+  public String formatCell(final VolatilityCubeData value, final ValueSpecification valueSpec, Object inlineKey) {
     return "Volatility Cube data (" + value.getDataPoints().size() + " volatility points, " + value.getATMStrikes().size()
         + " strikes, " + value.getOtherData().size() + " other data points " + ")";
   }

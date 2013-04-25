@@ -10,7 +10,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.language.convert.AbstractMappedConverter;
 import com.opengamma.language.convert.TypeMap;
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Converts {@link HistoricalTimeSeries} to {@link LocalDateDoubleTimeSeries}. The reverse conversion is not possible as a unique

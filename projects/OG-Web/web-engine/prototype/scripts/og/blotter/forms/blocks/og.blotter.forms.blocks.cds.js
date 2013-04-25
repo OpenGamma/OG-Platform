@@ -8,74 +8,98 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var CDS = function (config) {
-            var block = this, form = config.form, data = config.data, ui = og.common.util.ui;
-            form.Block.call(block, {
-                module: 'og.blotter.forms.blocks.cds_tash',
-                extras: {data: data.security, legacy: config.legacy, standard: config.standard, stdvanilla: config.stdvanilla},
-                children: [
-                    new og.blotter.forms.blocks.Security({
-                        form: form, label: 'Protection Buyer', security: data.security.protectionBuyer,
-                        index: 'security.protectionBuyer'
+            var block = this, form = config.form, data = config.data, ui = og.common.util.ui, buy, sell, ref,
+                prefix = config.prefix ? config.prefix : 'security', util = og.blotter.util,
+                children = [
+                    buy = new og.blotter.forms.blocks.Security({
+                        form: form, label: 'Protection Buyer', security: data[prefix].protectionBuyer,
+                        index: prefix + '.protectionBuyer'
                     }),
-                    new og.blotter.forms.blocks.Security({
-                        form: form, label: 'Protection Seller', security: data.security.protectionSeller,
-                        index: 'security.protectionSeller'
+                    sell = new og.blotter.forms.blocks.Security({
+                        form: form, label: 'Protection Seller', security: data[prefix].protectionSeller,
+                        index: prefix + '.protectionSeller'
                     }),
-                    new og.blotter.forms.blocks.Security({
-                        form: form, label: 'Reference Entity', security: data.security.referenceEntity,
-                        index: 'security.referenceEntity'
+                    ref = new og.blotter.forms.blocks.Security({
+                        form: form, label: 'Reference Entity', security: data[prefix].referenceEntity,
+                        index: prefix + '.referenceEntity'
                     }),
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{name: 'security.notional.currency'}
+                        extras:{name: prefix + '.notional.currency'}
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.regions', index: 'security.regionId',
-                        value: data.security.regionId, placeholder: 'Select Region ID'
+                        form: form, resource: 'blotter.regions', index: prefix + '.regionId',
+                        value: data[prefix].regionId, placeholder: 'Select Region ID'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.daycountconventions', index: 'security.dayCount',
-                        value: data.security.dayCount, placeholder: 'Select Day Count'
+                        form: form, resource: 'blotter.daycountconventions', index: prefix + '.dayCount',
+                        value: data[prefix].dayCount, placeholder: 'Select Day Count'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.frequencies', index:  'security.couponFrequency',
-                        value: data.security.couponFrequency, placeholder: 'Select Frequency'
+                        form: form, resource: 'blotter.frequencies', index:  prefix + '.couponFrequency',
+                        value: data[prefix].couponFrequency, placeholder: 'Select Frequency'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.businessdayconventions', 
-                        index:  'security.businessDayConvention', value: data.security.businessDayConvention, 
+                        index:  prefix + '.businessDayConvention', value: data[prefix].businessDayConvention, 
                         placeholder: 'Select Business Day Convention'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.restructuringclause', 
-                        index:  'security.restructuringClause', value: data.security.restructuringClause, 
+                        index:  prefix + '.restructuringClause', value: data[prefix].restructuringClause, 
                         placeholder: 'Select Restructuring Clause'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.debtseniority', 
-                        index:  'security.debtSeniority', value: data.security.debtSeniority, 
+                        index:  prefix + '.debtSeniority', value: data[prefix].debtSeniority, 
                         placeholder: 'Select Debt Seniority'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.stubtype', 
-                        index:  'security.stubType', value: data.security.stubType, 
+                        index:  prefix + '.stubType', value: data[prefix].stubType, 
                         placeholder: 'Select Stub Type'
                     }),
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{name: 'security.upfrontAmount.currency'}
+                        extras:{name: prefix + '.upfrontAmount.currency'}
                     })
-                ],
+                ];
+            if (config.index) {
+                children.push(new form.Block({module:'og.views.forms.currency_tash', 
+                    extras:{name: prefix + '.upfrontPayment.currency'}}));
+            }
+            form.Block.call(block, {
+                module: 'og.blotter.forms.blocks.cds_tash',
+                extras: {data: data[prefix], legacy: config.legacy, standard: config.standard, 
+                    stdvanilla: config.stdvanilla, index: config.index, prefix: prefix},
+                children: children,
                 processor: function (data) {
-                    var sec = data.security;
-                    sec.includeAccruedPremium = og.blotter.util.get_checkbox('security.includeAccruedPremium');
-                    sec.protectionStart = og.blotter.util.get_checkbox('security.protectionStart');
-                    sec.adjustMaturityDate = og.blotter.util.get_checkbox('security.adjustMaturityDate');
-                    sec.adjustEffectiveDate = og.blotter.util.get_checkbox('security.adjustEffectiveDate');
-                    sec.immAdjustMaturityDate = og.blotter.util.get_checkbox('security.immAdjustMaturityDate');
-                    sec.adjustCashSettlementDate = og.blotter.util.get_checkbox('security.adjustCashSettlementDate');
+                    var sec = data[prefix];
+                    sec.includeAccruedPremium = util.get_checkbox(prefix + '.includeAccruedPremium');
+                    sec.protectionStart = util.get_checkbox(prefix + '.protectionStart');
+                    sec.adjustMaturityDate = util.get_checkbox(prefix + '.adjustMaturityDate');
+                    sec.adjustEffectiveDate = util.get_checkbox(prefix + '.adjustEffectiveDate');
+                    sec.immAdjustMaturityDate = util.get_checkbox(prefix + '.immAdjustMaturityDate');
+                    sec.adjustCashSettlementDate = util.get_checkbox(prefix + '.adjustCashSettlementDate');
+                    sec.adjustSettlementDate = util.get_checkbox(prefix + '.adjustSettlementDate');
                     sec.notional.type = 'InterestRateNotional';
-                    if (config.standard)
-                        sec.upfrontAmount.type = 'InterestRateNotional';   
+                    if (config.standard) sec.upfrontAmount.type = 'InterestRateNotional';
+                    if (config.index) sec.upfrontPayment.type = 'InterestRateNotional';
+                },
+                /*
+                 * The genrator is needed here to enable the creation of the autocomplete securities
+                 * The security blocks create the autocomplete on form load which does not happen
+                 * when using the cds options. As the generator exists, the default handler is needed
+                 */
+                generator: function (handler, tmpl, data) {
+                    handler(tmpl(data));
+                    if (config.prefix) {
+                        buy.create_autocomplete();
+                        sell.create_autocomplete();
+                        ref.create_autocomplete();   
+                    }          
                 }
+            });
+            form.on('form:load', function () {
+                util.set_cds_data(prefix, data);
             });
         };
         CDS.prototype = new Block(); // inherit Block prototype

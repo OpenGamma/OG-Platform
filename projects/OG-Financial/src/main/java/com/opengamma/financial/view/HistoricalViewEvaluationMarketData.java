@@ -20,8 +20,8 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.timeseries.TimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateObjectTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
 
 /**
  * Result object holding the time series bundles produced by {@link ViewEvaluationFunction} containing the input market data used.

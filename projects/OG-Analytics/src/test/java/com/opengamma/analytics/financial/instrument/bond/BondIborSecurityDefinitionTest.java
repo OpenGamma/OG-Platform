@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -31,7 +32,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -145,8 +146,10 @@ public class BondIborSecurityDefinitionTest {
   public void toDerivativeSettleMiddleFirstCoupon() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 16);
     final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
-    final DoubleTimeSeries<ZonedDateTime> fixingUSDLibor3M = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 11),
-        DateUtils.getUTCDate(2011, 7, 12), DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16) }, new double[] {0.01, 0.05, 0.05, 0.05 });
+    final DoubleTimeSeries<ZonedDateTime> fixingUSDLibor3M = ImmutableZonedDateTimeDoubleTimeSeries.of(
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 11),
+            DateUtils.getUTCDate(2011, 7, 12), DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16) },
+        new double[] {0.01, 0.05, 0.05, 0.05 }, ZoneOffset.UTC);
     final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
     final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
     @SuppressWarnings("unchecked")

@@ -25,24 +25,25 @@ public class EquityVarianceSwapTradeSecurityExtractor extends TradeSecurityExtra
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
-
     ExternalId region = null;
     boolean parameterizedAsVariance = false; // distinguishes vega or variance strike/notional
-    EquityVarianceSwapSecurity security = new EquityVarianceSwapSecurity(_trade.getUnderlying().toExternalId(),
-                                                                         _trade.getCurrency(),
-                                                                         _trade.getStrike().doubleValue(),
-                                                                         _trade.getVegaAmount().doubleValue(),
-                                                                         parameterizedAsVariance,
-                                                                         _trade.getAnnualizationFactor(),
-                                                                         convertLocalDate(
-                                                                             _trade.getObservationStartDate()),
-                                                                         convertLocalDate(_trade.getObservationEndDate()),
-                                                                         /*convertLocalDate(trade.getPremiumSettlementDate())*/
-                                                                         null,
-                                                                         region,
-                                                                         SimpleFrequencyFactory.INSTANCE.getFrequency(_trade.getObservationfrequency()));
+    EquityVarianceSwapTrade trade = getTrade();
+    EquityVarianceSwapSecurity security = new EquityVarianceSwapSecurity(
+        trade.getUnderlying().toExternalId(),
+        trade.getCurrency(),
+        trade.getStrike().doubleValue(),
+        trade.getVegaAmount().doubleValue(),
+        parameterizedAsVariance,
+        trade.getAnnualizationFactor(),
+        convertLocalDate(trade.getObservationStartDate()),
+        convertLocalDate(trade.getObservationEndDate()),
+        /*convertLocalDate(trade.getPremiumSettlementDate())*/
+        null,
+        region,
+        SimpleFrequencyFactory.INSTANCE.getFrequency(trade.getObservationfrequency()));
     return securityArray(addIdentifier(security));
   }
 

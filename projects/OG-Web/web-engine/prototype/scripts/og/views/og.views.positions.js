@@ -77,6 +77,7 @@ $.register_module({
                                     ui.dialog({type: 'confirm', action: 'close'});
                                     if (result.error) return view.error(result.message);
                                     routes.go(routes.hash(view.rules.load, args));
+                                    setTimeout(function () {view.search(args);});
                                 }, id: routes.current().args.id
                             });
                         },

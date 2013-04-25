@@ -579,8 +579,54 @@
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>0.9.17</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>0.9.17</version>
+      </dependency>
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>3.0.0-BETA1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-logback</artifactId>
+        <version>3.0.0-BETA1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-ganglia</artifactId>
+        <version>3.0.0-BETA1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Spring -->
@@ -774,6 +820,19 @@
         <version>9.1.1.B60.25.p2</version>
       </dependency>
 
+
+	  <!--Jruby and gems -->
+	  <dependency>
+	     <groupId>org.jruby</groupId>
+		 <artifactId>jruby-complete</artifactId>
+		 <version>1.6.8</version>
+	  </dependency>
+	  <dependency>
+	     <groupId>me.n4u.sass</groupId>
+		 <artifactId>sass-gems</artifactId>
+		 <version>3.2.1</version>
+      </dependency>
+ 
       <!-- JMS -->
       <dependency>
         <groupId>javax.jms</groupId>

@@ -51,8 +51,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -76,6 +76,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -465,6 +467,26 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONSpread(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
+    return _delegate.visitCouponArithmeticAverageONSpread(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageONSpreadSimplified(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
+    return _delegate.visitCouponArithmeticAverageONSpreadSimplified(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitSwap(final Swap<?, ?> swap, final DATA_TYPE data) {
     return _delegate.visitSwap(swap, data);
   }
@@ -625,22 +647,22 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures, final DATA_TYPE data) {
     return _delegate.visitDeliverableSwapFuturesSecurity(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
+  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures) {
     return _delegate.visitDeliverableSwapFuturesSecurity(futures);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures, final DATA_TYPE data) {
     return _delegate.visitDeliverableSwapFuturesTransaction(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures) {
+  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures) {
     return _delegate.visitDeliverableSwapFuturesTransaction(futures);
   }
 

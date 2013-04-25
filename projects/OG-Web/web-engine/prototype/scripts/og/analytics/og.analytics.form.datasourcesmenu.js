@@ -19,7 +19,7 @@ $.register_module({
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', type_s = '.type', source_s = '.source',
                 extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom',
                 date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
-                corrections_s = '.corrections', types = [], datasources, default_source,
+                corrections_s = '.corrections', types = [], datasources, default_source, events = og.common.events,
                 sources = {
                     live: {
                         type:'Live',
@@ -37,8 +37,8 @@ $.register_module({
                         type:'Historical',
                         source:'',
                         date:'',
-                        datasource: 'configs',
-                        api_opts:{ type: 'HistoricalTimeSeriesRating' }
+                        datasource: 'timeseriesresolverkeys',
+                        api_opts:{ cache_for:5000 }
                     }
                 };
 
@@ -69,13 +69,11 @@ $.register_module({
                     module: 'og.analytics.form_datasources_source_tash',
                     generator: function (handler, tmpl, data) {
                         datasource.get(obj.api_opts).pipe(function (resp) {
-                            if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
+                            if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.message);
                             data.source = obj.type === 'Live' ? resp.data.map(function (entry) {
                                 return { text: entry, value: entry, selected: obj.source === entry };
-                            }) : obj.type === 'Historical' ? resp.data.data.map(
-                                function (entry) {
-                                    var arr = entry.split('|');
-                                    return { text: arr[1], value: arr[1], selected: obj.source === arr[1]};
+                            }) : obj.type === 'Historical' ? resp.data.map(function (entry) {
+                                return { text: entry, value: entry, selected: obj.source === entry};
                             }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
                                 return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
                             }) : {};
@@ -184,6 +182,7 @@ $.register_module({
                     og.common.events.on('datasources:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
                     og.common.events.on('datasources:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
                     menu.fire('initialized', [initialized = true]);
+                    events.fire.call(form, 'datasources:initialized');
                 }
             };
 
@@ -314,12 +313,11 @@ $.register_module({
 
             $.when( //TODO AG: Automate this process when an endpoint is available for datasource types
                 og.api.rest.livedatasources.get({page: '*'}),
-                og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating', page: '*'}),
+                og.api.rest.timeseriesresolverkeys.get({page: '*'}),
                 og.api.rest.marketdatasnapshots.get({page: '*'})
             ).pipe(function (live, historical, snapshot) {
                 if (live.data.length) types.push({type: 'Live', source: live.data[0]});
-                if (historical.data && 'data' in historical.data && historical.data.data.length)
-                    types.push({type: 'Historical', source: historical.data.data[0].split('|')[1]});
+                if (historical.data.length) types.push({type: 'Historical', source: historical[0]});
                 if (snapshot.data.length && snapshot.data[0].snapshots.length)
                     types.push({type: 'Snapshot', source: snapshot.data[0].snapshots[0].id});
                 default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
