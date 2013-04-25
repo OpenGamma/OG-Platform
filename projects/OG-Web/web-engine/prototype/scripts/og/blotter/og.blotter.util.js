@@ -47,11 +47,6 @@ $.register_module({
                 });
                 return attributes;
             },
-            toggle_fixed : function (ele, selection) {
-                var option = ele.find("option[value='FixedInterestRateLeg']");
-                if(selection == 'FixedInterestRateLeg') option.attr("disabled", "disabled");
-                else option.removeAttr("disabled");
-            },
             cleanup : function (obj) {
                 Object.keys(obj).forEach(function (key) {
                     var value = obj[key];
