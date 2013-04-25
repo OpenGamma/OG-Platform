@@ -95,7 +95,7 @@ public class ComputationTargetResolverUtils {
    * @return the target object instance with the correct logical type, not null
    */
   public static ComputationTarget createResolvedTarget(final ComputationTargetSpecification requestedSpecification, final UniqueIdentifiable target) {
-    final ComputationTargetSpecification resolvedSpecification;
+    ComputationTargetSpecification resolvedSpecification;
     final ComputationTargetType requestedType = requestedSpecification.getType();
     final ComputationTargetType resolvedType = requestedType.accept(s_resolveType, target);
     if (resolvedType == null) {
@@ -110,6 +110,9 @@ public class ComputationTargetResolverUtils {
     } else {
       // Different type
       resolvedSpecification = (ComputationTargetSpecification) requestedSpecification.replaceType(resolvedType);
+    }
+    if (requestedSpecification.getUniqueId().isLatest() && target.getUniqueId().isVersioned()) {
+      resolvedSpecification = resolvedSpecification.replaceIdentifier(target.getUniqueId());
     }
     return new ComputationTarget(resolvedSpecification, target);
   }

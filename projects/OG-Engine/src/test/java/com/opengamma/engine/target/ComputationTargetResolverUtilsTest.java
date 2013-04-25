@@ -27,23 +27,30 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class ComputationTargetResolverUtilsTest {
 
-  private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UniqueId.of("A", "B"), "Name");
-  private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UniqueId.of("A", "B", "C"), "Name");
+  private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1", "0"), new BigDecimal(1), ExternalIdBundle.EMPTY);
 
-  public void testCreateResolvedTarget() {
+  public void testCreateResolvedTarget_noRewrite() {
     // No re-write
     ComputationTarget target = ComputationTargetResolverUtils.createResolvedTarget(
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()), POSITION);
     assertEquals(target.getType(), ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.of(SimplePosition.class)));
     assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE));
     assertSame(target.getValue(), POSITION);
+  }
+
+  public void testCreateResolvedTarget_rewriteUnion() {
     // Rewrite to remove the union type
-    target = ComputationTargetResolverUtils.createResolvedTarget(new ComputationTargetSpecification(ComputationTargetType.POSITION.or(ComputationTargetType.TRADE), POSITION.getUniqueId()), POSITION);
+    ComputationTarget target = ComputationTargetResolverUtils.createResolvedTarget(
+        new ComputationTargetSpecification(ComputationTargetType.POSITION.or(ComputationTargetType.TRADE), POSITION.getUniqueId()), POSITION);
     assertEquals(target.getType(), ComputationTargetType.of(SimplePosition.class));
     assertEquals(target.getContextSpecification(), null);
     assertSame(target.getValue(), POSITION);
+  }
+
+  public void testCreateResolvedTarget_rewriteNested() {
     // Rewrite the nested type
-    target = ComputationTargetResolverUtils.createResolvedTarget(
+    ComputationTarget target = ComputationTargetResolverUtils.createResolvedTarget(
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()).containing(ComputationTargetType.POSITION.or(ComputationTargetType.TRADE),
             POSITION.getUniqueId()), POSITION);
     assertEquals(target.getType(), ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.of(SimplePosition.class)));
@@ -55,6 +62,12 @@ public class ComputationTargetResolverUtilsTest {
     assertEquals(target.getType(), ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.PORTFOLIO_NODE).containing(ComputationTargetType.of(SimplePosition.class)));
     assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId()));
     assertSame(target.getValue(), POSITION);
+  }
+
+  public void testCreateResolvedTarget_rewriteSpec() {
+    ComputationTarget target = ComputationTargetResolverUtils.createResolvedTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, NODE.getUniqueId().toLatest()), NODE);
+    assertEquals(target.getType(), ComputationTargetType.of(SimplePortfolioNode.class));
+    assertEquals(target.getUniqueId(), NODE.getUniqueId());
   }
 
 }
