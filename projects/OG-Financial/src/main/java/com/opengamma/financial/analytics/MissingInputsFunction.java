@@ -183,9 +183,19 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
     }
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(underlyingResults.size());
     for (final ValueSpecification underlyingResult : underlyingResults) {
-      final ValueProperties.Builder properties = underlyingResult.getProperties().copy();
-      properties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull(), getAggregationStyleMissing());
-      results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+      final ValueProperties underlyingProperties = underlyingResult.getProperties();
+      final ValueProperties.Builder properties = underlyingProperties.copy();
+      if (underlyingProperties.getProperties().isEmpty()) {
+        // Got the infinite or nearly infinite property set
+        properties.withAny(ValuePropertyNames.AGGREGATION);
+        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+      } else {
+        // Got a finite property set; republish with both aggregation modes
+        properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
+        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+        properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
+        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+      }
     }
     s_logger.debug("Returning results {}", results);
     return results;
@@ -229,7 +239,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
         results.add(underlyingResult);
       } else {
         final ValueProperties.Builder builder = properties.copy();
-        builder.with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
+        builder.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
         results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), builder.get()));
         builder.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
         results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), builder.get()));
@@ -280,7 +290,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
     for (final ComputedValue underlyingResult : underlyingResults) {
       final ValueSpecification resultSpec = underlyingResult.getSpecification();
       final ValueProperties.Builder properties = resultSpec.getProperties().copy();
-      properties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
+      properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
       results.add(new ComputedValue(new ValueSpecification(resultSpec.getValueName(), resultSpec.getTargetSpecification(), properties.get()), underlyingResult.getValue()));
       if (inputs.getMissingValues().isEmpty()) {
         properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
