@@ -100,7 +100,8 @@ $.register_module({
                     if (item.handler) item.disabled = !item.handler(); // check changed flags & enable relevant options
                     return item;
                 });
-            if (cell.value.v[has]('positionId')) items.push({}, new_portfolio);
+            if (!grid.source.aggregators.length && cell.value.v[has]('positionId')) // no new portfolio option in
+                items.push({}, new_portfolio);                                      // aggregated views
             return (dry = false), items;
         };
         return NodeMenu;
