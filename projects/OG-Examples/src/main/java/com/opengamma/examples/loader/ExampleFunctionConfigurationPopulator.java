@@ -21,7 +21,6 @@ import com.opengamma.financial.analytics.AnalyticsFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.currency.CurrencyFunctions;
 import com.opengamma.financial.property.PropertyFunctions;
-import com.opengamma.financial.target.TargetFunctions;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.financial.value.ValueFunctions;
 import com.opengamma.financial.view.ViewFunctions;
@@ -38,7 +37,6 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
   private static final String CURVE = "CURVE_FUNCTIONS";
   private static final String STANDARD = "STANDARD_FUNCTIONS";
   private static final String VIEW = "VIEW_FUNCTIONS";
-  private static final String TARGET = "TARGET_FUNCTIONS";
   private static final String VALUE = "VALUE_FUNCTIONS";
   private static final String PROPERTY = "PROPERTY_FUNCTIONS";
   private static final String CURRENCY = "CURRENCY_FUNCTIONS";
@@ -47,13 +45,12 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
   private static final String FINANCIAL = "FINANCIAL_FUNCTIONS";
   private static final String EXAMPLE = "EXAMPLE_FUNCTIONS";
   private static final String CUBE = "CUBE_FUNCTIONS";
-  
+
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * Main method to run the tool. No arguments are needed.
+   * 
+   * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
     new ExampleFunctionConfigurationPopulator().initAndRun(args, ToolContext.class);
@@ -68,32 +65,31 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
     storeFunctionDefinition(CURRENCY, CurrencyFunctions.instance());
     storeFunctionDefinition(PROPERTY, PropertyFunctions.instance());
     storeFunctionDefinition(VALUE, ValueFunctions.instance());
-    storeFunctionDefinition(TARGET, TargetFunctions.instance());
     storeFunctionDefinition(VIEW, ViewFunctions.instance());
-    
-    FunctionConfigurationDefinition financialFunc = new FunctionConfigurationDefinition(FINANCIAL, 
-        ImmutableList.of(AGGREGATION, ANALYTICS, CURRENCY, PROPERTY, VALUE, TARGET, VIEW), 
-        Collections.<StaticFunctionConfiguration>emptyList(), 
+
+    FunctionConfigurationDefinition financialFunc = new FunctionConfigurationDefinition(FINANCIAL,
+        ImmutableList.of(AGGREGATION, ANALYTICS, CURRENCY, PROPERTY, VALUE, VIEW),
+        Collections.<StaticFunctionConfiguration>emptyList(),
         Collections.<ParameterizedFunctionConfiguration>emptyList());
     storeFunctionDefinition(financialFunc);
-    
+
     storeFunctionDefinition(STANDARD, ExampleStandardFunctionConfiguration.instance());
     storeFunctionDefinition(CURVE, IRCurveFunctions.providers(getToolContext().getConfigMaster()));
     storeFunctionDefinition(CUBE, SyntheticVolatilityCubeFunctions.instance());
-    
-    FunctionConfigurationDefinition exampleFunc = new FunctionConfigurationDefinition(EXAMPLE, 
-        ImmutableList.of(FINANCIAL, STANDARD, CURVE, CUBE), 
-        Collections.<StaticFunctionConfiguration>emptyList(), 
+
+    FunctionConfigurationDefinition exampleFunc = new FunctionConfigurationDefinition(EXAMPLE,
+        ImmutableList.of(FINANCIAL, STANDARD, CURVE, CUBE),
+        Collections.<StaticFunctionConfiguration>emptyList(),
         Collections.<ParameterizedFunctionConfiguration>emptyList());
     storeFunctionDefinition(exampleFunc);
-    
+
   }
-  
+
   private void storeFunctionDefinition(final FunctionConfigurationDefinition definition) {
     final ConfigItem<FunctionConfigurationDefinition> config = ConfigItem.of(definition, definition.getName(), FunctionConfigurationDefinition.class);
     ConfigMasterUtils.storeByName(getToolContext().getConfigMaster(), config);
   }
-  
+
   private void storeFunctionDefinition(final String name, final FunctionConfigurationSource funcConfigSource) {
     FunctionConfigurationDefinition definition = FunctionConfigurationDefinition.of(name, funcConfigSource);
     final ConfigItem<FunctionConfigurationDefinition> config = ConfigItem.of(definition, name, FunctionConfigurationDefinition.class);
