@@ -7,6 +7,7 @@ package com.opengamma.engine.value;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.TargetSourcingFunction;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -1377,8 +1378,11 @@ public final class ValueRequirementNames {
    */
   public static final String AFFINE_DIVIDENDS = "Affine Dividends";
 
+  ///// Miscellaneous
+
   /**
-   * The object referenced by a target specification. Can be used to load an item, referenced by a target specification, directly from a database and receive it as an input to a function.
+   * The object referenced by a target specification. Can be used to load an item, referenced by a target specification, directly from a database and receive it as an input to a function. See the
+   * documentation for {@link TargetSourcingFunction} for details on requesting target resolved items.
    */
   public static final String TARGET = "Target";
 
