@@ -26,6 +26,10 @@ import com.opengamma.util.ArgumentChecker;
  * A wrapper class for an AnnuityDefinition containing CouponIborSpreadDefinition.
  */
 public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<CouponIborSpreadDefinition> {
+
+  /**
+   * The underlying Ibor index.
+   */
   private final IborIndex _iborIndex;
 
   /**
