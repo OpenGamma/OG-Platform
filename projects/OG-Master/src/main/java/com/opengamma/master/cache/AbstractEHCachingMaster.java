@@ -201,7 +201,9 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
 
     // Invalid result
     } else {
-      throw new DataNotFoundException("Unable to uniquely identify a document with the specified ObjectId/VersionCorrection");
+      throw new DataNotFoundException("Unable to uniquely identify a document with ObjectId " + objectId
+                                      + " and VersionCorrection " + versionCorrection
+                                      + " because more than one cached search result matches: " + results);
     }
   }
 
