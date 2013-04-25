@@ -42,7 +42,8 @@ public class BuildData {
     s_stamp = result;
   }
 
-  /** returns the stamp of type String */
+  /** @return the stamp of type String */
+  
   public static String getBuildStamp() {
     return s_stamp;
   }
