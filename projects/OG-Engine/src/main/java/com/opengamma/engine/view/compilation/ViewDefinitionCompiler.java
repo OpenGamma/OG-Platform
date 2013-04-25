@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -173,12 +174,12 @@ public final class ViewDefinitionCompiler {
       while (builders.hasNext()) {
         final DependencyGraphBuilder builder = builders.next();
         compile(builder);
-        builders.remove();
         // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.
         // Wait for the current config's dependency graph to be built before moving to the next view calc config
         final DependencyGraph graph = builder.getDependencyGraph();
         graph.removeUnnecessaryValues();
         getContext().addGraph(graph);
+        builders.remove();
       }
     }
 
@@ -244,11 +245,17 @@ public final class ViewDefinitionCompiler {
      */
     @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
-      boolean result = true;
-      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
-        result &= builder.cancel(mayInterruptIfRunning);
-      }
-      return result;
+      do {
+        boolean result = true;
+        try {
+          for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
+            result &= builder.cancel(mayInterruptIfRunning);
+          }
+          return result;
+        } catch (ConcurrentModificationException e) {
+          // Ignore
+        }
+      } while (true);
     }
 
     /**
@@ -256,11 +263,17 @@ public final class ViewDefinitionCompiler {
      */
     @Override
     public boolean isCancelled() {
-      boolean result = false;
-      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
-        result |= builder.isCancelled();
-      }
-      return result;
+      do {
+        boolean result = false;
+        try {
+          for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
+            result |= builder.isCancelled();
+          }
+          return result;
+        } catch (ConcurrentModificationException e) {
+          // Ignore
+        }
+      } while (true);
     }
 
     /**
