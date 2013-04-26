@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
@@ -29,8 +31,6 @@ import com.opengamma.livedata.server.LastKnownValueStoreProvider;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.MetricProducer;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
 
 /**
  * Listens to a channel of raw data updates, normalizes, writes to the LKV store, and then

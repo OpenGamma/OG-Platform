@@ -24,6 +24,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.Lists;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
@@ -52,8 +54,6 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Timer;
 
 /**
  * A security master implementation using a database for persistence.

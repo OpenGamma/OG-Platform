@@ -12,11 +12,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.opengamma.livedata.firehose.InputStreamFactory;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.metric.MetricProducer;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
 
 /**
  * A class that is able to decode the raw stream of bytes for a fire hose provider

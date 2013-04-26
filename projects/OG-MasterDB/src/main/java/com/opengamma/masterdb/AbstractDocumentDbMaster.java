@@ -23,6 +23,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.threeten.bp.Instant;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -44,8 +46,6 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.metric.MetricProducer;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Timer;
 
 /**
  * An abstract master for rapid implementation of a standard version-correction

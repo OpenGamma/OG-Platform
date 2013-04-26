@@ -23,6 +23,9 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
@@ -40,9 +43,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.metric.MetricProducer;
-import com.yammer.metrics.Gauge;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
 
 /**
  * A base class that handles all the in-memory requirements

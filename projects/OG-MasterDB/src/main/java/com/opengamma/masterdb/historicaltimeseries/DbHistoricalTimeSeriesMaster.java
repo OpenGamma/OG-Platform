@@ -20,6 +20,8 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.opengamma.DataDuplicationException;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
@@ -51,8 +53,6 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Timer;
 
 /**
  * A time-series master implementation using a database for persistence.
