@@ -17,8 +17,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -78,8 +78,8 @@ public abstract class DbTest implements TableCreationCallback {
    * This works better with TestNG and Maven, where the constructor is called
    * even if the test is never run.
    */
-  @BeforeSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void setUpSuite() {
+  @BeforeClass(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  public void setUpDbTool() {
     _dbtool = DbTestProperties.getDbTool(_databaseType);
     _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
     _dbtool.addDbScriptDirectory(DbScripts.getSqlScriptDir().getAbsolutePath());
