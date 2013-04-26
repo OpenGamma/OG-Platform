@@ -599,9 +599,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.yammer.metrics</groupId>
+        <groupId>com.codahale.metrics</groupId>
         <artifactId>metrics-logback</artifactId>
-        <version>3.0.0-BETA1</version>
+        <version>3.0.0-BETA2</version>
         <exclusions>
           <exclusion>
             <groupId>ch.qos.logback</groupId>
@@ -614,9 +614,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.yammer.metrics</groupId>
+        <groupId>com.codahale.metrics</groupId>
         <artifactId>metrics-ganglia</artifactId>
-        <version>3.0.0-BETA1</version>
+        <version>3.0.0-BETA2</version>
         <exclusions>
           <exclusion>
             <groupId>ch.qos.logback</groupId>

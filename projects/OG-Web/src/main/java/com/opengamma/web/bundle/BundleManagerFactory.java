@@ -35,6 +35,10 @@ public class BundleManagerFactory {
    * The manager created from this factory.
    */
   private volatile BundleManager _manager;
+  /**
+   * The uri provider.
+   */
+  private volatile UriProvider _uriProvider;
 
   /**
    * Creates an instance.
@@ -77,6 +81,22 @@ public class BundleManagerFactory {
       _configXmlPath = configXmlPath.startsWith("/") ? configXmlPath : "/" + configXmlPath;
     }
   }
+  
+  /**
+   * Gets the uriProvider.
+   * @return the uriProvider
+   */
+  public UriProvider getUriProvider() {
+    return _uriProvider;
+  }
+
+  /**
+   * Sets the uriProvider.
+   * @param uriProvider  the uriProvider
+   */
+  public void setUriProvider(UriProvider uriProvider) {
+    _uriProvider = uriProvider;
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -112,6 +132,7 @@ public class BundleManagerFactory {
     InputStream uiResource = null;
     try {
       ServletContextUriProvider uriProvider = new ServletContextUriProvider(getBaseDir(), servletContext);
+      setUriProvider(uriProvider);
       uiResource = getXMLStream(servletContext);
       BundleParser parser = new BundleParser(uriProvider, getBaseDir());
       return parser.parse(uiResource);
@@ -130,7 +151,7 @@ public class BundleManagerFactory {
     String configXMlPath = _configXmlPath == null ? DEFAULT_CONFIG_XML_PATH : _configXmlPath;
     InputStream result = servletContext.getResourceAsStream(configXMlPath);
     if (result == null) {
-      throw new IllegalStateException("Cannot find uiResourceConfig.xml in /WEB-INF web directory");
+      throw new IllegalStateException("Cannot find resource XML in " + configXMlPath);
     }
     return result;
   }

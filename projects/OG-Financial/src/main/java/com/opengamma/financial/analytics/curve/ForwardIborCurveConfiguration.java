@@ -5,18 +5,15 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import java.io.Serializable;
-
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -24,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * 
  */
 @BeanDefinition
-public class ForwardIborCurveConfiguration extends DirectBean implements Serializable {
+public class ForwardIborCurveConfiguration extends CurveConfiguration {
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
@@ -49,6 +46,7 @@ public class ForwardIborCurveConfiguration extends DirectBean implements Seriali
     setCalculationConfigurationName(calculationConfigurationName);
   }
 
+  @Override
   public <T> T accept(final CurveConfigurationVisitor<T> visitor) {
     return visitor.visitForwardIborCurveConfiguration(this);
   }
@@ -110,17 +108,18 @@ public class ForwardIborCurveConfiguration extends DirectBean implements Seriali
     if (obj != null && obj.getClass() == this.getClass()) {
       ForwardIborCurveConfiguration other = (ForwardIborCurveConfiguration) obj;
       return JodaBeanUtils.equal(getCurveName(), other.getCurveName()) &&
-          JodaBeanUtils.equal(getCalculationConfigurationName(), other.getCalculationConfigurationName());
+          JodaBeanUtils.equal(getCalculationConfigurationName(), other.getCalculationConfigurationName()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurveName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationConfigurationName());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -179,7 +178,7 @@ public class ForwardIborCurveConfiguration extends DirectBean implements Seriali
   /**
    * The meta-bean for {@code ForwardIborCurveConfiguration}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends CurveConfiguration.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -199,7 +198,7 @@ public class ForwardIborCurveConfiguration extends DirectBean implements Seriali
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "curveName",
         "calculationConfigurationName");
 

@@ -15,6 +15,8 @@ import org.threeten.bp.LocalDate;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -34,8 +36,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.metric.MetricProducer;
 import com.opengamma.util.tuple.Pair;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Timer;
 
 /**
  * An extremely minimal and lightweight {@code HistoricalTimeSeriesSource} that pulls data

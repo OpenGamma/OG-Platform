@@ -507,7 +507,7 @@ public class LinearInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    LinearInterpolator interp = new LinearInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -524,7 +524,7 @@ public class LinearInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    LinearInterpolator interp = new LinearInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -541,7 +541,7 @@ public class LinearInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    LinearInterpolator interp = new LinearInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -558,7 +558,7 @@ public class LinearInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    LinearInterpolator interp = new LinearInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 

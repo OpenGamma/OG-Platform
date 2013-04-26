@@ -972,7 +972,7 @@ public class CubicSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -989,7 +989,7 @@ public class CubicSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -1006,7 +1006,7 @@ public class CubicSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -1023,7 +1023,7 @@ public class CubicSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 

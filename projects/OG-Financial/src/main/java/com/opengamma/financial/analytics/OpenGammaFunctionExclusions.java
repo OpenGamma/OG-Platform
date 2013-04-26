@@ -34,6 +34,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String EQUITY_FORWARD_CURVE_DEFAULTS = "EQUITY_FORWARD_CURVE_DEFAULTS";
   public static final String COMMODITY_FORWARD_CURVE_DEFAULTS = "COMMODITY_FORWARD_CURVE_DEFAULTS";
   public static final String SABR_FITTING_DEFAULTS = "SABR_FITTING_DEFAULTS";
+  public static final String XCCY_SWAP_DEFAULTS = "XCCY_SWAP_DEFAULTS";
   public static final String FX_FORWARD_DEFAULTS = "FX_FORWARD_DEFAULTS";
   public static final String FX_FORWARD_THETA_DEFAULTS = "FX_FORWARD_THETA_DEFAULTS";
   public static final String FX_OPTION_BLACK_DEFAULTS = "FX_OPTION_BLACK_DEFAULTS";

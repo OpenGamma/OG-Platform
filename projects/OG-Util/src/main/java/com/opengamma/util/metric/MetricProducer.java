@@ -5,7 +5,7 @@
  */
 package com.opengamma.util.metric;
 
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * An interface for any class capable of publishing Yammer metrics.

@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapXCcyDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
@@ -373,7 +374,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         }
       }
     }
-    return new SwapDefinition(legDefinition.get(0), legDefinition.get(1));
+    return new SwapXCcyDefinition(legDefinition.get(0), legDefinition.get(1));
   }
 
   private Period getTenor(final Frequency freq) {

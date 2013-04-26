@@ -122,6 +122,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo eurCurrencyInfo() {
     final CurrencyInfo i = super.eurCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
+    i.setCurveConfiguration("model/xccyswap", "DefaultTwoCurveEURConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAEURCurveConfig");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
@@ -211,6 +212,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     final CurrencyInfo i = super.usdCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAUSDCurveConfig");
+    i.setCurveConfiguration("model/xccyswap", "DefaultTwoCurveUSDConfig");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");

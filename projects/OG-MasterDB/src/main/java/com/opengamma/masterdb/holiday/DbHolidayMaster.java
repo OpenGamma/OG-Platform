@@ -21,6 +21,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.threeten.bp.LocalDate;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
@@ -49,8 +51,6 @@ import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.Paging;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Timer;
 
 /**
  * A holiday master implementation using a database for persistence.
