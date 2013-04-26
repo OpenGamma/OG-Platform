@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.CellMenu',
+    name: 'og.common.grid.CellMenu',
     dependencies: ['og.common.gadgets.mapping'],
     obj: function () {
         var module = this,
@@ -36,7 +36,7 @@ $.register_module({
             cellmenu.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
-            og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
+            og.api.text({module: 'og.views.gadgets.grid.cell_options'}).pipe(function (template) {
                 template = (Handlebars.compile(template))({singlepanel:singlepanel ? true : false});
                 (cellmenu.menu = $(template)).hide()
                 .on('mouseleave', function () {

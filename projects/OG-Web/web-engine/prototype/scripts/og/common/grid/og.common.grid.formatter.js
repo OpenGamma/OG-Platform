@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.Formatter',
+    name: 'og.common.grid.Formatter',
     dependencies: [],
     obj: function () {
         var module = this;

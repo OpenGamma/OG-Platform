@@ -4,9 +4,9 @@
  */
 $.register_module({
     name: 'og.common.grid.Selector',
-    dependencies: ['og.common.gadgets.Grid', 'og.common.grid.Clipboard', 'og.common.events'],
+    dependencies: ['og.common.events'],
     obj: function () {
-        var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
+        var module = this, namespace = '.og_grid_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var Selector = function (grid) {
             var selector = this, grid_offset, grid_width, grid_height, fixed_width, max_scroll_top;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {

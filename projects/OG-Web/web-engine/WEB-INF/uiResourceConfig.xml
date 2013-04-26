@@ -362,11 +362,6 @@
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
     <fragment>/scripts/og/common/og.common.tooltip.js</fragment>
-    <fragment>/scripts/og/common/grid/og.common.grid.cellmenu.js</fragment>
-    <fragment>/scripts/og/common/grid/og.common.grid.formatter.js</fragment>
-    <fragment>/scripts/og/common/grid/og.common.grid.clipboard.js</fragment>
-    <fragment>/scripts/og/common/grid/og.common.grid.selector.js</fragment>
-    <fragment>/scripts/og/common/grid/og.common.grid.nodemenu.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
@@ -384,6 +379,11 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.mapping.js</fragment>
+    <fragment>/scripts/og/common/grid/og.common.grid.cellmenu.js</fragment>
+    <fragment>/scripts/og/common/grid/og.common.grid.formatter.js</fragment>
+    <fragment>/scripts/og/common/grid/og.common.grid.clipboard.js</fragment>
+    <fragment>/scripts/og/common/grid/og.common.grid.selector.js</fragment>
+    <fragment>/scripts/og/common/grid/og.common.grid.nodemenu.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.grid.js</fragment>
   </bundle>
   <bundle id="common_analytics.js">
