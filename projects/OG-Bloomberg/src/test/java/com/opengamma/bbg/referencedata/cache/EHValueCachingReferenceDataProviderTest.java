@@ -9,6 +9,7 @@ import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
@@ -29,16 +30,18 @@ public class EHValueCachingReferenceDataProviderTest extends AbstractValueCachin
     _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
   }
 
+  @BeforeMethod
+  public void setUp() {
+    ReferenceDataProvider underlyingProvider = initProviders();
+    EHCacheUtils.clear(_cacheManager, EHValueCachingReferenceDataProvider.REFERENCE_DATA_CACHE);
+    ReferenceDataProvider provider = new EHValueCachingReferenceDataProvider(
+        underlyingProvider, _cacheManager, OpenGammaFudgeContext.getInstance());
+    setProvider(provider);
+  }
+
   @AfterClass
   public void tearDownClass() {
     EHCacheUtils.shutdownQuiet(_cacheManager);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  protected ReferenceDataProvider createCachingProvider() {
-    EHCacheUtils.clear(_cacheManager, EHValueCachingReferenceDataProvider.REFERENCE_DATA_CACHE);
-    return new EHValueCachingReferenceDataProvider(getUnderlyingProvider(), _cacheManager, OpenGammaFudgeContext.getInstance());
   }
 
 }

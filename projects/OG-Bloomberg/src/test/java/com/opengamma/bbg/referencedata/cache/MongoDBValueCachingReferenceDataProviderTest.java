@@ -5,6 +5,7 @@
  */
 package com.opengamma.bbg.referencedata.cache;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
@@ -17,10 +18,40 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
 public class MongoDBValueCachingReferenceDataProviderTest extends AbstractValueCachingReferenceDataProviderTestCase {
 
-  @Override
-  protected ReferenceDataProvider createCachingProvider() {
+
+  @BeforeMethod
+  public void setUp() {
+    ReferenceDataProvider underlyingProvider = initProviders();
     boolean clearData = true; // This is why we make real queries
-    return MongoCachedReferenceData.makeMongoProvider(getUnderlyingProvider(), MongoDBValueCachingReferenceDataProviderTest.class, clearData);
+    ReferenceDataProvider provider = MongoCachedReferenceData.makeMongoProvider(
+        underlyingProvider, MongoDBValueCachingReferenceDataProviderTest.class, clearData);
+    setProvider(provider);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void numberOfReturnedFields() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void singleSecurityEscalatingFields() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void fieldNotAvailable() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void securityNotAvailable() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void multipleSecuritiesSameEscalatingFields() {
+    super.numberOfReturnedFields();
   }
 
 }

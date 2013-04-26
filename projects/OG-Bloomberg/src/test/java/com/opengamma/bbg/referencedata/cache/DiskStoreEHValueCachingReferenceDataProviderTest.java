@@ -9,6 +9,7 @@ import java.io.InputStream;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
@@ -20,13 +21,15 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class DiskStoreEHValueCachingReferenceDataProviderTest extends AbstractValueCachingReferenceDataProviderTestCase {
 
-  @Override
-  protected ReferenceDataProvider createCachingProvider() {
+  @BeforeMethod
+  public void setUp() {
+    ReferenceDataProvider underlyingProvider = initProviders();
     InputStream inputStream = DiskStoreEHValueCachingReferenceDataProviderTest.class.getResourceAsStream("diskstore-ehcache.xml");
     CacheManager.create(inputStream).clearAll();
     
     CacheManager cacheManager = CacheManager.create(inputStream);
-    return new DiskStoreEHValueCachingReferenceDataProvider(getUnderlyingProvider(), cacheManager);
+    ReferenceDataProvider provider = new DiskStoreEHValueCachingReferenceDataProvider(underlyingProvider, cacheManager);
+    setProvider(provider);
   }
 
 }

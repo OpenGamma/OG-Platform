@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.fudgemsg.FudgeMsg;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.bbg.referencedata.MockReferenceDataProvider;
@@ -41,24 +40,18 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
 
   private MockReferenceDataProvider _underlyingProvider;
   private UnitTestingReferenceDataProvider _unitProvider;
-  private ReferenceDataProvider _cachingProvider;
+  private ReferenceDataProvider _provider;
 
-  @BeforeMethod
-  public void setUp() {
+  // complicated setup as subclasses are in different TestNG groups
+  protected ReferenceDataProvider initProviders() {
     _underlyingProvider = new MockReferenceDataProvider();
     _unitProvider = new UnitTestingReferenceDataProvider(_underlyingProvider);
-    _cachingProvider = createCachingProvider();
+    return _underlyingProvider;
   }
 
-  protected final ReferenceDataProvider getUnderlyingProvider() {
-    return _unitProvider;
+  protected void setProvider(ReferenceDataProvider provider) {
+    _provider = provider;
   }
-
-  protected final ReferenceDataProvider getCachingProvider() {
-    return _cachingProvider;
-  }
-
-  protected abstract ReferenceDataProvider createCachingProvider();
 
   //-------------------------------------------------------------------------
   @Test
@@ -74,7 +67,7 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     String securityDes = AAPL_TICKER;
     Set<String> securities = Collections.singleton(securityDes);
     _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    ReferenceDataProviderGetResult result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     ReferenceData perSecurity = result.getReferenceData(securityDes);
@@ -86,7 +79,7 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     fields.clear();
     fields.add(FIELD_TICKER);
     _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     perSecurity = result.getReferenceData(securityDes);
@@ -109,13 +102,13 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     String securityDes = AAPL_TICKER;
     Set<String> securities = Collections.singleton(securityDes);
     _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    ReferenceDataProviderGetResult result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(securityDes));
 
     _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(securityDes));
@@ -127,7 +120,7 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     expectedFields.add(FIELD_ID_CUSIP);
     expectedFields.add(FIELD_ID_ISIN);
     _unitProvider.addAcceptableRequest(securities, expectedFields);
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(securityDes));
@@ -155,7 +148,7 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     securities.add(CISCO_TICKER);
     
     _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    ReferenceDataProviderGetResult result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     ReferenceData aaplResult = result.getReferenceData(AAPL_TICKER);
@@ -164,7 +157,7 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     assertNotNull(ciscoResult);
     
     _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     ReferenceData aaplCachedResult = result.getReferenceData(AAPL_TICKER);
@@ -191,14 +184,14 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     Set<String> securities = Collections.singleton(invalidSec);
     
     _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    ReferenceDataProviderGetResult result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(invalidSec));
     
     _unitProvider.clearAcceptableRequests();
     
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(invalidSec));
@@ -225,18 +218,18 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     bothSecurities.addAll(cscoOnly);
     
     _unitProvider.addAcceptableRequest(aaplOnly, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    ReferenceDataProviderGetResult result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(aaplOnly, fields, true));
     assertNotNull(result);
     
     _unitProvider.clearAcceptableRequests();
     _unitProvider.addAcceptableRequest(cscoOnly, fields);
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(cscoOnly, fields, true));
     assertNotNull(result);
 
     _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(bothSecurities, fields, true));
     assertNotNull(result);
     
@@ -247,7 +240,7 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     expectedFields.add(FIELD_ID_CUSIP);
     expectedFields.add(FIELD_ID_ISIN);
     _unitProvider.addAcceptableRequest(bothSecurities, expectedFields);
-    result = getCachingProvider().getReferenceData(
+    result = _provider.getReferenceData(
         ReferenceDataProviderGetRequest.createGet(bothSecurities, fields, true));
     assertNotNull(result);
   }
