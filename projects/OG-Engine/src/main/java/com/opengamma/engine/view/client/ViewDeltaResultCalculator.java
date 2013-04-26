@@ -42,24 +42,18 @@ public class ViewDeltaResultCalculator {
     deltaModel.setVersionCorrection(result.getVersionCorrection());
     deltaModel.setViewCycleId(result.getViewCycleId());
     deltaModel.setViewProcessId(result.getViewProcessId());
-
     if (previousResult != null) {
       deltaModel.setPreviousCalculationTime(previousResult.getCalculationTime());
     }
-    for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
-      computeDeltaModel(viewDefinition, deltaModel, targetSpec, previousResult, result);
+    for (String calcConfigName : result.getCalculationConfigurationNames()) {
+      final DeltaDefinition deltaDefinition = viewDefinition.getCalculationConfiguration(calcConfigName).getDeltaDefinition();
+      final ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
+      final ViewCalculationResultModel previousCalcModel = previousResult != null ? previousResult.getCalculationResult(calcConfigName) : null;
+      for (ComputationTargetSpecification targetSpec : resultCalcModel.getAllTargets()) {
+        computeDeltaModel(deltaDefinition, deltaModel, targetSpec, calcConfigName, previousCalcModel, resultCalcModel);
+      }
     }
     return deltaModel;
-  }
-
-  private static void computeDeltaModel(ViewDefinition viewDefinition, InMemoryViewDeltaResultModel deltaModel, ComputationTargetSpecification targetSpec,
-      ViewResultModel previousResult, ViewResultModel result) {
-    for (String calcConfigName : result.getCalculationConfigurationNames()) {
-      DeltaDefinition deltaDefinition = viewDefinition.getCalculationConfiguration(calcConfigName).getDeltaDefinition();
-      ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
-      ViewCalculationResultModel previousCalcModel = previousResult != null ? previousResult.getCalculationResult(calcConfigName) : null;
-      computeDeltaModel(deltaDefinition, deltaModel, targetSpec, calcConfigName, previousCalcModel, resultCalcModel);
-    }
   }
 
   private static void computeDeltaModel(DeltaDefinition deltaDefinition, InMemoryViewDeltaResultModel deltaModel, ComputationTargetSpecification targetSpec,
