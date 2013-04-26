@@ -534,7 +534,7 @@ public class NaturalSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -551,7 +551,7 @@ public class NaturalSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -568,7 +568,7 @@ public class NaturalSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
@@ -585,7 +585,7 @@ public class NaturalSplineInterpolatorTest {
 
     xKey = null;
 
-    PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
+    NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
     interp.interpolate(xValues, yValues, xKey);
 
