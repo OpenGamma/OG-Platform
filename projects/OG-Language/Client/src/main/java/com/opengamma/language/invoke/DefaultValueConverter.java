@@ -245,13 +245,15 @@ public class DefaultValueConverter extends ValueConverter {
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, Object value, final JavaTypeInfo<?> type) {
-    if (value instanceof Data) {
-      if (DataUtils.isNull((Data) value)) {
-        value = null;
-      }
-    } else if (value instanceof Value) {
-      if (ValueUtils.isNull((Value) value)) {
-        value = null;
+    if (type.isAllowNull() || type.isDefaultValue()) {
+      if (value instanceof Data) {
+        if (DataUtils.isNull((Data) value)) {
+          value = null;
+        }
+      } else if (value instanceof Value) {
+        if (ValueUtils.isNull((Value) value)) {
+          value = null;
+        }
       }
     }
     s_logger.info("Converting {} to type {}", value, type);
