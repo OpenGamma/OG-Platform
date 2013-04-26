@@ -3,8 +3,8 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.Grid',
-    dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
+    name: 'og.common.gadgets.Grid',
+    dependencies: ['og.api.text', 'og.common.events'],
     obj: function () {
         var module = this, row_height = 21, title_height = 31, set_height = 24, logging = 'logLevel',
             templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = og.common.util.scrollbar_size,
@@ -175,11 +175,12 @@ $.register_module({
             };
         })();
         var compile_templates = function (handler) {
-            var grid = this, css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
-                header = og.api.text({module: 'og.analytics.grid.header_tash'}),
-                container = og.api.text({module: 'og.analytics.grid.container_tash'}),
-                loading = og.api.text({module: 'og.analytics.loading_tash'}),
-                row = og.api.text({module: 'og.analytics.grid.row_tash'}), compile = Handlebars.compile;
+            var grid = this,
+                css = og.api.text({url: module.html_root + 'views/gadgets/grid/og.views.gadgets.grid.grid_tash.css'}),
+                header = og.api.text({module: 'og.views.gadgets.grid.header_tash'}),
+                container = og.api.text({module: 'og.views.gadgets.grid.container_tash'}),
+                loading = og.api.text({module: 'og.views.gadgets.loading_tash'}),
+                row = og.api.text({module: 'og.views.gadgets.grid.row_tash'}), compile = Handlebars.compile;
             $.when(css, header, container, loading, row).then(function (css, header, container, loading, row) {
                 templates = {
                     css: compile(css), header: compile(header),
@@ -193,7 +194,7 @@ $.register_module({
             var grid = this;
             grid.config = config;
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
-            grid.formatter = new og.analytics.Formatter(grid);
+            grid.formatter = new og.common.grid.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
             grid.meta = null;
             grid.state = {col_override: [], col_reorder: [], nodes: null, structure: null};
@@ -226,7 +227,7 @@ $.register_module({
                     if (grid.views.list.length === 1) grid.views.list = [];
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
-            grid.clipboard = new og.analytics.Clipboard(grid);
+            grid.clipboard = new og.common.grid.Clipboard(grid);
         };
         var init_elements = function () {
             var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,
@@ -285,7 +286,7 @@ $.register_module({
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
                     if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
                     if (0 === cell.col && grid.state.nodes[has](cell.row))
-                        return new og.analytics.NodeMenu(grid, cell, event).display();
+                        return new og.common.grid.NodeMenu(grid, cell, event).display();
                     return false;
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
@@ -339,10 +340,10 @@ $.register_module({
                     };
                 })(null));
             })();
-            grid.selector = new og.analytics.Selector(grid)
+            grid.selector = new og.common.grid.Selector(grid)
                 .on('select', function (selection) {grid.fire('select', selection);})
                 .on('deselect', function () {grid.fire('deselect');});
-            if (config.cellmenu) try {new og.analytics.CellMenu(grid);}
+            if (config.cellmenu) try {new og.common.grid.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             if (!config.child) // if this is a child gadget, rely on its parent to register with manager
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});

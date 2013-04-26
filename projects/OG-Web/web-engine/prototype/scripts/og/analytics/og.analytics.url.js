@@ -58,7 +58,7 @@ $.register_module({
                             data: config.main
                         });
                         if (og.analytics.grid) og.analytics.grid.kill();
-                        og.analytics.grid = new og.analytics.Grid({
+                        og.analytics.grid = new og.common.gadgets.Grid({
                             selector: main_selector, cellmenu: true, show_save: og.analytics.blotter,
                             source: $.extend({blotter: og.analytics.blotter}, config.main)
                         }).on('viewchange', function (view) {

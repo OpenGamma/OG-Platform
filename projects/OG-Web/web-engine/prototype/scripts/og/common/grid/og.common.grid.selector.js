@@ -3,8 +3,8 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.Selector',
-    dependencies: ['og.analytics.Grid', 'og.analytics.Clipboard', 'og.common.events'],
+    name: 'og.common.grid.Selector',
+    dependencies: ['og.common.gadgets.Grid', 'og.common.grid.Clipboard', 'og.common.events'],
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var Selector = function (grid) {
