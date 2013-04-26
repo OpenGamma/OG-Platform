@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -39,6 +40,11 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
+  @BeforeClass(groups = TestGroup.UNIT_DB)
+  public void setUpClass() {
+    super.setUpDbTool();
+  }
+
   @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     DbTool dbTool = getDbTool();
