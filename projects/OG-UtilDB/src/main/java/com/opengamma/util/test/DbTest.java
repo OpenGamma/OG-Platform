@@ -69,6 +69,14 @@ public abstract class DbTest implements TableCreationCallback {
   private final String _createVersion;
   private final DbTool _dbtool;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param databaseType  the database type
+   * @param targetVersion  the target version
+   * @param createVersion  the create version
+   */
   protected DbTest(String databaseType, String targetVersion, String createVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
     _databaseType = databaseType;
@@ -83,10 +91,11 @@ public abstract class DbTest implements TableCreationCallback {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Initialise the database to the required version. This tracks the last initialised version
-   * in a static map to avoid duplicate DB operations on bigger test classes. This might not be
-   * such a good idea.
+   * Initialize the database to the required version.
+   * This tracks the last initialized version in a static map to avoid duplicate
+   * DB operations on bigger test classes. This might not be such a good idea.
    */
   @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void setUp() throws Exception {
@@ -120,6 +129,7 @@ public abstract class DbTest implements TableCreationCallback {
     }
   }
 
+  //-------------------------------------------------------------------------
   @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void tearDown() throws Exception {
     _dbtool.resetTestCatalog(); // avoids locking issues with Derby
@@ -211,9 +221,9 @@ public abstract class DbTest implements TableCreationCallback {
 
   @DataProvider(name = "databases")
   public static Object[][] data_databases() {
-    try{
-    return getParameters();
-    }catch(Exception ex){
+    try {
+      return getParameters();
+    } catch (Exception ex) {
       System.out.println(ex.getMessage());
       return null;
     }
@@ -235,6 +245,7 @@ public abstract class DbTest implements TableCreationCallback {
     return previousVersionCount;
   }
 
+  //-------------------------------------------------------------------------
   public DbTool getDbTool() {
     return _dbtool;
   }
