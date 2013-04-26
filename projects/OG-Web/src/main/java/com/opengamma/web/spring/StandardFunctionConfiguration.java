@@ -685,6 +685,27 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return getRepository(defaults);
   }
 
+  protected void setXCcySwapFunctionDefaults(final CurrencyInfo i, FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveCalculationConfig(i.getCurveName("model/xccyswap"));  
+  }
+  
+  protected void setXCcySwapFunctionDefaults(final FixedIncomeFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FixedIncomeFunctions.Defaults.CurrencyInfo>() {
+      @Override
+      public FixedIncomeFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final FixedIncomeFunctions.Defaults.CurrencyInfo d = new FixedIncomeFunctions.Defaults.CurrencyInfo();
+        setXCcySwapFunctionDefaults(i, d);
+        return d;
+      }
+    }));    
+  }
+  
+  protected FunctionConfigurationSource xCcySwapFunctions() {
+    final FixedIncomeFunctions.Defaults defaults = new FixedIncomeFunctions.Defaults();
+    setXCcySwapFunctionDefaults(defaults);
+    return getRepository(defaults);
+  }
+
   protected FunctionConfigurationSource deprecatedFunctions() {
     return null;
   }
@@ -1125,7 +1146,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
         externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(),
         interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(),
-        volatilitySurfaceFunctions());
+        volatilitySurfaceFunctions(), xCcySwapFunctions());
   }
 
 }
