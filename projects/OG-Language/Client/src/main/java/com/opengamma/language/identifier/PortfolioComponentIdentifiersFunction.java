@@ -32,6 +32,7 @@ import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
@@ -39,7 +40,7 @@ import com.opengamma.language.position.PortfolioUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Retrieves the identifiers of components that make up a portfolio. 
+ * Retrieves the identifiers of components that make up a portfolio.
  */
 public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
@@ -79,15 +80,15 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
   private static void storeIdentifier(final List<Pair<String, String>> result, final UniqueId identifier) {
     result.add(Pair.<String, String>of(identifier.toString(), null));
   }
-  
+
   private static void storeIdentifier(final List<Pair<String, String>> result, final ObjectId identifier) {
     result.add(Pair.<String, String>of(identifier.toString(), null));
   }
-  
+
   private static void storeIdentifiers(final List<Pair<String, String>> result, final UniqueId uniqueId, final ExternalId externalId) {
     result.add(Pair.of(uniqueId.toString(), externalId.toString()));
   }
-  
+
   private static void storeIdentifiers(final List<Pair<String, String>> result, final ObjectId objectId, final ExternalId externalId) {
     result.add(Pair.of(objectId.toString(), externalId.toString()));
   }
@@ -120,6 +121,9 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
     final boolean includePortfolioNode = (Boolean) parameters[5];
     s_logger.info("invoke {}, {}", portfolioIdentifier, externalSchemeRank);
     final Portfolio portfolio = PortfolioUtils.getPortfolio(sessionContext.getGlobalContext(), portfolioIdentifier, includeSecurity);
+    if (portfolio == null) {
+      throw new InvokeInvalidArgumentException(0, "Portfolio " + portfolioIdentifier + " not found");
+    }
     final List<Pair<String, String>> componentIds = new LinkedList<Pair<String, String>>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
 
@@ -150,7 +154,7 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
       }
 
     }).traverse(portfolio.getRootNode());
-    
+
     int width = includeSecurity ? 2 : 1;
     Value[][] values = new Value[componentIds.size()][width];
     int i = 0;
