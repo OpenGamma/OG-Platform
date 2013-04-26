@@ -55,6 +55,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       if (builderConfig == null) {
         throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
       }
+      //TODO replace with visitor
       if (node instanceof CashNode) {
         final ExternalId identifier = builderConfig.getCashNodeId(curveDate, ((CashNode) node).getMaturityTenor());
         identifiers.add(new CurveNodeWithIdentifier(node, identifier));

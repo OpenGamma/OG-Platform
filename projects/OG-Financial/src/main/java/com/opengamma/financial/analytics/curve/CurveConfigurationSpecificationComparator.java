@@ -21,7 +21,7 @@ public class CurveConfigurationSpecificationComparator implements Comparator<Cur
   @Override
   public int compare(final CurveConfigurationSpecification ccs1, final CurveConfigurationSpecification ccs2) {
     if (ccs1.getPriority() == ccs2.getPriority()) {
-      return 0;
+      return ccs1.getTargetId().compareTo(ccs2.getTargetId());
     }
     return ccs1.getPriority() - ccs2.getPriority();
   }

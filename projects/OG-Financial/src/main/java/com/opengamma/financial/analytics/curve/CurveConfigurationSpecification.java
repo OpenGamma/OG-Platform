@@ -20,7 +20,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -32,10 +33,10 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   private static final long serialVersionUID = 1L;
 
   /**
-   * The computation target specification.
+   * The id of the target.
    */
   @PropertyDefinition(validate = "notNull")
-  private ComputationTargetSpecification _targetSpec;
+  private ExternalId _targetId;
 
   /**
    * The priority of the this computation configuration specification (lower is higher priority, with zero the highest)
@@ -46,8 +47,8 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   /* package */CurveConfigurationSpecification() {
   }
 
-  public CurveConfigurationSpecification(final ComputationTargetSpecification targetSpec, final int priority) {
-    setTargetSpec(targetSpec);
+  public CurveConfigurationSpecification(final ExternalId targetId, final int priority) {
+    setTargetId(targetId);
     setPriority(priority);
   }
 
@@ -70,10 +71,10 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 486583532:  // targetSpec
-        return getTargetSpec();
+      case -441951604:  // targetId
+        return getTargetId();
       case -1165461084:  // priority
         return getPriority();
     }
@@ -81,10 +82,10 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 486583532:  // targetSpec
-        setTargetSpec((ComputationTargetSpecification) newValue);
+      case -441951604:  // targetId
+        setTargetId((ExternalId) newValue);
         return;
       case -1165461084:  // priority
         setPriority((Integer) newValue);
@@ -95,18 +96,18 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_targetSpec, "targetSpec");
+    JodaBeanUtils.notNull(_targetId, "targetId");
     super.validate();
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CurveConfigurationSpecification other = (CurveConfigurationSpecification) obj;
-      return JodaBeanUtils.equal(getTargetSpec(), other.getTargetSpec()) &&
+      CurveConfigurationSpecification other = (CurveConfigurationSpecification) obj;
+      return JodaBeanUtils.equal(getTargetId(), other.getTargetId()) &&
           JodaBeanUtils.equal(getPriority(), other.getPriority());
     }
     return false;
@@ -115,35 +116,35 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetSpec());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPriority());
     return hash;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the computation target specification.
+   * Gets the id of the target.
    * @return the value of the property, not null
    */
-  public ComputationTargetSpecification getTargetSpec() {
-    return _targetSpec;
+  public ExternalId getTargetId() {
+    return _targetId;
   }
 
   /**
-   * Sets the computation target specification.
-   * @param targetSpec  the new value of the property, not null
+   * Sets the id of the target.
+   * @param targetId  the new value of the property, not null
    */
-  public void setTargetSpec(final ComputationTargetSpecification targetSpec) {
-    JodaBeanUtils.notNull(targetSpec, "targetSpec");
-    this._targetSpec = targetSpec;
+  public void setTargetId(ExternalId targetId) {
+    JodaBeanUtils.notNull(targetId, "targetId");
+    this._targetId = targetId;
   }
 
   /**
-   * Gets the the {@code targetSpec} property.
+   * Gets the the {@code targetId} property.
    * @return the property, not null
    */
-  public final Property<ComputationTargetSpecification> targetSpec() {
-    return metaBean().targetSpec().createProperty(this);
+  public final Property<ExternalId> targetId() {
+    return metaBean().targetId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -159,7 +160,7 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
    * Sets the priority of the this computation configuration specification (lower is higher priority, with zero the highest)
    * @param priority  the new value of the property
    */
-  public void setPriority(final int priority) {
+  public void setPriority(int priority) {
     this._priority = priority;
   }
 
@@ -182,10 +183,10 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code targetSpec} property.
+     * The meta-property for the {@code targetId} property.
      */
-    private final MetaProperty<ComputationTargetSpecification> _targetSpec = DirectMetaProperty.ofReadWrite(
-        this, "targetSpec", CurveConfigurationSpecification.class, ComputationTargetSpecification.class);
+    private final MetaProperty<ExternalId> _targetId = DirectMetaProperty.ofReadWrite(
+        this, "targetId", CurveConfigurationSpecification.class, ExternalId.class);
     /**
      * The meta-property for the {@code priority} property.
      */
@@ -196,7 +197,7 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "targetSpec",
+        "targetId",
         "priority");
 
     /**
@@ -206,10 +207,10 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 486583532:  // targetSpec
-          return _targetSpec;
+        case -441951604:  // targetId
+          return _targetId;
         case -1165461084:  // priority
           return _priority;
       }
@@ -233,11 +234,11 @@ public class CurveConfigurationSpecification extends DirectBean implements Seria
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code targetSpec} property.
+     * The meta-property for the {@code targetId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ComputationTargetSpecification> targetSpec() {
-      return _targetSpec;
+    public final MetaProperty<ExternalId> targetId() {
+      return _targetId;
     }
 
     /**
