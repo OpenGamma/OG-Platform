@@ -20,7 +20,9 @@ import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.livedata.LoggedReferenceDataProvider;
@@ -52,7 +54,8 @@ public class BloombergRefDataCollectorTest {
     File watchListFile = new File(BloombergRefDataCollectorTest.class.getResource(WATCH_LIST_FILE).getPath());
     File fieldListFile = new File(BloombergRefDataCollectorTest.class.getResource(FIELD_LIST_FILE).getPath());
     
-    String outfileName = getClass().getSimpleName() + "-" + Thread.currentThread().getName() + "-" + Instant.now();
+    String outfileName = getClass().getSimpleName() + "-" + Thread.currentThread().getName() +
+        "-" + OffsetDateTime.now(ZoneOffset.UTC).toString(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"));
     
     _outputFile = File.createTempFile(outfileName, null);
     _outputFile.deleteOnExit();
