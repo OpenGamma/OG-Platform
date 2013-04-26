@@ -57,6 +57,8 @@ public class YUIBundleCompressor implements BundleCompressor {
         return compressCss(content);
       case JS:
         return compressJs(content);
+      case SCSS:
+        return compressCss(content);
       default:
         return content;
     }
