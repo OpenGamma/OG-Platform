@@ -44,6 +44,7 @@ import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRa
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -114,7 +115,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           if (marketValue == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + node);
           }
-          times[i] = maturity.getPeriod().toTotalMonths() / 12.; //TODO
+          times[i] = DateUtils.estimatedDuration(maturity.getPeriod()).toDays() / 365; //TODO check if this is correct
           yields[i] = marketValue;
           jacobian[i][i] = 1;
           i++;
