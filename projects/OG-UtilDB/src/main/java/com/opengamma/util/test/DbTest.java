@@ -5,16 +5,14 @@
  */
 package com.opengamma.util.test;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -25,7 +23,6 @@ import org.testng.annotations.DataProvider;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ZipUtils;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.DbDialect;
@@ -44,15 +41,6 @@ public abstract class DbTest implements TableCreationCallback {
   protected static Map<String, String> s_databaseTypeVersion = new HashMap<>();
   /** Known dialects. */
   private static final Map<String, DbDialect> s_dbDialects = new HashMap<>();
-
-  /** Script files by relative location. */
-  private static final File SCRIPT_RELATIVE_PATH = new File(DbTool.getWorkingDirectory(), "../OG-MasterDB");
-  /** Script files using zips built by Ant. */
-  private static final File SCRIPT_ZIP_PATH = new File(DbTool.getWorkingDirectory(), "lib/sql/com.opengamma/og-masterdb");
-  /** Script expansion. */
-  private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbTest.class.getSimpleName());
-  /** The script directory. */
-  private static volatile String s_scriptDir;
 
   static {
     // initialize the clock
@@ -92,36 +80,9 @@ public abstract class DbTest implements TableCreationCallback {
    */
   @BeforeSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void setUpSuite() {
-    if (s_scriptDir == null) {
-      synchronized (DbTest.class) {
-        if (s_scriptDir == null) {
-          s_scriptDir = createSQLScripts();
-        }
-      }
-    }
     _dbtool = DbTestProperties.getDbTool(_databaseType);
     _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
-    _dbtool.addDbScriptDirectory(s_scriptDir);
-  }
-
-  private static String createSQLScripts() {
-    if (SCRIPT_RELATIVE_PATH.exists()) {
-      return SCRIPT_RELATIVE_PATH.getAbsolutePath();
-    }
-    if (SCRIPT_ZIP_PATH.exists()) {
-      if (SCRIPT_INSTALL_DIR.exists()) {
-        FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
-      }
-      for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-        try {
-          ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
-        } catch (IOException ex) {
-          throw new OpenGammaRuntimeException("Unable to unzip database scripts: " + SCRIPT_INSTALL_DIR);
-        }
-      }
-      return SCRIPT_INSTALL_DIR.getAbsolutePath();
-    }
-    throw new IllegalArgumentException("Unable to find database scripts. Tried: " + SCRIPT_RELATIVE_PATH + " and " + SCRIPT_ZIP_PATH);
+    _dbtool.addDbScriptDirectory(DbScripts.getSqlScriptDir().getAbsolutePath());
   }
 
   /**
@@ -157,26 +118,31 @@ public abstract class DbTest implements TableCreationCallback {
 
   @AfterSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public static void cleanUp() {
-    FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+    DbScripts.deleteSqlScriptDir();
   }
 
+  //-------------------------------------------------------------------------
   protected static Object[][] getParametersForSeparateMasters(int prevVersionCount) {
-    String databaseType = System.getProperty("test.database.type");
-    if (databaseType == null) {
-      databaseType = "all";
+    String testDatabaseType = System.getProperty("test.database.type");
+    Collection<String> databaseTypes;
+    if (testDatabaseType == null) {
+      databaseTypes = new ArrayList<>(s_dbDialects.keySet());
+    } else {
+      if (s_dbDialects.containsKey(testDatabaseType) == false) {
+        throw new IllegalArgumentException("Unknown database: " + testDatabaseType);
+      }
+      databaseTypes = Collections.singleton(testDatabaseType);
     }
-    Collection<String> databaseTypes = DbTestProperties.getDatabaseTypes(databaseType);
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String dbType : databaseTypes) {
-      DbTool dbtool = DbTestProperties.getDbTool(dbType);
-      dbtool.setJdbcUrl(dbtool.getTestDatabaseUrl());
-      dbtool.addDbScriptDirectory(s_scriptDir);
-      for (String masterDB : dbtool.getScriptDirs().keySet()) {
-        Set<Integer> versions = dbtool.getScriptDirs().get(masterDB).keySet();
+    for (String databaseType : databaseTypes) {
+      DbScripts scripts = DbScripts.of(Collections.singleton(DbScripts.getSqlScriptDir()), databaseType);
+      Map<String, SortedMap<Integer, DbScriptPair>> scriptPairs = scripts.getScriptPairs();
+      for (String schema : scriptPairs.keySet()) {
+        Set<Integer> versions = scriptPairs.get(schema).keySet();
         int max = Collections.max(versions);
         int min = Collections.min(versions);
         for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
-          parameters.add(new Object[]{dbType, masterDB, "" + max /*target_version*/, "" + v /*migrate_from_version*/});
+          parameters.add(new Object[]{databaseType, schema, "" + max /*target_version*/, "" + v /*migrate_from_version*/});
         }
       }
     }
