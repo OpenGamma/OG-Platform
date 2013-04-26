@@ -15,13 +15,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -41,33 +40,34 @@ import com.opengamma.util.time.DateUtils;
  */
 public abstract class DbTest implements TableCreationCallback {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DbTest.class);
-
+  /** Cache. */
   protected static Map<String, String> s_databaseTypeVersion = new HashMap<>();
+  /** Known dialects. */
   private static final Map<String, DbDialect> s_dbDialects = new HashMap<>();
+
+  /** Script files by relative location. */
+  private static final File SCRIPT_RELATIVE_PATH = new File(DbTool.getWorkingDirectory(), "../OG-MasterDB");
+  /** Script files using zips built by Ant. */
+  private static final File SCRIPT_ZIP_PATH = new File(DbTool.getWorkingDirectory(), "lib/sql/com.opengamma/og-masterdb");
+  /** Script expansion. */
   private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbTest.class.getSimpleName());
+  /** The script directory. */
+  private static volatile String s_scriptDir;
 
   static {
+    // initialize the clock
     DateUtils.initTimeZone();
+    
+    // setup the known databases
     addDbDialect("hsqldb", new HSQLDbDialect());
     addDbDialect("postgres", new PostgresDbDialect());
     addDbDialect("sqlserver2008", new SqlServer2008DbDialect());
   }
 
-  static {
-    try {
-      extractSQLScript();
-    } catch (IOException ex) {
-      s_logger.warn("problem with unzip publish sql script to {} rethrowing", SCRIPT_INSTALL_DIR, ex);
-      throw new OpenGammaRuntimeException("problem with unzip publish sql script to " + SCRIPT_INSTALL_DIR, ex);
-    }
-  }
-
   private final String _databaseType;
   private final String _targetVersion;
   private final String _createVersion;
-  private final DbTool _dbtool;
+  private volatile DbTool _dbtool;
 
   //-------------------------------------------------------------------------
   /**
@@ -80,18 +80,50 @@ public abstract class DbTest implements TableCreationCallback {
   protected DbTest(String databaseType, String targetVersion, String createVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
     _databaseType = databaseType;
-    _dbtool = DbTestProperties.getDbTool(databaseType);
-    _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
     _targetVersion = targetVersion;
     _createVersion = createVersion;
-    if (isScriptPublished()) {
-      _dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
-    } else {
-      _dbtool.addDbScriptDirectory(DbTool.getWorkingDirectory());
-    }
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Initializes the DBTool outside the constructor.
+   * This works better with TestNG and Maven, where the constructor is called
+   * even if the test is never run.
+   */
+  @BeforeSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  public void setUpSuite() {
+    if (s_scriptDir == null) {
+      synchronized (DbTest.class) {
+        if (s_scriptDir == null) {
+          s_scriptDir = createSQLScripts();
+        }
+      }
+    }
+    _dbtool = DbTestProperties.getDbTool(_databaseType);
+    _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
+    _dbtool.addDbScriptDirectory(s_scriptDir);
+  }
+
+  private static String createSQLScripts() {
+    if (SCRIPT_RELATIVE_PATH.exists()) {
+      return SCRIPT_RELATIVE_PATH.getAbsolutePath();
+    }
+    if (SCRIPT_ZIP_PATH.exists()) {
+      if (SCRIPT_INSTALL_DIR.exists()) {
+        FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+      }
+      for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
+        try {
+          ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+        } catch (IOException ex) {
+          throw new OpenGammaRuntimeException("Unable to unzip database scripts: " + SCRIPT_INSTALL_DIR);
+        }
+      }
+      return SCRIPT_INSTALL_DIR.getAbsolutePath();
+    }
+    throw new IllegalArgumentException("Unable to find database scripts. Tried: " + SCRIPT_RELATIVE_PATH + " and " + SCRIPT_ZIP_PATH);
+  }
+
   /**
    * Initialize the database to the required version.
    * This tracks the last initialized version in a static map to avoid duplicate
@@ -99,6 +131,7 @@ public abstract class DbTest implements TableCreationCallback {
    */
   @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void setUp() throws Exception {
+    ArgumentChecker.notNull(_dbtool, "_dbtool");
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getTargetVersion())) {
       s_databaseTypeVersion.put(getDatabaseType(), getTargetVersion());
@@ -109,24 +142,6 @@ public abstract class DbTest implements TableCreationCallback {
       _dbtool.createTestTables(this);
     }
     _dbtool.clearTestTables();
-  }
-
-  private static void extractSQLScript() throws IOException {
-    if (isScriptPublished()) {
-      cleanUp();
-      unzipSQLScripts();
-    }
-  }
-
-  private static String getZipPath() {
-    return TestProperties.getTestProperties().getProperty("test.sqlzip.path");
-  }
-
-  private static void unzipSQLScripts() throws IOException {
-    File zipScriptPath = new File(DbTool.getWorkingDirectory(), getZipPath());
-    for (File file : (Collection<File>) FileUtils.listFiles(zipScriptPath, new String[]{"zip"}, false)) {
-      ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
-    }
   }
 
   //-------------------------------------------------------------------------
@@ -155,11 +170,7 @@ public abstract class DbTest implements TableCreationCallback {
     for (String dbType : databaseTypes) {
       DbTool dbtool = DbTestProperties.getDbTool(dbType);
       dbtool.setJdbcUrl(dbtool.getTestDatabaseUrl());
-      if (isScriptPublished()) {
-        dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
-      } else {
-        dbtool.addDbScriptDirectory(DbTool.getWorkingDirectory());
-      }
+      dbtool.addDbScriptDirectory(s_scriptDir);
       for (String masterDB : dbtool.getScriptDirs().keySet()) {
         Set<Integer> versions = dbtool.getScriptDirs().get(masterDB).keySet();
         int max = Collections.max(versions);
@@ -197,21 +208,6 @@ public abstract class DbTest implements TableCreationCallback {
     Object[][] array = new Object[parameters.size()][];
     parameters.toArray(array);
     return array;
-  }
-
-  private static boolean isScriptPublished() {
-    String zipPath = getZipPath();
-    if (zipPath == null) {
-      throw new OpenGammaRuntimeException("missing test.sqlZip.path property in test properties file");
-    }
-    File zipScriptPath = new File(DbTool.getWorkingDirectory(), zipPath);
-    boolean result = false;
-    if (zipScriptPath.exists()) {
-      @SuppressWarnings("rawtypes")
-      Collection zipfiles = FileUtils.listFiles(zipScriptPath, new String[]{"zip"}, false);
-      result = !zipfiles.isEmpty();
-    }
-    return result;
   }
 
   @DataProvider(name = "localDatabase")
