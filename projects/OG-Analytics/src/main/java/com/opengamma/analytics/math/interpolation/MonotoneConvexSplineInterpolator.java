@@ -18,10 +18,10 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * P. S. Hagan, G. West, "interpolation Methods for Curve Construction"
  * Applied Mathematical Finance, Vol. 13, No. 2, 89–129, June 2006
  * 
- * Given a data set (t_i, r_i*t_i), derive forward rates, f(t)=\frac{\partial r(t) t}{\partial t}, by "interpolateFwds" method or (spot rates) * (time), r(t) * t, by "interpolate" method
- * by applying the interpolation to forward rates f_i computed from spot rates r_i
+ * Given a data set (time) and (spot rates)*(time), {t_i, r_i*t_i}, derive forward rate curve, f(t)=\frac{\partial r(t) t}{\partial t}, by "interpolateFwds" method 
+ * or derive a curve of (spot rates) * (time), r(t) * t, by "interpolate" method by applying the interpolation to forward rates f_i estimated from spot rates r_i
  * When we apply this spline to interest rates, DO INCLUDE THE TRIVIAL POINT (t_0,r_0*t_0) = (0,0). In this case r_0 = 0 is automatically assumed. 
- * Note that f(t_i) = (original) f_i does NOT necessarily hold due to forward modification for ensuring positivity
+ * Note that f(t_i) = (original) f_i does NOT necessarily hold due to forward modification for ensuring positivity of the curve
  */
 public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpolator {
 
@@ -38,7 +38,7 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
 
   /**
    * Determine r(t)t = \int _{xValues_0}^{x} f(s) ds  for t >= min{xValues}
-   * Extrapolation by a linear function in the region t > max{xValues} 
+   * Extrapolation by a linear function in the region t > max{xValues}. To employ this extrapolation, use interpolate methods in this class. 
    * @param xValues Data t_i
    * @param yValues Data r_i*t_i
    * @return PiecewisePolynomialResult for r(t)t
