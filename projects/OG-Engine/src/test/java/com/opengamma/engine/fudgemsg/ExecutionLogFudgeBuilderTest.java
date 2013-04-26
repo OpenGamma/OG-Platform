@@ -44,14 +44,16 @@ public class ExecutionLogFudgeBuilderTest {
     log.add(infoEvent1);
     log.add(infoEvent2);
     String execptionMsg = "exception msg";
+    assertEquals(log.getLogLevels(), EnumSet.of(LogLevel.ERROR, LogLevel.INFO));
     log.setException(new OpenGammaRuntimeException(execptionMsg));
+    assertEquals(log.getLogLevels(), EnumSet.of(LogLevel.ERROR, LogLevel.INFO, LogLevel.WARN));
     FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     ExecutionLogFudgeBuilder builder = new ExecutionLogFudgeBuilder();
     FudgeMsg msg = builder.buildMessage(serializer, log);
 
     FudgeDeserializer deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
     ExecutionLog executionLog = builder.buildObject(deserializer, msg);
-    assertEquals(EnumSet.<LogLevel>of(LogLevel.ERROR, LogLevel.INFO), executionLog.getLogLevels());
+    assertEquals(EnumSet.<LogLevel>of(LogLevel.ERROR, LogLevel.INFO, LogLevel.WARN), executionLog.getLogLevels());
     List<LogEvent> events = executionLog.getEvents();
     assertTrue(events.contains(errorEvent));
     assertTrue(events.contains(infoEvent1));
