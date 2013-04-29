@@ -94,6 +94,9 @@ public final class Interpolator1DFactory {
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(MONOTONIC_CUBIC, MONTONIC_CUBIC_INSTANCE);
     instanceNames.put(MontonicCubicInterpolator1D.class, MONOTONIC_CUBIC);
+    staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
+    instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
+    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);    
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
     staticInstances.put(EXPONENTIAL_EXTRAPOLATOR, EXPONENTIAL_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ExponentialExtrapolator1D.class, EXPONENTIAL_EXTRAPOLATOR);
