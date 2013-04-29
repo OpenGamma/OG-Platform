@@ -17,8 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Holds as much information about a Java type as possible. This will drive parameter conversions
- * to/from the wire format.
+ * Holds as much information about a Java type as possible. This will drive parameter conversions to/from the wire format.
  * 
  * @param <T> the raw Java type
  */
@@ -146,6 +145,15 @@ public final class JavaTypeInfo<T> {
       return this;
     } else {
       return new JavaTypeInfo<Object>((Class<Object>) _rawClass, allowNull, _hasDefaultValue, _defaultValue, _parameter);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public JavaTypeInfo<?> withoutDefault() {
+    if (_hasDefaultValue) {
+      return new JavaTypeInfo<Object>((Class<Object>) _rawClass, _allowNull, false, null, _parameter);
+    } else {
+      return this;
     }
   }
 
@@ -287,9 +295,8 @@ public final class JavaTypeInfo<T> {
   }
 
   /**
-   * Return a simplified {@link #toString} that is suitable for the client as it may be shown to a user.
-   * The raw {@code toString} should contain sufficient extra information to be useful in a diagnostic
-   * log but may not be particularly pretty.
+   * Return a simplified {@link #toString} that is suitable for the client as it may be shown to a user. The raw {@code toString} should contain sufficient extra information to be useful in a
+   * diagnostic log but may not be particularly pretty.
    * 
    * @return the string
    */
@@ -361,7 +368,7 @@ public final class JavaTypeInfo<T> {
    * Parses a string that describes the type and all enclosed meta data.
    * 
    * @param str string, not null
-   * @return pair containing 
+   * @return pair containing
    */
   private static Pair<JavaTypeInfo<?>, String> parseStringImpl(final String str) throws ClassNotFoundException {
     int i;

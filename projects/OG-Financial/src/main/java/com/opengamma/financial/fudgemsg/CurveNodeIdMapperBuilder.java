@@ -50,10 +50,10 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     if (object.getDiscountFactorNodeIds() != null) {
       message.add(DISCOUNT_FACTOR_NODE_FIELD, getMessageForField(serializer, object.getDiscountFactorNodeIds()));
     }
-    if (object.getDiscountFactorNodeIds() != null) {
+    if (object.getFRANodeIds() != null) {
       message.add(FRA_NODE_FIELD, getMessageForField(serializer, object.getFRANodeIds()));
     }
-    if (object.getDiscountFactorNodeIds() != null) {
+    if (object.getRateFutureNodeIds() != null) {
       message.add(RATE_FUTURE_FIELD, getMessageForField(serializer, object.getRateFutureNodeIds()));
     }
     if (object.getSwapNodeIds() != null) {
