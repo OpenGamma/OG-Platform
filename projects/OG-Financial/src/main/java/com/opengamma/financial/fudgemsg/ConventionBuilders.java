@@ -17,6 +17,7 @@ import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -156,6 +157,45 @@ public final class ConventionBuilders {
       return convention;
     }
 
+  }
+
+  /**
+   * Fudge builder for FX forward and swap conventions.
+   */
+  @FudgeBuilderFor(FXForwardAndSwapConvention.class)
+  public static class FXForwardAndSwapConventionBuilder implements FudgeBuilder<FXForwardAndSwapConvention> {
+    private static final String SPOT_CONVENTION_FIELD = "spotConvention";
+    private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    private static final String IS_EOM_FIELD = "isEOM";
+    private static final String SETTLEMENT_REGION_FIELD = "settlementRegion";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FXForwardAndSwapConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, FXForwardAndSwapConvention.class);
+      serializer.addToMessage(message, SPOT_CONVENTION_FIELD, null, object.getSpotConvention());
+      message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getConventionName());
+      message.add(IS_EOM_FIELD, object.isIsEOM());
+      serializer.addToMessage(message, SETTLEMENT_REGION_FIELD, null, object.getSettlementRegion());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public FXForwardAndSwapConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId spotConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SPOT_CONVENTION_FIELD));
+      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
+      final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
+      final ExternalId settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final FXForwardAndSwapConvention convention = new FXForwardAndSwapConvention(name, externalIdBundle, spotConvention, businessDayConvention, isEOM, settlementRegion);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
   }
 
   /**

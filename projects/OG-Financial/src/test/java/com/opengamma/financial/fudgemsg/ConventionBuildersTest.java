@@ -14,6 +14,7 @@ import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -54,6 +55,14 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
         Currency.EUR, ExternalId.of("Test", "EU"));
     convention.setUniqueId(UniqueId.of("Test", "1234"));
     assertEquals(convention, cycleObject(DepositConvention.class, convention));
+  }
+
+  @Test
+  public void testFXForwardAndSwapConvention() {
+    final FXForwardAndSwapConvention convention = new FXForwardAndSwapConvention("USD/CAD", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("USD/CAD")),
+        ExternalId.of("Test", "FX"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, ExternalId.of("Test", "US"));
+    convention.setUniqueId(UniqueId.of("Test", "1234"));
+    assertEquals(convention, cycleObject(FXForwardAndSwapConvention.class, convention));
   }
 
   @Test
