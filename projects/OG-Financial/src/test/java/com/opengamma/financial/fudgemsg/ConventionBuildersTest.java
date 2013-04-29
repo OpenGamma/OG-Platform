@@ -8,6 +8,7 @@ package com.opengamma.financial.fudgemsg;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalTime;
 
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
@@ -16,6 +17,7 @@ import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -72,6 +74,15 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
         1, ExternalId.of("Test", "US"));
     convention.setUniqueId(UniqueId.of("Test", "1234"));
     assertEquals(convention, cycleObject(FXSpotConvention.class, convention));
+  }
+
+  @Test
+  public void testIborIndexConvention() {
+    final IborIndexConvention convention = new IborIndexConvention("EUR Deposit", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Deposit")),
+        DayCountFactory.INSTANCE.getDayCount("Act/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), 2, true,
+        Currency.EUR, LocalTime.of(11, 0), ExternalId.of("Test", "EU"), ExternalId.of("Test", "EU"), "Page");
+    convention.setUniqueId(UniqueId.of("Test", "1234567"));
+    assertEquals(convention, cycleObject(IborIndexConvention.class, convention));
   }
 
   @Test

@@ -11,6 +11,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalTime;
 
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.financial.convention.CMSLegConvention;
@@ -19,6 +20,7 @@ import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -227,6 +229,61 @@ public final class ConventionBuilders {
       final ExternalId settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final FXSpotConvention convention = new FXSpotConvention(name, externalIdBundle, daysToSettle, settlementRegion);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for ibor index conventions.
+   */
+  @FudgeBuilderFor(IborIndexConvention.class)
+  public static class IborIndexConventionBuilder implements FudgeBuilder<IborIndexConvention> {
+    private static final String DAY_COUNT_FIELD = "dayCount";
+    private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    private static final String DAYS_TO_SETTLE_FIELD = "daysToSettle";
+    private static final String IS_EOM_FIELD = "isEOM";
+    private static final String CURRENCY_FIELD = "currency";
+    private static final String FIXING_TIME_FIELD = "fixingTime";
+    private static final String FIXING_CALENDAR_FIELD = "fixingCalendar";
+    private static final String REGION_FIELD = "region";
+    private static final String FIXING_PAGE_FIELD = "fixingPage";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IborIndexConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, IborIndexConvention.class);
+      message.add(DAY_COUNT_FIELD, object.getDayCount().getConventionName());
+      message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getConventionName());
+      message.add(DAYS_TO_SETTLE_FIELD, object.getDaysToSettle());
+      message.add(IS_EOM_FIELD, object.isIsEOM());
+      message.add(CURRENCY_FIELD, object.getCurrency().getCode());
+      message.add(FIXING_TIME_FIELD, object.getFixingTime().toString());
+      serializer.addToMessage(message, FIXING_CALENDAR_FIELD, null, object.getFixingCalendar());
+      serializer.addToMessage(message, REGION_FIELD, null, object.getRegionCalendar());
+      message.add(FIXING_PAGE_FIELD, object.getFixingPage());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public IborIndexConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
+      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
+      final int daysToSettle = message.getInt(DAYS_TO_SETTLE_FIELD);
+      final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
+      final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
+      final LocalTime fixingTime = LocalTime.parse(message.getString(FIXING_TIME_FIELD));
+      final ExternalId fixingCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXING_CALENDAR_FIELD));
+      final ExternalId regionCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
+      final String fixingPage = message.getString(FIXING_PAGE_FIELD);
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final IborIndexConvention convention = new IborIndexConvention(name, externalIdBundle, dayCount, businessDayConvention, daysToSettle, isEOM, currency,
+          fixingTime, fixingCalendar, regionCalendar, fixingPage);
       convention.setUniqueId(uniqueId);
       return convention;
     }
