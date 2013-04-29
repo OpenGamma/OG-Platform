@@ -73,9 +73,9 @@ $.register_module({
                 [['user', 'userName'].join('.'),                                                Form.type.STR]
             ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];},
-            constructor;
+            unsaved_txt = 'You have unsaved changes to', constructor;
         constructor = function (config) {
-            var load_handler = config.handler || $.noop, selector = config.selector,
+            var load_handler = config.handler || $.noop, selector = config.selector, form_state,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name,
                 resource_id = config.data.template_data.object_id,
@@ -129,6 +129,15 @@ $.register_module({
                 ';
                 $('.OG-layout-admin-details-center .ui-layout-header').html(header);
                 setTimeout(load_handler.partial(form));
+                setTimeout(function () {
+                    form_state = form.compile();
+                });
+                og.common.events.on('search:results:clicked', function () {
+                    og.common.events.off('search:results:clicked');
+                    if (!Object.equals(form_state, form.compile()))
+                        return og.common.routes.surpress_hashchanged(false, unsaved_txt + ' ' + form_state.data.name);
+                    else og.common.routes.surpress_hashchanged(true);
+                });
             }).on('click', form_id + ' .og-js-collapse-handle', function (event) {
                 var $target = $(event.target), $handle = $target.is('.og-js-collapse-handle') ? $target
                         : $target.parents('.og-js-collapse-handle:first'),

@@ -8,13 +8,17 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, hash = window.RouteMap.hash,
+        var routes, hash = window.RouteMap.hash, hashchange = true, feedback;
             SL = '/', MOZSLASH = 'MOZSLOG', MOZSLASH_EXP = new RegExp(MOZSLASH, 'g'), ENCODEDSL = '%2F';
         var slash_replace = function (obj, acc, val) {return acc[val] = ('' + obj[val]).replace(/\//g, MOZSLASH), acc;};
         return routes = $.extend(true, window.RouteMap, {
             get: function () {
                 var hash = window.location.hash.replace(MOZSLASH_EXP, ENCODEDSL), index = hash.indexOf(SL);
                 return ~index ? hash.slice(index) : SL;
+            },
+            surpress_hashchanged: function (changed, msg) {
+                hashchange = changed;
+                if (msg) feedback = msg;
             },
             init: function () {
                 var go = routes.go;
@@ -39,6 +43,11 @@ $.register_module({
                     $anchor.attr('href', href);
                 });
                 $(window).on('hashchange', function () {
+                    if (!hashchange && !window.confirm(feedback)) {
+                        hashchange = true
+                        return window.history.back();
+                    }
+                    hashchange = false;
                     routes.handler();
                     routes.set_title(routes.title || routes.current().hash);
                     routes.title = null;
