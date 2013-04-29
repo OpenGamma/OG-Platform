@@ -7,8 +7,8 @@ $.register_module({
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         return function (config) {
-            var gadget = this, $selector = $(config.selector), histogram, stripped, buckets, max, min, range;
-                alive = og.common.id('gadget_histogram');
+            var gadget = this, $selector = $(config.selector), histogram, stripped, buckets, max, min, range,
+                alive = og.common.id('gadget_histogram'), var99, var95, cvar99, cvar95, samples;
             $(config.selector).addClass(alive).css({
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#fff'
             });
@@ -17,13 +17,29 @@ $.register_module({
                 if (!live && histogram) gadget.dataman.kill();
                 return live;
             };
-            gadget.resize = function () {try {histogram.resize();} catch (error) {}};
+            gadget.resize = function () {
+                try {histogram.resize();}
+                catch (error) {}
+            };
             var prepare_data = function (data) {
                 stripped = data.timeseries.data.reduce(function (a, b){return a.concat(b[1]);}, []);
+                stripped.sort(function(a,b) {return (b -a)});
+                samples = stripped.length;
             };
+            var calc_vars = function () {
+              if (stripped[stripped.length - 1] > 0) return false;
+              var ceil = Math.ceil, sample99 = ceil(samples * 0.99) - 1, sample95 = ceil(samples * 0.95) - 1,
+                range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
+              return {
+                var99 : stripped[sample99],
+                var95 : stripped[sample95],
+                cvar99 : range99.reduce(function(a, b) { return a + b; }, 0) / range99.length,
+                cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
+              }
+            }
             var histogram_data = function (data) {
-                var length = stripped.length, max_buckets = 50, min_buckets = 10,
-                    bucket_calc = Math.ceil(Math.sqrt(length));
+                var max_buckets = 50, min_buckets = 10,
+                    bucket_calc = Math.ceil(Math.sqrt(samples));
                 buckets = bucket_calc < max_buckets ? bucket_calc : max_buckets;
                 buckets = buckets < min_buckets ? min_buckets : buckets;
                 max = Math.max.apply(Math, stripped);
@@ -65,11 +81,11 @@ $.register_module({
             };
             var normpdf_data = function () {
                 var norm = [], diff = 0, sigma, constant = Math.sqrt(2*Math.PI),
-                    mu = stripped.reduce(function(a,b){return a+b;})/stripped.length;
+                    mu = stripped.reduce(function(a,b){return a+b;})/samples;
                 $.each(stripped, function(index, value){
                     diff +=  (value-mu)*(value-mu);
                 });
-                sigma = Math.sqrt(diff/(stripped.length-1));
+                sigma = Math.sqrt(diff/(ssamples-1));
                 $.each(stripped, function(index, value){
                     norm.push([value, (normpdf(value, mu, sigma, constant))]);
                 });
@@ -82,7 +98,7 @@ $.register_module({
                     if (!histogram && data && (typeof data === 'object')) {
                         prepare_data(data);
                         input = $.extend(true, {}, config, histogram_data(data)/*, normpdf_data()*/,
-                            {callback: bucket_data}, bucket_range());
+                            {callback: bucket_data}, bucket_range(), {vars : calc_vars()});
                         histogram = new og.common.gadgets.HistogramPlot(input);
                     }
                 })
