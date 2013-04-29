@@ -12,6 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -22,6 +23,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Fudge builders for {@link Convention} classes
@@ -32,6 +34,43 @@ public final class ConventionBuilders {
   private static final String UNIQUE_ID_FIELD = "uniqueId";
 
   private ConventionBuilders() {
+  }
+
+  /**
+   * Fudge builder for CMS leg conventions.
+   */
+  @FudgeBuilderFor(CMSLegConvention.class)
+  public static class CMSLegConventionBuilder implements FudgeBuilder<CMSLegConvention> {
+    private static final String SWAP_INDEX_ID_FIELD = "swapIndexConvention";
+    private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
+    private static final String ADVANCE_FIXING_FIELD = "advanceFixing";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CMSLegConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, CMSLegConvention.class);
+      serializer.addToMessage(message, SWAP_INDEX_ID_FIELD, null, object.getSwapIndexConvention());
+      serializer.addToMessage(message, PAYMENT_TENOR_FIELD, null, object.getPaymentTenor());
+      message.add(ADVANCE_FIXING_FIELD, object.isIsAdvanceFixing());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public CMSLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_INDEX_ID_FIELD));
+      final Tenor paymentTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAYMENT_TENOR_FIELD));
+      final boolean isAdvanceFixing = message.getBoolean(ADVANCE_FIXING_FIELD);
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final CMSLegConvention convention = new CMSLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, isAdvanceFixing);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+
   }
 
   /**
