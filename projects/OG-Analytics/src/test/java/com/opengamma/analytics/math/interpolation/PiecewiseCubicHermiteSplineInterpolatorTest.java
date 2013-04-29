@@ -257,9 +257,9 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
   
   @Test //(enabled=false)
   public void monotonicTest() {
-    final boolean print = true; //turn to false before pushing 
+    final boolean print = false; //turn to false before pushing 
     if (print) {
-      System.out.println("MonotoneConvexSplineInterpolatorTest");
+      System.out.println(" PiecewiseCubicHermiteSplineInterpolatorTest");
     }
 
    PiecewiseCubicHermiteSplineInterpolator interpolator = new PiecewiseCubicHermiteSplineInterpolator();
