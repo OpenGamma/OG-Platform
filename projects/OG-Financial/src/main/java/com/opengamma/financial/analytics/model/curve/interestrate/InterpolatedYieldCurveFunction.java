@@ -115,7 +115,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           if (marketValue == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + node);
           }
-          times[i] = DateUtils.estimatedDuration(maturity.getPeriod()).toDays() / 365; //TODO check if this is correct
+          times[i] = DateUtils.estimatedDuration(maturity.getPeriod()).toDays() / 365.0; //TODO check if this is correct
           yields[i] = marketValue;
           jacobian[i][i] = 1;
           i++;

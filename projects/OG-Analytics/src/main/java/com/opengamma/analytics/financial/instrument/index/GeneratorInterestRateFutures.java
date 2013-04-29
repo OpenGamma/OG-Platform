@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.instrument.index;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.util.ArgumentChecker;
 
@@ -19,14 +20,14 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
   /**
    * The underlying STIR futures security.
    */
-  private final InterestRateFutureTransactionDefinition _security;
+  private final InterestRateFutureSecurityDefinition _security;
 
   /**
    * Constructor.
    * @param name The generator name.
    * @param security The underlying STIR futures security.
    */
-  public GeneratorInterestRateFutures(String name, final InterestRateFutureTransactionDefinition security) {
+  public GeneratorInterestRateFutures(String name, final InterestRateFutureSecurityDefinition security) {
     super(name);
     ArgumentChecker.notNull(security, "STIR futures security");
     _security = security;
@@ -36,18 +37,17 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
    * Gets the STIR futures security.
    * @return The futures.
    */
-  public InterestRateFutureTransactionDefinition getFutures() {
+  public InterestRateFutureSecurityDefinition getFutures() {
     return _security;
   }
 
   @Override
   /**
-   * The quantity is modified to be in line with the required quantity.
+   * The quantity is modified to be in line with the required notional.
    */
   public InterestRateFutureTransactionDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
     int quantity = (int) Math.ceil(notional / _security.getNotional());
-    return InterestRateFutureTransactionDefinition.fromFixingPeriodStartDate(date, marketQuote, quantity, _security.getFixingPeriodStartDate(), _security.getIborIndex(), _security.getNotional(),
-        _security.getFixingPeriodAccrualFactor(), _security.getName());
+    return new InterestRateFutureTransactionDefinition(_security, date, marketQuote, quantity);
   }
 
   @Override

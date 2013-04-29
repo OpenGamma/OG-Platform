@@ -14,28 +14,28 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
  */
-public final class DeliverableSwapFuturesTransactionHullWhiteMethod extends DeliverableSwapFuturesTransactionMethod {
+public final class SwapFuturesDeliverableTransactionHullWhiteMethod extends SwapFuturesDeliverableTransactionMethod {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final DeliverableSwapFuturesTransactionHullWhiteMethod INSTANCE = new DeliverableSwapFuturesTransactionHullWhiteMethod();
+  private static final SwapFuturesDeliverableTransactionHullWhiteMethod INSTANCE = new SwapFuturesDeliverableTransactionHullWhiteMethod();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static DeliverableSwapFuturesTransactionHullWhiteMethod getInstance() {
+  public static SwapFuturesDeliverableTransactionHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private DeliverableSwapFuturesTransactionHullWhiteMethod() {
+  private SwapFuturesDeliverableTransactionHullWhiteMethod() {
   }
 
-  private static final DeliverableSwapFuturesSecurityHullWhiteMethod METHOD_SECURITY = DeliverableSwapFuturesSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SECURITY = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
 
   /**
    * Computes the present value without convexity adjustment.

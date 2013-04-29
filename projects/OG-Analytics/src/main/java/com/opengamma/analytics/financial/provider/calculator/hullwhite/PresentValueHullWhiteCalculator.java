@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.DeliverableSwapFuturesTransactionHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesDeliverableTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
@@ -53,7 +53,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   private static final CapFloorIborHullWhiteMethod METHOD_CAPFLOOR_IBOR = CapFloorIborHullWhiteMethod.getInstance();
   private static final InterestRateFutureTransactionHullWhiteMethod METHOD_STIRFUT = InterestRateFutureTransactionHullWhiteMethod.getInstance();
   private static final InterestRateFutureOptionMarginTransactionHullWhiteMethod METHOD_STIRFUT_OPT_MAR = InterestRateFutureOptionMarginTransactionHullWhiteMethod.getInstance();
-  private static final DeliverableSwapFuturesTransactionHullWhiteMethod METHOD_SWAPFUT = DeliverableSwapFuturesTransactionHullWhiteMethod.getInstance();
+  private static final SwapFuturesDeliverableTransactionHullWhiteMethod METHOD_SWAPFUT = SwapFuturesDeliverableTransactionHullWhiteMethod.getInstance();
   private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_SWPT_PHYS = SwaptionPhysicalFixedIborHullWhiteMethod.getInstance();
   private static final SwaptionCashFixedIborHullWhiteApproximationMethod METHOD_SWPT_CASH = SwaptionCashFixedIborHullWhiteApproximationMethod.getInstance();
 
@@ -77,7 +77,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   }
 
   @Override
-  public MultipleCurrencyAmount visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAPFUT.presentValue(futures, hullWhite);
   }
 
