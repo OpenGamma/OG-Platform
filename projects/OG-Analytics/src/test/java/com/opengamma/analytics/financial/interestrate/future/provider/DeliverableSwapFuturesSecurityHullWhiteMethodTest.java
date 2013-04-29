@@ -68,7 +68,7 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
 
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
-  private static final DeliverableSwapFuturesSecurityHullWhiteMethod METHOD_SWAP_FUT_HW = DeliverableSwapFuturesSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT_HW = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
 
   private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
   private static final MarketQuoteCurveSensitivityHullWhiteCalculator MQCSHWC = MarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();

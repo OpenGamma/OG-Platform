@@ -27,24 +27,24 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute the price for an deliverable swap futures with convexity adjustment from a Hull-White one factor model.
  * <p> Reference: Henrard M., Deliverable Interest Rate Swap Futures: pricing in Gaussian HJM model, September 2012.
  */
-public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
+public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final DeliverableSwapFuturesSecurityHullWhiteMethod INSTANCE = new DeliverableSwapFuturesSecurityHullWhiteMethod();
+  private static final SwapFuturesDeliverableSecurityHullWhiteMethod INSTANCE = new SwapFuturesDeliverableSecurityHullWhiteMethod();
 
   /**
    * Constructor.
    */
-  private DeliverableSwapFuturesSecurityHullWhiteMethod() {
+  private SwapFuturesDeliverableSecurityHullWhiteMethod() {
   }
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static DeliverableSwapFuturesSecurityHullWhiteMethod getInstance() {
+  public static SwapFuturesDeliverableSecurityHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
