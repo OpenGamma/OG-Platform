@@ -15,6 +15,7 @@ import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -55,4 +56,11 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
     assertEquals(convention, cycleObject(DepositConvention.class, convention));
   }
 
+  @Test
+  public void testInterestRateFutureConvention() {
+    final InterestRateFutureConvention convention = new InterestRateFutureConvention("ER", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("ER")),
+        ExternalId.of("Test", "3rd Wednesday"), ExternalId.of("Test", "EUX"), ExternalId.of("Test", "3m Euribor"));
+    convention.setUniqueId(UniqueId.of("Test", "123456"));
+    assertEquals(convention, cycleObject(InterestRateFutureConvention.class, convention));
+  }
 }

@@ -17,6 +17,7 @@ import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -155,5 +156,41 @@ public final class ConventionBuilders {
       return convention;
     }
 
+  }
+
+  /**
+   * Fudge builder for exchange-traded interest rate futures.
+   */
+  @FudgeBuilderFor(InterestRateFutureConvention.class)
+  public static class InterestRateFutureConventionBuilder implements FudgeBuilder<InterestRateFutureConvention> {
+    private static final String EXPIRY_CONVENTION_FIELD = "expiryConvention";
+    private static final String EXCHANGE_CALENDAR_FIELD = "exchangeCalendar";
+    private static final String INDEX_CONVENTION_FIELD = "indexConvention";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InterestRateFutureConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, InterestRateFutureConvention.class);
+      serializer.addToMessage(message, EXPIRY_CONVENTION_FIELD, null, object.getExpiryConvention());
+      serializer.addToMessage(message, EXCHANGE_CALENDAR_FIELD, null, object.getExchangeCalendar());
+      serializer.addToMessage(message, INDEX_CONVENTION_FIELD, null, object.getIndexConvention());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public InterestRateFutureConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId expiryConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXPIRY_CONVENTION_FIELD));
+      final ExternalId exchangeCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXCHANGE_CALENDAR_FIELD));
+      final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INDEX_CONVENTION_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final InterestRateFutureConvention convention = new InterestRateFutureConvention(name, externalIdBundle, expiryConvention, exchangeCalendar, indexConvention);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
   }
 }
