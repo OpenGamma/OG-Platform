@@ -18,6 +18,7 @@ import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
+import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -193,6 +194,39 @@ public final class ConventionBuilders {
       final ExternalId settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final FXForwardAndSwapConvention convention = new FXForwardAndSwapConvention(name, externalIdBundle, spotConvention, businessDayConvention, isEOM, settlementRegion);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for FX spot conventions.
+   */
+  @FudgeBuilderFor(FXSpotConvention.class)
+  public static class FXSpotConventionBuilder implements FudgeBuilder<FXSpotConvention> {
+    private static final String DAYS_TO_SETTLE_FIELD = "daysToSettle";
+    private static final String SETTLEMENT_REGION_FIELD = "settlementRegion";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FXSpotConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, FXSpotConvention.class);
+      message.add(DAYS_TO_SETTLE_FIELD, object.getDaysToSettle());
+      serializer.addToMessage(message, SETTLEMENT_REGION_FIELD, null, object.getSettlementRegion());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public FXSpotConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final int daysToSettle = message.getInt(DAYS_TO_SETTLE_FIELD);
+      final ExternalId settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final FXSpotConvention convention = new FXSpotConvention(name, externalIdBundle, daysToSettle, settlementRegion);
       convention.setUniqueId(uniqueId);
       return convention;
     }
