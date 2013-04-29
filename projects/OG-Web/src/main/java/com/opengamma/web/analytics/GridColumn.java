@@ -84,7 +84,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ static GridColumn forSpec(ColumnSpecification columnSpec,
                                           Class<?> columnType,
                                           TargetLookup targetLookup) {
-    return forSpec(columnSpec.getValueName(), columnSpec, columnType, null, targetLookup, null, null);
+    return forSpec(columnSpec.getHeader(), columnSpec, columnType, null, targetLookup, null, null);
   }
 
   /**
