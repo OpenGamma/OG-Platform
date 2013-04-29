@@ -5,16 +5,12 @@
  */
 package com.opengamma.web.bundle;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,22 +20,25 @@ import com.opengamma.util.ArgumentChecker;
  * This exists to handle the late arrival of the {@code ServletContext}
  */
 public class BundleManagerFactory {
-
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(BundleManagerFactory.class);
-
-  /**
-   * The config resource.
-   */
-  private Resource _configResource;
+  
+  private static final String DEFAULT_CONFIG_XML_PATH = "/WEB-INF/uiResourceConfig.xml";
+  
   /**
    * The base directory.
    */
   private String _baseDir;
   /**
+   * The config xml path
+   */
+  private String _configXmlPath;
+  /**
    * The manager created from this factory.
    */
   private volatile BundleManager _manager;
+  /**
+   * The uri provider.
+   */
+  private volatile UriProvider _uriProvider;
 
   /**
    * Creates an instance.
@@ -48,23 +47,6 @@ public class BundleManagerFactory {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the config resource.
-   * 
-   * @return the config resource
-   */
-  public Resource getConfigResource() {
-    return _configResource;
-  }
-
-  /**
-   * Sets the config resource.
-   * @param configResource  the config resource
-   */
-  public void setConfigResource(Resource configResource) {
-    _configResource = configResource;
-  }
-
   /**
    * Gets the base directory.
    * @return the base directory
@@ -80,6 +62,40 @@ public class BundleManagerFactory {
    */
   public void setBaseDir(String baseDir) {
     _baseDir = baseDir;
+  }
+  
+  /**
+   * Gets the configXmlPath.
+   * @return the configXmlPath
+   */
+  public String getConfigXmlPath() {
+    return _configXmlPath;
+  }
+
+  /**
+   * Sets the configXmlPath.
+   * @param configXmlPath  the configXmlPath
+   */
+  public void setConfigXmlPath(String configXmlPath) {
+    if (!StringUtils.isEmpty(configXmlPath)) {
+      _configXmlPath = configXmlPath.startsWith("/") ? configXmlPath : "/" + configXmlPath;
+    }
+  }
+  
+  /**
+   * Gets the uriProvider.
+   * @return the uriProvider
+   */
+  public UriProvider getUriProvider() {
+    return _uriProvider;
+  }
+
+  /**
+   * Sets the uriProvider.
+   * @param uriProvider  the uriProvider
+   */
+  public void setUriProvider(UriProvider uriProvider) {
+    _uriProvider = uriProvider;
   }
 
   //-------------------------------------------------------------------------
@@ -113,40 +129,31 @@ public class BundleManagerFactory {
    */
   protected BundleManager createManager(ServletContext servletContext) {
     ArgumentChecker.notNull(servletContext, "servletContext");
-    InputStream xmlStream = getXMLStream();
+    InputStream uiResource = null;
     try {
       ServletContextUriProvider uriProvider = new ServletContextUriProvider(getBaseDir(), servletContext);
+      setUriProvider(uriProvider);
+      uiResource = getXMLStream(servletContext);
       BundleParser parser = new BundleParser(uriProvider, getBaseDir());
-      return parser.parse(xmlStream);
+      return parser.parse(uiResource);
     } finally {
-      IOUtils.closeQuietly(xmlStream);
+      IOUtils.closeQuietly(uiResource);
     }
   }
 
   /**
    * Resolves the config file.
+   * @param servletContext 
    * 
    * @return the resolved file
    */
-  protected InputStream getXMLStream() {
-    InputStream xmlStream = null;
-    try {
-      if (_configResource instanceof ClassPathResource) {
-        ClassPathResource resource = (ClassPathResource) _configResource;
-        s_logger.debug("resource.getPath() : {}", resource.getPath());
-        s_logger.debug("resource.getClassLoader() : {}", resource.getClassLoader());
-        s_logger.debug("resource.getURL().toString() : {}", resource.getURL().toString());
-        s_logger.debug("resource.getDescription() : {}", resource.getDescription());
-      }
-      xmlStream = _configResource.getInputStream();
-      
-    } catch (IOException ex) {
-      throw new IllegalArgumentException("Cannot find bundle config xml file in the classpath", ex);
+  private InputStream getXMLStream(ServletContext servletContext) {
+    String configXMlPath = _configXmlPath == null ? DEFAULT_CONFIG_XML_PATH : _configXmlPath;
+    InputStream result = servletContext.getResourceAsStream(configXMlPath);
+    if (result == null) {
+      throw new IllegalStateException("Cannot find resource XML in " + configXMlPath);
     }
-    if (xmlStream == null) {
-      throw new IllegalArgumentException("Cannot find bundle config xml file in the classpath");
-    }
-    return xmlStream;
+    return result;
   }
 
 }

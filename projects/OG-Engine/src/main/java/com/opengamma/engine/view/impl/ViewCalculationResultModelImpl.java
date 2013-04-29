@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -21,24 +20,12 @@ import com.opengamma.util.tuple.Pair;
 public class ViewCalculationResultModelImpl extends AbstractResultModel<ComputationTargetSpecification> implements ViewCalculationResultModel {
 
   private static final long serialVersionUID = 1L;
-  
-  private DependencyGraphBuilder _dependencyGraphModel;
-
-  public void setDependencyGraphModel(DependencyGraphBuilder dependencyGraphModel) {
-    _dependencyGraphModel = dependencyGraphModel;
-  }
-
-  public DependencyGraphBuilder getDependencyGraphModel() {
-    return _dependencyGraphModel;
-  }
-  
-  // REVIEW Andrew 2010-09-14 -- Do we need the dependency graph model ?
 
   @Override
   public Map<Pair<String, ValueProperties>, ComputedValueResult> getValues(final ComputationTargetSpecification target) {
     return super.getValuesByName(target);
   }
-  
+
   @Override
   public Collection<ComputedValueResult> getAllValues(final ComputationTargetSpecification target) {
     return super.getAllValues(target);

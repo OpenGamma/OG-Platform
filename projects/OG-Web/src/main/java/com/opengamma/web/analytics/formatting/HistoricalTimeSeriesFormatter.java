@@ -20,13 +20,13 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatCell(HistoricalTimeSeries value, ValueSpecification valueSpec) {
-    return _delegate.formatCell(value.getTimeSeries(), valueSpec);
+  public Object formatCell(HistoricalTimeSeries value, ValueSpecification valueSpec, Object inlineKey) {
+    return _delegate.formatCell(value.getTimeSeries(), valueSpec, inlineKey);
   }
 
   @Override
-  public Object format(HistoricalTimeSeries value, ValueSpecification valueSpec, Format format) {
-    return _delegate.format(value.getTimeSeries(), valueSpec, format);
+  public Object format(HistoricalTimeSeries value, ValueSpecification valueSpec, Format format, Object inlineKey) {
+    return _delegate.format(value.getTimeSeries(), valueSpec, format, inlineKey);
   }
 
   @Override

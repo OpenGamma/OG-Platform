@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 
 /**
  * Implementation of {@link Map2} that holds its values by weak reference. Keys are held by strong reference.
- *
+ * 
  * @param <K1> key 1 type
  * @param <K2> key 2 type
  * @param <V> value type
@@ -33,6 +33,10 @@ public class WeakValueHashMap2<K1, K2, V> extends ReferenceHashMap2<K1, K2, V> {
       _map.housekeep(_key, this);
     }
 
+  }
+
+  public WeakValueHashMap2(final KeyStrategy key1Strategy) {
+    super(key1Strategy);
   }
 
   @Override

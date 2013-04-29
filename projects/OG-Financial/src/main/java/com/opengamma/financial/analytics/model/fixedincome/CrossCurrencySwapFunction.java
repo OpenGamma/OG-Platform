@@ -132,30 +132,32 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, _valueRequirements, timeSeries);
+    //    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, _valueRequirements, timeSeries);
     final String[] payCurveNames = payCurveCalculationConfig.getYieldCurveNames();
     final String[] receiveCurveNames = receiveCurveCalculationConfig.getYieldCurveNames();
     final String payCurveSuffix = payCurveCalculationConfig.getTarget().getUniqueId().getValue();
     final String receiveCurveSuffix = receiveCurveCalculationConfig.getTarget().getUniqueId().getValue();
     final List<String> curveNames = new ArrayList<>();
     if (payCurveNames.length == 1) {
-      final String curveName = payCurveNames[0] + payCurveSuffix;
+      final String curveName = payCurveNames[0] + "_" + payCurveSuffix; // <-
       curveNames.add(curveName);
       curveNames.add(curveName);
     } else {
       for (final String curveName : payCurveNames) {
-        curveNames.add(curveName + payCurveSuffix);
+        curveNames.add(curveName + "_" + payCurveSuffix);
       }
     }
     if (receiveCurveNames.length == 1) {
-      final String curveName = receiveCurveNames[0] + receiveCurveSuffix;
+      final String curveName = receiveCurveNames[0] + "_" + receiveCurveSuffix; // <-
       curveNames.add(curveName);
       curveNames.add(curveName);
     } else {
       for (final String curveName : receiveCurveNames) {
-        curveNames.add(curveName + receiveCurveSuffix);
+        curveNames.add(curveName + "_" + receiveCurveSuffix);
       }
     }
+    String[] curveNamesArray = curveNames.toArray(new String[0]);
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesArray, timeSeries);
     final YieldCurveBundle payCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, payCurveCalculationConfig, curveCalculationConfigSource);
     final YieldCurveBundle receiveCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, receiveCurveCalculationConfig, curveCalculationConfigSource);
     final YieldCurveBundle bundle = new YieldCurveBundle(payCurveBundle);

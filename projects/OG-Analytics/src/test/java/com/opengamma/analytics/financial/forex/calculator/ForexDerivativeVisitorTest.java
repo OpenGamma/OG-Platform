@@ -59,8 +59,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -84,6 +84,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -735,12 +737,12 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final T data) {
+    public String visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures, final T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
+    public String visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures) {
       return null;
     }
 
@@ -1035,12 +1037,12 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures, T data) {
+    public String visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures, T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures) {
+    public String visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures) {
       return null;
     }
 
@@ -1081,6 +1083,26 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitCapFloorInflationYearOnYearMonthly(CapFloorInflationYearOnYearMonthly coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment) {
       return null;
     }
 

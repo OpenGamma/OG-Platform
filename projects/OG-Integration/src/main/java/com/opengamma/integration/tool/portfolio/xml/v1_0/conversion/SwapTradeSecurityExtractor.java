@@ -41,11 +41,12 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
     super(trade);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity[] extractSecurities() {
-
-    FixedLeg fixedLeg = _trade.getFixedLeg();
-    FloatingLeg floatingLeg = _trade.getFloatingLeg();
+    SwapTrade trade = getTrade();
+    FixedLeg fixedLeg = trade.getFixedLeg();
+    FloatingLeg floatingLeg = trade.getFloatingLeg();
 
     com.opengamma.financial.security.swap.SwapLeg payLeg = fixedLeg.getDirection() == SwapLeg.Direction.PAY ?
         convertFixedLeg(fixedLeg) : convertFloatingLeg(floatingLeg);
@@ -56,12 +57,13 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
       throw new PortfolioParsingException("One leg should be Pay and one Receive");
     }
 
-    ManageableSecurity security = new SwapSecurity(convertLocalDate(_trade.getTradeDate()),
-                                             convertLocalDate(_trade.getEffectiveDate()),
-                                             convertLocalDate(_trade.getMaturityDate()),
-                                             _trade.getCounterparty().getExternalId().getId(),
-                                             payLeg,
-                                             receiveLeg);
+    ManageableSecurity security = new SwapSecurity(
+        convertLocalDate(trade.getTradeDate()),
+        convertLocalDate(trade.getEffectiveDate()),
+        convertLocalDate(trade.getMaturityDate()),
+        trade.getCounterparty().getExternalId().getId(),
+        payLeg,
+        receiveLeg);
 
     return securityArray(addIdentifier(security));
   }
@@ -110,4 +112,5 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
   private double convertRate(BigDecimal rate) {
     return rate.divide(new BigDecimal(100)).doubleValue();
   }
+
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.credit.isda.calibration;
 
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 
 import java.util.Collections;
 import java.util.Map;
@@ -21,7 +22,6 @@ import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHaz
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
@@ -40,7 +40,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.CreditDefaultIndexSwapSecurityToProxyConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
@@ -54,7 +54,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 
@@ -71,9 +72,9 @@ public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCu
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
+    final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
-    final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
+    final CreditDefaultSwapIndexSecurity security = (CreditDefaultSwapIndexSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
     LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
     cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
@@ -146,7 +147,11 @@ public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCu
         .with(ValuePropertyNames.CURVE, spreadCurveName);
     final Set<String> spreadCurveShift = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
     if (spreadCurveShift != null && !spreadCurveShift.isEmpty()) {
-      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, spreadCurveShift);
+      final Set<String> creditSpreadCurveShiftTypes = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT_TYPE);
+      if (creditSpreadCurveShiftTypes == null || creditSpreadCurveShiftTypes.size() != 1) {
+        return null;
+      }
+      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, spreadCurveShift).with(PROPERTY_SPREAD_CURVE_SHIFT_TYPE, creditSpreadCurveShiftTypes);
     }
     final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
     return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement);

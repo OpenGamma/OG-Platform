@@ -25,7 +25,8 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
  * Converts version 1.0 portfolio data to a generic form that can be used
  * to load data into the rest of the system.
  */
-public class PortfolioDocumentConverterV1_0 implements PortfolioDocumentConverter<PortfolioDocumentV1_0> {
+public class PortfolioDocumentConverterV1_0  // CSIGNORE underscore in class name
+    implements PortfolioDocumentConverter<PortfolioDocumentV1_0> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioDocumentConverterV1_0.class);
 

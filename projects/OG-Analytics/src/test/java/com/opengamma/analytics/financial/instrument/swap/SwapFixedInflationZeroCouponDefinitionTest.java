@@ -13,7 +13,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -60,7 +60,8 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
   //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final DoubleTimeSeries<ZonedDateTime> HICPX_TS = MulticurveProviderDiscountDataSets.euroHICPXFrom2009();
 
-  private static final GeneratorSwapFixedInflation GENERATOR_SWAP_INFLATION = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_SWAP_INFLATION = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM,
+      MONTH_LAG,
       SPOT_LAG, true);
 
   @Test
@@ -71,9 +72,8 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
     final double zeroCpnRate = 0.02;
     //    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR, EOM, COUPON_TENOR);
     final CouponInflationZeroCouponInterpolationDefinition inflationCpn = new CouponInflationZeroCouponInterpolationDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, -NOTIONAL,
-        PRICE_INDEX_EUR,
-        MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+        PRICE_INDEX_EUR, MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
     assertTrue("Swap zero-coupon inflation constructor", swap.getFirstLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {fixedCpn })));
     assertTrue("Swap zero-coupon inflation constructor", swap.getSecondLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {inflationCpn })));
@@ -86,12 +86,11 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
   public void couponFixedInflationZeroCouponInterpolationFrom() {
     final double zeroCpnRate = 0.02;
     final CouponInflationZeroCouponInterpolationDefinition inflationCpn = new CouponInflationZeroCouponInterpolationDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL,
-        PRICE_INDEX_EUR,
-        MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+        PRICE_INDEX_EUR, MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
-    SwapFixedInflationZeroCouponDefinition swapFrom = SwapFixedInflationZeroCouponDefinition.fromInterpolation(PRICE_INDEX_EUR, START_DATE, COUPON_TENOR_YEAR, zeroCpnRate, NOTIONAL, true,
-        BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG, HICPX_TS);
+    SwapFixedInflationZeroCouponDefinition swapFrom = SwapFixedInflationZeroCouponDefinition.fromInterpolation(PRICE_INDEX_EUR, START_DATE, COUPON_TENOR_YEAR, zeroCpnRate, NOTIONAL,
+        true, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG, HICPX_TS);
     assertEquals("Swap zero-coupon inflation constructor", swap, swapFrom);
   }
 
@@ -102,12 +101,11 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
   public void couponFixedInflationZeroCouponInterpolationWithGenerator() {
     final double zeroCpnRate = 0.02;
     final CouponInflationZeroCouponInterpolationDefinition inflationCpn = new CouponInflationZeroCouponInterpolationDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL,
-        PRICE_INDEX_EUR,
-        MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+        PRICE_INDEX_EUR, MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
-    SwapFixedInflationZeroCouponDefinition swapFrom = SwapFixedInflationZeroCouponDefinition.fromGeneratorInterpolation(START_DATE, zeroCpnRate, NOTIONAL, COUPON_TENOR, GENERATOR_SWAP_INFLATION, true,
-        HICPX_TS);
+    SwapFixedInflationZeroCouponDefinition swapFrom = SwapFixedInflationZeroCouponDefinition.fromGeneratorInterpolation(START_DATE, zeroCpnRate, NOTIONAL, COUPON_TENOR, GENERATOR_SWAP_INFLATION,
+        true, HICPX_TS);
     assertEquals("Swap zero-coupon inflation constructor", swap, swapFrom);
   }
 
@@ -119,9 +117,8 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
     final double zeroCpnRate = 0.02;
     //    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR, EOM, COUPON_TENOR);
     final CouponInflationZeroCouponMonthlyDefinition inflationCpn = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, -NOTIONAL, PRICE_INDEX_EUR,
-        MONTH_LAG,
-        REFERENCE_START_DATE, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+        MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
     assertTrue("Swap zero-coupon inflation constructor", swap.getFirstLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {fixedCpn })));
     assertTrue("Swap zero-coupon inflation constructor", swap.getSecondLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {inflationCpn })));
@@ -134,9 +131,8 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
   public void couponFixedInflationZeroCouponMonthlyFrom() {
     final double zeroCpnRate = 0.02;
     final CouponInflationZeroCouponMonthlyDefinition inflationCpn = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX_EUR,
-        MONTH_LAG,
-        REFERENCE_START_DATE_MONTHLY, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+        MONTH_LAG, REFERENCE_START_DATE_MONTHLY, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
     SwapFixedInflationZeroCouponDefinition swapFrom = SwapFixedInflationZeroCouponDefinition.fromMonthly(PRICE_INDEX_EUR, START_DATE, COUPON_TENOR_YEAR, zeroCpnRate, NOTIONAL, true,
         BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG, HICPX_TS);
@@ -150,12 +146,11 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
   public void couponFixedInflationZeroCouponMonthlyWithGenerator() {
     final double zeroCpnRate = 0.02;
     final CouponInflationZeroCouponMonthlyDefinition inflationCpn = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX_EUR,
-        MONTH_LAG,
-        REFERENCE_START_DATE_MONTHLY, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, PAYMENT_DATE, START_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
+        MONTH_LAG, REFERENCE_START_DATE_MONTHLY, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
-    SwapFixedInflationZeroCouponDefinition swapFrom = SwapFixedInflationZeroCouponDefinition
-        .fromGeneratorMonthly(START_DATE, zeroCpnRate, NOTIONAL, COUPON_TENOR, GENERATOR_SWAP_INFLATION, true, HICPX_TS);
+    SwapFixedInflationZeroCouponDefinition swapFrom = SwapFixedInflationZeroCouponDefinition.fromGeneratorMonthly(START_DATE, zeroCpnRate, NOTIONAL, COUPON_TENOR, GENERATOR_SWAP_INFLATION, true,
+        HICPX_TS);
     assertEquals("Swap zero-coupon inflation constructor", swap, swapFrom);
   }
 

@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.financial.view.HistoricalViewEvaluationFunction;
 import com.opengamma.financial.view.HistoricalViewEvaluationMarketData;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Uses the base market data values only to create the covariance matrix.
@@ -54,7 +54,7 @@ public class MarketDataCovarianceMatrixFunction extends SampledCovarianceMatrixF
     final HistoricalViewEvaluationMarketData marketData = (HistoricalViewEvaluationMarketData) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final ValueSpecification[] marketDataSpecs = marketData.getValueSpecifications().toArray(new ValueSpecification[marketData.getValueSpecifications().size()]);
     @SuppressWarnings("rawtypes")
-    final DoubleTimeSeries[] timeSeries = new DoubleTimeSeries[marketDataSpecs.length];
+    final LocalDateDoubleTimeSeries[] timeSeries = new LocalDateDoubleTimeSeries[marketDataSpecs.length];
     for (int i = 0; i < marketDataSpecs.length; i++) {
       timeSeries[i] = marketData.getDoubleTimeSeries(marketDataSpecs[i]);
     }

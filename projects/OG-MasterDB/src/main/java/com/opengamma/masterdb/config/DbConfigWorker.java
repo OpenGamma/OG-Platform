@@ -28,6 +28,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.IdUtils;
@@ -69,6 +71,15 @@ import com.opengamma.util.paging.PagingRequest;
    */
   protected static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
+  // -----------------------------------------------------------------
+  // TIMERS FOR METRICS GATHERING
+  // By default these do nothing. Registration will replace them
+  // so that they actually do something.
+  // -----------------------------------------------------------------
+  private Timer _searchTimer = new Timer();
+  private Timer _metaDataTimer = new Timer();
+  private Timer _insertTimer = new Timer();
+
   /**
    * SQL order by.
    */
@@ -91,6 +102,14 @@ import com.opengamma.util.paging.PagingRequest;
   public DbConfigWorker(DbConnector dbConnector, String defaultScheme) {
     super(dbConnector, defaultScheme);
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbConfigMaster.class));
+  }
+
+  @Override
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    super.registerMetrics(summaryRegistry, detailedRegistry, namePrefix);
+    _insertTimer = summaryRegistry.timer(namePrefix + ".insert");
+    _metaDataTimer = summaryRegistry.timer(namePrefix + ".metaData");
+    _searchTimer = summaryRegistry.timer(namePrefix + ".search");
   }
 
   //-------------------------------------------------------------------------
@@ -117,33 +136,38 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getConfig(), "document.value");
     ArgumentChecker.notNull(document.getType(), "document.type");
+    
+    Timer.Context context = _insertTimer.time();
+    try {
+      final Object value = document.getConfig().getValue();
+      final long docId = nextId("cfg_config_seq");
+      final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
+      // set the uniqueId
+      final UniqueId uniqueId = createUniqueId(docOid, docId);
+      document.setUniqueId(uniqueId);
+      if (value instanceof MutableUniqueIdentifiable) {
+        ((MutableUniqueIdentifiable) value).setUniqueId(uniqueId);
+      }
 
-    final Object value = document.getConfig().getValue();
-    final long docId = nextId("cfg_config_seq");
-    final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
-    // set the uniqueId
-    final UniqueId uniqueId = createUniqueId(docOid, docId);
-    document.setUniqueId(uniqueId);
-    if (value instanceof MutableUniqueIdentifiable) {
-      ((MutableUniqueIdentifiable) value).setUniqueId(uniqueId);
+      byte[] bytes = serializeToFudge(value);
+
+      // the arguments for inserting into the config table
+      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+          .addValue("doc_id", docId)
+          .addValue("doc_oid", docOid)
+          .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+          .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+          .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+          .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+          .addValue("name", document.getName())
+          .addValue("config_type", document.getType().getName())
+          .addValue("config", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
+      final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+      getJdbcTemplate().update(sqlDoc, docArgs);
+      return document;
+    } finally {
+      context.stop();
     }
-
-    byte[] bytes = serializeToFudge(value);
-
-    // the arguments for inserting into the config table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-        .addValue("doc_id", docId)
-        .addValue("doc_oid", docOid)
-        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-        .addValue("name", document.getName())
-        .addValue("config_type", document.getType().getName())
-        .addValue("config", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
-    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
-    getJdbcTemplate().update(sqlDoc, docArgs);
-    return document;
   }
 
   private byte[] serializeToFudge(final Object configObj) {
@@ -156,19 +180,25 @@ import com.opengamma.util.paging.PagingRequest;
   //-------------------------------------------------------------------------
   public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ConfigMetaDataResult result = new ConfigMetaDataResult();
-    if (request.isConfigTypes()) {
-      final String sql = getElSqlBundle().getSql("SelectTypes");
-      List<String> configTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
-      for (String configType : configTypes) {
-        try {
-          result.getConfigTypes().add(ClassUtils.loadClass(configType));
-        } catch (ClassNotFoundException ex) {
-          s_logger.warn("Unable to load class", ex);
+    
+    Timer.Context context = _metaDataTimer.time();
+    try {
+      ConfigMetaDataResult result = new ConfigMetaDataResult();
+      if (request.isConfigTypes()) {
+        final String sql = getElSqlBundle().getSql("SelectTypes");
+        List<String> configTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
+        for (String configType : configTypes) {
+          try {
+            result.getConfigTypes().add(ClassUtils.loadClass(configType));
+          } catch (ClassNotFoundException ex) {
+            s_logger.warn("Unable to load class", ex);
+          }
         }
       }
+      return result;
+    } finally {
+      context.stop();
     }
-    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -178,62 +208,67 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
+    
+    Timer.Context context = _searchTimer.time();
+    try {
+      final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+      final ConfigSearchResult<T> result = new ConfigSearchResult<T>(vc);
 
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
-    final ConfigSearchResult<T> result = new ConfigSearchResult<T>(vc);
-
-    final List<ObjectId> objectIds = request.getConfigIds();
-    if (objectIds != null && objectIds.size() == 0) {
-      result.setPaging(Paging.of(request.getPagingRequest(), 0));
-      return result;
-    }
-
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-        .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-        .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
-
-    if (!request.getType().isInstance(Object.class)) {
-      args.addValue("config_type", request.getType().getName());
-    }
-    if (objectIds != null) {
-      StringBuilder buf = new StringBuilder(objectIds.size() * 10);
-      for (ObjectId objectId : objectIds) {
-        checkScheme(objectId);
-        buf.append(extractOid(objectId)).append(", ");
+      final List<ObjectId> objectIds = request.getConfigIds();
+      if (objectIds != null && objectIds.size() == 0) {
+        result.setPaging(Paging.of(request.getPagingRequest(), 0));
+        return result;
       }
-      buf.setLength(buf.length() - 2);
-      args.addValue("sql_search_object_ids", buf.toString());
-    }
-    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
-    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
-    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
 
-    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args) };
+      final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+          .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+          .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+          .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
 
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
-    ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
-    if (request.equals(PagingRequest.ALL)) {
-      List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
-      for (ConfigDocument configDocument : queryResult) {
-        if (request.getType().isInstance(configDocument.getConfig().getValue())) {
-          result.getDocuments().add(configDocument);
+      if (!request.getType().isInstance(Object.class)) {
+        args.addValue("config_type", request.getType().getName());
+      }
+      if (objectIds != null) {
+        StringBuilder buf = new StringBuilder(objectIds.size() * 10);
+        for (ObjectId objectId : objectIds) {
+          checkScheme(objectId);
+          buf.append(extractOid(objectId)).append(", ");
         }
+        buf.setLength(buf.length() - 2);
+        args.addValue("sql_search_object_ids", buf.toString());
       }
-      result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
-    } else {
-      final int count = namedJdbc.queryForInt(sql[1], args);
-      result.setPaging(Paging.of(request.getPagingRequest(), count));
-      if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
+      args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
+      args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+      args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
+
+      String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args) };
+
+      final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+      ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
+      if (request.equals(PagingRequest.ALL)) {
         List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
         for (ConfigDocument configDocument : queryResult) {
           if (request.getType().isInstance(configDocument.getConfig().getValue())) {
             result.getDocuments().add(configDocument);
           }
         }
+        result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
+      } else {
+        final int count = namedJdbc.queryForInt(sql[1], args);
+        result.setPaging(Paging.of(request.getPagingRequest(), count));
+        if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
+          List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
+          for (ConfigDocument configDocument : queryResult) {
+            if (request.getType().isInstance(configDocument.getConfig().getValue())) {
+              result.getDocuments().add(configDocument);
+            }
+          }
+        }
       }
+      return result;
+    } finally {
+      context.stop();
     }
-    return result;
   }
 
   //-------------------------------------------------------------------------

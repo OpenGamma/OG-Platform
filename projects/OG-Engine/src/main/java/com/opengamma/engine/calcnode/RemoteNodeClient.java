@@ -32,14 +32,15 @@ import com.opengamma.engine.calcnode.msg.Result;
 import com.opengamma.engine.calcnode.msg.Scaling;
 import com.opengamma.engine.calcnode.stats.FunctionInvocationStatisticsSender;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.id.VersionCorrectionUtils;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 
 /**
- * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher. The connection must
- * deliver messages in network order (i.e. not use an executor service).
+ * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher. The connection must deliver messages in network order (i.e. not use an executor
+ * service).
  */
 public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer implements FudgeMessageReceiver, Lifecycle, FudgeConnectionStateListener {
 
@@ -68,6 +69,7 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
     @Override
     protected void visitExecuteMessage(final Execute message) {
       final CalculationJob job = message.getJob();
+      VersionCorrectionUtils.lockForLifetime(job.getResolverVersionCorrection(), job);
       getFunctionCompilationService().reinitializeIfNeeded(job.getFunctionInitializationIdentifier());
       AbstractIdentifierMap.resolveIdentifiers(getIdentifierMap(), job);
       addJob(job, new ExecutionReceiver() {

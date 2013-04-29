@@ -30,7 +30,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
- *
+ * Basic curve definition class containing only a name and curve nodes. Most curve definitions (e.g. {@link InterpolatedCurveDefinition}) will descend from this class,
+ * but this can be used as a nodal curve definition.
  */
 @BeanDefinition
 @Config

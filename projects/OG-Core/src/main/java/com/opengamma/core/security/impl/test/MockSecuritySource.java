@@ -6,9 +6,9 @@
 package com.opengamma.core.security.impl.test;
 
 import java.util.Collection;
-import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
@@ -19,7 +19,7 @@ import com.opengamma.id.VersionCorrection;
 /**
  * A mock security source.
  */
-public class MockSecuritySource implements SecuritySource {
+public class MockSecuritySource extends AbstractSecuritySource implements SecuritySource {
 
   @Override
   public ChangeManager changeManager() {
@@ -28,11 +28,6 @@ public class MockSecuritySource implements SecuritySource {
 
   @Override
   public Security get(UniqueId uniqueId) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Map<UniqueId, Security> get(Collection<UniqueId> uniqueIds) {
     throw new UnsupportedOperationException();
   }
 

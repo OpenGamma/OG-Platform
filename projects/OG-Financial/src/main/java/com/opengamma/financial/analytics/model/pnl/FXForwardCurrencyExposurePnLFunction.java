@@ -40,6 +40,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -48,6 +49,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -90,7 +92,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
-      CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
+      final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
       if (currencyPair == null) {
         return null;
       }
@@ -140,10 +142,11 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
       final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
           ValueProperties.builder()
-              .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
-              .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
-              .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-              .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
+          .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+          .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
+          .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
+          .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
+          .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
       final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
       final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
       final ValueRequirement fxSpotRequirement = ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(payCurrency, receiveCurrency);
@@ -162,7 +165,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
       final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
       final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-      final DoubleTimeSeries<?> timeSeries = (DoubleTimeSeries<?>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+      final DateDoubleTimeSeries<?> timeSeries = (DateDoubleTimeSeries<?>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
       final Currency payCurrency = security.getPayCurrency();
       final Currency receiveCurrency = security.getReceiveCurrency();
       if (timeSeries == null) {
@@ -183,10 +186,10 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
 
   }
 
-  private DoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
-      final TimeSeriesSamplingFunction samplingFunction, final DoubleTimeSeries<?> dbTimeSeries) {
+  private DateDoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
+      final TimeSeriesSamplingFunction samplingFunction, final DateDoubleTimeSeries<?> dbTimeSeries) {
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries, dates);
+    DateDoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries, dates);
     result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.
     return DIFFERENCE.evaluate(result);
   }

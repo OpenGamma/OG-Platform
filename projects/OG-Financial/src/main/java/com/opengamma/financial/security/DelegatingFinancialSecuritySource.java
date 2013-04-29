@@ -21,8 +21,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A source of securities that uses the scheme of the unique identifier to determine which
- * underlying source should handle the request.
+ * A source of securities that uses the scheme of the unique identifier to determine which underlying source should handle the request.
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
@@ -36,11 +35,11 @@ public class DelegatingFinancialSecuritySource extends AbstractSecuritySource im
    * The uniqueId scheme delegator.
    */
   private final UniqueIdSchemeDelegator<FinancialSecuritySource> _delegator;
-  
+
   /**
    * Creates an instance specifying the default delegate.
    * 
-   * @param defaultSource  the source to use when no scheme matches, not null
+   * @param defaultSource the source to use when no scheme matches, not null
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource) {
     _delegator = new UniqueIdSchemeDelegator<FinancialSecuritySource>(defaultSource);
@@ -50,8 +49,8 @@ public class DelegatingFinancialSecuritySource extends AbstractSecuritySource im
   /**
    * Creates an instance specifying the default delegate.
    * 
-   * @param defaultSource  the source to use when no scheme matches, not null
-   * @param schemePrefixToSourceMap  the map of sources by scheme to switch on, not null
+   * @param defaultSource the source to use when no scheme matches, not null
+   * @param schemePrefixToSourceMap the map of sources by scheme to switch on, not null
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource, Map<String, FinancialSecuritySource> schemePrefixToSourceMap) {
     _delegator = new UniqueIdSchemeDelegator<FinancialSecuritySource>(defaultSource, schemePrefixToSourceMap);
@@ -69,7 +68,7 @@ public class DelegatingFinancialSecuritySource extends AbstractSecuritySource im
     ArgumentChecker.notNull(uid, "uid");
     return _delegator.chooseDelegate(uid.getScheme()).get(uid);
   }
-  
+
   @Override
   public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
@@ -89,7 +88,7 @@ public class DelegatingFinancialSecuritySource extends AbstractSecuritySource im
     }
     return _delegator.getDefaultDelegate().get(bundle);
   }
-  
+
   @Override
   public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -116,7 +115,7 @@ public class DelegatingFinancialSecuritySource extends AbstractSecuritySource im
     }
     return _delegator.getDefaultDelegate().getSingle(bundle);
   }
-  
+
   @Override
   public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");

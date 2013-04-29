@@ -11,3 +11,27 @@
   z-index: 2;
   position: absolute;
 }
+
+.og-histogram-plot {
+    top: 20px;
+}
+
+.og-bucket-select {
+    margin: 0 5px;
+}
+
+.OG-histogram-gadget, .og-histogram-plots {
+    width: 100%;
+}
+.OG-histogram-gadget .og-buckets {
+    border-radius: 1px 1px 1px 1px;
+    color: #555555;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 12px;
+    padding: 7px 3px 5px 8px;
+    position: absolute;
+    right: 0;
+    text-shadow: 0 1px 0 #FFFFFF;
+    z-index: 3;;
+}

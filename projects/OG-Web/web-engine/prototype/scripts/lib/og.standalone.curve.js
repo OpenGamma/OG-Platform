@@ -85,7 +85,7 @@
         curve.load = function () {
             var previous_hover = null, sel = '.' + tooltip_class;
             data = formatter(input, flot_options);
-            $selector.css({position: 'relative'}).empty().html((function () {
+            $selector.empty().html((function () {
                 $reset = $('<div />').css(css.reset_container).html($('<div>Reset</div>').css(css.reset)).hide();
                 $init_msg = $('<div />').css(css.reset_container).html(html.init_msg);
                 $plot = $('<div />').css(css.plot);

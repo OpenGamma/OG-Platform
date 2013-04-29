@@ -13,9 +13,11 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -58,7 +60,7 @@ import com.opengamma.util.time.Tenor;
   public static class CashNodeBuilder implements FudgeBuilder<CashNode> {
     private static final String START_TENOR_FIELD = "startTenor";
     private static final String MATURITY_TENOR_FIELD = "maturityTenor";
-    private static final String CONVENTION_ID_FIELD = "conventionId";
+    private static final String CONVENTION_ID_FIELD = "convention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CashNode object) {
@@ -78,6 +80,28 @@ import com.opengamma.util.time.Tenor;
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       return new CashNode(startTenor, maturityTenor, conventionId, curveNodeIdMapperName);
+    }
+  }
+
+  @FudgeBuilderFor(ContinuouslyCompoundedRateNode.class)
+  public static class ContinuouslyCompoundedRateNodeBuilder implements FudgeBuilder<ContinuouslyCompoundedRateNode> {
+    private static final String TENOR_FIELD = "tenor";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ContinuouslyCompoundedRateNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(TENOR_FIELD, object.getTenor());
+      return message;
+    }
+
+    @Override
+    public ContinuouslyCompoundedRateNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
+      final ContinuouslyCompoundedRateNode strip = new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor);
+      return strip;
     }
   }
 
@@ -103,11 +127,33 @@ import com.opengamma.util.time.Tenor;
     }
   }
 
+  @FudgeBuilderFor(DiscountFactorNode.class)
+  public static class DiscountFactorNodeBuilder implements FudgeBuilder<DiscountFactorNode> {
+    private static final String TENOR_FIELD = "tenor";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final DiscountFactorNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(TENOR_FIELD, object.getTenor());
+      return message;
+    }
+
+    @Override
+    public DiscountFactorNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
+      final DiscountFactorNode strip = new DiscountFactorNode(curveNodeIdMapperName, tenor);
+      return strip;
+    }
+  }
+
   @FudgeBuilderFor(FRANode.class)
   public static class FRANodeBuilder implements FudgeBuilder<FRANode> {
     private static final String FIXING_START_FIELD = "fixingStart";
     private static final String FIXING_END_FIELD = "fixingEnd";
-    private static final String CONVENTION_ID_FIELD = "conventionId";
+    private static final String CONVENTION_ID_FIELD = "convention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FRANode object) {

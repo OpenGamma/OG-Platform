@@ -71,24 +71,20 @@ $.register_module({
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
                             pay_edit: true});
                         $pay_select.val(data.security.payLeg.type);
-                        og.blotter.util.toggle_fixed($receive_select, data.security.payLeg.type);
                     }
                     if(typeof data.security.receiveLeg != 'undefined'){
                         swap_leg({type: data.security.receiveLeg.type, index: receive_index,leg: receive_leg,
                             child: 6, receive_edit: true});
                         $receive_select.val(data.security.receiveLeg.type);
-                        og.blotter.util.toggle_fixed($pay_select, data.security.receiveLeg.type);
                     }
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
-                    og.blotter.util.toggle_fixed($receive_select, event.target.value);
                     swap_leg({type: event.target.value, index: pay_index, leg: pay_leg, child: 4});
                 });
                 form.on('change', '#' + receive_select.id,  function (event) {
-                    og.blotter.util.toggle_fixed($pay_select, event.target.value);
                     swap_leg({type: event.target.value, index: receive_index, leg: receive_leg, child: 6});
                 });
             };

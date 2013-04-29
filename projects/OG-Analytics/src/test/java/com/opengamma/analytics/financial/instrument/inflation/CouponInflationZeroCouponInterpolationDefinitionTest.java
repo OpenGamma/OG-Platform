@@ -24,7 +24,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -216,7 +216,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   @Test
   public void toDerivativesInterpolatedKnown() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2018, 7, 25);
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1) },
+    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1) },
         new double[] {
             128.23, 128.43 });
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponInterpolated = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
@@ -231,7 +231,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   @Test
   public void toDerivativesInterpolatedOneKnown() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2018, 6, 25);
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 4, 1), DateUtils.getUTCDate(2018, 5, 1) },
+    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 4, 1), DateUtils.getUTCDate(2018, 5, 1) },
         new double[] {
             128.03, 128.23 });
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponInterpolated = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
@@ -249,7 +249,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   @Test
   public void toDerivativesInterpolatedShouldBeKnown() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2018, 7, 25);
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 4, 1), DateUtils.getUTCDate(2018, 5, 1) },
+    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 4, 1), DateUtils.getUTCDate(2018, 5, 1) },
         new double[] {
             128.03, 128.23 });
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponInterpolated = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,

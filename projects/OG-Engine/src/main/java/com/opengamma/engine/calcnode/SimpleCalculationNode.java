@@ -36,6 +36,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.function.TargetSourcingFunction;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
@@ -692,8 +693,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     if (!isUseAsynchronousTargetResolve() && (target == null)) {
       if (invoker.canHandleMissingInputs()) {
         // A missing target is just a special case of missing input
-        missing
-            .add(new ValueSpecification(ValueRequirementNames.TARGET, jobItem.getComputationTargetSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "TargetSourcingFunction").get()));
+        missing.add(TargetSourcingFunction.createSpecification(jobItem.getComputationTargetSpecification()));
       } else {
         postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
         resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());

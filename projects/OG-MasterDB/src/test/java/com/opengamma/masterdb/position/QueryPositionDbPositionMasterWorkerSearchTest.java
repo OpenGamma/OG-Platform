@@ -534,7 +534,6 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     PositionSearchResult test = _posMaster.search(request);
     
-    System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     assert121(test.getDocuments().get(0));
   }

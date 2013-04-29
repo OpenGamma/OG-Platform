@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**

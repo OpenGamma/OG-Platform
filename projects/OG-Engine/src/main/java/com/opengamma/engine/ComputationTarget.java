@@ -6,7 +6,6 @@
 package com.opengamma.engine;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -41,22 +40,18 @@ public class ComputationTarget implements Serializable {
   /**
    * The null target. This has a type of {@link ComputationTargetType#NULL} and a null value.
    */
-  public static final ComputationTarget NULL = new ComputationTarget(ComputationTargetType.NULL, null);
+  public static final ComputationTarget NULL = new ComputationTarget(ComputationTargetSpecification.NULL, null);
 
   private static final long serialVersionUID = 1L;
 
   /**
-   * The type of the target.
+   * The specification that was resolved into this target
    */
-  private final ComputationTargetType _type;
+  private final ComputationTargetSpecification _specification;
   /**
    * The actual target.
    */
   private final UniqueIdentifiable _value;
-  /**
-   * The parent target object identifiers (if any)
-   */
-  private final List<UniqueId> _context;
 
   /**
    * The cached hash code.
@@ -72,27 +67,32 @@ public class ComputationTarget implements Serializable {
    * @throws IllegalArgumentException if the value is invalid for the type
    */
   public ComputationTarget(final PrimitiveComputationTargetType<?> type, final UniqueId value) {
-    this(type, type.resolve(value));
+    this(new ComputationTargetSpecification(type, value), type.resolve(value));
+  }
+
+  /**
+   * Creates a target for computation. This is intended for creating test cases only. Code which is resolving a target specification should use the constructor which takes that specification.
+   * 
+   * @param type the type of the target, not null
+   * @param value the target itself, not null
+   * @throws IllegalArgumentException if the value is invalid for the type
+   */
+  public ComputationTarget(final ComputationTargetType type, final UniqueIdentifiable value) {
+    this(new ComputationTargetSpecification(type, (value != null) ? value.getUniqueId() : null), value);
   }
 
   /**
    * Creates a target for computation.
    * 
-   * @param type the type of the target, not null
-   * @param value the target itself, may be null
-   * @throws IllegalArgumentException if the value is invalid for the type
+   * @param specification the target specification, not null
+   * @param value the target itself, may be null if the specification of {@link ComputationTargetSpecification#NULL}
    */
-  public ComputationTarget(final ComputationTargetType type, final UniqueIdentifiable value) {
-    this(type, null, value);
-  }
-
-  public ComputationTarget(final ComputationTargetType type, final List<UniqueId> context, final UniqueIdentifiable value) {
-    assert type != null;
-    assert type.isCompatible(value);
-    assert (context == null) ? (ComputationTargetReference.getTypeDepth(type) <= 1) : (ComputationTargetReference.getTypeDepth(type) == context.size() + 1);
-    _type = type;
+  public ComputationTarget(final ComputationTargetSpecification specification, final UniqueIdentifiable value) {
+    assert specification != null;
+    assert specification.getType().isCompatible(value);
+    assert (value != null) ? specification.getUniqueId().equals(value.getUniqueId()) : (specification.getUniqueId() == null);
+    _specification = specification;
     _value = value;
-    _context = context;
   }
 
   /**
@@ -101,7 +101,7 @@ public class ComputationTarget implements Serializable {
    * @return the type, not null
    */
   public ComputationTargetType getType() {
-    return _type;
+    return _specification.getType();
   }
 
   /**
@@ -119,62 +119,8 @@ public class ComputationTarget implements Serializable {
    * @return the unique identifier, may be null
    */
   public UniqueId getUniqueId() {
-    final UniqueIdentifiable value = getValue();
-    if (value != null) {
-      return value.getUniqueId();
-    }
-    return null;
+    return _specification.getUniqueId();
   }
-
-  /**
-   * Returns the identifiers of target that put this target into context. The first identifier in the list is the outermost object.
-   * 
-   * @return the target context, or null if there is none
-   */
-  public List<UniqueId> getContextIdentifiers() {
-    return _context;
-  }
-
-  private ComputationTargetSpecification getContextSpecification(final List<ComputationTargetType> types) {
-    final List<UniqueId> uids = getContextIdentifiers();
-    assert types.size() == uids.size() + 1;
-    ComputationTargetSpecification result = null;
-    final Iterator<ComputationTargetType> itrType = types.iterator();
-    for (final UniqueId uid : uids) {
-      final ComputationTargetType type = itrType.next();
-      if (result == null) {
-        result = new ComputationTargetSpecification(type, uid);
-      } else {
-        result = result.containing(type, uid);
-      }
-    }
-    return result;
-  }
-
-  private static final ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetSpecification> s_getContextSpecification =
-      new ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetSpecification>() {
-
-        @Override
-        public ComputationTargetSpecification visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTarget self) {
-          throw new IllegalStateException();
-        }
-
-        @Override
-        public ComputationTargetSpecification visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTarget self) {
-          return self.getContextSpecification(types);
-        }
-
-        @Override
-        public ComputationTargetSpecification visitNullComputationTargetType(final ComputationTarget self) {
-          return null;
-        }
-
-        @Override
-        public ComputationTargetSpecification visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTarget self) {
-          return null;
-        }
-
-      };
 
   private static final ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetSpecification> s_getLeafSpecification =
       new ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetSpecification>() {
@@ -186,7 +132,7 @@ public class ComputationTarget implements Serializable {
 
         @Override
         public ComputationTargetSpecification visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTarget self) {
-          return new ComputationTargetSpecification(types.get(types.size() - 1), self.getValue().getUniqueId());
+          return new ComputationTargetSpecification(types.get(types.size() - 1), self._specification.getUniqueId());
         }
 
         @Override
@@ -204,10 +150,10 @@ public class ComputationTarget implements Serializable {
   /**
    * Returns the target specification of the context this target is part of. If the actual target object is required a {@link ComputationTargetResolver} can be used to obtain it.
    * 
-   * @return the specification of the containing object, or null if there is none
+   * @return the reference of the containing object, or null if there is none
    */
-  public ComputationTargetSpecification getContextSpecification() {
-    return getType().accept(s_getContextSpecification, this);
+  public ComputationTargetReference getContextSpecification() {
+    return _specification.getParent();
   }
 
   /**
@@ -217,7 +163,7 @@ public class ComputationTarget implements Serializable {
    * @return the specification of the leaf object, never null
    */
   public ComputationTargetSpecification getLeafSpecification() {
-    return getType().accept(s_getLeafSpecification, this);
+    return _specification.getType().accept(s_getLeafSpecification, this);
   }
 
   /**
@@ -375,37 +321,13 @@ public class ComputationTarget implements Serializable {
     }
   }
 
-  private static final ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetSpecification> s_toSpecification =
-      new ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetSpecification>() {
-
-        @Override
-        public ComputationTargetSpecification visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTarget self) {
-          throw new IllegalStateException();
-        }
-
-        @Override
-        public ComputationTargetSpecification visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTarget self) {
-          return self.getContextSpecification().containing(types.get(types.size() - 1), self.getUniqueId());
-        }
-
-        @Override
-        public ComputationTargetSpecification visitNullComputationTargetType(final ComputationTarget self) {
-          return ComputationTargetSpecification.NULL;
-        }
-
-        @Override
-        public ComputationTargetSpecification visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTarget self) {
-          return new ComputationTargetSpecification(self.getType(), self.getUniqueId());
-        }
-      };
-
   /**
    * Returns a specification that is equivalent to this target.
    * 
    * @return the specification equivalent to this target, not null
    */
   public ComputationTargetSpecification toSpecification() {
-    return getType().accept(s_toSpecification, this);
+    return _specification;
   }
 
   @Override
@@ -415,8 +337,7 @@ public class ComputationTarget implements Serializable {
     }
     if (obj instanceof ComputationTarget) {
       final ComputationTarget other = (ComputationTarget) obj;
-      return _type.equals(other._type)
-          && ObjectUtils.equals(_context, other._context)
+      return _specification.equals(other._specification)
           && ObjectUtils.equals(_value, other._value);
     }
     return false;
@@ -426,8 +347,7 @@ public class ComputationTarget implements Serializable {
   public int hashCode() {
     if (_hashCode == 0) {
       int hc = 1;
-      hc += (hc << 4) + _type.hashCode();
-      hc += (hc << 4) + ObjectUtils.hashCode(_context);
+      hc += (hc << 4) + _specification.hashCode();
       hc += (hc << 4) + ObjectUtils.hashCode(_value);
       _hashCode = hc;
     }
@@ -437,10 +357,7 @@ public class ComputationTarget implements Serializable {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("CT[").append(getType()).append(", ");
-    if (getContextIdentifiers() != null) {
-      sb.append(getContextIdentifiers()).append(", ");
-    }
+    sb.append("CT[").append(toSpecification()).append(", ");
     return sb.append(getValue()).append(']').toString();
   }
 

@@ -33,6 +33,7 @@ import com.opengamma.masterdb.security.SecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
  * Component factory for the database security master.
@@ -93,6 +94,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
     
     // create
     DbSecurityMaster master = new DbSecurityMaster(getDbConnector());
+    master.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "DbSecurityMaster-" + getClassifier());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }

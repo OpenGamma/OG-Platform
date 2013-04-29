@@ -29,4 +29,9 @@ public class CreditCurveIdentifierResolver implements ObjectResolver<CreditCurve
     return null;
   }
 
+  @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
 }

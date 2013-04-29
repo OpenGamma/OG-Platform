@@ -30,7 +30,7 @@ public abstract class TradeSecurityExtractor<T extends Trade> {
   /**
    * The trade to perform the extraction on.
    */
-  protected final T _trade;
+  private final T _trade;
 
   /**
    * Create a security extractor for the supplied trade.
@@ -41,6 +41,17 @@ public abstract class TradeSecurityExtractor<T extends Trade> {
     _trade = trade;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the trade.
+   * 
+   * @return the trade, not null
+   */
+  public T getTrade() {
+    return _trade;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Extract the securities from the embedded trade.
    *
@@ -111,4 +122,5 @@ public abstract class TradeSecurityExtractor<T extends Trade> {
     )));
     return security;
   }
+
 }

@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.apache.commons.math.stat.descriptive.rank.Min;
 import org.testng.annotations.Test;

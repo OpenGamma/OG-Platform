@@ -63,9 +63,9 @@ public final class SecurityLinkResolver {
   /**
    * Creates an instance.
    * 
-   * @param executorService  the threading service, not null
-   * @param securitySource  the security source, not null
-   * @param versionCorrection  the version correction, not null
+   * @param executorService the threading service, not null
+   * @param securitySource the security source, not null
+   * @param versionCorrection the version correction, not null
    */
   public SecurityLinkResolver(final ExecutorService executorService, final SecuritySource securitySource, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(executorService, "executorService");
@@ -78,11 +78,11 @@ public final class SecurityLinkResolver {
   /**
    * Creates an instance.
    * 
-   * @param viewCompilationContext  the context, not null
-   * @param versionCorrection  the version-correction, not null
+   * @param viewCompilationContext the context, not null
+   * @param versionCorrection the version-correction, not null
    */
   public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext, VersionCorrection versionCorrection) {
-    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getFunctionCompilationContext().getSecuritySource(),
+    this(viewCompilationContext.getServices().getExecutorService().asService(), viewCompilationContext.getServices().getFunctionCompilationContext().getSecuritySource(),
         versionCorrection);
   }
 
@@ -92,7 +92,7 @@ public final class SecurityLinkResolver {
    * <p>
    * Some caching of securities occurs within this instance.
    * 
-   * @param securityLinks  the bundles to lookup, not null
+   * @param securityLinks the bundles to lookup, not null
    * @throws RuntimeException if unable to resolve all the securities
    */
   @SuppressWarnings("unchecked")
@@ -168,7 +168,7 @@ public final class SecurityLinkResolver {
       for (Object future : securityLinkMap.values()) {
         ((Future<SecurityLink>) future).cancel(false);
       }
-      throw new OpenGammaRuntimeException("Unable to resolve all securities");
+      throw new OpenGammaRuntimeException("Unable to resolve all securities. Missing: " + securityLinkMap);
     }
   }
 
@@ -178,7 +178,7 @@ public final class SecurityLinkResolver {
    * <p>
    * Underlying securities are not resolved.
    * 
-   * @param link  the link to resolve, not null
+   * @param link the link to resolve, not null
    * @return the resolved security, not null
    * @throws RuntimeException if unable to resolve the security
    */
@@ -189,10 +189,9 @@ public final class SecurityLinkResolver {
   /**
    * Resolves security links on a position and associated trades.
    * <p>
-   * Underlying securities are not resolved.
-   * Some caching of securities occurs within this instance.
+   * Underlying securities are not resolved. Some caching of securities occurs within this instance.
    * 
-   * @param position  the position to resolve, not null
+   * @param position the position to resolve, not null
    * @throws RuntimeException if unable to resolve all the securities
    */
   public void resolveSecurities(final Position position) {
@@ -215,10 +214,9 @@ public final class SecurityLinkResolver {
   /**
    * Resolves security links on the positions and trades of a portfolio node.
    * <p>
-   * Underlying securities are not resolved.
-   * Some caching of securities occurs within this instance.
+   * Underlying securities are not resolved. Some caching of securities occurs within this instance.
    * 
-   * @param node  the node to resolve, not null
+   * @param node the node to resolve, not null
    * @throws RuntimeException if unable to resolve all the securities
    */
   public void resolveSecurities(final PortfolioNode node) {
@@ -298,8 +296,7 @@ public final class SecurityLinkResolver {
   /**
    * Encapsulates caching.
    * <p>
-   * This is designed to be used by a single resolution pass, for the efficiency of
-   * resolving the same security multiple times.
+   * This is designed to be used by a single resolution pass, for the efficiency of resolving the same security multiple times.
    */
   static class CachedSecuritySource extends AbstractSecuritySource implements SecuritySource {
     private final SecuritySource _underlying;

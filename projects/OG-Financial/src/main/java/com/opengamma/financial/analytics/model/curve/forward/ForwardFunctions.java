@@ -269,6 +269,7 @@ public class ForwardFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(FXForwardCurveFromMarketQuotesFunction.class));
     functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesFunction.class));
     functions.add(functionConfiguration(FXForwardCurveMarketDataFunction.class));
+    functions.add(functionConfiguration(FXForwardPointsCurveMarketDataFunction.class));
     functions.add(functionConfiguration(CommodityForwardCurveFromFutureCurveFunction.class));
     functions.add(functionConfiguration(EquityIndexForwardCurveFromFutureCurveFunction.class));
   }

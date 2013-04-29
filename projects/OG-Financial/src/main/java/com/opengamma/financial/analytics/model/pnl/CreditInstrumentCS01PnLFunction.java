@@ -53,8 +53,8 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -66,9 +66,9 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyCDSSecurity;
 import com.opengamma.financial.security.cds.StandardCDSSecurity;
-import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -92,7 +92,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final String currency = FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties constraints = desiredValue.getConstraints();
-    String desiredCurrency;
+    final String desiredCurrency;
     final Set<String> desiredCurrencies = constraints.getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencies != null && !desiredCurrencies.isEmpty()) {
       desiredCurrency = Iterables.getOnlyElement(desiredCurrencies);
@@ -110,8 +110,8 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //TODO
     final String curveName = getCurvePrefix() + "_" + spreadCurveName;
-    final CurveSpecification curveSpecification = CreditFunctionUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
-    HistoricalTimeSeries fxSeries = null;
+    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
+    DoubleTimeSeries<?> fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currency)) {
       final Object fxSeriesObject = inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
@@ -119,7 +119,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
         throw new OpenGammaRuntimeException("Could not get historical FX series");
       }
       @SuppressWarnings("unchecked")
-      final Map.Entry<UnorderedCurrencyPair, HistoricalTimeSeries> entry = Iterables.getOnlyElement(((Map<UnorderedCurrencyPair, HistoricalTimeSeries>) fxSeriesObject).entrySet());
+      final Map.Entry<UnorderedCurrencyPair, DoubleTimeSeries<?>> entry = Iterables.getOnlyElement(((Map<UnorderedCurrencyPair, DoubleTimeSeries<?>>) fxSeriesObject).entrySet());
       final Object currencyPairObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
       if (currencyPairObject == null) {
         throw new OpenGammaRuntimeException("Could not get currency pairs");
@@ -140,7 +140,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
       throw new OpenGammaRuntimeException("Could not get credit spread curve historical time series");
     }
     final HistoricalTimeSeriesBundle hts = (HistoricalTimeSeriesBundle) htsObject;
-    final NavigableSet<CurveNodeWithIdentifier> nodes = new TreeSet<>(curveSpecification.getNodes());
+    final NavigableSet<CurveNodeWithIdentifier> nodes = getNodes(now, security, curveSpecification.getNodes());
     DoubleTimeSeries<?> pnlSeries = getPnLSeries(nodes, bucketedCS01, hts, schedule, samplingFunction, fxSeries, isInverse);
     if (pnlSeries == null) {
       throw new OpenGammaRuntimeException("Could not get any values for security " + position.getSecurity());
@@ -159,8 +159,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getPosition().getSecurity();
     return security instanceof StandardCDSSecurity ||
-        security instanceof LegacyCDSSecurity ||
-        security instanceof CreditDefaultSwapOptionSecurity;
+        security instanceof LegacyCDSSecurity;
   }
 
   @Override
@@ -236,6 +235,10 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     return "SAMEDAY";
   }
 
+  protected NavigableSet<CurveNodeWithIdentifier> getNodes(final LocalDate now, final FinancialSecurity security, final Set<CurveNodeWithIdentifier> allNodes) {
+    return new TreeSet<>(allNodes);
+  }
+
   private Period getSamplingPeriod(final String samplingPeriodName) {
     return Period.parse(samplingPeriodName);
   }
@@ -249,30 +252,29 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   }
 
   private DoubleTimeSeries<?> getPnLSeries(final Set<CurveNodeWithIdentifier> nodes, final LocalDateLabelledMatrix1D bucketedCS01, final HistoricalTimeSeriesBundle htsBundle,
-      final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction, final HistoricalTimeSeries fxSeries, final boolean isInverse) {
+      final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction, final DoubleTimeSeries<?> fxSeries, final boolean isInverse) {
     DoubleTimeSeries<?> pnlSeries = null;
     final int nNodes = nodes.size();
     if (bucketedCS01.size() != nNodes) {
-      throw new OpenGammaRuntimeException("Number of nodes in credit spread curve does not match number of bucketed CS01 values");
+      throw new OpenGammaRuntimeException("Number of nodes in credit spread curve (" + nNodes + ") does not match number of bucketed CS01 values (" + bucketedCS01.size() + ")");
     }
     final double[] cs01 = bucketedCS01.getValues();
     int i = 0;
     for (final CurveNodeWithIdentifier node : nodes) {
       final ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
       final HistoricalTimeSeries hts = htsBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
-      //      final HistoricalTimeSeries hts = htsBundle.get("PX_LAST", id);
       if (hts == null) {
         throw new OpenGammaRuntimeException("Could not get historical time series for " + id);
       }
       if (hts.getTimeSeries().isEmpty()) {
         throw new OpenGammaRuntimeException("Time series for " + id + " is empty");
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(hts.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(hts.getTimeSeries(), schedule);
       if (fxSeries != null) {
         if (isInverse) {
-          nodeTimeSeries = nodeTimeSeries.divide(fxSeries.getTimeSeries());
+          nodeTimeSeries = nodeTimeSeries.divide(fxSeries);
         } else {
-          nodeTimeSeries = nodeTimeSeries.multiply(fxSeries.getTimeSeries());
+          nodeTimeSeries = nodeTimeSeries.multiply(fxSeries);
         }
       }
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries.multiply(10000));

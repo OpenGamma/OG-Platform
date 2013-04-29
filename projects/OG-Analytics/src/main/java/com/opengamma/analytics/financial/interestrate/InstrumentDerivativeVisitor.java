@@ -51,8 +51,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -76,6 +76,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -249,6 +251,14 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment);
 
+  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment);
+
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment);
+
   // -----     Swap     -----
 
   RESULT_TYPE visitSwap(Swap<?, ?> swap, DATA_TYPE data);
@@ -323,13 +333,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures, DATA_TYPE data);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurity(SwapFuturesDeliverableSecurity futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurity(SwapFuturesDeliverableSecurity futures);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures, DATA_TYPE data);
+  RESULT_TYPE visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures);
+  RESULT_TYPE visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures);
 
   // -----     Futures options   -----
 

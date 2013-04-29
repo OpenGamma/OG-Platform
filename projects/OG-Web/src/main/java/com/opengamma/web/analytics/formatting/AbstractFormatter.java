@@ -30,22 +30,16 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public Object format(T value, ValueSpecification valueSpec, Format format) {
+  public Object format(T value, ValueSpecification valueSpec, Format format, Object inlineKey) {
     if (format == Format.CELL) {
-      return formatCell(value, valueSpec);
+      return formatCell(value, valueSpec, inlineKey);
     }
     Formatter<T> formatter = _formatters.get(format);
     if (formatter != null) {
-      return formatter.format(value, valueSpec);
+      return formatter.format(value, valueSpec, inlineKey);
     } else {
       return new MissingFormatter(format + " format not supported for " + value.getClass().getSimpleName());
     }
-  }
-
-  @Override
-  public Object formatInlineCell(T value, ValueSpecification valueSpec, Object inlineKey) {
-    // TODO should this throw an exception?
-    return "";
   }
 
   @Override
@@ -80,7 +74,7 @@ import com.opengamma.util.ArgumentChecker;
       return _format;
     }
 
-    abstract Object format(T value, ValueSpecification valueSpec);
+    abstract Object format(T value, ValueSpecification valueSpec, Object inlineKey);
   }
 
 }

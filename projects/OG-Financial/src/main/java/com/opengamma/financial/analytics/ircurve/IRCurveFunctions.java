@@ -10,6 +10,9 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
+import com.opengamma.financial.analytics.curve.CurveMarketDataFunction;
+import com.opengamma.financial.analytics.curve.CurveSpecificationFunction;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -80,6 +83,10 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(DefaultYieldCurveShiftFunction.class));
     functions.add(functionConfiguration(YieldCurveMarketDataShiftFunction.class));
     functions.add(functionConfiguration(YieldCurveShiftFunction.class));
+
+    functions.add(functionConfiguration(CurveDefinitionFunction.class, "Test_USD"));
+    functions.add(functionConfiguration(CurveSpecificationFunction.class, "Test_USD"));
+    functions.add(functionConfiguration(CurveMarketDataFunction.class, "Test_USD"));
   }
 
 }

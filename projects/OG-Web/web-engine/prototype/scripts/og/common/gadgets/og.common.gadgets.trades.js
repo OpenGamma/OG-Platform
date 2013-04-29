@@ -36,7 +36,7 @@ $.register_module({
                         e.preventDefault();
                         og.api.rest.blotter.positions.get({id: position_id}).pipe(function (data) {
                             new og.blotter.Dialog({
-                                details: data, portfolio:{name: position_id, id: position_id},  
+                                details: data, node:{name: position_id, id: position_id},  
                                 handler: function (data){return og.api.rest.blotter.positions.put(data);}
                             });
                         });
@@ -84,8 +84,7 @@ $.register_module({
             edit_trade = function (trade_id) {
                 og.api.rest.blotter.trades.get({id: trade_id}).pipe(function (data) {
                     new og.blotter.Dialog({
-                        details: data, save_as: true, 
-                        handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                        details: data, handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                     });
                 });
             };

@@ -48,6 +48,8 @@ public class PortfolioConverter {
    * Get the set of manageable positions for this portfolio. Note that this may add in positions
    * which were not in the original xml file e.g. where a set of trades were specified but no
    * positions, each trade will be added to a new position.
+   * 
+   * @return the positions, not null
    */
   public Iterable<PortfolioPosition> getPositions() {
     s_logger.info("Starting to process root portfolio: {}", _portfolio.getName());
@@ -170,7 +172,7 @@ public class PortfolioConverter {
     }
 
     s_logger.debug("Extracting securities for trade: [{}]", trade.getExternalSystemId().toExternalId());
-    TradeSecurityExtractor extractor = trade.getSecurityExtractor();
+    TradeSecurityExtractor<?> extractor = trade.getSecurityExtractor();
     return extractor.extractSecurities();
   }
 

@@ -21,7 +21,7 @@ import java.util.TreeSet;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 

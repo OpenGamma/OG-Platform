@@ -6,8 +6,11 @@
 package com.opengamma.engine.target.resolver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.id.ExternalSchemes;
@@ -68,6 +71,11 @@ public class SecuritySourceResolver extends AbstractIdentifierResolver implement
   }
 
   @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
+  @Override
   public ChangeManager changeManager() {
     return getUnderlying().changeManager();
   }
@@ -85,12 +93,32 @@ public class SecuritySourceResolver extends AbstractIdentifierResolver implement
   }
 
   @Override
+  public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+    final Map<ExternalIdBundle, ? extends Security> securities = getUnderlying().getSingle(identifiers, versionCorrection);
+    final Map<ExternalIdBundle, UniqueId> result = Maps.newHashMapWithExpectedSize(securities.size());
+    for (Map.Entry<ExternalIdBundle, ? extends Security> security : securities.entrySet()) {
+      result.put(security.getKey(), security.getValue().getUniqueId());
+    }
+    return result;
+  }
+
+  @Override
   public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
     try {
       return getUnderlying().get(identifier, versionCorrection).getUniqueId();
     } catch (final DataNotFoundException e) {
       return null;
     }
+  }
+
+  @Override
+  public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+    final Map<ObjectId, Security> securities = getUnderlying().get(identifiers, versionCorrection);
+    final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(securities.size());
+    for (Map.Entry<ObjectId, Security> security : securities.entrySet()) {
+      result.put(security.getKey(), security.getValue().getUniqueId());
+    }
+    return result;
   }
 
 }

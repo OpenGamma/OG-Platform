@@ -149,7 +149,7 @@ public class DbUserMaster
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new UserDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new UserDocumentExtractor(), result);
     return result;
   }
 

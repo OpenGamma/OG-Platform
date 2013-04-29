@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -39,10 +40,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.FunctionUtils;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
@@ -122,10 +125,14 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
           .getTarget().getUniqueId());
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves, configSource, localNow, resultSpec);
     }
-    final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName);
+    final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName, curveCalculationMethod);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
     if (curveSpecObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveSpecRequirement);
+    }
+    if (curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
+      final CurveSpecification curveSpec = (CurveSpecification) curveSpecObject;
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName + "_" + currency.getCode(), curves, sensitivities, curveSpec, resultSpec);
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName + "_" + currency.getCode(), curves, sensitivities, curveSpec, resultSpec);
@@ -176,16 +183,16 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
 
     final Set<ValueRequirement> curveRequirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
-    final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(curveRequirements.size());
+    final Set<ValueRequirement> requirements = new HashSet<>();
     for (final ValueRequirement curveRequirement : curveRequirements) {
       final ValueProperties.Builder properties = curveRequirement.getConstraints().copy();
       properties.with(PROPERTY_REQUESTED_CURVE, curve).withOptional(PROPERTY_REQUESTED_CURVE);
       requirements.add(new ValueRequirement(curveRequirement.getValueName(), curveRequirement.getTargetReference(), properties.get()));
     }
     if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
-      requirements.add(getCurveSpecRequirement(currency, curve));
+      requirements.add(getCurveSpecRequirement(currency, curve, curveCalculationMethod));
     }
-    requirements.add(getJacobianRequirement(currency, curveCalculationConfigName, curveCalculationMethod));
+    requirements.add(getJacobianRequirement(currency, curveCalculationConfigName, curveCalculationMethod, curve));
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
@@ -202,16 +209,24 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     return requirements;
   }
 
-  private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
+  private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName, final String curveCalculationMethod) {
+    if (curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
+      final ValueProperties properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .get();
+      return new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties);
+    }
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
-  private ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod) {
+  private ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod,
+      final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.CURVE, curveName).withOptional(ValuePropertyNames.CURVE).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency), properties);
   }
 

@@ -101,13 +101,23 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, args));
     }
 
+    protected void addCrossCurrencySwapDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[getPerCurrencyInfo().size() * 2];
+      int i = 0;
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();
+        args[i++] = e.getValue().getCurveCalculationConfig();
+      }
+      functions.add(functionConfiguration(CrossCurrencySwapDefaults.class, args));
+    }
+
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
         addInterestRateInstrumentDefaults(functions);
+        addCrossCurrencySwapDefaults(functions);
       }
     }
-
   }
 
   @Override
@@ -118,6 +128,7 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
     functions.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
     functions.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
+    functions.add(functionConfiguration(CrossCurrencySwapFXPVFunction.class));
   }
 
 }

@@ -97,6 +97,7 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(EquityOptionBAWGreeksFunction.class));
+    functions.add(functionConfiguration(EquityOptionBAWImpliedVolatilityFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWValueDeltaFunction.class));

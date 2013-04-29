@@ -17,8 +17,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
-import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -29,12 +29,12 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test {@link EHCachingHolidaySource}.
  */
-@Test(groups = {TestGroup.UNIT, "ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache" })
 public class EHCachingHolidaySourceTest {
 
-  private static final UniqueId UID = UniqueId.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B", "123");
   private static final ObjectId OID = ObjectId.of("A", "B");
-  private static final VersionCorrection VC = VersionCorrection.LATEST;
+  private static final VersionCorrection VC = VersionCorrection.of(Instant.now(), Instant.now());
 
   private HolidaySource _underlyingSource;
   private EHCachingHolidaySource _cachingSource;
@@ -63,7 +63,8 @@ public class EHCachingHolidaySourceTest {
 
   //-------------------------------------------------------------------------
   public void getHoliday_uniqueId() {
-    final Holiday h = new SimpleHoliday();
+    final SimpleHoliday h = new SimpleHoliday();
+    h.setUniqueId(UID);
     when(_underlyingSource.get(UID)).thenReturn(h);
     assertSame(_cachingSource.get(UID), h);
     assertSame(_cachingSource.get(UID), h);
@@ -71,7 +72,8 @@ public class EHCachingHolidaySourceTest {
   }
 
   public void getHoliday_objectId() {
-    final Holiday h = new SimpleHoliday();
+    final SimpleHoliday h = new SimpleHoliday();
+    h.setUniqueId(UID);
     when(_underlyingSource.get(OID, VC)).thenReturn(h);
     assertSame(_cachingSource.get(OID, VC), h);
     assertSame(_cachingSource.get(OID, VC), h);

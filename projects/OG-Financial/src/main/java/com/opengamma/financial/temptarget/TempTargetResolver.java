@@ -38,4 +38,9 @@ public class TempTargetResolver implements ObjectResolver<UniqueIdentifiable> {
     return getTargets().get(uniqueId);
   }
 
+  @Override
+  public boolean isDeepResolver() {
+    return false;
+  }
+
 }

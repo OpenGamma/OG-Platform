@@ -60,8 +60,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -83,6 +83,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -459,12 +462,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures, final T data) {
+    public String visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesDeliverableSecurityDefinition futures, final T data) {
       return getValue(futures, true);
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
+    public String visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesDeliverableSecurityDefinition futures) {
       return getValue(futures, false);
     }
 
@@ -1129,12 +1132,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures, T data) {
+    public String visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures, T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures) {
+    public String visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures) {
       return null;
     }
 
@@ -1175,6 +1178,36 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCapFloorInflationYearOnYearMonthlyDefinition(CapFloorInflationYearOnYearMonthlyDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
       return null;
     }
 

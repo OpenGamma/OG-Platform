@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Sets;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.masterdb.security.hibernate.CDSIndexFamilyBean;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
@@ -40,6 +41,8 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
   private CDSIndexFamilyBean _family;
   @PropertyDefinition
   private CurrencyBean _currency;
+  @PropertyDefinition
+  private Double _recoveryRate;
   @PropertyDefinition(set = "set", validate = "notNull")
   private Set<TenorBean> _tenors = Sets.newHashSet();
   @PropertyDefinition(set = "set", validate = "notNull")
@@ -80,6 +83,8 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
         return getTenors();
       case -447446250:  // components
         return getComponents();
+      case 2002873877:  // recoveryRate
+        return getRecoveryRate();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -109,6 +114,9 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
       case -447446250:  // components
         setComponents((Set<CDSIndexComponentBean>) newValue);
         return;
+      case 2002873877:  // recoveryRate
+        setRecoveryRate((Double) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -134,6 +142,7 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getTenors(), other.getTenors()) &&
           JodaBeanUtils.equal(getComponents(), other.getComponents()) &&
+          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
           super.equals(obj);
     }
     return false;
@@ -149,6 +158,7 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTenors());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComponents());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     return hash ^ super.hashCode();
   }
 
@@ -331,6 +341,31 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the recoveryRate.
+   * @return the value of the property
+   */
+  public Double getRecoveryRate() {
+    return _recoveryRate;
+  }
+
+  /**
+   * Sets the recoveryRate.
+   * @param recoveryRate  the new value of the property
+   */
+  public void setRecoveryRate(Double recoveryRate) {
+    this._recoveryRate = recoveryRate;
+  }
+
+  /**
+   * Gets the the {@code recoveryRate} property.
+   * @return the property, not null
+   */
+  public final Property<Double> recoveryRate() {
+    return metaBean().recoveryRate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code CreditDefaultSwapIndexDefinitionSecurityBean}.
    */
   public static class Meta extends SecurityBean.Meta {
@@ -377,6 +412,11 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
     private final MetaProperty<Set<CDSIndexComponentBean>> _components = DirectMetaProperty.ofReadWrite(
         this, "components", CreditDefaultSwapIndexDefinitionSecurityBean.class, (Class) Set.class);
     /**
+     * The meta-property for the {@code recoveryRate} property.
+     */
+    private final MetaProperty<Double> _recoveryRate = DirectMetaProperty.ofReadWrite(
+        this, "recoveryRate", CreditDefaultSwapIndexDefinitionSecurityBean.class, Double.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -387,7 +427,8 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
         "family",
         "currency",
         "tenors",
-        "components");
+        "components",
+        "recoveryRate");
 
     /**
      * Restricted constructor.
@@ -412,6 +453,8 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
           return _tenors;
         case -447446250:  // components
           return _components;
+        case 2002873877:  // recoveryRate
+          return _recoveryRate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -486,6 +529,14 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Set<CDSIndexComponentBean>> components() {
       return _components;
+    }
+
+    /**
+     * The meta-property for the {@code recoveryRate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> recoveryRate() {
+      return _recoveryRate;
     }
 
   }

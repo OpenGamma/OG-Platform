@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatCell(BucketedGreekResultCollection value, ValueSpecification valueSpec) {
+  public Object formatCell(BucketedGreekResultCollection value, ValueSpecification valueSpec, Object inlineKey) {
     if (value.getBucketedGreeks(BucketedGreekResultCollection.BUCKETED_VEGA) != null) {
       double[] expiries = value.getExpiries();
       double[][] strikes = value.getStrikes();

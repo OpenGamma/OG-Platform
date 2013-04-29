@@ -23,6 +23,9 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
@@ -39,13 +42,14 @@ import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.metric.MetricProducer;
 
 /**
  * A base class that handles all the in-memory requirements
  * for a {@link LiveDataClient} implementation.
  */
 @PublicAPI
-public abstract class AbstractLiveDataClient implements LiveDataClient {
+public abstract class AbstractLiveDataClient implements LiveDataClient, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:
   private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
@@ -72,6 +76,22 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   private final Set<LiveDataSpecification> _activeSubscriptionSpecifications =
     new HashSet<LiveDataSpecification>();
   
+  private Meter _inboundTickMeter;
+  
+  @Override
+  public synchronized void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    _inboundTickMeter = summaryRegistry.meter(namePrefix + ".ticks.count");    
+    // REVIEW kirk 2013-04-22 -- This might be better as a Counter.
+    summaryRegistry.register(namePrefix + ".subscriptions.count", new Gauge<Integer>() {
+        @Override
+        public Integer getValue() {
+          return _activeSubscriptionSpecifications.size();
+        }
+      });
+  }
+
+
+
   public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
     ArgumentChecker.notNull(messageSender, "Message Sender");
     _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getFudgeContext(), getTimer(), getHeartbeatPeriod());
@@ -360,7 +380,10 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
   
   protected void valueUpdate(LiveDataValueUpdateBean update) {
-    
+
+    if (_inboundTickMeter != null) {
+      _inboundTickMeter.mark();
+    }
     s_logger.debug("{}", update);
 
     _pendingSubscriptionReadLock.lock();

@@ -48,8 +48,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -71,6 +71,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -154,6 +157,7 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitDepositZeroDefinition(DepositZeroDefinition deposit);
 
   // -----     Futures     -----
+
   RESULT_TYPE visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, DATA_TYPE data);
 
   RESULT_TYPE visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra);
@@ -176,13 +180,13 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondFutureSecurityDefinition(BondFutureDefinition bond);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures, DATA_TYPE data);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(SwapFuturesDeliverableSecurityDefinition futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(SwapFuturesDeliverableSecurityDefinition futures);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures, DATA_TYPE data);
+  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures);
+  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures);
 
   // -----     Futures options    -----
 
@@ -252,13 +256,13 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment);
 
-  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment, DATA_TYPE data);
-
-  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment);
-
   RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment);
+
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment);
 
   RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment, DATA_TYPE data);
 
@@ -271,6 +275,18 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment, DATA_TYPE data);
 
   RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment);
+
+  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment);
+
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment);
+
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment);
 
   // -----     Annuity     -----
 

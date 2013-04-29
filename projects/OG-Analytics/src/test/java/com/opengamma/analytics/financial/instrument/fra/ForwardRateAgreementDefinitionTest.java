@@ -28,7 +28,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -192,7 +192,7 @@ public class ForwardRateAgreementDefinitionTest {
     assertEquals(convertedFra, fra);
     assertEquals(fra, convertedFra);
     final double shift = 0.01;
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FRA_RATE + shift});
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FRA_RATE + shift);
     final ForwardRateAgreement convertedFra2 = (ForwardRateAgreement) FRA_DEFINITION_2.toDerivative(REFERENCE_DATE, fixingTS, curves);
     assertEquals(fra, convertedFra2);
   }
@@ -203,7 +203,7 @@ public class ForwardRateAgreementDefinitionTest {
     final ForwardRateAgreementDefinition fraFixed = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
         FRA_RATE);
     final double shift = 0.01;
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FRA_RATE + shift});
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FRA_RATE + shift);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(referenceFixed.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);

@@ -44,9 +44,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -79,7 +78,7 @@ public class TimeSeriesLoaderTest {
     // Build a mock sheet reader with some rows
     LocalDate[] dates = {LocalDate.of(2010,1,1), LocalDate.of(2011,1,1)};
     double[] times = {1.0, 2.0};
-    LocalDateDoubleTimeSeries lddts = new ArrayLocalDateDoubleTimeSeries(dates, times);
+    LocalDateDoubleTimeSeries lddts = ImmutableLocalDateDoubleTimeSeries.of(dates, times);
     SheetReader mockSheetReader = buildMockSheetReader(lddts);
     TimeSeriesReader reader = new SingleSheetMultiTimeSeriesReader(
             mockSheetReader, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, ID_SCHEME, DATE_FORMAT);
@@ -109,11 +108,11 @@ public class TimeSeriesLoaderTest {
     // Build a mock master with an existing hts
     LocalDate[] existingDates = {LocalDate.of(2010,1,1), LocalDate.of(2011,1,1)};
     double[] existingValues = {1.0, 2.0};
-    LocalDateDoubleTimeSeries existingDataPoints = new ArrayLocalDateDoubleTimeSeries(existingDates, existingValues); 
+    LocalDateDoubleTimeSeries existingDataPoints = ImmutableLocalDateDoubleTimeSeries.of(existingDates, existingValues); 
 
     LocalDate[] newDates = {LocalDate.of(2010,2,1), LocalDate.of(2011,2,1)};
     double[] newValues = {1.5, 2.5};
-    LocalDateDoubleTimeSeries newDataPoints = new ArrayLocalDateDoubleTimeSeries(newDates, newValues);
+    LocalDateDoubleTimeSeries newDataPoints = ImmutableLocalDateDoubleTimeSeries.of(newDates, newValues);
     HistoricalTimeSeriesMaster htsMaster = buildHistoricalTimeSeriesMaster(existingDataPoints);
 
     // Write the new data points to an existing hts
@@ -134,7 +133,7 @@ public class TimeSeriesLoaderTest {
     // Assert that the retrieved contents is as expected (combined existing and new dates/values)
     LocalDate[] combinedDates = {LocalDate.of(2010,1,1), LocalDate.of(2010,2,1), LocalDate.of(2011,1,1), LocalDate.of(2011,2,1)};
     double[] combinedValues = {1.0, 1.5, 2.0, 2.5};
-    LocalDateDoubleTimeSeries combinedDataPoints = new ArrayLocalDateDoubleTimeSeries(combinedDates, combinedValues);
+    LocalDateDoubleTimeSeries combinedDataPoints = ImmutableLocalDateDoubleTimeSeries.of(combinedDates, combinedValues);
     assert(combinedDataPoints.equals(retrievedDataPoints));
   }
 
@@ -153,7 +152,7 @@ public class TimeSeriesLoaderTest {
     // Build a mock master with an existing hts
     LocalDate[] dates = {LocalDate.of(2010,1,1), LocalDate.of(2011,1,1)};
     double[] values = {1.0, 2.0};
-    LocalDateDoubleTimeSeries dataPoints = new ArrayLocalDateDoubleTimeSeries(dates, values); 
+    LocalDateDoubleTimeSeries dataPoints = ImmutableLocalDateDoubleTimeSeries.of(dates, values); 
     HistoricalTimeSeriesMaster htsMaster = buildHistoricalTimeSeriesMaster(dataPoints);
     // Write the new data points to an existing hts
     TimeSeriesWriter writer = new MasterTimeSeriesWriter(htsMaster);
@@ -182,7 +181,7 @@ public class TimeSeriesLoaderTest {
     // Build a mock master with an existing hts
     LocalDate[] existingDates = {LocalDate.of(2010,1,1), LocalDate.of(2011,1,1)};
     double[] existingValues = {1.0, 2.0};
-    LocalDateDoubleTimeSeries existingDataPoints = new ArrayLocalDateDoubleTimeSeries(existingDates, existingValues); 
+    LocalDateDoubleTimeSeries existingDataPoints = ImmutableLocalDateDoubleTimeSeries.of(existingDates, existingValues); 
 
     // Read in the time series directly from the file and construct a time series to compare with
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
@@ -209,7 +208,7 @@ public class TimeSeriesLoaderTest {
     } finally {
       IOUtils.closeQuietly(csvReader);
     }
-    LocalDateDoubleTimeSeries compareDataPoints = new ListLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries compareDataPoints = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
 
     // Set up the reader to read from file and the writer to write to the in-memory master, and do the import 
     InputStream fileStream = new BufferedInputStream(new FileInputStream(FILENAME));

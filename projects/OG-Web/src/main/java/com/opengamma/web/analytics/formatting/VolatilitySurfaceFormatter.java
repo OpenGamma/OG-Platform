@@ -27,14 +27,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(VolatilitySurface.class);
     addFormatter(new Formatter<VolatilitySurface>(Format.EXPANDED) {
       @Override
-      Object format(VolatilitySurface value, ValueSpecification valueSpec) {
+      Object format(VolatilitySurface value, ValueSpecification valueSpec, Object inlineKey) {
         return SurfaceFormatterUtils.formatExpanded(value.getSurface());
       }
     });
   }
 
   @Override
-  public String formatCell(VolatilitySurface value, ValueSpecification valueSpec) {
+  public String formatCell(VolatilitySurface value, ValueSpecification valueSpec, Object inlineKey) {
     Surface<Double, Double, Double> inputSurface = value.getSurface();
     if (inputSurface instanceof DoublesSurface) {
       Set<Double> uniqueXValues = Sets.newHashSet(inputSurface.getXData());

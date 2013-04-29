@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -20,6 +19,7 @@ import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -27,7 +27,7 @@ import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests for the {@link PortfolioStructure} class. 
+ * Tests for the {@link PortfolioStructure} class.
  */
 @Test(groups = TestGroup.UNIT)
 public class PortfolioStructureTest {
@@ -90,10 +90,11 @@ public class PortfolioStructureTest {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
     assertEquals(_child2,
-        resolver.getParentNode(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(_child2.getUniqueId()), _position1)));
+        resolver.getParentNode(new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, _child2.getUniqueId()).containing(
+            ComputationTargetType.POSITION, _position1.getUniqueId()), _position1)));
     assertEquals(_child2,
-        resolver.getParentNode(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.PORTFOLIO_NODE).containing(ComputationTargetType.POSITION), Arrays.asList(
-            _root.getUniqueId(), _child2.getUniqueId()), _position2)));
+        resolver.getParentNode(new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, _root.getUniqueId()).containing(
+            ComputationTargetType.PORTFOLIO_NODE, _child2.getUniqueId()).containing(ComputationTargetType.POSITION, _position2.getUniqueId()), _position2)));
   }
 
   @Test(expectedExceptions = {IllegalArgumentException.class })
@@ -106,7 +107,8 @@ public class PortfolioStructureTest {
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getParentNode_position_badChild() {
     final PortfolioStructure resolver = getPortfolioStructure();
-    resolver.getParentNode(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(UniqueId.of("Invalid", "0")), _badPosition));
+    resolver.getParentNode(new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Invalid", "0")).containing(ComputationTargetType.POSITION,
+        _badPosition.getUniqueId()), _badPosition));
   }
 
   //-------------------------------------------------------------------------
@@ -129,10 +131,13 @@ public class PortfolioStructureTest {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
     assertEquals(_root,
-        resolver.getRootPortfolioNode(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(_child2.getUniqueId()), _position1)));
-    assertEquals(_root, resolver.getRootPortfolioNode(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.PORTFOLIO_NODE).containing(
-        ComputationTargetType.POSITION), Arrays.asList(
-        _root.getUniqueId(), _child2.getUniqueId()), _position2)));
+        resolver.getRootPortfolioNode(new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, _child2.getUniqueId()).containing(ComputationTargetType.POSITION,
+            _position1.getUniqueId()), _position1)));
+    assertEquals(
+        _root,
+        resolver.getRootPortfolioNode(new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, _root.getUniqueId()).containing(
+            ComputationTargetType.PORTFOLIO_NODE, _child2.getUniqueId()).containing(
+            ComputationTargetType.POSITION, _position2.getUniqueId()), _position2)));
   }
 
   @Test(expectedExceptions = {IllegalArgumentException.class })
@@ -144,7 +149,8 @@ public class PortfolioStructureTest {
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getRootPortfolioNode_position_badChild() {
     final PortfolioStructure resolver = getPortfolioStructure();
-    resolver.getRootPortfolioNode(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(UniqueId.of("Invalid", "0")), _badPosition));
+    resolver.getRootPortfolioNode(new ComputationTarget(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Invalid", "0")).containing(
+        ComputationTargetType.POSITION, _badPosition.getUniqueId()), _badPosition));
   }
 
 }

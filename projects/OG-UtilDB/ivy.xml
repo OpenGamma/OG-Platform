@@ -18,7 +18,6 @@
     <dependency org="com.microsoft" name="sqljdbc" rev="4.0" />
     <dependency org="org.hsqldb" name="hsqldb" rev="2.2.9" />
     <dependency org="org.mongodb" name="mongo-java-driver" rev="2.7.3" />
-    <dependency org="redis" name="jedis" rev="2.1.0" />
 
     <exclude org="org.apache.log4j" module="log4j" />
     <exclude org="org.junit" />

@@ -73,6 +73,22 @@ import com.opengamma.util.ArgumentChecker;
     _target = Collections.unmodifiableSet(copy);
   }
 
+  /**
+   * Creates a new instance.
+   * 
+   * @param types the alternative types for the construction, not null and not containing null
+   */
+  public MultipleComputationTargetType(final ComputationTargetType[] types) {
+    final Set<ComputationTargetType> copy = new HashSet<ComputationTargetType>();
+    for (ComputationTargetType type : types) {
+      if (type.accept(s_construct, copy)) {
+        copy.add(type);
+      }
+    }
+    ArgumentChecker.isTrue(copy.size() >= 2, "target");
+    _target = Collections.unmodifiableSet(copy);
+  }
+
   protected Set<ComputationTargetType> getTarget() {
     return _target;
   }

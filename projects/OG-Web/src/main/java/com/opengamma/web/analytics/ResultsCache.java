@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
@@ -42,7 +43,7 @@ import com.opengamma.util.money.CurrencyAmount;
   // is this likely to change? will it ever by dynamic? i.e. client specifies what types it wants history for?
   /** Types of result values for which history is stored. */
   private static final Set<Class<?>> s_historyTypes =
-      ImmutableSet.<Class<?>>of(Double.class, BigDecimal.class, CurrencyAmount.class);
+      ImmutableSet.of(Double.class, BigDecimal.class, CurrencyAmount.class, LocalDateLabelledMatrix1D.class);
   /** Empty result for types that don't have history, makes for cleaner code than using null. */
   private static final Result s_emptyResult = Result.empty();
   /** Empty result for types that have history, makes for cleaner code than using null. */

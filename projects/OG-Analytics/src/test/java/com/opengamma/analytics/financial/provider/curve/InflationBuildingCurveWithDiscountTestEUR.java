@@ -31,7 +31,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
@@ -68,7 +68,8 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
@@ -95,14 +96,14 @@ public class InflationBuildingCurveWithDiscountTestEUR {
   private static final IndexON INDEX_ON_USD = GENERATOR_OIS_USD.getIndex();
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, INDEX_ON_USD.getDayCount());
 
-  private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
   private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {200, 200 });
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
+  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {100 });
 
   @SuppressWarnings("rawtypes")

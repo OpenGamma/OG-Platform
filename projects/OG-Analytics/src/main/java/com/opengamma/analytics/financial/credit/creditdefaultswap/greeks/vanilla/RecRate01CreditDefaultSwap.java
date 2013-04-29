@@ -104,6 +104,12 @@ public class RecRate01CreditDefaultSwap {
     // Create a new CDS identical to the input CDS except for the recovery rate
     final LegacyVanillaCreditDefaultSwapDefinition bumpedCDS = cds.withRecoveryRate(bumpedRecoveryRate);
 
+    /*
+    final CalibrateHazardRateCurveLegacyCreditDefaultSwap bumpedHazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
+    final double[] bumpedCalibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, bumpedCDS, marketTenors, marketSpreads, yieldCurve, priceType);
+    final HazardRateCurve bumpedCalibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, bumpedCalibratedHazardRates, 0.0);
+    */
+
     // Create a CDS PV calculator
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
@@ -112,6 +118,8 @@ public class RecRate01CreditDefaultSwap {
 
     // Calculate the bumped CDS PV
     final double bumpedPresentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, bumpedCDS, yieldCurve, calibratedHazardRateCurve, priceType);
+
+    //final double bumpedPresentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, bumpedCDS, yieldCurve, bumpedCalibratedHazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

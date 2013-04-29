@@ -27,17 +27,30 @@ public class MutableExecutionLog implements ExecutionLog {
   private final ExecutionLogMode _logMode;
   private final EnumSet<LogLevel> _logLevels = EnumSet.noneOf(LogLevel.class);
   private final List<LogEvent> _events;
-  
+
   private String _exceptionClass;
   private String _exceptionMessage;
   private String _exceptionStackTrace;
-  
+
   public MutableExecutionLog(ExecutionLogMode logMode) {
     ArgumentChecker.notNull(logMode, "logMode");
     _events = logMode == ExecutionLogMode.FULL ? new LinkedList<LogEvent>() : null;
     _logMode = logMode;
   }
-  
+
+  public MutableExecutionLog(ExecutionLog copyFrom) {
+    _logMode = ExecutionLogMode.FULL;
+    _logLevels.addAll(copyFrom.getLogLevels());
+    if (copyFrom.getEvents() != null) {
+      _events = new LinkedList<LogEvent>(copyFrom.getEvents());
+    } else {
+      _events = new LinkedList<LogEvent>();
+    }
+    _exceptionClass = copyFrom.getExceptionClass();
+    _exceptionMessage = copyFrom.getExceptionMessage();
+    _exceptionStackTrace = copyFrom.getExceptionStackTrace();
+  }
+
   public static ExecutionLog single(LogEvent logEvent, ExecutionLogMode logMode) {
     MutableExecutionLog log = new MutableExecutionLog(logMode);
     log.add(logEvent);
@@ -53,7 +66,7 @@ public class MutableExecutionLog implements ExecutionLog {
       _events.add(new SimpleLogEvent(level, logEvent.getMessage()));
     }
   }
-  
+
   public void setException(Throwable exception) {
     _exceptionClass = exception.getClass().getName();
     _exceptionMessage = exception.getMessage();
@@ -62,13 +75,15 @@ public class MutableExecutionLog implements ExecutionLog {
       buffer.append(element.toString()).append("\n");
     }
     _exceptionStackTrace = buffer.toString();
+    _logLevels.add(LogLevel.WARN);
   }
-  
+
   public void setException(String exceptionClass, String exceptionMessage) {
     ArgumentChecker.notNull(exceptionClass, "exceptionClass");
     _exceptionClass = exceptionClass;
     _exceptionMessage = exceptionMessage;
     _exceptionStackTrace = null;
+    _logLevels.add(LogLevel.WARN);
   }
 
   //-------------------------------------------------------------------------
@@ -109,7 +124,7 @@ public class MutableExecutionLog implements ExecutionLog {
   public boolean isEmpty() {
     return _logLevels.isEmpty() && !hasException();
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public int hashCode() {
@@ -158,5 +173,5 @@ public class MutableExecutionLog implements ExecutionLog {
     style.appendEnd(sb, this);
     return sb.toString();
   }
-  
+
 }

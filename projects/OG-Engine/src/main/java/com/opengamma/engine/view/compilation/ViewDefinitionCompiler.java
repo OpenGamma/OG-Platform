@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,6 +27,7 @@ import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -166,7 +167,21 @@ public final class ViewDefinitionCompiler {
       return _resolutions;
     }
 
-    protected abstract void compile();
+    protected abstract void compile(DependencyGraphBuilder builder);
+
+    protected void compile() {
+      final Iterator<DependencyGraphBuilder> builders = getContext().getBuilders().iterator();
+      while (builders.hasNext()) {
+        final DependencyGraphBuilder builder = builders.next();
+        compile(builder);
+        // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.
+        // Wait for the current config's dependency graph to be built before moving to the next view calc config
+        final DependencyGraph graph = builder.getDependencyGraph();
+        graph.removeUnnecessaryValues();
+        getContext().addGraph(graph);
+        builders.remove();
+      }
+    }
 
     private void removeUnusedResolutions(final Collection<DependencyGraph> graphs, final Portfolio portfolio) {
       final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>(getResolutions().size());
@@ -230,11 +245,17 @@ public final class ViewDefinitionCompiler {
      */
     @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
-      boolean result = true;
-      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
-        result &= builder.cancel(mayInterruptIfRunning);
-      }
-      return result;
+      do {
+        boolean result = true;
+        try {
+          for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
+            result &= builder.cancel(mayInterruptIfRunning);
+          }
+          return result;
+        } catch (ConcurrentModificationException e) {
+          // Ignore
+        }
+      } while (true);
     }
 
     /**
@@ -242,11 +263,17 @@ public final class ViewDefinitionCompiler {
      */
     @Override
     public boolean isCancelled() {
-      boolean result = false;
-      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
-        result |= builder.isCancelled();
-      }
-      return result;
+      do {
+        boolean result = false;
+        try {
+          for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
+            result |= builder.isCancelled();
+          }
+          return result;
+        } catch (ConcurrentModificationException e) {
+          // Ignore
+        }
+      } while (true);
     }
 
     /**
@@ -274,7 +301,7 @@ public final class ViewDefinitionCompiler {
       }
       long t = -System.nanoTime();
       compile();
-      final Collection<DependencyGraph> graphs = processDependencyGraphs(getContext());
+      final Collection<DependencyGraph> graphs = getContext().getGraphs();
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
       removeUnusedResolutions(graphs, portfolio);
@@ -307,10 +334,16 @@ public final class ViewDefinitionCompiler {
     }
 
     @Override
+    protected void compile(final DependencyGraphBuilder builder) {
+      final ViewCalculationConfiguration config = getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName());
+      addSpecificRequirements(builder, getContext().getViewDefinition().getResultModelDefinition(), config);
+      addPortfolioRequirements(builder, getContext(), config, getResolutions(), null, null);
+    }
+
+    @Override
     protected void compile() {
       s_logger.info("Performing full compilation");
-      SpecificRequirementsCompiler.execute(getContext());
-      PortfolioCompiler.executeFull(getContext(), getResolutions(), null);
+      super.compile();
     }
 
   }
@@ -330,30 +363,34 @@ public final class ViewDefinitionCompiler {
     }
 
     @Override
-    public void compile() {
-      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
-        final Pair<DependencyGraph, Set<ValueRequirement>> graph = _previousGraphs.get(builder.getCalculationConfigurationName());
-        if (graph != null) {
-          builder.setDependencyGraph(graph.getFirst());
-          if (graph.getSecond().isEmpty()) {
-            s_logger.debug("No incremental work for {}", graph.getFirst());
-          } else {
-            s_logger.info("{} incremental resolutions required for {}", graph.getSecond().size(), graph.getFirst());
-            builder.addTarget(graph.getSecond());
-          }
+    protected void compile(final DependencyGraphBuilder builder) {
+      final Pair<DependencyGraph, Set<ValueRequirement>> graph = _previousGraphs.remove(builder.getCalculationConfigurationName());
+      if (graph != null) {
+        builder.setDependencyGraph(graph.getFirst());
+        if (graph.getSecond().isEmpty()) {
+          s_logger.debug("No incremental work for {}", graph.getFirst());
+        } else {
+          s_logger.info("{} incremental resolutions required for {}", graph.getSecond().size(), graph.getFirst());
+          builder.addTarget(graph.getSecond());
         }
       }
       if (_unchangedNodes != null) {
         s_logger.info("Adding portfolio requirements with unchanged node set");
-        PortfolioCompiler.execute(getContext(), getResolutions(), null, _unchangedNodes);
-        s_logger.debug("Dependency graph(s) built");
+        addPortfolioRequirements(builder, getContext(), getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName()), getResolutions(), null,
+            _unchangedNodes);
       } else if (_changedPositions != null) {
         s_logger.info("Adding portfolio requirements with changed position set");
-        PortfolioCompiler.execute(getContext(), getResolutions(), _changedPositions, null);
-        s_logger.debug("Dependency graph(s) built");
+        addPortfolioRequirements(builder, getContext(), getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName()), getResolutions(), _changedPositions,
+            null);
       } else {
         s_logger.info("No additional portfolio requirements needed");
       }
+    }
+
+    @Override
+    public void compile() {
+      s_logger.info("Performing incremental compilation");
+      super.compile();
     }
 
   }
@@ -383,25 +420,30 @@ public final class ViewDefinitionCompiler {
     }
   }
 
-  /**
-   * Returns all the dependency graphs built by the graph builders in the specified view compilation context. This method waits for their compilation to complete if necessary, and removes all
-   * unnecessary values in each graph.
-   * 
-   * @param context the view compilation context containing the dep graph builders to query for dep graphs
-   * @return the map from config names to dependency graphs
-   */
-  private static Collection<DependencyGraph> processDependencyGraphs(final ViewCompilationContext context) {
-    final Collection<DependencyGraphBuilder> builders = context.getBuilders();
-    final Collection<DependencyGraph> result = new ArrayList<DependencyGraph>(builders.size());
-    for (DependencyGraphBuilder builder : builders) {
-      final DependencyGraph graph = builder.getDependencyGraph();
-      graph.removeUnnecessaryValues();
-      result.add(graph);
-      // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data? I don't like it being in the graph
-      // as it's more specific to how the graph is used. Having it in the graph with the terminal outputs data is convenient for taking
-      // sub-graphs to initialise an incremental graph builder with though.
+  private static void addSpecificRequirements(final DependencyGraphBuilder builder, final ResultModelDefinition resultModelDefinition, final ViewCalculationConfiguration calcConfig) {
+    // Scan through the current calc config's specific requirements
+    for (final ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
+      final ComputationTargetReference targetReference = requirement.getTargetReference();
+      if (resultModelDefinition.getOutputMode(targetReference.getType()) == ResultOutputMode.NONE) {
+        // We're not including this in the results, so no point it being a terminal output. It will be added
+        // automatically if it is needed for some other terminal output.
+        continue;
+      }
+      // Add the specific requirement to the current calc config's dep graph builder
+      builder.addTarget(requirement);
     }
-    return result;
+  }
+
+  private static void addPortfolioRequirements(final DependencyGraphBuilder builder, final ViewCompilationContext context, final ViewCalculationConfiguration calcConfig,
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
+    if (calcConfig.getAllPortfolioRequirements().size() == 0) {
+      // No portfolio requirements for this calculation configuration - avoid further processing.
+      return;
+    }
+    // Add portfolio requirements to the dependency graph
+    final Portfolio portfolio = builder.getCompilationContext().getPortfolio();
+    final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions, includeEvents, excludeEvents);
+    PortfolioNodeTraverser.parallel(traversalCallback, context.getServices().getExecutorService()).traverse(portfolio.getRootNode());
   }
 
   private static void outputDependencyGraphs(final Collection<DependencyGraph> graphs) {

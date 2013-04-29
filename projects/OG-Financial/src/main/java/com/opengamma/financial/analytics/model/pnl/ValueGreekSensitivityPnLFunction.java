@@ -56,7 +56,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Computes a Profit and Loss time series for a position based on value greeks.
@@ -111,7 +111,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
     final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorName);
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    final LocalDateDoubleTimeSeries sampledTS = samplingFunction.getSampledTimeSeries(timeSeries.getTimeSeries(), schedule).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries sampledTS = samplingFunction.getSampledTimeSeries(timeSeries.getTimeSeries(), schedule);
     for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
       if (underlyingType != UnderlyingType.SPOT_PRICE) {
         throw new OpenGammaRuntimeException("Have hard-coded to only use delta; should not have anything with " + underlyingType + " as the underlying type");

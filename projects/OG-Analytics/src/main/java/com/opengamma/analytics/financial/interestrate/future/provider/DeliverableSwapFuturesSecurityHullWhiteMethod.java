@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
@@ -67,7 +67,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The price.
    */
-  public double price(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public double price(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     final Currency ccy = futures.getCurrency();
@@ -96,7 +96,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
    * @return The sensitivity.
    * TODO: review Dsc sensitivity
    */
-  public MulticurveSensitivity priceCurveSensitivity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MulticurveSensitivity priceCurveSensitivity(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     final Currency ccy = futures.getCurrency();

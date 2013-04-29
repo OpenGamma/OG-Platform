@@ -7,9 +7,12 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT_SLOW)
 public class ExplicitFiniteDifference2DTest {
 
   private static final HestonPDETestCase HESTON_TESTER = new HestonPDETestCase();
@@ -36,4 +39,5 @@ public class ExplicitFiniteDifference2DTest {
 
     HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps, print);
   }
+
 }

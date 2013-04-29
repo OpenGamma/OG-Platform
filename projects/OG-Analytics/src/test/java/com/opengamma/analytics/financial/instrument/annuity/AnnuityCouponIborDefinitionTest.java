@@ -30,7 +30,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -62,7 +62,7 @@ public class AnnuityCouponIborDefinitionTest {
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
 
   static {
-    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {REFERENCE_DATE }, new double[] {FIXING_RATE });
+    FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.of(REFERENCE_DATE, FIXING_RATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

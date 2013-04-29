@@ -34,7 +34,7 @@ public class WebBundlesUris {
   public URI bundles() {
     return WebBundlesResource.uri(_data);
   }
-
+  
   /**
    * Gets the URI for a bundle.
    * 
@@ -51,6 +51,10 @@ public class WebBundlesUris {
       default:
         return bundles();
     }
+  }
+  
+  public URI sassfragment(String fragmentPath) {
+    return WebDevSassFragmentResource.uri(_data, fragmentPath);
   }
 
 }

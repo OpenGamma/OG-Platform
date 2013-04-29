@@ -8,12 +8,28 @@ package com.opengamma.util;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
+import com.opengamma.util.async.AbstractHousekeeper;
+
 /**
  * Reduction of common object values to single instances.
- *
+ * 
  * @param <T> object type to reduce
  */
 public class WeakInstanceCache<T> {
+
+  private static final class Housekeeper extends AbstractHousekeeper<WeakInstanceCache<?>> {
+
+    protected Housekeeper(final WeakInstanceCache<?> target) {
+      super(target);
+    }
+
+    @Override
+    protected boolean housekeep(final WeakInstanceCache<?> target) {
+      target.gc();
+      return true;
+    }
+
+  }
 
   /**
    * Use a pool of buckets in the way that the concurrent hash works to try and reduce collisions on the monitor.
@@ -27,6 +43,7 @@ public class WeakInstanceCache<T> {
     for (int i = 0; i < BUCKETS; i++) {
       _data[i] = new WeakHashMap<T, WeakReference<T>>();
     }
+    (new Housekeeper(this)).start();
   }
 
   protected T getImpl(final WeakHashMap<T, WeakReference<T>> data, final T value) {
@@ -46,6 +63,12 @@ public class WeakInstanceCache<T> {
   public T get(final T value) {
     final WeakHashMap<T, WeakReference<T>> data = _data[value.hashCode() & (BUCKETS - 1)];
     return getImpl(data, value);
+  }
+
+  protected void gc() {
+    for (int i = 0; i < BUCKETS; i++) {
+      _data[i].size();
+    }
   }
 
 }

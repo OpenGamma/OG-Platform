@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -18,17 +16,16 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Fudge message builder for {@link ComputationTarget}.
  * 
  * <pre>
- *   message ComputationTarget extends ComputationTargetType {
- *     optional repeated UniqueId context; // the outer object identifiers
+ *   message ComputationTarget extends ComputationTargetSpecification {
  *     required Object value;              // the target value
  *   }
  * </pre>
@@ -37,17 +34,11 @@ import com.opengamma.id.UniqueIdentifiable;
 public class ComputationTargetFudgeBuilder implements FudgeBuilder<ComputationTarget> {
 
   private static final String VALUE_FIELD = "value";
-  private static final String CONTEXT_FIELD = "context";
-  
+
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputationTarget object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    ComputationTargetTypeFudgeBuilder.buildMessageImpl(msg, object.getType());
-    if (object.getContextIdentifiers() != null) {
-      for (UniqueId context : object.getContextIdentifiers()) {
-        serializer.addToMessage(msg, CONTEXT_FIELD, null, context);
-      }
-    }
+    ComputationTargetReferenceFudgeBuilder.buildMessageImpl(serializer, msg, object.toSpecification());
     serializer.addToMessageWithClassHeaders(msg, VALUE_FIELD, null, object.getValue());
     return msg;
   }
@@ -76,46 +67,13 @@ public class ComputationTargetFudgeBuilder implements FudgeBuilder<ComputationTa
 
   };
 
-  private static final ComputationTargetTypeVisitor<FudgeMsg, List<FudgeField>> s_getContextIdentifiers = new ComputationTargetTypeVisitor<FudgeMsg, List<FudgeField>>() {
-
-    @Override
-    public List<FudgeField> visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final FudgeMsg data) {
-      return null;
-    }
-
-    @Override
-    public List<FudgeField> visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final FudgeMsg data) {
-      return data.getAllByName(CONTEXT_FIELD);
-    }
-
-    @Override
-    public List<FudgeField> visitNullComputationTargetType(final FudgeMsg data) {
-      return null;
-    }
-
-    @Override
-    public List<FudgeField> visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final FudgeMsg data) {
-      return null;
-    }
-
-  };
-
   @Override
   public ComputationTarget buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    final ComputationTargetType type = ComputationTargetTypeFudgeBuilder.buildObjectImpl(message);
-    final Class<? extends UniqueIdentifiable> valueType = type.accept(s_getLeafType, null);
+    final ComputationTargetSpecification specification = ComputationTargetReferenceFudgeBuilder.buildObjectImpl(deserializer, message).getSpecification();
+    final Class<? extends UniqueIdentifiable> valueType = specification.getType().accept(s_getLeafType, null);
     if (valueType != null) {
       final UniqueIdentifiable value = deserializer.fieldValueToObject(valueType, message.getByName(VALUE_FIELD));
-      final List<FudgeField> contextIdentifierFields = type.accept(s_getContextIdentifiers, message);
-      if (contextIdentifierFields != null) {
-        final List<UniqueId> contextIdentifiers = new ArrayList<UniqueId>(contextIdentifierFields.size());
-        for (FudgeField contextIdentifier : contextIdentifierFields) {
-          contextIdentifiers.add(deserializer.fieldValueToObject(UniqueId.class, contextIdentifier));
-        }
-        return new ComputationTarget(type, contextIdentifiers, value);
-      } else {
-        return new ComputationTarget(type, value);
-      }
+      return new ComputationTarget(specification, value);
     } else {
       return ComputationTarget.NULL;
     }

@@ -18,7 +18,7 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
   }
 
   @Override
-  public String formatCell(LabelledMatrix3D value, ValueSpecification valueSpec) {
+  public String formatCell(LabelledMatrix3D value, ValueSpecification valueSpec, Object inlineKey) {
     return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + " x " + value.getZKeys().length + ")";
   }
 

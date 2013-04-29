@@ -212,7 +212,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
 
     //TODO: reuse positions/nodes?
     final String longName = underlyingSecurity == null ? "" : underlyingSecurity.getName();
-    final String formattedName = MessageFormatter.format("[{}] {}", underlying, longName);
+    final String formattedName = MessageFormatter.format("[{}] {}", underlying, longName).getMessage();
     final ManageablePortfolioNode equityNode = new ManageablePortfolioNode(formattedName);
 
     final BigDecimal underlyingAmount = VALUE_OF_UNDERLYING.divide(BigDecimal.valueOf(estimatedCurrentStrike), BigDecimal.ROUND_HALF_EVEN);

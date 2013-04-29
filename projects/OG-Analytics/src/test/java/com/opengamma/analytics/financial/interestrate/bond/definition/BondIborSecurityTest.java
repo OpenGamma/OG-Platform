@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -80,7 +78,7 @@ public class BondIborSecurityTest {
         fixingRates.add(FIRST_FIXING);
       }
     }
-    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(fixingDates, fixingRates);
+    FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(fixingDates, fixingRates);
     COUPON = (Annuity<Coupon>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME);
     BOND_DESCRIPTION = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
   }

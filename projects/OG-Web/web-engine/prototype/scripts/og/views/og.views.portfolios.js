@@ -74,6 +74,7 @@ $.register_module({
                                         var args = routes.current().args, rule = view.rules.load;
                                         if (result.error) return view.error(result.message);
                                         routes.go(routes.hash(rule, args));
+                                        setTimeout(function () {view.search(args);});
                                     }
                                 };
                                 $(this).dialog('close');
@@ -291,7 +292,7 @@ $.register_module({
                     };
                     $('.OG-js-add-position').click(function () {
                         var nodeId = json.template_data.node;
-                        new og.blotter.Dialog({portfolio:{name: nodeId, id: nodeId}, 
+                        new og.blotter.Dialog({node:{name: nodeId, id: nodeId},
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                         });
                     });

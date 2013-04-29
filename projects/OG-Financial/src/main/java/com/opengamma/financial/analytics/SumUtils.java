@@ -34,8 +34,11 @@ public class SumUtils {
     if (currentTotal == null) {
       return value;
     }
-    if (currentTotal.getClass() != value.getClass() && !(currentTotal.getClass() == MultipleCurrencyAmount.class && value.getClass() == CurrencyAmount.class)) {
-      throw new IllegalArgumentException("Inputs have different value types for requirement " + valueName + " currentTotal type = " + currentTotal.getClass() + " value type = " + value.getClass());
+    if (currentTotal.getClass() != value.getClass()) {
+      if (!(currentTotal.getClass() == MultipleCurrencyAmount.class && value.getClass() == CurrencyAmount.class)
+       && !(currentTotal.getClass() == CurrencyAmount.class && value.getClass() == MultipleCurrencyAmount.class)) {
+        throw new IllegalArgumentException("Inputs have different value types for requirement " + valueName + " currentTotal type = " + currentTotal.getClass() + " value type = " + value.getClass());
+      }
     }
     if (value instanceof Double) {
       final Double previousDouble = (Double) currentTotal;
@@ -69,9 +72,7 @@ public class SumUtils {
     } else if (value instanceof CurrencyAmount) {
       return calculateCurrencyAmount(currentTotal, (CurrencyAmount) value);
     } else if (value instanceof MultipleCurrencyAmount) {
-      final MultipleCurrencyAmount previousMCA = (MultipleCurrencyAmount) currentTotal;
-      final MultipleCurrencyAmount currentMCA = (MultipleCurrencyAmount) value;
-      return currentMCA.plus(previousMCA);
+      return calculateCurrencyAmount(currentTotal, (MultipleCurrencyAmount) value);
     } else if (value instanceof StringLabelledMatrix1D) {
       final StringLabelledMatrix1D previousMatrix = (StringLabelledMatrix1D) currentTotal;
       final StringLabelledMatrix1D currentMatrix = (StringLabelledMatrix1D) value;
@@ -156,6 +157,21 @@ public class SumUtils {
       } else {
         return MultipleCurrencyAmount.of(total).plus(currentAmount);
       }
+    } else if (currentTotal instanceof MultipleCurrencyAmount) {
+      return ((MultipleCurrencyAmount) currentTotal).plus(currentAmount);
+    } else {
+      throw new IllegalArgumentException("Expected current total to be of type " + CurrencyAmount.class +
+                                             " or " + MultipleCurrencyAmount.class + " but was: "+ currentTotal.getClass());
+    }
+  }
+
+  private static Object calculateCurrencyAmount(Object currentTotal, MultipleCurrencyAmount currentAmount) {
+
+    // if we have a currency amount and the requested addition is the same currency then we add to it
+    // If we have a multiple currency amount we use it,
+    // Otherwise we create a new MultipleCurrencyAmount
+    if (currentTotal instanceof CurrencyAmount) {
+      return currentAmount.plus((CurrencyAmount)currentTotal);
     } else if (currentTotal instanceof MultipleCurrencyAmount) {
       return ((MultipleCurrencyAmount) currentTotal).plus(currentAmount);
     } else {

@@ -102,7 +102,7 @@ $.register_module({
                     reset_options,
                     build_menu, empty_plots, update_legend, rescale_yaxis, resize,
                     calculate_y_values, load_data_points, get_legend;
-                $(selector).html((Handlebars.compile(plot_template))({alive: alive})).css({position: 'relative'});
+                $(selector).html((Handlebars.compile(plot_template))({alive: alive}));
                 $(plot_selector)
                     .html('<span class="og-checking-related">checking for related timeseries data...</span>');
                 get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated

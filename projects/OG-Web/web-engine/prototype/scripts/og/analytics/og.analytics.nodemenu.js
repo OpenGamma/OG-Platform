@@ -13,12 +13,12 @@ $.register_module({
         };
         NodeMenu.prototype.display = function () {
             var menu = this;
-            return og.common.util.ui.contextmenu({zindex: 4, items: menu.items()}, menu.event, menu.cell);
+            return og.common.util.ui.contextmenu({zindex: 5, items: menu.items()}, menu.event, menu.cell);
         };
         NodeMenu.prototype.items = function () {
             var menu = this, grid = menu.grid, event = menu.event, cell = menu.cell, dry = true,
                 state = grid.state, items, expanded = state.nodes[cell.row],
-                expand_deep, expand_globally, collapse_deep, collapse_globally,
+                expand_deep, expand_globally, collapse_deep, collapse_globally, new_portfolio,
                 rows = grid.meta.viewport.rows.reduce(function (acc, row) {return acc[row] = null, acc;}, {});
             var loading = function (row) {
                 var $target = grid.elements.fixed_body.find('.node[data-row=' + row + ']');
@@ -77,11 +77,31 @@ $.register_module({
                 if (dry) return changed;
                 grid.resize().selector.clear();
             }};
+            new_portfolio = {name: 'Create a new portfolio containing this position', handler: function () {
+                var position = cell.value.v['positionId'], portfolio, win = window.open();
+                og.api.rest.portfolios.put({name: cell.value.v['name'] + ' - ' + og.common.util.date(new Date)})
+                    .pipe(function (result) {
+                        if (result.error) return null;
+                        return og.api.rest.portfolios.get({id: result.meta.id});
+                    })
+                    .pipe(function (result) {
+                        if (!result || result.error) return null;
+                        portfolio = result.data.template_data;
+                        return og.api.rest.portfolios
+                            .put({id: portfolio.object_id, node: portfolio.node, position: position});
+                    })
+                    .pipe(function (result) {
+                        if (!result || result.error) alert(result.error || 'An error occurred creating this portfolio');
+                        win.location.href = 'admin.ftl#/portfolios/' + portfolio.object_id;
+                    });
+            }};
             items = (expanded ? [collapse_deep, collapse_globally, {}, expand_deep, expand_globally]
                 : [expand_deep, expand_globally, {}, collapse_deep, collapse_globally]).map(function (item) {
                     if (item.handler) item.disabled = !item.handler(); // check changed flags & enable relevant options
                     return item;
                 });
+            if (!grid.source.aggregators.length && cell.value.v[has]('positionId')) // no new portfolio option in
+                items.push({}, new_portfolio);                                      // aggregated views
             return (dry = false), items;
         };
         return NodeMenu;

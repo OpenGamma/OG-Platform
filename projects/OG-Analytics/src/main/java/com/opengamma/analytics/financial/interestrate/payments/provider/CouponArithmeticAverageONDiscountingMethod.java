@@ -47,7 +47,7 @@ public final class CouponArithmeticAverageONDiscountingMethod {
   }
 
   /**
-   * Computes the present value.
+   * Computes the present value. 
    * @param coupon The coupon.
    * @param multicurve The multi-curve provider.
    * @return The present value.
@@ -65,7 +65,7 @@ public final class CouponArithmeticAverageONDiscountingMethod {
       rateAccrued += forwardON[loopfwd] * delta[loopfwd];
     }
     double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    double pv = df * rateAccrued * coupon.getNotional();
+    double pv = df * rateAccrued * coupon.getNotional(); // Does not use the payment accrual factor.
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 

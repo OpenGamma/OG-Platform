@@ -565,27 +565,62 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.5.11</version>
+        <version>1.7.5</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>log4j-over-slf4j</artifactId>
-        <version>1.5.11</version>
+        <version>1.7.5</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
-        <version>1.5.11</version>
+        <version>1.7.5</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
-        <version>0.9.17</version>
+        <version>1.0.11</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>0.9.17</version>
+        <version>1.0.11</version>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>3.0.0-BETA2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-logback</artifactId>
+        <version>3.0.0-BETA2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-ganglia</artifactId>
+        <version>3.0.0-BETA2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Spring -->
@@ -779,6 +814,19 @@
         <version>9.1.1.B60.25.p2</version>
       </dependency>
 
+
+	  <!--Jruby and gems -->
+	  <dependency>
+	     <groupId>org.jruby</groupId>
+		 <artifactId>jruby-complete</artifactId>
+		 <version>1.6.8</version>
+	  </dependency>
+	  <dependency>
+	     <groupId>me.n4u.sass</groupId>
+		 <artifactId>sass-gems</artifactId>
+		 <version>3.2.1</version>
+      </dependency>
+ 
       <!-- JMS -->
       <dependency>
         <groupId>javax.jms</groupId>

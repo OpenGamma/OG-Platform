@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
@@ -506,7 +504,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
     final MultipleCurrencyAmount pvP = METHOD_OPTION.presentValue(forexOption, smileBundleP);
     final double gamma = METHOD_OPTION.gammaRelative(forexOption, SMILE_BUNDLE_FLAT, true);
-    assertEquals("Forex: relative gamma", 1.0, (pvP.getAmount(USD) + pvM.getAmount(USD) - 2 * pv.getAmount(USD)) / (shift * shift) / gamma, 1.0E-4);
+    assertEquals("Forex: relative gamma", 1.0, (pvP.getAmount(USD) + pvM.getAmount(USD) - 2 * pv.getAmount(USD)) / (shift * shift) / gamma, 2.0E-4);
   }
 
   @Test

@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var manager, collector, gadgets = [], interval = 5 * 60 * 1000, layout,
             resize = function () {
-                return layout && manager.clean().forEach(function (gadget) {gadget.resize.call(gadget.context);});
+                return manager.clean().forEach(function (gadget) {gadget.resize.call(gadget.context);});
             };
         setTimeout((collector = function () {return manager.clean(), setTimeout(collector, interval);}), interval);
         $(function () {if (!(layout = !!og.views.common.layout)) $(window).on('resize', manager.resize);});

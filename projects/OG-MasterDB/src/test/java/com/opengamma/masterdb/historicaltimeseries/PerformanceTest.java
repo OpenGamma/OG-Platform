@@ -21,8 +21,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -81,9 +81,9 @@ public class PerformanceTest extends DbTest {
       randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
-        ArrayLocalDateDoubleTimeSeries points = new ArrayLocalDateDoubleTimeSeries(
-            Lists.newArrayList(randomPoints.getTimeAt(j)),
-            Lists.newArrayList(randomPoints.getValueAt(j)));
+        ImmutableLocalDateDoubleTimeSeries points = ImmutableLocalDateDoubleTimeSeries.of(
+            Lists.newArrayList(randomPoints.getTimeAtIndex(j)),
+            Lists.newArrayList(randomPoints.getValueAtIndex(j)));
         s_logger.debug("adding data points {}", points);
         _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), points);
       }
