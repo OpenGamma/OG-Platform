@@ -17,6 +17,8 @@ import com.opengamma.util.ParallelArrayBinarySort;
  */
 public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
+  private static final double ERROR = 1.e-13;
+
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
 
@@ -52,6 +54,15 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
         ArgumentChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
         ArgumentChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
       }
+      double ref = 0.;
+      final double interval = xValuesSrt[i + 1] - xValuesSrt[i];
+      for (int j = 0; j < 2; ++j) {
+        ref += coefMatrix.getData()[i][j] * Math.pow(interval, 1 - j);
+        ArgumentChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
+        ArgumentChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
+      }
+      final double bound = Math.abs(ref) + Math.abs(yValuesSrt[i + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValuesSrt[i + 1]);
+      ArgumentChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data are not distinct enough");
     }
 
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.getNumberOfColumns(), 1);
@@ -95,6 +106,18 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
       coefMatrix[i] = solve(xValuesSrt, yValuesSrt);
+
+      for (int k = 0; k < xValuesSrt.length - 1; ++k) {
+        double ref = 0.;
+        final double interval = xValuesSrt[k + 1] - xValuesSrt[k];
+        for (int j = 0; j < 2; ++j) {
+          ref += coefMatrix[i].getData()[k][j] * Math.pow(interval, 1 - j);
+          ArgumentChecker.isFalse(Double.isNaN(coefMatrix[i].getData()[k][j]), "Too large input");
+          ArgumentChecker.isFalse(Double.isInfinite(coefMatrix[i].getData()[k][j]), "Too large input");
+        }
+        final double bound = Math.abs(ref) + Math.abs(yValuesSrt[k + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValuesSrt[k + 1]);
+        ArgumentChecker.isTrue(Math.abs(ref - yValuesSrt[k + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
+      }
     }
 
     final int nIntervals = coefMatrix[0].getNumberOfRows();
@@ -104,13 +127,6 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
         resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i).getData();
-      }
-    }
-
-    for (int i = 0; i < (nIntervals * dim); ++i) {
-      for (int j = 0; j < nCoefs; ++j) {
-        ArgumentChecker.isFalse(Double.isNaN(resMatrix[i][j]), "Too large input");
-        ArgumentChecker.isFalse(Double.isInfinite(resMatrix[i][j]), "Too large input");
       }
     }
 
