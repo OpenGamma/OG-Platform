@@ -49,7 +49,7 @@ public class IborIndexConverter {
       final String conventionName = PerCurrencyConventionHelper.getConventionName(currency, PerCurrencyConventionHelper.VANILLA_IBOR_LEG);
       final IborIndexConvention convention = _conventionSource.getIborIndexConvention(PerCurrencyConventionHelper.simpleNameId(null));
       final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getRegionCalendar());
-      return new IborIndex(currency, convention.getTenor().getPeriod(), convention.getDaysToSettle(), calendar, convention.getDayCount(),
+      return new IborIndex(currency, null, convention.getDaysToSettle(), calendar, convention.getDayCount(),
           convention.getBusinessDayConvention(), convention.isIsEOM());
     }
 
