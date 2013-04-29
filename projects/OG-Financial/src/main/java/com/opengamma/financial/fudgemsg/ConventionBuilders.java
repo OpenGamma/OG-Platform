@@ -12,7 +12,9 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.financial.convention.CMSLegConvention;
+import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -71,6 +73,42 @@ public final class ConventionBuilders {
       return convention;
     }
 
+  }
+
+  /**
+   * Fudge builder for compounding ibor leg conventions.
+   */
+  @FudgeBuilderFor(CompoundingIborLegConvention.class)
+  public static class CompoundingIborLegConventionBuilder implements FudgeBuilder<CompoundingIborLegConvention> {
+    private static final String SWAP_INDEX_ID_FIELD = "swapIndexConvention";
+    private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
+    private static final String COMPOUNDING_TYPE_FIELD = "compoundingType";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CompoundingIborLegConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, CompoundingIborLegConvention.class);
+      serializer.addToMessage(message, SWAP_INDEX_ID_FIELD, null, object.getIborIndexConvention());
+      serializer.addToMessage(message, PAYMENT_TENOR_FIELD, null, object.getPaymentTenor());
+      message.add(COMPOUNDING_TYPE_FIELD, object.getCompoundingType().name());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public CompoundingIborLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_INDEX_ID_FIELD));
+      final Tenor paymentTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAYMENT_TENOR_FIELD));
+      final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, compoundingType);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
   }
 
   /**
