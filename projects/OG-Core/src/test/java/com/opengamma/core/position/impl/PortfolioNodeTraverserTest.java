@@ -25,7 +25,6 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test {@link PortfolioNodeTraverser}.
  */
-@Test(groups = TestGroup.UNIT)
 public class PortfolioNodeTraverserTest {
 
   /* Test tree =
@@ -122,10 +121,10 @@ public class PortfolioNodeTraverserTest {
       // four values for each of the 21 node/position entries in the graph
       assertEquals(_visited.size(), 84);
     }
-
   }
 
-  @Test
+  //-------------------------------------------------------------------------
+  @Test(groups = TestGroup.UNIT)
   public void testDepthFirst() {
     final Callback cb = new Callback();
     PortfolioNodeTraverser.depthFirst(cb).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
@@ -160,7 +159,7 @@ public class PortfolioNodeTraverserTest {
     cb.assertVisit(NODE_POST, 0);
   }
 
-  @Test(enabled = false)
+  @Test(groups = TestGroup.UNIT, enabled = false)
   public void testBreadthFirst() {
     final Callback cb = new Callback();
     PortfolioNodeTraverser.breadthFirst(cb).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
@@ -180,7 +179,7 @@ public class PortfolioNodeTraverserTest {
     cb.assertVisit(NODE_POST, 0);
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test(groups = TestGroup.UNIT, expectedExceptions = UnsupportedOperationException.class)
   public void testBreadthFirstBroken() {
     final Callback cb = new Callback();
     PortfolioNodeTraverser.breadthFirst(cb).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
@@ -213,7 +212,7 @@ public class PortfolioNodeTraverserTest {
     cb.assertVisitAfter(POSITION_POST, 9, POSITION_POST, 4);
   }
 
-  @Test
+  @Test(groups = TestGroup.UNIT)
   public void testParallelNoSlaveThreads() {
     final Callback cb = new Callback();
     PortfolioNodeTraverser.parallel(cb, new PoolExecutor(0, getClass().getSimpleName())).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
@@ -221,7 +220,7 @@ public class PortfolioNodeTraverserTest {
     assertParallelOrder(cb);
   }
 
-  @Test
+  @Test(groups = TestGroup.UNIT_SLOW)
   public void testParallelSlaveThreads() {
     final Callback cb = new Callback() {
       @Override

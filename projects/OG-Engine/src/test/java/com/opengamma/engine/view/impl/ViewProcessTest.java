@@ -47,7 +47,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests {@link ViewProcess}
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class ViewProcessTest {
 
   public void testLifecycle() {

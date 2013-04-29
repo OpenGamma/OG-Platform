@@ -28,7 +28,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests the function statistics sender.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class FunctionInvocationStatisticsSenderTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationStatisticsSenderTest.class);
