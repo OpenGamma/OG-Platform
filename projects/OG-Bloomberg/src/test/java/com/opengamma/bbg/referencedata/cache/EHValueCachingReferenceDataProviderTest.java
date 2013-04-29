@@ -12,6 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.referencedata.MockReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -20,10 +21,13 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups= {TestGroup.UNIT, "ehcache"})
+@Test(groups= {TestGroup.UNIT, "ehcache"}, singleThreaded = true)
 public class EHValueCachingReferenceDataProviderTest extends AbstractValueCachingReferenceDataProviderTestCase {
 
   private CacheManager _cacheManager;
+  private MockReferenceDataProvider _underlyingProvider;
+  private UnitTestingReferenceDataProvider _unitProvider;
+  private ReferenceDataProvider _provider;
 
   @BeforeClass
   public void setUpClass() {
@@ -32,16 +36,58 @@ public class EHValueCachingReferenceDataProviderTest extends AbstractValueCachin
 
   @BeforeMethod
   public void setUp() {
-    ReferenceDataProvider underlyingProvider = initProviders();
+    _underlyingProvider = new MockReferenceDataProvider();
+    _unitProvider = new UnitTestingReferenceDataProvider(_underlyingProvider);
     EHCacheUtils.clear(_cacheManager, EHValueCachingReferenceDataProvider.REFERENCE_DATA_CACHE);
-    ReferenceDataProvider provider = new EHValueCachingReferenceDataProvider(
-        underlyingProvider, _cacheManager, OpenGammaFudgeContext.getInstance());
-    setProvider(provider);
+    _provider = new EHValueCachingReferenceDataProvider(
+        _underlyingProvider, _cacheManager, OpenGammaFudgeContext.getInstance());
   }
 
   @AfterClass
   public void tearDownClass() {
     EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected MockReferenceDataProvider getUnderlyingProvider() {
+    return _underlyingProvider;
+  }
+
+  @Override
+  protected UnitTestingReferenceDataProvider getUnitProvider() {
+    return _unitProvider;
+  }
+
+  @Override
+  protected ReferenceDataProvider getProvider() {
+    return _provider;
+  }
+
+  //-------------------------------------------------------------------------
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void numberOfReturnedFields() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void singleSecurityEscalatingFields() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void fieldNotAvailable() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void securityNotAvailable() {
+    super.numberOfReturnedFields();
+  }
+
+  @Test(groups= {TestGroup.UNIT_DB, "mongodb"})
+  public void multipleSecuritiesSameEscalatingFields() {
+    super.numberOfReturnedFields();
   }
 
 }
