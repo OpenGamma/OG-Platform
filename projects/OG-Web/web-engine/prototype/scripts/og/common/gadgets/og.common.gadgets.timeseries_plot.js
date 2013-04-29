@@ -127,66 +127,47 @@ $.register_module({
                     $(p1_selector).append(msg);
                 };
                 load_data_points = function () {
-                    var $template, col_width, render_grid, slick_width,
+                    var $template, col_width, render_grid, grid_width,
                         $data_points = $(selector + ' .og-data-points');
                     if (!$data_points.length) return;
                     if (!config.datapoints) {
                         if (show_datapoints_link) $data_points.css({
-                            'position': 'relative', 'top': '-30px', 'left': '3px'
+                            'position': 'relative', 'left': '3px'
                             }).html('<a href="#/timeseries/'+ config.id +'">View Timeseries with DataPoints</a>');
                         return;
                     }
                     $(selector + ' .og-data-points').html('<div class="og-container"></div>');
-                    (function () { // Calculate Slickgrid "slick_width" and "col_width"
-                        var num_cols = data_arr.length * 2, slick_buffer = 40, default_col = 180,
-                            min_width = num_cols * ((slick_buffer / 2) + default_col),
+                    (function () { // Calculate data grids "grid_width" and "col_width"
+                        var num_cols = data_arr.length * 2, default_col = 180,
+                            min_width = num_cols * default_col,
                             container_width = $(selector + ' .og-container').width();
-                        if (min_width < container_width) col_width = (container_width / num_cols) - slick_buffer / 2;
+                        if (min_width < container_width) col_width = container_width / num_cols;
                         else col_width = default_col;
-                        slick_width = (2 * col_width) + slick_buffer - 2;
+                        grid_width = ~~(2 * col_width);
                     }());
                     $template = $(selector + ' .og-data-points .og-container');
                     if (!data_arr) return $template.html('<span class="og-no-datapoint">No data available</span>');
                     render_grid = function (index) {
-                        var SLICK_SELECTOR = selector + ' .og-data-points .og-slick-' + index, slick, data,
-                        columns = [
-                            {id: 'time', name: 'Time', field: 'time', width: col_width,
-                                formatter: function (row, cell, value) {return og.common.util.date(value);}
-                            },
-                            {id: 'value', name: 'Value', field: 'value', width: col_width}
-                        ],
-                        options = {
-                            editable: false,
-                            enableAddRow: false,
-                            enableCellNavigation: false,
-                            showHeaderRow: false,
-                            headerRowHeight: 0
-                        };
-                        // clone (slice) so you don't touch original data structure, reverse order for display
-                        data = data_arr[index].data.slice().reverse().reduce(function (acc, val) {
-                            return acc.push({time: val[0], value: val[1]}) && acc;
-                        }, []);
-                        columns = og.common.slickgrid.calibrate_columns({
-                            container: SLICK_SELECTOR,
-                            columns: columns,
-                            buffer: 17
-                        });
-                        try {slick = new Slick.Grid(SLICK_SELECTOR, data, columns, options);}
-                        catch(e) {$(SLICK_SELECTOR + ' .og-loading').html('' + e);}
-                        finally {$(SLICK_SELECTOR);}
+                        var data_selector = selector + ' .og-data-points .og-data-' + index;
+                            new og.common.gadgets.Data({
+                                resource: 'timeseries', rest_options: {id: config.id},
+                                type: 'TIME_SERIES', selector: data_selector, menu: false, child: false
+                            });
+
                     };
                     data_arr.forEach(function (v, i) {
-                        var $compiled = $((Handlebars.compile(data_template))({
+                        var cur_id = data_arr[i].object_id, $compiled = $((Handlebars.compile(data_template))({
                             time: (Object.keys(meta).length ? v.label : init_ob_time).toLowerCase().replace(/_/g, ' '),
                             index: i, color: colors_arr[i], source: data_arr[i].data_source,
                             provider: data_arr[i].data_provider
                         }));
-                        $compiled.find('.og-js-timeseries-csv').bind('click', function () {
-                            window.location.href = '/jax/timeseries/' + data_arr[i].object_id + '.csv';
+                        $compiled.find('.og-js-timeseries-csv').attr({
+                            'href': '/jax/timeseries/' + cur_id + '.csv',
+                            'download': 'Timeseries-' + cur_id + '.csv'
                         }).end().appendTo($template);
                         setTimeout(render_grid.partial(i), 0);
                     });
-                    $data_points.find('.og-data-series').css('width', slick_width + 'px');
+                    $data_points.find('.og-data-series').css({width: grid_width + 'px', position: 'relative'});
                 };
                 load_plots = function () {
                     if (data_arr[0] === void 0 || data_arr[0].data.length < 2) {empty_plots(); return}
@@ -229,7 +210,7 @@ $.register_module({
                                 p1_options.xaxis.min = from, p1_options.xaxis.max = x_max;
                                 rescale_yaxis();
                                 $legend = get_legend();
-                                $legend.css({visibility: 'hidden'});
+                                $legend.hide();
                             });
                     }());
                     reset_options();
@@ -249,7 +230,7 @@ $.register_module({
                         state.from = r.xaxis.from, state.to = r.xaxis.to;
                         p1_options.xaxis.min = state.from, p1_options.xaxis.max = state.to;
                         $p1 = $.plot($(p1_selector), d, p1_options);
-                        $legend = get_legend(), $legend.css({visibility: 'hidden'});
+                        $legend = get_legend(), $legend.hide();
                     });
                     $(p1_selector).unbind('plotpan').bind('plotpan', function (e, obj) { // panning
                         var mouseup = function () {
@@ -260,7 +241,7 @@ $.register_module({
                         xaxes = obj.getXAxes()[0];
                         panning = true;
                         $(document).bind('mouseup', mouseup);
-                        $legend = get_legend(), $legend.css({visibility: 'hidden'});
+                        $legend = get_legend(), $legend.hide();
                         $p2.setSelection({xaxis: {from: state.from = xaxes.min, to: state.to = xaxes.max}}, true);
                     });
                     $(p2_selector).unbind('plotselecting').bind('plotselecting', function (e, r) {
@@ -273,7 +254,7 @@ $.register_module({
                     $(p1_selector).unbind('plothover').bind('plothover', function (e, pos) {
                         if (!panning) hover_pos = pos, setTimeout(update_legend, 50);
                     });
-                    $legend = get_legend(), $legend.css({visibility: 'hidden'});
+                    $legend = get_legend(), $legend.hide();
                     rescale_yaxis();
                     load_data_points();
                     setTimeout(function () {
@@ -341,7 +322,7 @@ $.register_module({
                     $legend = get_legend();
                     if (hover_pos.x < axes.xaxis.min || hover_pos.x > axes.xaxis.max ||
                         hover_pos.y < axes.yaxis.min || hover_pos.y > axes.yaxis.max) {
-                        $legend.css({visibility: 'hidden'});
+                        $legend.hide();
                         return;
                     }
                     $legends.each(function () {$(this).css('line-height', 0)});
@@ -349,7 +330,7 @@ $.register_module({
                     legend_height = $legend.find('table').prev().height() + 15;
                     $legend.css({
                         left: rel_cursor_pos > $(selector).width() - 310 ? rel_cursor_pos - 175 : rel_cursor_pos,
-                        visibility: 'visible', 'height': legend_height + 'px'
+                        visibility: 'visible', display: 'block', 'height': legend_height + 'px'
                     });
                     $legend.find('div, table').css({'left': '5px', 'background': 'none'});
                     while (i--) {
