@@ -20,6 +20,7 @@ import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
+import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -91,5 +92,13 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
         ExternalId.of("Test", "3rd Wednesday"), ExternalId.of("Test", "EUX"), ExternalId.of("Test", "3m Euribor"));
     convention.setUniqueId(UniqueId.of("Test", "123456"));
     assertEquals(convention, cycleObject(InterestRateFutureConvention.class, convention));
+  }
+
+  @Test
+  public void testOISLegConvention() {
+    final OISLegConvention convention = new OISLegConvention("EUR OIS", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR OIS")),
+        ExternalId.of("Test", "EONIA"), Tenor.SIX_MONTHS, 0);
+    convention.setUniqueId(UniqueId.of("Test", "123"));
+    assertEquals(convention, cycleObject(OISLegConvention.class, convention));
   }
 }

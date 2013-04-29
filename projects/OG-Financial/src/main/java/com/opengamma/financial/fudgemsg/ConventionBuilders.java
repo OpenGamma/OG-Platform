@@ -22,6 +22,7 @@ import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
+import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -320,6 +321,42 @@ public final class ConventionBuilders {
       final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INDEX_CONVENTION_FIELD));
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final InterestRateFutureConvention convention = new InterestRateFutureConvention(name, externalIdBundle, expiryConvention, exchangeCalendar, indexConvention);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for OIS swap leg conventions.
+   */
+  @FudgeBuilderFor(OISLegConvention.class)
+  public static class OISLegConventionBuilder implements FudgeBuilder<OISLegConvention> {
+    private static final String OVERNIGHT_INDEX_CONVENTION_FIELD = "oisIndexConvention";
+    private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
+    private static final String PAYMENT_DELAY_FIELD = "paymentDelay";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final OISLegConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, OISLegConvention.class);
+      serializer.addToMessage(message, OVERNIGHT_INDEX_CONVENTION_FIELD, null, object.getOvernightIndexConvention());
+      serializer.addToMessage(message, PAYMENT_TENOR_FIELD, null, object.getPaymentTenor());
+      message.add(PAYMENT_DELAY_FIELD, object.getPaymentDelay());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public OISLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId overnightIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(OVERNIGHT_INDEX_CONVENTION_FIELD));
+      final Tenor paymentTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAYMENT_TENOR_FIELD));
+      final int paymentDelay = message.getInt(PAYMENT_DELAY_FIELD);
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final OISLegConvention convention = new OISLegConvention(name, externalIdBundle, overnightIndexConvention, paymentTenor, paymentDelay);
       convention.setUniqueId(uniqueId);
       return convention;
     }
