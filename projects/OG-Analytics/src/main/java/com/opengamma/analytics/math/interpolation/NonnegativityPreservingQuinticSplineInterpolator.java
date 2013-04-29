@@ -83,6 +83,13 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     final double[] second = secondDerivativeCalculator(yValuesSrt, intervals, first, initialSecond);
     final double[][] coefs = _solver.solve(yValuesSrt, intervals, slopes, first, second);
 
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = 0; j < 6; ++j) {
+        ArgumentChecker.isFalse(Double.isNaN(coefs[i][j]), "Too large input");
+        ArgumentChecker.isFalse(Double.isInfinite(coefs[i][j]), "Too large input");
+      }
+    }
+
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(coefs), 6, 1);
   }
 

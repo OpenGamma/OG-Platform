@@ -564,4 +564,32 @@ public class LinearInterpolatorTest {
 
   }
 
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notReconnectedTest() {
+    double[] xValues = new double[] {1., 2.0000000001, 2., 4. };
+    double[] yValues = new double[] {2., 4.e-5, 3., 5.e11 };
+
+    PiecewisePolynomialInterpolator interpPos = new LinearInterpolator();
+    interpPos.interpolate(xValues, yValues);
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[1] * (1. - EPS)));
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[1] * (1.)));
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[1] * (1. + .00000000001)));
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[2]));
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notReconnectedMultiTest() {
+    double[] xValues = new double[] {1., 2.0000000001, 2., 4. };
+    double[][] yValues = new double[][] {{2., 4.e-5, 3., 5.e11 } };
+
+    PiecewisePolynomialInterpolator interpPos = new LinearInterpolator();
+    interpPos.interpolate(xValues, yValues);
+  }
+
 }
