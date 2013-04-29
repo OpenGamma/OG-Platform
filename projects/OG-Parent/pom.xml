@@ -370,6 +370,17 @@
             <groupId>org.fudgemsg</groupId>
             <artifactId>fudge-proto</artifactId>
             <version>0.3.9.6</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.fudgemsg</groupId>
+                <artifactId>fudge-java</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+          <dependency>
+            <groupId>org.fudgemsg</groupId>
+            <artifactId>fudge-java</artifactId>
+            <version>0.3.9.8</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -544,7 +555,7 @@
       <dependency>
         <groupId>org.joda</groupId>
         <artifactId>joda-beans</artifactId>
-        <version>0.6.2</version>
+        <version>0.7</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma</groupId>
