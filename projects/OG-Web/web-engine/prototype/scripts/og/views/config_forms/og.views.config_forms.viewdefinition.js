@@ -19,6 +19,7 @@ $.register_module({
             SECU = 'securityType',              REQO = 'requiredOutput',
             CONS = 'constraints',               WITH = 'with',
             WTHO = 'without',                   INDX = '<INDEX>',
+            ORDS = 'columns',                   EMPT = '<EMPTY>',
             type_map = [
                 ['0',                                                                           Form.type.STR],
                 [[SETS, 'name'].join('.'),                                                      Form.type.STR],
@@ -50,6 +51,17 @@ $.register_module({
                 [[SETS, INDX, SPEC, INDX, CONS, WTHO].join('.'),                                Form.type.STR],
                 [[SETS, INDX, SPEC, INDX, CONS, WTHO, '*'].join('.'),                           Form.type.STR],
                 // </constraints>
+                // <new column order stuff>
+                [[SETS, ORDS, EMPT, INDX, 'header'].join('.'),                                  Form.type.STR],
+                [[SETS, ORDS, EMPT, INDX, 'valueName'].join('.'),                               Form.type.STR],
+                    // <constraints>
+                [[SETS, ORDS, EMPT, INDX, CONS, WITH, '*'].join('.'),                           Form.type.IND],
+                [[SETS, ORDS, EMPT, INDX, CONS, WITH, '*', 'optional'].join('.'),               Form.type.IND],
+                [[SETS, ORDS, EMPT, INDX, CONS, WITH, '*', '*'].join('.'),                      Form.type.STR],
+                [[SETS, ORDS, EMPT, INDX, CONS, WTHO].join('.'),                                Form.type.STR],
+                [[SETS, ORDS, EMPT, INDX, CONS, WTHO, '*'].join('.'),                           Form.type.STR],
+                    // </constraints>
+                // </new column order stuff>
                 [[SETS, INDX, SPEC, INDX, SPVN].join('.'),                                      Form.type.STR],
                 [[SETS, RLTR, '0'].join('.'),                                                   Form.type.STR],
                 [[SETS, SPEC, INDX, SPCT].join('.'),                                            Form.type.STR],

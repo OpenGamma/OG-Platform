@@ -214,6 +214,7 @@ $.register_module({
             grid.elements.parent.html(templates.loading({text: 'preparing view...'}));
             grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: grid.label})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
+                .on('cycle', function (cycle) {grid.fire('cycle', cycle);})
                 .on('disconnect', function () {
                     if (grid.selector) grid.selector.clear(); // may not have been instantiated yet
                     grid.clipboard.clear();
