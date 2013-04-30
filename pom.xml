@@ -30,6 +30,18 @@
           <skip>true</skip>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.joda</groupId>
+        <artifactId>maven-joda-beans-plugin</artifactId>
+        <version>0.7</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-beans</artifactId>
+            <version>0.7</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
   </build>
 
