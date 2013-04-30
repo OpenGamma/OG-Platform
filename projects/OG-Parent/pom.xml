@@ -332,10 +332,10 @@
         <version>0.7</version>
         <executions>
           <execution>
-            <id>joda-beans-validate</id>
-            <phase>validate</phase>
+            <id>joda-beans</id>
+            <phase>${joda.beans.phase}</phase>
             <goals>
-              <goal>validate</goal>
+              <goal>${joda.beans.action}</goal>
             </goals>
             <configuration>
               <indent>${joda.beans.indent}</indent>
@@ -1214,6 +1214,38 @@
   </reporting>
 
   <!-- ==================================================================== -->
+  <profiles>
+    <!-- if "joda-beans-generate" property not set on command line then validate beans -->
+    <profile>
+      <id>joda-beans-validate</id>
+      <activation>
+        <property>
+          <name>!joda-beans-generate</name>
+        </property>
+      </activation>
+      <properties>
+        <joda.beans.phase>validate</joda.beans.phase>
+        <joda.beans.action>validate</joda.beans.action>
+        <joda.beans.stopOnError>false</joda.beans.stopOnError>
+      </properties>
+    </profile>
+    <!-- if "joda-beans-generate" property is set on command line then generate beans -->
+    <profile>
+      <id>joda-beans-generate</id>
+      <activation>
+        <property>
+          <name>joda-beans-generate</name>
+        </property>
+      </activation>
+      <properties>
+        <joda.beans.phase>generate-sources</joda.beans.phase>
+        <joda.beans.action>generate</joda.beans.action>
+        <joda.beans.stopOnError>true</joda.beans.stopOnError>
+      </properties>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <og.spring.version>3.0.7.RELEASE</og.spring.version>
@@ -1225,8 +1257,6 @@
     <tests.testng.excludedgroups>integration,unitdb,unitslow</tests.testng.excludedgroups>
     <joda.beans.indent>2</joda.beans.indent>
     <joda.beans.prefix>_</joda.beans.prefix>
-    <joda.beans.stopOnError>false</joda.beans.stopOnError>
-    <!--<joda.beans.stopOnError>true</joda.beans.stopOnError>-->
     <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java;..{RELATIVE}../projects/OG-Language/Client/src/main/java</fudge.proto.searchDir>
     <fudge.proto.verbose>false</fudge.proto.verbose>
     <fudge.proto.listFiles>false</fudge.proto.listFiles>
