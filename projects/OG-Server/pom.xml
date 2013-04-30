@@ -21,6 +21,7 @@
       <plugin>
         <groupId>com.opengamma</groupId>
         <artifactId>og-deploy-maven-plugin</artifactId>
+        <version>1.0.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -137,12 +138,6 @@
       <groupId>com.opengamma</groupId>
       <artifactId>og-region-data</artifactId>
       <version>1.0.0.v20110908a</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma</groupId>
-      <artifactId>og-deploy-maven-plugin</artifactId>
-      <version>1.0.0</version>
     </dependency>
   </dependencies>
 
