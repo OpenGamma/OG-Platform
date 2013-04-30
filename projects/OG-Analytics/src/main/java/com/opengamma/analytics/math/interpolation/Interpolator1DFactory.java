@@ -60,7 +60,7 @@ public final class Interpolator1DFactory {
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
   /** MonotonicityPreservingCubicSpline*/
-  public static final MontonicCubicInterpolator1D MONTONIC_CUBIC_INSTANCE = new MontonicCubicInterpolator1D();
+  public static final MonotonicCubicInterpolator1D MONOTONIC_CUBIC_INSTANCE = new MonotonicCubicInterpolator1D();
   /** Time square instance */
   public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
   /** Flat extrapolator instance */
@@ -92,8 +92,8 @@ public final class Interpolator1DFactory {
     instanceNames.put(StepInterpolator1D.class, STEP);
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
-    staticInstances.put(MONOTONIC_CUBIC, MONTONIC_CUBIC_INSTANCE);
-    instanceNames.put(MontonicCubicInterpolator1D.class, MONOTONIC_CUBIC);
+    staticInstances.put(MONOTONIC_CUBIC, MONOTONIC_CUBIC_INSTANCE);
+    instanceNames.put(MonotonicCubicInterpolator1D.class, MONOTONIC_CUBIC);
     staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
     instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
     staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);    

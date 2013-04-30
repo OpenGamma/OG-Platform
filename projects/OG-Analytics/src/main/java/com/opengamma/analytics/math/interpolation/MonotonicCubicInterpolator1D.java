@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 /**
  * 
  */
-public class MontonicCubicInterpolator1D extends Interpolator1D {
+public class MonotonicCubicInterpolator1D extends Interpolator1D {
 
   // TODO have options on method
   private static final MonotonicityPreservingCubicSplineInterpolator BASE = new MonotonicityPreservingCubicSplineInterpolator(new PiecewiseCubicHermiteSplineInterpolator());

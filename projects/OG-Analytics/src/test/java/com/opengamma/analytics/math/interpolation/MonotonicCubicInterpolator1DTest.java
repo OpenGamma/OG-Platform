@@ -46,6 +46,20 @@ public class MonotonicCubicInterpolator1DTest {
   }
 
   @Test
+  public void dataBundleTest() {
+    Interpolator1DDataBundle db = INTERPOLATOR.getDataBundle(X_DATA, Y_DATA);
+    double[] keys = db.getKeys();
+    double[] values = db.getValues();
+    final int n = X_DATA.length;
+    assertEquals("keys length", n, keys.length);
+    assertEquals("values length", n, values.length);
+    for (int i = 0; i < n; i++) {
+      assertEquals("keys " + i, X_DATA[i], keys[i]);
+      assertEquals("values " + i, Y_DATA[i], values[i]);
+    }
+  }
+
+  @Test
   public void montonicTest() {
     final boolean print = false;
     if (print) {
