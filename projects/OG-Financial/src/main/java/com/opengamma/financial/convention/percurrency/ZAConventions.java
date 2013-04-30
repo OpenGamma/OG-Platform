@@ -47,7 +47,7 @@ public class ZAConventions {
     final String fixedSwapLegConventionName = getConventionName(ZAR, FIXED_SWAP_LEG);
     final String vanillaIborLegConventionName = getConventionName(ZAR, VANILLA_IBOR_LEG);
     final ExternalId jiborConventionId = InMemoryConventionBundleMaster.simpleNameSecurityId(jiborConventionName);
-    final Convention jibor3mConvention = new IborIndexConvention(jiborConventionName, getIds(ZAR, IBOR), ACT_365, FOLLOWING, 0, false, ZAR, Tenor.THREE_MONTHS, LocalTime.of(11, 00), ZA, ZA, "");
+    final Convention jibor3mConvention = new IborIndexConvention(jiborConventionName, getIds(ZAR, IBOR), ACT_365, FOLLOWING, 0, false, ZAR, LocalTime.of(11, 00), ZA, ZA, "");
     final Convention depositConvention = new DepositConvention(depositConventionName, getIds(ZAR, DEPOSIT), ACT_365, FOLLOWING, 0, false, ZAR, ZA);
     final Convention fixedLegConvention = new SwapFixedLegConvention(fixedSwapLegConventionName, getIds(ZAR, FIXED_SWAP_LEG),
         Tenor.THREE_MONTHS, ACT_365, FOLLOWING, 0, false, ZAR, ZA, StubType.NONE);

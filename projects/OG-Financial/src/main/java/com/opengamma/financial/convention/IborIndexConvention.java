@@ -65,12 +65,6 @@ public class IborIndexConvention extends Convention {
   private Currency _currency;
 
   /**
-   * The tenor.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private Tenor _tenor;
-
-  /**
    * The fixing time.
    */
   @PropertyDefinition(validate = "notNull")
@@ -102,7 +96,7 @@ public class IborIndexConvention extends Convention {
   }
 
   public IborIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int daysToSettle, final boolean isEOM, final Currency currency, final Tenor tenor, final LocalTime fixingTime, final ExternalId fixingCalendar,
+      final int daysToSettle, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final ExternalId fixingCalendar,
       final ExternalId regionCalendar, final String fixingPage) {
     super(name, externalIdBundle);
     setDayCount(dayCount);
@@ -110,7 +104,6 @@ public class IborIndexConvention extends Convention {
     setDaysToSettle(daysToSettle);
     setIsEOM(isEOM);
     setCurrency(currency);
-    setTenor(tenor);
     setFixingTime(fixingTime);
     setFixingCalendar(fixingCalendar);
     setRegionCalendar(regionCalendar);
@@ -148,8 +141,6 @@ public class IborIndexConvention extends Convention {
         return isIsEOM();
       case 575402001:  // currency
         return getCurrency();
-      case 110246592:  // tenor
-        return getTenor();
       case 1255686170:  // fixingTime
         return getFixingTime();
       case 394230283:  // fixingCalendar
@@ -180,9 +171,6 @@ public class IborIndexConvention extends Convention {
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
-      case 110246592:  // tenor
-        setTenor((Tenor) newValue);
-        return;
       case 1255686170:  // fixingTime
         setFixingTime((LocalTime) newValue);
         return;
@@ -204,7 +192,6 @@ public class IborIndexConvention extends Convention {
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
     JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_tenor, "tenor");
     JodaBeanUtils.notNull(_fixingTime, "fixingTime");
     JodaBeanUtils.notNull(_fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(_regionCalendar, "regionCalendar");
@@ -224,7 +211,6 @@ public class IborIndexConvention extends Convention {
           JodaBeanUtils.equal(getDaysToSettle(), other.getDaysToSettle()) &&
           JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           JodaBeanUtils.equal(getFixingTime(), other.getFixingTime()) &&
           JodaBeanUtils.equal(getFixingCalendar(), other.getFixingCalendar()) &&
           JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
@@ -242,7 +228,6 @@ public class IborIndexConvention extends Convention {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
@@ -376,32 +361,6 @@ public class IborIndexConvention extends Convention {
    */
   public final Property<Currency> currency() {
     return metaBean().currency().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the tenor.
-   * @return the value of the property, not null
-   */
-  public Tenor getTenor() {
-    return _tenor;
-  }
-
-  /**
-   * Sets the tenor.
-   * @param tenor  the new value of the property, not null
-   */
-  public void setTenor(Tenor tenor) {
-    JodaBeanUtils.notNull(tenor, "tenor");
-    this._tenor = tenor;
-  }
-
-  /**
-   * Gets the the {@code tenor} property.
-   * @return the property, not null
-   */
-  public final Property<Tenor> tenor() {
-    return metaBean().tenor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -544,11 +503,6 @@ public class IborIndexConvention extends Convention {
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", IborIndexConvention.class, Currency.class);
     /**
-     * The meta-property for the {@code tenor} property.
-     */
-    private final MetaProperty<Tenor> _tenor = DirectMetaProperty.ofReadWrite(
-        this, "tenor", IborIndexConvention.class, Tenor.class);
-    /**
      * The meta-property for the {@code fixingTime} property.
      */
     private final MetaProperty<LocalTime> _fixingTime = DirectMetaProperty.ofReadWrite(
@@ -578,7 +532,6 @@ public class IborIndexConvention extends Convention {
         "daysToSettle",
         "isEOM",
         "currency",
-        "tenor",
         "fixingTime",
         "fixingCalendar",
         "regionCalendar",
@@ -603,8 +556,6 @@ public class IborIndexConvention extends Convention {
           return _isEOM;
         case 575402001:  // currency
           return _currency;
-        case 110246592:  // tenor
-          return _tenor;
         case 1255686170:  // fixingTime
           return _fixingTime;
         case 394230283:  // fixingCalendar
@@ -671,14 +622,6 @@ public class IborIndexConvention extends Convention {
      */
     public final MetaProperty<Currency> currency() {
       return _currency;
-    }
-
-    /**
-     * The meta-property for the {@code tenor} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Tenor> tenor() {
-      return _tenor;
     }
 
     /**
