@@ -177,13 +177,16 @@ $.register_module({
                                 hashchangesuppressed = false;
                                 changed_form_state = void 0;
                             };
-                            og.common.events.on('hashchange', function () {
+                            og.common.events.on('hashchange', function () { // TODO AG: Refactor
+                                og.common.events.off('hashchange');
+                                var config = {suppress: false, msg: ''};
                                 if (!Object.equals(form_state, changed_form_state = form.compile()))
-                                    if (!hashchangesuppressed) og.common.events.fire('suppresshashchange',
-                                            {suppress: true, msg: unsaved_txt + ' ' + form_state.data.name});
+                                    config = {suppress: true, msg: unsaved_txt + ' ' + form_state.data.name};
+                                og.common.events.fire('suppresshashchange', config);
                             });
                             og.common.events.on('hashchangesuppressed', function () {
                                 hashchangesuppressed = true;
+                                og.common.events.off('hashchangesuppressed');
                             });
                         },
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
