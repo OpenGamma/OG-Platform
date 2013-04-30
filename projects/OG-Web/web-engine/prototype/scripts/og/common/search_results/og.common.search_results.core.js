@@ -47,7 +47,6 @@ $.register_module({
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
                     grid.onClick.subscribe(function (e, dd) {
-                        og.common.events.fire('search:results:clicked');
                         var current = routes.current().args;
                         routes.go(routes.hash(og.views[obj.page_type].rules.load_item, current, {
                             del: og.views[obj.page_type].extra_params, add: {

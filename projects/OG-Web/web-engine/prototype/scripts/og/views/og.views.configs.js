@@ -21,6 +21,7 @@ $.register_module({
     obj: function () {
         var api = og.api, common = og.common, details = common.details,
             history = common.util.history, masthead = common.masthead, routes = common.routes,
+            form_state, changed_form_state, hashchangesuppressed = false,
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
@@ -58,6 +59,8 @@ $.register_module({
                             api.rest.configs.del({
                                 handler: function (result) {
                                     if (result.error) return view.error(result.message);
+                                    hashchangesuppressed = false;
+                                    changed_form_state = void 0;
                                     routes.go(routes.hash(view.rules.load, args, {del: ['id']}));
                                     setTimeout(function () {view.search(args);});
                                 }, id: routes.current().args.id
@@ -114,6 +117,8 @@ $.register_module({
                             var args = routes.current().args;
                             view.notify(null);
                             if (result.error) return view.error(result.message);
+                            hashchangesuppressed = false;
+                            changed_form_state = void 0;
                             view.search(args);
                             routes.go(routes.hash(view.rules.load_item, routes.current().args, {
                                 add: {id: result.meta.id}
@@ -123,11 +128,13 @@ $.register_module({
                             var args = routes.current().args;
                             view.notify(null);
                             if (result.error) return view.error(result.message);
+                            hashchangesuppressed = false;
+                            changed_form_state = void 0;
                             view.notify('saved');
                             setTimeout(function () {view.notify(null), view.search(args), view.details(args);}, 300);
                         },
                         handler: function (form) {
-                            var json = details_json.template_data, form_state,
+                            var json = details_json.template_data,
                                 unsaved_txt = 'You have unsaved changes to',
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
@@ -165,23 +172,26 @@ $.register_module({
                             });
                             view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
-                            form_state = form.compile();
-                            og.common.events.on('search:results:clicked', function () {
-                                og.common.events.off('search:results:clicked');
-                                    if (!Object.equals(form_state, form.compile())){
-                                        return og.common.routes.surpress_hashchanged(true,
-                                                    unsaved_txt + ' ' + form_state.data.name);
-                                    }
-                                    else og.common.routes.surpress_hashchanged(false, '');
+                            if (!hashchangesuppressed) form_state = form.compile();
+                            else {
+                                hashchangesuppressed = false;
+                                changed_form_state = void 0;
+                            };
+                            og.common.events.on('hashchange', function () {
+                                if (!Object.equals(form_state, changed_form_state = form.compile()))
+                                    if (!hashchangesuppressed) og.common.events.fire('suppresshashchange',
+                                            {suppress: true, msg: unsaved_txt + ' ' + form_state.data.name});
                             });
-                            /*$(window).bind('beforeunload', function (event) {
-                                return unsaved_txt + ' ' + form_state.data.name;
-                            });*/
+                            og.common.events.on('hashchangesuppressed', function () {
+                                hashchangesuppressed = true;
+                            });
                         },
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
                     };
                     $(render_options.selector).css({'overflow': 'auto'});
+                    if (hashchangesuppressed)
+                        render_options.data.template_data.configJSON.data = changed_form_state.data;
                     og.views.config_forms[render_type](render_options);
                 };
                 view.layout.inner.options.south.onclose = null;
