@@ -9,10 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
+import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * TODO make this non-static
@@ -20,22 +22,37 @@ import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 /* package */ class Inliner {
 
   // TODO this is crude and temporary
-  private static final Set<String> INLINE_VALUE_NAMES = Sets.newHashSet(
+  
+  private static final Set<String> LOCAL_DATE_LABELLED_MATRIX_1D_VALUE_NAMES = ImmutableSet.of(
       ValueRequirementNames.BUCKETED_CS01,
       ValueRequirementNames.BUCKETED_GAMMA_CS01,
       ValueRequirementNames.BUCKETED_IR01);
+  
+  private static final Set<String> TENOR_LABELLED_TIME_SERIES_MATRIX_1D_VALUE_NAMES = ImmutableSet.of(
+      ValueRequirementNames.YIELD_CURVE_PNL_SERIES,
+      ValueRequirementNames.YIELD_CURVE_RETURN_SERIES);
 
   public static boolean isDisplayableInline(Class<?> type, ColumnSpecification spec) {
     return type != null &&
-        LocalDateLabelledMatrix1D.class.isAssignableFrom(type) &&
-        INLINE_VALUE_NAMES.contains(spec.getValueName());
+        ((LocalDateLabelledMatrix1D.class.isAssignableFrom(type) && 
+            LOCAL_DATE_LABELLED_MATRIX_1D_VALUE_NAMES.contains(spec.getValueName())) ||
+        (TenorLabelledLocalDateDoubleTimeSeriesMatrix1D.class.isAssignableFrom(type) &&
+            TENOR_LABELLED_TIME_SERIES_MATRIX_1D_VALUE_NAMES.contains(spec.getValueName())));
   }
 
   public static List<ColumnMeta> columnMeta(Object value) {
-    if (!(value instanceof LocalDateLabelledMatrix1D)) {
-      return Collections.emptyList();
+    if (value instanceof LocalDateLabelledMatrix1D) {
+      LocalDateLabelledMatrix1D matrix = (LocalDateLabelledMatrix1D) value;
+      return getLocalDateDoubleLabelledMatrix1DColumnMeta(matrix);
     }
-    LocalDateLabelledMatrix1D matrix = (LocalDateLabelledMatrix1D) value;
+    if (value instanceof TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) {
+      TenorLabelledLocalDateDoubleTimeSeriesMatrix1D matrix = (TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) value;
+      return getTenorLabelledLocalDateDoubleTimeSeriesMatrix1DColumnMeta(matrix);
+    }
+    return Collections.emptyList();
+  }
+
+  private static List<ColumnMeta> getLocalDateDoubleLabelledMatrix1DColumnMeta(LocalDateLabelledMatrix1D matrix) {
     List<ColumnMeta> meta = Lists.newArrayListWithCapacity(matrix.size());
     meta.add(new ColumnMeta(matrix.getKeys()[0], matrix.getKeys()[0].toString(), Double.class, LocalDateLabelledMatrix1D.class));
     for (int i = 1; i < matrix.size(); i++) {
@@ -43,6 +60,16 @@ import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
     }
     return meta;
   }
+  
+  private static List<ColumnMeta> getTenorLabelledLocalDateDoubleTimeSeriesMatrix1DColumnMeta(TenorLabelledLocalDateDoubleTimeSeriesMatrix1D matrix) {
+    List<ColumnMeta> meta = Lists.newArrayListWithCapacity(matrix.size());
+    meta.add(new ColumnMeta(matrix.getKeys()[0], matrix.getKeys()[0].toString(), LocalDateDoubleTimeSeries.class, TenorLabelledLocalDateDoubleTimeSeriesMatrix1D.class));
+    for (int i = 1; i < matrix.size(); i++) {
+      meta.add(new ColumnMeta(matrix.getKeys()[i], matrix.getKeys()[i].toString(), LocalDateDoubleTimeSeries.class, null));
+    }
+    return meta;
+  }
+  
 }
 
 /* package */ class ColumnMeta implements Comparable<ColumnMeta> {
