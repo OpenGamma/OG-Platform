@@ -109,7 +109,7 @@ $.register_module({
                 reset_options = function () {p1_options = top_plot_options, p2_options = bot_plot_options;};
                 empty_plots = function () {
                     var d = ['1', '2'], disabled_options,
-                        msg = $('<div>No data available</div>').css({
+                        msg = $('<div>Not enough data to render plot</div>').css({
                             position: 'absolute', color: '#999', left: '10px', top: '10px'
                         });
                     reset_options();
@@ -125,6 +125,7 @@ $.register_module({
                     $p1 = $.plot($(p1_selector), d, $.extend(true, {}, p1_options, disabled_options));
                     $p2 = $.plot($(p2_selector), d, $.extend(true, {}, p2_options, disabled_options));
                     $(p1_selector).append(msg);
+                    setTimeout(show_plot);
                 };
                 load_data_points = function () {
                     var $template, col_width, render_grid, grid_width,
@@ -257,10 +258,7 @@ $.register_module({
                     $legend = get_legend(), $legend.hide();
                     rescale_yaxis();
                     load_data_points();
-                    setTimeout(function () {
-                        $(selector + ' .og-plots').css('visibility', 'visible');
-                        $(selector + ' .og-loading').remove();
-                    }); // load smoother
+                    setTimeout(show_plot);
                 };
                 calculate_y_values = function () {
                     var cur, // the current data set
@@ -441,6 +439,10 @@ $.register_module({
                         };
                         $(plot_selector).html(build_form());
                     }());
+                };
+                var show_plot = function () {
+                    $(selector + ' .og-plots').css('visibility', 'visible');
+                    $(selector + ' .og-loading').remove();
                 };
                 build_menu();
                 if (!config.child) og.common.gadgets.manager.register(timeseries);
