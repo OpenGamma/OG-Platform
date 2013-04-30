@@ -645,22 +645,22 @@ public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final DATA_TYPE data) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures) {
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures, final DATA_TYPE data) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures) {
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures) {
     return _value;
   }
 

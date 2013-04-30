@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
@@ -45,7 +46,7 @@ public class UniformMeshing extends MeshingFunction {
     ArgumentChecker.notNull(fixedPoints, "null fixed Points");
 
     // sort and remove duplicates, preserving order
-    _fpValues = unique(fixedPoints);
+    _fpValues = FunctionUtils.unique(fixedPoints);
     // remove any fixed points on the boundary
 //    int nn = temp.length;
 //    if (nn > 0 && temp[0] == 0.0) {
@@ -73,7 +74,7 @@ public class UniformMeshing extends MeshingFunction {
         _fpIndicies[ii] = (int) Math.round((nPoints - 1) * _fpValues[ii]);
       }
       // prevent points sharing index
-      if (m != unique(_fpIndicies).length) {
+      if (m != FunctionUtils.unique(_fpIndicies).length) {
         for (int ii = 1; ii < m; ii++) {
           int step = _fpIndicies[ii] - _fpIndicies[ii - 1];
           if (step < 1) {

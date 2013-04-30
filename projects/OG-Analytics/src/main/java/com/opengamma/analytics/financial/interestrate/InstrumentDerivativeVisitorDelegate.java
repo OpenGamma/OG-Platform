@@ -647,23 +647,23 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures, final DATA_TYPE data) {
-    return _delegate.visitDeliverableSwapFuturesSecurity(futures, data);
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final DATA_TYPE data) {
+    return _delegate.visitSwapFuturesDeliverableSecurity(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures) {
-    return _delegate.visitDeliverableSwapFuturesSecurity(futures);
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
+    return _delegate.visitSwapFuturesDeliverableSecurity(futures);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures, final DATA_TYPE data) {
-    return _delegate.visitDeliverableSwapFuturesTransaction(futures, data);
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures, final DATA_TYPE data) {
+    return _delegate.visitSwapFuturesDeliverableTransaction(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final SwapFuturesDeliverableTransaction futures) {
-    return _delegate.visitDeliverableSwapFuturesTransaction(futures);
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures) {
+    return _delegate.visitSwapFuturesDeliverableTransaction(futures);
   }
 
   @Override

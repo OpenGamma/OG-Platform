@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
@@ -74,7 +75,7 @@ import com.opengamma.util.tuple.Pair;
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Three curves in EUR; 3M curve build with futures priced with Hull-White (HW parameters exogeneous).
  */
-public class MulticurveBuildingHullWhiteDiscountEUR3Test {
+public class MulticurveBuildingHullWhiteDiscountFuturesEUR3Test {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -102,13 +103,9 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
   //  private static final GeneratorFRA GENERATOR_FRA_3M = new GeneratorFRA("GENERATOR_FRA_3M", EURIBOR3M);
   private static final GeneratorFRA GENERATOR_FRA_6M = new GeneratorFRA("GENERATOR_FRA_6M", EURIBOR6M);
   private static final ZonedDateTime ERZ1_START_PERIOD = DateUtils.getUTCDate(2011, 12, 21);
-  private static final InterestRateFutureTransactionDefinition ERZ1_DEFINITION = InterestRateFutureTransactionDefinition.fromFixingPeriodStartDate(ERZ1_START_PERIOD, 0, 1, ERZ1_START_PERIOD,
-      EURIBOR3M, NOTIONAL, 0.25,
-      "ERZ1");
+  private static final InterestRateFutureSecurityDefinition ERZ1_DEFINITION = InterestRateFutureSecurityDefinition.fromFixingPeriodStartDate(ERZ1_START_PERIOD, EURIBOR3M, NOTIONAL, 0.25, "ERZ1");
   private static final ZonedDateTime ERH2_START_PERIOD = DateUtils.getUTCDate(2012, 3, 21);
-  private static final InterestRateFutureTransactionDefinition ERH2_DEFINITION = InterestRateFutureTransactionDefinition.fromFixingPeriodStartDate(ERH2_START_PERIOD, 0, 1, ERH2_START_PERIOD,
-      EURIBOR3M, NOTIONAL, 0.25,
-      "ERH2");
+  private static final InterestRateFutureSecurityDefinition ERH2_DEFINITION = InterestRateFutureSecurityDefinition.fromFixingPeriodStartDate(ERH2_START_PERIOD, EURIBOR3M, NOTIONAL, 0.25, "ERH2");
   private static final GeneratorInterestRateFutures GENERATOR_ERZ1 = new GeneratorInterestRateFutures("ERZ1", ERZ1_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_ERH2 = new GeneratorInterestRateFutures("ERZ1", ERH2_DEFINITION);
   private static final GeneratorDepositIbor GENERATOR_EURIBOR3M = new GeneratorDepositIbor("GENERATOR_EURIBOR3M", EURIBOR3M);
@@ -253,6 +250,7 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -423,7 +421,6 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
         sensitivityCalculator);
   }
 
-  @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
@@ -450,12 +447,10 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
     return instruments;
   }
 
-  @SuppressWarnings("rawtypes")
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday) {
     return withToday ? TS_FIXED_OIS_EUR_WITH_TODAY : TS_FIXED_OIS_EUR_WITHOUT_TODAY;
   }
 
-  @SuppressWarnings("rawtypes")
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday) { // TODO: different fixing for 3 and 6 m
     return withToday ? TS_FIXED_IBOR_EUR3M_WITH_TODAY : TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY;
   }

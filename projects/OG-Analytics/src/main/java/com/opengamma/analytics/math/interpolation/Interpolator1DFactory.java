@@ -33,6 +33,8 @@ public final class Interpolator1DFactory {
   public static final String STEP = "Step";
   /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
+  /**Monotonicity-Preserving-Cubic-Spline*/
+  public static final String MONOTONIC_CUBIC = "MonotonicityPreservingCubicSpline";
   /** Time square */
   public static final String TIME_SQUARE = "TimeSquare";
   /** Flat extrapolator */
@@ -57,6 +59,8 @@ public final class Interpolator1DFactory {
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
+  /** MonotonicityPreservingCubicSpline*/
+  public static final MonotonicCubicInterpolator1D MONOTONIC_CUBIC_INSTANCE = new MonotonicCubicInterpolator1D();
   /** Time square instance */
   public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
   /** Flat extrapolator instance */
@@ -67,6 +71,8 @@ public final class Interpolator1DFactory {
   public static final ISDAInterpolator1D ISDA_INTERPOLATOR_INSTANCE = new ISDAInterpolator1D();
   /** ISDA extrapolator instance */
   public static final ISDAExtrapolator1D ISDA_EXTRAPOLATOR_INSTANCE = new ISDAExtrapolator1D();
+  /** 
+   */
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -86,9 +92,11 @@ public final class Interpolator1DFactory {
     instanceNames.put(StepInterpolator1D.class, STEP);
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
+    staticInstances.put(MONOTONIC_CUBIC, MONOTONIC_CUBIC_INSTANCE);
+    instanceNames.put(MonotonicCubicInterpolator1D.class, MONOTONIC_CUBIC);
     staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
     instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
-    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);
+    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);    
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
     staticInstances.put(EXPONENTIAL_EXTRAPOLATOR, EXPONENTIAL_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ExponentialExtrapolator1D.class, EXPONENTIAL_EXTRAPOLATOR);

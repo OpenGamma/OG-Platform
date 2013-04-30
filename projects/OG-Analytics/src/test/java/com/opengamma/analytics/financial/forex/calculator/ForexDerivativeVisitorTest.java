@@ -737,12 +737,12 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures, final T data) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
       return null;
     }
 
@@ -1037,12 +1037,12 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures, T data) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures, T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures) {
       return null;
     }
 

@@ -402,4 +402,27 @@ public class ConstrainedCubicSplineInterpolatorTest {
     interpPos.interpolate(xValues, yValues);
   }
 
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notReconnectedTest() {
+    double[] xValues = new double[] {1., 2., 2.0000001, 4. };
+    double[] yValues = new double[] {2., 3., 40000000., 5. };
+
+    PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
+    interpPos.interpolate(xValues, yValues);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notReconnectedMultiTest() {
+    double[] xValues = new double[] {1., 2., 2.0000001, 4. };
+    double[][] yValues = new double[][] {{2., 3., 40000000., 5. } };
+
+    PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
+    interpPos.interpolate(xValues, yValues);
+  }
 }

@@ -497,6 +497,22 @@ public class ShapePreservingCubicSplineInterpolatorTest {
   }
 
   /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notReconnectedTest() {
+    double[] xValues = new double[] {1., 2., 2.00000000001, 4. };
+    double[] yValues = new double[] {2., 3., 4.e-5, 5.e11 };
+
+    PiecewisePolynomialInterpolator interpPos = new ShapePreservingCubicSplineInterpolator();
+    interpPos.interpolate(xValues, yValues);
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[1] * (1. - EPS)));
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[1] * (1.)));
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[1] * (1. + .00000000001)));
+    //    System.out.println(interpPos.interpolate(xValues, yValues, xValues[2]));
+  }
+
+  /**
    * Tests below are for debugging
    */
   @Test

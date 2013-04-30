@@ -395,6 +395,18 @@ public class BilinearSplineInterpolatorTest {
     interp.interpolate(x0Values, x1Values, yValues);
   }
 
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notKnotRevoveredTests() {
+    double[] x0Values = new double[] {0., 1., 1.0000001, 3. };
+    double[] x1Values = new double[] {1., 1.0000000001, 3. };
+    double[][] yValues = new double[][] { {1., 3., 5. }, {2., 3.e13, 4. }, {1., 1.e-2, 1. }, {4., 3., 2. } };
+
+    BilinearSplineInterpolator intp = new BilinearSplineInterpolator();
+    intp.interpolate(x0Values, x1Values, yValues);
+  }
   //  /**
   //   * 
   //   */

@@ -79,6 +79,13 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     final double[] first = firstDerivativeCalculator(yValuesSrt, intervals, slopes, initialFirst);
     final double[][] coefs = _solver.solve(yValuesSrt, intervals, slopes, first);
 
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = 0; j < 4; ++j) {
+        ArgumentChecker.isFalse(Double.isNaN(coefs[i][j]), "Too large input");
+        ArgumentChecker.isFalse(Double.isInfinite(coefs[i][j]), "Too large input");
+      }
+    }
+
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
   }
 

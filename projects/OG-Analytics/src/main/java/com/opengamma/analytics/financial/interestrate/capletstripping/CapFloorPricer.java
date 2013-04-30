@@ -9,6 +9,8 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
+import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 
 /**
  * 
@@ -21,7 +23,7 @@ public class CapFloorPricer {
   /**
    * Decomposes a cap (floor) down to relevant information about its caplets (floorlets), i.e. the forward (ibor) values, the fixing times and
    * the discount factors. Each caplet (floorlet), and hence the whole cap (floor) can then be priced by suppling a VolatilityModel1D 
-   * (which gives a Black vol for a particular forward/strike/expiry) to the method price 
+   * (which gives a Black vol for a particular forward/strike/expiry) or a  VolatilityTermStructure (which gives the vol simply as a function of expiry)
    * @param cap a cap or floor 
    * @param ycb The relevant yield curves 
    */
@@ -53,12 +55,26 @@ public class CapFloorPricer {
     return sum;
   }
 
+  public double price(final VolatilityTermStructure volCurve) {
+    double sum = 0;
+    for (int i = 0; i < _n; i++) {
+      final double vol = volCurve.getVolatility(_caplets[i].getTimeToExpiry());
+      sum += BlackFormulaRepository.price(_caplets[i], vol);
+    }
+    return sum;
+  }
+
   public double impliedVol(final double capPrice) {
     return BlackFormulaRepository.impliedVolatility(_caplets, capPrice);
   }
 
   public double impliedVol(final VolatilityModel1D capletVolModel) {
     final double price = price(capletVolModel);
+    return impliedVol(price);
+  }
+
+  public double impliedVol(final VolatilityTermStructure volCurve) {
+    final double price = price(volCurve);
     return impliedVol(price);
   }
 
@@ -72,6 +88,11 @@ public class CapFloorPricer {
 
   public double vega(final VolatilityModel1D capletVolModel) {
     final double vol = impliedVol(capletVolModel);
+    return vega(vol);
+  }
+
+  public double vega(final VolatilityTermStructure volCurve) {
+    final double vol = impliedVol(volCurve);
     return vega(vol);
   }
 

@@ -658,12 +658,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures, final T data) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final T data) {
       return getValue(futures, true);
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final SwapFuturesDeliverableSecurity futures) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
       return getValue(futures, false);
     }
 
@@ -1113,12 +1113,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures, T data) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures, T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures) {
       return null;
     }
 

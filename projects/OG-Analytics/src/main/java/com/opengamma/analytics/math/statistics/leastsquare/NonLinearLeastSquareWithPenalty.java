@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.statistics.leastsquare;
@@ -103,7 +103,7 @@ public class NonLinearLeastSquareWithPenalty {
     DecompositionResult decmp;
     DoubleMatrix1D theta = startPos;
 
-    double lambda = 0.0; //TODO debug if the model is linear, it will be solved in 1 step
+    double lambda = 0.0; // TODO debug if the model is linear, it will be solved in 1 step
     double newChiSqr, oldChiSqr;
     DoubleMatrix1D error = getError(func, observedValues, sigma, theta);
 
@@ -111,7 +111,7 @@ public class NonLinearLeastSquareWithPenalty {
     DoubleMatrix2D jacobian = getJacobian(jac, sigma, theta);
     oldChiSqr = getChiSqr(error);
 
-    //If we start at the solution we are done
+    // If we start at the solution we are done
     if (oldChiSqr == 0.0) {
       return finish(oldChiSqr, jacobian, theta, sigma);
     }
@@ -131,19 +131,35 @@ public class NonLinearLeastSquareWithPenalty {
         throw new MathException(e);
       }
 
-      //debug
-//      final int n = theta.getNumberOfElements();
-//      for (int i = 0; i < n; i++) {
-//        System.out.print(theta.getEntry(i) + "\t");
-//      }
-//      System.out.print("\n");
+      // debug
+      // final int n = theta.getNumberOfElements();
+      // for (int i = 0; i < n; i++) {
+      // System.out.print(theta.getEntry(i) + "\t");
+      // }
+      // System.out.print("\n");
 
       DoubleMatrix1D trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
+
+      // ************************************************************
+      // debug
+      boolean violation = false; // violation
+      for (int i = 0; i < trialTheta.getNumberOfElements(); i++) {
+        if (trialTheta.getEntry(i) < 0.0) {
+          violation = true;
+          break;
+        }
+      }
+
+      if (violation) {
+        lambda = increaseLambda(lambda);
+        continue;
+      }
+      // ************************************************************
 
       newError = getError(func, observedValues, sigma, trialTheta);
       newChiSqr = getChiSqr(newError);
 
-      //Check for convergence when no improvement in chiSqr occurs
+      // Check for convergence when no improvement in chiSqr occurs
       if (Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
 
         final DoubleMatrix2D alpha0 = lambda == 0.0 ? alpha : getModifiedCurvatureMatrix(jacobian, 0.0, penalty);

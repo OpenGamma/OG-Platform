@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class MontonicIncreasingInterpolator1DTest {
+public class MonotonicIncreasingInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new MonotonicIncreasingInterpolator1D();
 
   //  private static final double[] X_DATA = new double[] {0.4, 0.9, 1.0, 1.8, 2.8, 5 };
