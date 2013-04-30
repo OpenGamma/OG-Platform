@@ -113,7 +113,7 @@ $.register_module({
                 if (!data || !data.timeseries.data.length) return;
                 return {
                     meta: meta(dataman, data.timeseries.data.length, data.timeseries.fieldLabels, 125, true),
-                    data: data.timeseries.data.reduce(function (acc, val) {
+                    data: data.timeseries.data.reverse().reduce(function (acc, val) {
                         return (val[0] = og.common.util.date(val[0])), acc.concat(val.map(cell_value));
                     }, [])
                 };
