@@ -7,6 +7,7 @@ package com.opengamma.integration.masterdb;
 
 import static org.testng.AssertJUnit.assertNotNull;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -15,6 +16,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbConfigMaster.
@@ -24,9 +26,14 @@ public abstract class AbstractIntegrationDbConfigMasterTest extends AbstractLoca
   private static final int PAGE_SIZE = 1000;
   private ConfigMaster _cfgMaster;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.INTEGRATION)
   public void setUp() throws Exception {
     _cfgMaster = getTestHelper().getConfigMaster();
+  }
+
+  @AfterMethod(groups = TestGroup.INTEGRATION)
+  public void tearDown() throws Exception {
+    _cfgMaster = null;
   }
 
   protected ConfigMaster getConfigMaster() {
@@ -34,7 +41,7 @@ public abstract class AbstractIntegrationDbConfigMasterTest extends AbstractLoca
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(enabled = false, description = "Queries the entire database")
   public void test_queryAll() throws Exception {
     final ConfigSearchRequest<?> request = new ConfigSearchRequest<Object>(Object.class);
     request.setPagingRequest(PagingRequest.NONE);

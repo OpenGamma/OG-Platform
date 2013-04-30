@@ -7,6 +7,7 @@ package com.opengamma.integration.masterdb;
 
 import static org.testng.AssertJUnit.assertNotNull;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -15,6 +16,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbPortfolioMaster.
@@ -25,9 +27,14 @@ public abstract class AbstractIntegrationDbPortfolioMasterTest extends AbstractL
 
   private PortfolioMaster _prtMaster;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.INTEGRATION)
   public void setUp() throws Exception {
     _prtMaster = getTestHelper().getPortfolioMaster();
+  }
+
+  @AfterMethod(groups = TestGroup.INTEGRATION)
+  public void tearDown() throws Exception {
+    _prtMaster = null;
   }
 
   protected PortfolioMaster getPortfolioMaster() {
@@ -35,7 +42,7 @@ public abstract class AbstractIntegrationDbPortfolioMasterTest extends AbstractL
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(enabled = false, description = "Queries the entire database")
   public void test_queryAll() throws Exception {
     final PortfolioSearchRequest request = new PortfolioSearchRequest();
     request.setPagingRequest(PagingRequest.NONE);
