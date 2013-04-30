@@ -153,26 +153,22 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigItem}.
-   * 
    * @return the meta-bean, not null
    */
   @SuppressWarnings("rawtypes")
   public static ConfigItem.Meta meta() {
     return ConfigItem.Meta.INSTANCE;
   }
-
   /**
    * The meta-bean for {@code ConfigItem}.
-   * 
-   * @param <R> the bean's generic type
-   * @param cls the bean's generic type
+   * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
   public static <R> ConfigItem.Meta<R> metaConfigItem(Class<R> cls) {
     return ConfigItem.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(ConfigItem.Meta.INSTANCE);
   }
@@ -186,13 +182,13 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 111972721: // value
+      case 111972721:  // value
         return getValue();
-      case -294460212: // uniqueId
+      case -294460212:  // uniqueId
         return getUniqueId();
-      case 3373707: // name
+      case 3373707:  // name
         return getName();
-      case 3575610: // type
+      case 3575610:  // type
         return getType();
     }
     return super.propertyGet(propertyName, quiet);
@@ -202,16 +198,16 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 111972721: // value
+      case 111972721:  // value
         setValue((T) newValue);
         return;
-      case -294460212: // uniqueId
+      case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
-      case 3373707: // name
+      case 3373707:  // name
         setName((String) newValue);
         return;
-      case 3575610: // type
+      case 3575610:  // type
         setType((Class<?>) newValue);
         return;
     }
@@ -253,7 +249,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying value.
-   * 
    * @return the value of the property, not null
    */
   public T getValue() {
@@ -262,8 +257,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Sets the underlying value.
-   * 
-   * @param value the new value of the property, not null
+   * @param value  the new value of the property, not null
    */
   public void setValue(T value) {
     JodaBeanUtils.notNull(value, "value");
@@ -272,7 +266,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code value} property.
-   * 
    * @return the property, not null
    */
   public final Property<T> value() {
@@ -282,18 +275,15 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier.
-   * 
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
   /**
    * Sets the unique identifier.
-   * 
-   * @param uniqueId the new value of the property
+   * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
@@ -301,7 +291,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code uniqueId} property.
-   * 
    * @return the property, not null
    */
   public final Property<UniqueId> uniqueId() {
@@ -311,7 +300,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the item.
-   * 
    * @return the value of the property, not null
    */
   public String getName() {
@@ -320,8 +308,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Sets the name of the item.
-   * 
-   * @param name the new value of the property, not null
+   * @param name  the new value of the property, not null
    */
   public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
@@ -330,7 +317,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code name} property.
-   * 
    * @return the property, not null
    */
   public final Property<String> name() {
@@ -340,8 +326,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Sets the type of the configuration item.
-   * 
-   * @param type the new value of the property
+   * @param type  the new value of the property
    */
   public void setType(Class<?> type) {
     this._type = type;
@@ -349,7 +334,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code type} property.
-   * 
    * @return the property, not null
    */
   public final Property<Class<?>> type() {
@@ -408,13 +392,13 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 111972721: // value
+        case 111972721:  // value
           return _value;
-        case -294460212: // uniqueId
+        case -294460212:  // uniqueId
           return _uniqueId;
-        case 3373707: // name
+        case 3373707:  // name
           return _name;
-        case 3575610: // type
+        case 3575610:  // type
           return _type;
       }
       return super.metaPropertyGet(propertyName);
@@ -439,7 +423,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code value} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<T> value() {
@@ -448,7 +431,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
     /**
      * The meta-property for the {@code uniqueId} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<UniqueId> uniqueId() {
@@ -457,7 +439,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
     /**
      * The meta-property for the {@code name} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> name() {
@@ -466,7 +447,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
     /**
      * The meta-property for the {@code type} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Class<?>> type() {

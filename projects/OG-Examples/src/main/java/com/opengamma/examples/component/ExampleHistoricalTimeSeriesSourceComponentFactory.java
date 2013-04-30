@@ -45,13 +45,11 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Historica
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ExampleHistoricalTimeSeriesSourceComponentFactory}.
-   * 
    * @return the meta-bean, not null
    */
   public static ExampleHistoricalTimeSeriesSourceComponentFactory.Meta meta() {
     return ExampleHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(ExampleHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }
