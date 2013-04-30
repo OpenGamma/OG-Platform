@@ -511,6 +511,7 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(CreditInstrumentCS01PnLFunction.class));
     functions.add(functionConfiguration(EquityPnLFunction.class));
     functions.add(functionConfiguration(FXForwardCurrencyExposurePnLFunction.class));
+    functions.add(functionConfiguration(FXForwardAggregatedYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(FXForwardYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(FXOptionBlackDeltaPnLFunction.class));
     functions.add(functionConfiguration(FXOptionBlackVegaPnLFunction.class));

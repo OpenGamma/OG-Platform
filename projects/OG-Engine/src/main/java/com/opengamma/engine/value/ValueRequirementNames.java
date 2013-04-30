@@ -204,6 +204,14 @@ public final class ValueRequirementNames {
    */
   public static final String CURVE_DEFINITION = "CurveDefinition";
   /**
+   * A vector of P&L series for the nodal points of a yield curve. 
+   */
+  public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
+  /**
+   * A vector of return series for the nodal points of a yield curve.
+   */
+  public static final String YIELD_CURVE_RETURN_SERIES = "Yield Curve Return Series";
+  /**
    * Curve calculation property metadata
    */
   public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
