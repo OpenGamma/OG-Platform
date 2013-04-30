@@ -204,21 +204,6 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
     return new DoubleMatrix2D(res);
   }
 
-  @Override
-  public DoubleMatrix1D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double x) {
-    throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
-  }
-
-  @Override
-  public DoubleMatrix2D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[] x) {
-    throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
-  }
-
-  @Override
-  public DoubleMatrix2D[] interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[][] x) {
-    throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
-  }
-
   /**
    * Determine f(t) = \frac{\partial r(t) t}{\partial t}
    * @param xValues Data t_i
