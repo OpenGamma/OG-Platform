@@ -48,4 +48,31 @@ public class LocalDateToIntConverterTest {
     LocalDateToIntConverter.convertToInt(LocalDate.of(10_000, 1, 1));
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_convertToLocalDate_tooSmall() {
+    LocalDateToIntConverter.convertToInt(LocalDate.of(-1, 1, 1));
+  }
+
+  @DataProvider(name = "invalid")
+  Object[][] data_invalid() {
+    return new Object[][] {
+        {20120100},
+        {20120132},
+        {20120001},
+        {20121301},
+        
+        {20120230},
+        {20120231},
+        {20120431},
+        {20120631},
+        {20120931},
+        {20121131},
+    };
+  }
+
+  @Test(dataProvider = "invalid", expectedExceptions = IllegalArgumentException.class)
+  public void test_checkInvalid(int date) {
+    LocalDateToIntConverter.checkValid(date);
+  }
+
 }

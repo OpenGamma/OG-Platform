@@ -88,6 +88,16 @@ public final class ExecutionFlags {
   }
 
   /**
+   * Adds {@link ViewExecutionFlags#FETCH_MARKET_DATA_ONLY}
+   * 
+   * @return this
+   */
+  public ExecutionFlags fetchMarketDataOnly() {
+    _flags.add(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
+    return this;
+  }
+
+  /**
    * Adds {@link ViewExecutionFlags#WAIT_FOR_INITIAL_TRIGGER}
    * 
    * @return this

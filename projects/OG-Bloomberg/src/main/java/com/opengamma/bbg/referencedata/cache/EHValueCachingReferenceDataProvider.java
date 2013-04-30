@@ -129,7 +129,7 @@ public class EHValueCachingReferenceDataProvider extends AbstractValueCachingRef
       s_logger.debug("Have security data for des {} in cache", identifier);
       Object fromCache = element.getObjectValue();
       s_logger.debug("cachedObject={}", fromCache);
-      return parseCachedObject((CachedReferenceData) fromCache);
+      return parseCachedObject(fromCache);
     }
     return null;
   }
