@@ -7,7 +7,6 @@ package com.opengamma.util.functional;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,6 +56,7 @@ public final class Functional<S> implements Iterable<S> {
    * @param array objects out of which the array is created
    * @return an array of type V out of provided objects
    */
+  @SafeVarargs  // may not be safe, but then again it might be...
   public static <V> V[] newArray(final V... array) {
     return array;
   }
@@ -398,6 +398,7 @@ public final class Functional<S> implements Iterable<S> {
     return collection;
   }
 
+  @SuppressWarnings("unchecked")
   static <T, K> K[] iterable2array(Iterable<T> iterable, Class<K> clazz) {
     ArrayList<T> collection = iterable2collection(iterable);
     K[] result = (K[]) Array.newInstance(clazz, collection.size());

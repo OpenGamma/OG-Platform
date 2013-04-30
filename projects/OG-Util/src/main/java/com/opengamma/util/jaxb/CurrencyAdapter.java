@@ -9,6 +9,9 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import com.opengamma.util.money.Currency;
 
+/**
+ * XML adapter for Currency.
+ */
 public class CurrencyAdapter extends XmlAdapter<String, Currency> {
 
   @Override
@@ -20,4 +23,5 @@ public class CurrencyAdapter extends XmlAdapter<String, Currency> {
   public String marshal(Currency v) throws Exception {
     return v.getCode();
   }
+
 }

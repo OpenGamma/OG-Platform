@@ -7,15 +7,21 @@ package com.opengamma.util.jaxb;
 
 import org.threeten.bp.LocalDate;
 
+/**
+ * XML adapter for LocalDate.
+ */
 public class LocalDateAdapter extends AbstractDateAdapter<LocalDate> {
 
-  @Override
-  protected String getDatePattern() {
-    return "yyyy-MM-dd";
+  /**
+   * Creates an instance.
+   */
+  public LocalDateAdapter() {
+    super("yyyy-MM-dd");
   }
 
   @Override
   public LocalDate unmarshal(String v) throws Exception {
-    return _formatter.parse(v, LocalDate.class);
+    return getFormatter().parse(v, LocalDate.class);
   }
+
 }

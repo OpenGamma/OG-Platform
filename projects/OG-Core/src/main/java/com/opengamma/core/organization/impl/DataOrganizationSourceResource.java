@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -32,15 +31,25 @@ import com.opengamma.util.rest.AbstractDataResource;
 @Path("organizationSource")
 public class DataOrganizationSourceResource extends AbstractDataResource {
 
+  /** URI fragment. */
   public static final String GET_ORGANIZATIONS_URL = "organizations/{organizationId}";
+  /** URI fragment. */
   public static final String SEARCH_ORGANIZATION_BY_TICKER = "organizationSearches/ticker";
+  /** URI fragment. */
   public static final String SEARCH_ORGANIZATION_BY_RED_CODE = "organizationSearches/redCode";
+  /** URI fragment. */
   public static final String TICKER_PARAM = "ticker";
+  /** URI fragment. */
   public static final String RED_CODE_PARAM = "redCode";
+  /** URI fragment. */
   public static final String ORGANIZATION_ID_PATH = "organizationId";
+  /** URI fragment. */
   public static final String VERSION_PARAM = "version";
+  /** URI fragment. */
   public static final String VERSION_AS_OF_PARAM = "versionAsOf";
+  /** URI fragment. */
   public static final String CORRECTED_TO_PARAM = "correctedTo";
+
   /**
    * The security source.
    */

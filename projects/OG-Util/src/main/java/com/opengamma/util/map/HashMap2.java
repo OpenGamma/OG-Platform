@@ -71,6 +71,7 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
       return new MapMaker().weakKeys().makeMap();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected <K> K getKey(final Object reference) {
       return ((Reference<K>) reference).get();

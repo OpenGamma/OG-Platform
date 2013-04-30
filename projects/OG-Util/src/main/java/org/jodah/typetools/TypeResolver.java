@@ -1,3 +1,4 @@
+// CSOFF
 /**
  * Copyright 2002-2011 the original author or authors.
  *

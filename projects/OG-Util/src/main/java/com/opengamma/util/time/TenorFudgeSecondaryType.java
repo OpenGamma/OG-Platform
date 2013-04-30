@@ -36,6 +36,7 @@ public final class TenorFudgeSecondaryType extends SecondaryFieldType<Tenor, Str
     return object.getPeriod().toString();
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public Tenor primaryToSecondary(final String string) {
     return new Tenor(DateUtils.toPeriod(string));

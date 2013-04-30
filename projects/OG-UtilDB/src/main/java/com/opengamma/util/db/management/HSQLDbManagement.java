@@ -6,18 +6,11 @@
 package com.opengamma.util.db.management;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.SQLInvalidAuthorizationSpecException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
-
-import com.opengamma.OpenGammaRuntimeException;
 
 
 /**

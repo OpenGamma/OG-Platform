@@ -153,7 +153,7 @@ public class EHCachingHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     Element cacheElement = _cache.get(requestKey);
     if (cacheElement != null) {
       s_logger.debug("Found time-series in cache: {}", requestKey);
-      return (LocalDateDoubleTimeSeries) cacheElement.getValue();
+      return (LocalDateDoubleTimeSeries) cacheElement.getObjectValue();
     }
     
     // find whole time-series in cache
@@ -161,10 +161,10 @@ public class EHCachingHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       HistoricalTimeSeriesProviderGetRequest wholeHtsKey = createCacheKey(requestKey, null, true);
       cacheElement = _cache.get(wholeHtsKey);
       if (cacheElement != null) {
-        if (cacheElement.getValue() == NO_HTS) {
+        if (cacheElement.getObjectValue() == NO_HTS) {
           return NO_HTS;
         }
-        LocalDateDoubleTimeSeries wholeHts = (LocalDateDoubleTimeSeries) cacheElement.getValue();
+        LocalDateDoubleTimeSeries wholeHts = (LocalDateDoubleTimeSeries) cacheElement.getObjectValue();
         LocalDateDoubleTimeSeries filteredHts = filterResult(wholeHts, requestKey.getDateRange(), requestKey.getMaxPoints());
         _cache.put(new Element(requestKey, filteredHts));  // re-cache under filtered values
         s_logger.debug("Derived time-series from cache: {}", requestKey);

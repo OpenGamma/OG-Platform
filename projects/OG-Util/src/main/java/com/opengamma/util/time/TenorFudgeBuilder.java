@@ -29,6 +29,7 @@ public class TenorFudgeBuilder implements FudgeBuilder<Tenor> {
     return msg;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public Tenor buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final String tenorStr = msg.getString(TENOR_FIELD_NAME);

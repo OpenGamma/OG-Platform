@@ -171,11 +171,16 @@ public final class AnnotationCache {
   /**
    * Creates a function cache from a set of class names
    * 
+   * @param timestamp  the cache timestamp, not null
+   * @param annotationClass  the annotation class, not null
+   * @param classNames  the class names, not null
    * @return the cache object, not null
    */
-  public static AnnotationCache create(final Instant timestamp, final Class<? extends Annotation> annotationClass, final Collection<String> classNames) {
+  public static AnnotationCache create(
+      final Instant timestamp, final Class<? extends Annotation> annotationClass, final Collection<String> classNames) {
     final AnnotationCache cache = new AnnotationCache(timestamp, annotationClass);
     cache.addAll(classNames);
     return cache;
   }
+
 }

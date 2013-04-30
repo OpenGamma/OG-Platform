@@ -519,11 +519,7 @@ public final class DateUtils {
     if (date == null) {
       throw new IllegalArgumentException("The date must not be null");
     }
-    return LocalDate.of(
-        date.getYear() + 1900,
-        date.getMonth() + 1,
-        date.getDate()
-        );
+    return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
   }
 
   //-------------------------------------------------------------------------

@@ -67,7 +67,7 @@ public class DataConfigurationResource extends AbstractDataResource {
     for (final Map.Entry<Object, Object> config : ((Map<Object, Object>) value).entrySet()) {
       Object configValue = config.getValue();
       if (configValue instanceof Supplier) {
-        configValue = ((Supplier) configValue).get();
+        configValue = ((Supplier<?>) configValue).get();
       }
       if (configValue instanceof Map) {
         message.add(config.getKey().toString(), mapToMessage(serializer, (Map<?, ?>) configValue));
