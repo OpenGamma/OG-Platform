@@ -122,7 +122,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
           final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
           if ((nodeProducing != null) && isTerminalUnstructuredOutput(nodeProducing, graph)) {
             itrData.remove();
-            final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(nodeProducing.getRequiredMarketData().getTargetSpecification());
+            final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(computedValue.getSpecification().getTargetSpecification());
             if (identifiers != null) {
               snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), new ValueSnapshot((Double) computedValue.getValue()));
             }
