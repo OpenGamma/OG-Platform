@@ -43,11 +43,11 @@ $.register_module({
                     $anchor.attr('href', href);
                 });
                 $(window).on('hashchange', function () {
-                    if (!hashchange && !window.confirm(feedback)) {
-                        hashchange = true
+                    if (hashchange && !window.confirm(feedback)) {
+                        hashchange = false
                         return window.history.back();
                     }
-                    hashchange = false;
+                    hashchange = true;
                     routes.handler();
                     routes.set_title(routes.title || routes.current().hash);
                     routes.title = null;

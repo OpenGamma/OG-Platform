@@ -127,7 +127,8 @@ $.register_module({
                             setTimeout(function () {view.notify(null), view.search(args), view.details(args);}, 300);
                         },
                         handler: function (form) {
-                            var json = details_json.template_data,
+                            var json = details_json.template_data, form_state,
+                                unsaved_txt = 'You have unsaved changes to',
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                         This configuration has been deleted\
@@ -164,6 +165,18 @@ $.register_module({
                             });
                             view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
+                            form_state = form.compile();
+                            og.common.events.on('search:results:clicked', function () {
+                                og.common.events.off('search:results:clicked');
+                                    if (!Object.equals(form_state, form.compile())){
+                                        return og.common.routes.surpress_hashchanged(true,
+                                                    unsaved_txt + ' ' + form_state.data.name);
+                                    }
+                                    else og.common.routes.surpress_hashchanged(false, '');
+                            });
+                            /*$(window).bind('beforeunload', function (event) {
+                                return unsaved_txt + ' ' + form_state.data.name;
+                            });*/
                         },
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
