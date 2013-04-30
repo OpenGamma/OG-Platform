@@ -56,6 +56,7 @@ $.register_module({
             events.on.call(form, 'datasources:initialized', function () {
                 dom.load_btn.removeClass('og-disabled').removeAttr('disabled');
             });
+            og.analytics.status.nominal();
         };
 
         var load_form = function (data) {

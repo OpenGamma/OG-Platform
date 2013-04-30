@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -26,10 +27,8 @@ public class GeneratorInterestRateFuturesTest {
   private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M", NYC);
   private static final ZonedDateTime FIXING_PERIOD_START_DATE = DateUtils.getUTCDate(2012, 12, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(FIXING_PERIOD_START_DATE, -USDLIBOR3M.getSpotLag(), NYC);
-  private static final ZonedDateTime FIXING_PERIOD_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_PERIOD_START_DATE, USDLIBOR3M);
-  private static final double NOTIONAL = 100000;
-  private static final InterestRateFutureTransactionDefinition FUTURES_DEFINITION = new InterestRateFutureTransactionDefinition(LAST_TRADING_DATE, 0, 1, LAST_TRADING_DATE, FIXING_PERIOD_START_DATE,
-      FIXING_PERIOD_END_DATE, USDLIBOR3M, NOTIONAL, 0.25, "IRF");
+  private static final double NOTIONAL = 1000000;
+  private static final InterestRateFutureSecurityDefinition FUTURES_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, USDLIBOR3M, NOTIONAL, 0.25, "IRF");
   private static final GeneratorInterestRateFutures GENERATOR_FUTURES_ED = new GeneratorInterestRateFutures("USD-ED", FUTURES_DEFINITION);
 
   @Test
@@ -44,14 +43,12 @@ public class GeneratorInterestRateFuturesTest {
   @Test
   public void generateInstrument() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    //    Period tenorInit = Period.ofMonths(1);
-    //    Integer num = 2;
     double price = 0.99;
-    double notional = 100000;
+    double notional = 2000000;
+    int quantity = (int) Math.ceil(notional / NOTIONAL);
     GeneratorAttribute attribute = new GeneratorAttribute();
     InterestRateFutureTransactionDefinition insGenerated = GENERATOR_FUTURES_ED.generateInstrument(referenceDate, price, notional, attribute);
-    InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(referenceDate, price, 1, LAST_TRADING_DATE, FIXING_PERIOD_START_DATE, FIXING_PERIOD_END_DATE,
-        USDLIBOR3M, notional, 0.25, "IRF");
+    InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(FUTURES_DEFINITION, referenceDate, price, quantity);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

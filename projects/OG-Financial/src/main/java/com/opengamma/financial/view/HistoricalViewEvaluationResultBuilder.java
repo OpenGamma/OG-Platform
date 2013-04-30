@@ -36,6 +36,7 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateObjectTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 
 /* package */class HistoricalViewEvaluationResultBuilder {
 
@@ -46,8 +47,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
   // the identifiers of the time series that were written to the database
 
   /**
-   * Builder for time-series where there is at most one result for a given date.
-   * Points may be added in any order, allowing the results to be executed in parallel.
+   * Builder for time-series where there is at most one result for a given date. Points may be added in any order, allowing the results to be executed in parallel.
    */
   private static class TimeSeriesBuilder {
 
@@ -223,7 +223,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
 
   public synchronized void store(LocalDate resultsDate, ViewComputationResultModel results) {
     assert _compiled;
-    final int date = (int) resultsDate.toEpochDay();
+    final int date = LocalDateToIntConverter.convertToInt(resultsDate);
     for (final ViewResultEntry viewResult : results.getAllResults()) {
       final ComputedValue computedValue = viewResult.getComputedValue();
       final Object value = computedValue.getValue();

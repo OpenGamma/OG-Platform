@@ -119,7 +119,7 @@ $.register_module({
             }; 
             return og.common.util.ui.contextmenu({
                 defaults: false, zindex: 4,
-                items: new og.analytics.NodeMenu(grid, cell, event).items().concat({}, context_items(cell))
+                items: new og.common.grid.NodeMenu(grid, cell, event).items().concat({}, context_items(cell))
             }, event, cell);
         };
     }

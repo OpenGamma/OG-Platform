@@ -34,49 +34,5 @@ public abstract class MeshingFunction extends Function1D<Integer, Double> {
     }
     return res;
   }
-
-  /**
-   * Same behaviour as mathlab unique
-   * @param in input array
-   * @return a sorted array with no duplicates values
-   */
-  protected double[] unique(final double[] in) {
-    Arrays.sort(in);
-    final int n = in.length;
-    final double[] temp = new double[n];
-    temp[0] = in[0];
-    int count = 1;
-    for (int i = 1; i < n; i++) {
-      if (Double.compare(in[i], in[i - 1]) != 0) {
-        temp[count++] = in[i];
-      }
-    }
-    if (count == n) {
-      return temp;
-    }
-    return Arrays.copyOf(temp, count);
-  }
-
-  /**
-   * Same behaviour as mathlab unique
-   * @param in input array
-   * @return a sorted array with no duplicates values
-   */
-  protected int[] unique(final int[] in) {
-    Arrays.sort(in);
-    final int n = in.length;
-    final int[] temp = new int[n];
-    temp[0] = in[0];
-    int count = 1;
-    for (int i = 1; i < n; i++) {
-      if (in[i] != in[i - 1]) {
-        temp[count++] = in[i];
-      }
-    }
-    if (count == n) {
-      return temp;
-    }
-    return Arrays.copyOf(in, count);
-  }
-
+  
 }

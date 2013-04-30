@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -71,7 +72,7 @@ public class ExponentialMeshing extends MeshingFunction {
     _l = lowerBound;
     _r = upperBound;
 
-    _fpValues = unique(fixedPoints);
+    _fpValues = FunctionUtils.unique(fixedPoints);
 
     int m = _fpValues.length;
     final double[] fp = new double[m];

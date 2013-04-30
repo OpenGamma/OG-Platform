@@ -300,44 +300,6 @@ public class MonotoneConvexSplineInterpolatorTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nonSupKeyTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 3., 2., 1. }, {1., 3., 2., 1. } };
-
-    MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
-    interpolator.interpolate(xValues, yValues, 1.);
-  }
-
-  /**
-   * 
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nonSupKeyVectorTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 3., 2., 1. }, {1., 3., 2., 1. } };
-    final double[] key = new double[] {2., 2.5 };
-
-    MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
-    interpolator.interpolate(xValues, yValues, key);
-  }
-
-  /**
-   * 
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nonSupKeyMatrixTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 3., 2., 1. }, {1., 3., 2., 1. } };
-    final double[][] key = new double[][] { {2., 2.5 }, {2., 2.5 } };
-
-    MonotoneConvexSplineInterpolator interpolator = new MonotoneConvexSplineInterpolator();
-    interpolator.interpolate(xValues, yValues, key);
-  }
-
-  /**
-   * 
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullyTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[4];

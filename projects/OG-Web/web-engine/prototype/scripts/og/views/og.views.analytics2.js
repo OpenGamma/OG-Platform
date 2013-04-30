@@ -9,6 +9,9 @@ $.register_module({
         var routes = og.common.routes, module = this, view,
             main_selector = '.OG-layout-analytics-center';
         module.rules = {load: {route: '/', method: module.name + '.load'}};
+        og.api.rest
+            .on('disconnect', og.analytics.status.disconnected)
+            .on('reconnect', og.analytics.status.reconnected);
         return view = {
             check_state: og.views.common.state.check.partial('/'),
             load: function (args) {

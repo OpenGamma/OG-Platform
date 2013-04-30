@@ -49,7 +49,7 @@ public class USConventions {
     final String fixedSwapLegConventionName = getConventionName(USD, FIXED_SWAP_LEG);
     final String vanillaIborLegConventionName = getConventionName(USD, VANILLA_IBOR_LEG);
     final ExternalId liborConventionId = InMemoryConventionBundleMaster.simpleNameSecurityId(liborConventionName);
-    final Convention libor3mConvention = new IborIndexConvention(liborConventionName, getIds(USD, IBOR), ACT_360, MODIFIED_FOLLOWING, 2, false, USD, Tenor.THREE_MONTHS,
+    final Convention libor3mConvention = new IborIndexConvention(liborConventionName, getIds(USD, IBOR), ACT_360, MODIFIED_FOLLOWING, 2, false, USD,
         LocalTime.of(11, 00), NYLON, US, "");
     final Convention depositConvention = new DepositConvention(depositConventionName, getIds(USD, DEPOSIT), ACT_360, MODIFIED_FOLLOWING, 2, false, USD, US);
     final Convention fixedLegConvention = new SwapFixedLegConvention(fixedSwapLegConventionName, getIds(USD, FIXED_SWAP_LEG),

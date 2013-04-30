@@ -175,6 +175,7 @@ public class FutureFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(MarkToMarketSpotFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
       functions.add(functionConfiguration(MarkToMarketValueDeltaFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
       functions.add(functionConfiguration(MarkToMarketValueRhoFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
+      functions.add(functionConfiguration(MarkToMarketScenarioPnLFuturesFunction.class));
     }
 
   }

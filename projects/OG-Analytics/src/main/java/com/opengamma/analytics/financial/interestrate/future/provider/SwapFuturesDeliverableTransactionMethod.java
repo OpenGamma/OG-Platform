@@ -15,7 +15,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Methods for the pricing of interest rate futures generic to all models.
  */
-public abstract class DeliverableSwapFuturesTransactionMethod {
+public abstract class SwapFuturesDeliverableTransactionMethod {
 
   /**
    * Compute the present value of a future transaction from a quoted price.

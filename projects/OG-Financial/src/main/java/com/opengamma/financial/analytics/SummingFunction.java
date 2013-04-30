@@ -172,7 +172,7 @@ public class SummingFunction extends MissingInputsFunction {
       for (final ComputedValue input : inputs.getAllValues()) {
         final Object inputValue = input.getValue();
         if (inputValue instanceof String) {
-          // Threat the empty string as a special case - it's used in place of 0 when there are no valid inputs
+          // Treat the empty string as a special case - it's used in place of 0 when there are no valid inputs
           if (((String) inputValue).length() == 0) {
             continue;
           }

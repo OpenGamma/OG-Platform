@@ -73,7 +73,8 @@ public class FutureTradeConverter {
       if ((trade.getTradeDate() != null) && (trade.getTradeTime().toLocalTime() != null)) {
         tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
       }
-      InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate);
+      int quantity = trade.getQuantity().intValue();
+      InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate, quantity);
       return tradeDefinition;
     }
     throw new IllegalArgumentException("Can only handle FutureSecurity");
@@ -86,7 +87,8 @@ public class FutureTradeConverter {
    * @param tradeDate The trade date.
    * @return The tradeDefinition.
    */
-  private InstrumentDefinitionWithData<?, Double> securityToTrade(InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice, final ZonedDateTime tradeDate) {
+  private InstrumentDefinitionWithData<?, Double> securityToTrade(InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice,
+      final ZonedDateTime tradeDate, final int quantity) {
 
     final InstrumentDefinitionVisitorAdapter<InstrumentDefinitionWithData<?, Double>, InstrumentDefinitionWithData<?, Double>> visitor =
         new InstrumentDefinitionVisitorAdapter<InstrumentDefinitionWithData<?, Double>, InstrumentDefinitionWithData<?, Double>>() {
@@ -126,9 +128,9 @@ public class FutureTradeConverter {
 
           @Override
           public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
-            return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, 1);
+            return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, quantity);
           }
-          
+
           @Override
           public InstrumentDefinitionWithData<?, Double> visitIndexFutureDefinition(final IndexFutureDefinition futures) {
             return new IndexFutureDefinition(futures.getExpiryDate(), futures.getSettlementDate(), tradePrice, futures.getCurrency(), futures.getUnitAmount(), futures.getUnderlying());

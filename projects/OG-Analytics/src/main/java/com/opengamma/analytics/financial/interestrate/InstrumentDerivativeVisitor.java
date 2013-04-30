@@ -333,13 +333,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurity(SwapFuturesDeliverableSecurity futures, DATA_TYPE data);
+  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesDeliverableSecurity futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurity(SwapFuturesDeliverableSecurity futures);
+  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesDeliverableSecurity futures);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures, DATA_TYPE data);
+  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransaction(SwapFuturesDeliverableTransaction futures);
+  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures);
 
   // -----     Futures options   -----
 

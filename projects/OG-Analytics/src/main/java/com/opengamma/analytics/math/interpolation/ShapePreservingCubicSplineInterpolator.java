@@ -80,10 +80,16 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
     final double[][] coefMatrix = solve(yValuesSrt, intervals, slopes, first, second, tau);
 
     for (int i = 0; i < coefMatrix.length; ++i) {
-      for (int j = 0; j < coefMatrix[0].length; ++j) {
+      double ref = 0.;
+      final double interval = knots[i + 1] - knots[i];
+      for (int j = 0; j < 4; ++j) {
+        ref += coefMatrix[i][j] * Math.pow(interval, 3 - j);
         ArgumentChecker.isFalse(Double.isNaN(coefMatrix[i][j]), "Too large input");
         ArgumentChecker.isFalse(Double.isInfinite(coefMatrix[i][j]), "Too large input");
       }
+      final double yVal = i == coefMatrix.length - 1 ? yValues[nDataPts - 1] : coefMatrix[i + 1][3];
+      final double bound = Math.abs(ref) + Math.abs(yVal) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yVal);
+      ArgumentChecker.isTrue(Math.abs(ref - yVal) < ERROR * bound, "Input is too large/small or data points are too close");
     }
 
     return new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(coefMatrix), 4, 1);

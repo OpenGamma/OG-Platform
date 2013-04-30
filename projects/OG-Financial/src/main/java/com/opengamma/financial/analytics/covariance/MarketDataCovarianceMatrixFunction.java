@@ -53,7 +53,6 @@ public class MarketDataCovarianceMatrixFunction extends SampledCovarianceMatrixF
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final HistoricalViewEvaluationMarketData marketData = (HistoricalViewEvaluationMarketData) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final ValueSpecification[] marketDataSpecs = marketData.getValueSpecifications().toArray(new ValueSpecification[marketData.getValueSpecifications().size()]);
-    @SuppressWarnings("rawtypes")
     final LocalDateDoubleTimeSeries[] timeSeries = new LocalDateDoubleTimeSeries[marketDataSpecs.length];
     for (int i = 0; i < marketDataSpecs.length; i++) {
       timeSeries[i] = marketData.getDoubleTimeSeries(marketDataSpecs[i]);

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -28,13 +29,20 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
 
   private final List<Triple<String, String, String>> _comparisons = Lists.newLinkedList();
 
-  protected Map<String, String> getVersionSchemas() {
-    Map<String, String> versionSchema = s_targetSchema.get(getDatabaseType());
-    if (versionSchema == null) {
-      versionSchema = new HashMap<>();
-      s_targetSchema.put(getDatabaseType(), versionSchema);
-    }
-    return versionSchema;
+  private final String _masterDB;
+
+  /**
+   * Creates an instance.
+   */
+  protected AbstractDbUpgradeTest(String databaseType, String masterDB, final String targetVersion, final String createVersion) {
+    super(databaseType, targetVersion, createVersion);
+    _masterDB = masterDB;
+  }
+
+  //-------------------------------------------------------------------------
+  @BeforeClass(groups = TestGroup.UNIT_DB)
+  public void setUpClass() {
+    super.setUpDbTool();
   }
 
   @BeforeMethod(groups = TestGroup.UNIT_DB)
@@ -48,13 +56,16 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
     dbTool.clearTestTables();
   }
   
-  private final String _masterDB;
-
-  protected AbstractDbUpgradeTest(String databaseType, String masterDB, final String targetVersion, final String crateVersion) {
-    super(databaseType, targetVersion, crateVersion);
-    _masterDB = masterDB;
+  protected Map<String, String> getVersionSchemas() {
+    Map<String, String> versionSchema = s_targetSchema.get(getDatabaseType());
+    if (versionSchema == null) {
+      versionSchema = new HashMap<>();
+      s_targetSchema.put(getDatabaseType(), versionSchema);
+    }
+    return versionSchema;
   }
 
+  //-------------------------------------------------------------------------
   @Test(groups = TestGroup.UNIT_DB)
   public void testDatabaseUpgrade() {
     for (Triple<String, String, String> comparison : _comparisons) {

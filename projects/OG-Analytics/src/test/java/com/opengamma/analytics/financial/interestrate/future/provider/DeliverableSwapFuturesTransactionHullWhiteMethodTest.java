@@ -65,8 +65,8 @@ public class DeliverableSwapFuturesTransactionHullWhiteMethodTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount MULTICURVES_HW = new HullWhiteOneFactorProviderDiscount(MULTICURVES, PARAMETERS_HW, USD);
 
-  private static final DeliverableSwapFuturesSecurityHullWhiteMethod METHOD_SWAP_FUT_SEC_HW = DeliverableSwapFuturesSecurityHullWhiteMethod.getInstance();
-  private static final DeliverableSwapFuturesTransactionHullWhiteMethod METHOD_SWAP_FUT_TRA_HW = DeliverableSwapFuturesTransactionHullWhiteMethod.getInstance();
+  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT_SEC_HW = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesDeliverableTransactionHullWhiteMethod METHOD_SWAP_FUT_TRA_HW = SwapFuturesDeliverableTransactionHullWhiteMethod.getInstance();
   private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
   private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
 

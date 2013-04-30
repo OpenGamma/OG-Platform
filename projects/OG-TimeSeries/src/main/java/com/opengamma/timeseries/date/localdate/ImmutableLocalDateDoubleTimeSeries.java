@@ -173,6 +173,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
     // check dates are ordered
     int maxTime = Integer.MIN_VALUE;
     for (int time : times) {
+      LocalDateToIntConverter.checkValid(time);
       if (time < maxTime) {
         throw new IllegalArgumentException("dates must be ordered");
       }
