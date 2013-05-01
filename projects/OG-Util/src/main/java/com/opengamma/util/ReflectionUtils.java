@@ -33,8 +33,8 @@ public final class ReflectionUtils {
   /**
    * Loads a Class from a full class name.
    * <p>
-   * This uses Spring's {@link ClassUtils#forName(String, ClassLoader)} passing null
-   * for the class loader.
+   * This uses Spring's {@link org.springframework.util.ClassUtils#forName(String, ClassLoader)}
+   * passing null for the class loader.
    * 
    * @param <T> the auto-cast class
    * @param className  the class name, not null
@@ -53,8 +53,9 @@ public final class ReflectionUtils {
   /**
    * Loads a Class from a full class name with a fallback class loader.
    * <p>
-   * This uses Spring's {@link ClassUtils#forName(String, ClassLoader)} passing null
-   * for the class loader. If that fails, it calls the same method with the class loader
+   * This uses Spring's {@link org.springframework.util.ClassUtils#forName(String, ClassLoader)}
+   * passing null for the class loader.
+   * If that fails, it calls the same method with the class loader
    * 
    * @param <T> the auto-cast class
    * @param className  the class name, not null

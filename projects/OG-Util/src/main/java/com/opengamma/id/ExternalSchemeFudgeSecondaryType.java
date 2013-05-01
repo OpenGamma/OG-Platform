@@ -14,7 +14,7 @@ import org.fudgemsg.wire.types.FudgeWireType;
  * <p>
  * An {@code ExternalScheme} is typically encoded as a sub-message in Fudge with two separate strings.
  * This class allows the objects to be sent as a single formatted string using
- * {@link ExternalScheme#toString()} and {@link ExternalScheme#parse(String)}.
+ * {@link ExternalScheme#toString()} and {@link ExternalScheme#of(String)}.
  * <p>
  * This class is immutable and thread-safe.
  */
