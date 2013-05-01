@@ -20,10 +20,12 @@ import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.ForwardTickerConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.SpotTickerConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -559,6 +561,75 @@ public final class ConventionBuilders {
       final StubType stubType = StubType.valueOf(message.getString(STUB_TYPE_FIELD));
       final String interpolatorName = message.getString(INTERPOLATOR_NAME_FIELD);
       final VanillaIborLegConvention convention = new VanillaIborLegConvention(name, externalIdBundle, iborIndexConvention, isAdvanceFixing, stubType, interpolatorName);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for spot ticker conventions.
+   */
+  @FudgeBuilderFor(SpotTickerConvention.class)
+  public static class SpotTickerConventionBuilder implements FudgeBuilder<SpotTickerConvention> {
+    private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
+    private static final String TENOR_FIELD = "tenor";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SpotTickerConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, SpotTickerConvention.class);
+      serializer.addToMessage(message, UNDERLYING_CONVENTION_FIELD, null, object.getUnderlyingConvention());
+      serializer.addToMessage(message, TENOR_FIELD, null, object.getTenor());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public SpotTickerConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
+      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
+      final SpotTickerConvention convention = new SpotTickerConvention(name, externalIdBundle, underlyingConvention, tenor);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for forward ticker conventions.
+   */
+  @FudgeBuilderFor(ForwardTickerConvention.class)
+  public static class ForwardTickerConventionBuilder implements FudgeBuilder<ForwardTickerConvention> {
+    private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
+    private static final String START_TENOR_FIELD = "startTenor";
+    private static final String END_TENOR_FIELD = "endTenor";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ForwardTickerConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, ForwardTickerConvention.class);
+      serializer.addToMessage(message, UNDERLYING_CONVENTION_FIELD, null, object.getUnderlyingConvention());
+      serializer.addToMessage(message, START_TENOR_FIELD, null, object.getStartTenor());
+      serializer.addToMessage(message, END_TENOR_FIELD, null, object.getEndTenor());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public ForwardTickerConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
+      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
+      final Tenor endTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(END_TENOR_FIELD));
+      final ForwardTickerConvention convention = new ForwardTickerConvention(name, externalIdBundle, underlyingConvention, startTenor, endTenor);
       convention.setUniqueId(uniqueId);
       return convention;
     }
