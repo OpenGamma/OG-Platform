@@ -67,6 +67,15 @@ public class SwapNode extends CurveNode {
     setReceiveLegConvention(receiveLegConvention);
   }
 
+  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
+      final String curveNodeIdMapperName, final String dataField) {
+    super(curveNodeIdMapperName, dataField);
+    setStartTenor(startTenor);
+    setMaturityTenor(maturityTenor);
+    setPayLegConvention(payLegConvention);
+    setReceiveLegConvention(receiveLegConvention);
+  }
+
   @Override
   public Tenor getResolvedMaturity() {
     return _maturityTenor;

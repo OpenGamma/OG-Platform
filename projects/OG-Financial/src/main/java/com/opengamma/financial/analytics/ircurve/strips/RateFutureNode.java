@@ -82,6 +82,18 @@ public class RateFutureNode extends CurveNode {
     setUnderlyingConvention(underlyingConvention);
   }
 
+  public RateFutureNode(final int futureNumber, final Tenor startTenor, final Tenor futureTenor, final Tenor underlyingTenor, final ExternalId futureConvention,
+      final ExternalId underlyingConvention, final String curveNodeIdMapperName, final String dataField) {
+    super(curveNodeIdMapperName, dataField);
+    ArgumentChecker.notNegativeOrZero(futureNumber, "future number");
+    setFutureNumber(futureNumber);
+    setStartTenor(startTenor);
+    setFutureTenor(futureTenor);
+    setUnderlyingTenor(underlyingTenor);
+    setFutureConvention(futureConvention);
+    setUnderlyingConvention(underlyingConvention);
+  }
+
   @Override
   public Tenor getResolvedMaturity() {
     final int m = getFutureTenor().getPeriod().getMonths(); //TODO this is not right
