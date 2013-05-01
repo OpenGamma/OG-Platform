@@ -202,6 +202,7 @@ $.register_module({
                 if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
                 api.rest.configs.get(rest_options);
             };
+            og.common.events.on('liberatedhashchange', function () {hashchangesuppressed = false;});
         return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
                 // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having

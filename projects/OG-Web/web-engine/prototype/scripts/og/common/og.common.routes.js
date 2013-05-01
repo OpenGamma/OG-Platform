@@ -44,8 +44,13 @@ $.register_module({
                 });
                 $(window).on('hashchange', function () {
                     og.common.events.fire('hashchange');
+                    // TODO AG: Refactor
                     if (hashchange && !window.confirm(feedback))
                         return hashchange = false, og.common.events.fire('hashchangesuppressed'), window.history.back();
+                    else if (hashchange) {
+                        hashchange = false;
+                        og.common.events.fire('liberatedhashchange');
+                    }
                     routes.handler();
                     routes.set_title(routes.title || routes.current().hash);
                     routes.title = null;
