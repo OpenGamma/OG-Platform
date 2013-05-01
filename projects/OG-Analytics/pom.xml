@@ -55,6 +55,7 @@
   </dependencies>
 
   <properties>
+    <tests.testng.includedgroups></tests.testng.includedgroups>
   </properties>
 
 </project>
