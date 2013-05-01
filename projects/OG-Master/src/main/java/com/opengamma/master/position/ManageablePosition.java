@@ -184,6 +184,16 @@ public class ManageablePosition extends DirectBean
   }
 
   /**
+   * Removes a given trade from the set of trades.
+   *
+   * @param trade  the trade to remove, null ignored
+   * @return true if the set of trades contained the specified trade
+   */
+  public boolean removeTrade(final ManageableTrade trade) {
+    return getTrades().remove(trade);
+  }
+
+  /**
    * Gets a suitable name for the position.
    * 
    * @return the name, not null
