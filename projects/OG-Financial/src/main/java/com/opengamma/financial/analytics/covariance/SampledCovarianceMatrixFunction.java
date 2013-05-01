@@ -150,7 +150,7 @@ public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.N
       } else {
         timeIndex++;
         for (int i = 0; i < len; i++) {
-          if (timeIndex >= times[i].length) {
+          if ((timeIndex >= times[i].length) || (times[i][timeIndex] == null)) {
             ended = true;
           }
         }
