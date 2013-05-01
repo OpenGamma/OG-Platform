@@ -69,12 +69,23 @@ $.register_module({
             if (id) method.push(id);
             return api.request(method, {data: data, meta: meta});
         };
-        blotter.trades.del = function (config) {
+        blotter.positions.del = function (config) {
             config = config || {};
             var root = this.root, method = root.split('/'), meta;
             meta = check({bundle: {method: root + '#del', config: config}, required: [{all_of: ['id']}]});
             meta.type = 'DELETE';
             return api.request(method.concat(config.id), {data: {}, meta: meta});
+        };
+        blotter.trades.del = function (config) {
+            config = config || {};
+            var root = this.root, method = root.split('/'), meta, id = str(config.id), trade = str(config.trade);
+            meta = check({
+                bundle: {method: root + '#del', config: config},
+                required: [{all_of: ['id']}]
+            });
+            meta.type = 'DELETE';
+            method.push(id);
+            return api.request(method, {data: {}, meta: meta});
         };
         return blotter;
     }

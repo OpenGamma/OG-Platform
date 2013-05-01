@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -48,7 +49,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
@@ -63,9 +63,12 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
@@ -140,6 +143,8 @@ public class BlotterResource {
   private final OtcTradeBuilder _otcTradeBuilder;
   /** For building trades in fungible securities. */
   private final FungibleTradeBuilder _fungibleTradeBuilder;
+  /** For building trades in fungible securities. */
+  private final PortfolioMaster _portfolioMaster;
 
   public BlotterResource(SecurityMaster securityMaster, PortfolioMaster portfolioMaster, PositionMaster positionMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
@@ -147,14 +152,15 @@ public class BlotterResource {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
+    _portfolioMaster = portfolioMaster;
     _fungibleTradeBuilder = new FungibleTradeBuilder(_positionMaster,
-                                                     portfolioMaster,
+                                                     _portfolioMaster,
                                                      _securityMaster,
                                                      BlotterUtils.getMetaBeans(),
                                                      BlotterUtils.getStringConvert());
-    _otcTradeBuilder = new OtcTradeBuilder(positionMaster,
-                                           portfolioMaster,
-                                           securityMaster,
+    _otcTradeBuilder = new OtcTradeBuilder(_positionMaster,
+                                           _portfolioMaster,
+                                           _securityMaster,
                                            BlotterUtils.getMetaBeans(),
                                            BlotterUtils.getStringConvert());
   }
@@ -247,6 +253,19 @@ public class BlotterResource {
     ManageableTrade trade = _positionMaster.getTrade(tradeId);
     ManageableSecurityLink securityLink = trade.getSecurityLink();
     return buildTradeJSON(trade, securityLink);
+  }
+
+  // TODO does it matter if the trade is not the most recent?
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("trades/{tradeId}")
+  public Response deleteTrade(@PathParam("tradeId") String tradeIdStr) {
+    UniqueId tradeId = UniqueId.parse(tradeIdStr);
+    ManageableTrade trade = _positionMaster.getTrade(tradeId);
+    PositionDocument positionDoc = _positionMaster.get(trade.getParentPositionId());
+    positionDoc.getPosition().removeTrade(trade);
+    _positionMaster.update(positionDoc);
+    return Response.ok().build();
   }
 
   @GET

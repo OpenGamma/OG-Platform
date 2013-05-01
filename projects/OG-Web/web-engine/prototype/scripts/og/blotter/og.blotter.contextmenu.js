@@ -34,7 +34,7 @@ $.register_module({
                         new og.blotter.Dialog({
                             details: data, node:{name: nodeId, id: nodeId}, 
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
-                            complete : complete_handler
+                            complete : complete_handlerdata.error
                         });
                     });
                 };
@@ -58,11 +58,19 @@ $.register_module({
                 var trade_delete = function () {
                     og.common.util.ui.dialog({
                         type: 'confirm',
-                        title: 'Delete Trade / Position?',
+                        title: 'Delete Trade?',
                         width: 400, height: 190,
-                        message: 'Are you sure you want to permanently delete this trade / position?',
+                        message: 'Are you sure you want to permanently delete this trade?',
                         buttons: {
-                            'Delete': function () {/*do something*/},
+                            'Delete': function () {
+                                $(this).dialog('close');
+                                og.api.rest.blotter.trades.del({id: cell.row_value.tradeId}).pipe(function (result) {
+                                    if(result.error) {
+                                        og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
+                                            location: '.OG-blotter-error-block', message: result.message});
+                                        }
+                                });
+                             },
                             'Cancel': function () {$(this).dialog('close');}
                         }
                     });
@@ -114,7 +122,7 @@ $.register_module({
                 else {
                     items.push({name: 'Edit Trade', handler: position_edit}); 
                 }
-                //items.push({name: 'Delete', handler: trade_delete});
+                items.push({name: 'Delete Trade', handler: trade_delete});
                 return items;
             }; 
             return og.common.util.ui.contextmenu({
