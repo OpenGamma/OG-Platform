@@ -36,13 +36,19 @@ public final class EqyOptBaroneAdesiWhaleyPresentValueCalculator extends Instrum
   public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
     final double strike = option.getStrike();
     final double time = option.getTimeToExpiry();
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
+    final double spot = data.getForwardCurve().getSpot();
+    final double fwd = data.getForwardCurve().getForward(time);
+    final double costOfCarry;
+    if (time > 0) {
+      costOfCarry = Math.log(fwd / spot) / time;
+    } else {
+      costOfCarry = interestRate; //TODO
+    }
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 
@@ -50,13 +56,19 @@ public final class EqyOptBaroneAdesiWhaleyPresentValueCalculator extends Instrum
   public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
     final double strike = option.getStrike();
     final double time = option.getTimeToExpiry();
-    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
+    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
+    final double spot = data.getForwardCurve().getSpot();
+    final double fwd = data.getForwardCurve().getForward(time);
+    final double costOfCarry;
+    if (time > 0) {
+      costOfCarry = Math.log(fwd / spot) / time;
+    } else {
+      costOfCarry = interestRate; //TODO
+    }
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 
@@ -64,13 +76,20 @@ public final class EqyOptBaroneAdesiWhaleyPresentValueCalculator extends Instrum
   public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
+    
     final double strike = option.getStrike();
     final double time = option.getExpiry();
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
+    final double spot = data.getForwardCurve().getSpot();
+    final double fwd = data.getForwardCurve().getForward(time);
+    final double costOfCarry;
+    if (time > 0) {
+      costOfCarry = Math.log(fwd / spot) / time;
+    } else {
+      costOfCarry = interestRate; //TODO
+    }
     return option.getPointValue() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 }
