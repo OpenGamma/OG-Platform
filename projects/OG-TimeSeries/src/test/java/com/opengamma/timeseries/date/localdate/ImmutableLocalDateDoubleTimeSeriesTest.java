@@ -347,10 +347,12 @@ public class ImmutableLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeS
     LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
     int[] outDates = new int[600];
     double[] outValues = new double[600];
+    LocalDate date = LocalDate.of(2012, 6, 30);
     for (int i = 0; i < 600; i++) {
-      bld.put(20120630 + i, i);
-      outDates[i] = 20120630 + i;
+      bld.put(date, i);
+      outDates[i] = LocalDateToIntConverter.convertToInt(date);
       outValues[i] = i;
+      date = date.plusDays(1);
     }
     assertEquals(ImmutableLocalDateDoubleTimeSeries.of(outDates, outValues), bld.build());
   }
