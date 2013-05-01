@@ -21,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests the {@link ClasspathScanner} class.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.UNIT_SLOW)
 public class ClasspathScannerTest {
   
   private ClasspathScanner _scanner = new ClasspathScanner();
