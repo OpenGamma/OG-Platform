@@ -22,6 +22,7 @@ import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the Hagan et al. approximation of the SABR implied volatility.
@@ -463,7 +464,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   //TODO write a fuzzer that hits SABR with random parameters
-  @Test(invocationCount = 5, successPercentage = 19)
+  @Test(invocationCount = 5, successPercentage = 19, singleThreaded = true, groups = TestGroup.INTEGRATION)
   public void testRandomParameters() {
     final double eps = 1e-5;
     final double tol = 1e-3;
