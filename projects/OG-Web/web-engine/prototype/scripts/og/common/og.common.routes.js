@@ -45,11 +45,7 @@ $.register_module({
                 $(window).on('hashchange', function () {
                     og.common.events.fire('hashchange');
                     if (hashchange && !window.confirm(feedback))
-                        return hashchange = false, og.common.events.fire('hashchangesuppressed'),
-                            og.common.events.on('suppresshashchange', function (obj) { // TODO AG: refactor
-                                og.common.routes.suppress_hashchanged(obj);
-                                og.common.events.off('suppresshashchange');
-                            }), window.history.back();
+                        return hashchange = false, og.common.events.fire('hashchangesuppressed'), window.history.back();
                     routes.handler();
                     routes.set_title(routes.title || routes.current().hash);
                     routes.title = null;
@@ -88,7 +84,6 @@ $.register_module({
                     routes.handler();
                     og.common.events.on('suppresshashchange', function (obj) {
                         og.common.routes.suppress_hashchanged(obj);
-                        og.common.events.off('suppresshashchange');
                     });
                 });
                 // IE does not allow deleting from window so set to void 0 if it fails
