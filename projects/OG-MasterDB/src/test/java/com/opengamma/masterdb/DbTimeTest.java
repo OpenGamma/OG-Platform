@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.util.Map;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -52,10 +53,14 @@ public class DbTimeTest extends DbTest {
   private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
   private ElSqlBundle _elSqlBundle;
-  
+
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbTimeTest(final String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
+  }
+
+  @BeforeClass
+  public void setUpClass() {
     _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }
 
