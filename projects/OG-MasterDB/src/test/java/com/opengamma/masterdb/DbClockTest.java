@@ -34,7 +34,7 @@ public class DbClockTest extends DbTest {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
+  @BeforeMethod(alwaysRun = true)
   public void setUp() {
     _connector = getDbConnector();
   }

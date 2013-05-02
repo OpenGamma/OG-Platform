@@ -40,12 +40,12 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @BeforeClass(groups = TestGroup.UNIT_DB)
+  @BeforeClass(alwaysRun = true)
   public void setUpClass() {
     super.setUpDbTool();
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     DbTool dbTool = getDbTool();
     dbTool.setTargetVersion(getTargetVersion());

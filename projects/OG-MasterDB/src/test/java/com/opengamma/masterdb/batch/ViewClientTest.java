@@ -47,7 +47,9 @@ import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class ViewClientTest {
 
   @Mock
@@ -55,12 +57,13 @@ public class ViewClientTest {
   @Mock
   private ViewResultListener viewResultListenerMock;
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     initMocks(this);
     when(viewResultListenerFactoryStub.createViewResultListener(ViewProcessorTestEnvironment.TEST_USER)).thenReturn(viewResultListenerMock);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testListenerNotifications() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();

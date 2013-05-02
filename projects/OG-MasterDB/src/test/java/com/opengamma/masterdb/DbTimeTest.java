@@ -59,7 +59,7 @@ public class DbTimeTest extends DbTest {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
-  @BeforeClass
+  @BeforeClass(alwaysRun = true)
   public void setUpClass() {
     _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }

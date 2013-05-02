@@ -40,20 +40,20 @@ public class DbFunctionCostsMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _costsMaster = (DbFunctionCostsMaster) context.getBean(getDatabaseType() + "DbFunctionCostsMaster");
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     _costsMaster = null;
     super.tearDown();
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }

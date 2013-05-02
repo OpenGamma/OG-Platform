@@ -111,7 +111,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
   }
 
   @Override
-  @BeforeMethod
+  @BeforeMethod(groups = "bbgSecurityLoaderTests")
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/loader/bloomberg-security-loader-test-context.xml");
@@ -123,7 +123,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
   }
 
   @Override
-  @AfterMethod
+  @AfterMethod(groups = "bbgSecurityLoaderTests")
   public void tearDown() throws Exception {
     if (_context != null) {
       _context.stop();

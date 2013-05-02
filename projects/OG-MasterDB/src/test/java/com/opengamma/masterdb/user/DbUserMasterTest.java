@@ -49,20 +49,20 @@ public class DbUserMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _userMaster = (DbUserMaster) context.getBean(getDatabaseType() + "DbUserMaster");
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     _userMaster = null;
     super.tearDown();
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }

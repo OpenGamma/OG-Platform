@@ -42,20 +42,20 @@ public class DbExchangeMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _exgMaster = (DbExchangeMaster) context.getBean(getDatabaseType() + "DbExchangeMaster");
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     _exgMaster = null;
     super.tearDown();
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }

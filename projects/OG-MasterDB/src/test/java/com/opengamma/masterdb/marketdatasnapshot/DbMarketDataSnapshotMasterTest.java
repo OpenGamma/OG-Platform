@@ -57,7 +57,7 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
   }
 
   @Override
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     final ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
@@ -65,13 +65,13 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
   }
 
   @Override
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     super.tearDown();
     _snpMaster = null;
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }

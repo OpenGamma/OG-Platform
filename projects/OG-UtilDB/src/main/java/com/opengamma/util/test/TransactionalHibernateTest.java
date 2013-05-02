@@ -23,7 +23,7 @@ public abstract class TransactionalHibernateTest extends HibernateTest {
     super(databaseType, databaseVersion);
   }
 
-  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     startNewTransaction();
@@ -40,7 +40,7 @@ public abstract class TransactionalHibernateTest extends HibernateTest {
     }        
   }
 
-  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     commit();
     super.tearDown();

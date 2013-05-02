@@ -57,20 +57,20 @@ public class DbSecurityMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     super.tearDown();
     _secMaster = null;
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }

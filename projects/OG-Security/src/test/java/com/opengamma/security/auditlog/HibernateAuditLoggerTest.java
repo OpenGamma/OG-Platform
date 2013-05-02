@@ -14,8 +14,6 @@ import static org.testng.AssertJUnit.fail;
 import java.net.InetAddress;
 import java.util.Collection;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -32,16 +30,6 @@ public class HibernateAuditLoggerTest extends HibernateTest {
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public HibernateAuditLoggerTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
-  }
-
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-  }
-
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
   }
 
   @Override

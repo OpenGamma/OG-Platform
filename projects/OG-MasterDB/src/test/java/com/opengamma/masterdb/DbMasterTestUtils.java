@@ -32,7 +32,7 @@ public final class DbMasterTestUtils {
   /**
    * Closes the Spring contexts.
    */
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static synchronized void closeAfterSuite() {
     if (s_context != null) {
       s_context.close();

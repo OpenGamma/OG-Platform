@@ -82,7 +82,7 @@ public class DbBatchWriterTest extends DbTest {
   }
 
   @Override
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
 

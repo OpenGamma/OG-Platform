@@ -61,7 +61,7 @@ public class DbBatchMasterTest extends DbTest {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
 

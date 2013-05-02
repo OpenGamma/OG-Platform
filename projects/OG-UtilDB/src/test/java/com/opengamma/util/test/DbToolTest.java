@@ -31,7 +31,7 @@ public class DbToolTest {
 
   private DbTool _tool;
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     Properties props = TestProperties.getTestProperties();
     String dbHost = props.getProperty("jdbc.url");

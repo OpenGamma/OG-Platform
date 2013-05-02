@@ -40,7 +40,7 @@ public class BloombergEntitlementCheckerTest {
 
   private LiveDataEntitlementChecker _entitlementChecker;
 
-  @BeforeClass
+  @BeforeClass(enabled = false)
   public void setUpClass() {
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
     BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(connector);

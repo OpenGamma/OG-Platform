@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -41,18 +40,14 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     return new HibernateUserManagerFiles().getHibernateMappingFiles();
   }
 
+  @Override
   @SuppressWarnings("deprecation")
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     _userManager = new HibernateUserManager(getSessionFactory());
     
     System.err.println("User Manager initialization complete:" + _userManager);
-  }
-
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
   }
 
   //-------------------------------------------------------------------------

@@ -41,20 +41,20 @@ public class DbConfigMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext springContext = DbMasterTestUtils.getContext(getDatabaseType());
     _cfgMaster = springContext.getBean(getDatabaseType() + "DbConfigMaster", DbConfigMaster.class);
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     _cfgMaster = null;
     super.tearDown();
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }

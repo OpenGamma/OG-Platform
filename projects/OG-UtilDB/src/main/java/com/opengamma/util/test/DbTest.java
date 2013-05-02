@@ -78,7 +78,7 @@ public abstract class DbTest implements TableCreationCallback {
    * This works better with TestNG and Maven, where the constructor is called
    * even if the test is never run.
    */
-  @BeforeClass(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  @BeforeClass(alwaysRun = true)
   public void setUpDbTool() {
     _dbtool = DbTestProperties.getDbTool(_databaseType);
     _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
@@ -90,7 +90,7 @@ public abstract class DbTest implements TableCreationCallback {
    * This tracks the last initialized version in a static map to avoid duplicate
    * DB operations on bigger test classes. This might not be such a good idea.
    */
-  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     ArgumentChecker.notNull(_dbtool, "_dbtool");
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
@@ -106,17 +106,17 @@ public abstract class DbTest implements TableCreationCallback {
   }
 
   //-------------------------------------------------------------------------
-  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     _dbtool.resetTestCatalog(); // avoids locking issues with Derby
   }
 
-  @AfterClass(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  @AfterClass(alwaysRun = true)
   public void tearDownClass() throws Exception {
     _dbtool.close();
   }
 
-  @AfterSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  @AfterSuite(alwaysRun = true)
   public static void cleanUp() {
     DbScripts.deleteSqlScriptDir();
   }
