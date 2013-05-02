@@ -5,10 +5,12 @@
  */
 
 #include <Windows.h>
+#include <strsafe.h>
 #include "resource.h"
 #include "runmain.h"
 #include "feedback.h"
 #include "Common/param.h"
+#include "Common/errorref.h"
 
 static CParamString g_oConfig ("config", NULL, TRUE);
 static CParamFlag g_oSilent ("silent");
@@ -22,14 +24,35 @@ static DWORD CALLBACK _main (PVOID pFeedback) {
 	CJavaRT *poRuntime = NULL;
 	CJavaVM *poJVM = NULL;
 	do {
+		DWORD dwError;
 		poRuntime = CJavaRT::Init ();
-		if (!poRuntime) break;
-		poJVM = poRuntime->CreateVM ();
-		if (!poJVM) break;
-		if (poFeedback) {
-			if (!poFeedback->Connect (poJVM)) break;
+		if (!poRuntime) {
+			ReportErrorReference (ERROR_REF_MAIN);
+			if (poFeedback) poFeedback->Alert ("Couldn't initialise the Java runtime", "Installation error", MB_ICONSTOP);
+			break;
 		}
-		if (!CMain::Run (poJVM)) break;
+		poJVM = poRuntime->CreateVM ();
+		if (!poJVM) {
+			ReportErrorReference (ERROR_REF_MAIN);
+			if (poFeedback) poFeedback->Alert ("Couldn't create the Java virtual machine", "Installation error", MB_ICONSTOP);
+			break;
+		}
+		if (poFeedback) {
+			if (!poFeedback->Connect (poJVM)) {
+				ReportErrorReference (ERROR_REF_MAIN);
+				break;
+			}
+		}
+		dwError = CMain::Run (poJVM);
+		if (dwError) {
+			ReportErrorReference (dwError);
+			if (poFeedback) {
+				char sz[256];
+				StringCbPrintf (sz, sizeof (sz), "Couldn't run OpenGamma, error reference 0x%X", dwError);
+				poFeedback->Alert (sz, "Installation error", MB_ICONSTOP);
+			}
+			break;
+		}
 		dwResult = EXIT_SUCCESS;
 	} while (FALSE);
 	CJavaVM::Release (poJVM);
@@ -50,20 +73,33 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLi
 	DWORD dwResult = EXIT_FAILURE;
 	CFeedback *poFeedback = NULL;
 	do {
-		if (!g_oParams.Process (GetCommandLineW ())) break;
+		if (!g_oParams.Process (GetCommandLineW ())) {
+			ReportErrorReference (ERROR_REF_MAIN);
+			break;
+		}
 		if (!CJavaRT::s_oConfig.Read (g_oConfig.GetString ())
-		 || !CMain::s_oConfig.Read (g_oConfig.GetString ())) break;
+		 || !CMain::s_oConfig.Read (g_oConfig.GetString ())) {
+			ReportErrorReference (ERROR_REF_MAIN);
+			break;
+		}
 		if (g_oSilent.IsSet ()) {
 			dwResult = _main (NULL);
 		} else {
-			if (!CFeedbackWindow::Register(hInstance, IDI_OPENGAMMA)) break;
+			if (!CFeedbackWindow::Register(hInstance, IDI_OPENGAMMA)) {
+				ReportErrorReference (ERROR_REF_MAIN);
+				break;
+			}
 			poFeedback = new CFeedback (hInstance);
 			poFeedback->Show (nCmdShow);
 			poFeedback->BringToTop ();
 			HANDLE hThread = CreateThread (NULL, 0, _main, poFeedback, 0, NULL);
-			if (!hThread) break;
+			if (!hThread) {
+				ReportErrorReference (ERROR_REF_MAIN);
+				break;
+			}
 			if (CFeedbackWindow::DispatchMessages ()) {
 				// Non-zero exit code -- abort the operation
+				ReportErrorReference (ERROR_REF_MAIN);
 				TerminateThread (hThread, EXIT_FAILURE);
 			}
 			WaitForSingleObject (hThread, 30000);
