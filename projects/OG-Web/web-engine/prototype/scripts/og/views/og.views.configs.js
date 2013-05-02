@@ -19,7 +19,7 @@ $.register_module({
         'og.views.config_forms.default'
     ],
     obj: function () {
-        var api = og.api, common = og.common, details = common.details,
+        var api = og.api, common = og.common, details = common.details, events = common.events,
             history = common.util.history, masthead = common.masthead, routes = common.routes,
             form_inst, form_state, changed_form_state, hashchangesuppressed = false,
             unsaved_txt = 'You have unsaved changes to',
@@ -83,20 +83,16 @@ $.register_module({
                 });
             },
             hashchange_listener = function () {
-                og.common.events.on('hashchange', function () {
-                    og.common.events.off('hashchange');
-                    var config = {suppress: true, msg: unsaved_txt + ' ' + form_state.data.name};
-                    changed_form_state = form_inst.compile();
-                    if (!Object.equals(form_state, changed_form_state))
-                        return hashchangesuppressed = true,
-                            og.common.events.fire('suppresshashchange', config);
-                    else return hashchangesuppressed = false,
-                        og.common.events.fire('suppresshashchange', {suppress: false, msg: ''});
+                events.on('hashchange', function () {
+                    events.off('hashchange');
+                    var msg = unsaved_txt + ' ' + form_state.data.name, suppress;
+                    if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) suppress = true;
+                    else suppress = false;
+                    events.fire('suppresshashchange', hashchangesuppressed = suppress);
                 });
             }
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler;
-                changed_form_state = void 0;
                 if (hashchangesuppressed) return hashchange_listener();
                 rest_handler = function (result) {
                     var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
@@ -202,7 +198,7 @@ $.register_module({
                 if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
                 api.rest.configs.get(rest_options);
             };
-            og.common.events.on('liberatedhashchange', function () {hashchangesuppressed = false;});
+            events.on('hashchanged', function () {hashchangesuppressed = false;});
         return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
                 // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
