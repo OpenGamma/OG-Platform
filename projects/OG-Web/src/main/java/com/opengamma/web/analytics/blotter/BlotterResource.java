@@ -143,7 +143,7 @@ public class BlotterResource {
   private final OtcTradeBuilder _otcTradeBuilder;
   /** For building trades in fungible securities. */
   private final FungibleTradeBuilder _fungibleTradeBuilder;
-  /** For building trades in fungible securities. */
+  /** For removing positions. */
   private final PortfolioMaster _portfolioMaster;
 
   public BlotterResource(SecurityMaster securityMaster, PortfolioMaster portfolioMaster, PositionMaster positionMaster) {
@@ -265,6 +265,22 @@ public class BlotterResource {
     PositionDocument positionDoc = _positionMaster.get(trade.getParentPositionId());
     positionDoc.getPosition().removeTrade(trade);
     _positionMaster.update(positionDoc);
+    return Response.ok().build();
+  }
+
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("nodes/{nodeId}/positions/{positionId}")
+  public Response deletePosition(@PathParam("positionId") String positionIdStr, @PathParam("nodeId") String nodeIdStr) {
+    UniqueId positionId = UniqueId.parse(positionIdStr);
+    UniqueId nodeId = UniqueId.parse(nodeIdStr);
+    ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId);
+    PortfolioDocument portfolioDoc = _portfolioMaster.get(node.getPortfolioId());
+    if (node.getPositionIds().remove(positionId.getObjectId()) == false) {
+      throw new DataNotFoundException("Position id not found: " + positionId);
+    }
+    _positionMaster.remove(positionId.toLatest());
+    _portfolioMaster.update(portfolioDoc);
     return Response.ok().build();
   }
 
