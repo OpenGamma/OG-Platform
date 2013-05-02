@@ -164,7 +164,7 @@ $.register_module({
                             selector: '.OG-timeseries-container',
                             datapoints: true
                         })
-                        //new common.gadgets.TimeseriesPlot({
+                        //new common.Timeseries({
                         //    selector: '.OG-timeseries-container',
                         //    id: result.data.template_data.object_id,
                         //    datapoints: true, height: 400

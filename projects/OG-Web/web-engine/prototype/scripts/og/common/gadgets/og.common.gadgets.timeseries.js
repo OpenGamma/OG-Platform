@@ -13,28 +13,28 @@ $.register_module({
                 .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             var RestDataMan = function (rest_options) {
                 var dataman = this;
-                og.api.rest.timeseries.get(rest_options).pipe(function (result) {
-                    new og.common.gadgets.TimeseriesPlot({
-                        selector: config.selector,
-                        data: [result.data],
-                        rest_options: rest_options,
-                        datapoints: !!config.datapoints, height: 400
+                $.when(og.api.text({module: 'og.views.gadgets.timeseries'})).then(function (tmpl) {
+                    $selector.html(tmpl);
+                    og.api.rest.timeseries.get(rest_options).pipe(function (result) {
+                        new og.common.Timeseries({
+                            selector: config.selector + ' .og-timeseries',
+                            data: [result.data],
+                            rest_options: rest_options,
+                            datapoints: !!config.datapoints, height: 400
+                        });
                     });
                 });
             };
             var CellDataMan = function (row, col, type, source) {
-                var dataman = this;
+                var dataman = this, format = type === 'CURVE' ? 'CELL' : 'EXPANDED';
                 return dataman.cell = new og.analytics
-                    .Cell({
-                        source: source, col: col, row: row, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
-                    }, 'timeseries')
+                    .Cell({source: source, col: col, row: row, format: format}, 'timeseries')
                     .on('data', function (value) {
                         var data = typeof value.v !== 'undefined' ? value.v : value;
-                        if (!timeseries && data && (typeof data === 'object')) timeseries = new og.common.gadgets
-                            .TimeseriesPlot($.extend(true, {}, config, {data: [data]}));
+                        if (!timeseries && data && (typeof data === 'object'))
+                            timeseries = new og.common.Timeseries($.extend(true, {}, config, {data: [data]}));
                     })
                     .on('fatal', function (message) {$selector.html(message);});
-
             };
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;

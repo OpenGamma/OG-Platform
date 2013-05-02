@@ -6,8 +6,8 @@
  * @see http://code.google.com/p/flot/
  */
 $.register_module({
-    name: 'og.common.gadgets.TimeseriesPlot',
-    dependencies: ['og.api.rest', 'og.common.gadgets.manager'],
+    name: 'og.common.Timeseries',
+    dependencies: ['og.api.rest'],
     obj: function () {
         var api = og.api;
         /**
@@ -154,7 +154,6 @@ $.register_module({
                             resource: 'timeseries', rest_options: {id: config.rest_options.id},
                             type: 'TIME_SERIES', selector: data_selector, menu: false, child: false
                         });
-
                     };
                     data_arr.forEach(function (v, i) {
                         var cur_id = data_arr[i].object_id, $compiled = $((Handlebars.compile(data_template))({
