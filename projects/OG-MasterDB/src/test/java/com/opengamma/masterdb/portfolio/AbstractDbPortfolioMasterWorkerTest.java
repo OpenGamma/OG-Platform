@@ -59,14 +59,14 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass
+  @BeforeClass(alwaysRun = true)
   public void setUpClass() throws Exception {
     if (_readOnly) {
       init();
     }
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     _includePositions = true;
     if (_readOnly == false) {
@@ -139,7 +139,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     _totalPositions = 6;
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     if (_readOnly == false) {
       _prtMaster = null;
@@ -147,7 +147,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterClass
+  @AfterClass(alwaysRun = true)
   public void tearDownClass() throws Exception {
     if (_readOnly) {
       _prtMaster = null;
@@ -155,7 +155,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }
