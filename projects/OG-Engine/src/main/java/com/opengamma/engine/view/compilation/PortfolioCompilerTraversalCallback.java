@@ -6,11 +6,11 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -39,6 +39,29 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */final class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
 
+  private static final class NodeData {
+
+    private final ComputationTargetSpecification _targetSpec;
+    private final Set<Pair<String, ValueProperties>> _requirements = Sets.newHashSet();
+
+    public NodeData(final PortfolioNode node) {
+      _targetSpec = ComputationTargetSpecification.of(node);
+    }
+
+    public synchronized void addRequirements(final Set<Pair<String, ValueProperties>> requirements) {
+      _requirements.addAll(requirements);
+    }
+
+    public Set<Pair<String, ValueProperties>> getRequirements() {
+      return _requirements;
+    }
+
+    public ComputationTargetSpecification getTargetSpecification() {
+      return _targetSpec;
+    }
+
+  }
+
   private final Set<UniqueId> _includeEvents;
   private final Set<UniqueId> _excludeEvents;
   private final ViewCalculationConfiguration _calculationConfiguration;
@@ -47,11 +70,10 @@ import com.opengamma.util.tuple.Pair;
   private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
 
   /**
-   * This map persists gathered requirements for each portfolio node and position across multiple traversal steps, thus allowing child nodes/positions to insert aggregate requirements into their
-   * parent node.
+   * This map persists gathered information for each portfolio node and position across multiple traversal steps, thus allowing child nodes/positions to insert aggregate requirements into their parent
+   * node.
    */
-  private final ConcurrentMap<UniqueId, Set<Pair<String, ValueProperties>>> _nodeRequirements =
-      new ConcurrentHashMap<UniqueId, Set<Pair<String, ValueProperties>>>();
+  private final ConcurrentMap<UniqueId, NodeData> _nodeData = new ConcurrentHashMap<UniqueId, NodeData>();
 
   public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
       final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
@@ -119,27 +141,21 @@ import com.opengamma.util.tuple.Pair;
         return;
       }
     }
-
     // Initialise an empty set of requirements for the current portfolio node
     // This will be filled in as the traversal of this portfolio node's children proceeds, and retrieved during
     // this portfolio node's post-order traversal.
-    _nodeRequirements.put(node.getUniqueId(), new HashSet<Pair<String, ValueProperties>>());
-
+    final NodeData nodeData = new NodeData(node);
+    _nodeData.put(node.getUniqueId(), nodeData);
     // Retrieve the required aggregate outputs (by 'aggregate' sec type) for the current calc configuration
     final Set<Pair<String, ValueProperties>> requiredOutputs =
         _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
-
     if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-
-      // Create a computation target spec for the current portfolio node
-      final ComputationTargetSpecification nodeSpec =
-          new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
-
       // Add the aggregate value requirements for the current portfolio node to the graph builder's set of value requirements,
       // building them using the retrieved required aggregate outputs and the newly created computation target spec
       // for this portfolio node.
+      final ComputationTargetSpecification targetSpec = nodeData.getTargetSpecification();
       for (final Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-        addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), nodeSpec, requiredOutput.getSecond()));
+        addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), targetSpec, requiredOutput.getSecond()));
       }
     }
   }
@@ -185,20 +201,14 @@ import com.opengamma.util.tuple.Pair;
 
       // Check that there's at least one required output to deal with
       if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-
+        final NodeData nodeData = _nodeData.get(parentNode.getUniqueId());
         // Are we interested in aggregate results for the parent? If so, pass on requirements to parent portfolio node
         if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
-          final Set<Pair<String, ValueProperties>> nodeRequirements = _nodeRequirements.get(parentNode.getUniqueId());
-          synchronized (nodeRequirements) {
-            nodeRequirements.addAll(requiredOutputs);
-          }
+          nodeData.addRequirements(requiredOutputs);
         }
-
         // Are we interested in any results at all for this position?
         if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
-          // TODO: [PLAT-2286] Don't need to create the parent node specification each time
-          final ComputationTargetSpecification positionSpec = ComputationTargetSpecification.of(parentNode).containing(ComputationTargetType.POSITION, position.getUniqueId().toLatest());
-
+          final ComputationTargetSpecification positionSpec = nodeData.getTargetSpecification().containing(ComputationTargetType.POSITION, position.getUniqueId().toLatest());
           // Add the value requirements for the current position to the graph builder's set of value requirements,
           // building them using the retrieved required outputs for this security type and the newly created computation
           // target spec for this position.
@@ -245,32 +255,23 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public void postOrderOperation(final PortfolioNode node) {
     // Retrieve this portfolio node's value requirements (gathered during traversal of this portfolio node's children)
-    final Set<Pair<String, ValueProperties>> nodeRequirements = _nodeRequirements.get(node.getUniqueId());
-    if (nodeRequirements == null) {
+    final NodeData nodeData = _nodeData.get(node.getUniqueId());
+    if (nodeData == null) {
       // Excluded
       return;
     }
-
+    final Set<Pair<String, ValueProperties>> nodeRequirements = nodeData.getRequirements();
     if (node.getParentNodeId() != null) {
-
       // Retrieve the parent portfolio node's requirements
-      final Set<Pair<String, ValueProperties>> parentNodeRequirements = _nodeRequirements.get(node.getParentNodeId());
-
-      // No race hazard despite IntelliJ's warning, as the sync happens on a particular member of_nodeRequirements
-      // within a single instance of PortfolioCompilerTraversalCallback whose methods are called by multiple threads
-      // in a parallel traversal.
-      synchronized (parentNodeRequirements) {
-        // Add this portfolio node's requirements to the parent portfolio node's requirements
-        parentNodeRequirements.addAll(nodeRequirements);
-      }
+      final NodeData parentNodeData = _nodeData.get(node.getParentNodeId());
+      parentNodeData.addRequirements(nodeRequirements);
     }
-    final ComputationTargetSpecification nodeSpec = ComputationTargetSpecification.of(node);
-
+    final ComputationTargetSpecification targetSpec = nodeData.getTargetSpecification();
     // Add the value requirements for the current portfolio node to the graph builder's set of value requirements,
     // building them using the requirements gathered during its children's traversal and the newly created computation
     // target spec for this portfolio node.
     for (final Pair<String, ValueProperties> requiredOutput : nodeRequirements) {
-      addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), nodeSpec, requiredOutput.getSecond()));
+      addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), targetSpec, requiredOutput.getSecond()));
     }
   }
 
