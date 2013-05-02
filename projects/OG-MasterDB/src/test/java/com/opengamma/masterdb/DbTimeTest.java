@@ -59,11 +59,12 @@ public class DbTimeTest extends DbTest {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
-  @BeforeClass
+  @BeforeClass(groups = TestGroup.UNIT_DB)
   public void setUpClass() {
     _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_writeRead_timestamp() {
     try {
