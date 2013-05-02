@@ -47,7 +47,7 @@ import com.opengamma.engine.value.ValueSpecification;
     if (_valid.containsKey(marketData)) {
       return;
     }
-    boolean usedRaw = !node.getTerminalOutputValues().isEmpty();
+    boolean usedRaw = node.hasTerminalOutputValues();
     for (DependencyNode dependent : node.getDependentNodes()) {
       if (dependent.getFunction().getFunction() instanceof MarketDataAliasingFunction) {
         final ComputationTarget target = _targetResolver.resolve(dependent.getComputationTarget());

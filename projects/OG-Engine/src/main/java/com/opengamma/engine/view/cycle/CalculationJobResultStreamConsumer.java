@@ -162,11 +162,10 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
               aggregatedExecutionLog = DefaultAggregatedExecutionLog.indicatorLogMode(logs);
             }
             final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
-            final Set<ValueSpecification> nodeTerminals = node.getTerminalOutputValues();
+            node.gatherTerminalOutputValues(terminalOutputs);
             for (ValueSpecification output : node.getOutputValues()) {
               jobExecutionResultCache.put(output, jobExecutionResult);
             }
-            terminalOutputs.addAll(nodeTerminals);
           }
         }
         result = _resultQueue.poll();
