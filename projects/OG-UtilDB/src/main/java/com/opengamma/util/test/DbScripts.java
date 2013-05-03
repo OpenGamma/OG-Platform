@@ -86,10 +86,10 @@ public final class DbScripts {
       File local = new File(DbTool.getWorkingDirectory(), DATABASE_INSTALL_FOLDER).getCanonicalFile();
       File relative = new File(SCRIPT_RELATIVE_PATH, DATABASE_INSTALL_FOLDER).getCanonicalFile();
       if (local.exists()) {
-        dirs.add(local);
+        dirs.add(new File(DbTool.getWorkingDirectory()).getCanonicalFile());
       }
       if (relative.exists()) {
-        dirs.add(relative);
+        dirs.add(SCRIPT_RELATIVE_PATH);
       }
       if (dirs.isEmpty()) {
         if (SCRIPT_ZIP_PATH.exists()) {
