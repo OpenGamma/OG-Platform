@@ -8,7 +8,7 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, hash = window.RouteMap.hash, hashchange = true, suppresshashchange = false;
+        var routes, hash = window.RouteMap.hash, hashchange = false;
             SL = '/', MOZSLASH = 'MOZSLOG', MOZSLASH_EXP = new RegExp(MOZSLASH, 'g'), ENCODEDSL = '%2F';
         var slash_replace = function (obj, acc, val) {return acc[val] = ('' + obj[val]).replace(/\//g, MOZSLASH), acc;};
         return routes = $.extend(true, window.RouteMap, {
@@ -42,10 +42,9 @@ $.register_module({
                     $anchor.attr('href', href);
                 });
                 $(window).on('hashchange', function () {
-                    og.common.events.fire('hashchange');
-                    if (hashchange && suppresshashchange) return hashchange = false, window.history.back();
-                    else if (!suppresshashchange) og.common.events.fire('hashchanged');
-                    hashchange = true;
+                    if (hashchange) return hashchange = false;
+                    if (og.common.events.fire('hashchange') === false)
+                        return hashchange = true, routes.go(routes.last().hash);
                     routes.handler();
                     routes.set_title(routes.title || routes.current().hash);
                     routes.title = null;
@@ -82,9 +81,6 @@ $.register_module({
                         og.analytics.Data = parent_data;
                     routes.set_title(routes.title || (routes.get() || ''));
                     routes.handler();
-                    og.common.events.on('suppresshashchange', function (suppress) {
-                        routes.suppress_hashchange(suppress);
-                    });
                 });
                 // IE does not allow deleting from window so set to void 0 if it fails
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}

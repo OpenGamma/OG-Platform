@@ -82,18 +82,8 @@ $.register_module({
                     cache_for: 60 * 60 * 1000 // an hour
                 });
             },
-            hashchange_listener = function () {
-                events.on('hashchange', function () {
-                    events.off('hashchange');
-                    var msg = unsaved_txt + ' ' + form_state.data.name, suppress;
-                    if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) suppress = true;
-                    else suppress = false;
-                    events.fire('suppresshashchange', hashchangesuppressed = suppress);
-                });
-            }
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler;
-                if (hashchangesuppressed) return hashchange_listener();
                 rest_handler = function (result) {
                     var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
                         config_type, render_type, render_options;
@@ -179,7 +169,6 @@ $.register_module({
                             setTimeout(view.layout.inner.resizeAll);
                             form_inst = form;
                             form_state = form_inst.compile();
-                            hashchange_listener();
                         },
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
@@ -198,7 +187,13 @@ $.register_module({
                 if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
                 api.rest.configs.get(rest_options);
             };
-            events.on('hashchanged', function () {hashchangesuppressed = false;});
+            events.on('hashchange', function () {
+                if (!form_inst && !form_state) return;
+                var msg = unsaved_txt + ' ' + form_state.data.name;
+                if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) return false;
+                form_inst = form_state = null;
+                return true;
+            });
         return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
                 // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
