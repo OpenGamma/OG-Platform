@@ -9,6 +9,7 @@ $.register_module({
         return function (cell, event) {
             var grid = og.analytics.grid;
             var context_items = function (cell) {
+                console.log(cell);
                 var items = [];
                 // when aggregated the portfolio node structure is not shown so edit/add is not possible
                 if (og.analytics.url && og.analytics.url.last.main.aggregators.length) {
@@ -34,7 +35,7 @@ $.register_module({
                         new og.blotter.Dialog({
                             details: data, node:{name: nodeId, id: nodeId}, 
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
-                            complete : complete_handlerdata.error
+                            complete : complete_handler
                         });
                     });
                 };
@@ -55,26 +56,51 @@ $.register_module({
                         complete : complete_handler
                     });
                 };
+
+                var del = function (type){
+                    var title, message, del_func;
+                    if(type.trade){
+                        title = 'Delete Trade?';
+                        message = 'Are you sure you want to permanently delete this trade?';
+                        del_func = trade_delete;
+                    } else {
+                        title = 'Delete Position?';
+                        message = 'Are you sure you want to permanently delete this position?';
+                        del_func = position_delete;
+                    }
+                    return function () {
+                        og.common.util.ui.dialog({
+                            type: 'confirm',
+                            title: title,
+                            width: 400, height: 190,
+                            message: message,
+                            buttons: {
+                                'Delete': function () {
+                                    $(this).dialog('close');
+                                    del_func();
+                                 },
+                                'Cancel': function () {$(this).dialog('close');}
+                            }
+                        });
+                    }
+                };
                 var trade_delete = function () {
-                    og.common.util.ui.dialog({
-                        type: 'confirm',
-                        title: 'Delete Trade?',
-                        width: 400, height: 190,
-                        message: 'Are you sure you want to permanently delete this trade?',
-                        buttons: {
-                            'Delete': function () {
-                                $(this).dialog('close');
-                                og.api.rest.blotter.trades.del({id: cell.row_value.tradeId}).pipe(function (result) {
-                                    if(result.error) {
-                                        og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
-                                            location: '.OG-blotter-error-block', message: result.message});
-                                        }
-                                });
-                             },
-                            'Cancel': function () {$(this).dialog('close');}
+                    og.api.rest.blotter.trades.del({id: cell.row_value.tradeId}).pipe(function (result) {
+                        if(result.error) {
+                            og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
+                            location: '.OG-blotter-error-block', message: result.message});
                         }
                     });
-                };              
+                };
+                var position_delete = function (config) {
+                    og.api.rest.blotter.nodes.positions.del({id: cell.row_value.nodeId,
+                        position: cell.row_value.positionId}).pipe(function (result) {
+                            if(result.error) {
+                                og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
+                                location: '.OG-blotter-error-block', message: result.message});
+                            }
+                    });
+                };
                 var complete_handler = function (result) {
                     var msg, id = result.meta.id;
                     if (id) msg = 'Trade ' + result.meta.id + ' successfully added';
@@ -104,25 +130,30 @@ $.register_module({
                     });
                 };
                 // if a row is a node AND the cell is a position only the position insert option is relevant
-                // note that cell.type === 'POSITION' is only relevant for the firs column, so can't be used
+                // note that cell.type === 'POSITION' is only relevant for the first column, so can't be used
                 // else if a row is a node OR the cell is a node only the add new trade option is relevant
                 if (cell.row in grid.state.nodes && cell.row_value.positionId) {
                     items.push({name: 'Add Trade', handler: position_insert});
+                    items.push({name: 'Delete Position', handler: del({position:true})});
                     return items;
                 }
                 else if (cell.row in grid.state.nodes || cell.type === 'NODE') {
-                    items.push({name: 'Add Trade', handler: trade_insert_node});
+                    items.push({name: 'Add Trade/Position', handler: trade_insert_node});
                     items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
                     return items;  
                 }
                 // if a cell has a tradeId then edit the trade otherwise it is an empty position
-                if (cell.row_value.tradeId) {
-                    items.push({name: 'Edit Trade', handler: trade_edit}); 
-                } 
-                else {
-                    items.push({name: 'Edit Trade', handler: position_edit}); 
+                if (cell.row_value.tradeId){
+                    var name = (cell.type === 'OTC_TRADE') ? 'Edit Position' : 'Edit Trade';
+                    items.push({name: name, handler: trade_edit});
                 }
-                items.push({name: 'Delete Trade', handler: trade_delete});
+                else
+                    items.push({name: 'Edit Position', handler: position_edit});
+                // OTC/POSITION needs a delete position action, FUNGIBLE needs delete trade
+                if (cell.type === 'OTC_TRADE' || cell.type === 'POSITION')
+                    items.push({name: 'Delete Position', handler: del({position:true})});
+                else
+                    items.push({name: 'Delete Trade', handler: del({trade:true})});
                 return items;
             }; 
             return og.common.util.ui.contextmenu({
