@@ -73,7 +73,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * If the property is already a wild-card, the builder is left unchanged.
      * 
      * @param propertyName the name of the property, not null
-     * @param propertyValues the values to add, not null and not containing nulls
+     * @param propertyValues the values to add, not null or empty, and not containing nulls
      * @return the builder instance
      */
     Builder with(String propertyName, Collection<String> propertyValues);
