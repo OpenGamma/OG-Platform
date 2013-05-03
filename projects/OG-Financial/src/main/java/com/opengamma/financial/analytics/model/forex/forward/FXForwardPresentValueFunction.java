@@ -11,6 +11,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -29,17 +30,43 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
 /**
  * Calculates Present Value on FX Forward instruments.
  */
-public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledInvoker { 
+public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY).or(FinancialSecurityTypes.SWAP_SECURITY);
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Security sec = target.getSecurity();
+    if (sec instanceof SwapSecurity) {
+      // Can only apply to cross currency swaps
+      final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+      try {
+        final Currency payCurrency = getPayCurrency(security);
+        if (payCurrency == null) {
+          return false;
+        }
+        final Currency receiveCurrency = getReceiveCurrency(security);
+        if (receiveCurrency == null) {
+          return false;
+        }
+        if (payCurrency.equals(receiveCurrency)) {
+          return false;
+        }
+      } catch (UnsupportedOperationException e) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

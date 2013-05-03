@@ -15,9 +15,9 @@ private:
 	~CService () { }
 public:
 	static CConfig s_oConfig;
-	static BOOL RegisterShutdownHook (const CJavaVM *poJVM, void *callback);
-	static BOOL Run (const CJavaVM *poJVM);
-	static BOOL Stop (const CJavaVM *poJVM);
+	static DWORD RegisterShutdownHook (const CJavaVM *poJVM, void *callback);
+	static DWORD Run (const CJavaVM *poJVM);
+	static DWORD Stop (const CJavaVM *poJVM);
 };
 
 #endif /* ifndef __inc_service_service_h */

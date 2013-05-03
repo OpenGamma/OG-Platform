@@ -44,7 +44,7 @@ public abstract class AbstractDbBatchMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
 
@@ -65,7 +65,7 @@ public abstract class AbstractDbBatchMasterTest extends DbTest {
         new SqlParameterValue(Types.TIMESTAMP, null), toSqlTimestamp(_valuationTime), 0, false);
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     _batchMaster = null;
     super.tearDown();

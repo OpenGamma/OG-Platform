@@ -15,7 +15,7 @@ private:
 	~CMain () { }
 public:
 	static CConfig s_oConfig;
-	static BOOL Run (const CJavaVM *poJVM);
+	static DWORD Run (const CJavaVM *poJVM);
 };
 
 #endif /* ifndef __inc_mainrunner_runmain_h */

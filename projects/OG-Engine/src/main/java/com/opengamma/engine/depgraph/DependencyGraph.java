@@ -21,10 +21,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -302,17 +300,7 @@ public class DependencyGraph {
     _outputValues.put(newSpec, _outputValues.remove(oldSpec));
     final Set<ValueRequirement> reqs = _terminalOutputs.remove(oldSpec);
     if (reqs != null) {
-      final Set<ValueRequirement> newReqs = Sets.newHashSetWithExpectedSize(reqs.size());
-      final ComputationTargetSpecification oldSpecTarget = oldSpec.getTargetSpecification();
-      final ComputationTargetSpecification newSpecTarget = newSpec.getTargetSpecification();
-      for (ValueRequirement req : reqs) {
-        if (oldSpecTarget.equals(req.getTargetReference())) {
-          newReqs.add(MemoryUtils.instance(new ValueRequirement(req.getValueName(), newSpecTarget, req.getConstraints())));
-        } else {
-          newReqs.add(req);
-        }
-      }
-      _terminalOutputs.put(newSpec, newReqs);
+      _terminalOutputs.put(newSpec, reqs);
     }
   }
 
