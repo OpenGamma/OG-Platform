@@ -232,6 +232,10 @@ public final class ValueRequirementNames {
    */
   public static final String FORWARD_SWAP_CURVE_MARKET_DATA = "ForwardSwapCurveMarketData";
   /**
+   * FX forward curve definition
+   */
+  public static final String FX_FORWARD_CURVE_DEFINITION = "FXForwardCurveDefinition";
+  /**
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";

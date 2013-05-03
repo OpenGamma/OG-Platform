@@ -74,8 +74,16 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     ValueProperties constraints = desiredValue.getConstraints();
-    DateConstraint start = DateConstraint.parse(getSpotSeriesStart(constraints));
-    DateConstraint end = DateConstraint.parse(getReturnSeriesEnd(constraints));
+    String spotSeriesStart = getSpotSeriesStart(constraints);
+    if (spotSeriesStart == null) {
+      return null;
+    }
+    DateConstraint start = DateConstraint.parse(spotSeriesStart);
+    String returnSeriesEnd = getReturnSeriesEnd(constraints);
+    if (returnSeriesEnd == null) {
+      return null;
+    }
+    DateConstraint end = DateConstraint.parse(returnSeriesEnd);
     Set<String> includeStarts = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
     if (includeStarts != null && includeStarts.size() != 1) {
       return null;

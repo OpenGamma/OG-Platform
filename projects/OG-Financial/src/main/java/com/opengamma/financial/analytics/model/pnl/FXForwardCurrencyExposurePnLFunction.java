@@ -35,7 +35,9 @@ import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -70,7 +72,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       final Security security = target.getPosition().getSecurity();
-      return security instanceof FXForwardSecurity;
+      return security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity;
     }
 
     @Override
@@ -97,7 +99,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
         return null;
       }
-      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
+      final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
       final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
           ValueProperties.builder()
           .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
@@ -132,7 +134,15 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       ValueProperties.Builder builder = createValueProperties();
       for (ValueSpecification inputSpec : inputs.keySet()) {
         for (String propertyName : inputSpec.getProperties().getProperties()) {
-          builder.with(propertyName, inputSpec.getProperties().getValues(propertyName));
+          if (ValuePropertyNames.FUNCTION.equals(propertyName)) {
+            continue;
+          }
+          Set<String> values = inputSpec.getProperties().getValues(propertyName);
+          if (values == null || values.isEmpty()) {
+            builder.withAny(propertyName);
+          } else {
+            builder.with(propertyName, values);
+          }
         }
       }
       builder.withoutAny(ValuePropertyNames.CURRENCY)
