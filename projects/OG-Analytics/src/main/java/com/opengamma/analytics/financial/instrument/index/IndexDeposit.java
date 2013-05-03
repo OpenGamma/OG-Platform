@@ -35,7 +35,7 @@ public abstract class IndexDeposit {
    * @param currency The underlying currency.
    * @param calendar The calendar.
    */
-  public IndexDeposit(String name, Currency currency, Calendar calendar) {
+  public IndexDeposit(final String name, final Currency currency, final Calendar calendar) {
     Validate.notNull(name, "Index: name");
     Validate.notNull(currency, "Index: currency");
     Validate.notNull(calendar, "Index: calendar");
@@ -84,7 +84,7 @@ public abstract class IndexDeposit {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -94,7 +94,7 @@ public abstract class IndexDeposit {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    IndexDeposit other = (IndexDeposit) obj;
+    final IndexDeposit other = (IndexDeposit) obj;
     if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }

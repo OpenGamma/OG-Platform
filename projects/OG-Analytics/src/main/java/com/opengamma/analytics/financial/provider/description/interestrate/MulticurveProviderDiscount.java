@@ -5,10 +5,13 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -434,6 +437,31 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return _fxMatrix;
   }
 
+  /**
+   * Returns an unmodifiable copy of the currency to discounting curves map.
+   * @return The discounting curve map
+   */
+  public Map<Currency, YieldAndDiscountCurve> getDiscountingCurves() {
+    return Collections.unmodifiableMap(_discountingCurves);
+  }
+
+  /**
+   * Returns an unmodifiable copy of the ibor index to forward curves map.
+   * @return The forward ibor curve map
+   */
+  public Map<IborIndex, YieldAndDiscountCurve> getForwardIborCurves() {
+    return Collections.unmodifiableMap(_forwardIborCurves);
+  }
+
+  /**
+   * Returns an unmodifiable copy of the overnight index to forward curves map.
+   * @return The forward overnight curve map
+   */
+  public Map<IndexON, YieldAndDiscountCurve> getForwardONCurves() {
+    return Collections.unmodifiableMap(_forwardONCurves);
+  }
+
+
   public MulticurveProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     // REVIEW: Is this too slow for the pricing of cash-flows?
     final Map<Currency, YieldAndDiscountCurve> newDiscountCurves = new LinkedHashMap<>(_discountingCurves);
@@ -454,6 +482,41 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     newForwardCurves.put(index, replacement);
     final MulticurveProviderDiscount decorated = new MulticurveProviderDiscount(_discountingCurves, _forwardIborCurves, newForwardCurves, _fxMatrix);
     return decorated;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _discountingCurves.hashCode();
+    result = prime * result + _forwardIborCurves.hashCode();
+    result = prime * result + _forwardONCurves.hashCode();
+    result = prime * result + _fxMatrix.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof MulticurveProviderDiscount)) {
+      return false;
+    }
+    final MulticurveProviderDiscount other = (MulticurveProviderDiscount) obj;
+    if (!ObjectUtils.equals(_discountingCurves, other._discountingCurves)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_forwardIborCurves, other._forwardIborCurves)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_forwardONCurves, other._forwardONCurves)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_fxMatrix, other._fxMatrix)) {
+      return false;
+    }
+    return true;
   }
 
 }
