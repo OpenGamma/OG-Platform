@@ -9,7 +9,6 @@ $.register_module({
         return function (cell, event) {
             var grid = og.analytics.grid;
             var context_items = function (cell) {
-                console.log(cell);
                 var items = [];
                 // when aggregated the portfolio node structure is not shown so edit/add is not possible
                 if (og.analytics.url && og.analytics.url.last.main.aggregators.length) {
