@@ -282,7 +282,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     if (isChangeRelevant(event)) {
       if (event.getType() == ChangeType.REMOVED) {
         // TODO clean up trades from cache if this is a position that has been removed
-        _cache.remove(notification.getEntity().getUniqueId().getObjectId());
+        _cache.remove(event.getObjectId());
         _portfolioGrid = _portfolioGrid.withUpdatedRows(_portfolioSupplier.get());
         // return the IDs of all grids because the portfolio structure has changed
         // TODO if we had separate IDs for rows and columns it would save the client rebuilding the column metadata

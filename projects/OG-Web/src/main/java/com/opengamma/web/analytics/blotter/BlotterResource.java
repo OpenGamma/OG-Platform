@@ -61,6 +61,7 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -272,15 +273,18 @@ public class BlotterResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("nodes/{nodeId}/positions/{positionId}")
   public Response deletePosition(@PathParam("positionId") String positionIdStr, @PathParam("nodeId") String nodeIdStr) {
-    UniqueId positionId = UniqueId.parse(positionIdStr);
+    ObjectId positionId = UniqueId.parse(positionIdStr).getObjectId();
     UniqueId nodeId = UniqueId.parse(nodeIdStr);
-    ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId);
+    ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId.getUniqueId());
     PortfolioDocument portfolioDoc = _portfolioMaster.get(node.getPortfolioId());
-    if (node.getPositionIds().remove(positionId.getObjectId()) == false) {
-      throw new DataNotFoundException("Position id not found: " + positionId);
+
+    if (portfolioDoc.isLatest()) {
+      if (node.getPositionIds().remove(positionId) == false) {
+        throw new DataNotFoundException("Position id not found: " + positionId);
+      }
+      _positionMaster.remove(positionId);
+      _portfolioMaster.update(portfolioDoc);
     }
-    _positionMaster.remove(positionId.toLatest());
-    _portfolioMaster.update(portfolioDoc);
     return Response.ok().build();
   }
 
