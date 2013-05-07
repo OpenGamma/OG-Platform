@@ -17,6 +17,7 @@ import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
@@ -62,7 +63,7 @@ import com.opengamma.util.money.CurrencyAmount;
   private Duration _lastCalculationDuration = Duration.ZERO;
 
   /**
-   * Puts a set of results into the cache.
+   * Puts a set of main grid results into the cache.
    * @param results The results, not null
    */
   /* package */ void put(ViewResultModel results) {
@@ -70,13 +71,21 @@ import com.opengamma.util.money.CurrencyAmount;
     _lastUpdateId++;
     _lastCalculationDuration = results.getCalculationDuration();
     List<ViewResultEntry> allResults = results.getAllResults();
+    Set<ResultKey> updatedKeys = Sets.newHashSet();
     for (ViewResultEntry result : allResults) {
       put(result.getCalculationConfiguration(), result.getComputedValue());
+      updatedKeys.add(new ResultKey(result.getCalculationConfiguration(), result.getComputedValue().getSpecification()));
+    }
+    // duplicate the last history item for anything that hasn't changed this cycle
+    for (Map.Entry<ResultKey, CacheItem> entry : _results.entrySet()) {
+      if (entry.getValue().getHistory() != null && !updatedKeys.contains(entry.getKey())) {
+        entry.getValue().valueUnchanged();
+      }
     }
   }
 
   /**
-   * Puts a set of results into the cache.
+   * Puts a set of dependency graph results into the cache.
    * @param calcConfigName The name of the calculation configuration used to calculate the results
    * @param results The results
    * @param duration Duration of the calculation cycle that produced the results
@@ -324,6 +333,13 @@ import com.opengamma.util.money.CurrencyAmount;
       return _aggregatedExecutionLog;
     }
 
+    /**
+     * Invoked when a calculation cycle completes and doesn't update the value for an item. The latest value is
+     * inserted into the history again to ensure the history is up to date.
+     */
+    private void valueUnchanged() {
+      _history.add(_latestValue);
+    }
   }
 
   /**
