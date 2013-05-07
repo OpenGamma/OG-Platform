@@ -168,8 +168,7 @@ $.register_module({
                         }
                         if (json.template_data.hts_id || args.timeseries) new og.common.gadgets.Timeseries({
                             rest_options: {id: json.template_data.hts_id || args.timeseries},
-                            selector: '.OG-timeseries-container',
-                            datapoints: false
+                            selector: '.OG-timeseries-container'
                         })
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
