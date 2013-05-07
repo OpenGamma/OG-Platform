@@ -21,13 +21,14 @@ $.register_module({
     obj: function () {
         var api = og.api, common = og.common, details = common.details, events = common.events,
             history = common.util.history, masthead = common.masthead, routes = common.routes,
-            form_inst, form_state, unsaved_txt = 'You have unsaved changes to',
+            form_inst, form_state, unsaved_txt = 'You have unsaved changes to', toolbar_action = false,
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
             current_type, config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {
+                    toolbar_action = true;
                     ui.dialog({
                         type: 'input',
                         title: 'Add configuration',
@@ -49,6 +50,7 @@ $.register_module({
                     })
                 },
                 'delete': function () {
+                    toolbar_action = true;
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete configuration?',
@@ -58,6 +60,7 @@ $.register_module({
                             'Delete': function () {
                                 var args = routes.current().args;
                                 suppress_update = true;
+                                form_inst = form_state = null;
                                 $(this).dialog('close');
                                 api.rest.configs.del({
                                     handler: function (result) {
@@ -119,6 +122,7 @@ $.register_module({
                             var args = routes.current().args;
                             view.notify(null);
                             if (result.error) return view.error(result.message);
+                            toolbar_action = true;
                             view.search(args);
                             routes.go(routes.hash(view.rules.load_item, routes.current().args, {
                                 add: {id: result.meta.id}
@@ -129,7 +133,6 @@ $.register_module({
                             view.notify(null);
                             if (result.error) return view.error(result.message);
                             view.notify('saved');
-                            hashchangesuppressed = false;
                             setTimeout(function () {view.notify(null), view.search(args), view.details(args);}, 300);
                         },
                         handler: function (form) {
@@ -191,7 +194,7 @@ $.register_module({
                 api.rest.configs.get(rest_options);
             };
             events.on('hashchange', function () {
-                if (!form_inst && !form_state) return
+                if (!form_inst && !form_state || toolbar_action) return toolbar_action = false, void 0;
                 var msg = unsaved_txt + ' ' + form_state.data.name + '. \n\n' +
                     'OK to discard changes \n'+
                     'Cancel to continue editing';
