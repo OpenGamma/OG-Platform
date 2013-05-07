@@ -107,7 +107,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
 
     final Object spreadObject = inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
     final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) spreadObject;
-    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, SpreadCurveFunctions.BUCKET_TENORS);
+    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, desiredValue.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
     final double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, isdaCurve, startDate); // get spread for this cds
 
     Object cs01 = compute(now, cds, spreads, isdaCurve, bucketDates);
@@ -129,6 +129,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
         .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
         .withAny(ISDAFunctionConstants.ISDA_IMPLEMENTATION)
         .withAny(ISDAFunctionConstants.CDS_QUOTE_CONVENTION)
+        .withAny(ISDAFunctionConstants.ISDA_BUCKET_TENORS)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .get();
     return Collections.singleton(new ValueSpecification(_valueRequirement, target.toSpecification(), properties));

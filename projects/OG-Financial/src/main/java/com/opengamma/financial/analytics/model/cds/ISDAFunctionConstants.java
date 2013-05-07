@@ -61,4 +61,9 @@ public class ISDAFunctionConstants {
    * Value property for the ISDA curve date
    */
   public static final String CDS_QUOTE_CONVENTION = "CDSQuoteConvention";
+
+  /**
+   * Value property for the ISDA bucket tenors
+   */
+  public static final String ISDA_BUCKET_TENORS = "ISDABucketTenors";
 }
