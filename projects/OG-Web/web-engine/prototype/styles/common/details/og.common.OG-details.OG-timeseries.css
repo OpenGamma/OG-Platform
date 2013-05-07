@@ -168,7 +168,7 @@
 
 /* Data points */
 
-.OG-timeseries .og-data-points {
+.OG-timeseries .og-data {
     overflow: hidden;
     overflow-x: auto;
     display: block;
@@ -176,11 +176,11 @@
     margin-top: 0;
 }
 
-.OG-timeseries .og-data-points time {
+.OG-timeseries .og-data time {
     color: #555;
 }
 
-.OG-timeseries .og-data-points time span {
+.OG-timeseries .og-data time span {
     color: #999;
 }
 
@@ -255,7 +255,7 @@
     top: 7px;
 }
 
-.OG-timeseries .og-data-points button {
+.OG-timeseries .og-data button {
     position: absolute;
     right: 0;
     bottom: 0;
@@ -263,12 +263,12 @@
     text-shadow: 0 1px 0 #fff;
 }
 
-.og-data-points .og-data {
+.og-data .og-data-item {
     border-top:  1px solid #fff;
     height: 281px;
 }
 
-.og-data-points .og-data .og-loading {
+.og-data .og-data-item .og-loading {
     display: inline-block;
     padding: 5px;
     color: #999;

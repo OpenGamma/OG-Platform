@@ -71,6 +71,7 @@ $.register_module({
                             });
                         }
                         timeseries.update(data);
+                        timeseries.datapoints.update(data);
                         $selector.html(generate_menu());
                     };
                     var select_handler = function () {

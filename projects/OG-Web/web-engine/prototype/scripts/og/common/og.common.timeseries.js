@@ -16,8 +16,6 @@ $.register_module({
          * @param {String} config.id
          * @param {String} config.height optional height of Timeseries, gadget will calculate height from parent
          * if not supplied
-         * @param {Boolean} config.datapoints
-         * @param {Boolean} config.datapoints_link
          * @param {Boolean} config.child Manage resizing gadget manualy
          * @param {Object} config.data Spoffed Data - temporary solution
          */
@@ -84,7 +82,6 @@ $.register_module({
             handler = function (result) {
                 if (result.error) return;
                 var data = result.data,
-                    show_datapoints_link = 'datapoints_link' in config ? config.datapoints_link : true,
                     init_ob_time = data.template_data.observation_time,
                     data_arr = [{
                         data: data.timeseries.data,
@@ -100,7 +97,7 @@ $.register_module({
                     $legend, panning, hover_pos = null,
                     reset_options,
                     empty_plots, update_legend, rescale_yaxis, resize,
-                    calculate_y_values, load_data_points, get_legend;
+                    calculate_y_values, get_legend;
                 $(selector).html((Handlebars.compile(plot_template))({alive: alive}));
                 get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated
                 reset_options = function () {p1_options = top_plot_options, p2_options = bot_plot_options;};
@@ -110,7 +107,6 @@ $.register_module({
                             position: 'absolute', color: '#999', left: '10px', top: '10px'
                         });
                     reset_options();
-                    load_data_points();
                     disabled_options = {
                         grid: {borderWidth: 0},
                         xaxis: {show: false},
@@ -123,48 +119,6 @@ $.register_module({
                     $p2 = $.plot($(p2_selector), d, $.extend(true, {}, p2_options, disabled_options));
                     $(p1_selector).append(msg);
                     setTimeout(show_plot);
-                };
-                load_data_points = function () {
-                    var $template, col_width, render_grid, grid_width,
-                        $data_points = $(selector + ' .og-data-points');
-                    if (!$data_points.length) return;
-                    if (!config.datapoints) {
-                        if (show_datapoints_link) $data_points.css({
-                            'position': 'relative', 'left': '3px'
-                            }).html('<a href="#/timeseries/'+ config.id +'">View Timeseries with DataPoints</a>');
-                        return;
-                    }
-                    $(selector + ' .og-data-points').html('<div class="og-container"></div>');
-                    (function () { // Calculate data grids "grid_width" and "col_width"
-                        var num_cols = data_arr.length * 2, default_col = 180,
-                            min_width = num_cols * default_col,
-                            container_width = $(selector + ' .og-container').width();
-                        if (min_width < container_width) col_width = container_width / num_cols;
-                        else col_width = default_col;
-                        grid_width = ~~(2 * col_width);
-                    }());
-                    $template = $(selector + ' .og-data-points .og-container');
-                    if (!data_arr) return $template.html('<span class="og-no-datapoint">No data available</span>');
-                    render_grid = function (index) {
-                        var data_selector = selector + ' .og-data-points .og-data-' + index;
-                        new og.common.gadgets.Data({
-                            resource: 'timeseries', rest_options: {id: config.rest_options.id},
-                            type: 'TIME_SERIES', selector: data_selector, menu: false, child: false
-                        });
-                    };
-                    data_arr.forEach(function (v, i) {
-                        var cur_id = data_arr[i].object_id, $compiled = $((Handlebars.compile(data_template))({
-                            time: (Object.keys(meta).length ? v.label : init_ob_time).toLowerCase().replace(/_/g, ' '),
-                            index: i, color: colors_arr[i], source: data_arr[i].data_source,
-                            provider: data_arr[i].data_provider
-                        }));
-                        $compiled.find('.og-js-timeseries-csv').attr({
-                            'href': '/jax/timeseries/' + cur_id + '.csv',
-                            'download': 'Timeseries-' + cur_id + '.csv'
-                        }).end().appendTo($template);
-                        setTimeout(render_grid.partial(i), 0);
-                    });
-                    $data_points.find('.og-data-series').css({width: grid_width + 'px', position: 'relative'});
                 };
                 load_plots = function (new_data) {
                     if (new_data) data_arr = new_data;
@@ -197,7 +151,7 @@ $.register_module({
                                 pre.unshift('<span class="'+ classes +'" style="margin-right: 5px;">'
                                     + cur +'</span>');
                                 return pre;
-                            }, []).join('')).unbind().bind('click', function (e) {
+                            }, []).join('')).css({visibility: 'visible'}).unbind().bind('click', function (e) {
                                 e.stopPropagation();
                                 var target = e.target, from = presets['_' + target.textContent], $elm = $(target);
                                 if ($elm.hasClass('OG-link-disabled') || !$elm.is('span')) return;
@@ -254,7 +208,6 @@ $.register_module({
                     });
                     $legend = get_legend(), $legend.hide();
                     rescale_yaxis();
-                    load_data_points();
                     setTimeout(show_plot);
                 };
                 calculate_y_values = function () {
@@ -355,11 +308,8 @@ $.register_module({
                 if (!config.child) og.common.gadgets.manager.register(timeseries);
                 timeseries.resize();
             };
-            $.when(
-                api.text({module: 'og.views.gadgets.timeseries.plot_tash'}),
-                api.text({module: 'og.views.gadgets.timeseries.data_tash'})
-            ).then(function (plot_tmpl, data_tmpl) {
-                plot_template = plot_tmpl, data_template = data_tmpl;
+            $.when(api.text({module: 'og.views.gadgets.timeseries.plot_tash'})).then(function (tmpl) {
+                plot_template = tmpl;
                 if (spoofed_data) return handler(spoofed_data.main);
                 api.rest.timeseries.get({dependencies: ['id'], id: config.id, cache_for: 10000}).pipe(handler);
             });

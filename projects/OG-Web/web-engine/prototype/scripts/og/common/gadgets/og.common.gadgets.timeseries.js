@@ -7,10 +7,10 @@ $.register_module({
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         return function (config) {
-            var api = og.api, common = og.common, gadget = this, timeseries,
-                alive = common.id('gadget_timeseries'), $selector = $(config.selector),
+            var api = og.api, common = og.common, gadget = this, timeseries, selector = config.selector,
+                alive = common.id('gadget_timeseries'), $selector = $(selector),
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'];
-            if (!config.rest_options) $(config.selector).addClass(alive)
+            if (!config.rest_options) $(selector).addClass(alive)
                 .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             var RestDataMan = function (rest_options) {
                 var dataman = this;
@@ -18,12 +18,18 @@ $.register_module({
                     $selector.html(tmpl);
                     og.api.rest.timeseries.get(rest_options).pipe(function (result) {
                         timeseries = new common.Timeseries({
-                            selector: config.selector + ' .og-timeseries',
+                            selector: selector + ' .og-timeseries',
                             data: [result.data],
                             rest_options: rest_options,
                             datapoints: !!config.datapoints, height: 400
                         });
-                        common.TimeseriesMenu.call(timeseries, result, config.selector + ' .og-menu', colors_arr);
+                        timeseries.datapoints = new common.TimeseriesData({
+                            selector: selector + ' .og-data',
+                            data: [result.data],
+                            rest_options: rest_options,
+                            colors: colors_arr,
+                        });
+                        common.TimeseriesMenu.call(timeseries, result, selector + ' .og-menu', colors_arr);
                     });
                 });
             };
