@@ -46,7 +46,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   @Deprecated
-  public ZonedDateTime[] constructISDACompliantCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
+  public ZonedDateTime[][] constructISDACompliantCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
 
     // ------------------------------------------------
 
@@ -57,6 +57,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     int totalDates = 0;
 
+    // NOTE : We have hacked this to have a maximum number of possible cashflows of 1000 - should sort this out
     final ZonedDateTime[] tempCashflowSchedule = new ZonedDateTime[1000];
 
     ZonedDateTime date;
@@ -100,6 +101,9 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         date = date.minus(cds.getCouponFrequency().getPeriod());
       }
 
+      // TODO : Check totalDates > 0
+      // TODO : Check that date <= startDate
+
       // TODO : Check the FRONTSHORT/FRONTLONG logic here
       if (date.isEqual(startDate) || totalDates == 1 || stubType == StubType.FRONTSHORT) {
         totalDates++;
@@ -129,14 +133,63 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // TODO : Need to make bdaCashflowSchedule a matrix returning acc start/end dates as well as pay dates. This is because
     // TODO : if the maturity of the CDS falls on a non-business day, the pay date is bda, but the final accrual date is not bda
 
-    final ZonedDateTime[] bdaCashflowSchedule = new ZonedDateTime[cashflowSchedule.length];
+    final ZonedDateTime[][] tempBDACashflowSchedule = new ZonedDateTime[cashflowSchedule.length][4];
+
+    // Fill up the first column
+    tempBDACashflowSchedule[0][0] = cashflowSchedule[0];
+    for (int i = 1; i < tempBDACashflowSchedule.length - 1; i++) {
+      tempBDACashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
+    }
+    tempBDACashflowSchedule[tempBDACashflowSchedule.length - 1][0] = cashflowSchedule[cashflowSchedule.length - 1];
+
+    // Now fill up the acc start/end and pay dates
+
+    // This is based on the code in the ISDA model
+
+    ZonedDateTime prevDate = cashflowSchedule[0];
+    ZonedDateTime prevDateAdj = prevDate;
+
+    // Note the start index
+    for (int i = 1; i < cashflowSchedule.length; i++) {
+
+      ZonedDateTime nextDate = cashflowSchedule[i];
+      ZonedDateTime nextDateAdj = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
+
+      // accStartDate
+      tempBDACashflowSchedule[i][1] = prevDateAdj;
+
+      // accEndDate
+      tempBDACashflowSchedule[i][2] = nextDateAdj;
+
+      // payDate
+      tempBDACashflowSchedule[i][3] = nextDateAdj;
+
+      System.out.println(i + "\t" + tempBDACashflowSchedule[i][1] + "\t" + tempBDACashflowSchedule[i][2] + "\t" + tempBDACashflowSchedule[i][3]);
+
+      prevDate = nextDate;
+      prevDateAdj = nextDateAdj;
+    }
+
+    if (protectStart) {
+      tempBDACashflowSchedule[cashflowSchedule.length - 1][2] = prevDate.plusDays(1);
+    }
+    else
+    {
+      tempBDACashflowSchedule[cashflowSchedule.length - 1][2] = prevDate;
+    }
+
+    // ------------------------------------------------
+
+    //final ZonedDateTime[] bdaCashflowSchedule = new ZonedDateTime[cashflowSchedule.length];
 
     // The first accrual date is not bda
-    bdaCashflowSchedule[0] = cashflowSchedule[0];
+    //bdaCashflowSchedule[0] = cashflowSchedule[0];
 
+    /*
     for (int i = 1; i < bdaCashflowSchedule.length - 1; i++) {
       bdaCashflowSchedule[i] = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
     }
+    */
 
     // Careful of this - we are not modifying the maturity date of the CDS
     /*
@@ -147,11 +200,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // The final accrual date is not bda
     // Remember if protectStart = TRUE then there is an extra day of accrued that is not captured here
-    bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1];
+    //bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1];
 
     // ------------------------------------------------
 
-    return bdaCashflowSchedule;
+    //return bdaCashflowSchedule;
+
+    return tempBDACashflowSchedule;
   }
 
   // -------------------------------------------------------------------------------------------
