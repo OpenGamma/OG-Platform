@@ -8,13 +8,16 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, hash = window.RouteMap.hash,
+        var routes, hash = window.RouteMap.hash, hashchange = false;
             SL = '/', MOZSLASH = 'MOZSLOG', MOZSLASH_EXP = new RegExp(MOZSLASH, 'g'), ENCODEDSL = '%2F';
         var slash_replace = function (obj, acc, val) {return acc[val] = ('' + obj[val]).replace(/\//g, MOZSLASH), acc;};
         return routes = $.extend(true, window.RouteMap, {
             get: function () {
                 var hash = window.location.hash.replace(MOZSLASH_EXP, ENCODEDSL), index = hash.indexOf(SL);
                 return ~index ? hash.slice(index) : SL;
+            },
+            suppress_hashchange: function (suppress) {
+                suppresshashchange = suppress;
             },
             init: function () {
                 var go = routes.go;
@@ -39,9 +42,15 @@ $.register_module({
                     $anchor.attr('href', href);
                 });
                 $(window).on('hashchange', function () {
+                    if (hashchange) return hashchange = false;
+                    if (og.common.events.fire('hashchange') === false)
+                        return hashchange = true, routes.go(routes.last().hash);
                     routes.handler();
                     routes.set_title(routes.title || routes.current().hash);
                     routes.title = null;
+                });
+                $(window).on('beforeunload', function (event) {
+                    return og.common.events.fire('unload') ? void 0 : 'You have unsaved changes';
                 });
                 $(window).on('keydown', function (event) {
                     if (event.keyCode !== $.ui.keyCode.ESCAPE) return;
