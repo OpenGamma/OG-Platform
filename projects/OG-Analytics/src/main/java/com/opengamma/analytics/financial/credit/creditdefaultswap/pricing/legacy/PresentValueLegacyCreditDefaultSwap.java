@@ -61,6 +61,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the value of the contingent leg
+    // TODO : Remember this check in the ISDA code 'if (MAX(stepinDate, startDate) <= endDate)' 
     final double presentValueContingentLeg = presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
