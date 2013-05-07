@@ -32,10 +32,10 @@
             <goals>
               <goal>generate</goal>
             </goals>
-                <configuration>
-                  <scriptsPath>${basedir}/install/db</scriptsPath>
-                  <outputPath>${project.build.sourceDirectory}/com/opengamma/masterdb/schema</outputPath>
-                </configuration>
+            <configuration>
+              <scriptsPath>${basedir}/install/db</scriptsPath>
+              <outputPath>${project.build.sourceDirectory}/com/opengamma/masterdb/schema</outputPath>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -58,34 +58,6 @@
         </executions>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>com.opengamma</groupId>
-                    <artifactId>og-dbversion-maven-plugin</artifactId>
-                    <versionRange>[1.0,)</versionRange>
-                    <goals>
-                      <goal>generate</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore />
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
   <dependencies>
