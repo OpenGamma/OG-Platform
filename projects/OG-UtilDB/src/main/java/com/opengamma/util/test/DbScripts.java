@@ -89,7 +89,7 @@ public final class DbScripts {
         dirs.add(new File(DbTool.getWorkingDirectory()).getCanonicalFile());
       }
       if (relative.exists()) {
-        dirs.add(SCRIPT_RELATIVE_PATH);
+        dirs.add(SCRIPT_RELATIVE_PATH.getCanonicalFile());
       }
       if (dirs.isEmpty()) {
         if (SCRIPT_ZIP_PATH.exists()) {
