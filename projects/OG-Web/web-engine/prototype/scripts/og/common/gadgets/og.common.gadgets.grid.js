@@ -363,7 +363,7 @@ $.register_module({
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             verify_state.call(grid);
             if (!reorder_cols.call(grid)) populate_cols.call(grid);
-            if (grid.elements.empty) init_elements.call(grid);
+            if (grid.elements.empty) init_elements.call(grid); else grid.clipboard.clear(), grid.selector.clear();
             grid.resize(config[has]('collapse_level'));
             render_rows.call(grid, null, true);
         };
