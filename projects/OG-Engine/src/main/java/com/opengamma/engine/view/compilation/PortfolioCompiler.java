@@ -5,19 +5,11 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder;
-import com.opengamma.engine.target.ComputationTargetReference;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
 /**
@@ -57,48 +49,6 @@ public final class PortfolioCompiler {
     final Portfolio cloned = new SimplePortfolio(portfolio);
     new SecurityLinkResolver(executorService, securitySource, versionCorrection).resolveSecurities(cloned.getRootNode());
     return cloned;
-  }
-
-  // --------------------------------------------------------------------------
-  /**
-   * Adds portfolio targets to the dependency graphs as required by a full compilation.
-   * 
-   * @param compilationContext the context of the view definition compilation
-   * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
-   * @param unchanged the identifiers of portfolio nodes that have not changed, or null if none
-   */
-  protected static void executeFull(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> unchanged) {
-    execute(compilationContext, resolutions, null, unchanged);
-  }
-
-  /**
-   * Adds portfolio targets to dependency graphs as required, fully resolving the portfolio structure.
-   * 
-   * @param compilationContext the context of the view definition compiler
-   * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
-   * @param includeEvents optional identifiers of positions known to have changed. If omitted all positions are checked against the portfolio requirements
-   * @param excludeEvents optional identifiers of nodes known not to have changed. If omitted all nodes and their member positions are checked against the portfolio requirements
-   */
-  protected static void execute(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents,
-      final Set<UniqueId> excludeEvents) {
-    for (final ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
-      if (calcConfig.getAllPortfolioRequirements().size() == 0) {
-        // No portfolio requirements for this calculation configuration - avoid further processing.
-        continue;
-      }
-      // Add portfolio requirements to the dependency graph
-      final DependencyGraphBuilder builder = compilationContext.getBuilder(calcConfig.getName());
-      final Portfolio portfolio = builder.getCompilationContext().getPortfolio();
-      final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions, includeEvents, excludeEvents);
-      PortfolioNodeTraverser.parallel(traversalCallback, compilationContext.getServices().getExecutorService()).traverse(portfolio.getRootNode());
-      // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.
-      // Wait for the current config's dependency graph to be built before moving to the next view calc config
-      try {
-        builder.waitForDependencyGraphBuild();
-      } catch (final InterruptedException e) {
-        throw new OpenGammaRuntimeException("Interrupted", e);
-      }
-    }
   }
 
 }

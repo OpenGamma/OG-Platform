@@ -52,7 +52,8 @@ $.register_module({
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common, is_child, opener_og, parent_api, parent_data, api = og.api.rest;
                     $('.OG-js-loading').hide();
-                    $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container').css({'visibility': 'visible'});
+                    $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container')
+                        .css({'visibility': 'visible'});
                     common.layout = (({
                         'analytics.ftl': common.layout.analytics,
                         'analytics2.ftl': common.layout.analytics2,
@@ -95,7 +96,7 @@ $.register_module({
                 if (og.api.rest) og.api.rest.clean();
                 return parsed;
             },
-            set_title: function (title) {document.title = 'OpenGamma: ' + title;},
+            set_title: function (title) {document.title = title + ' - OpenGamma';},
             title: null
         });
     }

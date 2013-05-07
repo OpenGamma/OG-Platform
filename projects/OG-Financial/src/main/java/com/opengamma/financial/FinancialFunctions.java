@@ -26,7 +26,7 @@ public class FinancialFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   *
+   * 
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static FunctionConfigurationSource instance() {
@@ -54,12 +54,12 @@ public class FinancialFunctions extends AbstractFunctionConfigurationBean {
     return PropertyFunctions.instance();
   }
 
-  protected FunctionConfigurationSource valueFunctionConfiguration() {
-    return ValueFunctions.instance();
-  }
-
   protected FunctionConfigurationSource targetFunctionConfiguration() {
     return TargetFunctions.instance();
+  }
+  
+  protected FunctionConfigurationSource valueFunctionConfiguration() {
+    return ValueFunctions.instance();
   }
 
   protected FunctionConfigurationSource viewFunctionConfiguration() {
@@ -69,7 +69,7 @@ public class FinancialFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
-        propertyFunctionConfiguration(), valueFunctionConfiguration(), targetFunctionConfiguration(), viewFunctionConfiguration());
+        propertyFunctionConfiguration(), targetFunctionConfiguration(), valueFunctionConfiguration(), viewFunctionConfiguration());
   }
 
 }

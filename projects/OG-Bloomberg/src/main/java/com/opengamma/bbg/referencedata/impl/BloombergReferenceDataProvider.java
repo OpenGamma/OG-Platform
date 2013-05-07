@@ -182,7 +182,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
         }
       }
       if (excluded.size() > 0) {
-        String message = MessageFormatter.format("Request contains invalid identifiers {} from ({})", excluded, identifiers);
+        String message = MessageFormatter.format("Request contains invalid identifiers {} from ({})", excluded, identifiers).getMessage();
         s_logger.error(message);
         throw new OpenGammaRuntimeException(message);
       }
@@ -204,7 +204,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
         }
       }
       if (excluded.size() > 0) {
-        String message = MessageFormatter.format("Request contains invalid fields {} from ({})", excluded, fields);
+        String message = MessageFormatter.format("Request contains invalid fields {} from ({})", excluded, fields).getMessage();
         s_logger.error(message);
         throw new OpenGammaRuntimeException(message);
       }

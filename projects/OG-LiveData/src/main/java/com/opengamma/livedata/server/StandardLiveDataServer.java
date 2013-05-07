@@ -982,6 +982,9 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
 
     Subscription subscription = getSubscription(securityUniqueId);
     if (subscription == null) {
+      // REVIEW kirk 2013-04-26 -- Should this really be a WARN? I believe some gateway systems
+      // handle unsubscribes asynchronously so it's totally valid to get a few ticks after
+      // unsubscribe has pulled it out of the subscription list.
       s_logger.warn("Got data for invalid security unique ID {}", securityUniqueId);
       return;
     }

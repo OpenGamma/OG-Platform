@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-/* package */ abstract class MultiSwapLegVisitor<T> {
+  /* package */ abstract class MultiSwapLegVisitor<T> {
 
   /**
    * Visits the fixed leg of a fixed/float swap. For float/float swaps {@link #visitFloatingPayLeg} will be called.
@@ -50,6 +50,12 @@ import com.opengamma.util.tuple.Pair;
     boolean receiveFixed = receiveLeg.accept(fixedFloatVisitor);
     T firstValue;
     T secondValue;
+    if (payFixed && receiveFixed) {
+      firstValue = payLeg.accept(new FixedVisitor());
+      secondValue = receiveLeg.accept(new FixedVisitor());
+      return Pair.of(firstValue, secondValue);
+    }
+
     if (payFixed) {
       firstValue = payLeg.accept(new FixedVisitor());
       secondValue = receiveLeg.accept(new OtherVisitor());
@@ -61,6 +67,7 @@ import com.opengamma.util.tuple.Pair;
       secondValue = receiveLeg.accept(new OtherVisitor());
     }
     return Pair.of(firstValue, secondValue);
+
   }
 
   private class OtherVisitor implements SwapLegVisitor<T> {

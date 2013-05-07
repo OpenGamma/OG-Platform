@@ -5,7 +5,6 @@
  */
 package com.opengamma.masterdb.batch;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.functional.Functional.first;
 import static org.mockito.Mockito.verify;
@@ -123,9 +122,6 @@ public class ViewClientTest {
                 (byte) 1, AggregatedExecutionLog.EMPTY)
         ),
         fullFragment.getValue().getAllMarketData());
-
-    assertEquals(newHashMap(),
-        fullFragment.getValue().getRequirementToSpecificationMapping());
   }
 
   /**

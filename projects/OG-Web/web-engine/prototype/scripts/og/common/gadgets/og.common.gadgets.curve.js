@@ -30,7 +30,7 @@ $.register_module({
             };
             $curve = $(config.selector).addClass(alive);
             if (loading_template) $curve.html(loading_template({text: 'loading...'}));
-            else og.api.text({module: 'og.analytics.loading_tash'}).pipe(function (template) {
+            else og.api.text({module: 'og.views.gadgets.loading_tash'}).pipe(function (template) {
                 loading_template = Handlebars.compile(template);
                 $curve.html(loading_template({text: 'loading...'}));
             });

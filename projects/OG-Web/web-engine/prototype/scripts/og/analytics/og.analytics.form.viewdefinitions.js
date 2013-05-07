@@ -26,7 +26,7 @@ $.register_module({
                         data.sort((function(){
                             return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
                         })());
-                        res(XXX = data.reduce(function (acc, val) {
+                        res(data.reduce(function (acc, val) {
                             if (!req.term || val && matcher.test(val)) acc.push({label: htmlize(val)});
                             return acc;
                         }, []));

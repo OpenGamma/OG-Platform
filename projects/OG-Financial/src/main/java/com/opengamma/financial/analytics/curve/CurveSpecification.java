@@ -18,7 +18,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,17 +30,14 @@ public class CurveSpecification implements Serializable {
 
   private final LocalDate _curveDate;
   private final String _name;
-  private final UniqueIdentifiable _id;
   private final SortedSet<CurveNodeWithIdentifier> _nodes;
 
-  public CurveSpecification(final LocalDate curveDate, final String name, final UniqueIdentifiable id, final Collection<CurveNodeWithIdentifier> nodes) {
+  public CurveSpecification(final LocalDate curveDate, final String name, final Collection<CurveNodeWithIdentifier> nodes) {
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(nodes, "nodes");
     _curveDate = curveDate;
     _name = name;
-    _id = id;
     _nodes = new TreeSet<>(nodes);
   }
 
@@ -58,10 +54,6 @@ public class CurveSpecification implements Serializable {
     return _name;
   }
 
-  public UniqueIdentifiable getIdentifier() {
-    return _id;
-  }
-
   public Set<CurveNodeWithIdentifier> getNodes() {
     return Collections.unmodifiableSet(_nodes);
   }
@@ -76,7 +68,6 @@ public class CurveSpecification implements Serializable {
     final int prime = 31;
     int result = 1;
     result = prime * result + _curveDate.hashCode();
-    result = prime * result + _id.hashCode();
     result = prime * result + _name.hashCode();
     result = prime * result + _nodes.hashCode();
     return result;
@@ -87,9 +78,6 @@ public class CurveSpecification implements Serializable {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
     if (!(obj instanceof CurveSpecification)) {
       return false;
     }
@@ -98,9 +86,6 @@ public class CurveSpecification implements Serializable {
       return false;
     }
     if (!ObjectUtils.equals(_curveDate, other._curveDate)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_id, other._id)) {
       return false;
     }
     if (!ObjectUtils.equals(_nodes, other._nodes)) {

@@ -30,6 +30,7 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class FXForwardDefaults extends DefaultPropertyFunction {
+  
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.FX_PRESENT_VALUE,

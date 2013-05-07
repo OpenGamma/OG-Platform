@@ -60,8 +60,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -658,12 +658,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final T data) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final T data) {
       return getValue(futures, true);
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
       return getValue(futures, false);
     }
 
@@ -1113,12 +1113,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures, T data) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures, T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures) {
       return null;
     }
 

@@ -12,8 +12,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.DoublesPair;
 
 /** 

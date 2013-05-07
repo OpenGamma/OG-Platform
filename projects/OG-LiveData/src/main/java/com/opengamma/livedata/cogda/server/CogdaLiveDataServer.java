@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.opengamma.core.user.AuthenticationUtils;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.core.user.UserSource;
@@ -40,8 +42,6 @@ import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.metric.MetricProducer;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
 
 /**
  * The base server process for any Cogda Live Data Server.

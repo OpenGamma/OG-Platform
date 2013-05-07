@@ -64,7 +64,7 @@ public abstract class AbstractMappedConverter extends AbstractTypeConverter {
 
   @Override
   public final boolean canConvertTo(final JavaTypeInfo<?> targetType) {
-    return _conversions.containsKey(targetType);
+    return _conversions.containsKey(targetType.withoutDefault());
   }
 
   @Override
@@ -79,7 +79,7 @@ public abstract class AbstractMappedConverter extends AbstractTypeConverter {
       }
       return;
     }
-    final Action<Object, Object> action = (Action<Object, Object>) _conversions.get(type).getSecond();
+    final Action<Object, Object> action = (Action<Object, Object>) _conversions.get(type.withoutDefault()).getSecond();
     final Object cast = action.cast(value);
     if (cast != null) {
       conversionContext.setResult(action.convert(cast));
@@ -90,7 +90,7 @@ public abstract class AbstractMappedConverter extends AbstractTypeConverter {
 
   @Override
   public final Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
-    return _conversions.get(targetType).getFirst();
+    return _conversions.get(targetType.withoutDefault()).getFirst();
   }
 
 }

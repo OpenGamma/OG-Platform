@@ -17,7 +17,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 
@@ -78,11 +77,18 @@ public abstract class DbTest implements TableCreationCallback {
    * This works better with TestNG and Maven, where the constructor is called
    * even if the test is never run.
    */
-  @BeforeClass(alwaysRun = true)
-  public void setUpDbTool() {
-    _dbtool = DbTestProperties.getDbTool(_databaseType);
-    _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
-    _dbtool.addDbScriptDirectory(DbScripts.getSqlScriptDir().getAbsolutePath());
+  private DbTool ensureDbTool() {
+    if (_dbtool == null) {
+      synchronized (this) {
+        if (_dbtool == null) {
+          ArgumentChecker.notNull(_databaseType, "_databaseType");
+          _dbtool = DbTestProperties.getDbTool(_databaseType);
+          _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
+          _dbtool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
+        }
+      }
+    }
+    return _dbtool;
   }
 
   /**
@@ -90,33 +96,39 @@ public abstract class DbTest implements TableCreationCallback {
    * This tracks the last initialized version in a static map to avoid duplicate
    * DB operations on bigger test classes. This might not be such a good idea.
    */
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void setUp() throws Exception {
-    ArgumentChecker.notNull(_dbtool, "_dbtool");
+    DbTool dbTool = ensureDbTool();
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getTargetVersion())) {
       s_databaseTypeVersion.put(getDatabaseType(), getTargetVersion());
-      _dbtool.setTargetVersion(getTargetVersion());
-      _dbtool.setCreateVersion(getCreateVersion());
-      _dbtool.dropTestSchema();
-      _dbtool.createTestSchema();
-      _dbtool.createTestTables(this);
+      dbTool.setTargetVersion(getTargetVersion());
+      dbTool.setCreateVersion(getCreateVersion());
+      dbTool.dropTestSchema();
+      dbTool.createTestSchema();
+      dbTool.createTestTables(this);
     }
-    _dbtool.clearTestTables();
+    dbTool.clearTestTables();
   }
 
   //-------------------------------------------------------------------------
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void tearDown() throws Exception {
-    _dbtool.resetTestCatalog(); // avoids locking issues with Derby
+    DbTool dbTool = _dbtool;
+    if (dbTool != null) {
+      _dbtool.resetTestCatalog(); // avoids locking issues with Derby
+    }
   }
 
-  @AfterClass(alwaysRun = true)
+  @AfterClass(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void tearDownClass() throws Exception {
-    _dbtool.close();
+    DbTool dbTool = _dbtool;
+    if (dbTool != null) {
+      _dbtool.close();
+    }
   }
 
-  @AfterSuite(alwaysRun = true)
+  @AfterSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public static void cleanUp() {
     DbScripts.deleteSqlScriptDir();
   }
@@ -135,7 +147,7 @@ public abstract class DbTest implements TableCreationCallback {
     }
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
     for (String databaseType : databaseTypes) {
-      DbScripts scripts = DbScripts.of(Collections.singleton(DbScripts.getSqlScriptDir()), databaseType);
+      DbScripts scripts = DbScripts.of(DbScripts.getSqlScriptDir(), databaseType);
       Map<String, SortedMap<Integer, DbScriptPair>> scriptPairs = scripts.getScriptPairs();
       for (String schema : scriptPairs.keySet()) {
         Set<Integer> versions = scriptPairs.get(schema).keySet();
@@ -209,7 +221,7 @@ public abstract class DbTest implements TableCreationCallback {
 
   //-------------------------------------------------------------------------
   public DbTool getDbTool() {
-    return _dbtool;
+    return ensureDbTool();
   }
 
   public String getDatabaseType() {

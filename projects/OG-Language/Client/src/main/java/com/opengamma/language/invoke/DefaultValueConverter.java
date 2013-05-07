@@ -24,6 +24,10 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.language.Data;
+import com.opengamma.language.DataUtils;
+import com.opengamma.language.Value;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 
@@ -64,6 +68,7 @@ public class DefaultValueConverter extends ValueConverter {
       return _cost;
     }
 
+    @Override
     public String toString() {
       final StringBuilder sb = new StringBuilder();
       sb.append("TargetType = ").append(_targetType).append(", NextStateConverter = ").append(_nextStateConverter).append(", Cost = ").append(_cost);
@@ -71,7 +76,7 @@ public class DefaultValueConverter extends ValueConverter {
     }
 
     // TODO: build a set to speed up the visit lookups
-    
+
     public boolean visited(final TypeConverter converter) {
       State s = this;
       do {
@@ -239,7 +244,18 @@ public class DefaultValueConverter extends ValueConverter {
   }
 
   @Override
-  public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+  public void convertValue(final ValueConversionContext conversionContext, Object value, final JavaTypeInfo<?> type) {
+    if (type.isAllowNull() || type.isDefaultValue()) {
+      if (value instanceof Data) {
+        if (DataUtils.isNull((Data) value)) {
+          value = null;
+        }
+      } else if (value instanceof Value) {
+        if (ValueUtils.isNull((Value) value)) {
+          value = null;
+        }
+      }
+    }
     s_logger.info("Converting {} to type {}", value, type);
     if (directConversion(conversionContext, value, type)) {
       s_logger.debug("Direct conversion complete");

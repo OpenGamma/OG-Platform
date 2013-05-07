@@ -11,7 +11,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -179,7 +181,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * @return            the positions/securities in the masters after writing, null on failure
    */
   @Override
-  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(final ManageablePosition position, ManageableSecurity[] securities) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(final ManageablePosition position, final ManageableSecurity[] securities) {
     
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(securities, "securities");
@@ -204,7 +206,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     }
 
     // If merging positions, check if any of the positions in the current node reference the same security id
-    // and if so, just update the existing position
+    // and if so, just update the existing position and return
     if (_mergePositions && _securityIdToPosition.containsKey(writtenSecurities.get(0).getUniqueId().getObjectId())) {
 
       // Add new quantity to existing position's quantity
@@ -219,6 +221,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       if (!_multithread) {
         // Save the updated existing position to the position master
         PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
+        s_logger.debug("Updated position {}, delta position {}", existingPosition, position);
 
         // update position map (huh?)
         _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
@@ -235,12 +238,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
     }
 
-    // Write position
+    // If overwrite flag (legacy) is on, blindly add a new position and return TODO phase out this feature
     if (_overwrite) {
       // Add the new position to the position master
       PositionDocument addedDoc;
       try {
         addedDoc = _positionMaster.add(new PositionDocument(position));
+        s_logger.debug("Added position {}", position);
       } catch (Exception e) {
         s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage(), e);
         return null;
@@ -255,73 +259,92 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       return new ObjectsPair<>(addedDoc.getPosition(),
           writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
 
-    } else {
+    }
 
-      if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
-        PositionSearchRequest searchReq = new PositionSearchRequest();
+    // Attempt to reuse an existing position from the previous version of the portfolio, and return if an exact match is found
+    if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
+      ManageablePosition existingPosition = matchExistingPosition(position, writtenSecurities);
+      if (existingPosition != null) {
+        return new ObjectsPair<>(existingPosition,
+            writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+      }
+    }
 
-        // Filter positions in current node of original portfolio
-        searchReq.setPositionObjectIds(_originalNode.getPositionIds());
+    // No existing position could be reused/updated: just Add the new position to the position master as a new document
+    // (can't launch a thread since we need the position id immediately, to be stored with the pos document in the map)
+    PositionDocument addedDoc;
+    try {
+      addedDoc = _positionMaster.add(new PositionDocument(position));
+      s_logger.debug("Added position {}", position);
+    } catch (Exception e) {
+      s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+      return null;
+    }
+    // Add the new position to the portfolio
+    _currentNode.addPosition(addedDoc.getUniqueId());
 
-        // Filter positions with the same quantity
-        // (comment these out and update the existing position if it should be reused when qty doesn't match even when
-        // loader is run without keep option)
-        searchReq.setMinQuantity(position.getQuantity());
-        searchReq.setMaxQuantity(position.getQuantity());
+    // Update position map
+    _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
-        // Search
-        PositionSearchResult searchResult = _positionMaster.search(searchReq);
+    // Return the new position
+    return new ObjectsPair<>(addedDoc.getPosition(),
+        writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+  }
 
-        // Find a position that matches the required security external ids
-        for (ManageablePosition existingPosition : searchResult.getPositions()) {
-          if (writtenSecurities.get(0).getUniqueId().getObjectId().equals(existingPosition.getSecurityLink().getObjectId())) {
-            // Add the existing position to the portfolio
-            _currentNode.addPosition(existingPosition.getUniqueId());
+  private ManageablePosition matchExistingPosition(final ManageablePosition position, final List<ManageableSecurity> writtenSecurities) {
+    PositionSearchRequest searchReq = new PositionSearchRequest();
 
-            // Update position map
-            _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+    // Filter positions in current node of original portfolio
+    searchReq.setPositionObjectIds(_originalNode.getPositionIds());
 
-            // Return the existing position
-            return new ObjectsPair<>(existingPosition,
-                writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
-          }
-          for (ExternalId id : existingPosition.getSecurityLink().getExternalIds()) {
-            if (securities[0].getExternalIdBundle().contains(id) && existingPosition.getQuantity().equals(position.getQuantity())) {
-              // Add the existing position to the portfolio
-              _currentNode.addPosition(existingPosition.getUniqueId());
+    // Filter positions with the same quantity
+    searchReq.setMinQuantity(position.getQuantity());
+    searchReq.setMaxQuantity(position.getQuantity());
 
-              // Update position map
-              _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
+    // TODO Compare position attributes
 
-              // Return the existing position
-              return new ObjectsPair<>(existingPosition,
-                  writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
-            }
+    PositionSearchResult searchResult = _positionMaster.search(searchReq);
+    for (ManageablePosition existingPosition : searchResult.getPositions()) {
+      ManageablePosition chosenPosition = null;
+      if (writtenSecurities.get(0).getUniqueId().getObjectId().equals(existingPosition.getSecurityLink().getObjectId())) {
+        chosenPosition = existingPosition;
+      } else {
+        for (ExternalId id : existingPosition.getSecurityLink().getExternalIds()) {
+          if (writtenSecurities.get(0).getExternalIdBundle().contains(id) && existingPosition.getQuantity().equals(position.getQuantity())) {
+            chosenPosition = existingPosition;
+            break;
           }
         }
       }
+      // Check for trade equality
+      if (chosenPosition != null && (chosenPosition.getTrades().size() == position.getTrades().size())) {
 
-      // Add the new position to the position master
-      // Can't launch a thread since we need the position id immediately, to be stored with the pos document in the map
-      PositionDocument addedDoc;
-      try {
-        addedDoc = _positionMaster.add(new PositionDocument(position));
-      } catch (Exception e) {
-        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
-        return null;
+        for (ManageableTrade trade : chosenPosition.getTrades()) {
+
+          ManageableTrade comparableTrade = JodaBeanUtils.clone(trade);
+          comparableTrade.setUniqueId(null);
+          if (!(position.getTrades().contains(comparableTrade))) {
+            chosenPosition = null;
+            break;
+          }
+        }
+
+        // If identical, reuse the chosen position
+        if (chosenPosition != null) {
+          // Add the existing position to the portfolio
+          _currentNode.addPosition(chosenPosition.getUniqueId());
+
+          // Update position map
+          _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), chosenPosition);
+
+          // return existing position
+          return chosenPosition;
+        }
       }
-      // Add the new position to the portfolio
-      _currentNode.addPosition(addedDoc.getUniqueId());
-
-      // Update position map
-      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
-
-      // Return the new position
-      return new ObjectsPair<>(addedDoc.getPosition(),
-          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
     }
-  }
 
+    return null;
+  }
 
   /*
    * writeSecurity searches for an existing security that matches an external id search, and attempts to
@@ -423,6 +446,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
               try {
                  // Update the position in the position master
                  PositionDocument addedDoc = _positionMaster.update(new PositionDocument(position));
+                s_logger.debug("Updated position {}", position);
                  // Add the new position to the portfolio node
                  _currentNode.addPosition(addedDoc.getUniqueId());
               } catch (Exception e) {
@@ -607,6 +631,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     return newRoot;
   }
 
+  // TODO are these methods necessary? they're not used
   public PortfolioMaster getPortfolioMaster() {
     return _portfolioMaster;
   }

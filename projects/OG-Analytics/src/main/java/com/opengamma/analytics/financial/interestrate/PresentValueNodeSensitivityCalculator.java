@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Computes the sensitivity to the node in the curves.
  */
 public class PresentValueNodeSensitivityCalculator extends NodeYieldSensitivityCalculator {
 

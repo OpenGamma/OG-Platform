@@ -10,23 +10,14 @@ import java.util.Arrays;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * 
  */
 public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
-  private double[] _xValuesSrt;
-  private double[] _yValuesSrt;
-
-  /**
-   * 
-   */
-  public LinearInterpolator() {
-    _xValuesSrt = null;
-    _yValuesSrt = null;
-
-  }
+  private static final double ERROR = 1.e-13;
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
@@ -52,21 +43,29 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    _xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-    _yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+    double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-    parallelBinarySort(nDataPts);
-
-    final DoubleMatrix2D coefMatrix = solve(_xValuesSrt, _yValuesSrt);
+    final DoubleMatrix2D coefMatrix = solve(xValuesSrt, yValuesSrt);
 
     for (int i = 0; i < coefMatrix.getNumberOfRows(); ++i) {
       for (int j = 0; j < coefMatrix.getNumberOfColumns(); ++j) {
         ArgumentChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
         ArgumentChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
       }
+      double ref = 0.;
+      final double interval = xValuesSrt[i + 1] - xValuesSrt[i];
+      for (int j = 0; j < 2; ++j) {
+        ref += coefMatrix.getData()[i][j] * Math.pow(interval, 1 - j);
+        ArgumentChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
+        ArgumentChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
+      }
+      final double bound = Math.abs(ref) + Math.abs(yValuesSrt[i + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValuesSrt[i + 1]);
+      ArgumentChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data are not distinct enough");
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(_xValuesSrt), coefMatrix, coefMatrix.getNumberOfColumns(), 1);
+    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.getNumberOfColumns(), 1);
   }
 
   @Override
@@ -98,16 +97,27 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    _xValuesSrt = new double[nDataPts];
+    double[] xValuesSrt = new double[nDataPts];
     DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
 
     for (int i = 0; i < dim; ++i) {
-      _xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-      _yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
+      xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+      double[] yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
+      ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-      parallelBinarySort(nDataPts);
+      coefMatrix[i] = solve(xValuesSrt, yValuesSrt);
 
-      coefMatrix[i] = solve(_xValuesSrt, _yValuesSrt);
+      for (int k = 0; k < xValuesSrt.length - 1; ++k) {
+        double ref = 0.;
+        final double interval = xValuesSrt[k + 1] - xValuesSrt[k];
+        for (int j = 0; j < 2; ++j) {
+          ref += coefMatrix[i].getData()[k][j] * Math.pow(interval, 1 - j);
+          ArgumentChecker.isFalse(Double.isNaN(coefMatrix[i].getData()[k][j]), "Too large input");
+          ArgumentChecker.isFalse(Double.isInfinite(coefMatrix[i].getData()[k][j]), "Too large input");
+        }
+        final double bound = Math.abs(ref) + Math.abs(yValuesSrt[k + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValuesSrt[k + 1]);
+        ArgumentChecker.isTrue(Math.abs(ref - yValuesSrt[k + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
+      }
     }
 
     final int nIntervals = coefMatrix[0].getNumberOfRows();
@@ -120,14 +130,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    for (int i = 0; i < (nIntervals * dim); ++i) {
-      for (int j = 0; j < nCoefs; ++j) {
-        ArgumentChecker.isFalse(Double.isNaN(resMatrix[i][j]), "Too large input");
-        ArgumentChecker.isFalse(Double.isInfinite(resMatrix[i][j]), "Too large input");
-      }
-    }
-
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(_xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
 
   }
 
@@ -148,48 +151,6 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     }
 
     return new DoubleMatrix2D(res);
-  }
-
-  /**
-   * A set of methods below is for sorting xValues and yValues in the ascending order in terms of xValues
-   * @param nDataPts 
-   */
-  protected void parallelBinarySort(final int nDataPts) {
-    dualArrayQuickSort(_xValuesSrt, _yValuesSrt, 0, nDataPts - 1);
-  }
-
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
-      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
-      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
-    }
-  }
-
-  private static int partition(final double[] keys, final double[] values, final int left, final int right,
-      final int pivot) {
-    final double pivotValue = keys[pivot];
-    swap(keys, values, pivot, right);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i] <= pivotValue) {
-        swap(keys, values, i, storeIndex);
-        storeIndex++;
-      }
-    }
-    swap(keys, values, storeIndex, right);
-    return storeIndex;
-  }
-
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
-    double t = keys[first];
-    keys[first] = keys[second];
-    keys[second] = t;
-
-    t = values[first];
-    values[first] = values[second];
-    values[second] = t;
   }
 
 }

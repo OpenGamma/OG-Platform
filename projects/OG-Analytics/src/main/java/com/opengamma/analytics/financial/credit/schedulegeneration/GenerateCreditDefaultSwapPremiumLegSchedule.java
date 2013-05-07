@@ -84,6 +84,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
+    // ---------------
+
     // Is the stub at the front end of the payment schedule
     if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {
 
@@ -108,11 +110,15 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     }
 
+    // ---------------
+
     // TODO : Add the code for the back stub
     // Is the stub at the back end of the payment schedule
     if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
 
     }
+
+    // ---------------
 
     final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[totalDates];
 
@@ -120,8 +126,12 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       cashflowSchedule[i] = tempCashflowSchedule[totalDates - 1 - i];
     }
 
+    // TODO : Need to make bdaCashflowSchedule a matrix returning acc start/end dates as well as pay dates. This is because
+    // TODO : if the maturity of the CDS falls on a non-business day, the pay date is bda, but the final accrual date is not bda
+
     final ZonedDateTime[] bdaCashflowSchedule = new ZonedDateTime[cashflowSchedule.length];
 
+    // The first accrual date is not bda
     bdaCashflowSchedule[0] = cashflowSchedule[0];
 
     for (int i = 1; i < bdaCashflowSchedule.length - 1; i++) {
@@ -135,6 +145,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     }
      */
 
+    // The final accrual date is not bda
     // Remember if protectStart = TRUE then there is an extra day of accrued that is not captured here
     bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1];
 

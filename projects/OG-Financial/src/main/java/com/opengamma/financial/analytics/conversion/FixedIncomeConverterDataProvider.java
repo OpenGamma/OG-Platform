@@ -217,7 +217,7 @@ public class FixedIncomeConverterDataProvider {
       LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
-      ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS, LocalTime.MIDNIGHT);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS, LocalTime.MIDNIGHT);
       // TODO: remove the zone
       return definition.toDerivative(now, indexTS, curveNames);
     }
@@ -246,7 +246,8 @@ public class FixedIncomeConverterDataProvider {
       LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
-      ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS, LocalTime.of(11, 0));
+      @SuppressWarnings("synthetic-access")
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS, LocalTime.of(11, 0));
       return definition.toDerivative(now, indexTS, curveNames);
     }
   };
@@ -301,7 +302,7 @@ public class FixedIncomeConverterDataProvider {
       }
       final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
       if (curveNames.length == 1) {
-        final String[] singleCurve = new String[] {curveNames[0], curveNames[0]};
+        final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
         return definition.toDerivative(now, lastMarginPrice, singleCurve);
       }
       return definition.toDerivative(now, lastMarginPrice, curveNames);
@@ -333,7 +334,7 @@ public class FixedIncomeConverterDataProvider {
       }
       final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
       if (curveNames.length == 1) {
-        final String[] singleCurve = new String[] {curveNames[0], curveNames[0]};
+        final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
         return definition.toDerivative(now, lastMarginPrice, singleCurve);
       }
       return definition.toDerivative(now, lastMarginPrice, curveNames);
@@ -380,7 +381,7 @@ public class FixedIncomeConverterDataProvider {
       final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
       final ValueRequirement payLegTS = getIndexTimeSeriesRequirement(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg, swapStartLocalDate);
       final ValueRequirement receiveLegTS = getIndexTimeSeriesRequirement(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartLocalDate);
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+      final Set<ValueRequirement> requirements = new HashSet<>();
       if (payLegTS != null) {
         requirements.add(payLegTS);
       }
@@ -391,7 +392,7 @@ public class FixedIncomeConverterDataProvider {
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "synthetic-access" })
+    @SuppressWarnings({"synthetic-access" })
     public InstrumentDerivative convert(final SwapSecurity security, final SwapDefinition definition, final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
       Validate.notNull(security, "security");
       if (timeSeries == null) {
@@ -413,7 +414,8 @@ public class FixedIncomeConverterDataProvider {
             throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
           }
         }
-        if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
+        if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
+            || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
         }
         try {
@@ -424,7 +426,8 @@ public class FixedIncomeConverterDataProvider {
         }
       }
       if (receiveLegTS != null) {
-        if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
+        if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
+            || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           try {
             return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
           } catch (final OpenGammaRuntimeException e) {
@@ -438,6 +441,9 @@ public class FixedIncomeConverterDataProvider {
           final ExternalId id = ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
         }
+      }
+      if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY) {
+        return definition.toDerivative(now, curveNames); // To deal with Fixed-Fixed cross currency swaps.
       }
       throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
     }
@@ -487,7 +493,7 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
       if (curveNames.length == 1) {
-        final String[] singleCurve = new String[] {curveNames[0], curveNames[0]};
+        final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
         return definition.toDerivative(now, singleCurve);
       }
       return definition.toDerivative(now, curveNames);
@@ -587,12 +593,12 @@ public class FixedIncomeConverterDataProvider {
     return convertTimeSeries(timeZone, ts.getTimeSeries(), LocalTime.MIDNIGHT);
   }
 
-  private ZonedDateTimeDoubleTimeSeries convertTimeSeries(ZoneId timeZone, LocalDateDoubleTimeSeries localDateTS, LocalTime time) {
+  private ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS, final LocalTime time) {
     // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
-    ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
-    for (LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
-      LocalDate date = it.nextTime();
-      ZonedDateTime zdt = date.atStartOfDay(timeZone);
+    final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
+    for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext();) {
+      final LocalDate date = it.nextTime();
+      final ZonedDateTime zdt = date.atStartOfDay(timeZone);
       bld.put(zdt, it.currentValueFast());
     }
     return bld.build();

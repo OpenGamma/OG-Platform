@@ -182,8 +182,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
     <ROW Feature_="og_bloombergexample" Level="1" Condition="BLOOMBERG_SAPI_PORT"/>
-    <ROW Feature_="JRE32" Level="4" Condition="JRE_32"/>
-    <ROW Feature_="JRE64" Level="4" Condition="JRE_64"/>
+    <ROW Feature_="JRE64" Level="4" Condition="JAVASOFT_JRE_1_7_64 OR OPENGAMMA_JRE_1_7_64"/>
+    <ROW Feature_="JRE32" Level="4" Condition="JAVASOFT_JRE_1_7_32 OR OPENGAMMA_JRE_1_7_32"/>
     <ROW Feature_="og_language_core" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64 OR R32_PATH OR R64_PATH"/>
     <ROW Feature_="og_excel" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64"/>
     <ROW Feature_="og_excel_32" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32"/>

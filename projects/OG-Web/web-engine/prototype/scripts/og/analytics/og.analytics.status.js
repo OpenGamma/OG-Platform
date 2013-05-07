@@ -1,7 +1,29 @@
 $.register_module({
-    name: 'og.analytics.Status',
+    name: 'og.analytics.status',
     dependencies: [],
     obj: function () {
+        var module = this, status,
+            message = '.og-js-analytics-status-message', calculation = '.og-js-analytics-status-calculation';
+        return status = {
+            cycle: function (ms) {
+                $(message).removeClass('live disconnected paused').addClass('live').html('live');
+                $(calculation)[ms ? 'html' : 'empty']('calculated in ' + ms + 'ms');
+            },
+            disconnected : function () {
+                setTimeout(function () {
+                    $(message).removeClass('live disconnected paused').addClass('disconnected').html('connection lost');
+                    $(calculation).empty();
+                }, 500);
+            },
+            nominal: function () {
+                $(message).removeClass('live disconnected paused').addClass('live').html('ready');
+                $(calculation).empty();
+            },
+            reconnected: function () {
+                $(message).removeClass('live disconnected paused').addClass('live').html('connected');
+                $(calculation).empty();
+            }
+        };
         return function (selector) {
             var status = this, init = false;
             $(selector + ' button').on('click', function (event) {
@@ -12,7 +34,7 @@ $.register_module({
             status.pause = function () {
                 $(selector + ' em').html('paused').removeClass('live').addClass('paused');
                 $(selector + ' button').removeClass('og-icon-play').addClass('og-icon-pause');
-                status.status = 'paused';;
+                status.status = 'paused';
             };
             status.play = function () {
                 if (!init) init = !!$(selector + ' button').removeClass('og-disabled');

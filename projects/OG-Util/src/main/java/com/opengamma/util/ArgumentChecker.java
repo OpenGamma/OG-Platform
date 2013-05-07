@@ -46,7 +46,7 @@ public final class ArgumentChecker {
    */
   public static void isTrue(boolean trueIfValid, String message, Object... arg) {
     if (trueIfValid == false) {
-      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg));
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg).getMessage());
     }
   }  
 
@@ -75,7 +75,7 @@ public final class ArgumentChecker {
    */
   public static void isFalse(boolean falseIfValid, String message, Object... arg) {
     if (falseIfValid) {
-      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg));
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg).getMessage());
     }
   }
   
@@ -312,10 +312,10 @@ public final class ArgumentChecker {
    */
   public static void notNegativeOrZero(double parameter, double eps, String name, Object... args) {
     if (CompareUtils.closeEquals(parameter, 0, eps)) {
-      throw new IllegalArgumentException(MessageFormatter.arrayFormat("Input parameter '" + name + "' must not be zero", args));
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat("Input parameter '" + name + "' must not be zero", args).getMessage());
     }
     if (parameter < 0) {
-      throw new IllegalArgumentException(MessageFormatter.arrayFormat("Input parameter '" + name + "' must be greater than zero", args));
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat("Input parameter '" + name + "' must be greater than zero", args).getMessage());
     }
   }
   

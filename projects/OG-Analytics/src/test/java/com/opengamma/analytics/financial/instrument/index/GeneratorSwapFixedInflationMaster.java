@@ -39,7 +39,7 @@ public final class GeneratorSwapFixedInflationMaster {
   /**
    * The map with the list of names and the swap generators.
    */
-  private final Map<String, GeneratorSwapFixedInflation> _generatorSwap;
+  private final Map<String, GeneratorSwapFixedInflationZeroCoupon> _generatorSwap;
 
   /**
    * Private constructor.
@@ -60,19 +60,19 @@ public final class GeneratorSwapFixedInflationMaster {
     final boolean piecewiseconstant = false;
     _generatorSwap = new HashMap<>();
     _generatorSwap.put("EURHICP",
-        new GeneratorSwapFixedInflation("EUR HICP", priceIndexMaster.getIndex("EURHICP"), eurPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
+        new GeneratorSwapFixedInflationZeroCoupon("EUR HICP", priceIndexMaster.getIndex("EURHICP"), eurPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("UKRPI",
-        new GeneratorSwapFixedInflation("UK RPI", priceIndexMaster.getIndex("UKRPI"), ukPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
+        new GeneratorSwapFixedInflationZeroCoupon("UK RPI", priceIndexMaster.getIndex("UKRPI"), ukPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("USCPI",
-        new GeneratorSwapFixedInflation("US CPI", priceIndexMaster.getIndex("USCPI"), usPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, linear));
+        new GeneratorSwapFixedInflationZeroCoupon("US CPI", priceIndexMaster.getIndex("USCPI"), usPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, linear));
   }
 
-  public GeneratorSwapFixedInflation getGenerator(final String name) {
-    final GeneratorSwapFixedInflation generatorNoCalendar = _generatorSwap.get(name);
+  public GeneratorSwapFixedInflationZeroCoupon getGenerator(final String name) {
+    final GeneratorSwapFixedInflationZeroCoupon generatorNoCalendar = _generatorSwap.get(name);
     if (generatorNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get price index index for " + name);
     }
-    return new GeneratorSwapFixedInflation(generatorNoCalendar.getName(), generatorNoCalendar.getIndexPrice(), generatorNoCalendar.getPriceIndexTimeSeries(),
+    return new GeneratorSwapFixedInflationZeroCoupon(generatorNoCalendar.getName(), generatorNoCalendar.getIndexPrice(), generatorNoCalendar.getPriceIndexTimeSeries(),
         generatorNoCalendar.getBusinessDayConvention(), generatorNoCalendar.getCalendar(), generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getMonthLag(),
         generatorNoCalendar.getSpotLag(), generatorNoCalendar.isLinear());
   }

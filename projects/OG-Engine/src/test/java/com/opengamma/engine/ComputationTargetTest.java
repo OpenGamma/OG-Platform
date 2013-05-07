@@ -11,14 +11,12 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
@@ -37,39 +35,42 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class ComputationTargetTest {
 
-  private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UniqueId.of("A", "B"), "Name");
-  private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalId.of("Foo", "Sec").toBundle());
-  private static final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalId.of("Foo", "Sec").toBundle(), "EQUITY", "Test Security");
-  private static final Trade TRADE = new SimpleTrade(SECURITY, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of("Cpty", "Foo")), LocalDate.now(), OffsetTime.now());
+  private final SimplePortfolioNode NODE = new SimplePortfolioNode(UniqueId.of("A", "B"), "Name");
+  private final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalId.of("Foo", "Sec").toBundle());
+  private final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalId.of("Foo", "Sec").toBundle(), "EQUITY", "Test Security");
+  private final SimpleTrade TRADE = new SimpleTrade(SECURITY, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of("Cpty", "Foo")), LocalDate.now(), OffsetTime.now());
+
+  public ComputationTargetTest() {
+    TRADE.setUniqueId(UniqueId.of("Test", "Trade"));
+  }
 
   public void testConstructor_null() {
     final ComputationTarget target = new ComputationTarget(ComputationTargetType.NULL, null);
-    assertNull(target.getContextIdentifiers());
     assertNull(target.getContextSpecification());
     assertEquals(target.toSpecification(), ComputationTargetSpecification.NULL);
   }
 
   public void testConstructor_single() {
     final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, NODE);
-    assertNull(target.getContextIdentifiers());
     assertNull(target.getContextSpecification());
     assertEquals(target.toSpecification(), ComputationTargetSpecification.of(NODE));
   }
 
   public void testConstructor_nested_1() {
-    final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(NODE.getUniqueId()), POSITION);
-    assertEquals(target.getContextIdentifiers(), Arrays.asList(NODE.getUniqueId()));
-    assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE));
+    final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId());
+    final ComputationTarget target = new ComputationTarget(targetSpec, POSITION);
     assertEquals(target.toSpecification(), ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()));
+    assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE));
+    assertEquals(target.getLeafSpecification(), ComputationTargetSpecification.of(POSITION));
   }
 
   public void testConstructor_nested_2() {
-    final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION).containing(ComputationTargetType.SECURITY), Arrays.asList(
-        NODE.getUniqueId(), POSITION.getUniqueId()), SECURITY);
-    assertEquals(target.getContextIdentifiers(), Arrays.asList(NODE.getUniqueId(), POSITION.getUniqueId()));
+    final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId())
+        .containing(ComputationTargetType.SECURITY, SECURITY.getUniqueId());
+    final ComputationTarget target = new ComputationTarget(targetSpec, SECURITY);
+    assertEquals(target.toSpecification(), targetSpec);
     assertEquals(target.getContextSpecification(), ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()));
-    assertEquals(target.toSpecification(),
-        ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()).containing(ComputationTargetType.SECURITY, SECURITY.getUniqueId()));
+    assertEquals(target.getLeafSpecification(), ComputationTargetSpecification.of(SECURITY));
   }
 
   public void testGetPortfolioNode_ok() {
@@ -149,7 +150,7 @@ public class ComputationTargetTest {
     final ComputationTarget pos2 = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     final ComputationTarget prim1 = new ComputationTarget(ComputationTargetType.CURRENCY, Currency.USD);
     final ComputationTarget prim2 = new ComputationTarget(ComputationTargetType.CURRENCY, Currency.GBP);
-    final ComputationTarget prtPos = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(NODE.getUniqueId()), POSITION);
+    final ComputationTarget prtPos = new ComputationTarget(ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()), POSITION);
     final ComputationTarget nil = new ComputationTarget(ComputationTargetType.NULL, null);
     assertTrue(pos1.equals(pos2));
     assertTrue(pos2.equals(pos1));
@@ -171,8 +172,8 @@ public class ComputationTargetTest {
     final ComputationTarget pos1 = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     final ComputationTarget pos2 = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     assertEquals(pos1.hashCode(), pos2.hashCode());
-    final ComputationTarget prtPos1 = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(NODE.getUniqueId()), POSITION);
-    final ComputationTarget prtPos2 = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION), Arrays.asList(NODE.getUniqueId()), POSITION);
+    final ComputationTarget prtPos1 = new ComputationTarget(ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()), POSITION);
+    final ComputationTarget prtPos2 = new ComputationTarget(ComputationTargetSpecification.of(NODE).containing(ComputationTargetType.POSITION, POSITION.getUniqueId()), POSITION);
     assertEquals(prtPos1.hashCode(), prtPos2.hashCode());
     final ComputationTarget nil1 = new ComputationTarget(ComputationTargetType.NULL, null);
     assertEquals(nil1.hashCode(), ComputationTarget.NULL.hashCode());

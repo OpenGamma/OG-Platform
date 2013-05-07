@@ -72,15 +72,13 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
   }
 
   @Test
-  public void testPresentValue() {
+  public void presentValueYieldCurve() {
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = PresentValueCalculator.getInstance();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueCurveSensitivityCalculator.getInstance();
     final DoubleMatrix1D result = NODE_CALCULATOR.calculateSensitivities(getSwap(), senseCalculator, null, getYieldCurve());
     final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(getSwap(), valueCalculator, null, getYieldCurve());
     assertArrayEquals(result.getData(), fdresult.getData(), getTolerance());
   }
-
-  //private static final ForexSwapDefinition FX_SWAP = ForexInstrumentsDescriptionDataSet.createForexSwapDefinition(); // EUR/USD - Near date: 2011-May26
 
   @Test
   /**

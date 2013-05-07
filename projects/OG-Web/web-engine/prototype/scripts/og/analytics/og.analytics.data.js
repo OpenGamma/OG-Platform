@@ -46,7 +46,8 @@ $.register_module({
                 var handler = function (result) {
                     if (!result || result.error) // do not kill connection even if there is an error, just warn
                         return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
-                    if (result.data && result.data.version === viewport_version) fire('data', result.data.data);
+                    if (result.data && result.data.version === viewport_version)
+                        fire('data', result.data.data), fire('cycle', {duration: result.data['calculationDuration']});
                 };
                 return function (result) {
                     clearTimeout(timeout);
@@ -111,6 +112,7 @@ $.register_module({
                 data.disconnect();
                 view_id = connection.view_id;
                 graph_id = connection.graph_id;
+                data.prefix = module.name + ' (' + label + view_id + '):\n';
                 initialize();
             };
             var reconnect_handler = function () {initialize();};
@@ -123,6 +125,7 @@ $.register_module({
                 meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
                 meta.columns.scroll = result.data[SETS].slice(1);
                 data.connection = {grid_type: grid_type, view_id: view_id, graph_id: graph_id, structure: result};
+                if (config.pool) ['grid_type', 'structure'].forEach(function (key) {delete data.connection[key];});
                 fire('meta', meta, data.connection);
                 if (!subscribed) return data_setup();
             };
@@ -147,7 +150,7 @@ $.register_module({
                     });
             };
             var type_setup = function (update) {
-                var port_request, prim_request, initial = grid_type === null;
+                var port_request, prim_request, initial = config.pool && grid_type === null;
                 grid_type = source.type;
                 port_request = api.grid.structure
                     .get({dry: initial, view_id: view_id, update: initial ? type_setup : null, grid_type: 'portfolio'});
@@ -171,12 +174,13 @@ $.register_module({
             var view_handler = function (result) {
                 if (result.error) return fire('fatal', data.prefix + result.message);
                 data.prefix = module.name + ' (' + label + (view_id = result.meta.id) + '):\n';
-                if (config.pool) return fire('meta', null, data.connection = {view_id: view_id});
                 return grid_type ? structure_setup() : type_setup();
             };
             data.disconnect = function () {
                 if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
                 if (view_id && !data.parent) api.del({view_id: view_id});
+                if (config.pool)        // if pool disconnects, reset grid type so parent connection goes through entire
+                    grid_type = null;   // handshake process again when reconnected
                 if (data.parent) {
                     data.viewport(null); // at least delete the viewport
                     if (graph_id) // delete graph_id if it exists

@@ -8,10 +8,10 @@ package com.opengamma.engine.view;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -19,6 +19,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.resolver.ComputationTargetFilter;
 import com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform;
@@ -54,13 +55,13 @@ public class ViewCalculationConfiguration implements Serializable {
    * strings is really just for user convenience; ValueRequirements are eventually still needed for each of these for
    * every position and aggregate position in the reference portfolio.
    */
-  private final Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType = new TreeMap<String, Set<Pair<String, ValueProperties>>>();
+  private final Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType = new TreeMap<>();
 
   /**
    * Contains any specific outputs required, where each entry really corresponds to a single output at computation
    * time.
    */
-  private final Set<ValueRequirement> _specificRequirements = new HashSet<ValueRequirement>();
+  private final Set<ValueRequirement> _specificRequirements = new HashSet<>();
 
   /**
    * Start with an empty delta definition which will perform simple equality comparisons. This should be customized as
@@ -85,6 +86,13 @@ public class ViewCalculationConfiguration implements Serializable {
    * subset of the graph.
    */
   private ResolutionRuleTransform _resolutionRuleTransform = IdentityResolutionRuleTransform.INSTANCE;
+
+  /**
+   * Defines the labels and order of the columns used for displaying the data in the UI. This doesn't have to contain
+   * columns for every value name / properties combination in the configuration. Any columns that aren't defined
+   * will use the default label and will appear at the end in the order their requirements are defined.
+   */
+  private List<Column> _columns = Collections.emptyList();
 
   /**
    * Constructs an instance.
@@ -202,7 +210,7 @@ public class ViewCalculationConfiguration implements Serializable {
    * @return  a set of every required portfolio output, not null
    */
   public Set<Pair<String, ValueProperties>> getAllPortfolioRequirements() {
-    Set<Pair<String, ValueProperties>> requirements = new TreeSet<Pair<String, ValueProperties>>();
+    Set<Pair<String, ValueProperties>> requirements = Sets.newLinkedHashSet();
     for (Set<Pair<String, ValueProperties>> secTypeDefinitions : _portfolioRequirementsBySecurityType.values()) {
       requirements.addAll(secTypeDefinitions);
     }
@@ -221,7 +229,7 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(requiredOutputs, "requiredOutputs");
     Set<Pair<String, ValueProperties>> secTypeRequirements = _portfolioRequirementsBySecurityType.get(securityType);
     if (secTypeRequirements == null) {
-      secTypeRequirements = new TreeSet<Pair<String, ValueProperties>>();
+      secTypeRequirements = Sets.newLinkedHashSet();
       _portfolioRequirementsBySecurityType.put(securityType, secTypeRequirements);
     }
     secTypeRequirements.addAll(requiredOutputs);
@@ -255,7 +263,9 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(requiredOutput, "requiredOutput");
     ArgumentChecker.notNull(constraints, "constraints");
-    addPortfolioRequirements(securityType, Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput, constraints)));
+    addPortfolioRequirements(securityType,
+                             Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput,
+                                                                                           constraints)));
   }
 
   /**
@@ -304,6 +314,21 @@ public class ViewCalculationConfiguration implements Serializable {
   public void addSpecificRequirement(ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
     addSpecificRequirements(Collections.singleton(requirement));
+  }
+
+  /**
+   * @return The column definitions, not null
+   */
+  public List<Column> getColumns() {
+    return _columns;
+  }
+
+  /**
+   * @param columns The column definitions, not null
+   */
+  public void setColumns(List<Column> columns) {
+    ArgumentChecker.notNull(columns, "columns");
+    _columns = columns;
   }
 
   @Override
@@ -357,5 +382,32 @@ public class ViewCalculationConfiguration implements Serializable {
       return "ViewCalculationConfiguration[" + getName() + "]";
     }
   }
-  
+
+  public static final class Column {
+
+    private final String _header;
+    private final String _valueName;
+    private final ValueProperties _properties;
+
+    public Column(String header, String valueName, ValueProperties properties) {
+      ArgumentChecker.notNull(header, "label");
+      ArgumentChecker.notNull(valueName, "valueName");
+      ArgumentChecker.notNull(properties, "properties");
+      _header = header;
+      _valueName = valueName;
+      _properties = properties;
+    }
+
+    public String getHeader() {
+      return _header;
+    }
+
+    public String getValueName() {
+      return _valueName;
+    }
+
+    public ValueProperties getProperties() {
+      return _properties;
+    }
+  }
 }

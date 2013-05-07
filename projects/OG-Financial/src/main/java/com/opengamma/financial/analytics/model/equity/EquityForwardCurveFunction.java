@@ -117,6 +117,9 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
     // Dividend yield - optional
     requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
+    
+    // Next Dividend date - **** PLAYING AROUND
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.NEXT_DIVIDEND_DATE, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
 
     return requirements;
   }
@@ -145,6 +148,8 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
       throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
+    
+    final Object nextDividendDate = inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE);
 
     // Cost of Carry - if no dividend yield available set 0 cost of carry
     final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);

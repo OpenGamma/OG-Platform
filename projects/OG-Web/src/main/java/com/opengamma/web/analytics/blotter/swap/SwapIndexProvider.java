@@ -18,7 +18,10 @@ public class SwapIndexProvider implements CellValueProvider<SwapSecurity> {
   @Override
   public String getValue(SwapSecurity security) {
     Pair<ExternalId, ExternalId> indices = new IndexVisitor().visit(security);
-    // float index for fixed/float, receive index for float/float
+    // float index for fixed/float, receive index for float/float, empty string for fixed/fixed
+    if (indices.getSecond() == null) {
+      return "";
+    }
     return indices.getSecond().getValue();
   }
 }

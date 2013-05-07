@@ -10,11 +10,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 
 import javax.sql.DataSource;
@@ -36,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
 
@@ -282,6 +281,18 @@ public class DbTool extends Task {
     _dbScriptDirs.add(directory);
   }
 
+  /**
+   * Adds a collection of directories to the set.
+   * 
+   * @param directories  the directories, not null
+   */
+  public void addDbScriptDirectories(Iterable<File> directories) {
+    ArgumentChecker.notNull(directories, "directories");
+    for (File dir : directories) {
+      _dbScriptDirs.add(dir.getAbsolutePath());
+    }
+  }
+
   public void setCreateVersion(final String createVersion) {
     try {
       _createVersion = Integer.parseInt(createVersion);
@@ -461,14 +472,11 @@ public class DbTool extends Task {
   }
 
   public Map<String, Integer> getLatestVersions() {
-    final Map<String, SortedMap<Integer, DbScriptPair>> dbScripts = getScriptDirs();
-    Map<String, Integer> result = new HashMap<>();
-    for (String tableSet : dbScripts.keySet()) {
-      Set<Integer> versions = dbScripts.get(tableSet).keySet();
-      int maxVersion = Collections.max(versions);
-      result.put(tableSet, maxVersion);
+    Collection<File> dirs = new ArrayList<>();
+    for (String dir : _dbScriptDirs) {
+      dirs.add(new File(dir));
     }
-    return result;
+    return DbScripts.getLatestVersions(dirs);
   }
 
   public void createTables(String catalog, String schema, final TableCreationCallback callback) {

@@ -9,10 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
 import com.opengamma.util.ArgumentChecker;
-import com.yammer.metrics.JmxReporter;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Slf4jReporter;
 
 /**
  * Contains the {@link MetricRegistry} that should be used by OpenGamma components at runtime.
@@ -64,12 +64,9 @@ public final class OpenGammaMetricRegistry {
 
   /**
    * Creates a basic registry.
-   * 
-   * @param registryName  the name, not null
    */
-  public static synchronized void createBasicDebuggingRegistry(String registryName) {
-    ArgumentChecker.notEmpty(registryName, "registryName");
-    s_summaryInstance = new MetricRegistry(registryName);
+  public static synchronized void createBasicDebuggingRegistry() {
+    s_summaryInstance = new MetricRegistry();
     s_detailedInstance = s_summaryInstance;
     Slf4jReporter logReporter = Slf4jReporter.forRegistry(s_summaryInstance)
                                           .outputTo(LoggerFactory.getLogger(OpenGammaMetricRegistry.class))
@@ -83,8 +80,7 @@ public final class OpenGammaMetricRegistry {
 
   private static void initializeIfNecessary() {
     if (s_summaryInstance == null) {
-      String throwAwayName = System.getProperty("user.name") + "-" + System.currentTimeMillis();
-      createBasicDebuggingRegistry(throwAwayName);
+      createBasicDebuggingRegistry();
     }
   }
 

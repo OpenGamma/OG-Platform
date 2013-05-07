@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.TrigonometricFunctionUtils;
 import com.opengamma.util.ArgumentChecker;
 
@@ -66,7 +67,7 @@ public class HyperbolicMeshing extends MeshingFunction {
     _delta = TrigonometricFunctionUtils.asinh((xMin - xCent) / _beta);
     _gamma = (TrigonometricFunctionUtils.asinh((xMax - xCent) / _beta) - _delta);
 
-    _fpValues = unique(fixedPoints);
+    _fpValues = FunctionUtils.unique(fixedPoints);
     int m = _fpValues.length;
     final double[] fp = new double[m];
     for (int ii = 0; ii < m; ii++) {

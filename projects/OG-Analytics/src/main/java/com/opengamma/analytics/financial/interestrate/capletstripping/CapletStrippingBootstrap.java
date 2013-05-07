@@ -26,6 +26,7 @@ public class CapletStrippingBootstrap {
 
   private final SimpleOptionData[][] _caplets;
   private final double[] _intrinsicValues;
+  private final double[] _endTimes;
 
   // private final List<CapFloorPricer> _capPricers;
 
@@ -37,10 +38,11 @@ public class CapletStrippingBootstrap {
   public CapletStrippingBootstrap(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
     ArgumentChecker.noNulls(caps, "caps null");
     ArgumentChecker.notNull(yieldCurves, "null yield curves");
-
+    
     final int n = caps.size();
     _caplets = new SimpleOptionData[n][];
     _intrinsicValues = new double[n];
+    _endTimes = new double[n];
 
     Iterator<CapFloor> iter = caps.iterator();
     CapFloor firstCap = iter.next();
@@ -48,15 +50,17 @@ public class CapletStrippingBootstrap {
     _intrinsicValues[0] = intrinsicValue(_caplets[0]);
 
     final double strike = firstCap.getStrike();
-    double t = firstCap.getEndTime();
+    double startTime = firstCap.getStartTime();
+    double endTime = firstCap.getEndTime();
+    _endTimes[0] = endTime;
     int i1 = firstCap.getNumberOfPayments();
     int ii = 1;
     while (iter.hasNext()) {
       CapFloor cap = iter.next();
       ArgumentChecker.isTrue(cap.getStrike() == strike, "caps must have same strike for this method");
+      ArgumentChecker.isTrue(cap.getStartTime() == startTime, "caps must be co-starting");
       double temp = cap.getEndTime();
-      ArgumentChecker.isTrue(temp > t, "caps must be in order of increasing end time");
-
+      ArgumentChecker.isTrue(temp > endTime, "caps must be in order of increasing end time"); //TODO remove this by sorting caps      
       // decompose caps
       int i2 = cap.getNumberOfPayments();
       CapFloorIbor[] caplets = cap.getPayments();
@@ -65,7 +69,8 @@ public class CapletStrippingBootstrap {
       _caplets[ii] = CapFloorDecomposer.toOptions(uniqueCaplets, yieldCurves);
       _intrinsicValues[ii] = intrinsicValue(_caplets[ii]);
       i1 = i2;
-      t = temp;
+      endTime = temp;
+      _endTimes[ii] = endTime;
       ii++;
     }
   }
@@ -130,5 +135,9 @@ public class CapletStrippingBootstrap {
       mktCapFlPrices[i] = sum;
     }
     return capletVolsFromPrices(mktCapFlPrices);
+  }
+  
+  public double[] getEndTimes() {
+    return _endTimes;
   }
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import static com.opengamma.analytics.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
+
 import java.util.Arrays;
 
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
@@ -146,8 +148,9 @@ abstract class CubicSplineSolver {
 
     final double[][] lMat = result.getL().getData();
     final double[][] uMat = result.getU().getData();
+    double[] doubVecMod = ((DoubleMatrix1D) OG_ALGEBRA.multiply(result.getP(), new DoubleMatrix1D(doubVec))).getData();
 
-    return backSubstitution(uMat, forwardSubstitution(lMat, doubVec));
+    return backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod));
   }
 
   /**

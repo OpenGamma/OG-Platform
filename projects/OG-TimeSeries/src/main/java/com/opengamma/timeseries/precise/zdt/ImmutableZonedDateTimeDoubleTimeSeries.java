@@ -58,7 +58,7 @@ public final class ImmutableZonedDateTimeDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a time-series from a single date and value.
+   * Obtains an empty time-series.
    * 
    * @param zone  the time-zone, not null
    * @return the time-series, not null
@@ -69,7 +69,7 @@ public final class ImmutableZonedDateTimeDoubleTimeSeries
   }
 
   /**
-   * Obtains a time-series from a single date and value, using a UTC zone.
+   * Obtains an empty time-series using a UTC zone.
    * 
    * @return the time-series, not null
    */

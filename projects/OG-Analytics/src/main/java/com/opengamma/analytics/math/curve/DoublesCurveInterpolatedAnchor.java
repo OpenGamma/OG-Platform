@@ -8,9 +8,9 @@ package com.opengamma.analytics.math.curve;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator to return values of <i>y</i> for values 

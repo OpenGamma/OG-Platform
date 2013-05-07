@@ -18,12 +18,9 @@ import com.opengamma.util.PublicAPI;
 /**
  * Service to interrogate the portfolio structure.
  * <p>
- * The {@link PortfolioNode} object only contains the unique identifier of its parent
- * nodes, requiring additional resolution steps and queries to a {@link PositionSource}.
- * This is exposed to functions as part of the {@link FunctionExecutionContext} to
- * allow such queries. At function execution, all child nodes, positions, trades and
- * referenced securities will be resolved and can be queried directly from the node
- * object or using utility methods from {@link PositionAccumulator}.
+ * The {@link PortfolioNode} object only contains the unique identifier of its parent nodes, requiring additional resolution steps and queries to a {@link PositionSource}. This is exposed to functions
+ * as part of the {@link FunctionExecutionContext} to allow such queries. At function execution, all child nodes, positions, trades and referenced securities will be resolved and can be queried
+ * directly from the node object or using utility methods from {@link PositionAccumulator}.
  */
 @PublicAPI
 public class PortfolioStructure {
@@ -34,8 +31,7 @@ public class PortfolioStructure {
   private final PositionSource _positionSource;
 
   /**
-   * Constructs a portfolio structure querying service using the underlying position
-   * source for portfolio information.
+   * Constructs a portfolio structure querying service using the underlying position source for portfolio information.
    * 
    * @param positionSource the underlying position source, not null
    */
@@ -55,8 +51,7 @@ public class PortfolioStructure {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the portfolio node that is the immediate parent of the given node.
-   * This is equivalent to resolving the unique identifier reported by a portfolio node as its parent.
+   * Returns the portfolio node that is the immediate parent of the given node. This is equivalent to resolving the unique identifier reported by a portfolio node as its parent.
    * 
    * @param node the node to search for, not null
    * @return the parent node, null if the parent cannot be resolved or the node is a root node
@@ -83,7 +78,7 @@ public class PortfolioStructure {
   public PortfolioNode getParentNode(final ComputationTarget position) {
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.isTrue(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION).isCompatible(position.getType()), "position");
-    return getPositionSource().getPortfolioNode(position.getContextIdentifiers().get(position.getContextIdentifiers().size() - 1), VersionCorrection.LATEST);
+    return getPositionSource().getPortfolioNode(position.getContextSpecification().getSpecification().getUniqueId(), VersionCorrection.LATEST);
   }
 
   /**

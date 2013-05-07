@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 
 /**
@@ -25,7 +26,7 @@ public class PositionWeightFunction extends AbstractWeightFunction {
   }
 
   @Override
-  protected ComputationTargetSpecification getParentTarget(final ComputationTarget target) {
+  protected ComputationTargetReference getParentTarget(final ComputationTarget target) {
     return target.getContextSpecification();
   }
 

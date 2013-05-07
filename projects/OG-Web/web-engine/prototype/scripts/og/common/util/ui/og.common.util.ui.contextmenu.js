@@ -22,11 +22,12 @@ $.register_module({
             }, '');
             $menu.blurkill().html(html).css(css).appendTo('body')
                 .position({my: 'left top', at: 'left top', of: event})
-                .click(function (event) {
+                .mousedown(function (event) {
                     var id = $(event.target).attr('data-id'),
                         handler = items[id] && !items[id].disabled && items[id].handler;
                     $(this).remove();
                     if (handler) handler();
+                    return false;
                 });
             return false;
         };

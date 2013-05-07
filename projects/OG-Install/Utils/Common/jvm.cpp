@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <strsafe.h>
 #include "jvm.h"
+#include "errorref.h"
 
 typedef jint (JNICALL *JNI_CREATEJAVAVMPROC) (JavaVM **ppjvm, JNIEnv **ppenv, JavaVMInitArgs *pArgs);
 
@@ -80,43 +81,49 @@ static jmethodID _findMethod (JNIEnv *penv, jclass cls, const CConfigString *poM
 	return penv->GetStaticMethodID (cls, pszMethod, pszSignature);
 }
 
-BOOL CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod) const {
+DWORD CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod) const {
 	jclass cls = _findClass (m_penv, poClass);
-	if (!cls) return FALSE;
+	if (!cls) return ERROR_REF_JVM;
 	jmethodID mtd = _findMethod (m_penv, cls, poMethod, "()V");
-	if (!mtd) return FALSE;
+	if (!mtd) return ERROR_REF_JVM;
 	m_penv->CallStaticVoidMethod (cls, mtd, NULL);
-	return TRUE;
+	return 0;
 }
 
-BOOL CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod, const CConfigMultiString *poArgs) const {
+DWORD CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod, const CConfigMultiString *poArgs) const {
 	jclass clsCall = _findClass (m_penv, poClass);
-	if (!clsCall) return FALSE;
+	if (!clsCall) return ERROR_REF_JVM;
 	jclass clsString = _findClass (m_penv, "java/lang/String");
-	if (!clsString) return FALSE;
+	if (!clsString) return ERROR_REF_JVM;
 	jmethodID mtd = _findMethod (m_penv, clsCall, poMethod, "([Ljava/lang/String;)V");
-	if (!mtd) return FALSE;
+	if (!mtd) return ERROR_REF_JVM;
 	m_penv->PushLocalFrame (poArgs->GetValueCount () + 1); // array + string array members
-	BOOL bResult = FALSE;
+	DWORD dwResult;
 	jobjectArray oaArgs = m_penv->NewObjectArray (poArgs->GetValueCount (), clsString, NULL);
-	if (!oaArgs) goto popAndReturn;
+	if (!oaArgs) {
+		dwResult = ERROR_REF_JVM;
+		goto popAndReturn;
+	}
 	UINT n;
 	for (n = 0; n < poArgs->GetValueCount (); n++) {
 		jobject oParameter = m_penv->NewStringUTF (poArgs->GetValue (n));
-		if (!oParameter) goto popAndReturn;
+		if (!oParameter) {
+			dwResult = ERROR_REF_JVM;
+			goto popAndReturn;
+		}
 		m_penv->SetObjectArrayElement (oaArgs, n, oParameter);
 	}
 	m_penv->CallStaticVoidMethod (clsCall, mtd, oaArgs);
-	bResult = TRUE;
+	dwResult = 0;
 popAndReturn:
 	m_penv->PopLocalFrame (NULL);
-	return bResult;
+	return dwResult;
 }
 
-BOOL CJavaVM::RegisterNatives (PCSTR pszClass, int nMethods, JNINativeMethod *aMethods) const {
+DWORD CJavaVM::RegisterNatives (PCSTR pszClass, int nMethods, JNINativeMethod *aMethods) const {
 	jclass cls = _findClass (m_penv, pszClass);
-	if (!cls) return FALSE;
-    return !m_penv->RegisterNatives (cls, aMethods, nMethods);
+	if (!cls) return ERROR_REF_JVM;
+    return m_penv->RegisterNatives (cls, aMethods, nMethods) ? ERROR_REF_JVM : 0;
 }
 
 CJavaVM *CJavaVM::Attach (PCSTR pszThreadName) const {

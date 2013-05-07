@@ -51,8 +51,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -647,23 +647,23 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final DATA_TYPE data) {
-    return _delegate.visitDeliverableSwapFuturesSecurity(futures, data);
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final DATA_TYPE data) {
+    return _delegate.visitSwapFuturesDeliverableSecurity(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
-    return _delegate.visitDeliverableSwapFuturesSecurity(futures);
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
+    return _delegate.visitSwapFuturesDeliverableSecurity(futures);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures, final DATA_TYPE data) {
-    return _delegate.visitDeliverableSwapFuturesTransaction(futures, data);
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures, final DATA_TYPE data) {
+    return _delegate.visitSwapFuturesDeliverableTransaction(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures) {
-    return _delegate.visitDeliverableSwapFuturesTransaction(futures);
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures) {
+    return _delegate.visitSwapFuturesDeliverableTransaction(futures);
   }
 
   @Override

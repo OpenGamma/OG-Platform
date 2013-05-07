@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include "service.h"
 #include "Common/param.h"
+#include "Common/errorref.h"
 
 static CParamString g_oConfig ("config", NULL, TRUE);
 static CParamString g_oServiceName ("service", NULL, TRUE);
@@ -21,7 +22,10 @@ static DWORD CALLBACK _stopThread (PVOID pReserved) {
 	EnterCriticalSection (&g_cs);
 	const CJavaVM *poJVM = g_poJVM ? g_poJVM->Attach ("stop signal") : NULL;
 	LeaveCriticalSection (&g_cs);
-	CService::Stop (poJVM);
+	DWORD dwError = CService::Stop (poJVM);
+	if (dwError) {
+		ReportErrorReference (dwError);
+	}
 	CJavaVM::Release (poJVM);
 	return 0;
 }
@@ -39,6 +43,7 @@ static void WINAPI _ServiceHandler (DWORD dwAction) {
 		if (hStopThread) {
 			CloseHandle (hStopThread);
 		} else {
+			ReportErrorReference (ERROR_REF_MAIN);
 			sta.dwControlsAccepted = SERVICE_CONTROL_STOP;
 			sta.dwCurrentState = SERVICE_RUNNING;
 			sta.dwWaitHint = 30000;
@@ -58,23 +63,32 @@ static void JNICALL _exitHook (JNIEnv *pEnv, jclass cls) {
 }
 
 static void WINAPI _ServiceMain (DWORD dwArgs, char **pspzArgs) {
+	SERVICE_STATUS sta;
+	ZeroMemory (&sta, sizeof (sta));
 	CJavaRT *poRuntime = CJavaRT::Init ();
 	if (poRuntime) {
 		g_poJVM = poRuntime->CreateVM ();
 		if (g_poJVM) {
 			InitializeCriticalSection (&g_cs);
 			g_hStatus = RegisterServiceCtrlHandler (g_oServiceName.GetString (), _ServiceHandler);
-			if (CService::RegisterShutdownHook (g_poJVM, _exitHook)) {
-				SERVICE_STATUS sta;
-				ZeroMemory (&sta, sizeof (sta));
+			DWORD dwError = CService::RegisterShutdownHook (g_poJVM, _exitHook);
+			if (!dwError) {
 				sta.dwControlsAccepted = SERVICE_ACCEPT_STOP;
 				sta.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
 				sta.dwCurrentState = SERVICE_RUNNING;
 				sta.dwWaitHint = 30000;
 				SetServiceStatus (g_hStatus, &sta);
-				CService::Run (g_poJVM);
+				DWORD dwError = CService::Run (g_poJVM);
 				sta.dwControlsAccepted = 0;
 				sta.dwCurrentState = SERVICE_STOPPED;
+				if (dwError) {
+					ReportErrorReference (dwError);
+					sta.dwWin32ExitCode = ERROR_INTERNAL_ERROR;
+				}
+				SetServiceStatus (g_hStatus, &sta);
+			} else {
+				ReportErrorReference (dwError);
+				sta.dwWin32ExitCode = ERROR_INTERNAL_ERROR;
 				SetServiceStatus (g_hStatus, &sta);
 			}
 			EnterCriticalSection (&g_cs);
@@ -82,8 +96,16 @@ static void WINAPI _ServiceMain (DWORD dwArgs, char **pspzArgs) {
 			g_poJVM = NULL;
 			LeaveCriticalSection (&g_cs);
 			CJavaVM::Release (poJVM);
+		} else {
+			ReportErrorReference (ERROR_REF_MAIN);
+			sta.dwWin32ExitCode = ERROR_INTERNAL_ERROR;
+			SetServiceStatus (g_hStatus, &sta);
 		}
 		delete poRuntime;
+	} else {
+		ReportErrorReference (ERROR_REF_MAIN);
+		sta.dwWin32ExitCode = ERROR_INTERNAL_ERROR;
+		SetServiceStatus (g_hStatus, &sta);
 	}
 }
 
@@ -114,9 +136,15 @@ static void _setWorkingFolder (const char *pszPath) {
 /// @return 1 if there is a problem, 0 if all is okay
 int main () {
 	SERVICE_TABLE_ENTRY ste[2];
-	if (!g_oParams.Process (GetCommandLineW ())) return 1;
+	if (!g_oParams.Process (GetCommandLineW ())) {
+		ReportErrorReference (ERROR_REF_MAIN);
+		return 1;
+	}
 	if (!CJavaRT::s_oConfig.Read (g_oConfig.GetString ())
-	 || !CService::s_oConfig.Read (g_oConfig.GetString ())) return 1;
+	 || !CService::s_oConfig.Read (g_oConfig.GetString ())) {
+		ReportErrorReference (ERROR_REF_MAIN);
+		return 1;
+	}
 	_setWorkingFolder (g_oConfig.GetString ());
 	ste[0].lpServiceName = (PSTR)g_oServiceName.GetString ();
 	ste[0].lpServiceProc = _ServiceMain;

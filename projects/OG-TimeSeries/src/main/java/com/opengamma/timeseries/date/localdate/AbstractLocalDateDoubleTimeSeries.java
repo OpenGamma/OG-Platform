@@ -269,7 +269,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
     int[] bTimes = other.timesArrayFast();
     double[] bValues = other.valuesArrayFast();
     int bCount = 0;
-    int[] resTimes = new int[Math.max(aTimes.length, bTimes.length)];
+    int[] resTimes = new int[Math.min(aTimes.length, bTimes.length)];
     double[] resValues = new double[resTimes.length];
     int resCount = 0;
     while (aCount < aTimes.length && bCount < bTimes.length) {

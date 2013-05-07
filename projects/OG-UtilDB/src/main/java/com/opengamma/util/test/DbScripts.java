@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -23,7 +25,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.tools.ant.BuildException;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
@@ -39,8 +44,8 @@ public final class DbScripts {
   private static final File SCRIPT_ZIP_PATH = new File(DbTool.getWorkingDirectory(), "lib/sql/com.opengamma/og-masterdb");
   /** Script expansion. */
   private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbScripts.class.getSimpleName());
-  /** The script directory. */
-  private static volatile File s_scriptDir;
+  /** The script directories. */
+  private static volatile Collection<File> s_scriptDir;
 
   private static final String DATABASE_INSTALL_FOLDER = "install/db";
   private static final Pattern DATABASE_SCRIPT_FOLDER_PATTERN = Pattern.compile("(.+)_db");
@@ -64,7 +69,7 @@ public final class DbScripts {
    * 
    * @return the script directory, not null
    */
-  public static File getSqlScriptDir() {
+  public static Collection<File> getSqlScriptDir() {
     if (s_scriptDir == null) {
       synchronized (DbScripts.class) {
         if (s_scriptDir == null) {
@@ -75,24 +80,38 @@ public final class DbScripts {
     return s_scriptDir;
   }
 
-  private static File createSQLScripts() {
-    if (SCRIPT_RELATIVE_PATH.exists()) {
-      return SCRIPT_RELATIVE_PATH.getAbsoluteFile();
-    }
-    if (SCRIPT_ZIP_PATH.exists()) {
-      if (SCRIPT_INSTALL_DIR.exists()) {
-        FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+  private static Collection<File> createSQLScripts() {
+    try {
+      Collection<File> dirs = Sets.newHashSet();
+      File local = new File(DbTool.getWorkingDirectory(), DATABASE_INSTALL_FOLDER).getCanonicalFile();
+      File relative = new File(SCRIPT_RELATIVE_PATH, DATABASE_INSTALL_FOLDER).getCanonicalFile();
+      if (local.exists()) {
+        dirs.add(new File(DbTool.getWorkingDirectory()).getCanonicalFile());
       }
-      for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-        try {
-          ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
-        } catch (IOException ex) {
-          throw new OpenGammaRuntimeException("Unable to unzip database scripts: " + SCRIPT_INSTALL_DIR);
+      if (relative.exists()) {
+        dirs.add(SCRIPT_RELATIVE_PATH.getCanonicalFile());
+      }
+      if (dirs.isEmpty()) {
+        if (SCRIPT_ZIP_PATH.exists()) {
+          if (SCRIPT_INSTALL_DIR.exists()) {
+            FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+          }
+          for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
+            try {
+              ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+            } catch (IOException ex) {
+              throw new OpenGammaRuntimeException("Unable to unzip database scripts: " + SCRIPT_INSTALL_DIR);
+            }
+          }
+          dirs.add(SCRIPT_INSTALL_DIR.getCanonicalFile());
+        } else {
+          throw new IllegalArgumentException("Unable to find database scripts. Tried: " + local + ", " + relative + " and " + SCRIPT_ZIP_PATH);
         }
       }
-      return SCRIPT_INSTALL_DIR.getAbsoluteFile();
+      return dirs;
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }
-    throw new IllegalArgumentException("Unable to find database scripts. Tried: " + SCRIPT_RELATIVE_PATH + " and " + SCRIPT_ZIP_PATH);
   }
 
   /**
@@ -100,6 +119,42 @@ public final class DbScripts {
    */
   public static void deleteSqlScriptDir() {
     FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+  }
+
+  /**
+   * Gets the latest versions of the scripts across all databases.
+   * 
+   * @param scriptDirs  the script directories, not null
+   * @return the latest versions by , not null
+   */
+  public static Map<String, Integer> getLatestVersions(Collection<File> scriptDirs) {
+    Map<String, Integer> result = new HashMap<>();
+    for (File scriptDir : scriptDirs) {
+      File parentDirectory = new File(scriptDir, DATABASE_CREATE_FOLDER);
+      for (File dialectDir : parentDirectory.listFiles()) {
+        if (dialectDir.isDirectory() == false) {
+          continue;
+        }
+        Map<File, Map<Integer, File>> scripts = findScriptFiles(dialectDir, CREATE_SCRIPT_PATTERN);
+        for (Map.Entry<File, Map<Integer, File>> masterScripts : scripts.entrySet()) {
+          String masterName = masterScripts.getKey().getName(); 
+          Set<Integer> versions = masterScripts.getValue().keySet();
+          if (versions.isEmpty()) {
+            continue;
+          }
+          int maxVersion = Collections.max(versions);
+          if (result.containsKey(masterName)) {
+            if (result.get(masterName).intValue() != maxVersion) {
+              throw new BuildException("Latest versions differ between database dialects for master '" + masterName +
+                  "'. Found latest versions of both " + result.get(masterName) + " and " + maxVersion + ".");
+            }
+          } else {
+            result.put(masterName, maxVersion);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -128,7 +183,7 @@ public final class DbScripts {
   private DbScripts(Collection<File> scriptDirs, String databaseType) {
     ArgumentChecker.notNull(scriptDirs, "scriptDirs");
     ArgumentChecker.notNull(databaseType, "databaseType");
-    _scriptDirs = scriptDirs;
+    _scriptDirs = ImmutableList.copyOf(scriptDirs);
     _databaseType = databaseType;
     _scripts = buildMap();
   }
@@ -233,8 +288,8 @@ public final class DbScripts {
 
   private void findScriptFiles(File scriptDir, ConcurrentMap<String, ConcurrentMap<Integer, File>> scriptMap, String subDir, Pattern pattern) {
     // find the files
-    File dbCreateSuperDir = new File(scriptDir, subDir + File.separatorChar + _databaseType);
-    Map<File, Map<Integer, File>> scriptsFiles = findScriptFiles(dbCreateSuperDir, pattern);
+    File dialectDir = new File(scriptDir, subDir + File.separatorChar + _databaseType);
+    Map<File, Map<Integer, File>> scriptsFiles = findScriptFiles(dialectDir, pattern);
     // build the map
     for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : scriptsFiles.entrySet()) {
       File dbFolder = dbFolder2versionedScripts.getKey();
@@ -256,16 +311,16 @@ public final class DbScripts {
   /**
    * Creates map from versions to sql scripts.
    * 
-   * @param dbCreateSuperDir  the directory holding versioned scripts, not null
+   * @param dialectDir  the directory holding versioned scripts, not null
    * @param scriptPattern  the pattern to search for, not null
    * @return the map, not null
    */
-  private Map<File, Map<Integer, File>> findScriptFiles(File dbCreateSuperDir, final Pattern scriptPattern) {
-    ArgumentChecker.isTrue(dbCreateSuperDir.exists(), "Directory " + dbCreateSuperDir.getAbsolutePath() + " does not exist");
-    ArgumentChecker.isTrue(dbCreateSuperDir.isDirectory(), "dbCreateSuperDir must be directory not a regular file");
+  private static Map<File, Map<Integer, File>> findScriptFiles(File dialectDir, final Pattern scriptPattern) {
+    ArgumentChecker.isTrue(dialectDir.exists(), "Directory " + dialectDir.getAbsolutePath() + " does not exist");
+    ArgumentChecker.isTrue(dialectDir.isDirectory(), "dbCreateSuperDir must be directory not a regular file");
     
     // find the candidate directories, such as foo_db
-    final File[] dbCreateScriptDirs = dbCreateSuperDir.listFiles(new FileFilter() {
+    final File[] dbCreateScriptDirs = dialectDir.listFiles(new FileFilter() {
       @Override
       public boolean accept(File pathname) {
         return matches(pathname.getName(), DATABASE_SCRIPT_FOLDER_PATTERN);

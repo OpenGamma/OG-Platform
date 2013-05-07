@@ -19,6 +19,9 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
  */
 public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<LocalDateDoubleTimeSeries> {
 
+  /** The number of milliseconds per day. */
+  private static final long MILLIS_PER_DAY = 86400L * 1000;
+
   /* package */static Object convertForDisplayImpl(ResultConverterCache context, ValueSpecification valueSpec, LocalDateDoubleTimeSeries series, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
     if (series.isEmpty()) {
@@ -32,7 +35,7 @@ public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<Local
       Object[] tsData = new Object[series.size()];
       for (int i = 0; i < series.size(); i++) {
         LocalDate date = series.getTimeAtIndex(i);
-        long epochMillis = date.toEpochDay() * 86400;
+        long epochMillis = date.toEpochDay() * MILLIS_PER_DAY;
         tsData[i] = new Object[]{epochMillis, series.getValueAtIndex(i)};
       }
       Map<String, Object> ts = ImmutableMap.<String, Object>of(

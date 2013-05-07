@@ -4,9 +4,9 @@
  */
 $.register_module({
     name: 'og.common.gadgets.Data',
-    dependencies: ['og.common.gadgets.manager', 'og.common.events', 'og.analytics.Grid'],
+    dependencies: ['og.common.gadgets.manager', 'og.common.events', 'og.common.gadgets.Grid'],
     obj: function () {
-        var module = this, Grid = og.analytics.Grid, loading_template, formatters, char_width = 8,
+        var module = this, Grid = og.common.gadgets.Grid, loading_template, formatters, char_width = 8,
             DOUBLE = 'DOUBLE_GADGET', STRING = 'STRING';
         var cell_value = function (v) {return {v: v + ''};};
         var col_names = (function () {

@@ -146,14 +146,14 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    * Builds a fixed compounded coupon from a tenor in years. This constructor is needed for inflation ZC swap. 
    * If required the stub of the sub-periods will be short and last. The payment date is the start accrual date plus the tenor in the index conventions.
    * @param currency The currency.
-   * @param paymentDate The payment date.
    * @param accrualStartDate The first accrual date.
+   * @param paymentDate The payment date.
    * @param notional The coupon notional.
    * @param tenor The total coupon tenor.
    * @param rate The fixed rate.
    * @return The compounded coupon.
    */
-  public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final double notional,
+  public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final int tenor, final double rate) {
     final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.ofYears(tenor)), Period.ofYears(1), true, false);
 

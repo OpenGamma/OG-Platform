@@ -6,6 +6,7 @@
 
 #include <Windows.h>
 #include "service.h"
+#include "Common/errorref.h"
 
 #define EXITHOOK_CLASS_NAME	"com/opengamma/install/service/ExitHook"
 
@@ -24,26 +25,27 @@ static CConfigSection g_oExitHookSection ("ExitHook", sizeof (g_apoExitHookSecti
 static CConfigSection *g_apoConfig[3] = { &g_oArgumentSection, &g_oInvokeSection, &g_oExitHookSection };
 CConfig CService::s_oConfig (sizeof (g_apoConfig) / sizeof (*g_apoConfig), g_apoConfig);
 
-BOOL CService::RegisterShutdownHook (const CJavaVM *poJVM, void *pfn) {
+DWORD CService::RegisterShutdownHook (const CJavaVM *poJVM, void *pfn) {
 	// Register the native for the default hook
 	JNINativeMethod aMethods[1] = {
 		{ (char*)"run", (char*)"()V", pfn }
 	};
-	if (!poJVM->RegisterNatives (EXITHOOK_CLASS_NAME, 1, aMethods)) return FALSE;
+	DWORD dwError = poJVM->RegisterNatives (EXITHOOK_CLASS_NAME, 1, aMethods);
+	if (dwError) return dwError;
 	// Then call the config specified (or default) registration for the hook
 	return poJVM->Invoke (&g_oExitHookClass, &g_oExitHookRegister);
 }
 
-BOOL CService::Run (const CJavaVM *poJVM) {
+DWORD CService::Run (const CJavaVM *poJVM) {
 	if (!poJVM) {
-		return FALSE;
+		return ERROR_REF_SERVICE;
 	}
 	return poJVM->Invoke (&g_oInvokeClass, &g_oInvokeStart, &g_oArgumentStrings);
 }
 
-BOOL CService::Stop (const CJavaVM *poJVM) {
+DWORD CService::Stop (const CJavaVM *poJVM) {
 	if (!poJVM) {
-		return FALSE;
+		return ERROR_REF_SERVICE;
 	}
 	return poJVM->Invoke (&g_oInvokeClass, &g_oInvokeStop);
 }

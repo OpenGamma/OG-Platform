@@ -23,14 +23,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.ganglia.GangliaReporter;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
-import com.yammer.metrics.JmxReporter;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Slf4jReporter;
-import com.yammer.metrics.ganglia.GangliaReporter;
 
 /**
  * 
@@ -63,8 +63,8 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    MetricRegistry summaryRegistry = new MetricRegistry(getRegistryName() + "-summary");
-    MetricRegistry detailedRegistry = new MetricRegistry(getRegistryName() + "-detail");
+    MetricRegistry summaryRegistry = new MetricRegistry();
+    MetricRegistry detailedRegistry = new MetricRegistry();
     
     if (isJmxPublish()) {
       JmxReporter jmxReporter = JmxReporter.forRegistry(summaryRegistry).build();

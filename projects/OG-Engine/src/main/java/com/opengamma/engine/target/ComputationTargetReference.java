@@ -226,7 +226,7 @@ public abstract class ComputationTargetReference implements Serializable {
 
     @Override
     public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void data) {
-      throw new IllegalStateException();
+      return null;
     }
 
   };
@@ -242,8 +242,16 @@ public abstract class ComputationTargetReference implements Serializable {
       return this;
     } else {
       // TODO: should be checking the type
-      if (getParent() != null) {
-        return create(getParent().replaceType(newType.accept(s_getParentType, null)), newType);
+      final ComputationTargetReference parent = getParent();
+      if (parent != null) {
+        final ComputationTargetType parentType = newType.accept(s_getParentType, null);
+        if (parentType == null) {
+          // Truncate the parent
+          return create(null, newType);
+        } else {
+          // Update the parent
+          return create(parent.replaceType(parentType), newType);
+        }
       } else {
         return create(null, newType);
       }

@@ -28,8 +28,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate
- * for pricing using an interpolated Black lognormal volatility surface.
+ * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate for pricing using an interpolated Black lognormal volatility surface.
  */
 public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends DefaultPropertyFunction {
   /** The logger */
@@ -51,31 +50,31 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.FORWARD,
-    ValueRequirementNames.SPOT,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_CARRY_RHO,
-    ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.VALUE_DUAL_DELTA,
-    ValueRequirementNames.DELTA,
-    ValueRequirementNames.GAMMA,
-    ValueRequirementNames.VOMMA,
-    ValueRequirementNames.VANNA,
-    ValueRequirementNames.RHO,
-    ValueRequirementNames.CARRY_RHO,
-    ValueRequirementNames.THETA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA,
-    ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.VEGA_QUOTE_MATRIX,
+      ValueRequirementNames.VALUE_VEGA,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+      ValueRequirementNames.FORWARD,
+      ValueRequirementNames.SPOT,
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.VALUE_VOMMA,
+      ValueRequirementNames.VALUE_VANNA,
+      ValueRequirementNames.VALUE_RHO,
+      ValueRequirementNames.VALUE_CARRY_RHO,
+      ValueRequirementNames.VALUE_THETA,
+      ValueRequirementNames.VALUE_DUAL_DELTA,
+      ValueRequirementNames.DELTA,
+      ValueRequirementNames.GAMMA,
+      ValueRequirementNames.VOMMA,
+      ValueRequirementNames.VANNA,
+      ValueRequirementNames.RHO,
+      ValueRequirementNames.CARRY_RHO,
+      ValueRequirementNames.THETA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.VEGA,
+      ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
   };
 
   /**
@@ -92,7 +91,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
 
     final int nPairs = perIdConfig.length;
     ArgumentChecker.isTrue(nPairs % 7 == 0, "Must have discounting name, discounting curve config, surface name, surface interpolation method, forward curve name" +
-      "and forward curve calculation method per id");
+        "and forward curve calculation method per id");
     _idToDiscountingCurveName = Maps.newHashMap();
     _idToDiscountingCurveConfig = Maps.newHashMap();
     _idToSurfaceName = Maps.newHashMap();
@@ -171,7 +170,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_OPTION_INTERPOLATED_BLACK_LOGNORMAL_DEFAULTS;
+    return OpenGammaFunctionExclusions.EQUITY_OPTION_DEFAULTS;
   }
 
   /**

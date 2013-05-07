@@ -276,4 +276,10 @@ public final class ValuePropertyNames {
    * The name of a property that provides the name of a forward curve.
    */
   public static final String FORWARD_CURVE_NAME = "ForwardCurveName";
+  
+  /**
+   * A general name for a property describing a transformation method to use.
+   */
+  public static final String TRANSFORMATION_METHOD = "TransformationMethod";
+  
 }

@@ -29,9 +29,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.ExecutionLogWithContext;
-import com.opengamma.engine.view.impl.InMemoryViewResultModel;
-import com.opengamma.engine.view.impl.ViewCalculationResultModelImpl;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.log.LogLevel;
@@ -58,8 +55,7 @@ public class ViewCalculationResultModelImplTest {
     PORTFOLIO_ROOT_NODE.addPosition(POSITION);
 
     final ExecutionLog executionLog = MutableExecutionLog.single(new SimpleLogEvent(LogLevel.INFO, "test"), ExecutionLogMode.FULL);
-    final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Mock", SPEC, executionLog);
-    final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
+    final AggregatedExecutionLog aggregatedExecutionLog = DefaultAggregatedExecutionLog.indicatorLogMode(executionLog.getLogLevels());
     COMPUTED_VALUE_RESULT = new ComputedValueResult(new ValueSpecification("DATA", SPEC, ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
         .get()), "12345", aggregatedExecutionLog);
   }

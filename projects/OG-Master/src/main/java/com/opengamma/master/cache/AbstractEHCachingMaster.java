@@ -14,6 +14,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.temporal.TemporalAmount;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
@@ -163,13 +164,13 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
         .includeAttribute(getUidToDocumentCache().getSearchAttribute("CorrectionToInstant"))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("ObjectId").eq(objectId.toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("VersionFromInstant")
-                         .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
+            .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("VersionToInstant")
-                         .ge(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getVersionAsOf().toString()))
+            .gt(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT.minusNanos(1)).getVersionAsOf().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("CorrectionFromInstant")
-                         .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
+            .le(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
         .addCriteria(getUidToDocumentCache().getSearchAttribute("CorrectionToInstant")
-                       .ge(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT).getCorrectedTo().toString()))
+            .gt(versionCorrection.withLatestFixed(InstantExtractor.MAX_INSTANT.minusNanos(1)).getCorrectedTo().toString()))
         .execute();
 
     // Found a matching cached document
@@ -201,7 +202,9 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
 
     // Invalid result
     } else {
-      throw new DataNotFoundException("Unable to uniquely identify a document with the specified ObjectId/VersionCorrection");
+      throw new DataNotFoundException("Unable to uniquely identify a document with ObjectId " + objectId
+                                      + " and VersionCorrection " + versionCorrection
+                                      + " because more than one cached search result matches: " + results);
     }
   }
 

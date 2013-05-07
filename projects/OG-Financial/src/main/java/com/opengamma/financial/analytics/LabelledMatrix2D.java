@@ -11,8 +11,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.financial.analytics.QuickSorter.ArrayQuickSorter;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * @param <S>
@@ -29,7 +29,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
   private final String _valuesTitle;
 
   public LabelledMatrix2D(final S[] xKeys, final T[] yKeys, final double[][] values) {
-    this(xKeys, LabelledMatrix1D.toString(xKeys), yKeys, LabelledMatrix1D.toString(yKeys), values);
+    this(xKeys, LabelledMatrixUtils.toString(xKeys), yKeys, LabelledMatrixUtils.toString(yKeys), values);
   }
   
   public LabelledMatrix2D(final S[] xKeys, final Object[] xLabels, final T[] yKeys, final Object[] yLabels, final double[][] values) {

@@ -19,14 +19,22 @@ public class ColumnSpecification {
   private final String _valueName;
   /** Value properties used when calculating the column's data. */
   private final ValueProperties _valueProperties;
+  /** Column header. */
+  private final String _header;
 
-  /* package */ ColumnSpecification(String calcConfigName, String valueName, ValueProperties valueProperties) {
+  /* package */ ColumnSpecification(String calcConfigName, String valueName, ValueProperties valueProperties, String header) {
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(valueProperties, "valueProperties");
+    ArgumentChecker.notEmpty(header, "header");
     _calcConfigName = calcConfigName;
     _valueName = valueName;
     _valueProperties = valueProperties;
+    _header = header;
+  }
+
+  /* package */ ColumnSpecification(String calcConfigName, String valueName, ValueProperties valueProperties) {
+    this(calcConfigName, valueName, valueProperties, valueName);
   }
 
   /* package */ String getCalcConfigName() {
@@ -41,42 +49,51 @@ public class ColumnSpecification {
     return _valueProperties;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _calcConfigName.hashCode();
-    result = prime * result + _valueName.hashCode();
-    result = prime * result + _valueProperties.hashCode();
-    return result;
+  /* package */ String getHeader() {
+    return _header;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if (obj == null) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    if (!(obj instanceof ColumnSpecification)) {
+    ColumnSpecification that = (ColumnSpecification) o;
+
+    if (!_calcConfigName.equals(that._calcConfigName)) {
       return false;
     }
-    ColumnSpecification other = (ColumnSpecification) obj;
-    if (!_calcConfigName.equals(other._calcConfigName)) {
+    if (!_header.equals(that._header)) {
       return false;
     }
-    if (!_valueName.equals(other._valueName)) {
+    if (!_valueName.equals(that._valueName)) {
       return false;
     }
-    if (!_valueProperties.equals(other._valueProperties)) {
+    if (!_valueProperties.equals(that._valueProperties)) {
       return false;
     }
     return true;
   }
 
   @Override
+  public int hashCode() {
+    int result = _calcConfigName.hashCode();
+    result = 31 * result + _valueName.hashCode();
+    result = 31 * result + _valueProperties.hashCode();
+    result = 31 * result + _header.hashCode();
+    return result;
+  }
+
+  @Override
   public String toString() {
-    return "ColumnKey [calcConfigName=" + _calcConfigName + ", valueName=" + _valueName + ", valueProperties=" + _valueProperties + "]";
+    return "ColumnSpecification [" +
+        "_calcConfigName='" + _calcConfigName + "'" +
+        ", _valueName='" + _valueName + "'" +
+        ", _valueProperties=" + _valueProperties +
+        ", _header='" + _header + "'" +
+        "]";
   }
 }

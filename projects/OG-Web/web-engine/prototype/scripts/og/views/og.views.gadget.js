@@ -31,7 +31,7 @@ $.register_module({
             },
             grid: function (args) {
                 og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
-                    new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
+                    new og.common.gadgets.Grid({selector: content, sparklines: false, source: result.data.data});
                 });
             },
             positions: function (args) {

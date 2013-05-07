@@ -5,14 +5,14 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
 
 import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
@@ -23,21 +23,21 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.VersionCorrection;
 
 /**
- * Holds context relating to the partially-completed compilation of a view definition, for passing to different stages
- * of the compilation.
+ * Holds context relating to the partially-completed compilation of a view definition, for passing to different stages of the compilation.
  */
 public class ViewCompilationContext {
 
   private final ViewDefinition _viewDefinition;
   private final ViewCompilationServices _services;
-  private final Map<String, DependencyGraphBuilder> _configurationGraphs;
+  private final Collection<DependencyGraphBuilder> _builders;
   private final VersionCorrection _resolverVersionCorrection;
+  private final Collection<DependencyGraph> _graphs;
 
   /* package */ViewCompilationContext(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
       final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
     _viewDefinition = viewDefinition;
     _services = compilationServices;
-    final Map<String, DependencyGraphBuilder> configurationGraphs = new HashMap<String, DependencyGraphBuilder>();
+    _builders = new LinkedList<DependencyGraphBuilder>();
     final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
     final ComputationTargetResolver.AtVersionCorrection resolver = compilationServices.getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(resolverVersionCorrection);
     for (final String configName : viewDefinition.getAllCalculationConfigurationNames()) {
@@ -55,10 +55,10 @@ public class ViewCompilationContext {
       builder.setFunctionResolver(functionResolver);
       compilationContext.init();
       builder.setCompilationContext(compilationContext);
-      configurationGraphs.put(configName, builder);
+      _builders.add(builder);
     }
-    _configurationGraphs = configurationGraphs;
     _resolverVersionCorrection = resolverVersionCorrection;
+    _graphs = new ArrayList<DependencyGraph>(_builders.size());
   }
 
   public ViewDefinition getViewDefinition() {
@@ -69,12 +69,16 @@ public class ViewCompilationContext {
     return _services;
   }
 
-  public DependencyGraphBuilder getBuilder(final String calcConfig) {
-    return _configurationGraphs.get(calcConfig);
+  public Collection<DependencyGraphBuilder> getBuilders() {
+    return _builders;
   }
 
-  public Collection<DependencyGraphBuilder> getBuilders() {
-    return Collections.unmodifiableCollection(_configurationGraphs.values());
+  public Collection<DependencyGraph> getGraphs() {
+    return _graphs;
+  }
+
+  public void addGraph(final DependencyGraph graph) {
+    _graphs.add(graph);
   }
 
   public VersionCorrection getResolverVersionCorrection() {

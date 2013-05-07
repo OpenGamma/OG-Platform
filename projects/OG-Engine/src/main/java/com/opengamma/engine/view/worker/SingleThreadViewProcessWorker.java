@@ -42,6 +42,7 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioNodeEquivalenceMapper;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -759,6 +760,11 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     }
   }
 
+  private static Instant now() {
+    // TODO: The distributed caches use a message bus for eventual consistency. This should really be (NOW - maximum permitted clock drift - eventual consistency time limit)
+    return Instant.now();
+  }
+
   private VersionCorrection getResolverVersionCorrection(final ViewCycleExecutionOptions viewCycleOptions) {
     VersionCorrection vc = null;
     do {
@@ -781,12 +787,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         if (!_ignoreCompilationValidity) {
           subscribeToTargetResolverChanges();
         }
-        return vc.withLatestFixed(Instant.now());
+        return vc.withLatestFixed(now());
       } else {
-        vc = vc.withLatestFixed(Instant.now());
+        vc = vc.withLatestFixed(now());
       }
     } else if (vc.getVersionAsOf() == null) {
-      vc = vc.withLatestFixed(Instant.now());
+      vc = vc.withLatestFixed(now());
     }
     unsubscribeFromTargetResolverChanges();
     return vc;
@@ -873,12 +879,33 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             replacements.add(newTarget);
           }
         }
-        final Iterator<Object> itrReplacements = replacements.iterator();
+        Iterator<Object> itrReplacements = replacements.iterator();
         while (itrReplacements.hasNext()) {
           final DependencyNode node = (DependencyNode) itrReplacements.next();
           final ComputationTargetSpecification newTarget = (ComputationTargetSpecification) itrReplacements.next();
           s_logger.debug("Rewriting {} to {}", node, newTarget);
           previousGraph.replaceNode(node, newTarget);
+        }
+        // Rewrite the original value requirements that might have referenced the original nodes
+        for (Map.Entry<ValueSpecification, Set<ValueRequirement>> terminalOutput : previousGraph.getTerminalOutputs().entrySet()) {
+          final Set<ValueRequirement> oldReqs = terminalOutput.getValue();
+          replacements.clear();
+          for (ValueRequirement req : oldReqs) {
+            final ComputationTargetReference newTarget = req.getTargetReference().accept(remapper);
+            if (newTarget != null) {
+              replacements.add(req);
+              replacements.add(MemoryUtils.instance(new ValueRequirement(req.getValueName(), newTarget, req.getConstraints())));
+            }
+          }
+          if (!replacements.isEmpty()) {
+            itrReplacements = replacements.iterator();
+            while (itrReplacements.hasNext()) {
+              final ValueRequirement oldReq = (ValueRequirement) itrReplacements.next();
+              final ValueRequirement newReq = (ValueRequirement) itrReplacements.next();
+              oldReqs.remove(oldReq);
+              oldReqs.add(newReq);
+            }
+          }
         }
       }
     }

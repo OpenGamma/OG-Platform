@@ -81,7 +81,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
- * Three curves in EUR; no futures.
+ * Multi-currency curve calibration process. Tests the difference between forward points interpolation and yield curve interpolation.
  */
 public class MulticurveBuildingDiscountingDiscountXCcyPtIntTest {
 
