@@ -49,6 +49,9 @@ $.register_module({
                     routes.set_title(routes.title || routes.current().hash);
                     routes.title = null;
                 });
+                $(window).on('beforeunload', function (event) {
+                    return og.common.events.fire('unload') ? void 0 : 'You have unsaved changes';
+                });
                 $(window).on('keydown', function (event) {
                     if (event.keyCode !== $.ui.keyCode.ESCAPE) return;
                     event.preventDefault(); // escape key will break long-polling, so prevent the default action

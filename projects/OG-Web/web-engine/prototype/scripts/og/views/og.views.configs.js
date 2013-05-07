@@ -21,53 +21,58 @@ $.register_module({
     obj: function () {
         var api = og.api, common = og.common, details = common.details, events = common.events,
             history = common.util.history, masthead = common.masthead, routes = common.routes,
-            form_inst, form_state, changed_form_state, hashchangesuppressed = false,
-            unsaved_txt = 'You have unsaved changes to',
+            form_inst, form_state, suppress = false, unsaved_txt = 'You have unsaved changes to',
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
             current_type, config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
-                'new': function () {ui.dialog({
-                    type: 'input',
-                    title: 'Add configuration',
-                    width: 400, height: 190,
-                    fields: [{
-                        type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types,
-                        value: function () {return current_type;}
-                    }],
-                    buttons: {
-                        'OK': function () {
-                            var config_type = ui.dialog({return_field_value: 'config_type'});
-                            $(this).dialog('close');
-                            routes.go(routes.hash(view.rules.load_new, routes.current().args, {
-                                add: {config_type: config_type}
-                            }));
-                        },
-                        'Cancel': function () {$(this).dialog('close');}
-                    }
-                })},
-                'delete': function () {ui.dialog({
-                    type: 'confirm',
-                    title: 'Delete configuration?',
-                    width: 400, height: 190,
-                    message: 'Are you sure you want to permanently delete this configuration?',
-                    buttons: {
-                        'Delete': function () {
-                            var args = routes.current().args;
-                            suppress_update = true;
-                            $(this).dialog('close');
-                            api.rest.configs.del({
-                                handler: function (result) {
-                                    if (result.error) return view.error(result.message);
-                                    routes.go(routes.hash(view.rules.load, args, {del: ['id']}));
-                                    setTimeout(function () {view.search(args);});
-                                }, id: routes.current().args.id
-                            });
-                        },
-                        'Cancel': function () {$(this).dialog('close');}
-                    }
-                })}
+                'new': function () {
+                    if (suppress) return;
+                    ui.dialog({
+                        type: 'input',
+                        title: 'Add configuration',
+                        width: 400, height: 190,
+                        fields: [{
+                            type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types,
+                            value: function () {return current_type;}
+                        }],
+                        buttons: {
+                            'OK': function () {
+                                var config_type = ui.dialog({return_field_value: 'config_type'});
+                                $(this).dialog('close');
+                                routes.go(routes.hash(view.rules.load_new, routes.current().args, {
+                                    add: {config_type: config_type}
+                                }));
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    })
+                },
+                'delete': function () {
+                    if (suppress) return;
+                    ui.dialog({
+                        type: 'confirm',
+                        title: 'Delete configuration?',
+                        width: 400, height: 190,
+                        message: 'Are you sure you want to permanently delete this configuration?',
+                        buttons: {
+                            'Delete': function () {
+                                var args = routes.current().args;
+                                suppress_update = true;
+                                $(this).dialog('close');
+                                api.rest.configs.del({
+                                    handler: function (result) {
+                                        if (result.error) return view.error(result.message);
+                                        routes.go(routes.hash(view.rules.load, args, {del: ['id']}));
+                                        setTimeout(function () {view.search(args);});
+                                    }, id: routes.current().args.id
+                                });
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    })
+                }
             },
             toolbar = function (options) {
                 ui.toolbar(options);
@@ -113,6 +118,7 @@ $.register_module({
                         data: details_json,
                         loading: view.notify.partial('saving...'),
                         save_new_handler: function (result) {
+                            if (suppress) return;
                             var args = routes.current().args;
                             view.notify(null);
                             if (result.error) return view.error(result.message);
@@ -188,11 +194,17 @@ $.register_module({
                 api.rest.configs.get(rest_options);
             };
             events.on('hashchange', function () {
-                if (!form_inst && !form_state) return;
+                if (!form_inst && !form_state) return suppress = true;
                 var msg = unsaved_txt + ' ' + form_state.data.name;
-                if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) return false;
+                if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) return suppress = false;
                 form_inst = form_state = null;
-                return true;
+                return suppress = true;
+            });
+            events.on('unload', function () {
+                if (!form_inst && !form_state) return suppress = true;
+                if (!Object.equals(form_state, form_inst.compile())) return suppress = false;
+                form_inst = form_state = null;
+                return suppress = true;
             });
         return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
