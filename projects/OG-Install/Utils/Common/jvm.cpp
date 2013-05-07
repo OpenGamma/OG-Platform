@@ -250,33 +250,77 @@ static BOOL _isFolderExpansion (const char *pszPath) {
 	return (pszPath[cchPath - 2] == '\\') && (pszPath[cchPath - 1] == '*');
 }
 
+static size_t _countClasspathLength (const char *pszClasspath) {
+	size_t cchPath = strlen (pszClasspath);
+	size_t cchLength = 0;
+	char sz[MAX_PATH];
+	WIN32_FIND_DATAA wfd;
+	HANDLE hFind;
+	StringCbPrintf (sz, sizeof (sz), "%s\\*.*", pszClasspath);
+	hFind = FindFirstFile (sz, &wfd);
+	if (hFind) {
+		do {
+			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				if (wfd.cFileName[0] != '.') {
+					StringCbPrintf (sz + cchPath + 1, sizeof (sz) - sizeof (char) * (cchPath + 1), "%s", wfd.cFileName);
+					cchLength += _countClasspathLength (sz);
+				}
+			} else {
+				cchLength += 2 + cchPath + strlen (wfd.cFileName);
+			}
+		} while (FindNextFile (hFind, &wfd));
+		FindClose (hFind);
+	}
+	return cchLength;
+}
+
+static void _getClasspath (const char *pszClasspath, char *pszOption, size_t cchLength, size_t *pcch) {
+	size_t cchPath = strlen (pszClasspath);
+	char sz[MAX_PATH];
+	WIN32_FIND_DATAA wfd;
+	HANDLE hFind;
+	StringCbPrintf (sz, sizeof (sz), "%s\\*.*", pszClasspath);
+	hFind = FindFirstFile (sz, &wfd);
+	if (hFind) {
+		do {
+			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				if (wfd.cFileName[0] != '.') {
+					StringCbPrintf (sz + cchPath + 1, sizeof (sz) - sizeof (char) * (cchPath + 1), "%s", wfd.cFileName);
+					_getClasspath (sz, pszOption, cchLength, pcch);
+				}
+			} else {
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, (*pcch > 17) ? ";" : "=");
+				(*pcch)++;
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, pszClasspath);
+				(*pcch) += cchPath;
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, "\\");
+				(*pcch)++;
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, wfd.cFileName);
+				(*pcch) += strlen (wfd.cFileName);
+			}
+		} while (FindNextFile (hFind, &wfd));
+		FindClose (hFind);
+	}
+}
+
 static char *_createClasspathOption () {
 	UINT n;
 	size_t cchLength = 18;
 	char *pszOption;
 	char sz[MAX_PATH];
-	WIN32_FIND_DATAA wfd;
-	HANDLE hFind;
 	size_t cchPath;
 	for (n = 0; n < g_oClasspathFolders.GetValueCount (); n++) {
 		PCSTR pszClasspath = g_oClasspathFolders.GetValue (n);
 		if (!pszClasspath) {
-			return NULL;
+			continue;
 		}
+		cchPath = strlen (pszClasspath);
 		if (_isFolderExpansion (pszClasspath)) {
-			StringCbPrintf (sz, sizeof (sz), "%s.*", pszClasspath);
-			cchPath = strlen (pszClasspath);
-			hFind = FindFirstFile (sz, &wfd);
-			if (hFind) {
-				do {
-					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-						cchLength += 2 + cchPath + strlen (wfd.cFileName);
-					}
-				} while (FindNextFile (hFind, &wfd));
-				FindClose (hFind);
-			}
+			StringCbCopy (sz, sizeof (sz), pszClasspath);
+			sz[cchPath - 2] = 0;
+			cchLength += _countClasspathLength (sz);
 		} else {
-			cchLength += 1 + strlen (pszClasspath);
+			cchLength += 1 + cchPath;
 		}
 	}
 	pszOption = (char*)malloc (cchLength);
@@ -285,30 +329,19 @@ static char *_createClasspathOption () {
 	size_t cch = 17;
 	for (n = 0; n < g_oClasspathFolders.GetValueCount (); n++) {
 		PCSTR pszClasspath = g_oClasspathFolders.GetValue (n);
+		if (!pszClasspath) {
+			continue;
+		}
+		cchPath = strlen (pszClasspath);
 		if (_isFolderExpansion (pszClasspath)) {
-			StringCbPrintf (sz, sizeof (sz), "%s.*", pszClasspath);
-			cchPath = strlen (pszClasspath);
-			hFind = FindFirstFile (sz, &wfd);
-			if (hFind) {
-				do {
-					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-						StringCchCopy (pszOption + cch, cchLength - cch, (cch > 17) ? ";" : "=");
-						cch++;
-						StringCchCopy (pszOption + cch, cchLength - cch, pszClasspath);
-						cch += cchPath - 2;
-						StringCchCopy (pszOption + cch, cchLength - cch, "\\");
-						cch++;
-						StringCchCopy (pszOption + cch, cchLength - cch, wfd.cFileName);
-						cch += strlen (wfd.cFileName);
-					}
-				} while (FindNextFile (hFind, &wfd));
-				FindClose (hFind);
-			}
+			StringCbCopy (sz, sizeof (sz), pszClasspath);
+			sz[cchPath - 2] = 0;
+			_getClasspath (sz, pszOption, cchLength, &cch);
 		} else {
 			StringCchCopy (pszOption + cch, cchLength - cch, (cch > 17) ? ";" : "=");
 			cch++;
 			StringCchCopy (pszOption + cch, cchLength - cch, pszClasspath);
-			cch += strlen (pszClasspath);
+			cch += cchPath;
 		}
 	}
 	return pszOption;
