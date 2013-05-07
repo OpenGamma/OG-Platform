@@ -169,6 +169,9 @@
               <goal>test-jar</goal>
             </goals>
             <configuration>
+              <excludes>
+                <exclude>tests.properties</exclude>
+              </excludes>
               <skipIfEmpty>true</skipIfEmpty>
             </configuration>
           </execution>
