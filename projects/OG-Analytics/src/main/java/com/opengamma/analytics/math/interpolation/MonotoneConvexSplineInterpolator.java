@@ -389,8 +389,8 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
     final int nDataPts = time.length;
     final double[] discFwds = discFwdsFinder(time, spotRates);
     double[] fwds = fwdsFinder(time, discFwds);
-    ArrayList<double[]> coefsList = new ArrayList<double[]>();
-    ArrayList<Double> knots = new ArrayList<Double>();
+    ArrayList<double[]> coefsList = new ArrayList<>();
+    ArrayList<Double> knots = new ArrayList<>();
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       final double gValue0 = fwds[i] - discFwds[i];
