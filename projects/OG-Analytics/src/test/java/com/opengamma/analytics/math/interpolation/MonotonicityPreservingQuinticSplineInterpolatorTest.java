@@ -154,13 +154,13 @@ public class MonotonicityPreservingQuinticSplineInterpolatorTest {
     assertEquals(resultPos.getNumberOfIntervals(), result.getNumberOfIntervals());
     assertEquals(resultPos.getOrder(), 6);
 
-    final int nKeys = 121;
-    double key0 = -2.;
+    final int nKeys = 71;
+    double key0 = 3.;
     for (int i = 1; i < nKeys; ++i) {
-      final double key = -2. + 12. / (nKeys - 1) * i;
+      final double key = 3. + 7. / (nKeys - 1) * i;
       assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] <= 0.);
       //      System.out.println(key + "\t" + function.evaluate(result, key).getData()[0] + "\t" + function.evaluate(resultPos, key).getData()[0]);
-      key0 = -2. + 11. / (nKeys - 1) * i;
+      key0 = 3. + 7. / (nKeys - 1) * i;
     }
   }
 

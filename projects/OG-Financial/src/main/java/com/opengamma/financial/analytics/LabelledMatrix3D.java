@@ -46,7 +46,7 @@ public abstract class LabelledMatrix3D<KX, KY, KZ, TX, TY, TZ, SUBCLASS> {
    * @param values values of the matrix in the shape [Z][Y][X]
    */
   public LabelledMatrix3D(final KX[] xKeys, final KY[] yKeys, final KZ[] zKeys, final double[][][] values) {
-    this(xKeys, LabelledMatrix1D.toString(xKeys), yKeys, LabelledMatrix1D.toString(yKeys), zKeys, LabelledMatrix1D.toString(zKeys), values);
+    this(xKeys, LabelledMatrixUtils.toString(xKeys), yKeys, LabelledMatrixUtils.toString(yKeys), zKeys, LabelledMatrixUtils.toString(zKeys), values);
   }
 
   /**

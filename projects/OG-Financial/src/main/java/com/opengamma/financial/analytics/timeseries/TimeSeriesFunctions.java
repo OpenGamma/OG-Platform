@@ -40,6 +40,10 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
     functions.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated.class));
     functions.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
+    functions.add(functionConfiguration(FXReturnSeriesFunction.class));
+    functions.add(functionConfiguration(YieldCurveNodeReturnSeriesFunction.class));
+    functions.add(functionConfiguration(VolatilityWeightedYieldCurveNodeReturnSeriesFunction.class));
+    functions.add(functionConfiguration(VolatilityWeightedFXReturnSeriesFunction.class));
   }
 
 }

@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
@@ -42,8 +44,8 @@ public final class DbScripts {
   private static final File SCRIPT_ZIP_PATH = new File(DbTool.getWorkingDirectory(), "lib/sql/com.opengamma/og-masterdb");
   /** Script expansion. */
   private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbScripts.class.getSimpleName());
-  /** The script directory. */
-  private static volatile File s_scriptDir;
+  /** The script directories. */
+  private static volatile Collection<File> s_scriptDir;
 
   private static final String DATABASE_INSTALL_FOLDER = "install/db";
   private static final Pattern DATABASE_SCRIPT_FOLDER_PATTERN = Pattern.compile("(.+)_db");
@@ -67,7 +69,7 @@ public final class DbScripts {
    * 
    * @return the script directory, not null
    */
-  public static File getSqlScriptDir() {
+  public static Collection<File> getSqlScriptDir() {
     if (s_scriptDir == null) {
       synchronized (DbScripts.class) {
         if (s_scriptDir == null) {
@@ -78,24 +80,38 @@ public final class DbScripts {
     return s_scriptDir;
   }
 
-  private static File createSQLScripts() {
-    if (SCRIPT_RELATIVE_PATH.exists()) {
-      return SCRIPT_RELATIVE_PATH.getAbsoluteFile();
-    }
-    if (SCRIPT_ZIP_PATH.exists()) {
-      if (SCRIPT_INSTALL_DIR.exists()) {
-        FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+  private static Collection<File> createSQLScripts() {
+    try {
+      Collection<File> dirs = Sets.newHashSet();
+      File local = new File(DbTool.getWorkingDirectory(), DATABASE_INSTALL_FOLDER).getCanonicalFile();
+      File relative = new File(SCRIPT_RELATIVE_PATH, DATABASE_INSTALL_FOLDER).getCanonicalFile();
+      if (local.exists()) {
+        dirs.add(new File(DbTool.getWorkingDirectory()).getCanonicalFile());
       }
-      for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-        try {
-          ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
-        } catch (IOException ex) {
-          throw new OpenGammaRuntimeException("Unable to unzip database scripts: " + SCRIPT_INSTALL_DIR);
+      if (relative.exists()) {
+        dirs.add(SCRIPT_RELATIVE_PATH);
+      }
+      if (dirs.isEmpty()) {
+        if (SCRIPT_ZIP_PATH.exists()) {
+          if (SCRIPT_INSTALL_DIR.exists()) {
+            FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+          }
+          for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
+            try {
+              ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+            } catch (IOException ex) {
+              throw new OpenGammaRuntimeException("Unable to unzip database scripts: " + SCRIPT_INSTALL_DIR);
+            }
+          }
+          dirs.add(SCRIPT_INSTALL_DIR.getCanonicalFile());
+        } else {
+          throw new IllegalArgumentException("Unable to find database scripts. Tried: " + local + ", " + relative + " and " + SCRIPT_ZIP_PATH);
         }
       }
-      return SCRIPT_INSTALL_DIR.getAbsoluteFile();
+      return dirs;
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }
-    throw new IllegalArgumentException("Unable to find database scripts. Tried: " + SCRIPT_RELATIVE_PATH + " and " + SCRIPT_ZIP_PATH);
   }
 
   /**
@@ -167,7 +183,7 @@ public final class DbScripts {
   private DbScripts(Collection<File> scriptDirs, String databaseType) {
     ArgumentChecker.notNull(scriptDirs, "scriptDirs");
     ArgumentChecker.notNull(databaseType, "databaseType");
-    _scriptDirs = scriptDirs;
+    _scriptDirs = ImmutableList.copyOf(scriptDirs);
     _databaseType = databaseType;
     _scripts = buildMap();
   }
