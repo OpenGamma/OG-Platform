@@ -28,6 +28,7 @@ $.register_module({
                 plot_template, data_template, common_plot_options, top_plot_options, bot_plot_options, spoofed_data,
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colors for plot 1 data sets
                 colors_arr_p2 = ['#fff', '#fff', '#fff', '#fff']; // line colors for plot 2 data sets
+            timeseries.update = function (data) {load_plots(data);};
             timeseries.resize = (function (timeout) {
                var resize = function () {
                    var height = config.height ? config.height : $(selector).parent().height(),
@@ -84,7 +85,6 @@ $.register_module({
                 if (result.error) return;
                 var data = result.data,
                     show_datapoints_link = 'datapoints_link' in config ? config.datapoints_link : true,
-                    init_data_field = data.template_data.data_field,
                     init_ob_time = data.template_data.observation_time,
                     data_arr = [{
                         data: data.timeseries.data,
@@ -97,14 +97,11 @@ $.register_module({
                     $p1, p1_options, p1_selector = selector + ' .og-js-p1',
                     $p2, p2_options, p2_selector = selector + ' .og-js-p2',
                     tenor = selector + ' .og-tenor',
-                    plot_selector = selector + ' .og-plot-header',
                     $legend, panning, hover_pos = null,
                     reset_options,
-                    build_menu, empty_plots, update_legend, rescale_yaxis, resize,
+                    empty_plots, update_legend, rescale_yaxis, resize,
                     calculate_y_values, load_data_points, get_legend;
                 $(selector).html((Handlebars.compile(plot_template))({alive: alive}));
-                $(plot_selector)
-                    .html('<span class="og-checking-related">checking for related timeseries data...</span>');
                 get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated
                 reset_options = function () {p1_options = top_plot_options, p2_options = bot_plot_options;};
                 empty_plots = function () {
@@ -169,7 +166,8 @@ $.register_module({
                     });
                     $data_points.find('.og-data-series').css({width: grid_width + 'px', position: 'relative'});
                 };
-                load_plots = function () {
+                load_plots = function (new_data) {
+                    if (new_data) data_arr = new_data;
                     if (data_arr[0] === void 0 || data_arr[0].data.length < 2) {empty_plots(); return}
                     var d = data_arr, data = data_arr[0].data;
                     (function () { // set up presets
@@ -350,100 +348,10 @@ $.register_module({
                         if (y) $legends.eq(i).text(y.toFixed(2)); // otherwise there is no data, so no update
                     }
                 };
-                build_menu = function () {
-                    if (config.menu === false) return $(plot_selector).empty();
-                    // build meta data object and populate it with the initial plot data
-                    if (result.data.related) result.data.related.forEach(function (val) {
-                        var df = val.data_field;
-                        if (!meta[df]) meta[df] = {};
-                        meta[df][val.observation_time] = val.object_id;
-                    });
-                    meta[init_data_field][init_ob_time] = result;
-                    state.field = init_data_field, state.time = [init_ob_time];
-                    (function () {
-                        // Helper function, returns a timeseries data object, or an id which can be used to get it
-                        // Takes a sub object of meta
-                        var get_data_or_id = function (obj) {return obj[Object.keys(obj)[0]];},
-                        // build select
-                        build_select = function () {
-                            var field, select = '';
-                            for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><select>' + select
-                                + '</select></div>';
-                        },
-                        // build checkboxes
-                        build_checkbox = function  () {
-                            var time, checkbox = '';
-                            for (time in meta[state.field]) {
-                                checkbox += '<label><input type="checkbox" /><span>' + time + '</span></label>';
-                            }
-                            return checkbox = '<div class="og-observation">' + checkbox + '</div>';
-                        },
-                        // build form
-                        build_form = function () {
-                            var $form = $(build_select() + build_checkbox()), ctr = 0;
-                            // Set selected options
-                            $form.find('select').val(state.field);
-                            $.each(state.time, function (i, time) {
-                                $form.find('label span').contents().each(function (i, node) {
-                                    if (time === $(node).text())
-                                        $(this).parent().prev().prop('checked', 'checked').parent()
-                                            .css({'color': '#fff', 'background-color': colors_arr[ctr]}), ctr += 1;
-                                });
-                            });
-                            // attach handlers
-                            $form.find('select, input').change(function (e) {
-                                var meta_sub_obj, data = [], is_select = $(e.target).is('select'), new_time, index_of,
-                                    handler = function (r) {
-                                        var td = r.data.template_data, field = td.data_field,
-                                            time = td.observation_time, t, cached_object;
-                                        state.field = field, meta[field][time] = r;
-                                        if (is_select) state.time = [time],
-                                            data.push({
-                                                data: r.data.timeseries.data,
-                                                label: time,
-                                                data_provider: r.data.template_data.data_provider,
-                                                data_source: r.data.template_data.data_source,
-                                                object_id: r.data.template_data.object_id
-                                            });
-                                        else for (t in state.time) {
-                                            if (!meta[state.field][state.time[t]]) continue;
-                                            cached_object = meta[state.field][state.time[t]].data;
-                                            data.push({
-                                                data: cached_object.timeseries.data,
-                                                label: state.time[t],
-                                                data_provider: cached_object.template_data.data_provider,
-                                                data_source: cached_object.template_data.data_source,
-                                                object_id: cached_object.template_data.object_id
-                                            });
-                                        }
-                                        data_arr = data;
-                                        load_plots();
-                                        $(plot_selector).html(build_form());
-                                    };
-                                if (is_select) {
-                                    state.from = state.to = void 0;
-                                    meta_sub_obj = get_data_or_id(meta[$(e.target).val()]);
-                                    if (typeof meta_sub_obj === 'object') return handler(meta_sub_obj);
-                                    return api.rest.timeseries.get({id: meta_sub_obj}).pipe(handler);
-                                }
-                                new_time = $(this).next().text();
-                                index_of = state.time.indexOf(new_time);
-                                meta_sub_obj = meta[state.field][new_time];
-                                if (~index_of) state.time.splice(index_of, 1); else state.time.push(new_time);
-                                if (typeof meta_sub_obj === 'object') return handler(meta_sub_obj);
-                                api.rest.timeseries.get({id: meta_sub_obj}).pipe(handler);
-                            });
-                            return $form;
-                        };
-                        $(plot_selector).html(build_form());
-                    }());
-                };
                 var show_plot = function () {
                     $(selector + ' .og-plots').css('visibility', 'visible');
                     $(selector + ' .og-loading').remove();
                 };
-                build_menu();
                 if (!config.child) og.common.gadgets.manager.register(timeseries);
                 timeseries.resize();
             };

@@ -362,6 +362,7 @@
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
     <fragment>/scripts/og/common/og.common.tooltip.js</fragment>
+    <fragment>/scripts/og/common/og.common.timeseries_menu.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
