@@ -21,14 +21,13 @@ $.register_module({
     obj: function () {
         var api = og.api, common = og.common, details = common.details, events = common.events,
             history = common.util.history, masthead = common.masthead, routes = common.routes,
-            form_inst, form_state, suppress = false, unsaved_txt = 'You have unsaved changes to',
+            form_inst, form_state, unsaved_txt = 'You have unsaved changes to',
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
             current_type, config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {
-                    if (suppress) return;
                     ui.dialog({
                         type: 'input',
                         title: 'Add configuration',
@@ -50,7 +49,6 @@ $.register_module({
                     })
                 },
                 'delete': function () {
-                    if (suppress) return;
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete configuration?',
@@ -118,7 +116,6 @@ $.register_module({
                         data: details_json,
                         loading: view.notify.partial('saving...'),
                         save_new_handler: function (result) {
-                            if (suppress) return;
                             var args = routes.current().args;
                             view.notify(null);
                             if (result.error) return view.error(result.message);
@@ -194,17 +191,19 @@ $.register_module({
                 api.rest.configs.get(rest_options);
             };
             events.on('hashchange', function () {
-                if (!form_inst && !form_state) return suppress = true;
-                var msg = unsaved_txt + ' ' + form_state.data.name;
-                if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) return suppress = false;
+                if (!form_inst && !form_state) return
+                var msg = unsaved_txt + ' ' + form_state.data.name + '. \n\n' +
+                    'OK to discard changes \n'+
+                    'Cancel to continue editing';
+                if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) return false;
                 form_inst = form_state = null;
-                return suppress = true;
+                return true;
             });
             events.on('unload', function () {
-                if (!form_inst && !form_state) return suppress = true;
-                if (!Object.equals(form_state, form_inst.compile())) return suppress = false;
+                if (!form_inst && !form_state) return true;
+                if (!Object.equals(form_state, form_inst.compile())) return false;
                 form_inst = form_state = null;
-                return suppress = true;
+                return true;
             });
         return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
