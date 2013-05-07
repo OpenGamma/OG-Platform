@@ -57,7 +57,7 @@ public class ViewportResultsJsonWriterTest {
   }
 
   private List<ResultsCell> createResults(Object value, List<Object> history, Class<?> columnType) {
-    return ImmutableList.of(ResultsCell.forCalculatedValue(value, _valueSpec, history, null, false, columnType));
+    return ImmutableList.of(ResultsCell.forCalculatedValue(value, _valueSpec, history, null, false, columnType, TypeFormatter.Format.CELL));
   }
 
   @Test
@@ -137,7 +137,11 @@ public class ViewportResultsJsonWriterTest {
   private static class TestCellRenderer implements GridColumn.CellRenderer {
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
+    public ResultsCell getResults(int rowIndex,
+                                  TypeFormatter.Format format,
+                                  ResultsCache cache,
+                                  Class<?> columnType,
+                                  Object inlineKey) {
       return null;
     }
   }

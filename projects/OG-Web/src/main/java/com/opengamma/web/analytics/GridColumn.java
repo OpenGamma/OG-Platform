@@ -10,6 +10,7 @@ import java.util.Set;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Specifies the header label of a column and the type of data it displays.
@@ -165,8 +166,8 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  /* package */ ResultsCell buildResults(int rowIndex, ResultsCache cache) {
-    return _renderer.getResults(rowIndex, cache, _type, _inlineKey);
+  /* package */ ResultsCell buildResults(int rowIndex, TypeFormatter.Format format, ResultsCache cache) {
+    return _renderer.getResults(rowIndex, format, cache, _type, _inlineKey);
   }
 
   private static String createDescription(ValueProperties constraints) {
@@ -223,6 +224,10 @@ import com.opengamma.util.ArgumentChecker;
   // TODO merge this into the AnalyticsColumn and create subclasses for each of the renderer classes
   /* package */ interface CellRenderer {
 
-    ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey);
+    ResultsCell getResults(int rowIndex,
+                           TypeFormatter.Format format,
+                           ResultsCache cache,
+                           Class<?> columnType,
+                           Object inlineKey);
   }
 }

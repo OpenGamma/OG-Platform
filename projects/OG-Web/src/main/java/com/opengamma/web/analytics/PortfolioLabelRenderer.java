@@ -13,6 +13,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Renders cells in the portfolio grid label column.
@@ -29,7 +30,11 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
+  public ResultsCell getResults(int rowIndex,
+                                TypeFormatter.Format format,
+                                ResultsCache cache,
+                                Class<?> columnType,
+                                Object inlineKey) {
     PortfolioGridRow row = _rows.get(rowIndex);
     ComputationTargetReference target = row.getTarget();
     ComputationTargetType targetType = target.getType();
@@ -50,15 +55,15 @@ import com.opengamma.util.ArgumentChecker;
         rowTarget = new PositionTarget(row.getName(), row.getNodeId(), row.getPositionId());
       }
       // TODO check the cache items for the position, security, underlying to find out whether they've been updated
-      return ResultsCell.forStaticValue(rowTarget, columnType);
+      return ResultsCell.forStaticValue(rowTarget, columnType, format);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
-      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), row.getNodeId()), columnType);
+      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), row.getNodeId()), columnType, format);
     } else if (targetType.isTargetType(ComputationTargetType.TRADE)) {
       // only fungible trades have their own row, OTC trades are shown on the same row as their parent position
       FungibleTradeTarget tradeTarget =
           new FungibleTradeTarget(row.getName(), row.getNodeId(), row.getPositionId(), row.getTradeId());
       // TODO check cache item for trade to see if it's been updated
-      return ResultsCell.forStaticValue(tradeTarget, columnType);
+      return ResultsCell.forStaticValue(tradeTarget, columnType, format);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
   }

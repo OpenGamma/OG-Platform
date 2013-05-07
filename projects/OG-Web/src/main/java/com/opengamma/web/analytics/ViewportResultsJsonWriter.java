@@ -69,7 +69,7 @@ public class ViewportResultsJsonWriter {
     for (ResultsCell cell : viewportCells) {
       Object cellValue = cell.getValue();
       ValueSpecification cellValueSpec = cell.getValueSpecification();
-      Object formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat(), cell.getInlineKey());
+      Object formattedValue = _formatter.format(cellValue, cellValueSpec, cell.getFormat(), cell.getInlineKey());
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = cell.getType();
       DataType columnFormat = _formatter.getDataType(columnType);

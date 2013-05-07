@@ -124,7 +124,7 @@ $.register_module({
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
                                 required: [
-                                    {all_of: ['view_id', 'graph_id', 'format']},
+                                    {all_of: ['view_id', 'graph_id']},
                                     {either: ['rows', 'cols'], or: ['cells']}
                                 ]
                             });
@@ -196,7 +196,7 @@ $.register_module({
                         meta = check({
                             bundle: {method: root + '#put', config: config},
                             required: [
-                                {all_of: ['view_id', 'format']},
+                                {all_of: ['view_id']},
                                 {either: ['rows', 'cols'], or: ['cells']}
                             ]
                         });

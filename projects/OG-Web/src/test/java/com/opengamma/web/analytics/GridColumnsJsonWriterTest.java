@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Test.
@@ -46,7 +47,11 @@ public class GridColumnsJsonWriterTest {
   private static class TestCellRenderer implements GridColumn.CellRenderer {
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
+    public ResultsCell getResults(int rowIndex,
+                                  TypeFormatter.Format format,
+                                  ResultsCache cache,
+                                  Class<?> columnType,
+                                  Object inlineKey) {
       return null;
     }
   }

@@ -25,6 +25,8 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   private final List<Integer> _rows;
   /** Indices of columns in the viewport, not empty, sorted in ascending order. */
   private final List<Integer> _columns;
+  /** Format of all cells in the viewport */
+  private final TypeFormatter.Format _format;
 
   /**
    * @param version
@@ -38,9 +40,11 @@ public class RectangularViewportDefinition extends ViewportDefinition {
                                               List<Integer> columns,
                                               TypeFormatter.Format format,
                                               Boolean enableLogging) {
-    super(version, format, enableLogging);
+    super(version, enableLogging);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
+    ArgumentChecker.notNull(format, "format");
+    _format = format;
     // TODO bounds checking
     _rows = ImmutableList.copyOf(rows);
     _columns = ImmutableList.copyOf(columns);
@@ -70,6 +74,10 @@ public class RectangularViewportDefinition extends ViewportDefinition {
 
   /* package */ List<Integer> getColumns() {
     return _columns;
+  }
+
+  /* package */ TypeFormatter.Format getFormat() {
+    return _format;
   }
 
   @Override
@@ -106,7 +114,7 @@ public class RectangularViewportDefinition extends ViewportDefinition {
       if (!_colIterator.hasNext()) {
         initRow();
       }
-      return new GridCell(_rowIndex, _colIterator.next());
+      return new GridCell(_rowIndex, _colIterator.next(), getFormat());
     }
 
     @Override
