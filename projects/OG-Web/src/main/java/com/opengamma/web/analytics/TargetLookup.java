@@ -47,6 +47,7 @@ import com.opengamma.util.tuple.Pair;
     if (colSpec == null) {
       return null;
     }
+    // TODO is this worth it? would it be better to have a map of cell->valueSpec? would use more memory but be less work
     ValueRequirement valueReq = new ValueRequirement(colSpec.getValueName(), row.getTarget(), colSpec.getValueProperties());
     String calcConfigName = colSpec.getCalcConfigName();
     ValueSpecification valueSpec = _valueMappings.getValueSpecification(calcConfigName, valueReq);
