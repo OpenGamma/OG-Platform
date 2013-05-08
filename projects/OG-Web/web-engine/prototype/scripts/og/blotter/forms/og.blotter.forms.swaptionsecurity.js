@@ -7,7 +7,6 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            console.log(config);
             var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, 
                 receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate, 
                 pay_leg = 'underlying.payLeg.', receive_leg = 'underlying.receiveLeg.', $pay_select, $receive_select;
@@ -149,6 +148,8 @@ $.register_module({
                 delete data.security.underlyingId;
                 delete data.security.uniqueId;
                 delete data.underlying.uniqueId;
+                delete data.underlying.name;
+                delete data.security.name;
                 form.submit();
             };
         };
