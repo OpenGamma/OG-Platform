@@ -62,7 +62,7 @@ public class ISDACompliantPremiumLegCalculatorTest {
     CURVES = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
   }
 
-  @Test
+  @Test(enabled = false)
   public void regressionTest() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double deprecatedResult = DEPRECATED_CALCULATOR.calculatePremiumLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, PriceType.CLEAN);

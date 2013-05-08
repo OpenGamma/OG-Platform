@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -24,16 +23,23 @@ public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
    * The Ibor index underlying the FRA.
    */
   private final IborIndex _iborIndex;
+  /**
+   * The holiday calendar associated with the ibor index.
+   */
+  private final Calendar _calendar;
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
    * @param name The generator name. Not null.
    * @param iborIndex The Ibor index of the floating leg.
+   * @param calendar The holiday calendar for the ibor leg.
    */
-  public GeneratorFRA(String name, IborIndex iborIndex) {
+  public GeneratorFRA(final String name, final IborIndex iborIndex, final Calendar calendar) {
     super(name);
-    Validate.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(calendar, "calendar");
     _iborIndex = iborIndex;
+    _calendar = calendar;
   }
 
   /**
@@ -57,7 +63,7 @@ public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
    * @return The calendar.
    */
   public Calendar getCalendar() {
-    return _iborIndex.getCalendar();
+    return _calendar;
   }
 
   @Override
@@ -67,8 +73,8 @@ public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
   public ForwardRateAgreementDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
-    Period startPeriod = attribute.getEndPeriod().minus(_iborIndex.getTenor());
-    return ForwardRateAgreementDefinition.fromTrade(date, startPeriod, notional, _iborIndex, rate);
+    final Period startPeriod = attribute.getEndPeriod().minus(_iborIndex.getTenor());
+    return ForwardRateAgreementDefinition.fromTrade(date, startPeriod, notional, _iborIndex, rate, _calendar);
   }
 
   @Override
@@ -80,12 +86,13 @@ public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_iborIndex == null) ? 0 : _iborIndex.hashCode());
+    result = prime * result + _iborIndex.hashCode();
+    result = prime * result + _calendar.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -95,8 +102,11 @@ public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorFRA other = (GeneratorFRA) obj;
+    final GeneratorFRA other = (GeneratorFRA) obj;
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

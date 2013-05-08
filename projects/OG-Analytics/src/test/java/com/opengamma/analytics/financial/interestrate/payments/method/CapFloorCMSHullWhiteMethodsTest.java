@@ -62,7 +62,7 @@ public class CapFloorCMSHullWhiteMethodsTest {
   private static final CapFloorCMS[] CAP_CMS = new CapFloorCMS[NB_STRIKE];
   static {
     for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
-      CAP_CMS_DEFINITION[loopstrike] = CapFloorCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y, STRIKE[loopstrike], true);
+      CAP_CMS_DEFINITION[loopstrike] = CapFloorCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y, STRIKE[loopstrike], true, TARGET);
       CAP_CMS[loopstrike] = (CapFloorCMS) CAP_CMS_DEFINITION[loopstrike].toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[0], CURVE_NAMES[2]});
     }
   }

@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
@@ -34,6 +35,7 @@ public class CouponIborAverageDiscountingMethodTest {
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];
   private static final Currency EUR = EURIBOR3M.getCurrency();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final double NOTIONAL = 1000000; //1m
@@ -44,13 +46,13 @@ public class CouponIborAverageDiscountingMethodTest {
   private static final ZonedDateTime ACCRUAL_END_DATE_1 = DateUtils.getUTCDate(2011, 8, 22);
   private static final double ACCRUAL_FACTOR_1 = DAY_COUNT_COUPON.getDayCountFraction(ACCRUAL_START_DATE_1, ACCRUAL_END_DATE_1);
   private static final CouponIborDefinition CPN_IBOR_DEFINITION_1 = CouponIborDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE_1, ACCRUAL_END_DATE_1, ACCRUAL_FACTOR_1, NOTIONAL, FIXING_DATE,
-      EURIBOR3M);
+      EURIBOR3M, CALENDAR);
 
   private static final ZonedDateTime ACCRUAL_START_DATE_2 = DateUtils.getUTCDate(2011, 5, 23);
   private static final ZonedDateTime ACCRUAL_END_DATE_2 = DateUtils.getUTCDate(2011, 11, 22);
   private static final double ACCRUAL_FACTOR_2 = DAY_COUNT_COUPON.getDayCountFraction(ACCRUAL_START_DATE_2, ACCRUAL_END_DATE_2);
   private static final CouponIborDefinition CPN_IBOR_DEFINITION_2 = CouponIborDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE_2, ACCRUAL_END_DATE_2, ACCRUAL_FACTOR_2, NOTIONAL, FIXING_DATE,
-      EURIBOR6M);
+      EURIBOR6M, CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
@@ -61,14 +63,14 @@ public class CouponIborAverageDiscountingMethodTest {
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final double SHIFT = 5.0E-7;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 
   private static final double WEIGHT_1 = 17;
   private static final double WEIGHT_2 = -0.06;
   private static final CouponIborAverageDefinition CPN_IBOR__AVERAGE_DEFINITION = CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE_2, ACCRUAL_END_DATE_2, ACCRUAL_FACTOR_2, NOTIONAL,
-      FIXING_DATE, EURIBOR3M, EURIBOR6M, WEIGHT_1, WEIGHT_2);
+      FIXING_DATE, EURIBOR3M, EURIBOR6M, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   private static final CouponIborAverage CPN_IBOR__AVERAGE = (CouponIborAverage) CPN_IBOR__AVERAGE_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
   private static final CouponIborAverageDiscountingMethod METHOD_CPN_IBOR__AVERAGE = CouponIborAverageDiscountingMethod.getInstance();
 

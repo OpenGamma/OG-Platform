@@ -35,13 +35,13 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
    */
-  public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorSwapFixedON generator, 
+  public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorSwapFixedON generator,
       final boolean isPayer) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(tenorAnnuity, "tenor annuity");
     ArgumentChecker.notNull(generator, "generator");
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, tenorAnnuity, generator.getLegsPeriod(), generator.getBusinessDayConvention(),
-        generator.getCalendar(), generator.isEndOfMonth());
+        generator.getOvernightCalendar(), generator.isEndOfMonth());
     return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, isPayer);
   }
 
@@ -60,7 +60,7 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
     ArgumentChecker.notNull(maturityDate, "maturity date");
     ArgumentChecker.notNull(generator, "generator");
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, generator.getLegsPeriod(), generator.getBusinessDayConvention(),
-        generator.getCalendar(), generator.isEndOfMonth());
+        generator.getOvernightCalendar(), generator.isEndOfMonth());
     return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, isPayer);
   }
 
@@ -69,9 +69,10 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     final CouponOISSimplifiedDefinition[] coupons = new CouponOISSimplifiedDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponOISSimplifiedDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag());
+    coupons[0] = CouponOISSimplifiedDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag(), generator.getOvernightCalendar());
     for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponOISSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag());
+      coupons[loopcpn] = CouponOISSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
+          generator.getOvernightCalendar());
     }
     return new AnnuityCouponOISSimplifiedDefinition(coupons);
   }

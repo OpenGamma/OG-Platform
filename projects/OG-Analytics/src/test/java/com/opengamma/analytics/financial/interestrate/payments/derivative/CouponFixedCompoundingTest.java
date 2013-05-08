@@ -27,13 +27,13 @@ public class CouponFixedCompoundingTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster MASTER_IBOR = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR1M = MASTER_IBOR.getIndex("USDLIBOR1M", NYC);
+  private static final IborIndex USDLIBOR1M = MASTER_IBOR.getIndex("USDLIBOR1M");
 
   private static final Period TENOR_3M = Period.ofMonths(3);
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
   private static final double NOTIONAL = 123454321;
 
-  private static final ZonedDateTime[] ACCRUAL_END_DATES = ScheduleCalculator.getAdjustedDateSchedule(START_DATE, TENOR_3M, true, false, USDLIBOR1M);
+  private static final ZonedDateTime[] ACCRUAL_END_DATES = ScheduleCalculator.getAdjustedDateSchedule(START_DATE, TENOR_3M, true, false, USDLIBOR1M, NYC);
   private static final int NB_SUB_PERIOD = ACCRUAL_END_DATES.length;
   private static final ZonedDateTime[] ACCRUAL_START_DATES = new ZonedDateTime[NB_SUB_PERIOD];
   private static final double[] PAYMENT_ACCRUAL_FACTORS = new double[NB_SUB_PERIOD];
@@ -100,7 +100,7 @@ public class CouponFixedCompoundingTest {
    */
   public void testEqualHash() {
     assertEquals("CouponIbor: equal-hash", CPN, CPN);
-    CouponFixedCompounding other = new CouponFixedCompounding(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL,
+    final CouponFixedCompounding other = new CouponFixedCompounding(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL,
         PAYMENT_ACCRUAL_FACTORS, FIXED_RATE);
     assertEquals("CouponIbor: equal-hash", other, CPN);
     assertEquals("CouponIbor: equal-hash", other.hashCode(), CPN.hashCode());

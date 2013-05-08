@@ -69,22 +69,22 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
   private final boolean _isLinear;
 
   /**
-   * Constructor from all the details. 
+   * Constructor from all the details.
    * @param name The generator name. Not null.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param indexPrice The Price index..
-   * @param priceIndexTimeSeries price index time series. 
+   * @param priceIndexTimeSeries price index time series.
    * @param businessDayConvention The business day convention associated to fix leg.
    * @param calendar  The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month flag.
    * @param monthLag The price index fixing lag in months(usually 3).
-   * @param spotLag Lag between today and the spot date. 
+   * @param spotLag Lag between today and the spot date.
    * @param payNotional  The flag indicating if the inflation year on year coupons are paying the notional (TRUE) or not (FALSE).
    * @param isLinear The flag indicating if price index is interpolated linearly (TRUE) or piecewise constant (FALSE).
    */
-  public GeneratorSwapFixedInflationYearOnYear(String name, Period fixedLegPeriod, DayCount fixedLegDayCount, IndexPrice indexPrice, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
-      final BusinessDayConvention businessDayConvention, Calendar calendar, final boolean endOfMonth, int monthLag, int spotLag, boolean payNotional, boolean isLinear) {
+  public GeneratorSwapFixedInflationYearOnYear(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean payNotional, final boolean isLinear) {
     super(name);
     Validate.notNull(fixedLegPeriod, "fixed leg period");
     Validate.notNull(fixedLegDayCount, "fixed leg day count");
@@ -121,9 +121,9 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
   }
 
   /**
-  * Gets the _indexPrice field.
-  * @return the _indexPrice
-  */
+   * Gets the _indexPrice field.
+   * @return the _indexPrice
+   */
   public IndexPrice getIndexPrice() {
     return _indexPrice;
   }
@@ -144,7 +144,7 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     return _businessDayConvention;
   }
 
-  /** 
+  /**
    * Gets the _calendar field.
    * @return the _calendar
    */
@@ -203,9 +203,8 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), this.getCalendar());
     if (this._isLinear) {
       return SwapFixedInflationYearOnYearDefinition.fromGeneratorInterpolation(startDate, rate, notional, attribute.getEndPeriod(), this, true);
-    } else {
-      return SwapFixedInflationYearOnYearDefinition.fromGeneratorMonthly(startDate, rate, notional, attribute.getEndPeriod(), this, true);
     }
+    return SwapFixedInflationYearOnYearDefinition.fromGeneratorMonthly(startDate, rate, notional, attribute.getEndPeriod(), this, true);
   }
 
   @Override
@@ -232,7 +231,7 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -242,7 +241,7 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapFixedInflationYearOnYear other = (GeneratorSwapFixedInflationYearOnYear) obj;
+    final GeneratorSwapFixedInflationYearOnYear other = (GeneratorSwapFixedInflationYearOnYear) obj;
     if (_businessDayConvention == null) {
       if (other._businessDayConvention != null) {
         return false;

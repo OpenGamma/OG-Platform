@@ -51,7 +51,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     ArgumentChecker.notNull(tenorAnnuity, "tenor annuity");
     ArgumentChecker.notNull(generator, "generator");
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, tenorAnnuity, generator.getLegsPeriod(), generator.isStubShort(), generator.isFromEnd(),
-        generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+        generator.getBusinessDayConvention(), generator.getOvernightCalendar(), generator.isEndOfMonth());
     return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, isPayer);
   }
 
@@ -69,7 +69,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     ArgumentChecker.notNull(tenorAnnuity, "tenor annuity");
     ArgumentChecker.notNull(generator, "generator");
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, tenorAnnuity, generator.getIndexIbor().getTenor(), generator.isStubShort(),
-        generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+        generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getOvernightCalendar(), generator.isEndOfMonth());
     return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, isPayer);
   }
 
@@ -88,7 +88,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     ArgumentChecker.notNull(endFixingPeriodDate, "End fixing period date");
     ArgumentChecker.notNull(generator, "generator");
     final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, generator.getLegsPeriod(), generator.isStubShort(),
-        generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+        generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getOvernightCalendar(), generator.isEndOfMonth());
     return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDates, notional, generator, isPayer);
   }
 
@@ -107,7 +107,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     ArgumentChecker.notNull(endFixingPeriodDate, "End fixing period date");
     ArgumentChecker.notNull(generator, "generator");
     final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, generator.getIndexIbor().getTenor(), generator.isStubShort(),
-        generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+        generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getOvernightCalendar(), generator.isEndOfMonth());
     return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDates, notional, generator, isPayer);
   }
 
@@ -116,9 +116,10 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     final CouponOISDefinition[] coupons = new CouponOISDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponOISDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag());
+    coupons[0] = CouponOISDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag(), generator.getOvernightCalendar());
     for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponOISDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag());
+      coupons[loopcpn] = CouponOISDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
+          generator.getOvernightCalendar());
     }
     return new AnnuityCouponOISDefinition(coupons);
   }
@@ -128,9 +129,10 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     final CouponOISDefinition[] coupons = new CouponOISDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponOISDefinition.from(generator.getIndexON(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag());
+    coupons[0] = CouponOISDefinition.from(generator.getIndexON(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag(), generator.getOvernightCalendar());
     for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponOISDefinition.from(generator.getIndexON(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag());
+      coupons[loopcpn] = CouponOISDefinition.from(generator.getIndexON(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
+          generator.getOvernightCalendar());
     }
     return new AnnuityCouponOISDefinition(coupons);
   }
@@ -140,17 +142,17 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     ArgumentChecker.notNull(valZdt, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final List<Coupon> resultList = new ArrayList<Coupon>();
+    final List<Coupon> resultList = new ArrayList<>();
     final CouponOISDefinition[] payments = getPayments();
-    ZonedDateTime valZdtInPaymentZone = valZdt.withZoneSameInstant(payments[0].getPaymentDate().getZone());
-    LocalDate valDate = valZdtInPaymentZone.toLocalDate();
+    final ZonedDateTime valZdtInPaymentZone = valZdt.withZoneSameInstant(payments[0].getPaymentDate().getZone());
+    final LocalDate valDate = valZdtInPaymentZone.toLocalDate();
 
     for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
       if (!valDate.isAfter(payments[loopcoupon].getPaymentDate().toLocalDate())) {
         resultList.add(payments[loopcoupon].toDerivative(valZdt, indexFixingTS, yieldCurveNames));
       }
     }
-    return new Annuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
+    return new Annuity<>(resultList.toArray(EMPTY_ARRAY_COUPON));
   }
 
 }

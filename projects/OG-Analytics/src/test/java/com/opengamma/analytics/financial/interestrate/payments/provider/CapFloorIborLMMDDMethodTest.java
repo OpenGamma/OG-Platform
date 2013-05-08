@@ -48,7 +48,7 @@ public class CapFloorIborLMMDDMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
@@ -60,14 +60,14 @@ public class CapFloorIborLMMDDMethodTest {
   private static final int SWAP_TENOR_YEAR = 4;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
 
-  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor(NOT_USED, EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
+  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor(NOT_USED, EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M, CALENDAR);
   private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR3MEURIBOR3M, SWAP_TENOR);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EURIBOR3M.getSpotLag(), CALENDAR);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR3M.getSpotLag(), CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double STRIKE = 0.0375;
   private static final boolean FIXED_IS_PAYER = true;
-  private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_INDEX, NOTIONAL, STRIKE, FIXED_IS_PAYER);
+  private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_INDEX, NOTIONAL, STRIKE, FIXED_IS_PAYER, CALENDAR);
   //to derivatives
 
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);

@@ -132,7 +132,7 @@ public class ISDACreditDefaultSwapPVCalculatorTest {
         CALCULATOR.getPresentValue(buy, CURVE_PROVIDER, VALUATION_DATE, PriceType.CLEAN));
   }
 
-  @Test
+  @Test(enabled = false)
   public void regressionTest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double deprecatedResult = DEPRECATED_CALCULATOR.getPresentValueLegacyCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, PriceType.CLEAN);

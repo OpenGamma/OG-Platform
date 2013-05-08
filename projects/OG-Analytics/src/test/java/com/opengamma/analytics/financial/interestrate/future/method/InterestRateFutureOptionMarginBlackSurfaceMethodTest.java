@@ -8,7 +8,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR);
+  private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M");
   // Future
   //  private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   //  private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), CALENDAR);
@@ -20,7 +20,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
   //  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   //  private static final String[] CURVE_NAMES = TestsDataSetsBlack.curvesEURNames();
   //  private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
-  //  // Option 
+  //  // Option
   //  private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   //  private static final boolean IS_CALL = true;
   //

@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,7 +27,6 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -65,11 +63,11 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final int M = 5;
 
   static {
-    final IborIndex index = new IborIndex(CCY, Period.ofMonths(1), 0, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    final IborIndex index = new IborIndex(CCY, Period.ofMonths(1), 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-    CASH = new ArrayList<InstrumentDerivative>();
-    FRA = new ArrayList<InstrumentDerivative>();
-    MIXED_INSTRUMENT = new ArrayList<InstrumentDerivative>();
+    CASH = new ArrayList<>();
+    FRA = new ArrayList<>();
+    MIXED_INSTRUMENT = new ArrayList<>();
     FORWARD_NODES = new double[N];
     FUNDING_NODES = new double[M];
     final double[] dataN = new double[N];
@@ -94,18 +92,18 @@ public class MultipleYieldCurveFinderJacobianTest {
     }
     EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-    CASH_NODES = new LinkedHashMap<String, double[]>();
+    CASH_NODES = new LinkedHashMap<>();
     CASH_NODES.put(FUNDING_CURVE_NAME, FUNDING_NODES);
-    FRA_NODES = new LinkedHashMap<String, double[]>();
+    FRA_NODES = new LinkedHashMap<>();
     FRA_NODES.put(FORWARD_CURVE_NAME, FORWARD_NODES);
-    MIXED_NODES = new LinkedHashMap<String, double[]>();
+    MIXED_NODES = new LinkedHashMap<>();
     MIXED_NODES.put(FORWARD_CURVE_NAME, FORWARD_NODES);
     MIXED_NODES.put(FUNDING_CURVE_NAME, FUNDING_NODES);
-    CASH_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
+    CASH_INTERPOLATORS = new LinkedHashMap<>();
     CASH_INTERPOLATORS.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
-    FRA_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
+    FRA_INTERPOLATORS = new LinkedHashMap<>();
     FRA_INTERPOLATORS.put(FORWARD_CURVE_NAME, EXTRAPOLATOR);
-    MIXED_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
+    MIXED_INTERPOLATORS = new LinkedHashMap<>();
     MIXED_INTERPOLATORS.put(FORWARD_CURVE_NAME, EXTRAPOLATOR);
     MIXED_INTERPOLATORS.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
 

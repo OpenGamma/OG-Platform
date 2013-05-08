@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -18,7 +19,6 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.SABRTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
@@ -48,7 +48,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -65,7 +64,7 @@ public class CapletStrippingTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static Function1D<Double, Double> ALPHA = new Function1D<Double, Double>() {
 
@@ -214,7 +213,7 @@ public class CapletStrippingTest {
       for (final double element2 : STRIKES) {
         final CapFloor cap = SimpleCapFloorMaker.makeCap(CUR, INDEX, 0, 4*element, "funding", "3m Libor", element2, true);
         //final CapFloor cap = new CapFloor(CUR, INDEX, element, SimpleFrequency.QUARTERLY, "funding", "3m Libor", element2,true);
-            //makeCap(element, SimpleFrequency.QUARTERLY, "funding", "3m Libor", element2);
+        //makeCap(element, SimpleFrequency.QUARTERLY, "funding", "3m Libor", element2);
         CAPS.add(cap);
         final CapFloorPricer pricer = new CapFloorPricer(cap, YIELD_CURVES);
         MARKET_PRICES[count] = pricer.price(VOL_MODEL);
@@ -316,26 +315,26 @@ public class CapletStrippingTest {
       System.out.println("CapletStripingTest");
     }
 
-      final VolatilityModel1D volModel = VOL_MODEL_PROVIDER.evaluate(lsRes.getFitParameters());
-      final Iterator<CapFloor> iter = CAPS.iterator();
+    final VolatilityModel1D volModel = VOL_MODEL_PROVIDER.evaluate(lsRes.getFitParameters());
+    final Iterator<CapFloor> iter = CAPS.iterator();
 
-      CapFloor cap;
-      final int n = CAPS.size();
-      double[] fittedCapVols = new double[n];
-      int i = 0;
-      while (iter.hasNext()) {
-        cap = iter.next();
-        final CapFloorPricer pricer = new CapFloorPricer(cap, YIELD_CURVES);
-        final double fittedVol  = pricer.impliedVol(volModel);
-        assertEquals("Cap: strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime(),
-            MARKET_VOLS[i], fittedVol, 1e-5);
-        if (print) {
+    CapFloor cap;
+    final int n = CAPS.size();
+    final double[] fittedCapVols = new double[n];
+    int i = 0;
+    while (iter.hasNext()) {
+      cap = iter.next();
+      final CapFloorPricer pricer = new CapFloorPricer(cap, YIELD_CURVES);
+      final double fittedVol  = pricer.impliedVol(volModel);
+      assertEquals("Cap: strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime(),
+          MARKET_VOLS[i], fittedVol, 1e-5);
+      if (print) {
         System.out.println("strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime() +
             ", Market vol = " + MARKET_VOLS[i] + ", fitted vol = " +fittedVol);
-        }
-        // fittedCapVols[i++] = ;
-        i++;
       }
+      // fittedCapVols[i++] = ;
+      i++;
+    }
 
   }
 

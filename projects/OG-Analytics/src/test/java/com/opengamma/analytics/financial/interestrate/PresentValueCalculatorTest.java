@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +29,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -51,11 +48,10 @@ public class PresentValueCalculatorTest {
 
   private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
-  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
     YieldAndDiscountCurve curve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
@@ -92,7 +88,7 @@ public class PresentValueCalculatorTest {
     final String forwardCurveName = FIVE_PC_CURVE_NAME;
     double paymentYearFraction = fixingPeriodEnd - paymentTime;
     final double notional = 1;
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
     double fixingTime = paymentTime;
     final double fixingPeriodStart = paymentTime;
@@ -195,7 +191,7 @@ public class PresentValueCalculatorTest {
     final double resetTime = 2.9;
     final double notional = 56;
 
-    final List<Payment> list = new ArrayList<Payment>();
+    final List<Payment> list = new ArrayList<>();
     double expected = 0.0;
     Payment temp = new PaymentFixed(CUR, time, amount, FIVE_PC_CURVE_NAME);
     expected += amount * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
@@ -207,7 +203,7 @@ public class PresentValueCalculatorTest {
     expected += notional * (CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(resetTime) / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time) - 1);
     list.add(temp);
 
-    final Annuity<Payment> annuity = new Annuity<Payment>(list, Payment.class, true);
+    final Annuity<Payment> annuity = new Annuity<>(list, Payment.class, true);
     final double pv = annuity.accept(PVC, CURVES);
     assertEquals(expected, pv, 1e-12);
   }

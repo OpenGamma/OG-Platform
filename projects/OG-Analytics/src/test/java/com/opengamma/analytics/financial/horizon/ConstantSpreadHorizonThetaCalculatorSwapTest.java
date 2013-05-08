@@ -53,7 +53,7 @@ public class ConstantSpreadHorizonThetaCalculatorSwapTest {
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, RATE_FIXED, true);
 
   // Swap Ibor-ibor
-  private static final IborIndex USDLIBOR3M = INDEX_IBOR_MASTER.getIndex("USDLIBOR3M", CALENDAR_USD);
+  private static final IborIndex USDLIBOR3M = INDEX_IBOR_MASTER.getIndex("USDLIBOR3M");
   private static final Currency USD = USDLIBOR3M.getCurrency();
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2(USD);
   private static final String[] CURVE_NAMES = TestsDataSetsSABR.curves2Names();
@@ -63,7 +63,7 @@ public class ConstantSpreadHorizonThetaCalculatorSwapTest {
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_3 = ImmutableZonedDateTimeDoubleTimeSeries.of(
       new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10), DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15),
           DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) },
-      new double[] { 0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 }, ZoneOffset.UTC);
+          new double[] { 0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 }, ZoneOffset.UTC);
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_6 = ImmutableZonedDateTimeDoubleTimeSeries.of(
       new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) },
       new double[] {0.0095, 0.0120, 0.0130 }, ZoneOffset.UTC);
@@ -71,7 +71,7 @@ public class ConstantSpreadHorizonThetaCalculatorSwapTest {
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
 
-  // Tests 
+  // Tests
 
   @Test
   public void thetaFixedIborOverFirstPayment() {

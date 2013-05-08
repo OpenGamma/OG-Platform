@@ -24,7 +24,6 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -72,13 +71,13 @@ public class CapFloorCMSSpreadSecurityConverter extends FinancialSecurityVisitor
     final IborIndex[] iborIndex = new IborIndex[2];
     final IndexSwap[] swapIndex = new IndexSwap[2];
     for (int loopindex = 0; loopindex < 2; loopindex++) {
-      iborIndex[loopindex] = new IborIndex(currency, tenorPayment, iborIndexConvention[loopindex].getSettlementDays(), calendar, iborIndexConvention[loopindex].getDayCount(),
+      iborIndex[loopindex] = new IborIndex(currency, tenorPayment, iborIndexConvention[loopindex].getSettlementDays(), iborIndexConvention[loopindex].getDayCount(),
           iborIndexConvention[loopindex].getBusinessDayConvention(), iborIndexConvention[loopindex].isEOMConvention());
       final Period fixedLegPaymentPeriod = getTenor(swapIndexConvention[loopindex].getSwapFixedLegFrequency());
-      swapIndex[loopindex] = new IndexSwap(fixedLegPaymentPeriod, swapIndexConvention[loopindex].getSwapFixedLegDayCount(), iborIndex[loopindex], swapIndexConvention[loopindex].getPeriod());
+      swapIndex[loopindex] = new IndexSwap(fixedLegPaymentPeriod, swapIndexConvention[loopindex].getSwapFixedLegDayCount(), iborIndex[loopindex], swapIndexConvention[loopindex].getPeriod(), calendar);
     }
     return AnnuityCapFloorCMSSpreadDefinition.from(startDate, endDate, notional, swapIndex[0], swapIndex[1], tenorPayment, capFloorCMSSpreadSecurity.getDayCount(),
-        capFloorCMSSpreadSecurity.isPayer(), capFloorCMSSpreadSecurity.getStrike(), capFloorCMSSpreadSecurity.isCap());
+        capFloorCMSSpreadSecurity.isPayer(), capFloorCMSSpreadSecurity.getStrike(), capFloorCMSSpreadSecurity.isCap(), calendar, calendar);
   }
 
   // FIXME: convert frequency to period in a better way

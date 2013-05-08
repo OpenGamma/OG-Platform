@@ -18,10 +18,11 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 
 /**
- * Class describing an Ibor for overnight swap. Both legs are in the same currency. 
+ * Class describing an Ibor for overnight swap. Both legs are in the same currency.
  * The payment dates on the ibor leg a slightly different from the FixedIbor swap due to the lag in payment at the end of each coupon.
  */
 public class SwapIborONDefinition extends SwapDefinition {
@@ -44,14 +45,15 @@ public class SwapIborONDefinition extends SwapDefinition {
    * @param notional The swap notional.
    * @param spread The spread on the Ibor leg.
    * @param isPayer The flag indicating if first leg (Ibor) is payer (true) or receiver (false).
+   * @param iborCalendar The holiday calendar for the ibor leg.
    * @return The swap.
    */
   public static SwapIborONDefinition from(final ZonedDateTime settlementDate, final Period tenorSwap, final GeneratorSwapIborON generator, final double notional, final double spread,
-      final boolean isPayer) {
-    AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, tenorSwap, notional, generator, !isPayer);
+      final boolean isPayer, final Calendar iborCalendar) {
+    final AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, tenorSwap, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
-    double notionalSigned = sign * notional;
-    return from(oisLeg, notionalSigned, generator.getIndexIbor(), spread);
+    final double notionalSigned = sign * notional;
+    return from(oisLeg, notionalSigned, generator.getIndexIbor(), spread, iborCalendar);
   }
 
   /**
@@ -62,14 +64,15 @@ public class SwapIborONDefinition extends SwapDefinition {
    * @param generator The Ibor/ON generator.
    * @param spread The spread on the Ibor leg.
    * @param isPayer The flag indicating if first leg (Ibor) is payer (true) or receiver (false).
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The swap.
    */
   public static SwapIborONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorSwapIborON generator, final double spread,
-      final boolean isPayer) {
-    AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, !isPayer);
+      final boolean isPayer, final Calendar calendar) {
+    final AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
-    double notionalSigned = sign * notional;
-    return from(oisLeg, notionalSigned, generator.getIndexIbor(), spread);
+    final double notionalSigned = sign * notional;
+    return from(oisLeg, notionalSigned, generator.getIndexIbor(), spread, calendar);
   }
 
   /**
@@ -85,18 +88,19 @@ public class SwapIborONDefinition extends SwapDefinition {
    */
   public static SwapIborONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notionalFixed, final double notionalOIS,
       final GeneratorSwapIborON generator, final double spread, final boolean isPayer) {
-    AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
+    final AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
-    double notionalSigned = sign * notionalFixed;
-    return from(oisLeg, notionalSigned, generator.getIndexIbor(), spread);
+    final double notionalSigned = sign * notionalFixed;
+    return from(oisLeg, notionalSigned, generator.getIndexIbor(), spread, generator.getIborCalendar());
   }
 
-  private static SwapIborONDefinition from(final AnnuityCouponOISDefinition oisLeg, final double notionalSigned, final IborIndex indexIbor, final double spread) {
-    CouponIborSpreadDefinition[] cpnIbor = new CouponIborSpreadDefinition[oisLeg.getNumberOfPayments()];
+  private static SwapIborONDefinition from(final AnnuityCouponOISDefinition oisLeg, final double notionalSigned, final IborIndex indexIbor, final double spread,
+      final Calendar calendar) {
+    final CouponIborSpreadDefinition[] cpnIbor = new CouponIborSpreadDefinition[oisLeg.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
-      ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), indexIbor.getSpotLag(), indexIbor.getCalendar());
+      final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), indexIbor.getSpotLag(), calendar);
       cpnIbor[loopcpn] = new CouponIborSpreadDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg
-          .getNthPayment(loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), notionalSigned, fixingDate, indexIbor, spread);
+          .getNthPayment(loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), notionalSigned, fixingDate, indexIbor, spread, calendar);
     }
     return new SwapIborONDefinition(new AnnuityCouponIborSpreadDefinition(cpnIbor), oisLeg);
   }
@@ -123,7 +127,7 @@ public class SwapIborONDefinition extends SwapDefinition {
     // Curves should be: discounting, ibor, ois
     final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, yieldCurveNames);
     final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date, new String[] {yieldCurveNames[0], yieldCurveNames[2] });
-    return new Swap<Coupon, Coupon>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
+    return new Swap<>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
   }
 
   @SuppressWarnings("unchecked")
@@ -134,7 +138,7 @@ public class SwapIborONDefinition extends SwapDefinition {
     Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
     final Annuity<? extends Coupon> oisLeg = this.getOISLeg().toDerivative(date, indexDataTS[1], new String[] {yieldCurveNames[0], yieldCurveNames[2] });
-    return new Swap<Coupon, Coupon>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
+    return new Swap<>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
   }
 
 }

@@ -24,11 +24,11 @@ public class GeneratorInterestRateFuturesTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M", NYC);
+  private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M");
   private static final ZonedDateTime FIXING_PERIOD_START_DATE = DateUtils.getUTCDate(2012, 12, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(FIXING_PERIOD_START_DATE, -USDLIBOR3M.getSpotLag(), NYC);
   private static final double NOTIONAL = 1000000;
-  private static final InterestRateFutureSecurityDefinition FUTURES_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, USDLIBOR3M, NOTIONAL, 0.25, "IRF");
+  private static final InterestRateFutureSecurityDefinition FUTURES_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, USDLIBOR3M, NOTIONAL, 0.25, "IRF", NYC);
   private static final GeneratorInterestRateFutures GENERATOR_FUTURES_ED = new GeneratorInterestRateFutures("USD-ED", FUTURES_DEFINITION);
 
   @Test
@@ -43,12 +43,12 @@ public class GeneratorInterestRateFuturesTest {
   @Test
   public void generateInstrument() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    double price = 0.99;
-    double notional = 2000000;
-    int quantity = (int) Math.ceil(notional / NOTIONAL);
-    GeneratorAttribute attribute = new GeneratorAttribute();
-    InterestRateFutureTransactionDefinition insGenerated = GENERATOR_FUTURES_ED.generateInstrument(referenceDate, price, notional, attribute);
-    InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(FUTURES_DEFINITION, referenceDate, price, quantity);
+    final double price = 0.99;
+    final double notional = 2000000;
+    final int quantity = (int) Math.ceil(notional / NOTIONAL);
+    final GeneratorAttribute attribute = new GeneratorAttribute();
+    final InterestRateFutureTransactionDefinition insGenerated = GENERATOR_FUTURES_ED.generateInstrument(referenceDate, price, notional, attribute);
+    final InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(FUTURES_DEFINITION, referenceDate, price, quantity);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

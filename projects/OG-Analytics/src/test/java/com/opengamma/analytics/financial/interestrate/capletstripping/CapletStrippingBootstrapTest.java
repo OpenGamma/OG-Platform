@@ -7,42 +7,18 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
-import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.function.Function1DTest;
-import com.opengamma.analytics.math.interpolation.BasisFunctionAggregation;
-import com.opengamma.analytics.math.interpolation.BasisFunctionGenerator;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.interpolation.PSplineFitter;
-import com.opengamma.analytics.math.interpolation.TransformedInterpolator1D;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
-import com.opengamma.analytics.math.minimization.NullTransform;
-import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
-import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
-import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.analytics.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
-import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 
 /**
  * 

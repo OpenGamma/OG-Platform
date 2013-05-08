@@ -56,7 +56,7 @@ public class ISDACreditDefaultSwapValueOnDefaultCalculatorTest {
     YIELD_CURVE = new ISDADateCurve("ISDA", BASE_DATE, YC_DATES, YC_RATES, OFFSET);
   }
 
-  @Test
+  @Test(enabled = false)
   public void regressionTest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double deprecatedResult = DEPRECATED_CALCULATOR.getValueOnDefaultCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, PriceType.CLEAN);

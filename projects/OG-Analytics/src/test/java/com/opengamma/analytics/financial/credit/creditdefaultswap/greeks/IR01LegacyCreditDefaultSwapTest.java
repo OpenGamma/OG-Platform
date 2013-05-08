@@ -369,17 +369,17 @@ public class IR01LegacyCreditDefaultSwapTest {
   static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
 
   static double[] hazardRateTimes = {
-    0.0,
-    s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-    s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-    s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
+      0.0,
+      s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
   };
 
   static double[] hazardRates = {
-    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
@@ -461,7 +461,7 @@ public class IR01LegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  @Test
+  @Test(enabled = false)
   public void testIR01CalculationParallelShift() {
 
     // -------------------------------------------------------------------------------------

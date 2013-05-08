@@ -64,13 +64,13 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
    * @param tenor The swap tenor in years.
    * @param fixedRate The swap fixed rate (annual compounding). The fixed payment is (1+fixedRate)^tenor-1.
    * @param notional The swap notional.
-   * @param isPayer The flag 
+   * @param isPayer The flag
    * @param businessDayConvention The business day convention used to compute the payment date.
    * @param calendar The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month convention used to compute the payment date.
-   * @param fixedLegDayCount The day counter of the fixed leg. 
+   * @param fixedLegDayCount The day counter of the fixed leg.
    * @param monthLag The price index fixing lag in months.
-   * @param payNotional flag if the notional is paid or not (flase is the standard case).
+   * @param payNotional flag if the notional is paid or not (false is the standard case).
    * @return The year on year inflation swap.
    */
   public static SwapFixedInflationYearOnYearDefinition fromMonthly(final IndexPrice priceIndex, final ZonedDateTime settlementDate, final Period paymentPeriod, final int tenor,
@@ -94,10 +94,10 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
    * @param notional The swap notional.
    * @param tenor the tenor of the instrument
    * @param generator the generator of swap
-   * @param isPayer The flag 
+   * @param isPayer The flag
    * @return The year on year inflation swap.
    */
-  public static SwapFixedInflationYearOnYearDefinition fromGeneratorMonthly(final ZonedDateTime settlementDate, double fixedRate, double notional, final Period tenor,
+  public static SwapFixedInflationYearOnYearDefinition fromGeneratorMonthly(final ZonedDateTime settlementDate, final double fixedRate, final double notional, final Period tenor,
       final GeneratorSwapFixedInflationYearOnYear generator, final boolean isPayer) {
     Validate.notNull(settlementDate, "Settlement date");
     Validate.notNull(generator, "generator");
@@ -111,19 +111,19 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
 
   /**
    * Builder from financial details and the time series of exiting price index values.
-  * @param priceIndex The price index.
+   * @param priceIndex The price index.
    * @param settlementDate The swap settlement date.
    * @param paymentPeriod the period between each payment.
    * @param tenor The swap tenor in years.
    * @param fixedRate The swap fixed rate (annual compounding). The fixed payment is (1+fixedRate)^tenor-1.
    * @param notional The swap notional.
-   * @param isPayer The flag 
+   * @param isPayer The flag
    * @param businessDayConvention The business day convention used to compute the payment date.
    * @param calendar The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month convention used to compute the payment date.
-   * @param fixedLegDayCount The day counter of the fixed leg. 
+   * @param fixedLegDayCount The day counter of the fixed leg.
    * @param monthLag The price index fixing lag in months.
-   * @param payNotional flag if the notional is paid or not (flase is the standard case).
+   * @param payNotional flag if the notional is paid or not (false is the standard case).
    * @return The year on year inflation swap.
    */
   public static SwapFixedInflationYearOnYearDefinition fromInterpolation(final IndexPrice priceIndex, final ZonedDateTime settlementDate, final Period paymentPeriod, final Period tenor,
@@ -150,7 +150,7 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
    * @param isPayer The flag
    * @return The year on year inflation swap.
    */
-  public static SwapFixedInflationYearOnYearDefinition fromGeneratorInterpolation(final ZonedDateTime settlementDate, double fixedRate, double notional, final Period tenor,
+  public static SwapFixedInflationYearOnYearDefinition fromGeneratorInterpolation(final ZonedDateTime settlementDate, final double fixedRate, final double notional, final Period tenor,
       final GeneratorSwapFixedInflationYearOnYear generator, final boolean isPayer) {
     Validate.notNull(settlementDate, "Settlement date");
     Validate.notNull(generator, "generator");

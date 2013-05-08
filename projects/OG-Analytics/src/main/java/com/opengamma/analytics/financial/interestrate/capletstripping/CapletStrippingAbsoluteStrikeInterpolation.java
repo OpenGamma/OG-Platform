@@ -120,11 +120,75 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
   @Override
   public CapletStrippingSingleStrikeResult solveForPrices(final double[] capPrices) {
     checkPrices(capPrices);
+
+    final MultiCapFloorPricer pricer = getPricer();
+    final double[] capVols = pricer.impliedVols(capPrices);
+    DoubleMatrix1D fitValues = solveForPrice(capPrices, new DoubleMatrix1D(capVols));
+    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.evaluate(fitValues), new DoubleMatrix1D(capPrices));
+  }
+
+  @Override
+  public CapletStrippingSingleStrikeResult solveForPrices(double[] capPrices, double[] errors, boolean scaleByVega) {
+    return solveForPrices(capPrices);
+  }
+
+  @Override
+  public CapletStrippingSingleStrikeResult solveForVol(double[] capVols) {
+    checkVols(capVols);
+    final MultiCapFloorPricer pricer = getPricer();
+    double[] capPrices = pricer.price(capVols);
+    DoubleMatrix1D fitValues = solveForPrice(capPrices, new DoubleMatrix1D(capVols));
+
+    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.evaluate(fitValues), new DoubleMatrix1D(capVols));
+  }
+
+  @Override
+  public CapletStrippingSingleStrikeResult solveForVol(double[] capVols, double[] errors, boolean solveViaPrice) {
+    if (solveViaPrice) {
+      return solveForVol(capVols);
+    }
+    DoubleMatrix1D fitValues = solveForVolDirect(capVols);
+    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.evaluate(fitValues), new DoubleMatrix1D(capVols));
+  }
+
+  /**
+   * Stripe from market cap implied volatilities. <b>Note:</b> this will be considerably slower than using the cap prices
+   * @param capVols The cap implied volatilities (in the same order that the caps we given) 
+   * @return vector of ordinates of the knots of the interpolated vol curve. Call getVolCurve with this result 
+   * @see solveForPrice, solveForVol
+   */
+  protected DoubleMatrix1D solveForVolDirect(final double[] capVols) {
+    // TODO keep a version of this for testing, but the main solveForVol should get prices then call solveForPrice (since this roots finds, the answer should
+    // not change)
+    ArgumentChecker.notEmpty(capVols, "null vols");
+    final int nCaps = getnCaps();
+    ArgumentChecker.isTrue(capVols.length == nCaps, "wrong number of cap vols");
+    final MultiCapFloorPricer pricer = getPricer();
+
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> volDiffFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+
+      @Override
+      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+        VolatilityTermStructure vol = _volModel.evaluate(x);
+        double[] modelVols = pricer.impliedVols(vol);
+        double[] res = new double[nCaps];
+        for (int i = 0; i < nCaps; i++) {
+          res[i] = (modelVols[i] - capVols[i]);
+        }
+        return new DoubleMatrix1D(res);
+      }
+    };
+
+    DoubleMatrix1D root = ROOTFINDER.getRoot(volDiffFunc, new DoubleMatrix1D(capVols));
+    return root;
+  }
+
+  private DoubleMatrix1D solveForPrice(final double[] capPrices, final DoubleMatrix1D start) {
+
     final double minPrice = 1e-13;
 
     final MultiCapFloorPricer pricer = getPricer();
 
-    final double[] capVols = pricer.impliedVols(capPrices);
     final double[] capletExp = pricer.getCapletExpiries();
     final int nCaps = getnCaps();
     final int nCaplets = getnCaplets();
@@ -172,67 +236,12 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
       }
     };
 
-    DoubleMatrix1D fitValues = ROOTFINDER.getRoot(weightedPriceFunc, priceJac, new DoubleMatrix1D(capVols));
-    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.evaluate(fitValues), new DoubleMatrix1D(capPrices));
-  }
-
-  @Override
-  public CapletStrippingSingleStrikeResult solveForPrices(double[] capPrices, double[] errors, boolean scaleByVega) {
-    return solveForPrices(capPrices);
-  }
-
-  @Override
-  public CapletStrippingSingleStrikeResult solveForVol(double[] capVols) {
-    return solveForPrices(getPricer().price(capVols));
-  }
-
-  @Override
-  public CapletStrippingSingleStrikeResult solveForVol(double[] capVols, double[] errors, boolean solveViaPrice) {
-    if (solveViaPrice) {
-      solveForVol(capVols);
-    }
-    DoubleMatrix1D fit = solveForVolDebug(capVols);
-    VolatilityCurve volCurve = new VolatilityCurve(InterpolatedDoublesCurve.from(_knots, fit.getData(), _interpolator));
-    return new CapletStrippingSingleStrikeResult(0.0, fit, volCurve, new DoubleMatrix1D(capVols));
-  }
-
-  /**
-   * Stripe from market cap implied volatilities. <b>Note:</b> this will be considerably slower than using the cap prices
-   * @param capVols The cap implied volatilities (in the same order that the caps we given) 
-   * @return vector of ordinates of the knots of the interpolated vol curve. Call getVolCurve with this result 
-   * @see solveForPrice, solveForVol
-   * @deprecated testing method only - use solveForVol
-   */
-  @Deprecated
-  protected DoubleMatrix1D solveForVolDebug(final double[] capVols) {
-    // TODO keep a version of this for testing, but the main solveForVol should get prices then call solveForPrice (since this roots finds, the answer should
-    // not change)
-    ArgumentChecker.notEmpty(capVols, "null vols");
-    final int nCaps = getnCaps();
-    ArgumentChecker.isTrue(capVols.length == nCaps, "wrong number of cap vols");
-    final MultiCapFloorPricer pricer = getPricer();
-
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> volDiffFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-
-      @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        VolatilityTermStructure vol = _volModel.evaluate(x);
-        double[] modelVols = pricer.impliedVols(vol);
-        double[] res = new double[nCaps];
-        for (int i = 0; i < nCaps; i++) {
-          res[i] = (modelVols[i] - capVols[i]);
-        }
-        return new DoubleMatrix1D(res);
-      }
-    };
-
-    DoubleMatrix1D root = ROOTFINDER.getRoot(volDiffFunc, new DoubleMatrix1D(capVols));
-    return root;
+    return ROOTFINDER.getRoot(weightedPriceFunc, priceJac, start);
   }
 
   private double[] getKnots() {
 
-    final double[] s = getCapStarTimes();
+    final double[] s = getCapStartTimes();
     final double[] e = getCapEndTimes();
     final int n = s.length;
     double[] temp = new double[2 * n];

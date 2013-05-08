@@ -50,7 +50,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
@@ -107,7 +107,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final PresentValueCurveSensitivitySABRSwaptionRightExtrapolationCalculator PVCSSSXC = new PresentValueCurveSensitivitySABRSwaptionRightExtrapolationCalculator(CUT_OFF_STRIKE, MU);
 
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SSX_C = new ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface>(PVCSSSXC);
+  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SSX_C = new ParameterSensitivityParameterCalculator<>(PVCSSSXC);
   private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SSX_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSXC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;

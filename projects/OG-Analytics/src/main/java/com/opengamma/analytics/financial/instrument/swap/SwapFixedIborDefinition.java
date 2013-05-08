@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -62,14 +63,17 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    * @param notional The swap notional
    * @param fixedRate The swap fixed rate.
    * @param isPayer The payer flag of the fixed leg.
+   * @param calendar The holiday calendar for the ibor index.
    * @return The vanilla swap.
    */
-  public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final IndexSwap cmsIndex, final double notional, final double fixedRate, final boolean isPayer) {
+  public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final IndexSwap cmsIndex, final double notional, final double fixedRate, final boolean isPayer,
+      final Calendar calendar) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(cmsIndex, "CMS index");
-    final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(cmsIndex.getCurrency(), settlementDate, cmsIndex.getTenor(), cmsIndex.getFixedLegPeriod(), cmsIndex.getIborIndex()
-        .getCalendar(), cmsIndex.getFixedLegDayCount(), cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
-    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, cmsIndex.getTenor(), notional, cmsIndex.getIborIndex(), !isPayer);
+    ArgumentChecker.notNull(calendar, "calendar");
+    final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(cmsIndex.getCurrency(), settlementDate, cmsIndex.getTenor(), cmsIndex.getFixedLegPeriod(), calendar,
+        cmsIndex.getFixedLegDayCount(), cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, cmsIndex.getTenor(), notional, cmsIndex.getIborIndex(), !isPayer, calendar);
     return new SwapFixedIborDefinition(fixedLeg, iborLeg);
   }
 
@@ -90,7 +94,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(generator, "Swap generator");
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(generator.getCurrency(), settlementDate, tenor, generator.getFixedLegPeriod(), generator.getCalendar(),
         generator.getFixedLegDayCount(), generator.getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
-    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, tenor, notional, generator.getIborIndex(), !isPayer);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, tenor, notional, generator.getIborIndex(), !isPayer, generator.getCalendar());
     return new SwapFixedIborDefinition(fixedLeg, iborLeg);
   }
 
@@ -111,7 +115,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(generator, "Swap generator");
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(generator.getCurrency(), settlementDate, maturityDate, generator.getFixedLegPeriod(), generator.getCalendar(),
         generator.getFixedLegDayCount(), generator.getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
-    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, notional, generator.getIborIndex(), !isPayer);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, notional, generator.getIborIndex(), !isPayer, generator.getCalendar());
     return new SwapFixedIborDefinition(fixedLeg, iborLeg);
   }
 
@@ -124,16 +128,17 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    * @param notionalIbor The ibor leg notional.
    * @param fixedRate The swap fixed rate.
    * @param isPayer The payer flag of the fixed leg.
+   * @param calendar The holiday calendar for the ibor index.
    * @return The vanilla swap.
    */
   public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final GeneratorSwapFixedIbor generator, final double notionalFixed,
-      final double notionalIbor, final double fixedRate, final boolean isPayer) {
+      final double notionalIbor, final double fixedRate, final boolean isPayer, final Calendar calendar) {
     ArgumentChecker.notNull(settlementDate, "Settlement date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
     ArgumentChecker.notNull(generator, "Swap generator");
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(generator.getCurrency(), settlementDate, maturityDate, generator.getFixedLegPeriod(), generator.getCalendar(),
         generator.getFixedLegDayCount(), generator.getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(), notionalFixed, fixedRate, isPayer);
-    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, notionalIbor, generator.getIborIndex(), !isPayer);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, notionalIbor, generator.getIborIndex(), !isPayer, calendar);
     return new SwapFixedIborDefinition(fixedLeg, iborLeg);
   }
 
@@ -154,17 +159,18 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    * @param iborLegNotional The Ibor leg notional.
    * @param iborIndex The Ibor index.
    * @param isPayer The payer flag for the fixed leg.
+   * @param calendar The calendar.
    * @return The swap.
    */
   public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period fixedLegPeriod, final DayCount fixedLegDayCount,
       final BusinessDayConvention fixedLegBusinessDayConvention, final boolean fixedLegEOM, final double fixedLegNotional, final double fixedLegRate, final Period iborLegPeriod,
       final DayCount iborLegDayCount, final BusinessDayConvention iborLegBusinessDayConvention, final boolean iborLegEOM, final double iborLegNotional,
-      final IborIndex iborIndex, final boolean isPayer) {
+      final IborIndex iborIndex, final boolean isPayer, final Calendar calendar) {
     ArgumentChecker.notNull(iborIndex, "Ibor index");
-    final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(iborIndex.getCurrency(), settlementDate, maturityDate, fixedLegPeriod, iborIndex.getCalendar(), fixedLegDayCount,
+    final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(iborIndex.getCurrency(), settlementDate, maturityDate, fixedLegPeriod, calendar, fixedLegDayCount,
         fixedLegBusinessDayConvention, fixedLegEOM, fixedLegNotional, fixedLegRate, isPayer);
     final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, iborLegPeriod, iborLegNotional, iborIndex, !isPayer, iborLegBusinessDayConvention,
-        iborLegEOM, iborLegDayCount);
+        iborLegEOM, iborLegDayCount, calendar);
     return new SwapFixedIborDefinition(fixedLeg, iborLeg);
   }
 
@@ -207,9 +213,8 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
-    //    getIborLeg().toDerivative(date, yieldCurveNames);
     final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, yieldCurveNames);
-    return new SwapFixedCoupon<Coupon>(fixedLeg, (Annuity<Coupon>) iborLeg);
+    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
   }
 
   @SuppressWarnings("unchecked")
@@ -218,7 +223,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
     final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
     final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
-    return new SwapFixedCoupon<Coupon>(fixedLeg, (Annuity<Coupon>) iborLeg);
+    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
   }
 
   @Override

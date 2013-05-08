@@ -69,7 +69,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
@@ -113,7 +113,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PS_HW_C = new ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(PVCSHWC);
+  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PS_HW_C = new ParameterSensitivityParameterCalculator<>(PVCSHWC);
   private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PS_HW_FDC = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT);
 
   private static final SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod METHOD_HW_INTEGRATION = SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod.getInstance();
@@ -361,7 +361,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     }
     // 1Mx5Y
     final Period expirationPeriod = Period.ofDays(1); // Period.ofDays(1); Period.ofDays(7); Period.ofMonths(1); Period.ofYears(1); Period.ofYears(10);
-    final ZonedDateTime expiryDateExp = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expirationPeriod, EURIBOR6M);
+    final ZonedDateTime expiryDateExp = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expirationPeriod, EURIBOR6M, CALENDAR);
     final ZonedDateTime settlementDateExp = ScheduleCalculator.getAdjustedDate(expiryDateExp, SPOT_LAG, CALENDAR);
     final double ATM = 0.0151; //  1W: 1.52% - 1M: 1.52% - 1Y: 1.51% - 10Y: 1.51%
     final SwapFixedIborDefinition swapExpx5YDefinition = SwapFixedIborDefinition.from(settlementDateExp, SWAP_TENOR, EUR1YEURIBOR6M, NOTIONAL, ATM, !FIXED_IS_PAYER);
