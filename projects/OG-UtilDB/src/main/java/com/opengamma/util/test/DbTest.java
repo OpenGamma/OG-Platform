@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -20,6 +22,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -134,60 +137,17 @@ public abstract class DbTest implements TableCreationCallback {
   }
 
   //-------------------------------------------------------------------------
-  protected static Object[][] getParametersForSeparateMasters(int prevVersionCount) {
-    String testDatabaseType = System.getProperty("test.database.type");
-    Collection<String> databaseTypes;
-    if (testDatabaseType == null) {
-      databaseTypes = new ArrayList<>(s_dbDialects.keySet());
-    } else {
-      if (s_dbDialects.containsKey(testDatabaseType) == false) {
-        throw new IllegalArgumentException("Unknown database: " + testDatabaseType);
-      }
-      databaseTypes = Collections.singleton(testDatabaseType);
-    }
-    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String databaseType : databaseTypes) {
-      DbScripts scripts = DbScripts.of(DbScripts.getSqlScriptDir(), databaseType);
-      Map<String, SortedMap<Integer, DbScriptPair>> scriptPairs = scripts.getScriptPairs();
-      for (String schema : scriptPairs.keySet()) {
-        Set<Integer> versions = scriptPairs.get(schema).keySet();
-        int max = Collections.max(versions);
-        int min = Collections.min(versions);
-        for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
-          parameters.add(new Object[]{databaseType, schema, "" + max /*target_version*/, "" + v /*migrate_from_version*/});
-        }
-      }
-    }
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
+  /**
+   * Adds a dialect to the map of known.
+   *
+   * @param dbType  the database type, not null
+   * @param dialect  the dialect, not null
+   */
+  public static void addDbDialect(String dbType, DbDialect dialect) {
+    s_dbDialects.put(dbType, dialect);
   }
 
-  protected static Object[][] getParameters() {
-    String databaseType = System.getProperty("test.database.type");
-    if (databaseType == null) {
-      databaseType = "all";
-    }
-    Collection<String> databaseTypes = DbTestProperties.getDatabaseTypes(databaseType);
-    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String dbType : databaseTypes) {
-      parameters.add(new Object[]{dbType, "latest"});
-    }
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
-  }
-
-  public static Object[][] getParametersForDatabase(final String databaseType) {
-    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String db : DbTestProperties.getDatabaseTypes(databaseType)) {
-      parameters.add(new Object[]{db, "latest"});
-    }
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
-  }
-
+  //-------------------------------------------------------------------------
   @DataProvider(name = "localDatabase")
   public static Object[][] data_localDatabase() {
     return getParametersForDatabase("hsqldb");
@@ -208,15 +168,72 @@ public abstract class DbTest implements TableCreationCallback {
     return getParametersForSeparateMasters(3);
   }
 
-  protected static int getPreviousVersionCount() {
-    String previousVersionCountString = System.getProperty("test.database.previousVersions");
-    int previousVersionCount;
-    if (previousVersionCountString == null) {
-      previousVersionCount = 0; // If you run from Eclipse, use current version only
-    } else {
-      previousVersionCount = Integer.parseInt(previousVersionCountString);
+  //-------------------------------------------------------------------------
+  private static Object[][] getParametersForSeparateMasters(int prevVersionCount) {
+    Collection<String> databaseTypes = getAvailableDatabaseTypes(System.getProperty("test.database.type"));
+    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+    for (String databaseType : databaseTypes) {
+      DbScripts scripts = DbScripts.of(DbScripts.getSqlScriptDir(), databaseType);
+      Map<String, SortedMap<Integer, DbScriptPair>> scriptPairs = scripts.getScriptPairs();
+      for (String schema : scriptPairs.keySet()) {
+        Set<Integer> versions = scriptPairs.get(schema).keySet();
+        int max = Collections.max(versions);
+        int min = Collections.min(versions);
+        for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
+          parameters.add(new Object[]{databaseType, schema, "" + max /*target_version*/, "" + v /*migrate_from_version*/});
+        }
+      }
     }
-    return previousVersionCount;
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  private static Object[][] getParameters() {
+    Collection<String> databaseTypes = getAvailableDatabaseTypes(System.getProperty("test.database.type"));
+    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+    for (String databaseType : databaseTypes) {
+      parameters.add(new Object[]{databaseType, "latest"});
+    }
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  private static Object[][] getParametersForDatabase(final String databaseType) {
+    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+    for (String db : getAvailableDatabaseTypes(databaseType)) {
+      parameters.add(new Object[]{db, "latest"});
+    }
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  /**
+   * Not all database drivers are available in some test environments.
+   */
+  private static Collection<String> getAvailableDatabaseTypes(String databaseType) {
+    Collection<String> databaseTypes;
+    if (databaseType == null) {
+      databaseTypes = Sets.newHashSet(s_dbDialects.keySet());
+    } else {
+      if (s_dbDialects.containsKey(databaseType) == false) {
+        throw new IllegalArgumentException("Unknown database: " + databaseType);
+      }
+      databaseTypes = Sets.newHashSet(databaseType);
+    }
+    for (Iterator<String> it = databaseTypes.iterator(); it.hasNext(); ) {
+      String dbType = it.next();
+      DbDialect dbDialect = s_dbDialects.get(dbType);
+      try {
+        Objects.requireNonNull(dbDialect.getJDBCDriverClass());
+      } catch (RuntimeException | Error ex) {
+        System.err.println("Database driver not available: " + dbDialect);
+        it.remove();
+      }
+    }
+    return databaseTypes;
   }
 
   //-------------------------------------------------------------------------
@@ -243,7 +260,7 @@ public abstract class DbTest implements TableCreationCallback {
   public DbConnector getDbConnector() {
     DbDialect dbDialect = s_dbDialects.get(getDatabaseType());
     if (dbDialect == null) {
-      throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
+      throw new OpenGammaRuntimeException("config error - no DbDialect setup for " + getDatabaseType());
     }
     DbConnectorFactoryBean factory = new DbConnectorFactoryBean();
     factory.setName("DbTest");
@@ -252,16 +269,6 @@ public abstract class DbTest implements TableCreationCallback {
     factory.setTransactionIsolationLevelName("ISOLATION_READ_COMMITTED");
     factory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
     return factory.createObject();
-  }
-
-  /**
-   * Adds a dialect to the map of known.
-   *
-   * @param dbType  the database type, not null
-   * @param dialect  the dialect, not null
-   */
-  public static void addDbDialect(String dbType, DbDialect dialect) {
-    s_dbDialects.put(dbType, dialect);
   }
 
   /**
