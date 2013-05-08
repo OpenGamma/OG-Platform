@@ -31,7 +31,7 @@ public class CapletStrippingAbsoluteStrikePSplineTest extends CapletStrippingAbs
   
   @Test
   public void timingTest() {
-    timingTest(2, 5);
+    timingTest(1, 0);
   }
 
 }

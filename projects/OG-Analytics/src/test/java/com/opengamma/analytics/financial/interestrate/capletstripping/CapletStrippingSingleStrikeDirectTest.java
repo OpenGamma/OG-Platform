@@ -28,7 +28,7 @@ public class CapletStrippingSingleStrikeDirectTest extends CapletStrippingAbsolu
   
   @Test
   public void timingTest() {
-    timingTest(50, 50);
+    timingTest(1,0);
   }
 
 

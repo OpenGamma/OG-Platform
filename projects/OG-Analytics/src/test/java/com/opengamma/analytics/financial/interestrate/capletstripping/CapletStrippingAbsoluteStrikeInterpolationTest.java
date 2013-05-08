@@ -27,7 +27,7 @@ public class CapletStrippingAbsoluteStrikeInterpolationTest extends CapletStripp
   
   @Test
   public void timingTest() {
-    timingTest(200, 1000);
+    timingTest(1, 0);
   }
 
 }
