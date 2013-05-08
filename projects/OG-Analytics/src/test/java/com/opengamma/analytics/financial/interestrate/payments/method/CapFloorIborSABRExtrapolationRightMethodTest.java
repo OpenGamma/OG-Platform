@@ -46,7 +46,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model and extrapolation for high strikes. 
+ * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model and extrapolation for high strikes.
  */
 public class CapFloorIborSABRExtrapolationRightMethodTest {
   // Details
@@ -64,15 +64,15 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   private static final double STRIKE_HIGH = 0.09;
   private static final boolean IS_CAP = true;
   // Definition description
-  private static final CapFloorIborDefinition CAP_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP);
-  private static final CapFloorIborDefinition CAP_HIGH_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE_HIGH, IS_CAP);
-  private static final CouponIborDefinition COUPON_IBOR_DEFINITION = CouponIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX);
+  private static final CapFloorIborDefinition CAP_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition CAP_HIGH_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE_HIGH, IS_CAP, CALENDAR);
+  private static final CouponIborDefinition COUPON_IBOR_DEFINITION = CouponIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
   private static final CouponFixedDefinition COUPON_STRIKE_DEFINITION = new CouponFixedDefinition(COUPON_IBOR_DEFINITION, STRIKE);
   private static final CouponFixedDefinition COUPON_STRIKE_HIGH_DEFINITION = new CouponFixedDefinition(COUPON_IBOR_DEFINITION, STRIKE_HIGH);
-  private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP);
-  private static final CapFloorIborDefinition CAP_HIGH_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE_HIGH, IS_CAP);
-  private static final CapFloorIborDefinition FLOOR_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, !IS_CAP);
-  private static final CapFloorIborDefinition FLOOR_HIGH_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE_HIGH, !IS_CAP);
+  private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition CAP_HIGH_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE_HIGH, IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition FLOOR_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, !IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition FLOOR_HIGH_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE_HIGH, !IS_CAP, CALENDAR);
   // Methods and calculator
   private static final double CUT_OFF_STRIKE = 0.08;
   private static final double MU = 2.50;

@@ -42,9 +42,9 @@ public class CouponIborAverageTest {
   private static final double NOTIONAL = 1000000; //1m
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE, -INDEX_EURIBOR3M.getSpotLag(), TARGET); // In arrears
   private static final ZonedDateTime FIXING_START_DATE_1 = ACCRUAL_END_DATE;
-  private static final ZonedDateTime FIXING_END_DATE_1 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_1, INDEX_EURIBOR3M);
+  private static final ZonedDateTime FIXING_END_DATE_1 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_1, INDEX_EURIBOR3M, TARGET);
   private static final ZonedDateTime FIXING_START_DATE_2 = ACCRUAL_END_DATE;
-  private static final ZonedDateTime FIXING_END_DATE_2 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_2, INDEX_EURIBOR3M);
+  private static final ZonedDateTime FIXING_END_DATE_2 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_2, INDEX_EURIBOR3M, TARGET);
 
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
   //  private static final double ACCRUAL_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATE);

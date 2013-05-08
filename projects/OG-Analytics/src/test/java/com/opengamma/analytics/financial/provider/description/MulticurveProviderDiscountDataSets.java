@@ -208,14 +208,14 @@ public class MulticurveProviderDiscountDataSets {
     System.arraycopy(UKRPI_VALUE_2013, 0, UKRPI_VALUE, 36, UKRPI_VALUE_2013.length);
   }
   private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1),
-      DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1),
-      DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1),
-      DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1),
-      DateUtils.getUTCDate(2011, 7, 1), DateUtils.getUTCDate(2011, 8, 1), DateUtils.getUTCDate(2011, 9, 1), DateUtils.getUTCDate(2011, 10, 1), DateUtils.getUTCDate(2011, 11, 1),
-      DateUtils.getUTCDate(2011, 12, 1), DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1), DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1),
-      DateUtils.getUTCDate(2012, 5, 1), DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1), DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1),
-      DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1),
-      DateUtils.getUTCDate(2013, 1, 1) };
+    DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1),
+    DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1),
+    DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1),
+    DateUtils.getUTCDate(2011, 7, 1), DateUtils.getUTCDate(2011, 8, 1), DateUtils.getUTCDate(2011, 9, 1), DateUtils.getUTCDate(2011, 10, 1), DateUtils.getUTCDate(2011, 11, 1),
+    DateUtils.getUTCDate(2011, 12, 1), DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1), DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1),
+    DateUtils.getUTCDate(2012, 5, 1), DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1), DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1),
+    DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1),
+    DateUtils.getUTCDate(2013, 1, 1) };
   private static final ZonedDateTimeDoubleTimeSeries UKRPI_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(UKRPI_DATE, UKRPI_VALUE);
   // US : CPI-U 2009-2011
   private static final double[] USCPI_VALUE_2009 = new double[] {211.143, 212.193, 212.709, 213.240, 213.856, 215.693, 215.351, 215.834, 215.969, 216.177, 216.330, 215.949, 214.537 };
@@ -233,16 +233,16 @@ public class MulticurveProviderDiscountDataSets {
 
   }
   private static final ZonedDateTime[] USCPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2009, 1, 1), DateUtils.getUTCDate(2009, 2, 1), DateUtils.getUTCDate(2009, 3, 1),
-      DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 5, 1), DateUtils.getUTCDate(2009, 6, 1), DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 8, 1),
-      DateUtils.getUTCDate(2009, 9, 1), DateUtils.getUTCDate(2009, 10, 1), DateUtils.getUTCDate(2009, 11, 1), DateUtils.getUTCDate(2009, 12, 1), DateUtils.getUTCDate(2010, 1, 1),
-      DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1),
-      DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
-      DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1),
-      DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1), DateUtils.getUTCDate(2011, 7, 1), DateUtils.getUTCDate(2011, 8, 1), DateUtils.getUTCDate(2011, 9, 1),
-      DateUtils.getUTCDate(2011, 10, 1), DateUtils.getUTCDate(2011, 11, 1), DateUtils.getUTCDate(2011, 12, 1), DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1),
-      DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1), DateUtils.getUTCDate(2012, 5, 1), DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1),
-      DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1), DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1),
-      DateUtils.getUTCDate(2013, 1, 1) };
+    DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 5, 1), DateUtils.getUTCDate(2009, 6, 1), DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 8, 1),
+    DateUtils.getUTCDate(2009, 9, 1), DateUtils.getUTCDate(2009, 10, 1), DateUtils.getUTCDate(2009, 11, 1), DateUtils.getUTCDate(2009, 12, 1), DateUtils.getUTCDate(2010, 1, 1),
+    DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1),
+    DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+    DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1),
+    DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1), DateUtils.getUTCDate(2011, 7, 1), DateUtils.getUTCDate(2011, 8, 1), DateUtils.getUTCDate(2011, 9, 1),
+    DateUtils.getUTCDate(2011, 10, 1), DateUtils.getUTCDate(2011, 11, 1), DateUtils.getUTCDate(2011, 12, 1), DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1),
+    DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1), DateUtils.getUTCDate(2012, 5, 1), DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1),
+    DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1), DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1),
+    DateUtils.getUTCDate(2013, 1, 1) };
   private static final ZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(USCPI_DATE, USCPI_VALUE);
 
   // Europe : EURO HICP-X 2009-2011
@@ -262,18 +262,18 @@ public class MulticurveProviderDiscountDataSets {
     System.arraycopy(EUROHICPX_VALUE_2013, 0, EUROHICPX_VALUE, 60, EUROHICPX_VALUE_2013.length);
   }
   private static final ZonedDateTime[] EUROHICPX_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 1, 1), DateUtils.getUTCDate(2008, 2, 1), DateUtils.getUTCDate(2008, 3, 1),
-      DateUtils.getUTCDate(2008, 4, 1), DateUtils.getUTCDate(2008, 5, 1), DateUtils.getUTCDate(2008, 6, 1), DateUtils.getUTCDate(2008, 7, 1), DateUtils.getUTCDate(2008, 8, 1),
-      DateUtils.getUTCDate(2008, 9, 1), DateUtils.getUTCDate(2008, 10, 1), DateUtils.getUTCDate(2008, 11, 1), DateUtils.getUTCDate(2008, 12, 1), DateUtils.getUTCDate(2009, 1, 1),
-      DateUtils.getUTCDate(2009, 2, 1), DateUtils.getUTCDate(2009, 3, 1), DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 5, 1), DateUtils.getUTCDate(2009, 6, 1),
-      DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 8, 1), DateUtils.getUTCDate(2009, 9, 1), DateUtils.getUTCDate(2009, 10, 1), DateUtils.getUTCDate(2009, 11, 1),
-      DateUtils.getUTCDate(2009, 12, 1), DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1),
-      DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1),
-      DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1),
-      DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1), DateUtils.getUTCDate(2011, 7, 1),
-      DateUtils.getUTCDate(2011, 8, 1), DateUtils.getUTCDate(2011, 9, 1), DateUtils.getUTCDate(2011, 10, 1), DateUtils.getUTCDate(2011, 11, 1), DateUtils.getUTCDate(2011, 12, 1),
-      DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1), DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1), DateUtils.getUTCDate(2012, 5, 1),
-      DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1), DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1), DateUtils.getUTCDate(2012, 10, 1),
-      DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1), DateUtils.getUTCDate(2013, 1, 1) };
+    DateUtils.getUTCDate(2008, 4, 1), DateUtils.getUTCDate(2008, 5, 1), DateUtils.getUTCDate(2008, 6, 1), DateUtils.getUTCDate(2008, 7, 1), DateUtils.getUTCDate(2008, 8, 1),
+    DateUtils.getUTCDate(2008, 9, 1), DateUtils.getUTCDate(2008, 10, 1), DateUtils.getUTCDate(2008, 11, 1), DateUtils.getUTCDate(2008, 12, 1), DateUtils.getUTCDate(2009, 1, 1),
+    DateUtils.getUTCDate(2009, 2, 1), DateUtils.getUTCDate(2009, 3, 1), DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 5, 1), DateUtils.getUTCDate(2009, 6, 1),
+    DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 8, 1), DateUtils.getUTCDate(2009, 9, 1), DateUtils.getUTCDate(2009, 10, 1), DateUtils.getUTCDate(2009, 11, 1),
+    DateUtils.getUTCDate(2009, 12, 1), DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1),
+    DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1),
+    DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1),
+    DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1), DateUtils.getUTCDate(2011, 7, 1),
+    DateUtils.getUTCDate(2011, 8, 1), DateUtils.getUTCDate(2011, 9, 1), DateUtils.getUTCDate(2011, 10, 1), DateUtils.getUTCDate(2011, 11, 1), DateUtils.getUTCDate(2011, 12, 1),
+    DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1), DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1), DateUtils.getUTCDate(2012, 5, 1),
+    DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1), DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1), DateUtils.getUTCDate(2012, 10, 1),
+    DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1), DateUtils.getUTCDate(2013, 1, 1) };
   private static final ZonedDateTimeDoubleTimeSeries EUROHICPX_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(EUROHICPX_DATE, EUROHICPX_VALUE);
 
   /**
@@ -419,4 +419,15 @@ public class MulticurveProviderDiscountDataSets {
     return new String[] {ISSUER_US_GOVT, ISSUER_UK_GOVT, ISSUER_NAME };
   }
 
+  public static Calendar getCADCalendar() {
+    return CALENDAR_CAD;
+  }
+
+  public static Calendar getEURCalendar() {
+    return CALENDAR_EUR;
+  }
+
+  public static Calendar getUSDCalendar() {
+    return CALENDAR_USD;
+  }
 }

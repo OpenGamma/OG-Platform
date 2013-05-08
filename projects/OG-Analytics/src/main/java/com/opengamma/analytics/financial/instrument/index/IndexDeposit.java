@@ -59,14 +59,14 @@ public abstract class IndexDeposit {
   public Currency getCurrency() {
     return _currency;
   }
-
-  /**
-   * Gets the calendar associated to the index.
-   * @return The calendar.
-   */
-  public Calendar getCalendar() {
-    return _calendar;
-  }
+  //
+  //  /**
+  //   * Gets the calendar associated to the index.
+  //   * @return The calendar.
+  //   */
+  //  public Calendar getCalendar() {
+  //    return _calendar;
+  //  }
 
   @Override
   public String toString() {

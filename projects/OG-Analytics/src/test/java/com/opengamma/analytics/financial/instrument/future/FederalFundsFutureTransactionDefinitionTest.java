@@ -40,7 +40,7 @@ public class FederalFundsFutureTransactionDefinitionTest {
   private static final double TRADE_PRICE = 0.99900;
   private static final int QUANTITY = 12;
 
-  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, NYC);
   private static final FederalFundsFutureTransactionDefinition FUTURE_TRANSACTION_DEFINITION = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, TRADE_DATE,
       TRADE_PRICE);
 
@@ -73,11 +73,11 @@ public class FederalFundsFutureTransactionDefinitionTest {
    */
   public void equalHash() {
     assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(FUTURE_TRANSACTION_DEFINITION));
-    FederalFundsFutureTransactionDefinition other = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
+    final FederalFundsFutureTransactionDefinition other = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
     assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(other));
     assertTrue(FUTURE_TRANSACTION_DEFINITION.hashCode() == other.hashCode());
     FederalFundsFutureTransactionDefinition modifiedFuture;
-    FederalFundsFutureSecurityDefinition otherSecurity = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, "Other");
+    final FederalFundsFutureSecurityDefinition otherSecurity = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, "Other", NYC);
     modifiedFuture = new FederalFundsFutureTransactionDefinition(otherSecurity, QUANTITY, TRADE_DATE, TRADE_PRICE);
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY + 1, TRADE_DATE, TRADE_PRICE);
@@ -95,17 +95,17 @@ public class FederalFundsFutureTransactionDefinitionTest {
    * Tests the toDerivative method before the security first fixing date - trade date.
    */
   public void toDerivativeNoFixingTradeDate() {
-    ZonedDateTime referenceDate = TRADE_DATE;
-    ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1)};
-    double[] closingPrice = new double[] {0.99895, 0.99905};
-    ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
-    ZonedDateTime[] fixingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1)};
-    double[] fixingRate = new double[] {0.0010, 0.0011};
-    ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
-    ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
-    FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
-    FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, TRADE_PRICE);
-    FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1)};
+    final double[] closingPrice = new double[] {0.99895, 0.99905};
+    final ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
+    final ZonedDateTime[] fixingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1)};
+    final double[] fixingRate = new double[] {0.0010, 0.0011};
+    final ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
+    final ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
+    final FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
+    final FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, TRADE_PRICE);
+    final FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
     assertEquals("Fed fund future transaction definition: toDerivative", transactionExpected, transactionConverted);
   }
 
@@ -114,17 +114,17 @@ public class FederalFundsFutureTransactionDefinitionTest {
    * Tests the toDerivative method before the security first fixing date - after trade date.
    */
   public void toDerivativeNoFixingAfterTradeDate() {
-    ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, 1, NYC);
-    ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE};
-    double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915};
-    ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
-    ZonedDateTime[] fixingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE};
-    double[] fixingRate = new double[] {0.0010, 0.0011, 0.0009};
-    ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
-    ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
-    FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
-    FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, closingPrice[2]);
-    FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
+    final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, 1, NYC);
+    final ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE};
+    final double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915};
+    final ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
+    final ZonedDateTime[] fixingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE};
+    final double[] fixingRate = new double[] {0.0010, 0.0011, 0.0009};
+    final ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
+    final ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
+    final FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
+    final FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, closingPrice[2]);
+    final FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
     assertEquals("Fed fund future transaction definition: toDerivative", transactionExpected, transactionConverted);
   }
 
@@ -133,17 +133,17 @@ public class FederalFundsFutureTransactionDefinitionTest {
    * Tests the toDerivative method after the security first fixing date, fixing unknown - after trade date.
    */
   public void toDerivativeFixingStartedBeforePublicationAfterTradeDate() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
-    ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE, DateUtils.getUTCDate(2012, 3, 6)};
-    double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915, 0.99925};
-    ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
-    ZonedDateTime[] fixingDate = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6)};
-    double[] fixingRate = new double[] {0.0010, 0.0011, 0.0012, 0.0013};
-    ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
-    ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
-    FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
-    FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, closingPrice[3]);
-    FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
+    final ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE, DateUtils.getUTCDate(2012, 3, 6)};
+    final double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915, 0.99925};
+    final ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
+    final ZonedDateTime[] fixingDate = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6)};
+    final double[] fixingRate = new double[] {0.0010, 0.0011, 0.0012, 0.0013};
+    final ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
+    final ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
+    final FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
+    final FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, closingPrice[3]);
+    final FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
     assertEquals("Fed fund future transaction definition: toDerivative", transactionExpected, transactionConverted);
   }
 
@@ -152,18 +152,18 @@ public class FederalFundsFutureTransactionDefinitionTest {
    * Tests the toDerivative method after the security first fixing date, fixing unknown - after trade date.
    */
   public void toDerivativeFixingStartedAfterPublicationAfterTradeDate() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
-    ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE, DateUtils.getUTCDate(2012, 3, 6)};
-    double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915, 0.99925};
-    ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
-    ZonedDateTime[] fixingDate = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
+    final ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE, DateUtils.getUTCDate(2012, 3, 6)};
+    final double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915, 0.99925};
+    final ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
+    final ZonedDateTime[] fixingDate = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
         DateUtils.getUTCDate(2012, 3, 7)};
-    double[] fixingRate = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
-    ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
-    ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
-    FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
-    FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, closingPrice[3]);
-    FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
+    final double[] fixingRate = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
+    final ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
+    final ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
+    final FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
+    final FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, closingPrice[3]);
+    final FederalFundsFutureTransaction transactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, data, CURVE_NAME);
     assertEquals("Fed fund future transaction definition: toDerivative", transactionExpected, transactionConverted);
   }
 
@@ -172,19 +172,19 @@ public class FederalFundsFutureTransactionDefinitionTest {
    * Tests the toDerivative method after the security first fixing date, fixing unknown - after trade date.
    */
   public void toDerivativeFixingStartedAfterPublicationTradeDate() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
-    ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE, DateUtils.getUTCDate(2012, 3, 6)};
-    double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915, 0.99925};
-    ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
-    ZonedDateTime[] fixingDate = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
+    final ZonedDateTime[] closingDate = new ZonedDateTime[] {TRADE_DATE.minusDays(2), TRADE_DATE.minusDays(1), TRADE_DATE, DateUtils.getUTCDate(2012, 3, 6)};
+    final double[] closingPrice = new double[] {0.99895, 0.99905, 0.99915, 0.99925};
+    final ZonedDateTimeDoubleTimeSeries closingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(closingDate, closingPrice, ZoneOffset.UTC);
+    final ZonedDateTime[] fixingDate = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
         DateUtils.getUTCDate(2012, 3, 7)};
-    double[] fixingRate = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
-    ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
-    ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
-    FederalFundsFutureTransactionDefinition futureTransactionDefinition = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, referenceDate, TRADE_PRICE);
-    FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
-    FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, TRADE_PRICE);
-    FederalFundsFutureTransaction transactionConverted = futureTransactionDefinition.toDerivative(referenceDate, data, CURVE_NAME);
+    final double[] fixingRate = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
+    final ZonedDateTimeDoubleTimeSeries fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(fixingDate, fixingRate, ZoneOffset.UTC);
+    final ZonedDateTimeDoubleTimeSeries[] data = new ZonedDateTimeDoubleTimeSeries[] {fixingTS, closingTS};
+    final FederalFundsFutureTransactionDefinition futureTransactionDefinition = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, referenceDate, TRADE_PRICE);
+    final FederalFundsFutureSecurity securityConverted = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
+    final FederalFundsFutureTransaction transactionExpected = new FederalFundsFutureTransaction(securityConverted, QUANTITY, TRADE_PRICE);
+    final FederalFundsFutureTransaction transactionConverted = futureTransactionDefinition.toDerivative(referenceDate, data, CURVE_NAME);
     assertEquals("Fed fund future transaction definition: toDerivative", transactionExpected, transactionConverted);
   }
 

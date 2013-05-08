@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -145,10 +146,12 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
    * @param accrualStartDates The start dates of the accrual sub-periods.
    * @param accrualEndDates The end dates of the accrual sub-periods.
    * @param paymentAccrualFactors The accrual factors (or year fraction) associated to the sub-periods.
+   * @param calendar The holiday calendar for the ibor index.
    * @return The compounded coupon.
    */
   public static CouponIborCompoundingDefinition from(final ZonedDateTime paymentDate, final double notional, final IborIndex index,
-      final ZonedDateTime[] accrualStartDates, final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors) {
+      final ZonedDateTime[] accrualStartDates, final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors,
+      final Calendar calendar) {
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime accrualStartDate = accrualStartDates[0];
     final ZonedDateTime accrualEndDate = accrualEndDates[nbSubPeriod - 1];
@@ -158,8 +161,8 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
     final double[] fixingPeriodAccrualFactors = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       paymentAccrualFactor += paymentAccrualFactors[loopsub];
-      fixingDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], -index.getSpotLag(), index.getCalendar());
-      fixingPeriodEndDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], index);
+      fixingDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], -index.getSpotLag(), calendar);
+      fixingPeriodEndDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], index, calendar);
       fixingPeriodAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], fixingPeriodEndDates[loopsub]);
     }
     return new CouponIborCompoundingDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index,
@@ -173,10 +176,12 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
    * @param accrualStartDate The first accrual date. The other one are computed from that one and the index conventions.
    * @param tenor The total coupon tenor.
    * @param index The underlying Ibor index.
+   * @param calendar The holiday calendar for the ibor index.
    * @return The compounded coupon.
    */
-  public static CouponIborCompoundingDefinition from(final double notional, final ZonedDateTime accrualStartDate, final Period tenor, final IborIndex index) {
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, tenor, true, false, index);
+  public static CouponIborCompoundingDefinition from(final double notional, final ZonedDateTime accrualStartDate, final Period tenor, final IborIndex index,
+      final Calendar calendar) {
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, tenor, true, false, index, calendar);
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;
@@ -185,7 +190,7 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       paymentAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], accrualEndDates[loopsub]);
     }
-    return from(accrualEndDates[nbSubPeriod - 1], notional, index, accrualStartDates, accrualEndDates, paymentAccrualFactors);
+    return from(accrualEndDates[nbSubPeriod - 1], notional, index, accrualStartDates, accrualEndDates, paymentAccrualFactors, calendar);
   }
 
   /**

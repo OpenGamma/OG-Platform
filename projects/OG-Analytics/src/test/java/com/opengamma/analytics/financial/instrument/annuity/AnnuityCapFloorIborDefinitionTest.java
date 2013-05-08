@@ -44,13 +44,13 @@ public class AnnuityCapFloorIborDefinitionTest {
   private static final boolean IS_PAYER = true;
   private static final double STRIKE = 0.04;
   private static final boolean IS_CAP = true;
-  private static final AnnuityCapFloorIborDefinition CAP = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER, STRIKE, IS_CAP);
+  private static final AnnuityCapFloorIborDefinition CAP = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER, STRIKE, IS_CAP, CALENDAR);
   private static final AnnuityCapFloorIborDefinition CAP_12 = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, LEG_DAY_COUNT, LEG_PAYMENT_PERIOD, IS_PAYER, STRIKE,
-      IS_CAP);
+      IS_CAP, CALENDAR);
 
   @Test
   public void datesStandard() {
-    AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER, CALENDAR);
     for (int loopcpn = 0; loopcpn < iborLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals(iborLeg.getNthPayment(loopcpn).getAccrualStartDate(), CAP.getNthPayment(loopcpn).getAccrualStartDate());
       assertEquals(iborLeg.getNthPayment(loopcpn).getAccrualEndDate(), CAP.getNthPayment(loopcpn).getAccrualEndDate());
@@ -62,17 +62,17 @@ public class AnnuityCapFloorIborDefinitionTest {
 
   @Test
   public void commonStandard() {
-    AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER, CALENDAR);
     for (int loopcpn = 0; loopcpn < iborLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals(STRIKE, CAP.getNthPayment(loopcpn).getStrike());
       assertEquals(IS_CAP, CAP.getNthPayment(loopcpn).isCap());
     }
-    AnnuityCapFloorIborDefinition floor = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER, STRIKE, !IS_CAP);
+    final AnnuityCapFloorIborDefinition floor = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, IS_PAYER, STRIKE, !IS_CAP, CALENDAR);
     for (int loopcpn = 0; loopcpn < iborLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals(STRIKE, floor.getNthPayment(loopcpn).getStrike());
       assertEquals(!IS_CAP, floor.getNthPayment(loopcpn).isCap());
     }
-    AnnuityCapFloorIborDefinition capShort = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, !IS_PAYER, STRIKE, IS_CAP);
+    final AnnuityCapFloorIborDefinition capShort = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, !IS_PAYER, STRIKE, IS_CAP, CALENDAR);
     for (int loopcpn = 0; loopcpn < iborLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals(STRIKE, capShort.getNthPayment(loopcpn).getStrike());
       assertEquals(-NOTIONAL * (IS_PAYER ? -1.0 : 1.0), capShort.getNthPayment(loopcpn).getNotional());
@@ -81,8 +81,8 @@ public class AnnuityCapFloorIborDefinitionTest {
 
   @Test
   public void datesCustom() {
-    IborIndex fakeIborIndex12 = new IborIndex(CUR, LEG_PAYMENT_PERIOD, IBOR_SETTLEMENT_DAYS, CALENDAR, LEG_DAY_COUNT, BUSINESS_DAY, IS_EOM);
-    AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, fakeIborIndex12, IS_PAYER);
+    final IborIndex fakeIborIndex12 = new IborIndex(CUR, LEG_PAYMENT_PERIOD, IBOR_SETTLEMENT_DAYS, CALENDAR, LEG_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, fakeIborIndex12, IS_PAYER, CALENDAR);
     for (int loopcpn = 0; loopcpn < iborLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals(iborLeg.getNthPayment(loopcpn).getAccrualStartDate(), CAP_12.getNthPayment(loopcpn).getAccrualStartDate());
       assertEquals(iborLeg.getNthPayment(loopcpn).getAccrualEndDate(), CAP_12.getNthPayment(loopcpn).getAccrualEndDate());
@@ -98,7 +98,7 @@ public class AnnuityCapFloorIborDefinitionTest {
       assertEquals(STRIKE, CAP_12.getNthPayment(loopcpn).getStrike());
       assertEquals(IS_CAP, CAP_12.getNthPayment(loopcpn).isCap());
     }
-    AnnuityCapFloorIborDefinition floor = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, LEG_DAY_COUNT, LEG_PAYMENT_PERIOD, IS_PAYER, STRIKE, !IS_CAP);
+    final AnnuityCapFloorIborDefinition floor = AnnuityCapFloorIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, IBOR_INDEX, LEG_DAY_COUNT, LEG_PAYMENT_PERIOD, IS_PAYER, STRIKE, !IS_CAP, CALENDAR);
     for (int loopcpn = 0; loopcpn < CAP_12.getNumberOfPayments(); loopcpn++) {
       assertEquals(STRIKE, floor.getNthPayment(loopcpn).getStrike());
       assertEquals(!IS_CAP, floor.getNthPayment(loopcpn).isCap());

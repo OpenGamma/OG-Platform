@@ -59,7 +59,7 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   public static InterestRateFutureSecurityDefinition createInterestRateFutureSecurityDefinition() {
-    final InterestRateFutureSecurityDefinition sec = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    final InterestRateFutureSecurityDefinition sec = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
     return sec;
   }
 

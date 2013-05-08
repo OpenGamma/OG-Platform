@@ -44,17 +44,17 @@ public class SwapFixedIborDiscountingMethodTest {
   private static final IborIndex EURIBOR3M = INDEX_LIST[0];
   private static final IborIndex EURIBOR6M = INDEX_LIST[1];
   private static final Currency EUR = EURIBOR3M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2013, 9, 9);
-  private static final ZonedDateTime END_DATE_3 = ScheduleCalculator.getAdjustedDate(START_DATE, EURIBOR3M.getTenor(), EURIBOR3M);
+  private static final ZonedDateTime END_DATE_3 = ScheduleCalculator.getAdjustedDate(START_DATE, EURIBOR3M.getTenor(), EURIBOR3M, CALENDAR);
   private static final Period TOTAL_TENOR = EURIBOR3M.getTenor().plus(EURIBOR6M.getTenor());
-  private static final ZonedDateTime END_DATE_6 = ScheduleCalculator.getAdjustedDate(START_DATE, TOTAL_TENOR, EURIBOR3M);
+  private static final ZonedDateTime END_DATE_6 = ScheduleCalculator.getAdjustedDate(START_DATE, TOTAL_TENOR, EURIBOR3M, CALENDAR);
   // Definitions
   private static final double NOTIONAL = 100000000.0; // 100m
   private static final double RATE = 0.0250; // 2.5%
-  private static final CouponIborDefinition CPN_IBOR_3_DEFINITION = CouponIborDefinition.from(START_DATE, END_DATE_3, NOTIONAL, EURIBOR3M);
-  private static final CouponIborDefinition CPN_IBOR_6_DEFINITION = CouponIborDefinition.from(END_DATE_3, END_DATE_6, NOTIONAL, EURIBOR6M);
+  private static final CouponIborDefinition CPN_IBOR_3_DEFINITION = CouponIborDefinition.from(START_DATE, END_DATE_3, NOTIONAL, EURIBOR3M, CALENDAR);
+  private static final CouponIborDefinition CPN_IBOR_6_DEFINITION = CouponIborDefinition.from(END_DATE_3, END_DATE_6, NOTIONAL, EURIBOR6M, CALENDAR);
   private static final AnnuityDefinition<CouponDefinition> ANNUITY_IBOR_DEFINITION = new AnnuityDefinition<CouponDefinition>(new CouponIborDefinition[] {CPN_IBOR_3_DEFINITION, CPN_IBOR_6_DEFINITION});
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final AnnuityCouponFixedDefinition ANNUITY_FIXED_DEFINITION = AnnuityCouponFixedDefinition.from(START_DATE, TOTAL_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, true);

@@ -144,7 +144,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
    * Tests the from method
    */
   public void from() {
-    final FederalFundsFutureSecurityDefinition from = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurityDefinition from = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, NYC);
     assertEquals("Fed fund future security definition: builder", FUTURE_FEDFUND_DEFINITION, from);
   }
 
@@ -153,8 +153,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
    * Tests the from method
    */
   public void from2() {
-    final FederalFundsFutureSecurityDefinition from = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, "FFMar12");
-    final FederalFundsFutureSecurityDefinition fromFF = FederalFundsFutureSecurityDefinition.fromFedFund(MARCH_1, INDEX_FEDFUND);
+    final FederalFundsFutureSecurityDefinition from = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, "FFMar12", NYC);
+    final FederalFundsFutureSecurityDefinition fromFF = FederalFundsFutureSecurityDefinition.fromFedFund(MARCH_1, INDEX_FEDFUND, NYC);
     assertEquals("Fed fund future security definition: builder", from, fromFF);
   }
 

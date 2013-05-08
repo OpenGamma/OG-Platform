@@ -36,7 +36,7 @@ public class CapFloorCMSHullWhiteMethodsTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar TARGET = EURIBOR6M.getCalendar();
+  private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
@@ -66,7 +66,7 @@ public class CapFloorCMSHullWhiteMethodsTest {
   private static final CapFloorCMS[] CAP_CMS = new CapFloorCMS[NB_STRIKE];
   static {
     for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
-      CAP_CMS_DEFINITION[loopstrike] = CapFloorCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y, STRIKE[loopstrike], true);
+      CAP_CMS_DEFINITION[loopstrike] = CapFloorCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y, STRIKE[loopstrike], true, TARGET);
       CAP_CMS[loopstrike] = (CapFloorCMS) CAP_CMS_DEFINITION[loopstrike].toDerivative(REFERENCE_DATE, NOT_USED_A);
     }
   }

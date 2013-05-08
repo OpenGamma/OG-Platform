@@ -38,7 +38,7 @@ public class InterestRateFuturesSecurityDefinitionTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "ERU2";
 
-  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
 
@@ -48,17 +48,17 @@ public class InterestRateFuturesSecurityDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullLastTradeDate() {
-    new InterestRateFutureSecurityDefinition(null, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    new InterestRateFutureSecurityDefinition(null, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, null, NOTIONAL, FUTURE_FACTOR, NAME);
+    new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, null, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullName() {
-    new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, null);
+    new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, null, CALENDAR);
   }
 
   @Test
@@ -72,27 +72,27 @@ public class InterestRateFuturesSecurityDefinitionTest {
     assertEquals(ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, IBOR_INDEX.getTenor(), IBOR_INDEX.getBusinessDayConvention(), CALENDAR, IBOR_INDEX.isEndOfMonth()),
         ERU2_DEFINITION.getFixingPeriodEndDate());
     assertEquals(IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE), ERU2_DEFINITION.getFixingPeriodAccrualFactor());
-    String description = "IRFuture Security: " + NAME + " Last trading date: " + LAST_TRADING_DATE.toString() + " Ibor Index: " + IBOR_INDEX.getName() + " Notional: " + NOTIONAL;
+    final String description = "IRFuture Security: " + NAME + " Last trading date: " + LAST_TRADING_DATE.toString() + " Ibor Index: " + IBOR_INDEX.getName() + " Notional: " + NOTIONAL;
     assertEquals(description, ERU2_DEFINITION.toString());
   }
 
   @Test
   public void equalHash() {
-    InterestRateFutureSecurityDefinition other = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    final InterestRateFutureSecurityDefinition other = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
     assertTrue(ERU2_DEFINITION.equals(other));
     assertTrue(ERU2_DEFINITION.hashCode() == other.hashCode());
     InterestRateFutureSecurityDefinition modifiedFuture;
-    modifiedFuture = new InterestRateFutureSecurityDefinition(SPOT_LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    modifiedFuture = new InterestRateFutureSecurityDefinition(SPOT_LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL + 1.0, FUTURE_FACTOR, NAME);
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL + 1.0, FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR * 2, NAME);
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR * 2, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME + "x");
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME + "x", CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
-    IborIndex otherIndex = new IborIndex(IBOR_INDEX.getCurrency(), IBOR_INDEX.getTenor(), IBOR_INDEX.getSpotLag(), CALENDAR, IBOR_INDEX.getDayCount(), IBOR_INDEX.getBusinessDayConvention(),
+    final IborIndex otherIndex = new IborIndex(IBOR_INDEX.getCurrency(), IBOR_INDEX.getTenor(), IBOR_INDEX.getSpotLag(), CALENDAR, IBOR_INDEX.getDayCount(), IBOR_INDEX.getBusinessDayConvention(),
         !IBOR_INDEX.isEndOfMonth());
-    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, otherIndex, NOTIONAL, FUTURE_FACTOR, NAME);
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, otherIndex, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     assertFalse(ERU2_DEFINITION.equals(IBOR_INDEX));
     assertFalse(ERU2_DEFINITION.equals(null));
@@ -100,13 +100,13 @@ public class InterestRateFuturesSecurityDefinitionTest {
 
   @Test
   public void toDerivative() {
-    double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
-    double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
-    double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
-    double FIXING_ACCRUAL = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
+    final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
+    final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
+    final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
+    final double FIXING_ACCRUAL = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
+    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
         DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    InterestRateFutureSecurity convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    final InterestRateFutureSecurity convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
     assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
   }
 }

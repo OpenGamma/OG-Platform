@@ -45,7 +45,7 @@ public class InterestRateFutureXXXDiscountingMethodTest {
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), TARGET);
-  private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, EURIBOR3M);
+  private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, EURIBOR3M, TARGET);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
   private static final double REFERENCE_PRICE = 0.99;
@@ -106,23 +106,23 @@ public class InterestRateFutureXXXDiscountingMethodTest {
    * Test the present value computed from the curves
    */
   public void presentValue() {
-    double price = METHOD_FUT_SEC.price(ERU2_SEC, CURVES);
-    double pvExpected = (price - ERU2_TRA.getReferencePrice()) * NOTIONAL * FUTURE_FACTOR * QUANTITY;
-    CurrencyAmount pvComputed = METHOD_FUT_TRA.presentValue(ERU2_TRA, CURVES);
+    final double price = METHOD_FUT_SEC.price(ERU2_SEC, CURVES);
+    final double pvExpected = (price - ERU2_TRA.getReferencePrice()) * NOTIONAL * FUTURE_FACTOR * QUANTITY;
+    final CurrencyAmount pvComputed = METHOD_FUT_TRA.presentValue(ERU2_TRA, CURVES);
     assertEquals("InterestRateFutureXXXDiscountingMethod: present value", pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD_FUT_TRA.presentValue(ERU2_TRA, CURVES);
-    double pvCalculator = ERU2_TRA.accept(PVC, CURVES);
+    final CurrencyAmount pvMethod = METHOD_FUT_TRA.presentValue(ERU2_TRA, CURVES);
+    final double pvCalculator = ERU2_TRA.accept(PVC, CURVES);
     assertEquals("InterestRateFutureXXXDiscountingMethod: present value", pvMethod.getAmount(), pvCalculator, TOLERANCE_PV);
   }
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity pvcsMethod = METHOD_FUT_TRA.presentValueCurveSensitivity(ERU2_TRA, CURVES);
-    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(ERU2_TRA.accept(PVCSC, CURVES));
+    final InterestRateCurveSensitivity pvcsMethod = METHOD_FUT_TRA.presentValueCurveSensitivity(ERU2_TRA, CURVES);
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(ERU2_TRA.accept(PVCSC, CURVES));
     AssertSensivityObjects.assertEquals("InterestRateFutureXXXDiscountingMethod: present value", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
@@ -153,10 +153,10 @@ public class InterestRateFutureXXXDiscountingMethodTest {
    * Test the rate computed from the curves
    */
   public void parRateCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity prSensiMethod = METHOD_FUT_SEC.parRateCurveSensitivity(ERU2_SEC, CURVES);
-    InterestRateCurveSensitivity prSensiCalculator = new InterestRateCurveSensitivity(ERU2_SEC.accept(PRCSC, CURVES));
+    final InterestRateCurveSensitivity prSensiMethod = METHOD_FUT_SEC.parRateCurveSensitivity(ERU2_SEC, CURVES);
+    final InterestRateCurveSensitivity prSensiCalculator = new InterestRateCurveSensitivity(ERU2_SEC.accept(PRCSC, CURVES));
     AssertSensivityObjects.assertEquals("", prSensiMethod, prSensiCalculator, TOLERANCE_PV_DELTA);
-    InterestRateCurveSensitivity prSensiCalculator2 = new InterestRateCurveSensitivity(ERU2_TRA.accept(PRCSC, CURVES));
+    final InterestRateCurveSensitivity prSensiCalculator2 = new InterestRateCurveSensitivity(ERU2_TRA.accept(PRCSC, CURVES));
     AssertSensivityObjects.assertEquals("", prSensiMethod, prSensiCalculator2, TOLERANCE_PRICE_DELTA);
   }
 

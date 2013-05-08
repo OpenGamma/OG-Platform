@@ -42,10 +42,10 @@ public class SwapIborIborDefinitionTest {
 
   private static final boolean IS_PAYER_1 = true;
   private static final double SPREAD_1 = 0.0012;
-  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_1 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR3M, SPREAD_1, IS_PAYER_1);
+  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_1 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR3M, SPREAD_1, IS_PAYER_1, CALENDAR);
   private static final boolean IS_PAYER_2 = false;
   private static final double SPREAD_2 = 0.0;
-  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR6M, SPREAD_2, IS_PAYER_2);
+  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR6M, SPREAD_2, IS_PAYER_2, CALENDAR);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(IBOR_LEG_1, IBOR_LEG_2);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -69,8 +69,8 @@ public class SwapIborIborDefinitionTest {
    * Tests the builder (from) using a Ibor/Ibor swap generator.
    */
   public void from() {
-    GeneratorSwapIborIbor generator = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M);
-    SwapIborIborDefinition swapFrom = SwapIborIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, generator, NOTIONAL, SPREAD_1, IS_PAYER_1);
+    final GeneratorSwapIborIbor generator = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M, CALENDAR, CALENDAR);
+    final SwapIborIborDefinition swapFrom = SwapIborIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, generator, NOTIONAL, SPREAD_1, IS_PAYER_1);
     assertEquals("SwapIborIborDefinition: from", swapFrom, SWAP_IBOR_IBOR);
   }
 

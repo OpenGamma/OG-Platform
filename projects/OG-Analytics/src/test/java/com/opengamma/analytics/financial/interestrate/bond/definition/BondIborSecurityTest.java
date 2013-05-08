@@ -50,7 +50,7 @@ public class BondIborSecurityTest {
   private static final int SETTLEMENT_DAYS = 3; // Standard for euro-bonds.
   private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
-  private static final AnnuityCouponIborDefinition COUPON_DEFINITION = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false);
+  private static final AnnuityCouponIborDefinition COUPON_DEFINITION = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false, CALENDAR);
   private static final AnnuityPaymentFixedDefinition NOMINAL_DEFINITION = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, BUSINESS_DAY.adjustDate(
       CALENDAR, MATURITY_DATE), 1.0)});
   // to derivatives
@@ -70,8 +70,8 @@ public class BondIborSecurityTest {
   private static final BondIborSecurity BOND_DESCRIPTION;
 
   static {
-    final List<ZonedDateTime> fixingDates = new ArrayList<ZonedDateTime>();
-    final List<Double> fixingRates = new ArrayList<Double>();
+    final List<ZonedDateTime> fixingDates = new ArrayList<>();
+    final List<Double> fixingRates = new ArrayList<>();
     for (int i = 0; i < COUPON_DEFINITION.getNumberOfPayments(); i++) {
       if (COUPON_DEFINITION.getNthPayment(i).getFixingDate().isBefore(REFERENCE_DATE)) {
         fixingDates.add(COUPON_DEFINITION.getNthPayment(i).getFixingDate());

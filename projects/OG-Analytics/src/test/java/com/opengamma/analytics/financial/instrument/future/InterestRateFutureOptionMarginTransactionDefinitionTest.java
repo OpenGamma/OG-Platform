@@ -46,7 +46,7 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9895;
-  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final boolean IS_CALL = true;
   private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_ERU2 = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE, IS_CALL);
@@ -87,7 +87,7 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
    * Tests the equal and hashCode methods.
    */
   public void equalHash() {
-    InterestRateFutureOptionMarginTransactionDefinition other = new InterestRateFutureOptionMarginTransactionDefinition(OPTION_ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE);
+    final InterestRateFutureOptionMarginTransactionDefinition other = new InterestRateFutureOptionMarginTransactionDefinition(OPTION_ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE);
     assertTrue(OPTION_TRANSACTION.equals(other));
     assertTrue(OPTION_TRANSACTION.hashCode() == other.hashCode());
     InterestRateFutureOptionMarginTransactionDefinition modifidOption;
@@ -101,27 +101,27 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
 
   @Test
   public void toDerivativeTradeInPast() {
-    InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
-    double lastMarginPrice = 0.99;
-    InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, lastMarginPrice, CURVES_NAMES);
-    InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, lastMarginPrice);
+    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    final double lastMarginPrice = 0.99;
+    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, lastMarginPrice, CURVES_NAMES);
+    final InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, lastMarginPrice);
     assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
   }
 
   @Test
   public void toDerivativeTradeToday() {
-    ZonedDateTime referenceDate = TRADE_DATE;
-    InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(referenceDate, CURVES_NAMES);
-    double lastMarginPrice = 0.99;
-    InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
-    InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, TRADE_PRICE);
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(referenceDate, CURVES_NAMES);
+    final double lastMarginPrice = 0.99;
+    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
+    final InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, TRADE_PRICE);
     assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toDerivativeTradeFuture() {
-    ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, -1, CALENDAR);
-    double lastMarginPrice = 0.99;
+    final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, -1, CALENDAR);
+    final double lastMarginPrice = 0.99;
     OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
   }
 

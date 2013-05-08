@@ -70,7 +70,7 @@ public class InstrumentTestHelper {
   public static final double FRA_RATE = 0.004;
   public static final ZonedDateTime SWAP_START = zdt(2001, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final ZonedDateTime SWAP_MATURITY = zdt(2031, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
-  public static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.ofMonths(6), SEMI_ANNUAL_DAY_COUNT, USD_IBOR_INDEX1);
+  public static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.ofMonths(6), SEMI_ANNUAL_DAY_COUNT, USD_IBOR_INDEX1, NO_HOLIDAY);
   public static final double SWAP_NOTIONAL = 789000;
   public static final double SWAP_FIXED_RATE = 0.04;
   public static final double IBOR_SPREAD = 0.01;
@@ -79,7 +79,7 @@ public class InstrumentTestHelper {
   public static final ZonedDateTime FX_MATURITY = DateUtils.getUTCDate(2013, 1, 1);
   public static final double FX_PAY_AMOUNT = -12345;
   public static final double FX_RECEIVE_AMOUNT = 23456;
-  public static final GeneratorSwapIborIbor IBOR_IBOR_GENERATOR = new GeneratorSwapIborIbor("s", USD_IBOR_INDEX1, USD_IBOR_INDEX2);
+  public static final GeneratorSwapIborIbor IBOR_IBOR_GENERATOR = new GeneratorSwapIborIbor("s", USD_IBOR_INDEX1, USD_IBOR_INDEX2, NO_HOLIDAY, NO_HOLIDAY);
   public static final ZonedDateTime DEPOSIT_START = zdt(2012, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final double DEPOSIT_NOTIONAL = -12300;
   public static final double DEPOSIT_RATE = 0.002;
@@ -93,22 +93,22 @@ public class InstrumentTestHelper {
       FIXED_COUPON_MATURITY, 1. / 12, -FIXED_COUPON_NOTIONAL, FIXED_COUPON_RATE);
   public static final CouponFixedDefinition RECEIVE_FIXED_COUPON = CouponFixedDefinition.from(FIXED_INCOME_CURRENCY, FIXED_COUPON_MATURITY, FIXED_COUPON_START,
       FIXED_COUPON_MATURITY, 1. / 12, FIXED_COUPON_NOTIONAL, FIXED_COUPON_RATE);
-  public static final CouponIborDefinition PAY_IBOR_COUPON = CouponIborDefinition.from(-FIXED_COUPON_NOTIONAL, FIXED_COUPON_MATURITY, USD_IBOR_INDEX1);
-  public static final CouponIborDefinition RECEIVE_IBOR_COUPON = CouponIborDefinition.from(FIXED_COUPON_NOTIONAL, FIXED_COUPON_MATURITY, USD_IBOR_INDEX1);
+  public static final CouponIborDefinition PAY_IBOR_COUPON = CouponIborDefinition.from(-FIXED_COUPON_NOTIONAL, FIXED_COUPON_MATURITY, USD_IBOR_INDEX1, NO_HOLIDAY);
+  public static final CouponIborDefinition RECEIVE_IBOR_COUPON = CouponIborDefinition.from(FIXED_COUPON_NOTIONAL, FIXED_COUPON_MATURITY, USD_IBOR_INDEX1, NO_HOLIDAY);
   public static final CouponIborGearingDefinition PAY_IBOR_GEARING_COUPON = CouponIborGearingDefinition.from(PAY_IBOR_COUPON, IBOR_COUPON_SPREAD, GEARING);
   public static final CouponIborGearingDefinition RECEIVE_IBOR_GEARING_COUPON = CouponIborGearingDefinition.from(RECEIVE_IBOR_COUPON, IBOR_COUPON_SPREAD, GEARING);
   public static final CouponIborSpreadDefinition PAY_IBOR_SPREAD_COUPON = CouponIborSpreadDefinition.from(PAY_IBOR_COUPON, IBOR_COUPON_SPREAD);
   public static final CouponIborSpreadDefinition RECEIVE_IBOR_SPREAD_COUPON = CouponIborSpreadDefinition.from(RECEIVE_IBOR_COUPON, IBOR_COUPON_SPREAD);
-  public static final DepositIborDefinition PAY_IBOR_DEPOSIT = DepositIborDefinition.fromStart(DEPOSIT_START, DEPOSIT_NOTIONAL, DEPOSIT_RATE, USD_IBOR_INDEX1);
-  public static final DepositIborDefinition RECEIVE_IBOR_DEPOSIT = DepositIborDefinition.fromStart(DEPOSIT_START, -DEPOSIT_NOTIONAL, DEPOSIT_RATE, USD_IBOR_INDEX1);
+  public static final DepositIborDefinition PAY_IBOR_DEPOSIT = DepositIborDefinition.fromStart(DEPOSIT_START, DEPOSIT_NOTIONAL, DEPOSIT_RATE, USD_IBOR_INDEX1, NO_HOLIDAY);
+  public static final DepositIborDefinition RECEIVE_IBOR_DEPOSIT = DepositIborDefinition.fromStart(DEPOSIT_START, -DEPOSIT_NOTIONAL, DEPOSIT_RATE, USD_IBOR_INDEX1, NO_HOLIDAY);
   public static final ForexDefinition FX_PAY_GBP = ForexDefinition.fromAmounts(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_MATURITY, FX_PAY_AMOUNT, FX_RECEIVE_AMOUNT);
   public static final ForexDefinition FX_PAY_EUR = ForexDefinition.fromAmounts(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_MATURITY, -FX_PAY_AMOUNT, -FX_RECEIVE_AMOUNT);
   public static final ForexNonDeliverableForwardDefinition LONG_NDF = new ForexNonDeliverableForwardDefinition(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, -FX_PAY_AMOUNT,
       -FX_RECEIVE_AMOUNT / FX_PAY_AMOUNT, FX_MATURITY, FX_MATURITY);
   public static final ForexNonDeliverableForwardDefinition SHORT_NDF = new ForexNonDeliverableForwardDefinition(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_PAY_AMOUNT,
       -FX_RECEIVE_AMOUNT / FX_PAY_AMOUNT, FX_MATURITY, FX_MATURITY);
-  public static final ForwardRateAgreementDefinition PAYER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, FRA_NOTIONAL, USD_IBOR_INDEX1, FRA_RATE);
-  public static final ForwardRateAgreementDefinition RECEIVER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, -FRA_NOTIONAL, USD_IBOR_INDEX1, FRA_RATE);
+  public static final ForwardRateAgreementDefinition PAYER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, FRA_NOTIONAL, USD_IBOR_INDEX1, FRA_RATE, NO_HOLIDAY);
+  public static final ForwardRateAgreementDefinition RECEIVER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, -FRA_NOTIONAL, USD_IBOR_INDEX1, FRA_RATE, NO_HOLIDAY);
   public static final PaymentFixedDefinition PAY_FIXED_PAYMENT = new PaymentFixedDefinition(FIXED_INCOME_CURRENCY, PAYMENT_MATURITY, -PAYMENT_AMOUNT);
   public static final PaymentFixedDefinition RECEIVE_FIXED_PAYMENT = new PaymentFixedDefinition(FIXED_INCOME_CURRENCY, PAYMENT_MATURITY, PAYMENT_AMOUNT);
   public static final SwapFixedIborDefinition PAYER_SWAP = SwapFixedIborDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR, SWAP_NOTIONAL, SWAP_FIXED_RATE, true);
@@ -127,8 +127,8 @@ public class InstrumentTestHelper {
   public static final LocalDate TODAY = LocalDate.of(2012, 8, 1);
 
   static {
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
-    final List<Double> fixings = new ArrayList<Double>();
+    final List<LocalDate> dates = new ArrayList<>();
+    final List<Double> fixings = new ArrayList<>();
     LocalDate date = LocalDate.of(2000, 1, 1);
     while (date.isBefore(TODAY)) {
       dates.add(date);

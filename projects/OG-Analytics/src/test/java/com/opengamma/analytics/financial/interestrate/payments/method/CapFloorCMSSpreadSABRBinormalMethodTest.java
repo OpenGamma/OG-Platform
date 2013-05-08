@@ -86,12 +86,12 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, SETTLEMENT_DAYS, CALENDAR);
   // Swap 10Y
   private static final Period ANNUITY_TENOR_1 = Period.ofYears(10);
-  private static final IndexSwap CMS_INDEX_1 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_1);
-  private static final SwapFixedIborDefinition SWAP_DEFINITION_1 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_1, 1.0, RATE, FIXED_IS_PAYER);
+  private static final IndexSwap CMS_INDEX_1 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_1, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_1 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_1, 1.0, RATE, FIXED_IS_PAYER, CALENDAR);
   // Swap 2Y
   private static final Period ANNUITY_TENOR_2 = Period.ofYears(2);
-  private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_2);
-  private static final SwapFixedIborDefinition SWAP_DEFINITION_2 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_2, 1.0, RATE, FIXED_IS_PAYER);
+  private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_2, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_2 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_2, 1.0, RATE, FIXED_IS_PAYER, CALENDAR);
   // CMS spread coupon
   private static final double NOTIONAL = 100000000;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
@@ -115,9 +115,9 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final double SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SWAP_DEFINITION_1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
 
   private static final CapFloorCMSSpreadDefinition CMS_CAP_SPREAD_DEFINITION = new CapFloorCMSSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, PAYMENT_ACCRUAL_FACTOR,
-      NOTIONAL, FIXING_DATE, SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, IS_CAP);
+      NOTIONAL, FIXING_DATE, SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, IS_CAP, CALENDAR, CALENDAR);
   private static final CapFloorCMSSpreadDefinition CMS_FLOOR_SPREAD_DEFINITION = new CapFloorCMSSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, PAYMENT_ACCRUAL_FACTOR,
-      NOTIONAL, FIXING_DATE, SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, !IS_CAP);
+      NOTIONAL, FIXING_DATE, SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, !IS_CAP, CALENDAR, CALENDAR);
 
   private static final CapFloorCMSSpread CMS_CAP_SPREAD = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2,
       SETTLEMENT_TIME, STRIKE, IS_CAP, FUNDING_CURVE_NAME);
@@ -163,7 +163,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value against the price explicitly computed for constant correlation. 
+   * Tests the present value against the price explicitly computed for constant correlation.
    */
   public void presentValue() {
     final double correlation = 0.80;
@@ -205,7 +205,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value with default method and with method without extrapolation. 
+   * Tests the present value with default method and with method without extrapolation.
    */
   public void presentValueConstructor() {
     final CapFloorCMSSpreadSABRBinormalMethod methodDefault = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION, METHOD_CMS_CAP, METHOD_CMS_COUPON);
@@ -276,7 +276,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value. Method vs Calculator. 
+   * Tests the present value. Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
     final CurrencyAmount pvMethod = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_CORRELATION_BUNDLE);
@@ -543,7 +543,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value against the price explicitly computed for constant correlation. 
+   * Tests the present value against the price explicitly computed for constant correlation.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final PresentValueCurveSensitivitySABRCalculator calculator = PresentValueCurveSensitivitySABRCalculator.getInstance();
@@ -713,7 +713,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value against the price explicitly computed for constant correlation. 
+   * Tests the present value against the price explicitly computed for constant correlation.
    */
   public void presentValueSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivitySABRCalculator calculator = PresentValueSABRSensitivitySABRCalculator.getInstance();

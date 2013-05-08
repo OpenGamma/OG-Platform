@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.fra.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +65,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final double NOTIONAL = 1000000; //1m
   // Coupon with specific payment and accrual dates.
   private static final ForwardRateAgreementDefinition FRA_DEFINITION = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
-      FIXING_DATE, INDEX, FRA_RATE);
+      FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
   // To derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 10, 9);
 
@@ -117,7 +116,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   public void presentValueBuySellParity() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
-        FIXING_DATE, INDEX, FRA_RATE);
+        FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
     final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVE_NAME_1);
     final CurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, curves);
     final CurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, curves);
@@ -275,8 +274,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final ForwardRateAgreement fra2 = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
     final double parSpread = FRA_METHOD.parSpread(fra2, CURVES_2);
     final ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
-        INDEX,
-        FRA_RATE + parSpread);
+        INDEX, FRA_RATE + parSpread, CALENDAR);
     final ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
     final double pv0 = fra0.accept(PVC, CURVES_2);
     assertEquals("FRA discounting: par spread", pv0, 0, TOLERANCE_PV);

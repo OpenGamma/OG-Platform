@@ -37,7 +37,7 @@ public class CouponFixedCompoundingDefinitionTest {
   private static final double NOTIONAL = 123454321;
   private static final double FIXED_RATE = .02;
 
-  private static final ZonedDateTime[] ACCRUAL_END_DATES = ScheduleCalculator.getAdjustedDateSchedule(START_DATE, TENOR_3M, true, false, USDLIBOR1M);
+  private static final ZonedDateTime[] ACCRUAL_END_DATES = ScheduleCalculator.getAdjustedDateSchedule(START_DATE, TENOR_3M, true, false, USDLIBOR1M, NYC);
   private static final int NB_SUB_PERIOD = ACCRUAL_END_DATES.length;
   private static final ZonedDateTime[] ACCRUAL_START_DATES = new ZonedDateTime[NB_SUB_PERIOD];
   private static final double[] PAYMENT_ACCRUAL_FACTORS = new double[NB_SUB_PERIOD];
@@ -56,7 +56,7 @@ public class CouponFixedCompoundingDefinitionTest {
     PAYMENT_ACCRUAL_FACTOR = af;
   }
   private static final ZonedDateTime[] FIXING_DATES = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATES, -USDLIBOR1M.getSpotLag(), NYC);
-  private static final ZonedDateTime[] FIXING_PERIOD_END_DATES = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATES, USDLIBOR1M);
+  private static final ZonedDateTime[] FIXING_PERIOD_END_DATES = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATES, USDLIBOR1M, NYC);
   private static final double[] FIXING_ACCRUAL_FACTORS = new double[NB_SUB_PERIOD];
   static {
     for (int loopsub = 0; loopsub < NB_SUB_PERIOD; loopsub++) {

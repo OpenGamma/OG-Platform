@@ -41,7 +41,6 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
 
   private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;

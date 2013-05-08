@@ -7,9 +7,6 @@ package com.opengamma.analytics.financial.schedule;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.DayOfWeek;
@@ -143,14 +140,14 @@ public class ScheduleCalculatorTest {
     assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 10, 31), ScheduleCalculator.getAdjustedDate(eom31NGBD, m3, GENERATOR_DEPOSIT));
     assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 9, 30), ScheduleCalculator.getAdjustedDate(eom31NGBD, m2, GENERATOR_DEPOSIT));
     assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, m6, GENERATOR_DEPOSIT));
-    assertEquals("Adjusted date", stdEnd, ScheduleCalculator.getAdjustedDate(stdStart, m1, INDEX_EURIBOR6M));
-    assertEquals("Adjusted date", ngbdEnd, ScheduleCalculator.getAdjustedDate(ngbdStart, m1, INDEX_EURIBOR6M));
-    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 10, 31), ScheduleCalculator.getAdjustedDate(eom31NGBD, m3, INDEX_EURIBOR6M));
-    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 9, 30), ScheduleCalculator.getAdjustedDate(eom31NGBD, m2, INDEX_EURIBOR6M));
-    assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, m6, INDEX_EURIBOR6M));
-    assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, INDEX_EURIBOR6M));
+    assertEquals("Adjusted date", stdEnd, ScheduleCalculator.getAdjustedDate(stdStart, m1, INDEX_EURIBOR6M, CALENDAR));
+    assertEquals("Adjusted date", ngbdEnd, ScheduleCalculator.getAdjustedDate(ngbdStart, m1, INDEX_EURIBOR6M, CALENDAR));
+    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 10, 31), ScheduleCalculator.getAdjustedDate(eom31NGBD, m3, INDEX_EURIBOR6M, CALENDAR));
+    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 9, 30), ScheduleCalculator.getAdjustedDate(eom31NGBD, m2, INDEX_EURIBOR6M, CALENDAR));
+    assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, m6, INDEX_EURIBOR6M, CALENDAR));
+    assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, INDEX_EURIBOR6M, CALENDAR));
     assertArrayEquals("Adjusted date", new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 31), DateUtils.getUTCDate(2012, 5, 31) },
-        ScheduleCalculator.getAdjustedDate(new ZonedDateTime[] {eom30, eom30 }, INDEX_EURIBOR6M));
+        ScheduleCalculator.getAdjustedDate(new ZonedDateTime[] {eom30, eom30 }, INDEX_EURIBOR6M, CALENDAR));
     //    ZonedDateTime eom31 = DateUtils.getUTCDate(2011, 10, 31);
     //    ZonedDateTime eom30NGBD = DateUtils.getUTCDate(2011, 4, 29);
   }
@@ -167,7 +164,7 @@ public class ScheduleCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void adjustedDatesPeriodNullBusinessDay() {
-    ScheduleCalculator.getAdjustedDate(NOW, PAYMENT_TENOR, null, CALENDAR);
+    ScheduleCalculator.getAdjustedDate(NOW, PAYMENT_TENOR, null, CALENDAR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -212,12 +209,12 @@ public class ScheduleCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void adjustedDatesPeriodIndexNullDate() {
-    ScheduleCalculator.getAdjustedDate((ZonedDateTime) null, INDEX_EURIBOR6M);
+    ScheduleCalculator.getAdjustedDate((ZonedDateTime) null, INDEX_EURIBOR6M, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void adjustedDatesPeriodIndexNullIndex() {
-    ScheduleCalculator.getAdjustedDate(NOW, null);
+    ScheduleCalculator.getAdjustedDate(NOW, (IborIndex) null, CALENDAR);
   }
 
   @Test
@@ -352,7 +349,7 @@ public class ScheduleCalculatorTest {
     final ZonedDateTime[] midMonthModFolTenor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, m6, false, false, MOD_FOL, CALENDAR, false);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolTenor);
     final IborIndex ibor = new IborIndex(Currency.EUR, m6, 0, CALENDAR, DayCountFactory.INSTANCE.getDayCount("Actual/360"), MOD_FOL, false);
-    final ZonedDateTime[] midMonthModFolIbor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, false, false, ibor);
+    final ZonedDateTime[] midMonthModFolIbor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, false, false, ibor, CALENDAR);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolIbor);
     final ZonedDateTime[] midMonthModFolFreq = ScheduleCalculator.getAdjustedDateSchedule(midMonth, midMonth.plus(y5), semi, false, false, MOD_FOL, CALENDAR, false);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolFreq);

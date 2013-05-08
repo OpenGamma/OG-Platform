@@ -41,11 +41,9 @@ public class CouponIborTest {
   private static final double NOTIONAL = 1000000; //1m
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE, -INDEX_EURIBOR3M.getSpotLag(), TARGET); // In arrears
   private static final ZonedDateTime FIXING_START_DATE = ACCRUAL_END_DATE;
-  private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, INDEX_EURIBOR3M);
+  private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, INDEX_EURIBOR3M, TARGET);
 
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
-  //  private static final double ACCRUAL_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATE);
-  //  private static final double ACCRUAL_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_START_DATE);
   private static final double FIXING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE);
   private static final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_START_DATE);
   private static final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
@@ -101,7 +99,7 @@ public class CouponIborTest {
    */
   public void testEqualHash() {
     assertEquals("CouponIbor: equal-hash", CPN_IBOR, CPN_IBOR);
-    CouponIbor other = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+    final CouponIbor other = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
         FORWARD_CURVE_NAME);
     assertEquals("CouponIbor: equal-hash", other, CPN_IBOR);
     assertEquals("CouponIbor: equal-hash", other.hashCode(), CPN_IBOR.hashCode());

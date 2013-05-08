@@ -50,7 +50,7 @@ public class CapFloorHullWhiteCalibrationObjectiveTest {
   private static final double STRIKE = 0.04;
   private static final boolean IS_CAP = true;
   private static final boolean IS_PAYER = false;
-  private static final AnnuityCapFloorIborDefinition CAP_DEFINITION = AnnuityCapFloorIborDefinition.fromWithNoInitialCaplet(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, INDEX, IS_PAYER, STRIKE, IS_CAP);
+  private static final AnnuityCapFloorIborDefinition CAP_DEFINITION = AnnuityCapFloorIborDefinition.fromWithNoInitialCaplet(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, INDEX, IS_PAYER, STRIKE, IS_CAP, CALENDAR);
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();

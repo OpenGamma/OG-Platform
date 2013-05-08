@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -56,7 +55,7 @@ public class SensitivityFiniteDifferenceTest {
   private static final double NOTIONAL = 1000000; //1m
   // Coupon with specific payment and accrual dates.
   private static final ForwardRateAgreementDefinition FRA_DEFINITION = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
-      FIXING_DATE, INDEX, FRA_RATE);
+      FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
   // To derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2009, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";

@@ -17,7 +17,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * A list of generators for swaps Fixed/ON available for tests.
@@ -53,10 +52,10 @@ public final class GeneratorSwapFixedONMaster {
     final BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     _generatorSwap = new HashMap<>();
     final IndexON fedFund = indexONMaster.getIndex("FED FUND", baseCalendar);
-    _generatorSwap.put("USD1YFEDFUND", new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, Period.ofMonths(12), act360, modFol, true, 2, 2));
-    _generatorSwap.put("EUR1YEONIA", new GeneratorSwapFixedON("EUR1YEONIA", indexONMaster.getIndex("EONIA", baseCalendar), Period.ofMonths(12), act360, modFol, true, 2, 2));
-    _generatorSwap.put("AUD1YRBAON", new GeneratorSwapFixedON("AUD1YRBAON", indexONMaster.getIndex("RBA ON", baseCalendar), Period.ofMonths(12), act365, modFol, true, 2, 1));
-    _generatorSwap.put("JPY1YTONAR", new GeneratorSwapFixedON("JPY1YTONAR", indexONMaster.getIndex("TONAR", baseCalendar), Period.ofMonths(12), act365, modFol, true, 2, 1));
+    _generatorSwap.put("USD1YFEDFUND", new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, Period.ofMonths(12), act360, modFol, true, 2, 2, baseCalendar));
+    _generatorSwap.put("EUR1YEONIA", new GeneratorSwapFixedON("EUR1YEONIA", indexONMaster.getIndex("EONIA", baseCalendar), Period.ofMonths(12), act360, modFol, true, 2, 2, baseCalendar));
+    _generatorSwap.put("AUD1YRBAON", new GeneratorSwapFixedON("AUD1YRBAON", indexONMaster.getIndex("RBA ON", baseCalendar), Period.ofMonths(12), act365, modFol, true, 2, 1, baseCalendar));
+    _generatorSwap.put("JPY1YTONAR", new GeneratorSwapFixedON("JPY1YTONAR", indexONMaster.getIndex("TONAR", baseCalendar), Period.ofMonths(12), act365, modFol, true, 2, 1, baseCalendar));
   }
 
   public GeneratorSwapFixedON getGenerator(final String name, final Calendar cal) {
@@ -67,7 +66,7 @@ public final class GeneratorSwapFixedONMaster {
     final IndexON indexNoCalendar = generatorNoCalendar.getIndex();
     final IndexON index = new IndexON(indexNoCalendar.getName(), indexNoCalendar.getCurrency(), indexNoCalendar.getDayCount(), indexNoCalendar.getPublicationLag(), cal);
     return new GeneratorSwapFixedON(generatorNoCalendar.getName(), index, generatorNoCalendar.getLegsPeriod(), generatorNoCalendar.getFixedLegDayCount(),
-        generatorNoCalendar.getBusinessDayConvention(), generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getSpotLag(), generatorNoCalendar.getPaymentLag());
+        generatorNoCalendar.getBusinessDayConvention(), generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getSpotLag(), generatorNoCalendar.getPaymentLag(), cal);
   }
 
 }

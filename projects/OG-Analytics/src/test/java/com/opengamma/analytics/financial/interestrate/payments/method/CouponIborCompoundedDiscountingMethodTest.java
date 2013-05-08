@@ -49,7 +49,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
   private static final Period M6 = Period.ofMonths(6);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
-  private static final CouponIborCompoundingDefinition CPN_DEFINITION = CouponIborCompoundingDefinition.from(NOTIONAL, START_DATE, M6, CDOR3M);
+  private static final CouponIborCompoundingDefinition CPN_DEFINITION = CouponIborCompoundingDefinition.from(NOTIONAL, START_DATE, M6, CDOR3M, TOR);
 
   private static final CouponIborCompoundedDiscountingMethod METHOD_COMPOUNDED = CouponIborCompoundedDiscountingMethod.getInstance();
 

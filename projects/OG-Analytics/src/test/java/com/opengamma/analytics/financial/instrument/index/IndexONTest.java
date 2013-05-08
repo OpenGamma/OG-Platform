@@ -62,7 +62,6 @@ public class IndexONTest {
     assertEquals(US_OIS.getCurrency(), US_CUR);
     assertEquals(US_OIS.getDayCount(), US_DAY_COUNT);
     assertEquals(US_OIS.getPublicationLag(), US_PUBLICATION_LAG);
-    assertEquals(US_OIS.getCalendar(), US_CALENDAR);
   }
 
   @Test
@@ -71,7 +70,6 @@ public class IndexONTest {
     assertEquals(EUR_OIS.getCurrency(), EUR_CUR);
     assertEquals(EUR_OIS.getDayCount(), EUR_DAY_COUNT);
     assertEquals(EUR_OIS.getPublicationLag(), EUR_PUBLICATION_LAG);
-    assertEquals(EUR_OIS.getCalendar(), EUR_CALENDAR);
   }
 
   @Test
@@ -81,7 +79,7 @@ public class IndexONTest {
   public void equalHash() {
     assertEquals("OIS Index: equal/hash code", US_OIS, US_OIS);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(EUR_OIS));
-    IndexON other = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+    final IndexON other = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
     assertEquals("OIS Index: equal/hash code", US_OIS, other);
     assertEquals("OIS Index: equal/hash code", US_OIS.hashCode(), other.hashCode());
     IndexON modified;

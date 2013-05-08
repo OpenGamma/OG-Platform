@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -71,11 +70,10 @@ public class IborIndexTest {
     assertEquals(INDEX.getCurrency(), CUR);
     assertEquals(INDEX.getTenor(), TENOR);
     assertEquals(INDEX.getSpotLag(), SETTLEMENT_DAYS);
-    assertEquals(INDEX.getCalendar(), CALENDAR);
     assertEquals(INDEX.getDayCount(), DAY_COUNT);
     assertEquals(INDEX.getBusinessDayConvention(), BUSINESS_DAY);
     assertEquals(INDEX.isEndOfMonth(), IS_EOM);
-    String name = "Ibor";
+    final String name = "Ibor";
     assertEquals(name, INDEX.getName());
     assertEquals(name, INDEX.toString());
     assertEquals(NAME, INDEX2.getName());
@@ -84,16 +82,16 @@ public class IborIndexTest {
   @Test
   public void testEqualHash() {
     assertEquals(INDEX, INDEX);
-    IborIndex indexDuplicate = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    final IborIndex indexDuplicate = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertEquals(INDEX, indexDuplicate);
     assertEquals(INDEX.hashCode(), indexDuplicate.hashCode());
-    IborIndex indexNoEOM1 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
-    IborIndex indexNoEOM2 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
+    final IborIndex indexNoEOM1 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
+    final IborIndex indexNoEOM2 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     assertEquals(indexNoEOM1.hashCode(), indexNoEOM2.hashCode());
-    Currency currencyModified = Currency.USD;
+    final Currency currencyModified = Currency.USD;
     IborIndex indexModified = new IborIndex(currencyModified, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     assertFalse(INDEX.equals(indexModified));
-    Period tenorModified = Period.ofMonths(2);
+    final Period tenorModified = Period.ofMonths(2);
     indexModified = new IborIndex(CUR, tenorModified, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
     indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS + 1, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
@@ -102,10 +100,10 @@ public class IborIndexTest {
     assertFalse(INDEX.equals(indexModified));
     indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), IS_EOM);
     assertFalse(INDEX.equals(indexModified));
-    Currency otherCurrency = Currency.USD;
+    final Currency otherCurrency = Currency.USD;
     indexModified = new IborIndex(otherCurrency, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
-    Period otherTenor = Period.ofMonths(6);
+    final Period otherTenor = Period.ofMonths(6);
     indexModified = new IborIndex(CUR, otherTenor, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
     assertFalse(INDEX.equals(null));

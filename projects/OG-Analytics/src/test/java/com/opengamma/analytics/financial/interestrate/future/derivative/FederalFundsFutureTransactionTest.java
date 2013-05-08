@@ -38,7 +38,7 @@ public class FederalFundsFutureTransactionTest {
 
   private static final String CURVE_NAME = "OIS";
 
-  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, NYC);
   private static final FederalFundsFutureSecurity FUTURE_SECURITY_BEFOREFIXING = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME);
 
   private static final FederalFundsFutureTransaction FUTURE_TRANSACTION = new FederalFundsFutureTransaction(FUTURE_SECURITY_BEFOREFIXING, QUANTITY, TRADE_PRICE);
@@ -64,11 +64,11 @@ public class FederalFundsFutureTransactionTest {
    */
   public void equalHash() {
     assertTrue(FUTURE_TRANSACTION.equals(FUTURE_TRANSACTION));
-    FederalFundsFutureTransaction other = new FederalFundsFutureTransaction(FUTURE_SECURITY_BEFOREFIXING, QUANTITY, TRADE_PRICE);
+    final FederalFundsFutureTransaction other = new FederalFundsFutureTransaction(FUTURE_SECURITY_BEFOREFIXING, QUANTITY, TRADE_PRICE);
     assertTrue(FUTURE_TRANSACTION.equals(other));
     assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
     FederalFundsFutureTransaction modifiedFuture;
-    FederalFundsFutureSecurity otherSecurity = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1), CURVE_NAME);
+    final FederalFundsFutureSecurity otherSecurity = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1), CURVE_NAME);
     modifiedFuture = new FederalFundsFutureTransaction(otherSecurity, QUANTITY, TRADE_PRICE);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     modifiedFuture = new FederalFundsFutureTransaction(FUTURE_SECURITY_BEFOREFIXING, QUANTITY + 1, TRADE_PRICE);

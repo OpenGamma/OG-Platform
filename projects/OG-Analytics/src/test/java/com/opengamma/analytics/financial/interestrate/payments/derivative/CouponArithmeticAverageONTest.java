@@ -39,11 +39,11 @@ public class CouponArithmeticAverageONTest {
   private static final double NOTIONAL = 100000000; // 100m
   private static final int PAYMENT_LAG = 2;
 
-  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, TENOR_3M, USDLIBOR3M);
+  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, TENOR_3M, USDLIBOR3M, NYC);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE, -1 + FEDFUND.getPublicationLag() + PAYMENT_LAG, NYC);
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3M_2_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG);
+  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3M_2_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, NYC);
   private static final double[] FIXING_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_2_DEF.getFixingPeriodDate());
 
   private static final double ACCRUED_RATE = 0.0001;
@@ -75,7 +75,7 @@ public class CouponArithmeticAverageONTest {
   @Test
   public void equalHash() {
     assertEquals("CouponArithmeticAverageON: equal-hash", CPN_AA_ON, CPN_AA_ON);
-    CouponArithmeticAverageON other = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
+    final CouponArithmeticAverageON other = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
         NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactor(), ACCRUED_RATE);
     assertEquals("CouponArithmeticAverageON: equal-hash", CPN_AA_ON, other);
     assertEquals("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.hashCode(), other.hashCode());
@@ -90,7 +90,7 @@ public class CouponArithmeticAverageONTest {
     modified = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL + 10, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactor(),
         ACCRUED_RATE);
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(modified));
-    IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA", NYC);
+    final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA", NYC);
     modified = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, modifiedIndex, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactor(),
         ACCRUED_RATE);
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(modified));
