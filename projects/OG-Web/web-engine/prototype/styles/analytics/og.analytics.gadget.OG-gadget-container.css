@@ -9,6 +9,11 @@
     left: 0;
     right: 0;
     overflow: hidden;
+    border: 1px solid #bbb;
+}
+
+.OG-gadget-container.og-focus {
+    border: 1px solid #555;
 }
 
 .OG-gadget-container:before {

@@ -4,19 +4,18 @@
  */
 
 .OG-gadget-tabs {
-    text-transform: uppercase;
-    font-size: 10px;
     color: #555;
     text-shadow: 0 1px 0 #fff;
-    border-top: 1px solid #fff;
     white-space: nowrap;
-    height: 23px;
+    height: 21px;
+    position: relative;
+    z-index: 1;
 }
 
 .OG-gadget-tabs-label {
     display: inline;
     position: relative;
-    top: -1px;
+    top: -2px;
     z-index: 1;
 }
 
@@ -34,11 +33,12 @@
     display: inline-block;
     list-style: none;
     background: #eee;
-    border-top: 1px solid #d8d8d8;
-    border-bottom: 1px solid #d8d8d8;
     border-right: 1px solid #d8d8d8;
+    border-top: 1px solid #ddd;
     position: relative;
     cursor: move;
+    top: -1px;
+    font-size: 11px;
 }
 
 .OG-gadget-tabs li:first-child {
@@ -70,39 +70,28 @@
     }
 
 /* top colour hover notifier */
-    .OG-gadget-tabs li:hover:after {
-        content: '';
-        display: block;
-        position: absolute;
-        top: -2px;
-        border-top: 2px solid #ccc;
-        -webkit-border-top-left-radius: 1px;
-        -webkit-border-top-right-radius: 1px;
-        -moz-border-radius-topleft: 1px;
-        -moz-border-radius-topright: 1px;
-        border-top-left-radius: 1px;
-        border-top-right-radius: 1px;
+    .OG-gadget-tabs li:hover {
+        border-top: 1px solid #555!important;
     }
 
 /* top colour active notifier */
-    .OG-gadget-tabs .og-active:after {
-        content: '';
-        display: block;
-        position: absolute;
-        top: -2px;
-        border-top: 2px solid #80c696!important;
-        -webkit-border-top-left-radius: 1px;
-        -webkit-border-top-right-radius: 1px;
-        -moz-border-radius-topleft: 1px;
-        -moz-border-radius-topright: 1px;
-        border-top-left-radius: 1px;
-        border-top-right-radius: 1px;
-    }
-
     .OG-gadget-tabs li.og-active {
         background-color: #fff;
         z-index: 5;
+        border: 1px solid #bbb;
+        border-bottom: 1px solid #fff;
+        line-height: 18px;
     }
+
+    .OG-gadget-tabs li.og-focus {
+        border: 1px solid #555;
+        border-bottom: 1px solid #fff;
+    }
+
+    .OG-gadget-tabs li.og-active .OG-gadget-tabs-label {
+        padding: 2px 5px 0 0;
+    }
+
 
     .OG-gadget-tabs li.og-active:after {
         background-color: transparent;
@@ -149,7 +138,7 @@
 
 
     .OG-gadget-tabs li > div:first-child {
-        padding: 2px 5px 1px 5px;
+        padding: 3px 5px 0 5px;
     }
 
     .OG-gadget-tabs li:last-child {
@@ -184,6 +173,8 @@
     .OG-gadget-tabs .OG-multiselect {
         display: none;
         margin: -1px 0 0 -4px;
+        top: -1px;
+        position: relative;
     }
 
     .OG-gadget-tabs .og-active .OG-multiselect {

@@ -7,9 +7,10 @@
 	border: 1px solid #dadcdd;
 	display: none;
 	margin-left: -3px;
-	margin-top: 1px;
 	position: fixed;
 	z-index: 6;
+	font-size: 11px;
+	line-height: 20px;
 }
 
 .OG-analytics-typemenu .og-menu div {
@@ -28,7 +29,6 @@
 
 .OG-analytics-typemenu {
     border: 1px solid transparent;
-    text-transform: uppercase;
     display: inline-block;
     height: 18px;
     margin: 0;
@@ -80,7 +80,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Depgraph {
-    top: 3px;
+    top: 2px;
     height: 14px;
 }
 
@@ -90,7 +90,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Curve {
-    top: 3px;
+    top: 2px;
     height: 13px;
 }
 
@@ -100,7 +100,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Data {
-    top: 3px;
+    top: 2px;
     height: 13px;
 }
 
@@ -110,7 +110,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Surface {
-    top: 3px;
+    top: 2px;
     height: 15px;
 }
 
@@ -120,7 +120,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Timeseries {
-    top: 3px;
+    top: 2px;
     height: 13px;
 }
 
@@ -130,7 +130,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Histogram {
-    top: 3px;
+    top: 2px;
     height: 11px;
 }
 
@@ -140,7 +140,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Log {
-    top: 3px;
+    top: 2px;
     height: 14px;
 }
 
@@ -150,7 +150,7 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-ExpandedPositions {
-    top: 3px;
+    top: 2px;
     height: 12px;
 }
 
@@ -160,6 +160,6 @@
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Text {
-    top: 3px;
+    top: 2px;
     height: 12px;
 }

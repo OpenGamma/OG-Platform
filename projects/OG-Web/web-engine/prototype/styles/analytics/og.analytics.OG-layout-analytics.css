@@ -11,4 +11,6 @@
 
 .OG-layout-analytics-center {
     background: #fff;
+    border: 1px solid #bbb;
+    border-top: none;
 }
