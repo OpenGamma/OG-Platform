@@ -14,9 +14,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -30,7 +28,6 @@ import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -49,22 +46,17 @@ public class DbUserMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _userMaster = (DbUserMaster) context.getBean(getDatabaseType() + "DbUserMaster");
+    _userMaster = new DbUserMaster(getDbConnector());
   }
 
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     _userMaster = null;
     super.tearDown();
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

@@ -5,6 +5,23 @@
  */
 package com.opengamma.masterdb.org;
 
+import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
+import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
+
 import com.opengamma.core.obligor.CreditRating;
 import com.opengamma.core.obligor.CreditRatingFitch;
 import com.opengamma.core.obligor.CreditRatingMoodys;
@@ -15,29 +32,9 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.orgs.ManageableOrganization;
 import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.masterdb.orgs.DbOrganizationMaster;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-import org.threeten.bp.Clock;
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneId;
-
-import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
-import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
 /**
  * Base tests for DbOrganizationMasterWorker via DbOrganizationMaster.
@@ -61,24 +58,25 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeClass(groups = TestGroup.UNIT_DB)
   public void setUpClass() throws Exception {
     if (_readOnly) {
       init();
     }
   }
 
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();
     }
   }
 
+  //-------------------------------------------------------------------------
   private void init() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _orgMaster = (DbOrganizationMaster) context.getBean(getDatabaseType() + "DbOrganizationMaster");
+    _orgMaster = new DbOrganizationMaster(getDbConnector());
 
 //    id bigint NOT NULL,
 //    oid bigint NOT NULL,
@@ -222,7 +220,8 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
     _totalOrganizations = 3;
   }
 
-  @AfterMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     if (_readOnly == false) {
       _orgMaster = null;
@@ -230,7 +229,7 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterClass(alwaysRun = true)
+  @AfterClass(groups = TestGroup.UNIT_DB)
   public void tearDownClass() throws Exception {
     if (_readOnly) {
       _orgMaster = null;
@@ -238,12 +237,7 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
-  }
-
-
+  //-------------------------------------------------------------------------
   protected void assert101(final OrganizationDocument test) {
     UniqueId uniqueId = UniqueId.of("DbOrg", "101", "0");
     assertNotNull(test);

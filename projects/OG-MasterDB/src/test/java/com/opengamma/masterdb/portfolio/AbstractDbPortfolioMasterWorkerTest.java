@@ -13,11 +13,9 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,7 +29,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -59,14 +56,15 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeClass(groups = TestGroup.UNIT_DB)
   public void setUpClass() throws Exception {
     if (_readOnly) {
       init();
     }
   }
 
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     _includePositions = true;
     if (_readOnly == false) {
@@ -74,10 +72,10 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   private void init() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _prtMaster = (DbPortfolioMaster) context.getBean(getDatabaseType() + "DbPortfolioMaster");
+    _prtMaster = new DbPortfolioMaster(getDbConnector());
     
     _now = OffsetDateTime.now();
     _prtMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
@@ -139,7 +137,8 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     _totalPositions = 6;
   }
 
-  @AfterMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     if (_readOnly == false) {
       _prtMaster = null;
@@ -147,17 +146,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterClass(alwaysRun = true)
+  @AfterClass(groups = TestGroup.UNIT_DB)
   public void tearDownClass() throws Exception {
     if (_readOnly) {
       _prtMaster = null;
       super.tearDown();
     }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

@@ -12,10 +12,8 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
@@ -30,7 +28,6 @@ import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -57,11 +54,11 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _htsMaster = (DbHistoricalTimeSeriesMaster) context.getBean(getDatabaseType() + "DbHistoricalTimeSeriesMaster");
+    _htsMaster = new DbHistoricalTimeSeriesMaster(getDbConnector());
     
     _now = OffsetDateTime.now();
     _htsMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
@@ -162,15 +159,10 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
         101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version4Instant), 3.33d);
   }
 
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     _htsMaster = null;
     super.tearDown();
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

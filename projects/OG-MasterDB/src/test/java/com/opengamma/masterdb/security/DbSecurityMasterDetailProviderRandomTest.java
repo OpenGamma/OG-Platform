@@ -7,15 +7,12 @@ package com.opengamma.masterdb.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -42,11 +39,10 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   /**
    * @throws java.lang.Exception
    */
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    DbSecurityMaster secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
+    DbSecurityMaster secMaster = new DbSecurityMaster(getDbConnector());
     s_logger.debug("SecMaster initialization complete {}", secMaster);
     _testCase = new SecurityMasterTestCase(secMaster);
   }
@@ -54,14 +50,9 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   /**
    * @throws java.lang.Exception
    */
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     super.tearDown();
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

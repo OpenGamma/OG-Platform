@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -37,7 +36,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -60,12 +58,12 @@ public class DbBatchMasterTest extends DbTest {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
-  @BeforeMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
 
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _batchMaster = (DbBatchMaster) context.getBean(getDatabaseType() + "DbBatchMaster");
+    _batchMaster = new DbBatchMaster(getDbConnector());
 
     final String calculationConfigName = "config_1";
 
@@ -123,9 +121,9 @@ public class DbBatchMasterTest extends DbTest {
       }
 
     };
-
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void searchAllBatches() {
     final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                

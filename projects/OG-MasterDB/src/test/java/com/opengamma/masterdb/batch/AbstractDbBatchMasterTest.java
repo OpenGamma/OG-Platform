@@ -12,7 +12,6 @@ import java.sql.Types;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
@@ -22,34 +21,31 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT_DB)
 public abstract class AbstractDbBatchMasterTest extends DbTest {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchMasterTest.class);
 
   protected DbBatchMaster _batchMaster;
-  
   protected UniqueId _marketDataSnapshotUid = UniqueId.of("MrkDta", "market_data_snapshot_uid");
   protected UniqueId _viewDefinitionUid = UniqueId.of("ViewDef", "view definition uid");
   protected VersionCorrection _versionCorrection = VersionCorrection.LATEST;
   protected Instant _valuationTime = Instant.parse("2011-01-01T15:58:34.183Z");
-
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchMasterTest.class);
 
   public AbstractDbBatchMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
 
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _batchMaster = (DbBatchMaster) context.getBean(getDatabaseType() + "DbBatchMaster");
+    _batchMaster = new DbBatchMaster(getDbConnector());
     
     Timestamp now = toSqlTimestamp(Instant.now());
 
@@ -65,11 +61,10 @@ public abstract class AbstractDbBatchMasterTest extends DbTest {
         new SqlParameterValue(Types.TIMESTAMP, null), toSqlTimestamp(_valuationTime), 0, false);
   }
 
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     _batchMaster = null;
     super.tearDown();
   }
-
 
 }

@@ -8,9 +8,7 @@ import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -33,7 +31,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -56,24 +53,19 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
-    final ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _snpMaster = (DbMarketDataSnapshotMaster) context.getBean(getDatabaseType() + "DbMarketDataSnapshotMaster");
+    _snpMaster = new DbMarketDataSnapshotMaster(getDbConnector());
   }
 
   @Override
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     super.tearDown();
     _snpMaster = null;
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

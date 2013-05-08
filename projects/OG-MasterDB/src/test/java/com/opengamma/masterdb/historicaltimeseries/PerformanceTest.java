@@ -7,7 +7,6 @@ package com.opengamma.masterdb.historicaltimeseries;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
@@ -20,10 +19,10 @@ import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * A performance test of time-series.
@@ -41,14 +40,14 @@ public class PerformanceTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _htsMaster = (DbHistoricalTimeSeriesMaster) context.getBean(getDatabaseType() + "DbHistoricalTimeSeriesMaster");
+    _htsMaster = new DbHistoricalTimeSeriesMaster(getDbConnector());
   }
 
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     super.tearDown();
     _htsMaster = null;

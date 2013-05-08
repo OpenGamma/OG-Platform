@@ -17,11 +17,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -38,7 +36,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -64,7 +61,8 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeClass(groups = TestGroup.UNIT_DB)
   public void setUpClass() throws Exception {
     if (_readOnly) {
       init();
@@ -72,17 +70,17 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
   }
 
   @Override
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();
     }
   }
 
+  //-------------------------------------------------------------------------
   private void init() throws Exception {
     super.setUp();
-    final ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _posMaster = (DbPositionMaster) context.getBean(getDatabaseType() + "DbPositionMaster");
+    _posMaster = new DbPositionMaster(getDbConnector());
 
     _now = OffsetDateTime.now();
     _posMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
@@ -189,8 +187,9 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 408, 507);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     if (_readOnly == false) {
       _posMaster = null;
@@ -199,17 +198,12 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
   }
 
   @Override
-  @AfterClass(alwaysRun = true)
+  @AfterClass(groups = TestGroup.UNIT_DB)
   public void tearDownClass() throws Exception {
     if (_readOnly) {
       _posMaster = null;
       super.tearDown();
     }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

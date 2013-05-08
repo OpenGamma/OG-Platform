@@ -12,15 +12,12 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.calcnode.stats.FunctionCostsDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -40,22 +37,16 @@ public class DbFunctionCostsMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _costsMaster = (DbFunctionCostsMaster) context.getBean(getDatabaseType() + "DbFunctionCostsMaster");
+    _costsMaster = new DbFunctionCostsMaster(getDbConnector());
   }
 
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     _costsMaster = null;
     super.tearDown();
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

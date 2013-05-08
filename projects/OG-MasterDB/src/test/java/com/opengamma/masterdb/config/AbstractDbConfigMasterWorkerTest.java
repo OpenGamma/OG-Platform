@@ -20,7 +20,6 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
@@ -28,7 +27,6 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -42,7 +40,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -72,20 +69,22 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @BeforeClass(groups = TestGroup.UNIT_DB)
   public void setUpClass() throws Exception {
     if (_readOnly) {
       init();
     }
   }
 
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();
     }
   }
 
+  //-------------------------------------------------------------------------
   protected ObjectId setupTestData(Instant now) {
     Clock origClock = _cfgMaster.getClock();
     try {
@@ -97,7 +96,6 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
 
       ObjectId baseOid = initial.getObjectId();
 
-      //------------------------------------------------------------------------------------------------------------------
       List<ConfigDocument> firstReplacement = newArrayList();
       for (int i = 0; i < 5; i++) {
         String val = "setup_" + i;
@@ -108,8 +106,8 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
       }
       _cfgMaster.setClock(Clock.fixed(now.plus(1, HOURS), ZoneOffset.UTC));
       _cfgMaster.replaceVersions(baseOid.getObjectId(), firstReplacement);
-
       return baseOid;
+      
     } finally {
       _cfgMaster.setClock(origClock);
     }
@@ -117,9 +115,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
 
   private void init() throws Exception {
     super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _cfgMaster = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
-    
+    _cfgMaster = new DbConfigMaster(getDbConnector());
     Instant now = Instant.now();
     _cfgMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
     _version1aInstant = now.minusSeconds(102);
@@ -173,7 +169,8 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     _totalBundles = 3;
   }
 
-  @AfterMethod(alwaysRun = true)
+  //-------------------------------------------------------------------------
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     if (_readOnly == false) {
       _cfgMaster = null;
@@ -181,17 +178,13 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterClass(alwaysRun = true)
+  @AfterClass(groups = TestGroup.UNIT_DB)
   public void tearDownClass() throws Exception {
     if (_readOnly) {
       _cfgMaster = null;
       super.tearDown();
     }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

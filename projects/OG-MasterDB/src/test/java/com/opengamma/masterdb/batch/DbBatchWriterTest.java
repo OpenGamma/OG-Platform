@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.testng.annotations.BeforeMethod;
@@ -58,7 +57,6 @@ import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -81,13 +79,13 @@ public class DbBatchWriterTest extends DbTest {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
 
-    final ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _batchMaster = (DbBatchMaster) context.getBean(getDatabaseType() + "DbBatchMaster");
+    _batchMaster = new DbBatchMaster(getDbConnector());
     _batchWriter = new DbBatchWriter(_batchMaster.getDbConnector());
 
     final String calculationConfigName = "config_1";
@@ -150,8 +148,6 @@ public class DbBatchWriterTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addValuesToNonexistentSnapshot() {
     _batchMaster.addValuesToMarketData(ObjectId.of("nonexistent", "nonexistent"), ImmutableSet.of(new MarketDataValue()));
