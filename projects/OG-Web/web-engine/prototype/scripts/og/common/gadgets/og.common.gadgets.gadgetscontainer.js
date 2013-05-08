@@ -254,6 +254,9 @@ $.register_module({
                 if (show) (strong ? $html.addClass('strong') : $html.removeClass('strong')).show();
                 else clearTimeout(highlight_timer), highlight_timer = setTimeout(function () {$html.hide();}, 250);
             };
+            /**
+             * Add og-focus class to last clicked container tab and remove from all other gadget container instances
+             */
             container.focus = function () {
                 var $box, $tab;
                 for (var container in og.analytics.containers) {
