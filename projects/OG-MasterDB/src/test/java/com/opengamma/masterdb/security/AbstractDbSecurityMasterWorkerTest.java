@@ -27,14 +27,16 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
+import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbSecurityMasterWorker via DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
+public abstract class AbstractDbSecurityMasterWorkerTest extends DbHibernateTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerTest.class);
 
@@ -45,9 +47,14 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
   protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbSecurityMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @Override
+  protected Class<?>[] getHibernateMappingClasses() {
+    return new HibernateSecurityMasterFiles().getHibernateMappingFiles();
   }
 
   //-------------------------------------------------------------------------
@@ -69,6 +76,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
   private void init() throws Exception {
     super.setUp();
     _secMaster = new DbSecurityMaster(getDbConnector());
+    _secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
     
 //    id bigint not null,
 //    oid bigint not null,

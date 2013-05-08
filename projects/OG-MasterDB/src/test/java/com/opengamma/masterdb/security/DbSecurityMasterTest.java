@@ -33,7 +33,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
@@ -42,7 +45,7 @@ import com.opengamma.util.time.Expiry;
  * Test DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbSecurityMasterTest extends DbTest {
+public class DbSecurityMasterTest extends DbHibernateTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterTest.class);
 
@@ -50,8 +53,13 @@ public class DbSecurityMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbSecurityMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @Override
+  protected Class<?>[] getHibernateMappingClasses() {
+    return new HibernateSecurityMasterFiles().getHibernateMappingFiles();
   }
 
   //-------------------------------------------------------------------------
@@ -59,6 +67,7 @@ public class DbSecurityMasterTest extends DbTest {
   public void setUp() throws Exception {
     super.setUp();
     _secMaster = new DbSecurityMaster(getDbConnector());
+    _secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
   }
 
   @AfterMethod(groups = TestGroup.UNIT_DB)
@@ -114,7 +123,7 @@ public class DbSecurityMasterTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
+  @Test(enabled = false)
   public void test_concurrentModification() {    
     final AtomicReference<Throwable> exceptionOccurred = new AtomicReference<Throwable>();
     Runnable task = new Runnable() {

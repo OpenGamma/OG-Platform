@@ -58,6 +58,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -65,7 +66,7 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbBatchWriterTest extends DbTest {
+public class DbBatchWriterTest extends DbHibernateTest {
 
   private DbBatchMaster _batchMaster;
   private DbBatchWriter _batchWriter;
@@ -76,7 +77,12 @@ public class DbBatchWriterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbBatchWriterTest(final String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
+  }
+
+  @Override
+  protected Class<?>[] getHibernateMappingClasses() {
+    return new HibernateBatchDbFiles().getHibernateMappingFiles();
   }
 
   //-------------------------------------------------------------------------

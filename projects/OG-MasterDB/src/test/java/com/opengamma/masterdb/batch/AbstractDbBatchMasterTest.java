@@ -21,11 +21,11 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbBatchMasterTest extends DbTest {
+public abstract class AbstractDbBatchMasterTest extends DbHibernateTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchMasterTest.class);
 
@@ -36,8 +36,13 @@ public abstract class AbstractDbBatchMasterTest extends DbTest {
   protected Instant _valuationTime = Instant.parse("2011-01-01T15:58:34.183Z");
 
   public AbstractDbBatchMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @Override
+  protected Class<?>[] getHibernateMappingClasses() {
+    return new HibernateBatchDbFiles().getHibernateMappingFiles();
   }
 
   //-------------------------------------------------------------------------
