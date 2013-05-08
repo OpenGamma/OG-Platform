@@ -62,7 +62,6 @@ public class ViewClientTest {
     when(viewResultListenerFactoryStub.createViewResultListener(ViewProcessorTestEnvironment.TEST_USER)).thenReturn(viewResultListenerMock);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void testListenerNotifications() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();

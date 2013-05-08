@@ -93,7 +93,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
   public void test_add_addWithMissingNameProperty() {
     ManageableExchange exchange = new ManageableExchange();
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    ExchangeDocument test = _exgMaster.add(doc);
+    _exgMaster.add(doc);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     ManageableExchange exchange = new ManageableExchange();
     exchange.setName("Test");
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    ExchangeDocument test = _exgMaster.add(doc);
+    _exgMaster.add(doc);
   }
 
 }

@@ -99,7 +99,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     when(security.getSecurityType()).thenReturn("MANAGEABLE");
     when(security.getExternalIdBundle()).thenReturn(ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
-    SecurityDocument added = _secMaster.add(doc);
+    _secMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -108,7 +108,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     when(security.getSecurityType()).thenReturn("MANAGEABLE");
     when(security.getName()).thenReturn("Test");
     SecurityDocument doc = new SecurityDocument(security);
-    SecurityDocument added = _secMaster.add(doc);
+    _secMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -117,14 +117,14 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     when(security.getName()).thenReturn("Test");
     when(security.getExternalIdBundle()).thenReturn(ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
-    SecurityDocument added = _secMaster.add(doc);
+    _secMaster.add(doc);
   }
 
   @Test
   public void test_add_addWithMinimalProperties() {
     ManageableSecurity security = new ManageableSecurity();
     SecurityDocument doc = new SecurityDocument(security);
-    SecurityDocument added = _secMaster.add(doc);
+    _secMaster.add(doc);
   }
 
 }

@@ -108,7 +108,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     ManageableOGUser user = mock(ManageableOGUser.class);
     when(user.getUserId()).thenReturn("AddedUser");
     UserDocument doc = new UserDocument(user);
-    UserDocument test = _usrMaster.add(doc);
+    _usrMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -116,7 +116,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     ManageableOGUser user = mock(ManageableOGUser.class);
     when(user.getTimeZone()).thenReturn(ZoneOffset.UTC);
     UserDocument doc = new UserDocument(user);
-    UserDocument test = _usrMaster.add(doc);
+    _usrMaster.add(doc);
   }
 
   @Test
@@ -124,7 +124,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     // Time zone is set to UTC automatically and user ID is a required arg to constructor
     ManageableOGUser user = new ManageableOGUser("AddedUser");
     UserDocument doc = new UserDocument(user);
-    UserDocument test = _usrMaster.add(doc);
+    _usrMaster.add(doc);
   }
 
 }

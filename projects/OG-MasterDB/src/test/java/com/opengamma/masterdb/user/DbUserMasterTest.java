@@ -129,6 +129,7 @@ public class DbUserMasterTest extends DbTest {
     UserDocument doc6 = addUser("user-6", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), "E-4", "E-5", "E-6", "E-7", "E-8");
 
     UserDocument user = _userMaster.get(UniqueId.of("DbUsr", "1006"));
+    assertNotNull(user);
     
     Collection<? extends OGUser> users = findUsers(ExternalIdBundle.of(ExternalId.of("A", "1")), VersionCorrection.LATEST);
     assertNotNull(users);

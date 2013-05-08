@@ -12,8 +12,6 @@ import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +23,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.batch.RunCreationMode;
 import com.opengamma.batch.SnapshotMode;
 import com.opengamma.batch.domain.RiskRun;
@@ -98,11 +97,9 @@ public class DbBatchMasterTest extends DbTest {
 
       @Override
       public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs(String configurationName) {
-        return new HashMap<ValueSpecification, Set<ValueRequirement>>() {{
-          put(_specification, new HashSet<ValueRequirement>() {{
-            add(_requirement);
-          }});
-        }};
+        Map<ValueSpecification, Set<ValueRequirement>> map = Maps.newHashMap();
+        map.put(_specification, Sets.newHashSet(_requirement));
+        return map;
       }
 
       @Override

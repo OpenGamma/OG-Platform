@@ -125,7 +125,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
-    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    _htsMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -139,7 +139,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
-    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    _htsMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -153,7 +153,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
-    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    _htsMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -167,7 +167,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
-    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    _htsMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -181,7 +181,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
-    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    _htsMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -193,7 +193,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     info.setDataProvider("DP");
     info.setObservationTime("OT");
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
-    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    _htsMaster.add(doc);
   }
 
   @Test
@@ -208,7 +208,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
-    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    _htsMaster.add(doc);
   }
 
 }

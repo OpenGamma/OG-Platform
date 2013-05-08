@@ -7,6 +7,7 @@ package com.opengamma.masterdb.exchange;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.threeten.bp.temporal.ChronoUnit.HOURS;
 import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
 import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
@@ -314,7 +315,8 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceVersionTest extends Abst
       ObjectId baseOid = setupTestData(now);
       _exgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ExchangeDocument latestDoc = _exgMaster.get(baseOid, VersionCorrection.LATEST);
-
+      assertNotNull(latestDoc);
+      
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
       List<ExchangeDocument> replacement = newArrayList();
@@ -381,7 +383,8 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceVersionTest extends Abst
       ObjectId baseOid = setupTestData(now);
       _exgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ExchangeDocument latestDoc = _exgMaster.get(baseOid, VersionCorrection.LATEST);
-
+      assertNotNull(latestDoc);
+      
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
       List<ExchangeDocument> replacement = newArrayList();
