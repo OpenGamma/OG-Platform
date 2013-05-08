@@ -21,6 +21,12 @@ $.register_module({
                 if (data.security.name)  return data.security.name;
                 else return data.security.type + " on " + data.underlying.type + " " + data.trade.tradeDate;
             },
+            clear_save_as : function (data) {
+                delete data.id;
+                delete data.security.uniqueId;
+                delete data.trade.uniqueId;
+                delete data.security.name;
+            },
             check_radio : function (name, value) {
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
             },

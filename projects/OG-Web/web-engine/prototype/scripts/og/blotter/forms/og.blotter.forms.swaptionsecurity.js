@@ -143,13 +143,10 @@ $.register_module({
             };
             constructor.submit_new = function (handler) {
                 validate = handler;
-                delete data.id;
-                delete data.trade.uniqueId;
+                util.clear_save_as(data);
                 delete data.security.underlyingId;
-                delete data.security.uniqueId;
                 delete data.underlying.uniqueId;
                 delete data.underlying.name;
-                delete data.security.name;
                 form.submit();
             };
         };
