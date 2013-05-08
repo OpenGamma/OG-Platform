@@ -18,15 +18,16 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.db.HibernateMappingFiles;
+import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.test.DbTransactionalHibernateTest;
 
 /**
- * Test HibernateUserManager.
+ * Test.
  */
 @Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
-public class HibernateUserManagerTest extends DbTransactionalHibernateTest {
+public class HibernateUserManagerTest extends DbHibernateTest {
 
   private HibernateUserManager _userManager;
 
@@ -36,16 +37,16 @@ public class HibernateUserManagerTest extends DbTransactionalHibernateTest {
   }
 
   @Override
-  protected Class<?>[] getHibernateMappingClasses() {
-    return new HibernateUserManagerFiles().getHibernateMappingFiles();
+  protected HibernateMappingFiles[] getHibernateMappingFiles() {
+    return new HibernateMappingFiles[] {new HibernateUserManagerFiles() };
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @SuppressWarnings("deprecation")
   @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
-    _userManager = new HibernateUserManager(getSessionFactory());
+    _userManager = new HibernateUserManager(getDbConnector());
     
     System.err.println("User Manager initialization complete:" + _userManager);
   }

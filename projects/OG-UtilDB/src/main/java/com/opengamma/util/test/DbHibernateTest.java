@@ -5,63 +5,24 @@
  */
 package com.opengamma.util.test;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbConnectorFactoryBean;
+import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
  * DB test involving Hibernate.
  */
 public abstract class DbHibernateTest extends DbTest {
 
-  private SessionFactory _sessionFactory;
-
   protected DbHibernateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
   //-------------------------------------------------------------------------
-  protected SessionFactory getSessionFactory() {
-    return _sessionFactory;
-  }
-
-  protected void setSessionFactory(SessionFactory sessionFactory) {
-    _sessionFactory = sessionFactory;
-  }
-
-  protected abstract Class<?>[] getHibernateMappingClasses();
-
-  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void setUp() throws Exception {
-    super.setUp();
-    
-    Configuration configuration = getDbTool().getTestHibernateConfiguration();
-    for (Class<?> clazz : getHibernateMappingClasses()) {
-      configuration.addClass(clazz);
-    }
-    
-    SessionFactory sessionFactory = configuration.buildSessionFactory();
-    setSessionFactory(sessionFactory);
-  }
-
-  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void tearDown() throws Exception {
-    if (_sessionFactory != null) {
-      _sessionFactory.close();
-    }
-    super.tearDown();
-  }
+  protected abstract HibernateMappingFiles[] getHibernateMappingFiles();
 
   @Override
-  public DbConnector getDbConnector() {
-    DbConnector dbConnector = super.getDbConnector();
-    DbConnectorFactoryBean factory = new DbConnectorFactoryBean(dbConnector);
-    factory.setHibernateSessionFactory(getSessionFactory());
-    return factory.createObject();
+  protected void initDbConnectorFactory(DbConnectorFactoryBean factory) {
+    factory.setHibernateMappingFiles(getHibernateMappingFiles());
   }
 
 }

@@ -36,6 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
@@ -60,8 +61,8 @@ public class DbBatchMasterTest extends DbHibernateTest {
   }
 
   @Override
-  protected Class<?>[] getHibernateMappingClasses() {
-    return new HibernateBatchDbFiles().getHibernateMappingFiles();
+  protected HibernateMappingFiles[] getHibernateMappingFiles() {
+    return new HibernateMappingFiles[] {new HibernateBatchDbFiles() };
   }
 
   //-------------------------------------------------------------------------

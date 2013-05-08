@@ -29,6 +29,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
+import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -53,8 +54,8 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbHibernateTest
   }
 
   @Override
-  protected Class<?>[] getHibernateMappingClasses() {
-    return new HibernateSecurityMasterFiles().getHibernateMappingFiles();
+  protected HibernateMappingFiles[] getHibernateMappingFiles() {
+    return new HibernateMappingFiles[] {new HibernateSecurityMasterFiles() };
   }
 
   //-------------------------------------------------------------------------

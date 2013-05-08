@@ -17,12 +17,13 @@ import java.util.Collection;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.test.DbHibernateTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Test HibernateAuditLogger.
+ * Test.
  */
 @Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
 public class HibernateAuditLoggerTest extends DbHibernateTest {
@@ -33,15 +34,15 @@ public class HibernateAuditLoggerTest extends DbHibernateTest {
   }
 
   @Override
-  protected Class<?>[] getHibernateMappingClasses() {
-    return new Class[] {AuditLogEntry.class };
+  protected HibernateMappingFiles[] getHibernateMappingFiles() {
+    return new HibernateMappingFiles[] {new HibernateAuditLoggerFiles() };
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void testLogging() throws Exception {
     HibernateAuditLogger logger = new HibernateAuditLogger(5, 1);
-    logger.setSessionFactory(getSessionFactory());
+    logger.setSessionFactory(getDbConnector().getHibernateSessionFactory());
     
     Collection<AuditLogEntry> logEntries = logger.findAll();
     assertEquals(0, logEntries.size()); 

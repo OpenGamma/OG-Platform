@@ -21,6 +21,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -41,8 +42,8 @@ public abstract class AbstractDbBatchMasterTest extends DbHibernateTest {
   }
 
   @Override
-  protected Class<?>[] getHibernateMappingClasses() {
-    return new HibernateBatchDbFiles().getHibernateMappingFiles();
+  protected HibernateMappingFiles[] getHibernateMappingFiles() {
+    return new HibernateMappingFiles[] {new HibernateBatchDbFiles() };
   }
 
   //-------------------------------------------------------------------------

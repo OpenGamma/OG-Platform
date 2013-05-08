@@ -268,7 +268,12 @@ public abstract class DbTest implements TableCreationCallback {
     factory.setDataSource(getDbTool().getDataSource());
     factory.setTransactionIsolationLevelName("ISOLATION_READ_COMMITTED");
     factory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
+    initDbConnectorFactory(factory);
     return factory.createObject();
+  }
+
+  protected void initDbConnectorFactory(DbConnectorFactoryBean factory) {
+    // for subclasses
   }
 
   /**

@@ -3,21 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.security.user;
+package com.opengamma.security.auditlog;
 
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
- * Hibernate UserManager configuration.
+ * Hibernate AuditLogger configuration.
  */
-public final class HibernateUserManagerFiles implements HibernateMappingFiles {
+public final class HibernateAuditLoggerFiles implements HibernateMappingFiles {
 
   @Override
   public Class<?>[] getHibernateMappingFiles() {
     return new Class<?>[] {
-      Authority.class,
-      User.class,
-      UserGroup.class,
+      AuditLogEntry.class,
     };
   }
 

@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.security.userdetails.UserDetails;
@@ -38,17 +37,6 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
    */
   public HibernateUserManager(DbConnector dbConnector) {
     _hibernateTemplate = dbConnector.getHibernateTemplate();
-  }
-
-  /**
-   * Creates an instance providing access to the database.
-   * @param sessionFactory  the session factory, not null
-   * @deprecated use the DbConnector constructor
-   */
-  @Deprecated
-  public HibernateUserManager(SessionFactory sessionFactory) {
-    // this constructor allows certain tests to exist
-    _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
 
   //-------------------------------------------------------------------------

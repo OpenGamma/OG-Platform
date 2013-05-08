@@ -129,12 +129,15 @@ public class DbTool extends Task {
     if (dataSource == null) {
       dataSource = new BoneCPDataSource();
       dataSource.setPoolName("DbTool");
+      dataSource.setDriverClass(_dialect.getJDBCDriverClass().getName());
       dataSource.setJdbcUrl(getJdbcUrl());
       dataSource.setUsername(getUser());
       dataSource.setPassword(getPassword());
       dataSource.setAcquireIncrement(1);
       dataSource.setPartitionCount(1);
       dataSource.setMaxConnectionsPerPartition(1);
+      dataSource.setAcquireRetryAttempts(2);
+      dataSource.setAcquireRetryDelayInMs(2000);
       _dataSource = dataSource;
     }
     return dataSource;
