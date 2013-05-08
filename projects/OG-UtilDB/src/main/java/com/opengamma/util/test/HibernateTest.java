@@ -17,22 +17,23 @@ import com.opengamma.util.db.DbConnectorFactoryBean;
  * DB test involving Hibernate.
  */
 public abstract class HibernateTest extends DbTest {
-  
+
   private SessionFactory _sessionFactory;
-  
+
   protected HibernateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
   }
-  
-  public SessionFactory getSessionFactory() {
+
+  //-------------------------------------------------------------------------
+  protected SessionFactory getSessionFactory() {
     return _sessionFactory;
   }
 
-  public void setSessionFactory(SessionFactory sessionFactory) {
+  protected void setSessionFactory(SessionFactory sessionFactory) {
     _sessionFactory = sessionFactory;
   }
-  
-  public abstract Class<?>[] getHibernateMappingClasses();
+
+  protected abstract Class<?>[] getHibernateMappingClasses();
 
   @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void setUp() throws Exception {
@@ -42,7 +43,7 @@ public abstract class HibernateTest extends DbTest {
     for (Class<?> clazz : getHibernateMappingClasses()) {
       configuration.addClass(clazz);
     }
-
+    
     SessionFactory sessionFactory = configuration.buildSessionFactory();
     setSessionFactory(sessionFactory);
   }

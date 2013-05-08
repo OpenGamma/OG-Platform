@@ -36,7 +36,7 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
   }
 
   @Override
-  public Class<?>[] getHibernateMappingClasses() {
+  protected Class<?>[] getHibernateMappingClasses() {
     return new HibernateUserManagerFiles().getHibernateMappingFiles();
   }
 

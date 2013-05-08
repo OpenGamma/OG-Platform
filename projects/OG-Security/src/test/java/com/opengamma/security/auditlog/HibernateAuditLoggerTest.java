@@ -33,9 +33,9 @@ public class HibernateAuditLoggerTest extends HibernateTest {
   }
 
   @Override
-  public Class<?>[] getHibernateMappingClasses() {
-    return new Class[] { AuditLogEntry.class };
-  }  
+  protected Class<?>[] getHibernateMappingClasses() {
+    return new Class[] {AuditLogEntry.class };
+  }
 
   //-------------------------------------------------------------------------
   @Test
