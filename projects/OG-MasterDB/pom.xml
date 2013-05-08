@@ -41,18 +41,18 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+         <descriptors>
+           <descriptor>src/main/assembly/sql.xml</descriptor>
+         </descriptors>
+        </configuration>
         <executions>
           <execution>
+            <id>sql</id>
             <phase>package</phase>
-            <configuration>
-              <target>
-                <zip basedir="install" destfile="${project.build.directory}/og-masterdb-sql.zip" />
-                <attachartifact file="${project.build.directory}/og-masterdb-sql.zip" classifier="sql" type="zip" />
-              </target>
-            </configuration>
             <goals>
-              <goal>run</goal>
+              <goal>single</goal>
             </goals>
           </execution>
         </executions>
