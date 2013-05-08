@@ -81,9 +81,9 @@ $.register_module({
                         id: portfolio,
                         node: config.node.id
                     }).pipe(function (result){
-                        validation_handler(result)
+                        validation_handler(result);
                     });
-                })
+                });
             };
             constructor.populate = function (suffix, config) {
                 var str, inner;

@@ -7,6 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
+            console.log(config);
             var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, 
                 receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate, 
                 pay_leg = 'underlying.payLeg.', receive_leg = 'underlying.receiveLeg.', $pay_select, $receive_select;
@@ -94,24 +95,20 @@ $.register_module({
                         swap_leg({type: data.underlying.payLeg.type, index: pay_index, leg: pay_leg, child: 6,
                             pay_edit: true});
                         $pay_select.val(data.underlying.payLeg.type);
-                        og.blotter.util.toggle_fixed($receive_select, data.underlying.payLeg.type);
                     }
                     if(typeof data.underlying.receiveLeg != 'undefined'){
                         swap_leg({type: data.underlying.receiveLeg.type, index: receive_index,leg: receive_leg,
                             child: 8, receive_edit: true});
                         $receive_select.val(data.underlying.receiveLeg.type);
-                        og.blotter.util.toggle_fixed($pay_select, data.underlying.receiveLeg.type);
                     }
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
-                    og.blotter.util.toggle_fixed($receive_select, event.target.value);
                     swap_leg({type: event.target.value, index: pay_index, leg: pay_leg, child: 6});
                 });
                 form.on('change', '#' + receive_select.id,  function (event) {
-                    og.blotter.util.toggle_fixed($pay_select, event.target.value);
                     swap_leg({type: event.target.value, index: receive_index, leg: receive_leg, child: 8});
                 });
             };
@@ -148,6 +145,10 @@ $.register_module({
             constructor.submit_new = function (handler) {
                 validate = handler;
                 delete data.id;
+                delete data.trade.uniqueId;
+                delete data.security.underlyingId;
+                delete data.security.uniqueId;
+                delete data.underlying.uniqueId;
                 form.submit();
             };
         };
