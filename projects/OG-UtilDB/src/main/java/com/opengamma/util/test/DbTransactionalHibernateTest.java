@@ -14,15 +14,16 @@ import org.testng.annotations.BeforeMethod;
 /**
  * DB test involving Hibernate and transactions.
  */
-public abstract class TransactionalHibernateTest extends HibernateTest {
+public abstract class DbTransactionalHibernateTest extends DbHibernateTest {
 
   private HibernateTransactionManager _transactionManager;
   private TransactionStatus _transaction;
 
-  public TransactionalHibernateTest(String databaseType, String databaseVersion) {
+  public DbTransactionalHibernateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 
+  //-------------------------------------------------------------------------
   @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     super.setUp();
@@ -46,11 +47,12 @@ public abstract class TransactionalHibernateTest extends HibernateTest {
     super.tearDown();
   }
 
-  public HibernateTransactionManager getHibernateTransactionManager() {
+  //-------------------------------------------------------------------------
+  protected HibernateTransactionManager getHibernateTransactionManager() {
     return _transactionManager;
   }
 
-  public TransactionStatus getHibernateTransaction() {
+  protected TransactionStatus getHibernateTransaction() {
     return _transaction;
   }
 

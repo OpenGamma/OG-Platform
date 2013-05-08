@@ -18,14 +18,14 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.DbTest;
-import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Test HibernateAuditLogger.
  */
 @Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
-public class HibernateAuditLoggerTest extends HibernateTest {
+public class HibernateAuditLoggerTest extends DbHibernateTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public HibernateAuditLoggerTest(String databaseType, final String databaseVersion) {

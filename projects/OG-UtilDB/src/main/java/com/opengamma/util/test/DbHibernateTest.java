@@ -16,11 +16,11 @@ import com.opengamma.util.db.DbConnectorFactoryBean;
 /**
  * DB test involving Hibernate.
  */
-public abstract class HibernateTest extends DbTest {
+public abstract class DbHibernateTest extends DbTest {
 
   private SessionFactory _sessionFactory;
 
-  protected HibernateTest(String databaseType, String databaseVersion) {
+  protected DbHibernateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
   }
 

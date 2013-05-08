@@ -20,13 +20,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.test.TransactionalHibernateTest;
+import com.opengamma.util.test.DbTransactionalHibernateTest;
 
 /**
  * Test HibernateUserManager.
  */
 @Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
-public class HibernateUserManagerTest extends TransactionalHibernateTest {
+public class HibernateUserManagerTest extends DbTransactionalHibernateTest {
 
   private HibernateUserManager _userManager;
 
