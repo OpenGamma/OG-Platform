@@ -12,22 +12,24 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-public class CapletStrippingAbsoluteStrikeInterpolationTest extends CapletStrippingAbsoluteStrikeTest {
+public class CapletStrippingSingleStrikeDirectTest extends CapletStrippingAbsoluteStrikeTest {
 
   @Override
   public CapletStrippingAbsoluteStrike getStripper(List<CapFloor> caps) {
-    return new CapletStrippingAbsoluteStrikeInterpolation(caps, getYieldCurves());
+    return new CapletStrippingSingleStrikeDirect(caps, getYieldCurves());
   }
   
   @Test
   public void test() {
+    final double tol = 1e-4; //allow a 1bps error on cap vols 
     final boolean print = false;
-    testVolStripping(print);
+    testVolStripping(tol,print);
   }
   
   @Test
   public void timingTest() {
-    timingTest(200, 1000);
+    timingTest(50, 50);
   }
+
 
 }

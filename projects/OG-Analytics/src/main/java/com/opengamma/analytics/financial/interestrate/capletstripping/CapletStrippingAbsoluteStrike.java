@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
+import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
@@ -27,31 +28,6 @@ public abstract class CapletStrippingAbsoluteStrike {
   private final MultiCapFloorPricer _pricer;
   private final int _nCaps;
   private final int _nCaplets;
-
-  /**
-   * Gets the pricer.
-   * @return the pricer
-   */
-  public MultiCapFloorPricer getPricer() {
-    return _pricer;
-  }
-
-  /**
-   * Gets the nCaps.
-   * @return the nCaps
-   */
-  public int getnCaps() {
-    return _nCaps;
-  }
-
-  /**
-   * Gets the nCaplets.
-   * @return the nCaplets
-   */
-  public int getnCaplets() {
-    return _nCaplets;
-  }
-
   private final double[] _capStartTimes;
   private final double[] _capEndTimes;
 
@@ -92,20 +68,81 @@ public abstract class CapletStrippingAbsoluteStrike {
   public abstract CapletStrippingSingleStrikeResult solveForVol(final double[] capVols, final double[] errors, final boolean solveViaPrice);
 
   protected void checkPrices(final double[] capPrices) {
-    final int n = getnCaps();
     ArgumentChecker.notEmpty(capPrices, "null cap prices");
+    final int n = getnCaps();
+    ArgumentChecker.isTrue(n == capPrices.length, "wrong number of capPrices, should have {}, but {} given", n, capPrices.length);
     double[] base = getPricer().getIntrinsicCapValues();
     for (int i = 0; i < n; i++) {
       ArgumentChecker.isTrue(capPrices[i] >= base[i], "Cap price {} lower that intrinisic value {}", capPrices[i], base[i]);
     }
   }
 
-  protected double[] getCapStarTimes() {
+  protected void checkVols(final double[] capVols) {
+    ArgumentChecker.notEmpty(capVols, "null cap vols");
+    final int n = getnCaps();
+    ArgumentChecker.isTrue(n == capVols.length, "wrong number of capVols, should have {}, but {} given", n, capVols.length);
+    for (int i = 0; i < n; i++) {
+      ArgumentChecker.isTrue(capVols[i] >= 0.0, "Cap vol {} less than zero", capVols[i]);
+    }
+  }
+
+  protected void checkErrors(final double[] errors) {
+    ArgumentChecker.notEmpty(errors, "null errors");
+    final int n = getnCaps();
+    ArgumentChecker.isTrue(n == errors.length, "wrong number of errors, should have {}, but {} given", n, errors.length);
+    for (int i = 0; i < n; i++) {
+      ArgumentChecker.isTrue(errors[i] > 0.0, "erros {} less than zero or equal to zero", errors[i]);
+    }
+  }
+
+  /**
+   * Gets the pricer.
+   * @return the pricer
+   */
+  public MultiCapFloorPricer getPricer() {
+    return _pricer;
+  }
+
+  /**
+   * Gets the nCaps.
+   * @return the nCaps
+   */
+  public int getnCaps() {
+    return _nCaps;
+  }
+
+  /**
+   * Gets the nCaplets.
+   * @return the nCaplets
+   */
+  public int getnCaplets() {
+    return _nCaplets;
+  }
+
+  protected double[] getCapStartTimes() {
     return _capStartTimes;
   }
 
   protected double[] getCapEndTimes() {
     return _capEndTimes;
+  }
+
+  protected double chiSqr(double[] expected, double[] actual) {
+    final int n = expected.length;
+    double chi2 = 0.0;
+    for (int i = 0; i < n; i++) {
+      chi2 += FunctionUtils.square(expected[i] - actual[i]);
+    }
+    return chi2;
+  }
+
+  protected double chiSqr(double[] expected, double[] actual, double[] error) {
+    final int n = expected.length;
+    double chi2 = 0.0;
+    for (int i = 0; i < n; i++) {
+      chi2 += FunctionUtils.square((expected[i] - actual[i]) / error[i]);
+    }
+    return chi2;
   }
 
 }
