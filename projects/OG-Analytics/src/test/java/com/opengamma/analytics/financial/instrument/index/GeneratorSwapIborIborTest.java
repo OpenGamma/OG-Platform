@@ -18,8 +18,8 @@ public class GeneratorSwapIborIborTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M", NYC);
-  private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M", NYC);
+  private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M");
+  private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M");
   private static final GeneratorSwapIborIbor USDLIBOR3MLIBOR6M = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M, NYC, NYC);
 
   @Test

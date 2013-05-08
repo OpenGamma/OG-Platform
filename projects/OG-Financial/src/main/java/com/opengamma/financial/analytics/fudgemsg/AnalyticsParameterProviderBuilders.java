@@ -44,7 +44,6 @@ public final class AnalyticsParameterProviderBuilders {
   public static class IborIndexBuilder extends AbstractFudgeBuilder<IborIndex> {
     private static final String CURRENCY_FIELD = "currency";
     private static final String SPOT_LAG_FIELD = "spotLag";
-    private static final String CALENDAR_FIELD = "calendar";
     private static final String DAY_COUNT_FIELD = "dayCount";
     private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
     private static final String EOM_FIELD = "isEOM";
@@ -60,7 +59,7 @@ public final class AnalyticsParameterProviderBuilders {
       final boolean isEOM = message.getBoolean(EOM_FIELD);
       final Period tenor = Period.parse(message.getString(TENOR_FIELD));
       final String name = message.getString(NAME_FIELD);
-      return new IborIndex(currency, tenor, spotLag, null, dayCount, businessDayConvention, isEOM, name);
+      return new IborIndex(currency, tenor, spotLag, dayCount, businessDayConvention, isEOM, name);
     }
 
     @Override

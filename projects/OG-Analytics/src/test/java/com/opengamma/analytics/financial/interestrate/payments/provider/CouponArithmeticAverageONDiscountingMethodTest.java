@@ -46,7 +46,7 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
   private static final Calendar NYC = MulticurveProviderDiscountDataSets.getUSDCalendar();
 
   private static final GeneratorSwapFixedON GENERATOR_SWAP_EONIA = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
-  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", NYC);
+  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 23);
   private static final Period TENOR_3M = Period.ofMonths(3);

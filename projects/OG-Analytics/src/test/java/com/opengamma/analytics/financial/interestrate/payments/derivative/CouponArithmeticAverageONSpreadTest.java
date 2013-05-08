@@ -31,8 +31,8 @@ public class CouponArithmeticAverageONSpreadTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 4, 16);
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
-  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", NYC);
+  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
 
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2013, 4, 18);
   private static final Period TENOR_3M = Period.ofMonths(3);
@@ -95,7 +95,7 @@ public class CouponArithmeticAverageONSpreadTest {
     modified = CouponArithmeticAverageONSpread.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL + 10, FEDFUND, FIXING_TIMES,
         FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactor(), ACCRUED_RATE, SPREAD);
     assertFalse("CouponArithmeticAverageONSpread: equal-hash", CPN_AA_ON.equals(modified));
-    final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA", NYC);
+    final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA");
     modified = CouponArithmeticAverageONSpread.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, modifiedIndex, FIXING_TIMES,
         FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactor(), ACCRUED_RATE, SPREAD);
     assertFalse("CouponArithmeticAverageONSpread: equal-hash", CPN_AA_ON.equals(modified));

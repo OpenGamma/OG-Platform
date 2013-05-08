@@ -36,7 +36,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final ZonedDateTime MARCH_1 = DateUtils.getUTCDate(2012, 3, 1);
   private static final double TRADE_PRICE = 0.99900;
   private static final int QUANTITY = 123;

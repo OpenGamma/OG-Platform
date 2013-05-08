@@ -29,8 +29,8 @@ public class CouponArithmeticAverageONDefinitionTest {
 
   private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
-  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", NYC);
+  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
 
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2013, 4, 18);
   private static final Period TENOR_3M = Period.ofMonths(3);
@@ -95,7 +95,7 @@ public class CouponArithmeticAverageONDefinitionTest {
     assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF, other);
     assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.hashCode(), other.hashCode());
     CouponArithmeticAverageONDefinition modified;
-    final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA", NYC);
+    final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA");
     modified = CouponArithmeticAverageONDefinition.from(modifiedIndex, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG, MOD_FOL, true, NYC);
     assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
     modified = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE.plusDays(1), ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, NYC);

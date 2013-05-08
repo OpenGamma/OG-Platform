@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 public class GeneratorSwapFixedONTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final String USD_NAME = "USD1YFEDFUND";
   private static final Period USD_PERIOD = Period.ofMonths(12);
   private static final DayCount USD_DAYCOUNT_FIXED = INDEX_FEDFUND.getDayCount();

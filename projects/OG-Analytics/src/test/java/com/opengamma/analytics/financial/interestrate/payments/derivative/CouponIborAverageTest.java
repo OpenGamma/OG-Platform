@@ -30,8 +30,8 @@ public class CouponIborAverageTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final IndexIborMaster INDEX_IBOR_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex INDEX_EURIBOR3M = INDEX_IBOR_MASTER.getIndex("EURIBOR3M", TARGET);
-  private static final IborIndex INDEX_EURIBOR6M = INDEX_IBOR_MASTER.getIndex("EURIBOR6M", TARGET);
+  private static final IborIndex INDEX_EURIBOR3M = INDEX_IBOR_MASTER.getIndex("EURIBOR3M");
+  private static final IborIndex INDEX_EURIBOR6M = INDEX_IBOR_MASTER.getIndex("EURIBOR6M");
   private static final Currency EUR = INDEX_EURIBOR3M.getCurrency();
   // Coupon
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");

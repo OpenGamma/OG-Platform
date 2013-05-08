@@ -41,7 +41,7 @@ public class ScheduleCalculatorTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final GeneratorDeposit GENERATOR_DEPOSIT = new EURDeposit(CALENDAR);
-  private static final IborIndex INDEX_EURIBOR6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR);
+  private static final IborIndex INDEX_EURIBOR6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M");
 
   private static final Calendar ALL = new AllCalendar();
   private static final Calendar WEEKEND = new WeekendCalendar();
@@ -348,7 +348,7 @@ public class ScheduleCalculatorTest {
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolDate);
     final ZonedDateTime[] midMonthModFolTenor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, m6, false, false, MOD_FOL, CALENDAR, false);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolTenor);
-    final IborIndex ibor = new IborIndex(Currency.EUR, m6, 0, CALENDAR, DayCountFactory.INSTANCE.getDayCount("Actual/360"), MOD_FOL, false);
+    final IborIndex ibor = new IborIndex(Currency.EUR, m6, 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"), MOD_FOL, false);
     final ZonedDateTime[] midMonthModFolIbor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, false, false, ibor, CALENDAR);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolIbor);
     final ZonedDateTime[] midMonthModFolFreq = ScheduleCalculator.getAdjustedDateSchedule(midMonth, midMonth.plus(y5), semi, false, false, MOD_FOL, CALENDAR, false);

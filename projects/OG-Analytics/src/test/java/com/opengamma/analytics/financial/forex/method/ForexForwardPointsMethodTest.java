@@ -45,7 +45,7 @@ public class ForexForwardPointsMethodTest {
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 2, 12);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 2, CALENDAR);
-  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
+  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
 
   private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
 

@@ -27,8 +27,8 @@ public class SwapXCcyIborIborDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = INDEX_MASTER.getIndex("USDLIBOR3M", CALENDAR);
-  private static final IborIndex EURIBOR3M = INDEX_MASTER.getIndex("EURIBOR3M", CALENDAR);
+  private static final IborIndex USDLIBOR3M = INDEX_MASTER.getIndex("USDLIBOR3M");
+  private static final IborIndex EURIBOR3M = INDEX_MASTER.getIndex("EURIBOR3M");
   private static final Period ANNUITY_TENOR = Period.ofYears(2);
 
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 4, 18);

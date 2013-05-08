@@ -41,7 +41,7 @@ public class CouponIborDefinitionTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
@@ -152,7 +152,7 @@ public class CouponIborDefinitionTest {
     assertEquals(IBOR_COUPON_DEFINITION, other);
     assertEquals(IBOR_COUPON_DEFINITION.hashCode(), other.hashCode());
     other = new CouponIborDefinition(Currency.AUD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(Currency.AUD, TENOR, SETTLEMENT_DAYS,
-        CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), CALENDAR);
+        DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
     other = new CouponIborDefinition(CUR, PAYMENT_DATE.plusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
@@ -166,7 +166,7 @@ public class CouponIborDefinitionTest {
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
     other = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE.plusDays(1), INDEX, CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
-    other = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR, SETTLEMENT_DAYS + 1, CALENDAR,
+    other = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR, SETTLEMENT_DAYS + 1,
         DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
     other = new CouponIborDefinition(CUR, FIXING_END_DATE, FIXING_START_DATE, FIXING_END_DATE, ACCRUAL_FACTOR_FIXING, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);

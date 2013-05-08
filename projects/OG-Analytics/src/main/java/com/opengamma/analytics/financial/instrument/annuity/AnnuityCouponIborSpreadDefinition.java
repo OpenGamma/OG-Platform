@@ -32,6 +32,10 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
    * The underlying Ibor index.
    */
   private final IborIndex _iborIndex;
+  /**
+   * The holiday calendar for the ibor index
+   * */
+  private final Calendar _calendar;
 
   /**
    * Constructor from a list of Ibor-like coupons.
@@ -40,6 +44,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
   public AnnuityCouponIborSpreadDefinition(final CouponIborSpreadDefinition[] payments) {
     super(payments);
     _iborIndex = payments[0].getIndex();
+    _calendar = payments[0].getCalendar();
   }
 
   /**
@@ -144,6 +149,14 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     return _iborIndex;
   }
 
+  /**
+   * Gets the holiday calendar for the ibor index.
+   * @return The calendar
+   */
+  public Calendar getIborCalendar() {
+    return _calendar;
+  }
+
   @Override
   public Annuity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -174,6 +187,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _iborIndex.hashCode();
+    result = prime * result + _calendar.hashCode();
     return result;
   }
 
@@ -190,6 +204,9 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     }
     final AnnuityCouponIborSpreadDefinition other = (AnnuityCouponIborSpreadDefinition) obj;
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

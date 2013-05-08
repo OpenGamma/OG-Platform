@@ -50,9 +50,9 @@ public class InstrumentTestHelper {
   public static final DayCount QUARTERLY_DAY_COUNT = new QuarterlyDayCount();
   public static final BusinessDayConvention NONE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
   public static final Currency FIXED_INCOME_CURRENCY = Currency.EUR;
-  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, NO_HOLIDAY, SEMI_ANNUAL_DAY_COUNT, NONE, false,
+  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, SEMI_ANNUAL_DAY_COUNT, NONE, false,
       "f");
-  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(3), 0, NO_HOLIDAY, QUARTERLY_DAY_COUNT, NONE, false, "f");
+  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(3), 0, QUARTERLY_DAY_COUNT, NONE, false, "f");
   public static final ZonedDateTime CASH_START = ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 11, 0, 0, 0), ZoneOffset.UTC);
   public static final ZonedDateTime CASH_MATURITY = ZonedDateTime.of(LocalDateTime.of(2012, 12, 1, 11, 0, 0, 0), ZoneOffset.UTC);
   public static final double CASH_NOTIONAL = 234000;

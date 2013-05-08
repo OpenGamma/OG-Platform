@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.fra.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -18,7 +17,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -42,7 +40,7 @@ public class ForwardRateAgreementTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Dates : The above dates are not standard but selected for insure correct testing.
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
@@ -144,7 +142,7 @@ public class ForwardRateAgreementTest {
     modifiedFRA = new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME,
         ACCRUAL_FACTOR_FIXING, FRA_RATE, FUNDING_CURVE_NAME);
     assertEquals(modifiedFRA.equals(FRA), false);
-    final IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
+    final IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
     modifiedFRA = new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, otherIndex, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME,
         ACCRUAL_FACTOR_FIXING, FRA_RATE, FORWARD_CURVE_NAME);
     assertFalse(modifiedFRA.equals(FRA));

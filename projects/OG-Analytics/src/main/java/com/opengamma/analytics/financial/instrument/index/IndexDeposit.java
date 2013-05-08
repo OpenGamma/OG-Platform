@@ -6,9 +6,8 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -24,24 +23,17 @@ public abstract class IndexDeposit {
    * The index currency. Not null.
    */
   private final Currency _currency;
-  /**
-   * The calendar associated to the index. Not null.
-   */
-  private final Calendar _calendar;
 
   /**
    * Constructor.
    * @param name The index name.
    * @param currency The underlying currency.
-   * @param calendar The calendar.
    */
-  public IndexDeposit(final String name, final Currency currency, final Calendar calendar) {
-    Validate.notNull(name, "Index: name");
-    Validate.notNull(currency, "Index: currency");
-    Validate.notNull(calendar, "Index: calendar");
+  public IndexDeposit(final String name, final Currency currency) {
+    ArgumentChecker.notNull(name, "Index: name");
+    ArgumentChecker.notNull(currency, "Index: currency");
     _name = name;
     _currency = currency;
-    _calendar = calendar;
   }
 
   /**
@@ -59,14 +51,6 @@ public abstract class IndexDeposit {
   public Currency getCurrency() {
     return _currency;
   }
-  //
-  //  /**
-  //   * Gets the calendar associated to the index.
-  //   * @return The calendar.
-  //   */
-  //  public Calendar getCalendar() {
-  //    return _calendar;
-  //  }
 
   @Override
   public String toString() {
@@ -77,7 +61,6 @@ public abstract class IndexDeposit {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _calendar.hashCode();
     result = prime * result + _currency.hashCode();
     result = prime * result + _name.hashCode();
     return result;
@@ -95,9 +78,6 @@ public abstract class IndexDeposit {
       return false;
     }
     final IndexDeposit other = (IndexDeposit) obj;
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }

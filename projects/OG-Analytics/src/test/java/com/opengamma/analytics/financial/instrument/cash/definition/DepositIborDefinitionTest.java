@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtils;
 public class DepositIborDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR6M", TARGET);
+  private static final IborIndex INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR6M");
   private static final Calendar NO_HOLIDAYS = new CalendarNoHoliday("No Holidays");
   private static final Currency EUR = INDEX.getCurrency();
 

@@ -146,11 +146,11 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final Period IBOR_PERIOD_1 = Period.ofMonths(3);
   public static final int SPOT_LAG = 2;
   public static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  public static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
-  public static final IndexON INDEX_ON = new IndexON("A", CUR, FIXED_DAY_COUNT, 0, C);
+  public static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, IBOR_DAY_COUNT, BD, IS_EOM);
+  public static final IndexON INDEX_ON = new IndexON("A", CUR, FIXED_DAY_COUNT, 0);
   public static final IndexSwap CMS_INDEX = new IndexSwap(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1, C);
   public static final Period IBOR_PERIOD_2 = Period.ofMonths(6);
-  public static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
+  public static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, IBOR_DAY_COUNT, BD, IS_EOM);
   public static final double SPREAD = 0.001;
   public static final GeneratorSwapXCcyIborIbor XCCY_GENERATOR = new GeneratorSwapXCcyIborIbor("XCCY", IBOR_INDEX_2, IBOR_INDEX_1, C, C);
   public static final IndexPrice INDEX_PRICE = new IndexPrice("CPI", CUR);

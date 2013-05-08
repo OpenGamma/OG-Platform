@@ -45,7 +45,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class CouponIborCompoundedDiscountingMethodTest {
 
   private static final Calendar TOR = new MondayToFridayCalendar("TOR");
-  private static final IborIndex CDOR3M = IndexIborMaster.getInstance().getIndex("CADCDOR3M", TOR);
+  private static final IborIndex CDOR3M = IndexIborMaster.getInstance().getIndex("CADCDOR3M");
   private static final Period M6 = Period.ofMonths(6);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);

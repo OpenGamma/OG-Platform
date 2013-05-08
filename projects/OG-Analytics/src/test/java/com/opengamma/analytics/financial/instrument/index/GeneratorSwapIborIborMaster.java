@@ -47,7 +47,7 @@ public final class GeneratorSwapIborIborMaster {
     _iborIndexMaster = IndexIborMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _generatorSwap = new HashMap<>();
-    _generatorSwap.put("AUDBBSW3MBBSW6M", new GeneratorSwapIborIbor("AUDBBSW3MBBSW6M", _iborIndexMaster.getIndex("AUDBB3M", baseCalendar), _iborIndexMaster.getIndex("AUDBB6M", baseCalendar),
+    _generatorSwap.put("AUDBBSW3MBBSW6M", new GeneratorSwapIborIbor("AUDBBSW3MBBSW6M", _iborIndexMaster.getIndex("AUDBB3M"), _iborIndexMaster.getIndex("AUDBB6M"),
         baseCalendar, baseCalendar));
   }
 
@@ -56,8 +56,8 @@ public final class GeneratorSwapIborIborMaster {
     if (generatorNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get Ibor index for " + name);
     }
-    return new GeneratorSwapIborIbor(generatorNoCalendar.getName(), _iborIndexMaster.getIndex(generatorNoCalendar.getIborIndex1().getName(), cal), _iborIndexMaster.getIndex(generatorNoCalendar
-        .getIborIndex2().getName(), cal), cal, cal);
+    return new GeneratorSwapIborIbor(generatorNoCalendar.getName(), _iborIndexMaster.getIndex(generatorNoCalendar.getIborIndex1().getName()), _iborIndexMaster.getIndex(generatorNoCalendar
+        .getIborIndex2().getName()), cal, cal);
   }
 
 }

@@ -47,7 +47,7 @@ import com.opengamma.util.time.DateUtils;
 public class AnnuityCouponIborRatchetLMMMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex INDEX_EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", TARGET);
+  private static final IborIndex INDEX_EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M");
   private static final Currency EUR = INDEX_EURIBOR3M.getCurrency();
   // Annuity description
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 7);

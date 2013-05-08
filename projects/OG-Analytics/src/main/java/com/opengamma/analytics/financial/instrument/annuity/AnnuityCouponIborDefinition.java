@@ -28,18 +28,27 @@ import com.opengamma.util.ArgumentChecker;
  * A wrapper class for a AnnuityDefinition containing CouponIborDefinition.
  */
 public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponIborDefinition> {
-  /** The ibor index */
+  /**
+   * The ibor index
+   * */
   private final IborIndex _iborIndex;
+  /**
+   * The holiday calendar for the ibor index
+   * */
+  private final Calendar _calendar;
 
   /**
    * Constructor from a list of Ibor-like coupons.
    * @param payments The Ibor coupons.
    * @param iborIndex The underlying ibor index
+   * @param calendar The holiday calendar for the ibor index.
    */
-  public AnnuityCouponIborDefinition(final CouponIborDefinition[] payments, final IborIndex iborIndex) {
+  public AnnuityCouponIborDefinition(final CouponIborDefinition[] payments, final IborIndex iborIndex, final Calendar calendar) {
     super(payments);
     ArgumentChecker.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(calendar, "calendar");
     _iborIndex = iborIndex;
+    _calendar = calendar;
   }
 
   /**
@@ -130,7 +139,7 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
       coupons[loopcpn] = new CouponIborDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), sign * notional, fixingDate, index, calendar);
     }
-    return new AnnuityCouponIborDefinition(coupons, index);
+    return new AnnuityCouponIborDefinition(coupons, index, calendar);
   }
 
   /**
@@ -164,7 +173,7 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
       fixingDate = ScheduleCalculator.getAdjustedDate(paymentDatesUnadjusted[loopcpn - 1], -index.getSpotLag(), calendar);
       coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, index, calendar);
     }
-    return new AnnuityCouponIborDefinition(coupons, index);
+    return new AnnuityCouponIborDefinition(coupons, index, calendar);
   }
 
   /**
@@ -178,7 +187,7 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
     for (int loopcpn = 0; loopcpn < annuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborDefinition.from(annuity.getNthPayment(loopcpn));
     }
-    return new AnnuityCouponIborDefinition(coupons, annuity.getIborIndex());
+    return new AnnuityCouponIborDefinition(coupons, annuity.getIborIndex(), annuity.getIborCalendar());
   }
 
   /**
@@ -193,7 +202,7 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
         list.add(payment);
       }
     }
-    return new AnnuityCouponIborDefinition(list.toArray(new CouponIborDefinition[list.size()]), _iborIndex);
+    return new AnnuityCouponIborDefinition(list.toArray(new CouponIborDefinition[list.size()]), _iborIndex, _calendar);
   }
 
   /**
@@ -202,6 +211,14 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
    */
   public IborIndex getIborIndex() {
     return _iborIndex;
+  }
+
+  /**
+   * Gets the holiday calendar for the ibor index.
+   * @return The calendar
+   */
+  public Calendar getIborCalendar() {
+    return _calendar;
   }
 
   @Override
@@ -234,6 +251,7 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _iborIndex.hashCode();
+    result = prime * result + _calendar.hashCode();
     return result;
   }
 
@@ -250,6 +268,9 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
     }
     final AnnuityCouponIborDefinition other = (AnnuityCouponIborDefinition) obj;
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

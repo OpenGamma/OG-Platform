@@ -40,7 +40,7 @@ import com.opengamma.util.time.DateUtils;
 public class InterestRateFutureXXXDiscountingMethodTest {
   // EURIBOR 3M Index
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", TARGET);
+  private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M");
   private static final Currency CUR = EURIBOR3M.getCurrency();
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
