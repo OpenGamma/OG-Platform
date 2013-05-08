@@ -164,8 +164,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       // payDate
       tempBDACashflowSchedule[i][3] = nextDateAdj;
 
-      System.out.println(i + "\t" + tempBDACashflowSchedule[i][1] + "\t" + tempBDACashflowSchedule[i][2] + "\t" + tempBDACashflowSchedule[i][3]);
-
       prevDate = nextDate;
       prevDateAdj = nextDateAdj;
     }

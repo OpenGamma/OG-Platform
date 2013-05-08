@@ -222,11 +222,7 @@ public class DependencyGraph {
     if (!_dependencyNodes.add(node)) {
       throw new IllegalStateException("Node " + node + " already in the graph");
     }
-    for (final ValueSpecification output : node.getTerminalOutputValues()) {
-      if (!_terminalOutputs.containsKey(output)) {
-        _terminalOutputs.put(output, null);
-      }
-    }
+    node.gatherTerminalOutputValues(_terminalOutputs);
     final ValueSpecification marketData = node.getRequiredMarketData();
     if (marketData != null) {
       _allRequiredMarketData.add(marketData);
@@ -271,8 +267,6 @@ public class DependencyGraph {
     }
     for (final ValueSpecification output : node.getOutputValues()) {
       _outputValues.remove(output);
-    }
-    for (final ValueSpecification output : node.getTerminalOutputValues()) {
       _terminalOutputs.remove(output);
     }
     if (_rootNodes.remove(node)) {

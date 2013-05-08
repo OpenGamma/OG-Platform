@@ -1,0 +1,9 @@
+<project name="RunTool">
+
+  <import file="${common.dir}/cpp.xml" />
+  
+  <target name="compile">
+    <antcall target="cpp-compile-release-msvc" inheritrefs="true" />
+  </target>
+
+</project>

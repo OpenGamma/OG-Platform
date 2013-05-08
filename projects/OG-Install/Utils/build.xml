@@ -6,6 +6,7 @@
   <path id="cc.build.path">
     <pathelement path="Common" />
     <pathelement path="MainRunner" />
+    <pathelement path="RunTool" />
     <pathelement path="Service" />
     <pathelement path="ServiceControl" />
     <pathelement path="Wait for Startup" />

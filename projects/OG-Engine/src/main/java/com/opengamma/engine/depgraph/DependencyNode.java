@@ -5,10 +5,14 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -43,15 +47,10 @@ public class DependencyNode {
   // BELOW: EVEN THOUGH VARIABLE ITSELF IS FINAL, CONTENTS ARE MUTABLE.
 
   private final Set<ValueSpecification> _inputValues = new HashSet<ValueSpecification>();
-  private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+  private final Map<ValueSpecification, Boolean> _outputValues = new HashMap<ValueSpecification, Boolean>();
 
   private final Set<DependencyNode> _inputNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _dependentNodes = new HashSet<DependencyNode>();
-
-  /**
-   * The final output values that cannot be stripped from the {@link #_outputValues} set no matter whether there are no dependent nodes.
-   */
-  private final Set<ValueSpecification> _terminalOutputValues = new HashSet<ValueSpecification>();
 
   // MUTABLE CONTENTS VARIABLES END
 
@@ -72,6 +71,13 @@ public class DependencyNode {
   public DependencyNode(final ComputationTargetSpecification target) {
     ArgumentChecker.notNull(target, "Computation Target");
     _computationTarget = target;
+  }
+
+  public DependencyNode(final DependencyNode copyFrom) {
+    _computationTarget = copyFrom._computationTarget;
+    _function = copyFrom._function;
+    _inputValues.addAll(copyFrom._inputValues);
+    _outputValues.putAll(copyFrom._outputValues);
   }
 
   /**
@@ -139,7 +145,7 @@ public class DependencyNode {
    */
   public void addOutputValue(final ValueSpecification outputValue) {
     ArgumentChecker.notNull(outputValue, "Output value");
-    _outputValues.add(outputValue);
+    _outputValues.put(outputValue, Boolean.FALSE);
   }
 
   /**
@@ -153,7 +159,7 @@ public class DependencyNode {
         throw new IllegalStateException("Can't remove output value " + outputValue + " required for input to " + outputNode);
       }
     }
-    if (!_outputValues.remove(outputValue)) {
+    if (_outputValues.remove(outputValue) == null) {
       throw new IllegalStateException("Output value " + outputValue + " not in output set of " + this);
     }
   }
@@ -166,10 +172,11 @@ public class DependencyNode {
    * @return the number of replacements made in dependenct nodes
    */
   public int replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
-    if (!_outputValues.remove(existingOutputValue)) {
+    Boolean terminal = _outputValues.remove(existingOutputValue);
+    if (terminal == null) {
       throw new IllegalStateException("Existing output value " + existingOutputValue + " not in output set of " + this);
     }
-    _outputValues.add(newOutputValue);
+    _outputValues.put(newOutputValue, terminal);
     int count = 0;
     for (final DependencyNode outputNode : _dependentNodes) {
       if (outputNode._inputValues.remove(existingOutputValue)) {
@@ -204,7 +211,7 @@ public class DependencyNode {
     addInputNode(newInputNode);
     for (final ValueSpecification input : _inputValues) {
       if (!inputValue.equals(input)) {
-        if (previousInputNode._outputValues.contains(input)) {
+        if (previousInputNode._outputValues.containsKey(input)) {
           // Previous input still produces other values we consume
           return;
         }
@@ -241,9 +248,10 @@ public class DependencyNode {
   /* package */void replaceWith(final DependencyNode newNode) {
     replaceWithCore(newNode);
     // Rewrite the original outputs to use the target of the new node
-    for (final ValueSpecification outputValue : _outputValues) {
+    for (final Map.Entry<ValueSpecification, Boolean> outputEntry : _outputValues.entrySet()) {
+      final ValueSpecification outputValue = outputEntry.getKey();
       final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties()));
-      newNode._outputValues.add(newOutputValue);
+      newNode._outputValues.put(newOutputValue, outputEntry.getValue());
       for (final DependencyNode output : _dependentNodes) {
         if (output._inputValues.remove(outputValue)) {
           output._inputValues.add(newOutputValue);
@@ -258,16 +266,14 @@ public class DependencyNode {
   /* package */void replaceWithinGraph(final DependencyNode newNode, final DependencyGraph graph) {
     replaceWithCore(newNode);
     // Rewrite the original outputs to use the target of the new node
-    for (final ValueSpecification outputValue : _outputValues) {
+    for (final Map.Entry<ValueSpecification, Boolean> outputEntry : _outputValues.entrySet()) {
+      final ValueSpecification outputValue = outputEntry.getKey();
       final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties()));
-      newNode._outputValues.add(newOutputValue);
+      newNode._outputValues.put(newOutputValue, outputEntry.getValue());
       for (final DependencyNode output : _dependentNodes) {
         if (output._inputValues.remove(outputValue)) {
           output._inputValues.add(newOutputValue);
         }
-      }
-      if (_terminalOutputValues.contains(outputValue)) {
-        newNode._terminalOutputValues.add(newOutputValue);
       }
       graph.replaceValueSpecification(outputValue, newOutputValue);
     }
@@ -279,11 +285,11 @@ public class DependencyNode {
    * @return the set of output values
    */
   public Set<ValueSpecification> getOutputValues() {
-    return Collections.unmodifiableSet(_outputValues);
+    return Collections.unmodifiableSet(_outputValues.keySet());
   }
 
   /* package */Set<ValueSpecification> getOutputValuesCopy() {
-    return new HashSet<ValueSpecification>(_outputValues);
+    return new HashSet<ValueSpecification>(_outputValues.keySet());
   }
 
   /**
@@ -293,7 +299,35 @@ public class DependencyNode {
    * @return the set of output values, or the empty set if none
    */
   public Set<ValueSpecification> getTerminalOutputValues() {
-    return Collections.unmodifiableSet(_terminalOutputValues);
+    final Set<ValueSpecification> outputs = Sets.newHashSetWithExpectedSize(_outputValues.size());
+    for (Map.Entry<ValueSpecification, Boolean> output : _outputValues.entrySet()) {
+      if (output.getValue() == Boolean.TRUE) {
+        outputs.add(output.getKey());
+      }
+    }
+    return outputs;
+  }
+
+  /* package */void gatherTerminalOutputValues(final Map<ValueSpecification, ?> outputs) {
+    for (Map.Entry<ValueSpecification, Boolean> output : _outputValues.entrySet()) {
+      if (output.getValue() == Boolean.TRUE) {
+        if (outputs.containsKey(output.getKey())) {
+          outputs.put(output.getKey(), null);
+        }
+      }
+    }
+  }
+
+  public void gatherTerminalOutputValues(final Collection<ValueSpecification> outputs) {
+    for (Map.Entry<ValueSpecification, Boolean> output : _outputValues.entrySet()) {
+      if (output.getValue() == Boolean.TRUE) {
+        outputs.add(output.getKey());
+      }
+    }
+  }
+
+  public boolean hasTerminalOutputValues() {
+    return _outputValues.containsValue(Boolean.TRUE);
   }
 
   /**
@@ -383,10 +417,11 @@ public class DependencyNode {
     if (_outputValues.isEmpty()) {
       return Collections.emptySet();
     }
-    for (final ValueSpecification outputSpec : _outputValues) {
-      if (_terminalOutputValues.contains(outputSpec)) {
+    for (final Map.Entry<ValueSpecification, Boolean> outputEntry : _outputValues.entrySet()) {
+      if (outputEntry.getValue() == Boolean.TRUE) {
         continue;
       }
+      final ValueSpecification outputSpec = outputEntry.getKey();
       boolean isUsed = false;
       for (final DependencyNode dependantNode : _dependentNodes) {
         if (dependantNode.hasInputValue(outputSpec)) {
@@ -404,7 +439,9 @@ public class DependencyNode {
     if (unnecessaryOutputs == null) {
       return null;
     }
-    _outputValues.removeAll(unnecessaryOutputs);
+    for (ValueSpecification unnecessaryOutput : unnecessaryOutputs) {
+      _outputValues.remove(unnecessaryOutput);
+    }
     return unnecessaryOutputs;
   }
 
@@ -415,7 +452,7 @@ public class DependencyNode {
    * @param terminalOutput the output to mark as terminal
    */
   public void addTerminalOutputValue(final ValueSpecification terminalOutput) {
-    _terminalOutputValues.add(terminalOutput);
+    _outputValues.put(terminalOutput, Boolean.TRUE);
   }
 
   /**
@@ -424,7 +461,7 @@ public class DependencyNode {
    * @param terminalOutput the output to unmark as terminal
    */
   public void removeTerminalOutputValue(final ValueSpecification terminalOutput) {
-    _terminalOutputValues.remove(terminalOutput);
+    _outputValues.put(terminalOutput, Boolean.FALSE);
   }
 
   @Override

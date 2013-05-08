@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServiceControl", "ServiceControl\ServiceControl.vcxproj", "{B09FD09A-8514-48DE-B392-37E47CF911A6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RunTool", "RunTool\RunTool.vcxproj", "{71AC04AF-D65D-4312-B827-C5710AA04722}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -59,6 +61,12 @@ Global
 		{B09FD09A-8514-48DE-B392-37E47CF911A6}.Release|Win32.Build.0 = Release|Win32
 		{B09FD09A-8514-48DE-B392-37E47CF911A6}.Release|x64.ActiveCfg = Release|x64
 		{B09FD09A-8514-48DE-B392-37E47CF911A6}.Release|x64.Build.0 = Release|x64
+		{71AC04AF-D65D-4312-B827-C5710AA04722}.Debug|Win32.ActiveCfg = Debug|Win32
+		{71AC04AF-D65D-4312-B827-C5710AA04722}.Debug|Win32.Build.0 = Debug|Win32
+		{71AC04AF-D65D-4312-B827-C5710AA04722}.Debug|x64.ActiveCfg = Debug|Win32
+		{71AC04AF-D65D-4312-B827-C5710AA04722}.Release|Win32.ActiveCfg = Release|Win32
+		{71AC04AF-D65D-4312-B827-C5710AA04722}.Release|Win32.Build.0 = Release|Win32
+		{71AC04AF-D65D-4312-B827-C5710AA04722}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

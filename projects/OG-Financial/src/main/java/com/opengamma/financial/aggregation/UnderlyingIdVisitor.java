@@ -45,7 +45,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public class UnderlyingIdVisitor extends FinancialSecurityVisitorAdapter<String> {
 
-  private static final String NOT_APPLICABLE = "N/A";
+  public static final String NOT_APPLICABLE = "N/A";
 
   private final ExternalScheme _preferredScheme;
   private final SecuritySource _securitySource;
