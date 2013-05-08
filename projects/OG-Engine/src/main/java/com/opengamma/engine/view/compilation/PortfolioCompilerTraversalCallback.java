@@ -255,7 +255,7 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public void postOrderOperation(final PortfolioNode node) {
     // Retrieve this portfolio node's value requirements (gathered during traversal of this portfolio node's children)
-    final NodeData nodeData = _nodeData.get(node.getUniqueId());
+    final NodeData nodeData = _nodeData.remove(node.getUniqueId());
     if (nodeData == null) {
       // Excluded
       return;
