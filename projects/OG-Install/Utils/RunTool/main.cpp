@@ -145,10 +145,8 @@ public:
 				if (!strncmp (argv[1], "-p", 2)) {
 					StringCbPrintf (m_szProject, sizeof (m_szProject), "%s\\%s", szBaseDir, argv[1] + 2);
 					if (GetFileAttributes (m_szProject) == INVALID_FILE_ATTRIBUTES) {
-						printf ("%s not found\n", m_szProject);
 						StringCbPrintf (m_szProject, sizeof (m_szProject), "%s%s%s", szBaseDir, "\\build\\", argv[1] + 2);
 						if (GetFileAttributes (m_szProject) == INVALID_FILE_ATTRIBUTES) {
-							printf ("%s not found\n", m_szProject);
 							m_szProject[0] = 0;
 						} else {
 							m_apsz[m_nCount++] = m_szProject;
