@@ -10,8 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 
 /**
  * 
