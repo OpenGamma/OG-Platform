@@ -67,7 +67,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final SimpleFutureDataBundle dataBundle) {
     ArgumentChecker.notNull(future, "future");
     ArgumentChecker.notNull(dataBundle, "data bundle");
-    return Double.valueOf(getResult(dataBundle, future.getReferencePrice(), future.getNotional() * future.getPaymentAccrualFactor(), future.getLastTradingTime()));
+    return Double.valueOf(getResult(dataBundle, future.getReferencePrice(), future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity(), future.getLastTradingTime()));
   }
 
   @Override
@@ -90,14 +90,14 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
     ArgumentChecker.notNull(dataBundle, "data bundle");
     return Double.valueOf(getResult(dataBundle, future.getStrike(), future.getUnitAmount(), future.getTimeToSettlement()));
   }
-  
+
   @Override
   public Double visitEquityIndexFuture(final EquityIndexFuture future, final SimpleFutureDataBundle dataBundle) {
     ArgumentChecker.notNull(future, "future");
     ArgumentChecker.notNull(dataBundle, "data bundle");
     return Double.valueOf(getResult(dataBundle, future.getStrike(), future.getUnitAmount(), future.getTimeToSettlement()));
   }
-  
+
   @Override
   public Double visitVolatilityIndexFuture(final VolatilityIndexFuture future, final SimpleFutureDataBundle dataBundle) {
     ArgumentChecker.notNull(future, "future");

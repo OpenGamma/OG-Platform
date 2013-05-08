@@ -72,7 +72,7 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
 
   private double getAccrualFactor(final Period period) {
     final long nMonths = period.toTotalMonths();
-    return 1. / nMonths;
+    return nMonths / 12.0d;
   }
 
 }
