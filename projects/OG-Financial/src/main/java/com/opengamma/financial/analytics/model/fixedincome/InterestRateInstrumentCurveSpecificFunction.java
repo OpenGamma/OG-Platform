@@ -111,6 +111,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String fullCurveName = curveName + "_" + FinancialSecurityUtils.getCurrency(security).getCode();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
@@ -129,7 +130,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final YieldCurveBundle bundle = InterestRateInstrumentFunction.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final ValueProperties properties = createValueProperties(target, curveName, curveCalculationConfigName).get();
     final ValueSpecification resultSpec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);
-    return getResults(derivative, curveName, bundle, curveCalculationConfigName, curveCalculationMethod, inputs, target, resultSpec);
+    return getResults(derivative, fullCurveName, bundle, curveCalculationConfigName, curveCalculationMethod, inputs, target, resultSpec);
   }
 
   @Override
