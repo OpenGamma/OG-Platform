@@ -61,7 +61,7 @@ $.register_module({
             };
             constructor.submit_new = function (handler) {
                 validate = handler;
-                delete data.id;
+                util.clear_save_as(data);
                 form.submit();
             };
         };

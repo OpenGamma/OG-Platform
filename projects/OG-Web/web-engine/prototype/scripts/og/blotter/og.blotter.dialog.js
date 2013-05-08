@@ -32,7 +32,6 @@ $.register_module({
             };
             constructor.load = function () {
                 // security type specifies which form to create
-                // if (config.details) console.log(config.details.data);
                 if (config.details) {
                     title = 'Edit Trade', submit = 'Update';
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){

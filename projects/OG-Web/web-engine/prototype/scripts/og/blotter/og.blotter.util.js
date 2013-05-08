@@ -27,6 +27,12 @@ $.register_module({
                 delete data.trade.uniqueId;
                 delete data.security.name;
             },
+            clear_underlying_save_as : function (data) {
+                delete data.security.underlyingId;
+                delete data.underlying.uniqueId;
+                delete data.underlying.name;
+                delete data.underlying.externalIdBundle;
+            },
             check_radio : function (name, value) {
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
             },
