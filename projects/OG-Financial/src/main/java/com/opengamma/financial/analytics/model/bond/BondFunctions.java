@@ -126,7 +126,7 @@ public class BondFunctions extends AbstractFunctionConfigurationBean {
         args[i++] = e.getValue().getCreditCurveName();
         args[i++] = e.getValue().getCreditCurveCalculationConfig();
       }
-      functions.add(functionConfiguration(BondDefaultCurveNamesFunction.class, args));
+      functions.add(functionConfiguration(BondSecurityCurveNameDefaults.class, args));
     }
 
     @Override
@@ -159,6 +159,8 @@ public class BondFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
     functions.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
     functions.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
+    functions.add(functionConfiguration(BondPresentValueFromCurvesFunction.class));
+    functions.add(functionConfiguration(BondPresentValueFromCleanPriceFunction.class));
   }
 
 }

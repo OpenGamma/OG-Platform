@@ -28,6 +28,7 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -268,6 +269,8 @@ public final class BondSecurityDiscountingMethod {
    * @return The yield.
    */
   public double yieldFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(bond, "Bond");
+    ArgumentChecker.notNull(curves, "Curves");
     final double dirtyPrice = dirtyPriceFromCurves(bond, curves);
     final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
     return yield;
@@ -333,6 +336,17 @@ public final class BondSecurityDiscountingMethod {
    */
   public double modifiedDurationFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
     final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    return modifiedDurationFromYield(bond, yield);
+  }
+
+  /**
+   * Computes the modified duration of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The modified duration.
+   */
+  public double modifiedDurationFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    final double yield = yieldFromCleanPrice(bond, cleanPrice);
     return modifiedDurationFromYield(bond, yield);
   }
 

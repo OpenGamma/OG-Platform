@@ -12,25 +12,25 @@ import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDi
 /**
  * Calculate dirty price for bonds.
  */
-public final class MacaulayDurationFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+public final class ModifiedDurationFromPriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final MacaulayDurationFromYieldCalculator s_instance = new MacaulayDurationFromYieldCalculator();
+  private static final ModifiedDurationFromPriceCalculator s_instance = new ModifiedDurationFromPriceCalculator();
 
   /**
    * Return the calculator instance.
    * @return The instance.
    */
-  public static MacaulayDurationFromYieldCalculator getInstance() {
+  public static ModifiedDurationFromPriceCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private MacaulayDurationFromYieldCalculator() {
+  private ModifiedDurationFromPriceCalculator() {
   }
 
   /**
@@ -39,8 +39,8 @@ public final class MacaulayDurationFromYieldCalculator extends InstrumentDerivat
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override
-  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double yield) {
-    return METHOD_BOND_SECURITY.macaulayDurationFromYield(bond, yield);
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double price) {
+    return METHOD_BOND_SECURITY.modifiedDurationFromCleanPrice(bond, price);
   }
 
 }
