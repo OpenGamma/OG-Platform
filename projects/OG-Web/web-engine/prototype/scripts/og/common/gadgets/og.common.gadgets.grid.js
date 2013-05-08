@@ -77,11 +77,12 @@ $.register_module({
             };
             var mousemove = function (grid, event) {
                 var scroll_body = grid.elements.scroll_body, scroll_left = scroll_body.scrollLeft(),
-                    fixed_width = grid.meta.columns.width.fixed, scan = grid.meta.columns.scan.all, line_left;
+                    fixed_width = grid.meta.columns.width.fixed, scan = grid.meta.columns.scan.all, line_left,
+                    grid_offset = grid.elements.parent.offset();
                 set_after(grid, event);
-                line_left = grid.offset.left - scroll_left + scan[after];
+                line_left = grid_offset.left - scroll_left + scan[after];
                 $('.' + reorderer).css({left: event.pageX - offset_left});
-                if (line_left <= fixed_width + grid.offset.left && scroll_left)
+                if (line_left <= fixed_width + grid_offset.left && scroll_left)
                     return auto_scroll('left', scroll_left, scroll_body);
                 if (line_left >= grid_width) return auto_scroll('right', scroll_left, scroll_body);
                 timeout = clearTimeout(timeout), null;
@@ -100,14 +101,14 @@ $.register_module({
             };
             var scroll = function () {$('.' + line).hide();};
             var set_after = function (grid, event) {
-                var x = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft();
+                var x = event.pageX - grid.elements.parent.offset().left + grid.elements.scroll_body.scrollLeft();
                 after = Math.max(
                     grid.meta.fixed_length - 1,
                     grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
                 );
             };
             return function (event, $target) {
-                var grid = this, $clone;
+                var grid = this, $clone, grid_offset = grid.elements.parent.offset();
                 clean_up(grid);
                 if (event.which === 3 || event.button === 2) return; // ignore right clicks
                 index = +$target.attr('data-index');
@@ -116,16 +117,16 @@ $.register_module({
                 grid_width = grid.elements.parent.width();
                 $clone = $target.clone();
                 $clone.find('.resize').remove();
-                offset_left = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft() -
+                offset_left = event.pageX - grid_offset.left + grid.elements.scroll_body.scrollLeft() -
                     grid.meta.columns.scan.all[index - 1];
                 $clone.addClass(reorderer).css({
-                    top: grid.offset.top + grid.meta.set_height - 6,
+                    top: grid_offset.top + grid.meta.set_height - 6,
                     left: event.pageX - offset_left,
                     width: grid.meta.columns.widths[index]
                 }).appendTo(document.body);
                 $('<div class="' + line + '" />').css({
-                    top: grid.offset.top + grid.meta.header_height,
-                    left: grid.offset.left - grid.elements.scroll_body.scrollLeft() +
+                    top: grid_offset.top + grid.meta.header_height,
+                    left: grid_offset.left - grid.elements.scroll_body.scrollLeft() +
                         grid.meta.columns.scan.all[index === last ? index - 1 : index] - 3,
                     height: grid.elements.parent.height() - grid.meta.header_height
                 }).appendTo(document.body);
@@ -157,18 +158,18 @@ $.register_module({
                 grid.resize();
             };
             return function (event, $target) {
-                var grid = this, offset_left;
+                var grid = this, offset_left, grid_offset = grid.elements.parent.offset();
                 clean_up(grid);
                 if (event.which === 3 || event.button === 2) return; // ignore right clicks
                 index = +$target.parents('div.OG-g-h-col:first').attr('data-index');
-                offset_left = grid.offset.left -
+                offset_left = grid_offset.left -
                     (index < grid.meta.fixed_length ? 0 : grid.elements.scroll_body.scrollLeft());
                 start_width = grid.meta.columns.widths[index];
                 $(document)
                     .on('mousemove' + namespace, mousemove.partial(grid))
                     .on('mouseup' + namespace, mouseup.partial(grid));
                 $('<div class="' + line + '" />').css({
-                    top: grid.offset.top + grid.meta.set_height,
+                    top: grid_offset.top + grid.meta.set_height,
                     left: start_left = offset_left + grid.meta.columns.scan.all[index] - 3,
                     height: grid.elements.parent.height() - grid.meta.set_height
                 }).appendTo(document.body);
@@ -239,15 +240,16 @@ $.register_module({
                 if (page_x === last_x && page_y === last_y) return;
                 var scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop(),
+                    grid_offset = grid.elements.parent.offset(),
                     fixed_width = grid.meta.columns.width.fixed, corner, corner_cache,
-                    x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
-                    y = page_y - grid.offset.top + scroll_top - grid.meta.header_height,
+                    x = page_x - grid_offset.left + (page_x > fixed_width ? scroll_left : 0),
+                    y = page_y - grid_offset.top + scroll_top - grid.meta.header_height,
                     rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                     selection = grid.selector.selection(rectangle);
                 if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
                 if (!(cell = grid.cell(selection))) return hoverout_handler(); // cell is undefined
                 if (!cell.value.v && !cell.value[logging]) return hoverout_handler(); // cell is empty
-                cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
+                cell.top = corner.top - scroll_top + grid.meta.header_height + grid_offset.top;
                 cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                 last_corner = corner_cache; last_x = page_x; last_y = page_y;
                 if (!silent) grid.fire('cellhoverin', cell);
@@ -735,7 +737,6 @@ $.register_module({
             grid.elements.style.empty();
             if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
             else sheet.appendChild(document.createTextNode(css));
-            grid.offset = grid.elements.parent.offset();
             grid.fire('resize');
             return viewport.call(grid, render_header);
         };

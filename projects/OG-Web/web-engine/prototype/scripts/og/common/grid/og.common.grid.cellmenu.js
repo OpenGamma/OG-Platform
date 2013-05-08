@@ -140,7 +140,8 @@ $.register_module({
             if (cellmenu.menu && cellmenu.menu.length) {
                 cellmenu.menu
                     .appendTo($('body'))
-                    .css({top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
+                    .css({top: current.top, left: current.right - width + cellmenu.grid.elements.parent.offset().left})
+                    .show();
             }
 
         };
