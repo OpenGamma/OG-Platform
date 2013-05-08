@@ -109,15 +109,14 @@ public class DbBatchWriter extends AbstractDbMaster {
    */
   public static final String RSK_SEQUENCE_NAME = "rsk_batch_seq";
 
-  public final Map<String, Long> _calculationConfigurations = newConcurrentMap();
-  public final Map<ValueRequirement, Long> _riskValueRequirements = newConcurrentMap();
-  public final Map<ValueSpecification, Long> _riskValueSpecifications = newConcurrentMap();
-  public final Map<ComputationTargetSpecification, Long> _computationTargets = newConcurrentMap();
+  private final Map<String, Long> _calculationConfigurations = newConcurrentMap();
+  private final Map<ValueRequirement, Long> _riskValueRequirements = newConcurrentMap();
+  private final Map<ValueSpecification, Long> _riskValueSpecifications = newConcurrentMap();
+  private final Map<ComputationTargetSpecification, Long> _computationTargets = newConcurrentMap();
 
-  public final Map<Long, RiskRun> _riskRunsByIds = newConcurrentMap();
-  public final Map<Long, Map<Pair<Long, Long>, StatusEntry>> _statusCacheByRunId = newConcurrentMap();
-  public final Map<Long, Map<ComputeFailureKey, ComputeFailure>> _computeFailureCacheByRunId = newConcurrentMap();
-
+  private final Map<Long, RiskRun> _riskRunsByIds = newConcurrentMap();
+  private final Map<Long, Map<Pair<Long, Long>, StatusEntry>> _statusCacheByRunId = newConcurrentMap();
+  private final Map<Long, Map<ComputeFailureKey, ComputeFailure>> _computeFailureCacheByRunId = newConcurrentMap();
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchWriter.class);
@@ -360,6 +359,7 @@ public class DbBatchWriter extends AbstractDbMaster {
    *
    * @return a new, empty {@code ConcurrentMap}
    */
+  @SuppressWarnings("deprecation")
   private static <K, V> Map<K, Collection<V>> newHashMapWithDefaultCollection() {
     return (new MapMaker()).makeComputingMap(new Function<K, Collection<V>>() {
       @Override
@@ -368,7 +368,6 @@ public class DbBatchWriter extends AbstractDbMaster {
       }
     });
   }
-
 
   protected void populateRiskValueRequirements(ViewCycleMetadata cycleMetadata) {
     populateRiskValueSpecifications(cycleMetadata);
@@ -1004,9 +1003,12 @@ public class DbBatchWriter extends AbstractDbMaster {
    * STAGE 1. Populate error information in the cache.
    * This is done for all items and will populate table rsk_compute_failure.
    * 
+   * @param computeFailureCache  the cache
+   * @param results  the results
    * @return the error cache, not null
    */
-  protected Map<ValueSpecification, BatchResultWriterFailure> populateErrorCache(Map<ComputeFailureKey, ComputeFailure> computeFailureCache, Collection<ViewResultEntry> results) {
+  protected Map<ValueSpecification, BatchResultWriterFailure> populateErrorCache(
+      Map<ComputeFailureKey, ComputeFailure> computeFailureCache, Collection<ViewResultEntry> results) {
     Map<ValueSpecification, BatchResultWriterFailure> errorCache = Maps.newHashMap();
     for (ViewResultEntry result : results) {
       populateErrorCache(computeFailureCache, errorCache, result);
@@ -1060,7 +1062,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     }
 
-    s_logger.info("Inserting {} and updating {} {} status entries", newArray(inserts.size(), updates.size(), status));
+    s_logger.info("Inserting {} and updating {} {} status entries", (Object[]) newArray(inserts.size(), updates.size(), status));
 
     SqlParameterSource[] batchArgsArray = inserts.toArray(new DbMapSqlParameterSource[inserts.size()]);
     int[] counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertFromRunStatus"), batchArgsArray);
@@ -1070,7 +1072,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("UpdateFromRunStatus"), batchArgsArray);
     checkCount(status + " update", batchArgsArray, counts);
 
-    s_logger.info("Inserted {} and updated {} {} status entries", newArray(inserts.size(), updates.size(), status));
+    s_logger.info("Inserted {} and updated {} {} status entries", (Object[]) newArray(inserts.size(), updates.size(), status));
   }
 
   private int checkCount(String rowType, SqlParameterSource[] batchArgsArray, int[] counts) {
