@@ -70,7 +70,37 @@ public final class AnalyticsParameterProviderBuilders {
       message.add(EOM_FIELD, object.isEndOfMonth());
       message.add(TENOR_FIELD, object.getTenor().toString());
       message.add(NAME_FIELD, object.getName());
+      message.add(CURRENCY_FIELD, object.getCurrency().getCode());
     }
+  }
+
+  /**
+   * Fudge builder for {@link IndexON}
+   */
+  @FudgeBuilderFor(IndexON.class)
+  public static class IndexONBuilder extends AbstractFudgeBuilder<IndexON> {
+    private static final String CURRENCY_FIELD = "currency";
+    private static final String NAME_FIELD = "name";
+    private static final String DAY_COUNT_FIELD = "dayCount";
+    private static final String PUBLICATION_LEG_FIELD = "publicationLag";
+
+    @Override
+    public IndexON buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
+      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
+      final int publicationLag = message.getInt(PUBLICATION_LEG_FIELD);
+      return new IndexON(name, currency, dayCount, publicationLag);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IndexON object) {
+      message.add(CURRENCY_FIELD, object.getCurrency().getCode());
+      message.add(NAME_FIELD, object.getName());
+      message.add(DAY_COUNT_FIELD, object.getDayCount().getConventionName());
+      message.add(PUBLICATION_LEG_FIELD, object.getPublicationLag());
+    }
+
   }
 
   /**
@@ -150,7 +180,7 @@ public final class AnalyticsParameterProviderBuilders {
       final List<FudgeField> indexIborFields = message.getAllByName(INDEX_IBOR_FIELD);
       final List<FudgeField> forwardIborCurveFields = message.getAllByName(INDEX_IBOR_CURVE);
       for (int i = 0; i < currencyFields.size(); i++) {
-        final IborIndex index = (IborIndex) indexIborFields.get(i).getValue();
+        final IborIndex index = deserializer.fudgeMsgToObject(IborIndex.class, (FudgeMsg) indexIborFields.get(i).getValue());
         final YieldAndDiscountCurve curve = deserializer.fudgeMsgToObject(YieldAndDiscountCurve.class, (FudgeMsg) forwardIborCurveFields.get(i).getValue());
         forwardIborCurves.put(index, curve);
       }
@@ -158,9 +188,9 @@ public final class AnalyticsParameterProviderBuilders {
       final List<FudgeField> indexONFields = message.getAllByName(INDEX_ON_FIELD);
       final List<FudgeField> forwardONCurveFields = message.getAllByName(OVERNIGHT_CURVE_FIELD);
       for (int i = 0; i < currencyFields.size(); i++) {
-        final IborIndex index = (IborIndex) indexONFields.get(i).getValue();
+        final IndexON index = deserializer.fudgeMsgToObject(IndexON.class, (FudgeMsg) indexONFields.get(i).getValue());
         final YieldAndDiscountCurve curve = deserializer.fudgeMsgToObject(YieldAndDiscountCurve.class, (FudgeMsg) forwardONCurveFields.get(i).getValue());
-        forwardIborCurves.put(index, curve);
+        forwardONCurves.put(index, curve);
       }
       final FXMatrix fxMatrix = deserializer.fieldValueToObject(FXMatrix.class, message.getByName(FX_MATRIX_FIELD));
       return new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
