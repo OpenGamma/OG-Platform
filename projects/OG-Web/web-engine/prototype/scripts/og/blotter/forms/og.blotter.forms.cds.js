@@ -49,6 +49,9 @@ $.register_module({
             constructor.submit_new = function (handler) {
                 validate = handler;
                 delete data.id;
+                delete data.security.uniqueId;
+                delete data.trade.uniqueId;
+                delete data.security.name;
                 form.submit();
             };
         };
