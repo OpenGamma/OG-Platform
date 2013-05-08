@@ -35,10 +35,13 @@ import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.digest.TargetDigests;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -128,8 +131,10 @@ public final class DependencyGraphBuilder implements Cancelable {
   private CompiledFunctionResolver _functionResolver;
   /** The function compilation context for this instance of DependencyGraphBuilder */
   private FunctionCompilationContext _compilationContext;
-  /** The function exclusion gropus for this instance of DependencyGraphBuilder */
+  /** The function exclusion groups for this instance of DependencyGraphBuilder */
   private FunctionExclusionGroups _functionExclusionGroups;
+  /** The target digests for this instance of DependencyGraphBuilder */
+  private TargetDigests _targetDigests;
 
   // The resolve task is ref-counted once for the map (it is being used as a set)
   private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements =
@@ -259,6 +264,24 @@ public final class DependencyGraphBuilder implements Cancelable {
     return _functionExclusionGroups;
   }
 
+  /**
+   * Sets the target digest rules
+   * 
+   * @param targetDigests the rules, or null to not use target digest rules
+   */
+  public void setTargetDigests(final TargetDigests targetDigests) {
+    _targetDigests = targetDigests;
+  }
+
+  /**
+   * Returns the target digest rules.
+   * 
+   * @return the the target digest rules, or null if none are being used
+   */
+  public TargetDigests getTargetDigests() {
+    return _targetDigests;
+  }
+
   public void setComputationTargetCollapser(final ComputationTargetCollapser computationTargetCollapser) {
     getTerminalValuesCallback().setComputationTargetCollapser(computationTargetCollapser);
   }
@@ -350,7 +373,15 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   protected void addResolvedValue(final ResolvedValue value) {
-    _getTerminalValuesCallback.declareProduction(value);
+    if (_targetDigests != null) {
+      _getTerminalValuesCallback.declareProduction(value, _targetDigests.getDigest(getCompilationContext(), value.getValueSpecification().getTargetSpecification()));
+    } else {
+      _getTerminalValuesCallback.declareProduction(value, null);
+    }
+  }
+
+  protected Map<ValueProperties, ParameterizedFunction> getResolutions(final Object targetDigest, final String valueName) {
+    return _getTerminalValuesCallback.getResolutions(targetDigest, valueName);
   }
 
   /**
@@ -393,7 +424,7 @@ public final class DependencyGraphBuilder implements Cancelable {
    * @param graph the result of a previous graph build
    */
   public void setDependencyGraph(final DependencyGraph graph) {
-    _getTerminalValuesCallback.populateState(graph);
+    _getTerminalValuesCallback.populateState(graph, getCompilationContext(), getTargetDigests());
   }
 
   /**

@@ -25,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -128,6 +130,12 @@ import com.opengamma.util.tuple.Pair;
    */
   private ComputationTargetCollapser _computationTargetCollapser;
 
+  /**
+   * The target digest map which may be used to speed up selection choices instead of full back-tracking.
+   */
+  private final ConcurrentMap<Object, ConcurrentMap<String, Map<ValueProperties, ParameterizedFunction>>> _targetDigestInfo =
+      new ConcurrentHashMap<Object, ConcurrentMap<String, Map<ValueProperties, ParameterizedFunction>>>();
+
   public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor) {
     _failureVisitor = failureVisitor;
   }
@@ -162,8 +170,56 @@ import com.opengamma.util.tuple.Pair;
     return null;
   }
 
-  public void declareProduction(final ResolvedValue resolvedValue) {
+  private void storeResolution(final Object targetDigest, final ValueSpecification resolvedValue, final ParameterizedFunction function) {
+    ConcurrentMap<String, Map<ValueProperties, ParameterizedFunction>> info = _targetDigestInfo.get(targetDigest);
+    if (info == null) {
+      info = new ConcurrentHashMap<String, Map<ValueProperties, ParameterizedFunction>>();
+      info.put(resolvedValue.getValueName(), Collections.singletonMap(resolvedValue.getProperties(), function));
+      final ConcurrentMap<String, Map<ValueProperties, ParameterizedFunction>> existing = _targetDigestInfo.putIfAbsent(targetDigest, info);
+      if (existing == null) {
+        return;
+      }
+      info = existing;
+    }
+    Map<ValueProperties, ParameterizedFunction> oldValues = info.get(resolvedValue.getValueName());
+    Map<ValueProperties, ParameterizedFunction> newValues;
+    do {
+      if (oldValues == null) {
+        newValues = Collections.singletonMap(resolvedValue.getProperties(), function);
+        oldValues = info.putIfAbsent(resolvedValue.getValueName(), newValues);
+        if (oldValues == null) {
+          return;
+        }
+      } else {
+        if (oldValues.containsKey(resolvedValue.getProperties())) {
+          return;
+        }
+        newValues = Maps.newHashMapWithExpectedSize(oldValues.size() + 1);
+        newValues.putAll(oldValues);
+        newValues.put(resolvedValue.getProperties(), function);
+        if (info.replace(resolvedValue.getValueName(), oldValues, newValues)) {
+          return;
+        }
+        oldValues = info.get(resolvedValue.getValueName());
+      }
+    } while (true);
+  }
+
+  public Map<ValueProperties, ParameterizedFunction> getResolutions(final Object targetDigest, final String valueName) {
+    final Map<String, Map<ValueProperties, ParameterizedFunction>> info = _targetDigestInfo.get(targetDigest);
+    if (info != null) {
+      return info.get(valueName);
+    } else {
+      return null;
+    }
+  }
+
+  public void declareProduction(final ResolvedValue resolvedValue, final Object targetDigest) {
+    final ValueSpecification output = resolvedValue.getValueSpecification();
     _resolvedBuffer.put(resolvedValue.getValueSpecification(), resolvedValue);
+    if (targetDigest != null) {
+      storeResolution(targetDigest, output, resolvedValue.getFunction());
+    }
   }
 
   @Override
@@ -181,7 +237,7 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public synchronized void populateState(final DependencyGraph graph) {
+  public synchronized void populateState(final DependencyGraph graph, final FunctionCompilationContext context, final TargetDigests targetDigests) {
     final Set<DependencyNode> remove = new HashSet<DependencyNode>();
     for (final DependencyNode node : graph.getDependencyNodes()) {
       for (final DependencyNode dependent : node.getDependentNodes()) {
@@ -191,8 +247,17 @@ import com.opengamma.util.tuple.Pair;
         }
       }
       _graphNodes.add(node);
+      final Object targetDigest;
+      if (targetDigests != null) {
+        targetDigest = targetDigests.getDigest(context, node.getComputationTarget());
+      } else {
+        targetDigest = null;
+      }
       for (final ValueSpecification output : node.getOutputValues()) {
         _spec2Node.put(output, node);
+        if (targetDigest != null) {
+          storeResolution(targetDigest, output, node.getFunction());
+        }
       }
       getOrCreateNodes(node.getFunction(), node.getComputationTarget()).add(node);
     }
@@ -281,6 +346,9 @@ import com.opengamma.util.tuple.Pair;
   }
 
   // TODO: Multiple nodes for a single collapse applicable target should be collapsed, probably with a "collapse(function, a, a)" sanity check first
+
+  // Note: we're not adjusting the target digests during collapses; for the collapse to have made sense, the digests for each target should probably be the same.
+  // TODO: This might be a bad assumption
 
   private void scheduleCollapsers(final GraphBuildingContext context, final ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo) {
     // Action anything already found asynchronously

@@ -6,7 +6,6 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +21,9 @@ import com.opengamma.util.tuple.Triple;
 
   private ResolutionPump _pump;
 
-  public ExistingResolutionsStep(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> nextFunctions,
+  public ExistingResolutionsStep(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base,
       final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
-    super(task, nextFunctions, resolved, resolvedOutput);
+    super(task, base, resolved, resolvedOutput);
   }
 
   @Override
@@ -35,7 +34,7 @@ import com.opengamma.util.tuple.Triple;
       _pump = null;
     }
     // All existing resolutions have been completed, so now try the actual application
-    setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getResolved(), getResolvedOutput()), context);
+    setRunnableTaskState(new FunctionApplicationStep(getTask(), getIterationBase(), getResolved(), getResolvedOutput()), context);
   }
 
   @Override

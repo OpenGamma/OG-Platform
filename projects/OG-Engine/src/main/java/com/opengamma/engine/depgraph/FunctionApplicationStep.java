@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,16 +29,16 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
-/* package */class FunctionApplicationStep extends NextFunctionStep {
+/* package */class FunctionApplicationStep extends FunctionIterationStep {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationStep.class);
 
   private final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> _resolved;
   private final ValueSpecification _resolvedOutput;
 
-  public FunctionApplicationStep(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions,
+  public FunctionApplicationStep(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base,
       final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
-    super(task, functions);
+    super(task, base);
     _resolved = resolved;
     _resolvedOutput = resolvedOutput;
   }
@@ -69,12 +68,12 @@ import com.opengamma.util.tuple.Triple;
     return getResolvedOutput().getTargetSpecification();
   }
 
-  private static class DelegateState extends NextFunctionStep implements ResolvedValueCallback {
+  private static class DelegateState extends FunctionIterationStep implements ResolvedValueCallback {
 
     private ResolutionPump _pump;
 
-    public DelegateState(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions) {
-      super(task, functions);
+    public DelegateState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base) {
+      super(task, base);
     }
 
     @Override
@@ -149,16 +148,16 @@ import com.opengamma.util.tuple.Triple;
 
   }
 
-  protected static final class PumpingState extends NextFunctionStep {
+  protected static final class PumpingState extends FunctionIterationStep {
 
     private final ParameterizedFunction _function;
     private final ValueSpecification _valueSpecification;
     private final Collection<ValueSpecification> _outputs;
     private final FunctionApplicationWorker _worker;
 
-    private PumpingState(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions,
-        final ValueSpecification valueSpecification, final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
-      super(task, functions);
+    private PumpingState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base, final ValueSpecification valueSpecification, final Collection<ValueSpecification> outputs,
+        final ParameterizedFunction function, final FunctionApplicationWorker worker) {
+      super(task, base);
       assert outputs.contains(valueSpecification);
       _valueSpecification = valueSpecification;
       _outputs = outputs;
@@ -511,7 +510,8 @@ import com.opengamma.util.tuple.Triple;
         return false;
       }
       final ResolvedValue result = createResult(resolvedOutput, getFunction(), inputs.keySet(), resolvedOutputs);
-      s_logger.info("Result {} for {}", result, getValueRequirement());
+      // TODO: Control this with a flag? 
+      getIterationBase().reportResult();
       context.declareProduction(result);
       if (substituteWorker != null) {
         if (!substituteWorker.pushResult(context, result, true)) {
@@ -581,7 +581,7 @@ import com.opengamma.util.tuple.Triple;
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        setRunnableTaskState(getIterationBase(), context);
         worker.release(context);
         return true;
       }
@@ -600,14 +600,14 @@ import com.opengamma.util.tuple.Triple;
           }
         }
       }
-      final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
+      final PumpingState state = new PumpingState(getTask(), getIterationBase(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
       setTaskState(state);
       if (inputRequirements.isEmpty()) {
         s_logger.debug("Function {} requires no inputs", functionDefinition);
         worker.setPumpingState(state, 0);
         if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap(), true)) {
           context.discardTaskProducing(getResolvedOutput(), getTask());
-          setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+          setRunnableTaskState(getIterationBase(), context);
           worker.finished(context);
         }
       } else {
@@ -626,12 +626,18 @@ import com.opengamma.util.tuple.Triple;
       worker.release(context);
       // Another task is working on this, so delegate to it
       s_logger.debug("Delegating production of {} to worker {}", getResolvedOutput(), producer);
-      final DelegateState state = new DelegateState(getTask(), getFunctions());
+      final DelegateState state = new DelegateState(getTask(), getIterationBase());
       setTaskState(state);
       producer.addCallback(context, state);
       producer.release(context);
     }
     return true;
+  }
+
+  @Override
+  protected boolean isActive() {
+    // Won't do anything unless {@link #tryRun} is called
+    return false;
   }
 
   @Override

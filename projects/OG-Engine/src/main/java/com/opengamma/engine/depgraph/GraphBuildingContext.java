@@ -5,8 +5,11 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +27,8 @@ import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.digest.TargetDigests;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -65,6 +70,10 @@ import com.opengamma.util.tuple.Pair;
 
   public FunctionExclusionGroups getFunctionExclusionGroups() {
     return getBuilder().getFunctionExclusionGroups();
+  }
+
+  public TargetDigests getTargetDigests() {
+    return getBuilder().getTargetDigests();
   }
 
   // Operations
@@ -277,6 +286,21 @@ import com.opengamma.util.tuple.Pair;
     return getBuilder().getResolvedValue(valueSpecification);
   }
 
+  /**
+   * Returns an iterator over previous resolutions (that are present in the dependency graph) on the same target digest for the same value name.
+   * 
+   * @param targetDigest the target's digest, not null
+   * @param desiredValue the value requirement name, not null
+   * @return any existing resolutions, null if there are none
+   */
+  public Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> getResolutions(final Object targetDigest, final String desiredValue) {
+    Map<ValueProperties, ParameterizedFunction> properties = getBuilder().getResolutions(targetDigest, desiredValue);
+    if (properties == null) {
+      return null;
+    }
+    return properties.entrySet().iterator();
+  }
+
   public void discardTask(final ResolveTask task) {
     do {
       final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
@@ -402,6 +426,30 @@ import com.opengamma.util.tuple.Pair;
       return valueSpec;
     } else {
       return MemoryUtils.instance(new ValueSpecification(valueSpec.getValueName(), newTargetSpec, valueSpec.getProperties()));
+    }
+  }
+
+  /**
+   * Bulk form of {@link #simplifyType(ValueSpecification)}. If the values are already in their simplified form then the original collection is returned.
+   * 
+   * @param specifications the specifications to process, not null
+   * @return the possibly simplified specifications, not null
+   */
+  public Collection<ValueSpecification> simplifyTypes(final Collection<ValueSpecification> specifications) {
+    if (specifications.size() == 1) {
+      final ValueSpecification specification = specifications.iterator().next();
+      final ValueSpecification reducedSpecification = simplifyType(specification);
+      if (specification == reducedSpecification) {
+        return specifications;
+      } else {
+        return Collections.singleton(reducedSpecification);
+      }
+    } else {
+      final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(specifications.size());
+      for (ValueSpecification specification : specifications) {
+        result.add(simplifyType(specification));
+      }
+      return result;
     }
   }
 

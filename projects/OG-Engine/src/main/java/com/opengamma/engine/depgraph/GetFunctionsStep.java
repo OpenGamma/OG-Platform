@@ -8,6 +8,7 @@ package com.opengamma.engine.depgraph;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -62,6 +64,7 @@ import com.opengamma.util.tuple.Triple;
 
   @Override
   protected boolean run(final GraphBuildingContext context) {
+    final ValueRequirement requirement = getValueRequirement();
     boolean missing = false;
     ValueSpecification marketDataSpec = null;
     ComputationTargetSpecification targetSpec = null;
@@ -75,12 +78,12 @@ import com.opengamma.util.tuple.Triple;
         if (target != null) {
           targetValue = target.getValue();
         } else {
-          targetValue = getValueRequirement().getTargetReference().accept(s_getTargetValue);
+          targetValue = requirement.getTargetReference().accept(s_getTargetValue);
         }
       } else {
-        targetValue = getValueRequirement().getTargetReference().accept(s_getTargetValue);
+        targetValue = requirement.getTargetReference().accept(s_getTargetValue);
       }
-      marketDataSpec = context.getMarketDataAvailabilityProvider().getAvailability(targetSpec, targetValue, getValueRequirement());
+      marketDataSpec = context.getMarketDataAvailabilityProvider().getAvailability(targetSpec, targetValue, requirement);
     } catch (final BlockingOperation e) {
       return false;
     } catch (final MarketDataNotSatisfiableException e) {
@@ -89,15 +92,15 @@ import com.opengamma.util.tuple.Triple;
       BlockingOperation.on();
     }
     if (marketDataSpec != null) {
-      s_logger.info("Found live data for {}", getValueRequirement());
+      s_logger.info("Found live data for {}", requirement);
       marketDataSpec = context.simplifyType(marketDataSpec);
       if (targetSpec == null) {
         // The system resolver did not produce a target that we can monitor, so use the MDAP supplied value
         targetSpec = marketDataSpec.getTargetSpecification();
       }
       ResolvedValue resolvedValue = createResult(marketDataSpec, MARKET_DATA_SOURCING_FUNCTION, Collections.<ValueSpecification>emptySet(), Collections.singleton(marketDataSpec));
-      final ValueProperties constraints = getValueRequirement().getConstraints();
-      if ((getValueRequirement().getValueName() != marketDataSpec.getValueName())
+      final ValueProperties constraints = requirement.getConstraints();
+      if ((requirement.getValueName() != marketDataSpec.getValueName())
           || !targetSpec.equals(marketDataSpec.getTargetSpecification())
           || !constraints.isSatisfiedBy(marketDataSpec.getProperties())) {
         // The specification returned by market data provision does not match the logical target; publish a substitute node
@@ -134,10 +137,10 @@ import com.opengamma.util.tuple.Triple;
             properties = constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionNames.iterator().next()).get();
           }
         }
-        final ValueSpecification relabelledSpec = new ValueSpecification(getValueRequirement().getValueName(), targetSpec, properties);
+        final ValueSpecification relabelledSpec = new ValueSpecification(requirement.getValueName(), targetSpec, properties);
         resolvedValue = createResult(relabelledSpec, RELABELLING_FUNCTION, Collections.singleton(marketDataSpec), Collections.singleton(relabelledSpec));
       }
-      final ResolvedValueProducer producer = new SingleResolvedValueProducer(getValueRequirement(), resolvedValue);
+      final ResolvedValueProducer producer = new SingleResolvedValueProducer(requirement, resolvedValue);
       final ResolvedValueProducer existing = context.declareTaskProducing(resolvedValue.getValueSpecification(), getTask(), producer);
       if (existing == producer) {
         context.declareProduction(resolvedValue);
@@ -172,29 +175,49 @@ import com.opengamma.util.tuple.Triple;
       // Leave in current state; will go to finished after being pumped
     } else {
       if (missing) {
-        s_logger.info("Missing market data for {}", getValueRequirement());
-        storeFailure(context.marketDataMissing(getValueRequirement()));
+        s_logger.info("Missing market data for {}", requirement);
+        storeFailure(context.marketDataMissing(requirement));
         setTaskStateFinished(context);
       } else {
         if (target != null) {
-          final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(
-              getValueRequirement().getValueName(), target, getValueRequirement().getConstraints());
-          if (itr.hasNext()) {
-            s_logger.debug("Found functions for {}", getValueRequirement());
-            setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
+          final TargetDigests digests = context.getTargetDigests();
+          if (digests != null) {
+            final Object digest = digests.getDigest(context.getCompilationContext(), targetSpec);
+            if (digest != null) {
+              final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> existingResolutions = context.getResolutions(digest, requirement.getValueName());
+              if (existingResolutions != null) {
+                setRunnableTaskState(new TargetDigestStep(getTask(), existingResolutions), context);
+              } else {
+                getFunctions(target, context, this);
+              }
+            } else {
+              getFunctions(target, context, this);
+            }
           } else {
-            s_logger.info("No functions for {}", getValueRequirement());
-            storeFailure(context.noFunctions(getValueRequirement()));
-            setTaskStateFinished(context);
+            getFunctions(target, context, this);
           }
         } else {
-          s_logger.info("No functions for unresolved target {}", getValueRequirement());
-          storeFailure(context.couldNotResolve(getValueRequirement()));
+          s_logger.info("No functions for unresolved target {}", requirement);
+          storeFailure(context.couldNotResolve(requirement));
           setTaskStateFinished(context);
         }
       }
     }
     return true;
+  }
+
+  protected static void getFunctions(final ComputationTarget target, final GraphBuildingContext context, final ResolveTask.State state) {
+    final ValueRequirement requirement = state.getValueRequirement();
+    final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(
+        requirement.getValueName(), target, requirement.getConstraints());
+    if (itr.hasNext()) {
+      s_logger.debug("Found functions for {}", requirement);
+      state.setRunnableTaskState(new ResolvedFunctionStep(state.getTask(), itr), context);
+    } else {
+      s_logger.info("No functions for {}", requirement);
+      state.storeFailure(context.noFunctions(requirement));
+      state.setTaskStateFinished(context);
+    }
   }
 
   @Override
