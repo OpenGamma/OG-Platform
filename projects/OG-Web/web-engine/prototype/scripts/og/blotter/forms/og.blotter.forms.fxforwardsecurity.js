@@ -7,10 +7,10 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, validate;
+            var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "FXForwardSecurity", externalIdBundle: "", attributes: {}}, 
-                trade: og.blotter.util.otc_trade};}
+                trade: util.otc_trade};}
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'FX Forward';
@@ -19,8 +19,8 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     data: data,
                     processor: function (data) {
-                        data.security.name = og.blotter.util.create_name(data);
-                        og.blotter.util.cleanup(data);
+                        data.security.name = util.create_name(data);
+                        util.cleanup(data);
                     }
                 });
                 form.children.push(
@@ -43,12 +43,12 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_date_picker('.blotter-date');
-                    og.blotter.util.add_time_picker('.blotter-time');
-                    og.blotter.util.set_initial_focus();
+                    util.add_date_picker('.blotter-date');
+                    util.add_time_picker('.blotter-time');
+                    util.set_initial_focus();
                     if(data.security.length) return;
-                    og.blotter.util.set_select("security.receiveCurrency", data.security.receiveCurrency);
-                    og.blotter.util.set_select("security.payCurrency", data.security.payCurrency);
+                    util.set_select("security.receiveCurrency", data.security.receiveCurrency);
+                    util.set_select("security.payCurrency", data.security.payCurrency);
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);

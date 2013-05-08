@@ -418,10 +418,10 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.equityvarianceswapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaptionsecurity.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxbarrierdivsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxbarrieroptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxforwardsecurity.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxdivsecurity.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.nondeliverablefxdivsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxoptionsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.nondeliverablefxoptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>

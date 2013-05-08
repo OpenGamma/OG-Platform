@@ -3,14 +3,14 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.fxdivsecurity',
+    name: 'og.blotter.forms.fxoptionsecurity',
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, validate;
+            var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "FXOptionSecurity", regionId: "ABC~123", externalIdBundle: "",
-                attributes: {}}, trade: og.blotter.util.otc_trade};}
+                attributes: {}}, trade: util.otc_trade};}
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'FX Option';
@@ -19,8 +19,8 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     data: data,
                     processor: function (data) {
-                        data.security.name = og.blotter.util.create_name(data);
-                        og.blotter.util.cleanup(data);
+                        data.security.name = util.create_name(data);
+                        util.cleanup(data);
                     }
                 });
                 form.children.push(
@@ -58,14 +58,14 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_date_picker('.blotter-date');
-                    og.blotter.util.add_time_picker('.blotter-time');
-                    og.blotter.util.set_initial_focus();
+                    util.add_date_picker('.blotter-date');
+                    util.add_time_picker('.blotter-time');
+                    util.set_initial_focus();
                     if(data.security.length) return;
-                    og.blotter.util.set_select("trade.premiumCurrency", data.trade.premiumCurrency);
-                    og.blotter.util.set_select("security.putCurrency", data.security.putCurrency);
-                    og.blotter.util.set_select("security.callCurrency", data.security.callCurrency);
-                    og.blotter.util.check_radio("security.longShort", data.security.longShort);
+                    util.set_select("trade.premiumCurrency", data.trade.premiumCurrency);
+                    util.set_select("security.putCurrency", data.security.putCurrency);
+                    util.set_select("security.callCurrency", data.security.callCurrency);
+                    util.check_radio("security.longShort", data.security.longShort);
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);

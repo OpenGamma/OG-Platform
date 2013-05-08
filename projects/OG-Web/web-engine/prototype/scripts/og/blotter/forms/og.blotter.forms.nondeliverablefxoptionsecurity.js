@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.nondeliverablefxdivsecurity',
+    name: 'og.blotter.forms.nondeliverablefxoptionsecurity',
     dependencies: [],
     obj: function () {
         return function (config) {
