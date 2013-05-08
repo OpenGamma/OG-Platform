@@ -53,7 +53,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String GERMANY_GOVT = ISSUER_NAMES[2];
-  private static final Pair<String, Currency> ISSUER_CCY = new ObjectsPair<String, Currency>(GERMANY_GOVT, EUR);
+  private static final Pair<String, Currency> ISSUER_CCY = new ObjectsPair<>(GERMANY_GOVT, EUR);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;

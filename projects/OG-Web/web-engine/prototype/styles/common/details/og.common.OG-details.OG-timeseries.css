@@ -43,19 +43,17 @@
 }
 
 .OG-timeseries-gadget .og-plot-header .og-observation label {
-    -webkit-border-radius: 2px;
-    -moz-border-radius: 2px;
-    border-radius: 2px;
-    padding: 0 5px 2px 0;
-    margin: 0 4px 0 0;
-    height: 17px;
+    height: 19px;
     position: relative;
+    display: inline-block;
+    line-height: 18px;
+    padding-right: 4px;
+    margin-right: 4px;
 }
 
 .OG-timeseries-gadget .og-plot-header .og-observation input {
     left: -1px;
     position: absolute;
-    top: -1px;
 }
 
 .OG-timeseries-gadget .og-plot-header .og-observation span {
@@ -183,7 +181,7 @@
     overflow-x: auto;
     display: block;
     position: relative;
-    margin-top: 55px;
+    margin-top: 0;
 }
 
 .OG-timeseries-gadget .og-data-points time {
@@ -197,7 +195,6 @@
 .OG-timeseries-gadget .og-container {
     white-space: nowrap;
     display: block;
-    height: 343px;
     overflow: hidden;
     overflow-x: auto;
     background-color: #fff;
@@ -210,7 +207,6 @@
 .OG-timeseries-gadget .og-data-series {
     width: 399px;
     display: inline-block;
-    border-left: 1px solid #f6f6f6;
     float: left;
 }
 
@@ -219,7 +215,7 @@
 }
 
 .OG-timeseries-gadget .og-data-series header {
-    height: 29px;
+    height: 0;
     display: block;
     position: relative;
     border-top: 1px solid #fff;
@@ -227,10 +223,8 @@
 
 .OG-timeseries-gadget .og-data-series footer {
     position: relative;
-    color: #999;
     display: block;
-    padding: 5px;
-    background-color: #f6f6f6;
+    padding: 5px 5px 5px 0;
 }
 
 .OG-timeseries-gadget .og-data-series header h3 {
@@ -281,15 +275,16 @@
  * Slick grid
  */
 
-.og-data-points .og-slick {
+.og-data-points .og-data {
     border-top:  1px solid #fff;
     height: 281px;
 }
 
-.og-data-points .og-slick .og-loading {
+.og-data-points .og-data .og-loading {
     display: inline-block;
     padding: 5px;
     color: #999;
+    margin-top: 0;
 }
 
 .og-data-points .slick-viewport {
@@ -308,35 +303,35 @@
     color: #ccc;
 }
 
-.og-data-points .og-slick .slick-header {
+.og-data-points .og-data .slick-header {
     height: 23px;
 }
 
-.og-data-points .og-slick .slick-header-column.ui-state-default {
+.og-data-points .og-data .slick-header-column.ui-state-default {
     line-height: 12px;
 }
 
-.og-data-points .og-slick .slick-header {
+.og-data-points .og-data .slick-header {
     background: #ecf5fa;
     font-weight: bold;
 }
 
-.og-data-points .og-slick .slick-header-columns:before {
+.og-data-points .og-data .slick-header-columns:before {
     content: none;
 }
 
-.og-data-points .og-slick .slick-column-name {
+.og-data-points .og-data .slick-column-name {
     font-weight: bold;
     color: #555;
     line-height: 12px;
 }
 
-.og-data-points .og-slick .slick-resizable-handle {
+.og-data-points .og-data .slick-resizable-handle {
     border-right-color: #ccc;
     top: 0;
 }
 
-.og-data-points .og-slick .slick-resizable-handle:before {
+.og-data-points .og-data .slick-resizable-handle:before {
     border-left-color: transparent;
 }
 
@@ -344,7 +339,7 @@
  * Legend
  */
 .OG-timeseries-gadget .legend {
-    opacity: 0.5;
+    opacity: 0.7;
     position: absolute;
     top: 13px;
     width: 155px;

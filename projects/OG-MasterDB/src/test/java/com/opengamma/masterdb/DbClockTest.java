@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -26,11 +27,15 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT_DB)
 public class DbClockTest extends DbTest {
 
-  private final DbConnector _connector;
+  private DbConnector _connector;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbClockTest(final String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
+  }
+
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
+  public void setUp() {
     _connector = getDbConnector();
   }
 

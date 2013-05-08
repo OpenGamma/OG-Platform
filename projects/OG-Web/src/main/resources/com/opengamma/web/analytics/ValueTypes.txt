@@ -53,5 +53,7 @@
 'ValueVomma' java.lang.Double
 'VolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
 'Yield Curve Node Sensitivities' com.opengamma.financial.analytics.DoubleLabelledMatrix1D
+'Yield Curve P&L Series' com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D
+'Yield Curve Return Series' com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D
 'Yield To Maturity' java.lang.Double
 'Z Spread' java.lang.Double

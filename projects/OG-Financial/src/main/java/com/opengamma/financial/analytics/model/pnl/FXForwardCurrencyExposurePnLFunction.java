@@ -6,22 +6,13 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
-import com.opengamma.analytics.financial.schedule.Schedule;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
-import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -41,26 +32,21 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
  */
 public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
-
-  private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
-  private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
-  private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
@@ -86,30 +72,12 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       final Security security = target.getPosition().getSecurity();
-      return security instanceof FXForwardSecurity;
+      return security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity;
     }
 
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
-      final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
-      if (currencyPair == null) {
-        return null;
-      }
-      final Currency currencyBase = currencyPair.getBase();
-      final ValueProperties properties = createValueProperties()
-          .withAny(ValuePropertyNames.PAY_CURVE)
-          .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
-          .withAny(ValuePropertyNames.RECEIVE_CURVE)
-          .withAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
-          .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
-          .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-          .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-          .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE)
-          .get();
-      final ComputationTargetSpecification targetSpec = target.toSpecification();
-      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.all()));
     }
 
     @Override
@@ -131,15 +99,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
         return null;
       }
-      final Set<String> samplingPeriods = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
-      if (samplingPeriods == null || samplingPeriods.size() != 1) {
-        return null;
-      }
-      final Set<String> scheduleCalculatorSet = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
-      if (scheduleCalculatorSet == null || scheduleCalculatorSet.size() != 1) {
-        return null;
-      }
-      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
+      final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
       final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
           ValueProperties.builder()
           .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
@@ -149,8 +109,47 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
           .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
       final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
       final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-      final ValueRequirement fxSpotRequirement = ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(payCurrency, receiveCurrency);
-      return ImmutableSet.of(fxCurrencyExposureRequirement, fxSpotRequirement);
+      
+      final ValueProperties fxSpotConstraints = desiredValue.getConstraints().copy()
+          .withoutAny(ValuePropertyNames.PAY_CURVE)
+          .withoutAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
+          .withoutAny(ValuePropertyNames.RECEIVE_CURVE)
+          .withoutAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
+          .withoutAny(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS)
+          .get();
+      final ComputationTargetSpecification fxSpotReturnSeriesSpec = ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
+      final ValueRequirement fxSpotReturnSeriesRequirement = new ValueRequirement(ValueRequirementNames.RETURN_SERIES, fxSpotReturnSeriesSpec, fxSpotConstraints);
+      return ImmutableSet.of(fxCurrencyExposureRequirement, fxSpotReturnSeriesRequirement);
+    }
+    
+    @Override
+    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
+      final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
+      if (currencyPair == null) {
+        return null;
+      }
+      final Currency currencyBase = currencyPair.getBase();
+      
+      ValueProperties.Builder builder = createValueProperties();
+      for (ValueSpecification inputSpec : inputs.keySet()) {
+        for (String propertyName : inputSpec.getProperties().getProperties()) {
+          if (ValuePropertyNames.FUNCTION.equals(propertyName)) {
+            continue;
+          }
+          Set<String> values = inputSpec.getProperties().getValues(propertyName);
+          if (values == null || values.isEmpty()) {
+            builder.withAny(propertyName);
+          } else {
+            builder.with(propertyName, values);
+          }
+        }
+      }
+      builder.withoutAny(ValuePropertyNames.CURRENCY)
+          .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
+          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+      
+      return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), builder.get()));
     }
 
     // FunctionInvoker
@@ -158,39 +157,22 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       final Position position = target.getPosition();
-      final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
       final ValueRequirement desiredValue = desiredValues.iterator().next();
-      final String samplingPeriod = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
-      final String scheduleCalculator = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
-      final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
       final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
       final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-      final DateDoubleTimeSeries<?> timeSeries = (DateDoubleTimeSeries<?>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
       final Currency payCurrency = security.getPayCurrency();
       final Currency receiveCurrency = security.getReceiveCurrency();
-      if (timeSeries == null) {
-        throw new OpenGammaRuntimeException("Could not get spot FX series for " + payCurrency + " / " + receiveCurrency);
-      }
-      final LocalDate startDate = now.toLocalDate().minus(Period.parse(samplingPeriod));
-      final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
-      final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
       final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
       final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
       final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
       final double exposure = mca.getAmount(currencyNonBase);
-      DoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
-      result = result.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
+      
+      LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES); 
+      LocalDateDoubleTimeSeries pnlSeries = fxSpotReturnSeries.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
-      return Collections.singleton(new ComputedValue(spec, result));
+      return Collections.singleton(new ComputedValue(spec, pnlSeries));
     }
 
   }
 
-  private DateDoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
-      final TimeSeriesSamplingFunction samplingFunction, final DateDoubleTimeSeries<?> dbTimeSeries) {
-    final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    DateDoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries, dates);
-    result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.
-    return DIFFERENCE.evaluate(result);
-  }
 }

@@ -59,7 +59,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), sign * notional, fixedRate);
     }
-    return new AnnuityDefinition<CouponFixedDefinition>(coupons);
+    return new AnnuityDefinition<>(coupons);
   }
 
   /**
@@ -103,7 +103,7 @@ public class AnnuityDefinitionBuilder {
   public static AnnuityDefinition<PaymentDefinition> annuityCouponFixedWithNotional(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate,
       final Period paymentPeriod, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate,
       final boolean isPayer) {
-    AnnuityDefinition<CouponFixedDefinition> annuityNoNotional = annuityCouponFixedFrom(currency, settlementDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay, isEOM, notional,
+    final AnnuityDefinition<CouponFixedDefinition> annuityNoNotional = annuityCouponFixedFrom(currency, settlementDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay, isEOM, notional,
         fixedRate, isPayer);
     final double sign = (isPayer) ? -1.0 : 1.0;
     final int nbPay = annuityNoNotional.getNumberOfPayments();
@@ -113,7 +113,7 @@ public class AnnuityDefinitionBuilder {
       legWithNotional[loopp + 1] = annuityNoNotional.getNthPayment(loopp);
     }
     legWithNotional[nbPay + 1] = new PaymentFixedDefinition(annuityNoNotional.getCurrency(), annuityNoNotional.getNthPayment(nbPay - 1).getPaymentDate(), notional * sign);
-    return new AnnuityDefinition<PaymentDefinition>(legWithNotional);
+    return new AnnuityDefinition<>(legWithNotional);
   }
 
   /**
@@ -147,18 +147,19 @@ public class AnnuityDefinitionBuilder {
    * @param index The Ibor index.
    * @param spread The common spread.
    * @param isPayer The payer flag.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The Ibor annuity.
    */
   public static AnnuityDefinition<CouponIborSpreadDefinition> annuityIborSpreadFrom(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final IborIndex index,
-      final double spread, final boolean isPayer) {
+      final double spread, final boolean isPayer, final Calendar calendar) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(index, "index");
-    final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, notional, index, isPayer);
+    final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, notional, index, isPayer, calendar);
     final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[iborAnnuity.getPayments().length];
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), spread);
     }
-    return new AnnuityDefinition<CouponIborSpreadDefinition>(coupons);
+    return new AnnuityDefinition<>(coupons);
   }
 
   /**
@@ -169,17 +170,18 @@ public class AnnuityDefinitionBuilder {
    * @param index The Ibor index.
    * @param spread The common spread.
    * @param isPayer The payer flag.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The Ibor annuity.
    */
   public static AnnuityDefinition<CouponIborSpreadDefinition> annuityIborSpreadFrom(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index,
-      final double spread, final boolean isPayer) {
+      final double spread, final boolean isPayer, final Calendar calendar) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     final ZonedDateTime maturityDate = settlementDate.plus(tenor);
-    return annuityIborSpreadFrom(settlementDate, maturityDate, notional, index, spread, isPayer);
+    return annuityIborSpreadFrom(settlementDate, maturityDate, notional, index, spread, isPayer, calendar);
   }
 
   /**
-   * Builder of an annuity of Ibor coupons with spread and payment of notional at the start and at the end. 
+   * Builder of an annuity of Ibor coupons with spread and payment of notional at the start and at the end.
    * The initial payment of notional is the opposite of the final one.
    * @param settlementDate The settlement date.
    * @param maturityDate The maturity date.
@@ -187,14 +189,15 @@ public class AnnuityDefinitionBuilder {
    * @param index The Ibor index.
    * @param spread The common spread.
    * @param isPayer The payer flag.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The annuity.
    */
   public static AnnuityDefinition<PaymentDefinition> annuityIborSpreadWithNotionalFrom(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional,
-      final IborIndex index, final double spread, final boolean isPayer) {
+      final IborIndex index, final double spread, final boolean isPayer, final Calendar calendar) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "maturity date");
     ArgumentChecker.notNull(index, "index");
-    final AnnuityDefinition<CouponIborSpreadDefinition> legNoNotional = annuityIborSpreadFrom(settlementDate, maturityDate, notional, index, spread, isPayer);
+    final AnnuityDefinition<CouponIborSpreadDefinition> legNoNotional = annuityIborSpreadFrom(settlementDate, maturityDate, notional, index, spread, isPayer, calendar);
     final double sign = (isPayer) ? -1.0 : 1.0;
     final int nbPay = legNoNotional.getNumberOfPayments();
     final PaymentDefinition[] legWithNotional = new PaymentDefinition[nbPay + 2];
@@ -203,11 +206,11 @@ public class AnnuityDefinitionBuilder {
       legWithNotional[loopp + 1] = legNoNotional.getNthPayment(loopp);
     }
     legWithNotional[nbPay + 1] = new PaymentFixedDefinition(legNoNotional.getCurrency(), legNoNotional.getNthPayment(nbPay - 1).getPaymentDate(), notional * sign);
-    return new AnnuityDefinition<PaymentDefinition>(legWithNotional);
+    return new AnnuityDefinition<>(legWithNotional);
   }
 
   /**
-   * Builder of an annuity of Ibor coupons with spread and payment of notional at the start and at the end. 
+   * Builder of an annuity of Ibor coupons with spread and payment of notional at the start and at the end.
    * The initial payment of notional is the opposite of the final one.
    * @param settlementDate The settlement date.
    * @param tenor The tenor.
@@ -215,15 +218,16 @@ public class AnnuityDefinitionBuilder {
    * @param index The Ibor index.
    * @param spread The common spread.
    * @param isPayer The payer flag.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The annuity.
    */
   public static AnnuityDefinition<PaymentDefinition> annuityIborSpreadWithNotionalFrom(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index,
-      final double spread, final boolean isPayer) {
+      final double spread, final boolean isPayer, final Calendar calendar) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(tenor, "tenor");
     final ZonedDateTime maturityDate = settlementDate.plus(tenor);
-    return annuityIborSpreadWithNotionalFrom(settlementDate, maturityDate, notional, index, spread, isPayer);
+    return annuityIborSpreadWithNotionalFrom(settlementDate, maturityDate, notional, index, spread, isPayer, calendar);
   }
 
 }

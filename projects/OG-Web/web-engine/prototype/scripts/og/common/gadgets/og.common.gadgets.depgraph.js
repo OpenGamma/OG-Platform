@@ -4,9 +4,9 @@
  */
 $.register_module({
     name: 'og.common.gadgets.Depgraph',
-    dependencies: ['og.analytics.Grid'],
+    dependencies: ['og.common.gadgets.Grid'],
     obj: function () {
-        var Grid = og.analytics.Grid, Depgraph = function (config) {
+        var Grid = og.common.gadgets.Grid, Depgraph = function (config) {
             Grid.call(this, {
                 selector: config.selector, child: config.child, cellmenu: !~config.selector.indexOf('inplace'),
                 show_sets: false, show_views: false, collapse_level: 1,

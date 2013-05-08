@@ -1043,7 +1043,7 @@ public class CubicSplineInterpolatorTest {
     //    final double[][] xx = new double[][] { {-1, 3., 4.27, 11. / 3., 7 }, {1.5, 2.5, 3.5, 4.5, 5.5 } };
     //    final int nL = xx[0].length;
 
-    final double[] xValues = new double[] {1., 2., 2.0000001, 4. };
+    final double[] xValues = new double[] {1., 2., 2.00001, 4. };
     //    final double[][] yValues = new double[][] { {1, 3, 6 }, {5, 3, 4 } };
     //final double[] yValues = new double[] {1., 6.000000001, 2.e250, 6.000000002 };
     final double[] yValues = new double[] {2., 3., 4., 5. };
@@ -1057,17 +1057,17 @@ public class CubicSplineInterpolatorTest {
     System.out.println(result.getNumberOfIntervals());
     System.out.println(result.getOrder());
     System.out.println(result.getDimensions());
-    System.out.println(interp.interpolate(xValues, yValues, xValues[1]));
-    System.out.println(interp.interpolate(xValues, yValues, xValues[2]));
-    System.out.println(interp.interpolate(xValues, yValues, xValues[3]));
+    //    System.out.println(interp.interpolate(xValues, yValues, xValues[1]));
+    //    System.out.println(interp.interpolate(xValues, yValues, xValues[2]));
+    System.out.println(interp.interpolate(xValues, yValues, 3.9999));
 
-    double[] keys = new double[3001];
-    for (int i = 0; i < 3001; ++i) {
-      keys[i] = 1. + 0.001 * i;
-    }
-    final double[] res = interp.interpolate(xValues, yValues, keys).getData();
-    //    System.out.println(new DoubleMatrix1D(keys));
-    System.out.println(new DoubleMatrix1D(res));
+    //    double[] keys = new double[3001];
+    //    for (int i = 0; i < 3001; ++i) {
+    //      keys[i] = 1. + 0.001 * i;
+    //    }
+    //    final double[] res = interp.interpolate(xValues, yValues, keys).getData();
+    //    //    System.out.println(new DoubleMatrix1D(keys));
+    //    System.out.println(new DoubleMatrix1D(res));
 
     //    System.out.println(interp.interpolate(xValues, yValues, 0.));
     //System.out.println(interp.interpolate(xValues, yValues, xx));

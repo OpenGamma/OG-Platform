@@ -96,24 +96,88 @@ public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.N
     return new ViewCalculationConfiguration(viewDefinition, calcConfigName);
   }
 
-  protected DoubleLabelledMatrix2D createCovarianceMatrix(@SuppressWarnings("rawtypes") DoubleTimeSeries[] timeSeries, Object[] labels) {
+  protected <T extends Comparable<? super T>> DoubleLabelledMatrix2D createCovarianceMatrix(DoubleTimeSeries<T>[] timeSeries, Object[] labels) {
     final CovarianceMatrixCalculator calculator = new CovarianceMatrixCalculator(new HistoricalCovarianceCalculator());
-    // Any nulls (missing data) will upset the calculator, so we'll remove them and produce a best efforts matrix with what is left
     int len = timeSeries.length;
+    // Any nulls or empty time series (missing data) will upset the calculator, so we'll remove them and produce a best efforts matrix with what is left
     for (int i = 0; i < len; i++) {
-      if (timeSeries[i] == null) {
+      if ((timeSeries[i] == null) || timeSeries[i].isEmpty()) {
         len--;
         timeSeries[i] = timeSeries[len];
         labels[i] = labels[len];
         i--;
       }
     }
+    if (len == 0) {
+      throw new IllegalArgumentException("No time series");
+    }
     if (len != timeSeries.length) {
       timeSeries = Arrays.copyOf(timeSeries, len);
       labels = Arrays.copyOf(labels, len);
     }
+    // The time-series must all have corresponding dates - delete any points which are not common to all time-series
+    final Comparable<? super T>[][] times = new Comparable[len][];
+    final double[][] values = new double[len][];
+    for (int i = 0; i < len; i++) {
+      times[i] = timeSeries[i].timesArray();
+      values[i] = timeSeries[i].valuesArrayFast();
+    }
+    boolean ended = false;
+    int timeIndex = 0;
+    do {
+      Comparable<? super T> earliest = times[0][timeIndex];
+      boolean mismatch = false;
+      for (int i = 1; i < len; i++) {
+        int c = earliest.compareTo((T) times[i][timeIndex]);
+        if (c != 0) {
+          mismatch = true;
+          if (c > 0) {
+            earliest = times[i][timeIndex];
+          }
+        }
+      }
+      if (mismatch) {
+        for (int i = 0; i < len; i++) {
+          if (earliest.equals(times[i][timeIndex])) {
+            System.arraycopy(times[i], timeIndex + 1, times[i], timeIndex, times[i].length - (timeIndex + 1));
+            System.arraycopy(values[i], timeIndex + 1, values[i], timeIndex, values[i].length - (timeIndex + 1));
+            times[i][times[i].length - 1] = null;
+            if (times[i][timeIndex] == null) {
+              ended = true;
+            }
+          }
+        }
+      } else {
+        timeIndex++;
+        for (int i = 0; i < len; i++) {
+          if ((timeIndex >= times[i].length) || (times[i][timeIndex] == null)) {
+            ended = true;
+          }
+        }
+      }
+    } while (!ended);
+    if (timeIndex < 1) {
+      throw new IllegalArgumentException("Time series union is empty");
+    }
+    DoubleTimeSeries<T>[] newTimeSeries = null;
+    for (int i = 0; i < len; i++) {
+      if (times[i].length > timeIndex) {
+        if (newTimeSeries == null) {
+          newTimeSeries = new DoubleTimeSeries[len];
+          System.arraycopy(timeSeries, 0, newTimeSeries, 0, len);
+        }
+        final Double[] value = new Double[timeIndex];
+        for (int j = 0; j < timeIndex; j++) {
+          value[j] = values[i][j];
+        }
+        newTimeSeries[i] = timeSeries[i].newInstance(Arrays.copyOf((T[]) times[i], timeIndex), value);
+      }
+    }
+    if (newTimeSeries != null) {
+      timeSeries = newTimeSeries;
+    }
     // Keys will just be sequential numbers
-    final Double[] keys = new Double[timeSeries.length];
+    final Double[] keys = new Double[len];
     for (int i = 0; i < timeSeries.length; i++) {
       keys[i] = (double) i;
     }

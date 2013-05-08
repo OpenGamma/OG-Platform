@@ -57,14 +57,14 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass
+  @BeforeClass(alwaysRun = true)
   public void setUpClass() throws Exception {
     if (_readOnly) {
       init();
     }
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();
@@ -123,7 +123,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
         202, toSqlDate(LocalDate.of(2010, 2, 1)));
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void tearDown() throws Exception {
     if (_readOnly == false) {
       _holMaster = null;
@@ -131,7 +131,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterClass
+  @AfterClass(alwaysRun = true)
   public void tearDownClass() throws Exception {
     if (_readOnly) {
       _holMaster = null;
@@ -139,7 +139,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     }
   }
 
-  @AfterSuite
+  @AfterSuite(alwaysRun = true)
   public static void closeAfterSuite() {
     DbMasterTestUtils.closeAfterSuite();
   }

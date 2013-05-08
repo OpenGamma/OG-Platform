@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -67,15 +68,16 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
    * @param index The coupon Ibor index. Should of the same currency as the payment.
    * @param spread The spread paid above the Ibor rate.
    * @param factor The gearing (multiplicative) factor applied to the Ibor rate.
+   * @param calendar The holiday calendar for the ibor index.
    */
   public CouponIborGearingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double spread, final double factor) {
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double spread, final double factor, final Calendar calendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     _index = index;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), _index.getCalendar());
-    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
     _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     _spread = spread;
     _spreadAmount = spread * getNotional() * getPaymentYearFraction();
@@ -92,7 +94,7 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
   public static CouponIborGearingDefinition from(final CouponIborDefinition couponIbor, final double spread, final double factor) {
     ArgumentChecker.notNull(couponIbor, "Ibor coupon");
     return new CouponIborGearingDefinition(couponIbor.getCurrency(), couponIbor.getPaymentDate(), couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(),
-        couponIbor.getPaymentYearFraction(), couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), spread, factor);
+        couponIbor.getPaymentYearFraction(), couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), spread, factor, couponIbor.getCalendar());
   }
 
   /**
@@ -104,15 +106,17 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
    * @param index The Ibor index.
    * @param spread The spread.
    * @param factor The gearing factor.
+   * @param calendar The holiday calendar for the ibor index.
    * @return The coupon.
    */
   public static CouponIborGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional, final IborIndex index,
-      final double spread, final double factor) {
+      final double spread, final double factor, final Calendar calendar) {
     ArgumentChecker.notNull(accrualStartDate, "Fixing date");
     ArgumentChecker.notNull(accrualEndDate, "Fixing date");
     ArgumentChecker.notNull(index, "Index");
-    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -index.getSpotLag(), index.getCalendar());
-    return new CouponIborGearingDefinition(index.getCurrency(), accrualEndDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, spread, factor);
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -index.getSpotLag(), calendar);
+    return new CouponIborGearingDefinition(index.getCurrency(), accrualEndDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, spread, factor,
+        calendar);
   }
 
   /**

@@ -42,7 +42,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
     return text;
   }
 
-  private Map<String, Object> formatExpanded(LocalDateDoubleTimeSeries value) {
+  public Map<String, Object> formatExpanded(LocalDateDoubleTimeSeries value) {
     List<Object[]> data = Lists.newArrayListWithCapacity(value.size());
     for (LocalDateDoubleEntryIterator it = value.iterator(); it.hasNext(); ) {
       LocalDate date = it.nextTime();

@@ -2,12 +2,12 @@
 <configuration>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <layout class="ch.qos.logback.classic.PatternLayout">
-      <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
-    </layout>
+    <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+      <layout class="ch.qos.logback.classic.PatternLayout">
+        <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+      </layout>
+    </encoder>
   </appender>
-
-  <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
 
   <logger name="com.jolbox.bonecp.ConnectionPartition" level="ERROR" />
   <logger name="com.opengamma.transport.socket.AbstractSocketProcess" level="ERROR" />
@@ -18,7 +18,6 @@
 
   <root level="warn">
     <appender-ref ref="STDOUT" />
-    <appender-ref ref="BRIDGE" />
   </root>
 
 </configuration>

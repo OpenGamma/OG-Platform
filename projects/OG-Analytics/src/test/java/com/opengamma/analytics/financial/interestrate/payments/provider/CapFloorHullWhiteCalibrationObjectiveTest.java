@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRC
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderHullWhiteCalibrationEngine;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderHullWhiteCalibrationObjective;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -37,6 +38,7 @@ public class CapFloorHullWhiteCalibrationObjectiveTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
@@ -49,7 +51,7 @@ public class CapFloorHullWhiteCalibrationObjectiveTest {
   private static final boolean IS_CAP = true;
   private static final boolean IS_PAYER = false;
   private static final AnnuityCapFloorIborDefinition CAP_DEFINITION = AnnuityCapFloorIborDefinition.fromWithNoInitialCaplet(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, EURIBOR3M, IS_PAYER, STRIKE,
-      IS_CAP);
+      IS_CAP, CALENDAR);
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
@@ -70,7 +72,7 @@ public class CapFloorHullWhiteCalibrationObjectiveTest {
     final double meanReversion = 0.01;
     final HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
     final SuccessiveRootFinderHullWhiteCalibrationObjective objective = new SuccessiveRootFinderHullWhiteCalibrationObjective(hwParameters, EUR);
-    final SuccessiveRootFinderHullWhiteCalibrationEngine<SABRCapProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<SABRCapProviderInterface>(objective);
+    final SuccessiveRootFinderHullWhiteCalibrationEngine<SABRCapProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<>(objective);
     for (int loopexp = 0; loopexp < CAP.getNumberOfPayments(); loopexp++) {
       calibrationEngine.addInstrument(CAP.getNthPayment(loopexp), PVSCC);
     }

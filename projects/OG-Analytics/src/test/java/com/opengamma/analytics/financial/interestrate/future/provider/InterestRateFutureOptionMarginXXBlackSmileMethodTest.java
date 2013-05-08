@@ -42,7 +42,7 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
-  private static final Calendar TARGET = EURIBOR3M.getCalendar();
+  private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
   private static final BlackSTIRFuturesSmileProviderDiscount BLACK_MULTICURVES = new BlackSTIRFuturesSmileProviderDiscount(MULTICURVES, BLACK_PARAMETERS, EURIBOR3M);
@@ -56,7 +56,7 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9850;
-  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, TARGET);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   // Option
@@ -86,7 +86,7 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
   private static final PresentValueBlackSTIRFuturesCalculator PVBFC = PresentValueBlackSTIRFuturesCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSTIRFuturesCalculator PVCSBFC = PresentValueCurveSensitivityBlackSTIRFuturesCalculator.getInstance();
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesSmileProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<BlackSTIRFuturesSmileProviderInterface>(
+  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesSmileProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<>(
       PVCSBFC);
   private static final ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator PSHWC_DSC_FD = new ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator(PVBFC, SHIFT);
 

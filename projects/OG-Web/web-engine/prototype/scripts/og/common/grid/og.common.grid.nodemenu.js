@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.NodeMenu',
+    name: 'og.common.grid.NodeMenu',
     dependencies: [],
     obj: function () {
         var module = this, has = 'hasOwnProperty';

@@ -34,6 +34,7 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.FinancialFunctions;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
@@ -163,8 +164,12 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return DemoStandardFunctionConfiguration.instance();
   }
 
-  protected FunctionConfigurationSource curveConfigurations() {
+  protected FunctionConfigurationSource yieldCurveConfigurations() {
     return IRCurveFunctions.providers(getConfigMaster());
+  }
+  
+  protected FunctionConfigurationSource fxForwardCurveConfigurations() {
+    return FXForwardCurveFunctions.providers(getConfigMaster());
   }
 
   protected FunctionConfigurationSource cubeConfigurations() {
@@ -180,7 +185,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     final List<FunctionConfigurationSource> sources = new LinkedList<FunctionConfigurationSource>();
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
-    sources.add(curveConfigurations());
+    sources.add(yieldCurveConfigurations());
+    sources.add(fxForwardCurveConfigurations());
     sources.add(cubeConfigurations());
     return sources;
   }

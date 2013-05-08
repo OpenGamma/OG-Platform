@@ -20,9 +20,9 @@ private:
 	~CJavaVM ();
 public:
 	CJavaVM (JavaVM *pjvm, JNIEnv *penv);
-	BOOL Invoke (const CConfigString *poClass, const CConfigString *poMethod) const;
-	BOOL Invoke (const CConfigString *poClass, const CConfigString *poMethod, const CConfigMultiString *poArgs) const;
-	BOOL RegisterNatives (PCSTR pszClass, int nMethods, JNINativeMethod *pMethods) const;
+	DWORD Invoke (const CConfigString *poClass, const CConfigString *poMethod) const;
+	DWORD Invoke (const CConfigString *poClass, const CConfigString *poMethod, const CConfigMultiString *poArgs) const;
+	DWORD RegisterNatives (PCSTR pszClass, int nMethods, JNINativeMethod *pMethods) const;
 	CJavaVM *Attach (PCSTR pszThreadName) const;
 	static void Release (const CJavaVM *po);
 	void AddRef () const;

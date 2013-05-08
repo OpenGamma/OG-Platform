@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.threeten.bp.Period;
 
 import com.opengamma.util.money.Currency;
 
@@ -69,7 +68,7 @@ public class IndexPrice {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -79,7 +78,7 @@ public class IndexPrice {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    IndexPrice other = (IndexPrice) obj;
+    final IndexPrice other = (IndexPrice) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }

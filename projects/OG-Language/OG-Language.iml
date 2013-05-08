@@ -39,13 +39,13 @@
     <orderEntry type="library" name="Maven: org.joda:joda-beans:0.6.2" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:6.4.2" level="project" />
     <orderEntry type="library" name="Maven: net.sf.opencsv:opencsv:2.1" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.5.11" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:log4j-over-slf4j:1.5.11" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.5.11" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:0.9.17" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:0.9.17" level="project" />
-    <orderEntry type="library" name="Maven: com.yammer.metrics:metrics-core:3.0.0-BETA1" level="project" />
-    <orderEntry type="library" name="Maven: com.yammer.metrics:metrics-ganglia:3.0.0-BETA1" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:log4j-over-slf4j:1.7.5" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.5" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.11" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.0.11" level="project" />
+    <orderEntry type="library" name="Maven: com.codahale.metrics:metrics-core:3.0.0-BETA2" level="project" />
+    <orderEntry type="library" name="Maven: com.codahale.metrics:metrics-ganglia:3.0.0-BETA2" level="project" />
     <orderEntry type="library" name="Maven: info.ganglia.gmetric4j:gmetric4j:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.acplt:oncrpc:1.0.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:3.0.7.RELEASE" level="project" />

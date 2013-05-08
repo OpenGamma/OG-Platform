@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -44,15 +45,17 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
    * @param notional2 The second leg notional.
    * @param spread The spread to be applied to the first leg.
    * @param isPayer The payer flag for the first leg.
+   * @param calendar1 The holiday calendar for the first leg.
+   * @param calendar2 The holiday calendar for the second leg.
    * @return The swap.
    */
   public static SwapXCcyIborIborDefinition from(final ZonedDateTime settlementDate, final Period tenor, final GeneratorSwapXCcyIborIbor generator, final double notional1, final double notional2,
-      final double spread, final boolean isPayer) {
+      final double spread, final boolean isPayer, final Calendar calendar1, final Calendar calendar2) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(tenor, "Tenor");
     ArgumentChecker.notNull(generator, "Swap generator");
     // TODO: create a mechanism for the simultaneous payments on both legs, i.e. joint calendar
-    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, generator.getIborIndex1());
+    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, generator.getIborIndex1(), calendar1);
     return from(settlementDate, maturityDate, generator, notional1, notional2, spread, 0.0, isPayer);
   }
 
@@ -76,9 +79,9 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(generator, "Swap generator");
     // TODO: create a mechanism for the simultaneous payments on both legs, i.e. joint calendar
     final AnnuityDefinition<PaymentDefinition> firstLegNotional = AnnuityDefinitionBuilder.annuityIborSpreadWithNotionalFrom(settlementDate, maturityDate,
-        notional1, generator.getIborIndex1(), spread1, isPayer);
+        notional1, generator.getIborIndex1(), spread1, isPayer, generator.getCalendar1());
     final AnnuityDefinition<PaymentDefinition> secondLegNotional = AnnuityDefinitionBuilder.annuityIborSpreadWithNotionalFrom(settlementDate, maturityDate,
-        notional2, generator.getIborIndex2(), spread2, !isPayer);
+        notional2, generator.getIborIndex2(), spread2, !isPayer, generator.getCalendar2());
     return new SwapXCcyIborIborDefinition(firstLegNotional, secondLegNotional);
   }
 
@@ -99,11 +102,9 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, secondLegCurveNames);
-    return new Swap<Payment, Payment>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 
   @Override
@@ -113,10 +114,8 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
-    return new Swap<Payment, Payment>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 }

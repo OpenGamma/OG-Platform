@@ -106,6 +106,16 @@ public interface MarketDataRequirementNames {
    * Market estimated annual dividend
    */
   String ANNUAL_DIVIDEND = "Market_AnnualDividend";
+  
+  /**
+   * Market next dividend date
+   */
+  String NEXT_DIVIDEND_DATE = "Market_NextDividendDate";
+  
+  /**
+   * Estimated frequency of dividend payments, as an enum 
+   */
+  String DIVIDEND_FREQUENCY = "Market_DividendFrequency";
 
   /**
    * Market estimated cost of carry, as continuous annual yield (interest - income)

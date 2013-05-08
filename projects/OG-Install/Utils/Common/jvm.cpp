@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <strsafe.h>
 #include "jvm.h"
+#include "errorref.h"
 
 typedef jint (JNICALL *JNI_CREATEJAVAVMPROC) (JavaVM **ppjvm, JNIEnv **ppenv, JavaVMInitArgs *pArgs);
 
@@ -80,43 +81,49 @@ static jmethodID _findMethod (JNIEnv *penv, jclass cls, const CConfigString *poM
 	return penv->GetStaticMethodID (cls, pszMethod, pszSignature);
 }
 
-BOOL CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod) const {
+DWORD CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod) const {
 	jclass cls = _findClass (m_penv, poClass);
-	if (!cls) return FALSE;
+	if (!cls) return ERROR_REF_JVM;
 	jmethodID mtd = _findMethod (m_penv, cls, poMethod, "()V");
-	if (!mtd) return FALSE;
+	if (!mtd) return ERROR_REF_JVM;
 	m_penv->CallStaticVoidMethod (cls, mtd, NULL);
-	return TRUE;
+	return 0;
 }
 
-BOOL CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod, const CConfigMultiString *poArgs) const {
+DWORD CJavaVM::Invoke (const CConfigString *poClass, const CConfigString *poMethod, const CConfigMultiString *poArgs) const {
 	jclass clsCall = _findClass (m_penv, poClass);
-	if (!clsCall) return FALSE;
+	if (!clsCall) return ERROR_REF_JVM;
 	jclass clsString = _findClass (m_penv, "java/lang/String");
-	if (!clsString) return FALSE;
+	if (!clsString) return ERROR_REF_JVM;
 	jmethodID mtd = _findMethod (m_penv, clsCall, poMethod, "([Ljava/lang/String;)V");
-	if (!mtd) return FALSE;
+	if (!mtd) return ERROR_REF_JVM;
 	m_penv->PushLocalFrame (poArgs->GetValueCount () + 1); // array + string array members
-	BOOL bResult = FALSE;
+	DWORD dwResult;
 	jobjectArray oaArgs = m_penv->NewObjectArray (poArgs->GetValueCount (), clsString, NULL);
-	if (!oaArgs) goto popAndReturn;
+	if (!oaArgs) {
+		dwResult = ERROR_REF_JVM;
+		goto popAndReturn;
+	}
 	UINT n;
 	for (n = 0; n < poArgs->GetValueCount (); n++) {
 		jobject oParameter = m_penv->NewStringUTF (poArgs->GetValue (n));
-		if (!oParameter) goto popAndReturn;
+		if (!oParameter) {
+			dwResult = ERROR_REF_JVM;
+			goto popAndReturn;
+		}
 		m_penv->SetObjectArrayElement (oaArgs, n, oParameter);
 	}
 	m_penv->CallStaticVoidMethod (clsCall, mtd, oaArgs);
-	bResult = TRUE;
+	dwResult = 0;
 popAndReturn:
 	m_penv->PopLocalFrame (NULL);
-	return bResult;
+	return dwResult;
 }
 
-BOOL CJavaVM::RegisterNatives (PCSTR pszClass, int nMethods, JNINativeMethod *aMethods) const {
+DWORD CJavaVM::RegisterNatives (PCSTR pszClass, int nMethods, JNINativeMethod *aMethods) const {
 	jclass cls = _findClass (m_penv, pszClass);
-	if (!cls) return FALSE;
-    return !m_penv->RegisterNatives (cls, aMethods, nMethods);
+	if (!cls) return ERROR_REF_JVM;
+    return m_penv->RegisterNatives (cls, aMethods, nMethods) ? ERROR_REF_JVM : 0;
 }
 
 CJavaVM *CJavaVM::Attach (PCSTR pszThreadName) const {
@@ -243,33 +250,77 @@ static BOOL _isFolderExpansion (const char *pszPath) {
 	return (pszPath[cchPath - 2] == '\\') && (pszPath[cchPath - 1] == '*');
 }
 
+static size_t _countClasspathLength (const char *pszClasspath) {
+	size_t cchPath = strlen (pszClasspath);
+	size_t cchLength = 0;
+	char sz[MAX_PATH];
+	WIN32_FIND_DATAA wfd;
+	HANDLE hFind;
+	StringCbPrintf (sz, sizeof (sz), "%s\\*.*", pszClasspath);
+	hFind = FindFirstFile (sz, &wfd);
+	if (hFind) {
+		do {
+			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				if (wfd.cFileName[0] != '.') {
+					StringCbPrintf (sz + cchPath + 1, sizeof (sz) - sizeof (char) * (cchPath + 1), "%s", wfd.cFileName);
+					cchLength += _countClasspathLength (sz);
+				}
+			} else {
+				cchLength += 2 + cchPath + strlen (wfd.cFileName);
+			}
+		} while (FindNextFile (hFind, &wfd));
+		FindClose (hFind);
+	}
+	return cchLength;
+}
+
+static void _getClasspath (const char *pszClasspath, char *pszOption, size_t cchLength, size_t *pcch) {
+	size_t cchPath = strlen (pszClasspath);
+	char sz[MAX_PATH];
+	WIN32_FIND_DATAA wfd;
+	HANDLE hFind;
+	StringCbPrintf (sz, sizeof (sz), "%s\\*.*", pszClasspath);
+	hFind = FindFirstFile (sz, &wfd);
+	if (hFind) {
+		do {
+			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				if (wfd.cFileName[0] != '.') {
+					StringCbPrintf (sz + cchPath + 1, sizeof (sz) - sizeof (char) * (cchPath + 1), "%s", wfd.cFileName);
+					_getClasspath (sz, pszOption, cchLength, pcch);
+				}
+			} else {
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, (*pcch > 17) ? ";" : "=");
+				(*pcch)++;
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, pszClasspath);
+				(*pcch) += cchPath;
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, "\\");
+				(*pcch)++;
+				StringCchCopy (pszOption + *pcch, cchLength - *pcch, wfd.cFileName);
+				(*pcch) += strlen (wfd.cFileName);
+			}
+		} while (FindNextFile (hFind, &wfd));
+		FindClose (hFind);
+	}
+}
+
 static char *_createClasspathOption () {
 	UINT n;
 	size_t cchLength = 18;
 	char *pszOption;
 	char sz[MAX_PATH];
-	WIN32_FIND_DATAA wfd;
-	HANDLE hFind;
 	size_t cchPath;
 	for (n = 0; n < g_oClasspathFolders.GetValueCount (); n++) {
 		PCSTR pszClasspath = g_oClasspathFolders.GetValue (n);
 		if (!pszClasspath) {
-			return NULL;
+			continue;
 		}
+		cchPath = strlen (pszClasspath);
 		if (_isFolderExpansion (pszClasspath)) {
-			StringCbPrintf (sz, sizeof (sz), "%s.*", pszClasspath);
-			cchPath = strlen (pszClasspath);
-			hFind = FindFirstFile (sz, &wfd);
-			if (hFind) {
-				do {
-					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-						cchLength += 2 + cchPath + strlen (wfd.cFileName);
-					}
-				} while (FindNextFile (hFind, &wfd));
-				FindClose (hFind);
-			}
+			StringCbCopy (sz, sizeof (sz), pszClasspath);
+			sz[cchPath - 2] = 0;
+			cchLength += _countClasspathLength (sz);
 		} else {
-			cchLength += 1 + strlen (pszClasspath);
+			cchLength += 1 + cchPath;
 		}
 	}
 	pszOption = (char*)malloc (cchLength);
@@ -278,30 +329,19 @@ static char *_createClasspathOption () {
 	size_t cch = 17;
 	for (n = 0; n < g_oClasspathFolders.GetValueCount (); n++) {
 		PCSTR pszClasspath = g_oClasspathFolders.GetValue (n);
+		if (!pszClasspath) {
+			continue;
+		}
+		cchPath = strlen (pszClasspath);
 		if (_isFolderExpansion (pszClasspath)) {
-			StringCbPrintf (sz, sizeof (sz), "%s.*", pszClasspath);
-			cchPath = strlen (pszClasspath);
-			hFind = FindFirstFile (sz, &wfd);
-			if (hFind) {
-				do {
-					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-						StringCchCopy (pszOption + cch, cchLength - cch, (cch > 17) ? ";" : "=");
-						cch++;
-						StringCchCopy (pszOption + cch, cchLength - cch, pszClasspath);
-						cch += cchPath - 2;
-						StringCchCopy (pszOption + cch, cchLength - cch, "\\");
-						cch++;
-						StringCchCopy (pszOption + cch, cchLength - cch, wfd.cFileName);
-						cch += strlen (wfd.cFileName);
-					}
-				} while (FindNextFile (hFind, &wfd));
-				FindClose (hFind);
-			}
+			StringCbCopy (sz, sizeof (sz), pszClasspath);
+			sz[cchPath - 2] = 0;
+			_getClasspath (sz, pszOption, cchLength, &cch);
 		} else {
 			StringCchCopy (pszOption + cch, cchLength - cch, (cch > 17) ? ";" : "=");
 			cch++;
 			StringCchCopy (pszOption + cch, cchLength - cch, pszClasspath);
-			cch += strlen (pszClasspath);
+			cch += cchPath;
 		}
 	}
 	return pszOption;

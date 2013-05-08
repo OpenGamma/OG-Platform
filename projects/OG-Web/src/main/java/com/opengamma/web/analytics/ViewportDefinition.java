@@ -17,14 +17,11 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
  */
 public abstract class ViewportDefinition implements Iterable<GridCell> {
   
-  private final TypeFormatter.Format _format;
   private final int _version;
   private final boolean _enableLogging;
 
-  protected ViewportDefinition(int version, TypeFormatter.Format format, boolean enableLogging) {
-    ArgumentChecker.notNull(format, "format");
+  protected ViewportDefinition(int version, boolean enableLogging) {
     _version = version;
-    _format = format;
     _enableLogging = enableLogging;
   }
 
@@ -69,20 +66,13 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
       if (rows.size() != 0 || columns.size() != 0) {
         throw new IllegalArgumentException("rows and columns must be empty if cells are specified");
       }
-      return new ArbitraryViewportDefinition(version, cells, format, logging);
+      return new ArbitraryViewportDefinition(version, cells, logging);
     } else {
       if (rows.size() == 0 || columns.size() == 0) {
         throw new IllegalArgumentException("rows and columns must not be empty if no cells are specified");
       }
       return new RectangularViewportDefinition(version, rows, columns, format, logging);
     }
-  }
-
-  /**
-   * @return
-   */
-  /* package */ TypeFormatter.Format getFormat() {
-    return _format;
   }
 
   /* package */ int getVersion() {

@@ -36,8 +36,22 @@ public class DiscountFactorNode extends CurveNode {
     super();
   }
 
-  public DiscountFactorNode(final String curveSpecificationName, final Tenor tenor) {
-    super(curveSpecificationName);
+  /**
+   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   * @param tenor The tenor, not null
+   */
+  public DiscountFactorNode(final String curveNodeIdMapperName, final Tenor tenor) {
+    super(curveNodeIdMapperName);
+    setTenor(tenor);
+  }
+
+  /**
+   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   * @param tenor The tenor, not null
+   * @param dataField The data field, not null
+   */
+  public DiscountFactorNode(final String curveNodeIdMapperName, final Tenor tenor, final String dataField) {
+    super(curveNodeIdMapperName, dataField);
     setTenor(tenor);
   }
 

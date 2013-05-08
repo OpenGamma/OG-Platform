@@ -229,7 +229,7 @@
         </bean>
         <bean class="com.opengamma.financial.aggregation.UnderlyingAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg value="BLOOMBERG_TICKER" />
+          <constructor-arg value="OG_SYNTHETIC_TICKER" />
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">

@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -60,9 +61,11 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * @param index The OIS-like index on which the coupon fixes.
    * @param fixingPeriodStartDate The start date of the fixing period.
    * @param fixingPeriodEndDate The end date of the fixing period.
+   * @param calendar The holiday calendar for the overnight index.
    */
   public CouponOISDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
+      final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
+      final Calendar calendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     ArgumentChecker.notNull(index, "CouponOISDefinition: index");
     ArgumentChecker.notNull(fixingPeriodStartDate, "CouponOISDefinition: fixingPeriodStartDate");
@@ -77,7 +80,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     fixingDateList.add(currentDate);
     ZonedDateTime nextDate;
     while (currentDate.isBefore(fixingPeriodEndDate)) {
-      nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, index.getCalendar());
+      nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, calendar);
       fixingDateList.add(nextDate);
       fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate));
       currentDate = nextDate;
@@ -96,12 +99,13 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * @param settlementDays The number of days between last fixing and the payment (also called spot lag).
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
+   * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
   public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
-      final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
-    return from(index, settlementDate, fixingPeriodEndDate, notional, settlementDays);
+      final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar calendar) {
+    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, calendar, isEOM);
+    return from(index, settlementDate, fixingPeriodEndDate, notional, settlementDays, calendar);
   }
 
   /**
@@ -112,14 +116,15 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * @param fixingPeriodEndDate The last date of the fixing period. Interest accrues up to this date. If publicationLag==0, 1 day following publication. If lag==1, the publication date.
    * @param notional The notional.
    * @param settlementDays The number of days between last fixing date and the payment fate (also called payment lag).
+   * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
   public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
-      final int settlementDays) {
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + settlementDays, index.getCalendar());
+      final int settlementDays, final Calendar calendar) {
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + settlementDays, calendar);
     final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, fixingPeriodEndDate);
     return new CouponOISDefinition(index.getCurrency(), paymentDate, settlementDate, fixingPeriodEndDate, paymentYearFraction, notional, index, settlementDate,
-        fixingPeriodEndDate);
+        fixingPeriodEndDate, calendar);
   }
 
   /**
@@ -177,8 +182,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     }
 
     // FIXME Historical time series do not have time information to begin with.
-    ZonedDateTime[] instants = indexFixingTimeSeries.timesArray();
-    LocalDate[] dates = new LocalDate[indexFixingTimeSeries.size()];
+    final ZonedDateTime[] instants = indexFixingTimeSeries.timesArray();
+    final LocalDate[] dates = new LocalDate[indexFixingTimeSeries.size()];
     for (int i = 0; i < instants.length; i++) {
       dates[i] = instants[i].toLocalDate();
     }

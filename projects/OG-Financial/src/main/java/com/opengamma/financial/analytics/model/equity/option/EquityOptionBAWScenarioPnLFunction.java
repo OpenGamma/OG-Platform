@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.EqyOptBaroneAdesiWhaleyPresentValueCalculator;
@@ -66,10 +67,6 @@ public class EquityOptionBAWScenarioPnLFunction extends EquityOptionBAWFunction 
   protected Set<ComputedValue> computeValues(InstrumentDerivative derivative, StaticReplicationDataBundle market, FunctionInputs inputs, Set<ValueRequirement> desiredValues,
       ComputationTargetSpecification targetSpec, ValueProperties resultProperties) {
 
-    // Compute present value under current market
-    final double pvBase = derivative.accept(s_pvCalculator, market);
-    
-    
     // Form market scenario
     ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     
@@ -120,23 +117,32 @@ public class EquityOptionBAWScenarioPnLFunction extends EquityOptionBAWFunction 
     // Compute present value under scenario
     final double pvScen = derivative.accept(s_pvCalculator, marketScen);
     
+    // present value under current market 
+    final double pvBase = (double) inputs.getValue(ValueRequirementNames.PRESENT_VALUE);
+    
     // Return with spec
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, pvScen - pvBase));
   }
   
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    // The primary set of requirements are taken from parent function
     Set<ValueRequirement> superReqs = super.getRequirements(context, target, desiredValue);
     if (superReqs == null) {
       return null;
     }
-    
-    // Test constraints are provided, else set to ""
+   
     final ValueProperties constraints = desiredValue.getConstraints();
+    // Add requirement for present value in base scenario - this will be shared across all scenarios
+    ValueProperties.Builder baseConstraints = constraints.copy()
+        .withoutAny(s_priceShift).withoutAny(s_priceShiftType)
+        .withoutAny(s_volShift).withoutAny(s_volShiftType);
+    ValueRequirement basePvReq = new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), baseConstraints.get());    
+    
+    // Handle scenario constraints    
     ValueProperties.Builder scenarioDefaults = null;
-
     final Set<String> priceShiftSet = constraints.getValues(s_priceShift);
-    if (priceShiftSet == null || priceShiftSet.isEmpty()) {
+    if (priceShiftSet == null || priceShiftSet.isEmpty()) { 
       scenarioDefaults = constraints.copy().withoutAny(s_priceShift).with(s_priceShift, ""); 
     }
     final Set<String> priceShiftTypeSet = constraints.getValues(s_priceShiftType);
@@ -166,8 +172,10 @@ public class EquityOptionBAWScenarioPnLFunction extends EquityOptionBAWFunction 
     
     // If defaults have been added, this adds additional copy of the Function into dep graph with the adjusted constraints
     if (scenarioDefaults != null) {
-      return Collections.singleton(new ValueRequirement(getValueRequirementName(), target.toSpecification(), scenarioDefaults.get()));
+      ValueRequirement reqWithScenarioConstraints = new ValueRequirement(getValueRequirementName(), target.toSpecification(), scenarioDefaults.get());
+      return Sets.newHashSet(reqWithScenarioConstraints);
     } else {  // Scenarios are defined, so we're satisfied
+      superReqs.add(basePvReq);
       return superReqs;
     }
   }

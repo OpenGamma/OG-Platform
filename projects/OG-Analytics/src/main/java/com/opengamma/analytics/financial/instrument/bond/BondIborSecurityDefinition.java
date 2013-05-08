@@ -34,7 +34,7 @@ import com.opengamma.util.time.DateUtils;
  * Describes a floating coupon bond (or Floating Rate Note) issue with Ibor-like coupon.
  */
 public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition>
-    implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
+implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The default notional for the security.
@@ -75,20 +75,21 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
    * @param businessDay The business day convention for the payments.
    * @param isEOM The end-of-month flag.
    * @param issuer The issuer name.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The fixed coupon bond.
    */
   public static BondIborSecurityDefinition from(final ZonedDateTime maturityDate, final ZonedDateTime firstAccrualDate, final IborIndex index, final int settlementDays, final DayCount dayCount,
-      final BusinessDayConvention businessDay, final boolean isEOM, final String issuer) {
+      final BusinessDayConvention businessDay, final boolean isEOM, final String issuer, final Calendar calendar) {
     ArgumentChecker.notNull(maturityDate, "Maturity date");
     ArgumentChecker.notNull(firstAccrualDate, "First accrual date");
     ArgumentChecker.notNull(index, "Ibor index");
     ArgumentChecker.notNull(dayCount, "Day count");
     ArgumentChecker.notNull(businessDay, "Business day convention");
-    final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false);
-    final PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate),
+    final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false, calendar);
+    final PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(calendar, maturityDate),
         DEFAULT_NOTIONAL) };
     final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
-    return new BondIborSecurityDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount, issuer);
+    return new BondIborSecurityDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, calendar, dayCount, issuer);
   }
 
   /**
@@ -129,7 +130,6 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
       settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date, creditCurveName);
-    @SuppressWarnings("unchecked")
     final Annuity<Coupon> coupon = (Annuity<Coupon>) getCoupons().toDerivative(date, indexFixingTS, yieldCurveNames);
     return new BondIborSecurity(nominal.trimBefore(settlementTime), coupon.trimBefore(settlementTime), settlementTime, riskFreeCurveName);
   }

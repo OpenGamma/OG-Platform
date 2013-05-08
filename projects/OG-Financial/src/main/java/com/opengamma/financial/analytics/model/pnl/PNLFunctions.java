@@ -41,13 +41,13 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
   }
 
   public static FunctionConfigurationSource deprecated() {
-    return new Deprecated().getObjectCreating();
+    return new DeprecatedFunctions().getObjectCreating();
   }
 
   /**
    * Function repository configuration source for the deprecated functions contained in this package.
    */
-  public static class Deprecated extends AbstractFunctionConfigurationBean {
+  public static class DeprecatedFunctions extends AbstractFunctionConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -196,7 +196,13 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     private String _payCurveName;
     private String _receiveCurveName;
     private String _returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
+    
+    @Deprecated
     private String _samplingPeriodName = "P2Y";
+    
+    private String _start = "-P2Y";
+    private String _end = "Now";
+    
     private String _scheduleName = ScheduleCalculatorFactory.DAILY;
     private String _samplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
     private String _interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
@@ -269,12 +275,40 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
       return _returnCalculatorName;
     }
 
+    /**
+     *
+     * @param samplingPeriodName  the sampling period name
+     * @deprecated use start and end instead
+     */
+    @Deprecated
     public void setSamplingPeriodName(final String samplingPeriodName) {
       _samplingPeriodName = samplingPeriodName;
     }
 
+    /**
+     * 
+     * @return the sampling period name
+     * @deprecated  use start and end instead
+     */
+    @Deprecated
     public String getSamplingPeriodName() {
       return _samplingPeriodName;
+    }
+    
+    public String getStart() {
+      return _start;
+    }
+
+    public void setStart(String start) {
+      _start = start;
+    }
+
+    public String getEnd() {
+      return _end;
+    }
+
+    public void setEnd(String end) {
+      _end = end;
     }
 
     public void setScheduleName(final String scheduleName) {
@@ -321,6 +355,8 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     public void afterPropertiesSet() {
       ArgumentChecker.notNullInjected(getReturnCalculatorName(), "returnCalculatorName");
       ArgumentChecker.notNullInjected(getSamplingPeriodName(), "samplingPeriodName");
+      ArgumentChecker.notNullInjected(getStart(), "start");
+      ArgumentChecker.notNullInjected(getEnd(), "end");
       ArgumentChecker.notNullInjected(getScheduleName(), "scheduleName");
       ArgumentChecker.notNullInjected(getSamplingCalculatorName(), "samplingCalculatorName");
       ArgumentChecker.notNullInjected(getInterpolator(), "interpolator");
@@ -360,9 +396,10 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     }
 
     protected void addFXForwardPnLDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[3 + getPerCurrencyInfo().size() * 3];
+      final String[] args = new String[4 + getPerCurrencyInfo().size() * 3];
       int i = 0;
-      args[i++] = getSamplingPeriodName();
+      args[i++] = getStart();
+      args[i++] = getEnd();
       args[i++] = getScheduleName();
       args[i++] = getSamplingCalculatorName();
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
@@ -511,6 +548,8 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(CreditInstrumentCS01PnLFunction.class));
     functions.add(functionConfiguration(EquityPnLFunction.class));
     functions.add(functionConfiguration(FXForwardCurrencyExposurePnLFunction.class));
+    functions.add(functionConfiguration(FXForwardYieldCurvesPnLFunction.class));
+    functions.add(functionConfiguration(FXForwardYieldCurvePnLFunction.class));
     functions.add(functionConfiguration(FXForwardYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(FXOptionBlackDeltaPnLFunction.class));
     functions.add(functionConfiguration(FXOptionBlackVegaPnLFunction.class));
@@ -523,6 +562,8 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(SwaptionBlackYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(YieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, MissingInputsFunction.AGGREGATION_STYLE_FULL));
+    functions.add(functionConfiguration(PnLPeriodTranslationFunction.class, ValueRequirementNames.PNL_SERIES));
+    functions.add(functionConfiguration(PnLPeriodTranslationFunction.class, ValueRequirementNames.YIELD_CURVE_PNL_SERIES));
   }
 
 }

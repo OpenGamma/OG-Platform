@@ -36,12 +36,12 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final ZonedDateTime MARCH_1 = DateUtils.getUTCDate(2012, 3, 1);
   private static final double TRADE_PRICE = 0.99900;
   private static final int QUANTITY = 123;
 
-  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.fromFedFund(MARCH_1, INDEX_FEDFUND);
+  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.fromFedFund(MARCH_1, INDEX_FEDFUND, NYC);
   private static final FederalFundsFutureTransactionDefinition FUTURE_TRANSACTION_DEFINITION = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, REFERENCE_DATE,
       TRADE_PRICE);
 
@@ -66,23 +66,23 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
 
   @Test
   public void presentValueFromPrice() {
-    double price = 0.99895;
-    CurrencyAmount pv = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
-    double pvExpected = (price - FUTURE_TRANSACTION.getReferencePrice()) * FUTURE_SECURITY_DEFINITION.getNotional() * FUTURE_SECURITY_DEFINITION.getMarginAccrualFactor() * QUANTITY;
+    final double price = 0.99895;
+    final CurrencyAmount pv = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
+    final double pvExpected = (price - FUTURE_TRANSACTION.getReferencePrice()) * FUTURE_SECURITY_DEFINITION.getNotional() * FUTURE_SECURITY_DEFINITION.getMarginAccrualFactor() * QUANTITY;
     assertEquals("Federal Funds Future transaction: present value", pvExpected, pv.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void presentValue() {
-    CurrencyAmount pv = METHOD_TRANSACTION.presentValue(FUTURE_TRANSACTION, CURVES);
-    double price = METHOD_SECURITY.price(FUTURE_SECURITY, CURVES);
-    CurrencyAmount pvExpected = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
+    final CurrencyAmount pv = METHOD_TRANSACTION.presentValue(FUTURE_TRANSACTION, CURVES);
+    final double price = METHOD_SECURITY.price(FUTURE_SECURITY, CURVES);
+    final CurrencyAmount pvExpected = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
     assertEquals("Federal Funds Future transaction: present value", pvExpected.getAmount(), pv.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueCurveSensitivity() {
-    InterestRateCurveSensitivity pvcsComputed = METHOD_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
+    final InterestRateCurveSensitivity pvcsComputed = METHOD_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
     assertEquals("Federal Funds Future transaction: present value curve sensitivity", 1, pvcsComputed.getSensitivities().size());
     assertEquals("Federal Funds Future transaction: present value curve sensitivity", FUTURE_TRANSACTION.getUnderlyingFuture().getFixingPeriodTime().length,
         pvcsComputed.getSensitivities().get(CURVE_NAMES[0]).size());
@@ -91,7 +91,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // Discounting curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    FederalFundsFutureTransaction futureTransactionBumped = FUTURE_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, DATA, bumpedCurveName);
+    final FederalFundsFutureTransaction futureTransactionBumped = FUTURE_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, DATA, bumpedCurveName);
     final double[] nodeTimesDisc = futureTransactionBumped.getUnderlyingFuture().getFixingPeriodTime();
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(futureTransactionBumped, CURVES, CURVE_NAMES[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_TRANSACTION);
     final List<DoublesPair> sensiPvDisc = pvcsComputed.getSensitivities().get(CURVE_NAMES[0]);

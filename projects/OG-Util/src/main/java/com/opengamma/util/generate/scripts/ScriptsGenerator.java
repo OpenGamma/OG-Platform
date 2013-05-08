@@ -43,9 +43,9 @@ public class ScriptsGenerator {
       cfg.setClassForTemplateLoading(ScriptsGenerator.class, "");
       Map<String, Object> templateData = newHashMap();
       templateData.put("className", className);
-      templateData.put("project", project.replaceFirst("(?i)og-", "").toLowerCase());
+      templateData.put("project", project.toLowerCase());
       Template winTemplate = cfg.getTemplate("script-template-win.ftl");
-      generate(className, scriptDir, winTemplate, templateData, true);      
+      generate(className, scriptDir, winTemplate, templateData, true);
       Template nixTemplate = cfg.getTemplate("script-template.ftl");
       generate(className, scriptDir, nixTemplate, templateData, false);
     } catch (IOException e) {
@@ -68,21 +68,21 @@ public class ScriptsGenerator {
     camelCase = camelCase.replaceFirst("^.*\\.", "");
 
     List<String> split = Functional.map(
-      new ArrayList<String>(),
-      filter(Arrays.asList(
-        camelCase.split("(?=[A-Z])")),
-        new Function1<String, Boolean>() {
+        new ArrayList<String>(),
+        filter(Arrays.asList(
+            camelCase.split("(?=[A-Z])")),
+            new Function1<String, Boolean>() {
+              @Override
+              public Boolean execute(String s) {
+                return !s.equals("");
+              }
+            }),
+        new Function1<String, String>() {
           @Override
-          public Boolean execute(String s) {
-            return !s.equals("");
+          public String execute(String s) {
+            return s.toLowerCase();
           }
-        }),
-      new Function1<String, String>() {
-        @Override
-        public String execute(String s) {
-          return s.toLowerCase();
-        }
-      });
+        });
     return Joiner.on("-").join(split);
   }
 

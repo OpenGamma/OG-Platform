@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.CellMenu',
+    name: 'og.common.grid.CellMenu',
     dependencies: ['og.common.gadgets.mapping'],
     obj: function () {
         var module = this,
@@ -36,7 +36,7 @@ $.register_module({
             cellmenu.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
-            og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
+            og.api.text({module: 'og.views.gadgets.grid.cell_options'}).pipe(function (template) {
                 template = (Handlebars.compile(template))({singlepanel:singlepanel ? true : false});
                 (cellmenu.menu = $(template)).hide()
                 .on('mouseleave', function () {
@@ -111,6 +111,8 @@ $.register_module({
             options = mapping.options(cell, cellmenu.grid, panel);
             cellmenu.container.add([options]);
             cellmenu.container.on('launch', og.analytics.url.launch);
+            inner.height(window.innerHeight/2.5);
+            inner.width(window.innerWidth/2.5)
             if ((offset.top + inner.height()) > $(window).height())
                 inner.css({marginTop: -inner.outerHeight(true)-9});
             if ((offset.left + inner.width()) > $(window).width())
@@ -121,7 +123,7 @@ $.register_module({
                 tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
                 mouseup_handler: function (right, bottom) {
                     var newWidth = Math.max(480,($(document).outerWidth() - right) - inner.offset().left),
-                        newHeight = ($(document).outerHeight() - bottom) - inner.offset().top;
+                        newHeight = Math.max(200,($(document).outerHeight() - bottom) - inner.offset().top);
                     inner.css({width: newWidth, height: newHeight});
                     cellmenu.container.resize();
                 }

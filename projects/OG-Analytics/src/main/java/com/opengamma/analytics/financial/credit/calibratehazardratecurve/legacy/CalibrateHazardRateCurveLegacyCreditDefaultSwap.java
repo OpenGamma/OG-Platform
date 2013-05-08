@@ -41,7 +41,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
   private static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 100;
   private final int _maximumNumberOfIterations;
 
-  private static final double DEFAULT_TOLERANCE = 1e-10;
+  private static final double DEFAULT_TOLERANCE = 1e-15;
   private final double _tolerance;
 
   private static final double DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER = 0.5;
@@ -208,7 +208,11 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the initial guess for the calibrated hazard rate for this tenor
-    final double hazardRateGuess = (calibrationCDS.getParSpread() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
+    double hazardRateGuess = (calibrationCDS.getParSpread() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
+
+    if (hazardRateGuess > 1.0) {
+      hazardRateGuess = 0.90;
+    }
 
     // Calculate the initial bounds for the hazard rate search
     double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;

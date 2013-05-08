@@ -44,11 +44,9 @@ public class SwapXCcyDefinition extends SwapDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, secondLegCurveNames);
-    return new Swap<Payment, Payment>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 
   @Override
@@ -64,11 +62,9 @@ public class SwapXCcyDefinition extends SwapDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
-    return new Swap<Payment, Payment>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 
 }

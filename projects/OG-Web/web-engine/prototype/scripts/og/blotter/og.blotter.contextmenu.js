@@ -69,8 +69,8 @@ $.register_module({
                 };              
                 var complete_handler = function (result) {
                     var msg, id = result.meta.id;
-                    if (id) msg = "Trade " + result.meta.id + " successfully added";
-                    else msg = "Trade successfully updated";
+                    if (id) msg = 'Trade ' + result.meta.id + ' successfully added';
+                    else msg = 'Trade successfully updated';
                     og.common.util.ui.message({location: '.OG-layout-analytics-center', message: msg, live_for: 6000});
                 };
                 var create_portolio = function () {
@@ -119,7 +119,7 @@ $.register_module({
             }; 
             return og.common.util.ui.contextmenu({
                 defaults: false, zindex: 4,
-                items: new og.analytics.NodeMenu(grid, cell, event).items().concat({}, context_items(cell))
+                items: new og.common.grid.NodeMenu(grid, cell, event).items().concat({}, context_items(cell))
             }, event, cell);
         };
     }

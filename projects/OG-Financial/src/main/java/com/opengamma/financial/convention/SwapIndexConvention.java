@@ -73,7 +73,7 @@ public class SwapIndexConvention extends Convention {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1255686170:  // fixingTime
         return getFixingTime();
@@ -84,7 +84,7 @@ public class SwapIndexConvention extends Convention {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1255686170:  // fixingTime
         setFixingTime((LocalTime) newValue);
@@ -104,12 +104,12 @@ public class SwapIndexConvention extends Convention {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final SwapIndexConvention other = (SwapIndexConvention) obj;
+      SwapIndexConvention other = (SwapIndexConvention) obj;
       return JodaBeanUtils.equal(getFixingTime(), other.getFixingTime()) &&
           JodaBeanUtils.equal(getSwapConvention(), other.getSwapConvention()) &&
           super.equals(obj);
@@ -138,7 +138,7 @@ public class SwapIndexConvention extends Convention {
    * Sets the fixing time.
    * @param fixingTime  the new value of the property, not null
    */
-  public void setFixingTime(final LocalTime fixingTime) {
+  public void setFixingTime(LocalTime fixingTime) {
     JodaBeanUtils.notNull(fixingTime, "fixingTime");
     this._fixingTime = fixingTime;
   }
@@ -164,7 +164,7 @@ public class SwapIndexConvention extends Convention {
    * Sets the swap convention.
    * @param swapConvention  the new value of the property, not null
    */
-  public void setSwapConvention(final ExternalId swapConvention) {
+  public void setSwapConvention(ExternalId swapConvention) {
     JodaBeanUtils.notNull(swapConvention, "swapConvention");
     this._swapConvention = swapConvention;
   }
@@ -212,7 +212,7 @@ public class SwapIndexConvention extends Convention {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1255686170:  // fixingTime
           return _fixingTime;

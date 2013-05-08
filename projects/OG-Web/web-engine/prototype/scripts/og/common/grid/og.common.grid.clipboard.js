@@ -3,8 +3,8 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.Clipboard',
-    dependencies: ['og.analytics.Data'],
+    name: 'og.common.grid.Clipboard',
+    dependencies: [],
     obj: function () {
         var module = this, tab = '\t', line = '\n', textarea, is_array = $.isArray, formatters = {
             CURVE: function (value, single) {
