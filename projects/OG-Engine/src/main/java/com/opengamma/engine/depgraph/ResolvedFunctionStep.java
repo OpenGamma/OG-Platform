@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.Profiler;
 import com.opengamma.util.tuple.Triple;
@@ -62,6 +63,11 @@ import com.opengamma.util.tuple.Triple;
     }
     functionApplication(context, resolvedOutput, resolvedFunction);
     return true;
+  }
+
+  @Override
+  protected ValueRequirement getDesiredValue() {
+    return getValueRequirement();
   }
 
   @Override

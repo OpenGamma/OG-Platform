@@ -20,6 +20,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
@@ -107,6 +108,13 @@ import com.opengamma.util.tuple.Triple;
         }
       }
     }
+
+    /**
+     * Returns the desired value for the production. This might be a more constrained form than the value requirement being satisfied for graph construction.
+     * 
+     * @return the desired value, not null
+     */
+    protected abstract ValueRequirement getDesiredValue();
 
     /**
      * For debugging/diagnostic reporting.

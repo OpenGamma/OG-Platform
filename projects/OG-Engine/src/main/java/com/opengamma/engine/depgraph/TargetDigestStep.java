@@ -36,6 +36,7 @@ import com.opengamma.util.tuple.Triple;
 
   private final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> _resolutions;
   private long _timeSpent;
+  private ValueRequirement _desiredValue;
 
   public TargetDigestStep(final ResolveTask task, final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> resolutions) {
     super(task);
@@ -100,7 +101,7 @@ import com.opengamma.util.tuple.Triple;
             continue;
           }
           s_logger.info("Inferred requirement {} for {}", composedRequirement, requirement);
-          // TODO: The function application is going to be wrong - it's using the task's original value requirement and not the composed one
+          _desiredValue = composedRequirement;
           functionApplication(context, resolvedOutput, Triple.of(function, matchedResult, context.simplifyTypes(results)));
           return true;
         }
@@ -117,12 +118,18 @@ import com.opengamma.util.tuple.Triple;
   }
 
   @Override
+  protected ValueRequirement getDesiredValue() {
+    return _desiredValue;
+  }
+
+  @Override
   public String toString() {
     return "TARGET_DIGEST" + getObjectId();
   }
 
   @Override
   protected void reportResult() {
+    s_logger.debug("Successful digest resolution of {} via {}", getValueRequirement(), getDesiredValue());
     s_profilerSuccess.tick(_timeSpent);
   }
 

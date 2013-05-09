@@ -155,8 +155,8 @@ import com.opengamma.util.tuple.Triple;
     private final Collection<ValueSpecification> _outputs;
     private final FunctionApplicationWorker _worker;
 
-    private PumpingState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base, final ValueSpecification valueSpecification, final Collection<ValueSpecification> outputs,
-        final ParameterizedFunction function, final FunctionApplicationWorker worker) {
+    private PumpingState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base, final ValueSpecification valueSpecification,
+        final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
       super(task, base);
       assert outputs.contains(valueSpecification);
       _valueSpecification = valueSpecification;
@@ -227,9 +227,10 @@ import com.opengamma.util.tuple.Triple;
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
       final Set<ValueSpecification> resolvedOutputValues = Sets.newHashSetWithExpectedSize(newOutputValues.size());
       resolvedOutput = null;
+      final ValueRequirement desiredValue = getIterationBase().getDesiredValue();
       for (ValueSpecification outputValue : newOutputValues) {
-        if ((resolvedOutput == null) && isSatisfied(getValueRequirement(), outputValue)) {
-          resolvedOutput = context.simplifyType(outputValue.compose(getValueRequirement()));
+        if ((resolvedOutput == null) && isSatisfied(desiredValue, outputValue)) {
+          resolvedOutput = context.simplifyType(outputValue.compose(desiredValue));
           s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
           resolvedOutputValues.add(resolvedOutput);
         } else {
@@ -237,6 +238,10 @@ import com.opengamma.util.tuple.Triple;
         }
       }
       if (resolvedOutput == null) {
+        if (getIterationBase() instanceof TargetDigestStep) {
+          // This might be a legitimate state; but is probably indicative of an error during development!
+          s_logger.error("Digest {} failed for {}", getIterationBase().getDesiredValue(), getValueRequirement());
+        }
         s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
         getWorker().storeFailure(functionApplication(context).requirements(inputs).lateResolutionFailure());
         return false;
@@ -567,7 +572,7 @@ import com.opengamma.util.tuple.Triple;
       Set<ValueRequirement> inputRequirements = null;
       try {
         //DebugUtils.getRequirements_enter();
-        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(context), getValueRequirement());
+        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(context), getIterationBase().getDesiredValue());
         //DebugUtils.getRequirements_leave();
       } catch (Throwable t) {
         //DebugUtils.getRequirements_leave();
