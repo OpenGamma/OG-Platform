@@ -26,9 +26,9 @@ import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbBatchMasterTest extends DbHibernateTest {
+public abstract class AbstractDbBatchMasterWorkerTest extends DbHibernateTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchMasterTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchMasterWorkerTest.class);
 
   protected DbBatchMaster _batchMaster;
   protected UniqueId _marketDataSnapshotUid = UniqueId.of("MrkDta", "market_data_snapshot_uid");
@@ -36,7 +36,7 @@ public abstract class AbstractDbBatchMasterTest extends DbHibernateTest {
   protected VersionCorrection _versionCorrection = VersionCorrection.LATEST;
   protected Instant _valuationTime = Instant.parse("2011-01-01T15:58:34.183Z");
 
-  public AbstractDbBatchMasterTest(String databaseType, String databaseVersion) {
+  public AbstractDbBatchMasterWorkerTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
