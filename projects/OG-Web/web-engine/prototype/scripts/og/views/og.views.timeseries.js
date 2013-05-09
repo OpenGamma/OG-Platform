@@ -164,11 +164,6 @@ $.register_module({
                             selector: '.OG-timeseries-container',
                             datapoints: true
                         })
-                        //new common.Timeseries({
-                        //    selector: '.OG-timeseries-container',
-                        //    id: result.data.template_data.object_id,
-                        //    datapoints: true, height: 400
-                        //});
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
                     });
