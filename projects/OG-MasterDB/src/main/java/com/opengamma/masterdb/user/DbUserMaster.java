@@ -289,12 +289,12 @@ public class DbUserMaster
     @Override
     public List<UserDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
-        System.out.println("===================");
-        System.out.println(rs.getObject("DOC_ID"));
-        System.out.println(rs.getObject("IDKEY_ID"));
-        System.out.println(rs.getObject("KEY_SCHEME"));
-        System.out.println(rs.getObject("KEY_VALUE"));
-        System.out.println(rs.getObject("ENTITLEMENT_PATTERN"));
+//        System.out.println("===================");
+//        System.out.println(rs.getObject("DOC_ID"));
+//        System.out.println(rs.getObject("IDKEY_ID"));
+//        System.out.println(rs.getObject("KEY_SCHEME"));
+//        System.out.println(rs.getObject("KEY_VALUE"));
+//        System.out.println(rs.getObject("ENTITLEMENT_PATTERN"));
         
         final long docId = rs.getLong("DOC_ID");
         // DOC_ID tells us when we're on a new document.
