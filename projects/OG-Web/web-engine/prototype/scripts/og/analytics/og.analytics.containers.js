@@ -30,6 +30,10 @@ $.register_module({
         containers.on = og.common.events.on;
         containers.off = og.common.events.off;
         containers.fire = og.common.events.fire;
+        containers.on('cellhighlight', function (source, row, col) {
+            if (!og.analytics.grid) return;
+            if (Object.equals(source, og.analytics.grid.source)) og.analytics.grid.highlight(row, col);
+        })
         return containers;
     }
 });

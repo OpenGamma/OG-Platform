@@ -14,7 +14,7 @@ $.register_module({
                 source: $.extend({depgraph: true, row: config.row, col: config.col}, config.source)
             });
             og.analytics.containers.on('cellhighlight', highlight = function (parent, row, col) {
-                if (!Object.equals(parent, config.source)) return;
+                if (!Object.equals(parent, depgraph.source)) return;
                 depgraph.highlight(row, col);
             });
             depgraph.kill = function () {

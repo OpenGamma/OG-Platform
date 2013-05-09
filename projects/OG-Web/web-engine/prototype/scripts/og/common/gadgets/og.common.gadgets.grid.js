@@ -655,7 +655,7 @@ $.register_module({
         };
         Grid.prototype.fire = og.common.events.fire;
         Grid.prototype.highlight = function (row, col) {
-            //console.log('Highlight', row, col);
+//            console.log('Highlight', row, col);
         };
         Grid.prototype.kill = function () {
             var grid = this;
