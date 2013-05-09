@@ -212,7 +212,6 @@ $.register_module({
                       <div class="og-divider">\
                           <h3><span>Positions</span></h3>\
                           <a href="#" class="OG-link-add OG-js-add-position">add new position</a>\
-                          <a href="#" class="OG-link-add OG-js-add-existing-position">add existing position</a>\
                       </div>\
                       <div class="og-js-position-grid og-grid"></div>';
                 $(selector).html(html).addClass(alive);
@@ -295,40 +294,6 @@ $.register_module({
                         new og.blotter.Dialog({node:{name: nodeId, id: nodeId},
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                         });
-                    });
-                    $('.OG-js-add-existing-position').click(function () {
-                        ui.dialog({
-                            type: 'input',
-                            title: 'Add Existing Position',
-                            width: 400, height: 190,
-                            fields: [{type: 'input', name: 'Identifier', id: 'name'}],
-                            buttons: {
-                                'OK': function () {
-                                    if (ui.dialog({return_field_value: 'name'}) === '') return;
-                                    do_update();
-                                    $(this).dialog('close');
-                                },
-                                'Cancel': function () {$(this).dialog('close');}
-                            }
-                        });
-                        $('#og-js-dialog-name').autocomplete({
-                            source: function (obj, handler) {
-                                api.rest.positions.get({
-                                    handler: function (result) {
-                                        var arr = result.data.data.map(function (val) {
-                                            var arr = val.split('|');
-                                            return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                        });
-                                        handler(arr);
-                                    },
-                                    loading: '', page_size: 10, page: 1,
-                                    identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
-                                });
-                            },
-                            minLength: 1,
-                            select: function (e, ui) {do_update(e, ui);}
-                        });
-                        return false;
                     });
                 }());
             };
