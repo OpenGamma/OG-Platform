@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Test.

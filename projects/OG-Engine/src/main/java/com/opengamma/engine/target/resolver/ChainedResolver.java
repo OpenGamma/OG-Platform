@@ -11,7 +11,7 @@ import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.functional.Function2;
+import com.opengamma.lambdava.functions.Function2;
 
 /**
  * {@link ObjectResolver} implementation that will use a sequence of resolvers in turn if the first fails.

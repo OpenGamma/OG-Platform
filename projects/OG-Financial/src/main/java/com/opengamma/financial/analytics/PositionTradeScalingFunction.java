@@ -35,7 +35,7 @@ import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDa
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.

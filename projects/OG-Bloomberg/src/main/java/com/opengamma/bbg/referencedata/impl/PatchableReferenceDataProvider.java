@@ -20,7 +20,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A decorator for a ReferenceDataProvider that allows you to override the results

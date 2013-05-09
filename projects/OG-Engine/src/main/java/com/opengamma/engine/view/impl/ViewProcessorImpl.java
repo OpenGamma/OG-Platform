@@ -64,7 +64,7 @@ import com.opengamma.id.VersionedUniqueIdSupplier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Default implementation of {@link ViewProcessor}.

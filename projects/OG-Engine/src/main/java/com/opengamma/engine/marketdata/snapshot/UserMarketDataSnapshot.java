@@ -52,7 +52,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 // REVIEW jonathan 2011-06-29 -- The user market data provider classes, including this, no longer need to be in the
 // engine and they simply introduce dependencies on the MarketDataSnapshotSource and specific StructuredMarketDataKeys.

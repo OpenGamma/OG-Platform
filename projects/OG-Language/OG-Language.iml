@@ -20,6 +20,7 @@
     <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module" module-name="OG-TimeSeries" />
     <orderEntry type="library" name="Maven: org.threeten:threetenbp:0.8.1" level="project" />
+    <orderEntry type="library" name="Maven: com.opengamma:lambdava:0.1" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.3" level="project" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.1" level="project" />

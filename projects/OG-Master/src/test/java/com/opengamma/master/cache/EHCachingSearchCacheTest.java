@@ -20,7 +20,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 @Test(groups = TestGroup.UNIT)
 public class EHCachingSearchCacheTest {

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Specialization of {@code NodalObjectsCurve} with Tenor and Double.

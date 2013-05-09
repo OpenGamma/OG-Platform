@@ -47,7 +47,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadr
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 
