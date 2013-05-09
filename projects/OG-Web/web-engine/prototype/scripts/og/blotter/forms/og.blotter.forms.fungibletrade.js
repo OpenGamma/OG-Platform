@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, data, security, $security_input, util = util, promise,
+            var constructor = this, form, data, security, $security_input, util = og.blotter.util, promise,
             dropdown = '.og-blotter-security-select', securityId, details_selector = 'og-blocks-fungible-details',
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
