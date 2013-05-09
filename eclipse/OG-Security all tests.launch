@@ -8,6 +8,8 @@
 <listAttribute key="M2_PROPERTIES">
 <listEntry value="tests.testng.excludedgroups=nothing"/>
 <listEntry value="tests.testng.includedgroups=unit,unitdb,unitslow,integration"/>
+<listEntry value="tests.testng.threads=1"/>
+<listEntry value="tests.testng.parallel=false"/>
 </listAttribute>
 <stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
 <booleanAttribute key="M2_SKIP_TESTS" value="false"/>
