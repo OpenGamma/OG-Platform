@@ -17,7 +17,7 @@ $.register_module({
                 }
                 // positions with no trades first need a trade created based on the position
                 var position_edit = function () {
-                    var pos_arr = cell.row_value.positionId.split('~'), id = pos_arr[0] + '~' + pos_arr[1];
+                    var id = og.blotter.util.get_unique_id(cell.row_value.positionId);
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
                             details: data, node:{name: id, id: id}, 
@@ -28,8 +28,7 @@ $.register_module({
                 };
                 // trades added to positions need to be locked in to the same trade/security type 
                 var position_insert = function () {
-                    var pos_arr = cell.row_value.positionId.split('~'), id = pos_arr[0] + '~' + pos_arr[1],
-                        nodeId= cell.row_value.nodeId;
+                    var id = og.blotter.util.get_unique_id(cell.row_value.positionId), nodeId= cell.row_value.nodeId;
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
                             details: data, node:{name: nodeId, id: nodeId}, 
@@ -92,13 +91,27 @@ $.register_module({
                     });
                 };
                 var position_delete = function (config) {
-                    og.api.rest.blotter.nodes.positions.del({id: cell.row_value.nodeId,
-                        position: cell.row_value.positionId}).pipe(function (result) {
+                    og.api.rest.configs.get({id: og.analytics.url.last.main.viewdefinition}).pipe(function (result){
+                        var portfolio = result.data.template_data.configJSON.data.identifier;
+                        og.api.rest.portfolios.del({
+                            id: portfolio,
+                            node: cell.row_value.nodeId,
+                            position: og.blotter.util.get_unique_id(cell.row_value.positionId)
+                        }).pipe(function (result) {
                             if(result.error) {
                                 og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
                                 location: '.OG-blotter-error-block', message: result.message});
                             }
+                        });
                     });
+                    //og.api.rest.blotter.nodes.positions.del({id: cell.row_value.nodeId,
+                    //    position: og.blotter.util.get_unique_id(cell.row_value.positionId)})
+                    //.pipe(function (result) {
+                    //        if(result.error) {
+                    //            og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
+                    //            location: '.OG-blotter-error-block', message: result.message});
+                    //        }
+                    //});
                 };
                 var complete_handler = function (result) {
                     var msg, id = result.meta.id;
