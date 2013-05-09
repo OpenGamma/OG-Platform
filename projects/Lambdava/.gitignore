@@ -1,0 +1,12 @@
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+/target/
+/bin/
+/build/
+/dist/
+/.externalToolBuilders/
+/.settings/

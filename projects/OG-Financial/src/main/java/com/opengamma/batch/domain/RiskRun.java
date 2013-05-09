@@ -5,13 +5,12 @@
  */
 package com.opengamma.batch.domain;
 
-import static com.opengamma.util.functional.Functional.map;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.lambdava.functions.Function1;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +32,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.functional.Function1;
+
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 /**
  * Bean to hold data about a risk run.
@@ -132,19 +132,19 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   public RiskRun(final ViewCycleMetadata cycleMetadata) {
     this(new MarketData(cycleMetadata.getMarketDataSnapshotId()),
-      Instant.now(),
-      cycleMetadata.getValuationTime(),
-      0,
-      map(Sets.<CalculationConfiguration>newHashSet(), cycleMetadata.getAllCalculationConfigurationNames(), new Function1<String, CalculationConfiguration>() {
-        @Override
-        public CalculationConfiguration execute(String configName) {
-          return new CalculationConfiguration(configName);
-        }
-      }),
-      Sets.<RiskRunProperty>newHashSet(),
-      false,
-      cycleMetadata.getVersionCorrection(),
-      cycleMetadata.getViewDefinitionId()
+        Instant.now(),
+        cycleMetadata.getValuationTime(),
+        0,
+        functional(cycleMetadata.getAllCalculationConfigurationNames()).map(new Function1<String, CalculationConfiguration>() {
+          @Override
+          public CalculationConfiguration execute(String configName) {
+            return new CalculationConfiguration(configName);
+          }
+        }).asSet(),
+        Sets.<RiskRunProperty>newHashSet(),
+        false,
+        cycleMetadata.getVersionCorrection(),
+        cycleMetadata.getViewDefinitionId()
     );
   }
 

@@ -13,7 +13,7 @@ import java.util.Map;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A repository of fixed, existing market data providers for given specifications.

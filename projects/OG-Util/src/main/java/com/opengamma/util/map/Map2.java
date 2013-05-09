@@ -8,7 +8,7 @@ package com.opengamma.util.map;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Variant of {@link Map} that allows two keys to be used, equivalent to a map that has a composite key of both elements.

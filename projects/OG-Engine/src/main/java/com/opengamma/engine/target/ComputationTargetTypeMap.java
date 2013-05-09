@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.util.functional.Function2;
+import com.opengamma.lambdava.functions.Function2;
 
 /**
  * A map of {@link ComputationTargetType} instances to other values based on the target class (or classes). Instances are thread-safe for multiple readers, but only one may update the map at any one

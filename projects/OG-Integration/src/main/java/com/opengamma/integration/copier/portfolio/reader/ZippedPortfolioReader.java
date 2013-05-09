@@ -27,7 +27,7 @@ import com.opengamma.integration.copier.sheet.reader.SheetReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 /**
  * Portfolio reader that reads multiple CSV files within a ZIP archive, identifies the correct parser class for each,

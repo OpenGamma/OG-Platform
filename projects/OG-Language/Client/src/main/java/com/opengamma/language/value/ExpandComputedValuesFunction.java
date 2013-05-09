@@ -24,6 +24,7 @@ import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -32,7 +33,6 @@ import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.util.functional.Function2;
 
 /**
  * Expands a Fudge representation of a {@link List} of {@link ComputedValue} objects into a 2D structure.

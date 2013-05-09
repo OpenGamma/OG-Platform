@@ -30,7 +30,7 @@ import com.opengamma.integration.copier.sheet.writer.SheetWriter;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 /**
  * This class writes positions/securities to a zip file, using the zip file's directory structure to represent the portfolio

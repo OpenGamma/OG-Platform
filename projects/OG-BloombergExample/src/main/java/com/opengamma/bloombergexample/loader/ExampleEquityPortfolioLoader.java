@@ -5,8 +5,6 @@
  */
 package com.opengamma.bloombergexample.loader;
 
-import static com.opengamma.util.functional.Functional.map;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -16,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.lambdava.functions.Function1;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -42,8 +41,9 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.provider.security.SecurityProvider;
-import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
+
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 /**
  * Example code to load a very simple equity portfolio.
@@ -165,12 +165,12 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
     SecurityProvider securityProvider = getToolContext().getSecurityProvider();
     DefaultSecurityLoader securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
     
-    final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(map(identifiers, new Function1<ExternalId, ExternalIdBundle>() {
+    final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(functional(identifiers).map(new Function1<ExternalId, ExternalIdBundle>() {
       @Override
       public ExternalIdBundle execute(ExternalId ticker) {
         return ExternalIdBundle.of(ticker);
       }
-    }));
+    }).asList());
     return loadedSecurities.values();
   }
 

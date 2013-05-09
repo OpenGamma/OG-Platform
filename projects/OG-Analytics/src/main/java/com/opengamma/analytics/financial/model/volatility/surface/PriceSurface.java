@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.model.volatility.surface;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * A surface with gives the price of a European call as a function of time to maturity and strike

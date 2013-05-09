@@ -7,6 +7,8 @@ package com.opengamma.util.tuple;
 
 import java.util.Comparator;
 
+import com.opengamma.lambdava.tuple.DoublesPair;
+
 /**
  * A comparator for two {@code DoublesPair} instances.
  * <p>
