@@ -25,7 +25,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
-                        portfolio: data.nodeId, trade: data.trade}),
+                        portfolio: data.nodeId, trade: data.trade, name: data.security.name}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.equity_variance_swap_tash',
                         extras: {notional: data.security.notional, region: data.security.regionId,
