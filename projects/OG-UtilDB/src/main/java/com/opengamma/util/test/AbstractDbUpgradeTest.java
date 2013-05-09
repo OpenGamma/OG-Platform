@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -49,7 +50,12 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
     dbTool.createTables(_masterDB, dbTool.getTestCatalog(), dbTool.getTestSchema(), Integer.parseInt(getTargetVersion()), Integer.parseInt(getCreateVersion()), this);
     dbTool.clearTestTables();
   }
-  
+
+  @AfterMethod(groups = TestGroup.UNIT_DB)
+  public void tearDown() {
+    s_databaseTypeVersion.clear();
+  }
+
   protected Map<String, String> getVersionSchemas() {
     Map<String, String> versionSchema = s_targetSchema.get(getDatabaseType());
     if (versionSchema == null) {

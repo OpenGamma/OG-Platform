@@ -57,9 +57,7 @@ import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -67,7 +65,7 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbBatchWriterTest extends DbHibernateTest {
+public class DbBatchWriterTest extends AbstractDbBatchTest {
 
   private DbBatchMaster _batchMaster;
   private DbBatchWriter _batchWriter;
@@ -79,11 +77,6 @@ public class DbBatchWriterTest extends DbHibernateTest {
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbBatchWriterTest(final String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
-  }
-
-  @Override
-  protected HibernateMappingFiles[] getHibernateMappingFiles() {
-    return new HibernateMappingFiles[] {new HibernateBatchDbFiles() };
   }
 
   //-------------------------------------------------------------------------

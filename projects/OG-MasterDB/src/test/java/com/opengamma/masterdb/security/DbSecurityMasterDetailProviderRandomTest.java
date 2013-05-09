@@ -14,9 +14,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
-import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
-import com.opengamma.util.db.HibernateMappingFiles;
-import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -24,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbSecurityMasterDetailProviderRandomTest extends DbHibernateTest implements SecurityTestCaseMethods {
+public class DbSecurityMasterDetailProviderRandomTest extends AbstractDbSecurityTest implements SecurityTestCaseMethods {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterDetailProviderRandomTest.class);
@@ -38,11 +35,6 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbHibernateTest im
   public DbSecurityMasterDetailProviderRandomTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running test for database={}", databaseType);
-  }
-
-  @Override
-  protected HibernateMappingFiles[] getHibernateMappingFiles() {
-    return new HibernateMappingFiles[] {new HibernateSecurityMasterFiles() };
   }
 
   //-------------------------------------------------------------------------

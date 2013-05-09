@@ -18,8 +18,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.HibernateMappingFiles;
-import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -27,18 +27,24 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
-public class HibernateUserManagerTest extends DbHibernateTest {
+public class HibernateUserManagerTest extends DbTest {
 
   private HibernateUserManager _userManager;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public HibernateUserManagerTest(String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected Class<?> dbConnectorScope() {
+    return HibernateUserManagerTest.class;
   }
 
   @Override
-  protected HibernateMappingFiles[] getHibernateMappingFiles() {
-    return new HibernateMappingFiles[] {new HibernateUserManagerFiles() };
+  protected void initDbConnectorFactory(DbConnectorFactoryBean factory) {
+    factory.setHibernateMappingFiles(new HibernateMappingFiles[] {new HibernateUserManagerFiles() });
   }
 
   //-------------------------------------------------------------------------

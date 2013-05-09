@@ -34,10 +34,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
-import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
-import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.DbHibernateTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
@@ -46,7 +43,7 @@ import com.opengamma.util.time.Expiry;
  * Test DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbSecurityMasterTest extends DbHibernateTest {
+public class DbSecurityMasterTest extends AbstractDbSecurityTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterTest.class);
 
@@ -56,11 +53,6 @@ public class DbSecurityMasterTest extends DbHibernateTest {
   public DbSecurityMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-  }
-
-  @Override
-  protected HibernateMappingFiles[] getHibernateMappingFiles() {
-    return new HibernateMappingFiles[] {new HibernateSecurityMasterFiles() };
   }
 
   //-------------------------------------------------------------------------

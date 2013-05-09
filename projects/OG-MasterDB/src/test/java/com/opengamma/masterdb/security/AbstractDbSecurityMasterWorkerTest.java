@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -28,19 +29,18 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
-import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
-import com.opengamma.util.db.HibernateMappingFiles;
-import com.opengamma.util.test.DbHibernateTest;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbSecurityMasterWorker via DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbSecurityMasterWorkerTest extends DbHibernateTest {
+public abstract class AbstractDbSecurityMasterWorkerTest extends AbstractDbSecurityTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerTest.class);
 
+  private static DbConnector _dbConnector;
   protected DbSecurityMaster _secMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
@@ -51,11 +51,6 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbHibernateTest
     super(databaseType, databaseVersion);
     _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
-  }
-
-  @Override
-  protected HibernateMappingFiles[] getHibernateMappingFiles() {
-    return new HibernateMappingFiles[] {new HibernateSecurityMasterFiles() };
   }
 
   //-------------------------------------------------------------------------
@@ -76,7 +71,10 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbHibernateTest
   //-------------------------------------------------------------------------
   private void init() throws Exception {
     super.setUp();
-    _secMaster = new DbSecurityMaster(getDbConnector());
+    if (_dbConnector == null) {
+      _dbConnector = getDbConnector();
+    }
+    _secMaster = new DbSecurityMaster(_dbConnector);
     _secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
     
 //    id bigint not null,
@@ -154,6 +152,12 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbHibernateTest
       super.tearDown();
     }
     super.tearDownClass();
+  }
+
+  @AfterSuite(groups = TestGroup.UNIT_DB)
+  public void tearDownSuite() throws Exception {
+    _dbConnector.close();
+    _dbConnector = null;
   }
 
   //-------------------------------------------------------------------------
