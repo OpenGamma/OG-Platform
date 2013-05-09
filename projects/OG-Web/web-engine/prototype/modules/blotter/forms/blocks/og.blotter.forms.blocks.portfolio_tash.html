@@ -27,6 +27,18 @@
           <input name="trade.counterparty" type="text" value="{{counterparty}}" />
         </td>
       </tr>
+      {{#if name}}
+      <tr>
+        <td>
+          <label>
+            <span>Trade name</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.name" type="text" value="{{name}}" />
+        </td>
+      </tr>
+      {{/if}}
       <tr>
         <td>
           <label>

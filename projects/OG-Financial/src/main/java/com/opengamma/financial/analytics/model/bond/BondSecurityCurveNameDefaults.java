@@ -26,13 +26,14 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
+public class BondSecurityCurveNameDefaults extends DefaultPropertyFunction {
 
   private static final String[] s_bondValueNames = new String[] {
       ValueRequirementNames.CLEAN_PRICE,
       ValueRequirementNames.DIRTY_PRICE,
       ValueRequirementNames.MACAULAY_DURATION,
       ValueRequirementNames.MODIFIED_DURATION,
+      ValueRequirementNames.PRESENT_VALUE,
       ValueRequirementNames.YTM,
       ValueRequirementNames.Z_SPREAD,
       ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY
@@ -46,7 +47,7 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
   private final Map<String, Pair<String, String>> _currencyAndRiskFreeCurveNames;
   private final Map<String, Pair<String, String>> _currencyAndCreditCurveNames;
 
-  public BondDefaultCurveNamesFunction(final String... currencyAndCurveConfigNames) {
+  public BondSecurityCurveNameDefaults(final String... currencyAndCurveConfigNames) {
     super(FinancialSecurityTypes.BOND_SECURITY.or(FinancialSecurityTypes.BOND_FUTURE_SECURITY), true);
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyAndCurveConfigNames.length % 5 == 0,

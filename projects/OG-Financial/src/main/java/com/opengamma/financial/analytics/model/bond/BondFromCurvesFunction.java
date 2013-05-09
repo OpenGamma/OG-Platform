@@ -34,7 +34,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Bond related figures computed from the yield curves.
  */
 public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBundle> {
 

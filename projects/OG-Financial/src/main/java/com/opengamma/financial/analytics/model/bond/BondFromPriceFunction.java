@@ -5,60 +5,37 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
-import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Bond function for results computed from the market clean price.
  */
-public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
-  private BondSecurityConverter _visitor;
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    _visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-  }
+public abstract class BondFromPriceFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime date = ZonedDateTime.now(executionContext.getValuationClock());
-    final BondSecurity security = (BondSecurity) target.getSecurity();
     if (desiredValues.size() != 1) {
       throw new OpenGammaRuntimeException("This function " + getShortName() + " only provides a single output");
     }
@@ -81,23 +58,10 @@ public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledIn
     final String creditCurveName = riskFreeCurveName;
     final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, curveName);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), properties.get());
-    final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) security.accept(_visitor);
-    final BondFixedSecurity bond = definition.toDerivative(date, curveName, riskFreeCurveName);
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     final YieldAndDiscountCurve riskFreeCurve = (YieldAndDiscountCurve) riskFreeCurveObject;
-    final YieldCurveBundle data = new YieldCurveBundle(new String[] {curveName, riskFreeCurveName}, new YieldAndDiscountCurve[] {curve, riskFreeCurve});
-    return Sets.newHashSet(new ComputedValue(resultSpec, CALCULATOR.zSpreadFromCurvesAndClean(bond, data, cleanPrice)));
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.BOND_SECURITY;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder properties = getResultProperties();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), properties.get()));
+    final YieldCurveBundle data = new YieldCurveBundle(new String[] {curveName, riskFreeCurveName }, new YieldAndDiscountCurve[] {curve, riskFreeCurve });
+    return Sets.newHashSet(new ComputedValue(resultSpec, getValue(executionContext, date, riskFreeCurveName, creditCurveName, target, data, cleanPrice)));
   }
 
   @Override
@@ -129,20 +93,10 @@ public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledIn
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), properties.get());
   }
 
-  protected ValueProperties.Builder getResultProperties() {
-    return createValueProperties()
-        .withAny(BondFunction.PROPERTY_RISK_FREE_CURVE)
-        .withAny(BondFunction.PROPERTY_CREDIT_CURVE)
-        .withAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
-  }
+  protected abstract ValueProperties.Builder getResultProperties();
 
-  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final String curveName) {
-    return createValueProperties()
-        .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
-        .with(BondFunction.PROPERTY_CREDIT_CURVE, creditCurveName)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
-  }
+  protected abstract ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final String curveName);
 
+  protected abstract double getValue(FunctionExecutionContext context, ZonedDateTime date, String riskFreeCurveName, String creditCurveName, ComputationTarget bond,
+      YieldCurveBundle data, double price);
 }

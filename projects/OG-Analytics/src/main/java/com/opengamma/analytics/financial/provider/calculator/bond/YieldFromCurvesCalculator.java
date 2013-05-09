@@ -3,19 +3,19 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.bond.calculator;
+package com.opengamma.analytics.financial.provider.calculator.bond;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 
 /**
  * Calculate dirty price for bonds.
  */
-public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
+public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, Double> {
 
   /**
    * The calculator instance.
@@ -43,12 +43,12 @@ public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitor
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override
-  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface curves) {
     return METHOD_BOND_SECURITY.yieldFromCurves(bond, curves);
   }
 
   @Override
-  public Double visitBillSecurity(final BillSecurity bill, final YieldCurveBundle curves) {
+  public Double visitBillSecurity(final BillSecurity bill, final IssuerProviderInterface curves) {
     return METHOD_BILL_SECURITY.yieldFromCurves(bill, curves);
   }
 

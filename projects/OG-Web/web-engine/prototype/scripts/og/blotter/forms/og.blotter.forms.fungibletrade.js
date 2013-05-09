@@ -22,7 +22,7 @@ $.register_module({
                     module: 'og.blotter.forms.fungible_tash',
                     data: data,
                     selector: '.OG-blotter-form-block',
-                    processor: function (data) {og.blotter.util.cleanup(data);}
+                    processor: function (data) {util.cleanup(data);}
                 });
                 security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID",
                     security: securityId, index: "trade.securityIdBundle", edit: !!config.details, 
@@ -43,9 +43,9 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function () {
-                    og.blotter.util.add_date_picker('.blotter-date');
-                    og.blotter.util.add_time_picker('.blotter-time');
-                    og.blotter.util.set_initial_focus();
+                    util.add_date_picker('.blotter-date');
+                    util.add_time_picker('.blotter-time');
+                    util.set_initial_focus();
                 });
                 form.on('form:submit', function (result) {
                     $.when(config.handler(result.data)).then(validate);
