@@ -56,7 +56,7 @@ public class ViewClientTest {
   @Mock
   private ViewResultListener viewResultListenerMock;
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
+  @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
     initMocks(this);
     when(viewResultListenerFactoryStub.createViewResultListener(ViewProcessorTestEnvironment.TEST_USER)).thenReturn(viewResultListenerMock);
