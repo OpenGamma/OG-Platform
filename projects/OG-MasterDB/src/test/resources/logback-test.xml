@@ -10,6 +10,7 @@
   </appender>
 
   <logger name="com.opengamma" level="WARN" />
+  <logger name="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider" level="ERROR" />
 
   <root level="warn">
     <appender-ref ref="STDOUT" />
