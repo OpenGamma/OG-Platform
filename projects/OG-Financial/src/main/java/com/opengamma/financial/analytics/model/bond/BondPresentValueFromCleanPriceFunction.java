@@ -45,6 +45,10 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunction {
+
+  /**
+   * The method used to compute the present value result.
+   */
   private static final BondTransactionDiscountingMethod CALCULATOR = BondTransactionDiscountingMethod.getInstance();
 
   @Override
@@ -165,7 +169,7 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
     BondTradeConverter visitor = new BondTradeConverter(new BondSecurityConverter(holidaySource, conventionSource, regionSource));
     final BondFixedTransactionDefinition definition = visitor.convert(trade);
     BondFixedTransaction derivative = definition.toDerivative(date, riskFreeCurveName, creditCurveName);
-    double temp = CALCULATOR.presentValueFromCleanPrice(derivative, data, price);
     return CALCULATOR.presentValueFromCleanPrice(derivative, data, price);
   }
+
 }

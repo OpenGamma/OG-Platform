@@ -525,4 +525,5 @@ public final class BondSecurityDiscountingMethod {
     final StringAmount pvpcsCoupon = bond.getCoupon().accept(PVPCSC, curves);
     return StringAmount.plus(pvpcsNominal, pvpcsCoupon);
   }
+
 }

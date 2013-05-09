@@ -29,7 +29,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Bond function for results computed from the market clean price.
  */
 public abstract class BondFromPriceFunction extends AbstractFunction.NonCompiledInvoker {
 

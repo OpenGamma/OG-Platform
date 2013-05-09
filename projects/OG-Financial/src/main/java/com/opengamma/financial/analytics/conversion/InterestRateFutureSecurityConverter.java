@@ -70,6 +70,11 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName(), calendar);
   }
 
+  /**
+   * Returns the conventional accrual factor for a given period. For 3 months, the factor is 0.25; for 1 month, the factor is 1/12.
+   * @param period The period.
+   * @return The accrual factor.
+   */
   private double getAccrualFactor(final Period period) {
     final long nMonths = period.toTotalMonths();
     return nMonths / 12.0d;

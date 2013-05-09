@@ -42,4 +42,5 @@ public class BondTradeConverter {
     final double price = trade.getPremium().doubleValue();
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
   }
+
 }
