@@ -204,6 +204,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
       _posMaster = null;
       super.tearDown();
     }
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

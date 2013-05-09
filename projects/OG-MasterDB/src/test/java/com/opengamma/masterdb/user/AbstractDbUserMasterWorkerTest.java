@@ -209,6 +209,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
       _usrMaster = null;
       super.tearDown();
     }
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

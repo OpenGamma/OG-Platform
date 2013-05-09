@@ -153,6 +153,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbHibernateTest
       _secMaster = null;
       super.tearDown();
     }
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

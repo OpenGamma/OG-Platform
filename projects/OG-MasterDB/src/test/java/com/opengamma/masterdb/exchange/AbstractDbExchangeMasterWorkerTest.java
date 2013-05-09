@@ -216,6 +216,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
       _exgMaster = null;
       super.tearDown();
     }
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

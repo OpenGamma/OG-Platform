@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
 
@@ -74,7 +75,7 @@ public class DbTool extends Task {
   private String _dbServerHost;
   private String _user;
   private String _password;
-  private BoneCPDataSource _dataSource;
+  private volatile DataSource _dataSource;
 
   /**
    * Static as the parameterized JUnit test runner seems to create a new DbTool instance
@@ -90,6 +91,13 @@ public class DbTool extends Task {
     setDbServerHost(dbServerHost);
     setUser(user);
     setPassword(password);
+  }
+
+  public DbTool(String dbServerHost, String user, String password, DataSource dataSource) {
+    setDbServerHost(dbServerHost);
+    setUser(user);
+    setPassword(password);
+    _dataSource = dataSource;
   }
 
   public void initialize() {
@@ -125,20 +133,20 @@ public class DbTool extends Task {
    * @return the data source, not null
    */
   public synchronized DataSource getDataSource() {
-    BoneCPDataSource dataSource = _dataSource;
+    DataSource dataSource = _dataSource;
     if (dataSource == null) {
-      dataSource = new BoneCPDataSource();
-      dataSource.setPoolName("DbTool");
-      dataSource.setDriverClass(_dialect.getJDBCDriverClass().getName());
-      dataSource.setJdbcUrl(getJdbcUrl());
-      dataSource.setUsername(getUser());
-      dataSource.setPassword(getPassword());
-      dataSource.setAcquireIncrement(1);
-      dataSource.setPartitionCount(1);
-      dataSource.setMaxConnectionsPerPartition(1);
-      dataSource.setAcquireRetryAttempts(2);
-      dataSource.setAcquireRetryDelayInMs(2000);
-      _dataSource = dataSource;
+      BoneCPDataSource ds = new BoneCPDataSource();
+      ds.setPoolName("DbTool-" + _dialect.getDatabaseName());
+      ds.setDriverClass(_dialect.getJDBCDriverClass().getName());
+      ds.setJdbcUrl(getJdbcUrl());
+      ds.setUsername(getUser());
+      ds.setPassword(getPassword());
+      ds.setAcquireIncrement(1);
+      ds.setPartitionCount(1);
+      ds.setMaxConnectionsPerPartition(1);
+      ds.setAcquireRetryAttempts(2);
+      ds.setAcquireRetryDelayInMs(2000);
+      _dataSource = dataSource = ds;  // CSIGNORE
     }
     return dataSource;
   }
@@ -147,10 +155,8 @@ public class DbTool extends Task {
    * Close the data-source if it was created.
    */
   public synchronized void close() {
-    if (_dataSource != null) {
-      _dataSource.close();
-      _dataSource = null;
-    }
+    ReflectionUtils.close(_dataSource);
+    _dataSource = null;
   }
 
   //-------------------------------------------------------------------------

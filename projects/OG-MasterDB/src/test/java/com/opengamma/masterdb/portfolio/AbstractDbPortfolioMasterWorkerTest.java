@@ -152,6 +152,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
       _prtMaster = null;
       super.tearDown();
     }
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

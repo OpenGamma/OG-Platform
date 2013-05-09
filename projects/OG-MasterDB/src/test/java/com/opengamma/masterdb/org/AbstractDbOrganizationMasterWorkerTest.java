@@ -235,6 +235,7 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
       _orgMaster = null;
       super.tearDown();
     }
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

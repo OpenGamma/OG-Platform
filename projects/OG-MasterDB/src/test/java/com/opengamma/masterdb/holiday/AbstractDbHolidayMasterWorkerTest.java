@@ -136,6 +136,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
       _holMaster = null;
       super.tearDown();
     }
+    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

@@ -14,6 +14,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.sql.DataSource;
 
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testng.annotations.AfterClass;
@@ -25,6 +29,7 @@ import org.testng.annotations.DataProvider;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.DbDialect;
@@ -43,6 +48,8 @@ public abstract class DbTest implements TableCreationCallback {
   protected static Map<String, String> s_databaseTypeVersion = new HashMap<>();
   /** Known dialects. */
   private static final Map<String, DbDialect> s_dbDialects = new HashMap<>();
+  /** Initialized tools. */
+  private static final ConcurrentMap<String, DataSource> s_dataSources = new ConcurrentHashMap<>();
 
   static {
     // initialize the clock
@@ -57,7 +64,7 @@ public abstract class DbTest implements TableCreationCallback {
   private final String _databaseType;
   private final String _targetVersion;
   private final String _createVersion;
-  private volatile DbTool _dbtool;
+  private volatile DbTool _dbTool;
 
   //-------------------------------------------------------------------------
   /**
@@ -75,25 +82,6 @@ public abstract class DbTest implements TableCreationCallback {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Initializes the DBTool outside the constructor.
-   * This works better with TestNG and Maven, where the constructor is called
-   * even if the test is never run.
-   */
-  private DbTool ensureDbTool() {
-    if (_dbtool == null) {
-      synchronized (this) {
-        if (_dbtool == null) {
-          ArgumentChecker.notNull(_databaseType, "_databaseType");
-          _dbtool = DbTestProperties.getDbTool(_databaseType);
-          _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
-          _dbtool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
-        }
-      }
-    }
-    return _dbtool;
-  }
-
   /**
    * Initialize the database to the required version.
    * This tracks the last initialized version in a static map to avoid duplicate
@@ -114,26 +102,55 @@ public abstract class DbTest implements TableCreationCallback {
     dbTool.clearTestTables();
   }
 
-  //-------------------------------------------------------------------------
   @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void tearDown() throws Exception {
-    DbTool dbTool = _dbtool;
+    DbTool dbTool = _dbTool;
     if (dbTool != null) {
-      _dbtool.resetTestCatalog(); // avoids locking issues with Derby
+      dbTool.resetTestCatalog(); // avoids locking issues with Derby
     }
   }
 
   @AfterClass(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void tearDownClass() throws Exception {
-    DbTool dbTool = _dbtool;
-    if (dbTool != null) {
-      _dbtool.close();
-    }
+    // placeholder for any future code
   }
 
   @AfterSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public static void cleanUp() {
+    for (DataSource ds : s_dataSources.values()) {
+      ReflectionUtils.close(ds);
+    }
     DbScripts.deleteSqlScriptDir();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes the DBTool outside the constructor.
+   * This works better with TestNG and Maven, where the constructor is called
+   * even if the test is never run.
+   */
+  private DbTool ensureDbTool() {
+    DbTool dbTool = _dbTool;
+    if (dbTool == null) {
+      synchronized (this) {
+        dbTool = _dbTool;
+        if (dbTool == null) {
+          String dbHost = DbTestProperties.getDbHost(_databaseType);
+          String user = DbTestProperties.getDbUsername(_databaseType);
+          String password = DbTestProperties.getDbPassword(_databaseType);
+          DataSource ds = s_dataSources.get(_databaseType);
+          dbTool = new DbTool(dbHost, user, password, ds);
+          dbTool.initialize();
+          dbTool.setJdbcUrl(dbTool.getTestDatabaseUrl());
+          dbTool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
+          if (ds == null) {
+            s_dataSources.put(_databaseType, dbTool.getDataSource());
+          }
+          _dbTool = dbTool;
+        }
+      }
+    }
+    return dbTool;
   }
 
   //-------------------------------------------------------------------------

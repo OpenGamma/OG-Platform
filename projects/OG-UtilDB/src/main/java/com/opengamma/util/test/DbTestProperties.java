@@ -69,14 +69,4 @@ public class DbTestProperties {
     return password;
   }
 
-  public static DbTool getDbTool(String databaseType) {
-    String dbHost = getDbHost(databaseType);
-    String user = getDbUsername(databaseType);
-    String password = getDbPassword(databaseType);
-    
-    DbTool dbtool = new DbTool(dbHost, user, password);
-    dbtool.initialize();
-    return dbtool;
-  }
-
 }
