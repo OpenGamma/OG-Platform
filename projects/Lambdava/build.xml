@@ -1,8 +1,0 @@
-<project name="lambdava" default="compile">
-  <property file="build.properties" />
-
-  <import file="${common.dir}/common.xml" />
-
-  <target name="compile-src" depends="common.compile-src" description="compile all source code" />
-  
-</project>
