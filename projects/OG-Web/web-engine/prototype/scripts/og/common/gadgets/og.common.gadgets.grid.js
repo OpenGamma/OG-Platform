@@ -654,6 +654,9 @@ $.register_module({
                 (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
+        Grid.prototype.highlight = function (row, col) {
+            //console.log('Highlight', row, col);
+        };
         Grid.prototype.kill = function () {
             var grid = this;
             try {grid.dataman.kill();} catch (error) {}

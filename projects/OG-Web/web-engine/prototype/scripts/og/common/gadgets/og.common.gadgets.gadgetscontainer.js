@@ -258,13 +258,20 @@ $.register_module({
              * Add og-focus class to last clicked container tab and remove from all other gadget container instances
              */
             container.focus = function () {
-                var $box, $tab;
-                for (var container in og.analytics.containers) {
-                    $tab = $(selector_prefix + container + ' .og-active'),
-                    $box = $(selector_prefix + container + ' .OG-gadget-container');
-                    if (container === pane) $tab.addClass('og-focus'), $box.addClass('og-focus');
+                var $box, $tab, cont, opt, containers = og.analytics.containers, grid = og.analytics.grid;
+                // Highlight gadgetcontainer and tab
+                for (cont in containers) {
+                    $tab = $(selector_prefix + cont + ' .og-active');
+                    $box = $(selector_prefix + cont + ' .OG-gadget-container');
+                    if (cont === pane) $tab.addClass('og-focus'), $box.addClass('og-focus');
                     else $tab.removeClass('og-focus'), $box.removeClass('og-focus');
-                }
+                };
+                // Highlight grid cell
+                opt = JSON.parse(JSON.stringify(container.gadgets()
+                    .filter(function (val) {return !!val.active})[0].config.options));
+                if (!opt.source.depgraph) return containers.fire('cellhighlight', opt.source, opt.row, opt.col);
+                delete opt.source.row, delete opt.source.col, delete opt.source.depgraph;
+                if (Object.equals(opt.source, grid.source)) grid.highlight(opt.row, opt.col);
             };
             container.init = function (data) {
                 var toggle_dropbox = function () {

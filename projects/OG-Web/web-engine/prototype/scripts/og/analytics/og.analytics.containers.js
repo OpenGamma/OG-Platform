@@ -27,6 +27,9 @@ $.register_module({
                 delete containers.initialize;
             }
         };
+        containers.on = og.common.events.on;
+        containers.off = og.common.events.off;
+        containers.fire = og.common.events.fire;
         return containers;
     }
 });

@@ -94,7 +94,8 @@ $.register_module({
             })();
             var initialize = function () {
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
-                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {blotter: !!source.blotter});
+                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
+                if (!!source.blotter) put_options.blotter = true;
                 if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup
                 if (view_id && grid_type && data.parent.connection.structure) // if parent connection supplies structure
                     return structure_handler(data.parent.connection.structure);

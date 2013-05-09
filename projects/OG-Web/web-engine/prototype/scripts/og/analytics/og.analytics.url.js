@@ -51,13 +51,13 @@ $.register_module({
             process: function (args, handler) {
                 $.when(args.data ? og.api.rest.compressor.get({content: args.data, dependencies: ['data']}) : void 0)
                 .then(function (result) {
-                    var config = result ? result.data.data : {};
+                    var config = result ? result.data.data : {}, blotter = og.analytics.blotter;
                     if (config.main && !Object.equals(config.main, last.main)) {
                         new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
                         if (og.analytics.grid) og.analytics.grid.kill();
                         og.analytics.grid = new og.common.gadgets.Grid({
-                            selector: main_selector, cellmenu: true, show_save: og.analytics.blotter,
-                            source: $.extend({blotter: og.analytics.blotter}, config.main)
+                            selector: main_selector, cellmenu: true, show_save: blotter,
+                            source: !!blotter ? $.extend({blotter: blotter}, config.main) : config.main
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('cycle', function (cycle) {
