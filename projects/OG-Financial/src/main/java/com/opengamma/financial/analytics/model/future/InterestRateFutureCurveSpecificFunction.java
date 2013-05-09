@@ -98,6 +98,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String currency = FinancialSecurityUtils.getCurrency(trade.getSecurity()).getCode();
+    final String fullCurveName = curveName + "_" + currency;
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {
@@ -114,7 +115,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, fullCurveNames, timeSeries);
     final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(),
         createValueProperties(target, curveName, curveCalculationConfigName));
-    return getResults(irFuture, curveName, curveSpec, data, spec, trade.getSecurity());
+    return getResults(irFuture, fullCurveName, curveSpec, data, spec, trade.getSecurity());
   }
 
   protected abstract Set<ComputedValue> getResults(final InstrumentDerivative irFuture, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,

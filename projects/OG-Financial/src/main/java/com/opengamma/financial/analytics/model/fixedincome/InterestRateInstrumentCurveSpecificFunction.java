@@ -111,7 +111,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    String currency = FinancialSecurityUtils.getCurrency(security).getCode();
+    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final String fullCurveName = curveName + "_" + currency;
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
