@@ -27,18 +27,18 @@
           <input name="trade.counterparty" type="text" value="{{counterparty}}" />
         </td>
       </tr>
-      {{#if name}}
+      {{#unless fungible}}
       <tr>
         <td>
           <label>
-            <span>Trade name</span>
+            <span>Trade Name</span>
           </label>
         </td>
         <td>
           <input name="security.name" type="text" value="{{name}}" />
         </td>
       </tr>
-      {{/if}}
+      {{/unless}}
       <tr>
         <td>
           <label>

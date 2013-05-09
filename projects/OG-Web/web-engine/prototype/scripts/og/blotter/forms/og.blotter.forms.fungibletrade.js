@@ -30,7 +30,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
-                        portfolio: data.nodeId, trade: data.trade}),
+                        portfolio: data.nodeId, trade: data.trade, fungible: true}),
                     new form.Block({module: 'og.blotter.forms.blocks.fungible_tash',
                         extras: {quantity: data.trade.quantity},
                         children: [security]
