@@ -34,9 +34,9 @@ public class DbToolTest {
   @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     Properties props = TestProperties.getTestProperties();
-    String dbHost = props.getProperty("jdbc.url");
-    String user = props.getProperty("jdbc.username");
-    String password = props.getProperty("jdbc.password");
+    String dbHost = props.getProperty("utildb.jdbc.url");
+    String user = props.getProperty("utildb.jdbc.username");
+    String password = props.getProperty("utildb.jdbc.password");
     _tool = new DbTool(dbHost, user, password);
     _tool.initialize();
   }
