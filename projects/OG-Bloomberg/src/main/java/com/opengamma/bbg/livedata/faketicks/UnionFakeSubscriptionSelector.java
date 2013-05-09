@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Selects a subscription as Fake iff 

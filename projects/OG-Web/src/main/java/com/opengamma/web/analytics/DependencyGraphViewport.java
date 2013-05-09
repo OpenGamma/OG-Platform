@@ -9,7 +9,7 @@ import com.opengamma.engine.view.cycle.ComputationCycleQuery;
 import com.opengamma.engine.view.cycle.ComputationResultsResponse;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Viewport on a grid displaying the dependency graph showing how a value is calculated. This class isn't thread safe.

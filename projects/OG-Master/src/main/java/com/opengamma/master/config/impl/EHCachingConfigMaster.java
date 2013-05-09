@@ -27,7 +27,7 @@ import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigSearchSortOrder;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 import net.sf.ehcache.CacheManager;
 

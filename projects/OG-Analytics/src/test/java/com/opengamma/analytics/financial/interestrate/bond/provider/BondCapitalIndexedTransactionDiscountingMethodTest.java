@@ -40,7 +40,7 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 /**
  * Tests the present value of Capital inflation indexed bonds.

@@ -12,7 +12,7 @@ import org.threeten.bp.Period;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Utility class for building date constraints for the time series fetching functions.

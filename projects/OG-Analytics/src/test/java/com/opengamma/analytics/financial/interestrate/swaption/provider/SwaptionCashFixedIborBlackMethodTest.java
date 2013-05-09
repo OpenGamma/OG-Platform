@@ -41,7 +41,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 public class SwaptionCashFixedIborBlackMethodTest {
   // Data

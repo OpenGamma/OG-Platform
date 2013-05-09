@@ -62,7 +62,7 @@ import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.Paging;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A position master implementation using a database for persistence.

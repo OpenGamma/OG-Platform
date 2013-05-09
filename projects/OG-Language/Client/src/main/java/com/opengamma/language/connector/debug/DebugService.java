@@ -22,7 +22,7 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * An entry point which starts the Language stack in debug mode, allowing it to serve arbitrary, possibly remote, processes.

@@ -14,7 +14,7 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.ResultCallback;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Implementation of {@link LiveDataDispatcher} that blocks the connection until the first result is

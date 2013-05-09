@@ -6,7 +6,7 @@
 package com.opengamma.engine.view.worker;
 
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.util.functional.Function2;
+import com.opengamma.lambdava.functions.Function2;
 
 /**
  * Base class for testing the {@link ParallelRecompilationViewProcessWorker} inner classes.

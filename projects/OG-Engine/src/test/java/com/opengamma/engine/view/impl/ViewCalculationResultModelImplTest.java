@@ -34,7 +34,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  *

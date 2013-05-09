@@ -13,7 +13,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Object to represent values linked to a surface (pair of doubles) for which the values can be added or multiplied by a constant.

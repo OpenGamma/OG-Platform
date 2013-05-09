@@ -7,7 +7,7 @@ package com.opengamma.web.analytics.blotter.swap;
 
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.web.analytics.blotter.CellValueProvider;
 
 /**

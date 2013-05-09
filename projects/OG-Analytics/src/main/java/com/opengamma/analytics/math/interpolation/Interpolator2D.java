@@ -8,7 +8,7 @@ package com.opengamma.analytics.math.interpolation;
 import java.util.Map;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * A base class for two-dimensional interpolation.

@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.model.option.definition.OptionExerciseF
 import com.opengamma.analytics.financial.model.option.definition.OptionPayoffFunction;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.tree.RecombiningBinomialTree;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Builds a binomial tree

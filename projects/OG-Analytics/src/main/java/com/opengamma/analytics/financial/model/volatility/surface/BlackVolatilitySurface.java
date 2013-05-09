@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.model.volatility.surface;
 
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  *  A surface with gives Black (implied) volatility  as a function of time to maturity and value some abstraction of strike

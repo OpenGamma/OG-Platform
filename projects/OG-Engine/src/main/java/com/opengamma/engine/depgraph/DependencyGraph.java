@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
-import static com.opengamma.util.functional.Functional.submapByKeySet;
+import static com.opengamma.lambdava.streams.Lambdava.submapByKeySet;
 
 import java.io.PrintStream;
 import java.util.ArrayList;

@@ -19,7 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Fudge builder for {@code VolatilityCubeData}.
