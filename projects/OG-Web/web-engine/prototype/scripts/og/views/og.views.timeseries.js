@@ -159,11 +159,16 @@ $.register_module({
                             }, '')
                         ).end().find('.OG-table').tablesorter();
                         // Plot
-                        new common.gadgets.TimeseriesPlot({
+                        new og.common.gadgets.Timeseries({
+                            rest_options: {id: result.data.template_data.object_id},
                             selector: '.OG-timeseries-container',
-                            id: result.data.template_data.object_id,
-                            datapoints: true, height: 400
-                        });
+                            datapoints: true
+                        })
+                        //new common.gadgets.TimeseriesPlot({
+                        //    selector: '.OG-timeseries-container',
+                        //    id: result.data.template_data.object_id,
+                        //    datapoints: true, height: 400
+                        //});
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
                     });

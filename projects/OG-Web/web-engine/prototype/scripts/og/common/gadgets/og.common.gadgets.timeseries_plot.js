@@ -150,10 +150,10 @@ $.register_module({
                     if (!data_arr) return $template.html('<span class="og-no-datapoint">No data available</span>');
                     render_grid = function (index) {
                         var data_selector = selector + ' .og-data-points .og-data-' + index;
-                            new og.common.gadgets.Data({
-                                resource: 'timeseries', rest_options: {id: config.id},
-                                type: 'TIME_SERIES', selector: data_selector, menu: false, child: false
-                            });
+                        new og.common.gadgets.Data({
+                            resource: 'timeseries', rest_options: {id: config.rest_options.id},
+                            type: 'TIME_SERIES', selector: data_selector, menu: false, child: false
+                        });
 
                     };
                     data_arr.forEach(function (v, i) {
