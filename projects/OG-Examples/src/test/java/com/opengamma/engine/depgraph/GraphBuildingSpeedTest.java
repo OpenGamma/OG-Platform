@@ -88,16 +88,23 @@ public class GraphBuildingSpeedTest {
     }
   }
 
+  protected void configureDependencyGraphBuilder(final DependencyGraphBuilderFactory dependencyGraphBuilder) {
+    dependencyGraphBuilder.setEnableFailureReporting(false);
+    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getOrdered());
+    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentLinkedQueue());
+    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentStack());
+    //dependencyGraphBuilder.setTargetDigests(new NoTargetDigests ());
+    //dependencyGraphBuilder.setTargetDigests(new SecurityTypeTargetDigests());
+    //dependencyGraphBuilder.setTargetDigests(new FinancialSecurityTargetDigests());
+  }
+
   private ViewCompilationServices createViewCompilationServices() {
     final CompiledFunctionService cfs = _repo.getInstance(CompiledFunctionService.class, "main");
     final FunctionResolver functionResolver = _repo.getInstance(FunctionResolver.class, "main");
     final FunctionExclusionGroups functionExclusionGroups = _repo.getInstance(FunctionExclusionGroups.class, "main");
     final DependencyGraphBuilderFactory dependencyGraphBuilder = new DependencyGraphBuilderFactory();
     dependencyGraphBuilder.setFunctionExclusionGroups(functionExclusionGroups);
-    dependencyGraphBuilder.setEnableFailureReporting(false);
-    dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getOrdered());
-    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentLinkedQueue());
-    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentStack());
+    configureDependencyGraphBuilder(dependencyGraphBuilder);
     final MarketDataAvailabilityProvider mdap = new OptimisticMarketDataAvailabilityFilter().withProvider(new DefaultMarketDataAvailabilityProvider());
     return new ViewCompilationServices(mdap, functionResolver, cfs.getFunctionCompilationContext(), cfs.getExecutorService(), dependencyGraphBuilder);
   }
