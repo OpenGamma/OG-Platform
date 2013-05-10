@@ -29,7 +29,6 @@
     <dependency>
       <groupId>com.opengamma</groupId>
       <artifactId>lambdava</artifactId>
-      <version>0.1</version>
     </dependency>
 
     <dependency>

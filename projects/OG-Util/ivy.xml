@@ -9,7 +9,7 @@
   <dependencies>
     <dependency name="og-timeseries" rev="latest.integration" />
 
-    <dependency org="com.opengamma" name="lambdava" rev="0.1" />
+    <dependency org="com.opengamma" name="lambdava" rev="0.2" />
     <dependency org="org.fudgemsg" name="fudge-java" rev="0.3.9.8" />
     <dependency org="org.fudgemsg" name="fudge-proto" rev="0.3.9.6" />
     <dependency org="org.apache.commons" name="commons-lang" rev="2.6" />
