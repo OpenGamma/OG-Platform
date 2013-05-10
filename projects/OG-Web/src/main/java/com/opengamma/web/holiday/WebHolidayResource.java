@@ -25,7 +25,7 @@ import org.threeten.bp.Year;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * RESTful resource for a holiday.

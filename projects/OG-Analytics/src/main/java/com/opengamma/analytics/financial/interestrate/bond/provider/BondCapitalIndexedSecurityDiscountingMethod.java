@@ -23,7 +23,7 @@ import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 /**
  * Pricing method for inflation bond. The price is computed by index estimation and discounting.

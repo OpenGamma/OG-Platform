@@ -111,6 +111,8 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    String currency = FinancialSecurityUtils.getCurrency(security).getCode();
+    final String fullCurveName = curveName + "_" + currency;
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
@@ -124,12 +126,16 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final String[] fullCurveNames = new String[curveNames.length];
+    for (int i = 0; i < curveNames.length; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency;
+    }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
-    final InstrumentDerivative derivative = InterestRateInstrumentFunction.getDerivative(security, now, timeSeries, curveNames, definition, _definitionConverter);
-    final YieldCurveBundle bundle = InterestRateInstrumentFunction.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final InstrumentDerivative derivative = InterestRateInstrumentFunction.getDerivative(security, now, timeSeries, fullCurveNames, definition, _definitionConverter);
+    final YieldCurveBundle bundle = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final ValueProperties properties = createValueProperties(target, curveName, curveCalculationConfigName).get();
     final ValueSpecification resultSpec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);
-    return getResults(derivative, curveName, bundle, curveCalculationConfigName, curveCalculationMethod, inputs, target, resultSpec);
+    return getResults(derivative, fullCurveName, bundle, curveCalculationConfigName, curveCalculationMethod, inputs, target, resultSpec);
   }
 
   @Override

@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.provider.description.inflation.Inflatio
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Pricing method for inflation zero-coupon. The price is computed by index estimation and discounting.

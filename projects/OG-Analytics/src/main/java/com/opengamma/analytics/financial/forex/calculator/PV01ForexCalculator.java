@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarri
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Returns the change in present value of an instrument due to a parallel move of the yield curve, scaled so that the move is 1bp.

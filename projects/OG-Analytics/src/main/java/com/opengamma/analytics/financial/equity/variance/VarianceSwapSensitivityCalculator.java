@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * This Calculator provides price sensitivities for the VarianceSwap derivative to changes in

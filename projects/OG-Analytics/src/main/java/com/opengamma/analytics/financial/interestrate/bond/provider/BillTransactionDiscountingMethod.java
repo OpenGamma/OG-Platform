@@ -17,8 +17,8 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Class with methods related to bill transaction valued by discounting.

@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
@@ -42,19 +40,15 @@ public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitor
    * The method used for different instruments.
    */
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
+  private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
-    return method.yieldFromCurves(bond, curves);
+    return METHOD_BOND_SECURITY.yieldFromCurves(bond, curves);
   }
 
   @Override
   public Double visitBillSecurity(final BillSecurity bill, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(bill);
     return METHOD_BILL_SECURITY.yieldFromCurves(bill, curves);
   }
 

@@ -44,6 +44,9 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   // NOTE : There are no builder methods implemented in this class because it is abstract
 
+  // NOTE : If protectionStart = TRUE then default protection begins at the time 00:01 of startDate
+  // NOTE : If protectionStart = FALSE then default protection begins at the time 23:59 of startDate
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice - although MarkIt enforces N > 0)

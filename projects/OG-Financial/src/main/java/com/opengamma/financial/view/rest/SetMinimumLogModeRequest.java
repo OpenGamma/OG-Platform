@@ -14,7 +14,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 import java.util.Map;
 import org.joda.beans.BeanBuilder;

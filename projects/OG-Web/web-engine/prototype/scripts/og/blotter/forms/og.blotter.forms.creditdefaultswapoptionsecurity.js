@@ -36,7 +36,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
-                        portfolio: data.nodeId, trade: data.trade}),
+                        portfolio: data.nodeId, trade: data.trade, name: data.security.name}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cds_option_tash',
                         extras: {strike: data.security.strike, startDate: data.security.startDate},
@@ -46,7 +46,7 @@ $.register_module({
                     }),
                     cds_select = new ui.Dropdown({
                         form: form, placeholder: 'Select CDS Type',
-                        data_generator: function (handler) {handler(og.blotter.util.cds_types);}
+                        data_generator: function (handler) {handler(util.cds_types);}
                     }),
                     cds_block = new form.Block({content:"<div id='" + cds_id + "'></div>"}),
                     new og.common.util.ui.Attributes({
@@ -103,7 +103,8 @@ $.register_module({
             };
             constructor.submit_new = function (handler) {
                 validate = handler;
-                delete data.id;
+                util.clear_save_as(data);
+                util.clear_underlying_save_as(data);
                 form.submit();
             };
         };

@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.horizon;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -51,7 +50,7 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Future option mid-curve 1Y
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -SETTLEMENT_DAYS, CALENDAR);
@@ -59,7 +58,7 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9805;
-  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
   // InterestRateFutureTransactionDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, 1, NAME);
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final boolean IS_CALL = true;

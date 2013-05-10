@@ -37,8 +37,8 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A {@code HistoricalTimeSeriesSource} implemented using an underlying {@code HistoricalTimeSeriesMaster}.

@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -37,6 +38,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   private static final Currency USD = INDEX_FEDFUND.getCurrency();
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final Calendar NYC = MulticurveProviderDiscountDataSets.getUSDCalendar();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
 
@@ -44,7 +46,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   private static final double TRADE_PRICE = 0.99900;
   private static final int QUANTITY = 123;
 
-  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.fromFedFund(MARCH_1, INDEX_FEDFUND);
+  private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.fromFedFund(MARCH_1, INDEX_FEDFUND, NYC);
   private static final FederalFundsFutureTransactionDefinition FUTURE_TRANSACTION_DEFINITION = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, REFERENCE_DATE,
       TRADE_PRICE);
 
@@ -67,7 +69,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
 
   private static final double SHIFT = 1.0E-6;
 
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;

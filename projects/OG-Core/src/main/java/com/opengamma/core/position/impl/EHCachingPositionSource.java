@@ -30,13 +30,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.id.VersionCorrectionUtils;
 import com.opengamma.id.VersionCorrectionUtils.VersionCorrectionLockListener;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.WeakInstanceCache;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * A cache decorating a {@code PositionSource}.

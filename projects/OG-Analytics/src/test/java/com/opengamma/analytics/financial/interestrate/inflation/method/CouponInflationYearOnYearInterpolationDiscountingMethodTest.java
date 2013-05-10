@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
@@ -42,9 +41,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
-  private static final IborIndex[] IBOR_INDEXES = MARKET.getIndexesIbor().toArray(new IborIndex[MARKET.getIndexesIbor().size()]);
-  private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
-  private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
+  private static final Calendar CALENDAR_EUR = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);

@@ -43,7 +43,7 @@ import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 public class SwapCalculatorTest {
 
@@ -51,7 +51,7 @@ public class SwapCalculatorTest {
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex USDLIBOR3M = INDEX_LIST[2];
   private static final IborIndex USDLIBOR6M = INDEX_LIST[3];
-  private static final Calendar NYC = USDLIBOR3M.getCalendar();
+  private static final Calendar NYC = MulticurveProviderDiscountDataSets.getUSDCalendar();
 
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
 
@@ -67,9 +67,9 @@ public class SwapCalculatorTest {
   private static final double SPREAD3 = 0.0020;
   private static final double SPREAD6 = 0.0005;
   private static final SwapIborIborDefinition SWAP_IBORSPREAD_IBORSPREAD_DEFINITION = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL,
-      USDLIBOR3M, SPREAD3, true), AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
-  private static final SwapDefinition SWAP_IBOR_IBORSPREAD_DEFINITION = new SwapDefinition(AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, true),
-      AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+      USDLIBOR3M, SPREAD3, true, NYC), AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
+  private static final SwapDefinition SWAP_IBOR_IBORSPREAD_DEFINITION = new SwapDefinition(AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, true, NYC),
+      AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
 
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED, NOT_USED };
@@ -88,7 +88,7 @@ public class SwapCalculatorTest {
   //  private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
 
   private static final PV01CurveParametersCalculator PV01CPC = PV01CurveParametersCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPVC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPVC = new ParameterSensitivityParameterCalculator<>(
       PresentValueCurveSensitivityDiscountingCalculator.getInstance());
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
@@ -124,8 +124,8 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final Swap<Coupon, Coupon> swap = SWAP_IBORSPREAD_IBORSPREAD_DEFINITION.toDerivative(referenceDate, NOT_USED_A);
     final double parSpread = swap.accept(PSMQDC, MULTICURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true),
-        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, NYC),
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate, NOT_USED_A);
     final MultipleCurrencyAmount pv = swap0.accept(PVDC, MULTICURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv.getAmount(swap.getFirstLeg().getCurrency()), 0, TOLERANCE_PV);
@@ -136,8 +136,8 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 16);
     final Swap<Coupon, Coupon> swap = SWAP_IBORSPREAD_IBORSPREAD_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, NOT_USED_A);
     final double parSpread = swap.accept(PSMQDC, MULTICURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true),
-        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, NYC),
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate, FIXING_TS_3_6, NOT_USED_A);
     final MultipleCurrencyAmount pv = swap0.accept(PVDC, MULTICURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv.getAmount(swap.getFirstLeg().getCurrency()), 0, TOLERANCE_PV);
@@ -149,12 +149,11 @@ public class SwapCalculatorTest {
    */
   public void parSpreadIborIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
-    @SuppressWarnings("unchecked")
-    final Swap<? extends Payment, ? extends Payment> swap = new Swap<Payment, Payment>((Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getFirstLeg().toDerivative(referenceDate, NOT_USED_A),
+    final Swap<? extends Payment, ? extends Payment> swap = new Swap<>((Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getFirstLeg().toDerivative(referenceDate, NOT_USED_A),
         (Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getSecondLeg().toDerivative(referenceDate, new String[] {NOT_USED_A[0], NOT_USED_A[2] }));
     final double parSpread = swap.accept(PSMQDC, MULTICURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, parSpread, true),
-        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, parSpread, true, NYC),
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate, NOT_USED_A);
     final MultipleCurrencyAmount pv = swap0.accept(PVDC, MULTICURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv.getAmount(swap.getFirstLeg().getCurrency()), 0, TOLERANCE_PV);
@@ -278,22 +277,22 @@ public class SwapCalculatorTest {
     long startTime, endTime;
     final int nbTest = 10;
 
-    PresentValueDiscountingCalculator pvdCalculator = PresentValueDiscountingCalculator.getInstance();
-    PresentValueCurveSensitivityDiscountingCalculator pvcsdCalculator = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-    ParameterSensitivityParameterCalculator<MulticurveProviderInterface> psCalculator = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(pvcsdCalculator);
+    final PresentValueDiscountingCalculator pvdCalculator = PresentValueDiscountingCalculator.getInstance();
+    final PresentValueCurveSensitivityDiscountingCalculator pvcsdCalculator = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+    final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> psCalculator = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(pvcsdCalculator);
 
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
 
     final int nbSwap = 100;
-    MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbSwap];
-    MultipleCurrencyMulticurveSensitivity[] pvcs = new MultipleCurrencyMulticurveSensitivity[nbSwap];
-    MultipleCurrencyParameterSensitivity[] ps = new MultipleCurrencyParameterSensitivity[nbSwap];
+    final MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbSwap];
+    final MultipleCurrencyMulticurveSensitivity[] pvcs = new MultipleCurrencyMulticurveSensitivity[nbSwap];
+    final MultipleCurrencyParameterSensitivity[] ps = new MultipleCurrencyParameterSensitivity[nbSwap];
 
     final InstrumentDerivative[] swap = new InstrumentDerivative[nbSwap];
 
     for (int loops = 0; loops < nbSwap; loops++) {
-      double rate = RATE_FIXED - 0.0050 + loops * BP1;
-      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
+      final double rate = RATE_FIXED - 0.0050 + loops * BP1;
+      final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
       swap[loops] = swapDefinition.toDerivative(referenceDate, NOT_USED_A);
     }
 
@@ -310,8 +309,8 @@ public class SwapCalculatorTest {
     startTime = System.currentTimeMillis(); // Swap construction + PV
     for (int looptest = 0; looptest < nbTest; looptest++) {
       for (int loops = 0; loops < nbSwap; loops++) {
-        double rate = RATE_FIXED - 0.0050 + loops * BP1;
-        SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
+        final double rate = RATE_FIXED - 0.0050 + loops * BP1;
+        final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
         swap[loops] = swapDefinition.toDerivative(referenceDate, NOT_USED_A);
       }
       for (int loops = 0; loops < nbSwap; loops++) {

@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.util.amount.SurfaceValue;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Tests the distribution of a given SABR sensitivity to the nodes.

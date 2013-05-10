@@ -22,7 +22,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Pricing method for digital Forex option transactions as a call or put spread option.

@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Method for the pricing of interest rate future options with margin process. The pricing is done with a Black approach on the future rate (1.0-price).

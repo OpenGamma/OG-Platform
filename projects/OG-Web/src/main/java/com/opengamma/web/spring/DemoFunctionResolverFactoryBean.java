@@ -13,8 +13,6 @@ import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
-import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
-import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixLookupFunction;
 import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
@@ -52,12 +50,6 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
             // All other currency injections are important; e.g. the currency constraint can't be omitted for some functions
             return Integer.MAX_VALUE + defaultPropertyFunction.getPriority().getPriorityAdjust() - DefaultPropertyFunction.PriorityClass.MAX_ADJUST;
           }
-        }
-        if (function instanceof BondPresentValueCountryCurveFunction) {
-          return 4;
-        }
-        if (function instanceof BondPresentValueCurrencyCurveFunction) {
-          return 3;
         }
         if (function instanceof BondPV01CountryCurveFunction) {
           return 6;

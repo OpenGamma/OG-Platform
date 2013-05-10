@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Pricing method for Forex transactions (spot or forward) by forward points.

@@ -34,7 +34,7 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Tests RateLimitingMergingUpdateProvider

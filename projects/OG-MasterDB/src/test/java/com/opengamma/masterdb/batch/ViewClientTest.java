@@ -6,7 +6,7 @@
 package com.opengamma.masterdb.batch;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.functional.Functional.first;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -15,6 +15,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.Serializable;
 
+import com.opengamma.engine.value.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
@@ -30,8 +31,6 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -94,7 +93,7 @@ public class ViewClientTest {
 
     assertEquals("boo~far", argument.getValue().getViewDefinitionId().toString());
     assertEquals(1, argument.getValue().getAllCalculationConfigurationNames().size());
-    assertEquals("Test Calc Config", first(argument.getValue().getAllCalculationConfigurationNames()));
+    assertEquals("Test Calc Config", functional(argument.getValue().getAllCalculationConfigurationNames()).first());
 
     final ArgumentCaptor<ViewComputationResultModel> fullFragment = ArgumentCaptor.forClass(ViewComputationResultModel.class);
     final ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);

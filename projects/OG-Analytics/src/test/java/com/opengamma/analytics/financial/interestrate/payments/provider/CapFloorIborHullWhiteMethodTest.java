@@ -32,6 +32,7 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -45,7 +46,8 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
-  //  private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
+
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
@@ -54,9 +56,9 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final double NOTIONAL = 100000000; //100m
   private static final double STRIKE = 0.02;
   private static final boolean IS_CAP = true;
-  private static final CapFloorIborDefinition CAP_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, EURIBOR3M, STRIKE, IS_CAP);
-  private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, EURIBOR3M, STRIKE, IS_CAP);
-  private static final CapFloorIborDefinition PUT_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, EURIBOR3M, STRIKE, !IS_CAP);
+  private static final CapFloorIborDefinition CAP_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, EURIBOR3M, STRIKE, IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, EURIBOR3M, STRIKE, IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition PUT_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, EURIBOR3M, STRIKE, !IS_CAP, CALENDAR);
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final CapFloorIbor CAP_LONG = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
@@ -71,7 +73,7 @@ public class CapFloorIborHullWhiteMethodTest {
 
   private static final double SHIFT = 1.0E-6;
 
-  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PS_HW_C = new ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(PVCSHWC);
+  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PS_HW_C = new ParameterSensitivityParameterCalculator<>(PVCSHWC);
   private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PS_HW_FDC = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT);
 
   private static final int NB_PATH = 12500;

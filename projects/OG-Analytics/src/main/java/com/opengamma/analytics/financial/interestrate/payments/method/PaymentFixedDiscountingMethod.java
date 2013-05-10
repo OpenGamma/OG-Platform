@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Methods related to fixed payments.

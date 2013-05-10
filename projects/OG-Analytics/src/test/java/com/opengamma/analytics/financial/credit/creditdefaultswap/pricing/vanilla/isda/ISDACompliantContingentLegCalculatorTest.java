@@ -62,7 +62,7 @@ public class ISDACompliantContingentLegCalculatorTest {
     CURVES = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
   }
 
-  @Test
+  @Test(enabled = false)
   public void regressionTest() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double deprecatedResult = DEPRECATED_CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);

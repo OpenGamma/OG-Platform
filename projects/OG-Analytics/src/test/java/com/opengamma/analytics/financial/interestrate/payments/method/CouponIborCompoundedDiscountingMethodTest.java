@@ -37,7 +37,7 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing and sensitivities of Ibor compounded coupon in the discounting method.
@@ -45,11 +45,11 @@ import com.opengamma.util.tuple.DoublesPair;
 public class CouponIborCompoundedDiscountingMethodTest {
 
   private static final Calendar TOR = new MondayToFridayCalendar("TOR");
-  private static final IborIndex CDOR3M = IndexIborMaster.getInstance().getIndex("CADCDOR3M", TOR);
+  private static final IborIndex CDOR3M = IndexIborMaster.getInstance().getIndex("CADCDOR3M");
   private static final Period M6 = Period.ofMonths(6);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
-  private static final CouponIborCompoundingDefinition CPN_DEFINITION = CouponIborCompoundingDefinition.from(NOTIONAL, START_DATE, M6, CDOR3M);
+  private static final CouponIborCompoundingDefinition CPN_DEFINITION = CouponIborCompoundingDefinition.from(NOTIONAL, START_DATE, M6, CDOR3M, TOR);
 
   private static final CouponIborCompoundedDiscountingMethod METHOD_COMPOUNDED = CouponIborCompoundedDiscountingMethod.getInstance();
 

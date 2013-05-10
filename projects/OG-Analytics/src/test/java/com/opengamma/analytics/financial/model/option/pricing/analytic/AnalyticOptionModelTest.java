@@ -26,7 +26,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 public abstract class AnalyticOptionModelTest {
   protected static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
@@ -83,11 +83,11 @@ public abstract class AnalyticOptionModelTest {
   protected void assertResults(final GreekResultCollection results, final GreekResultCollection expected) {
     assertEquals(results.size(), expected.size());
     for (final Pair<Greek, Double> entry : results) {
-      final Double result2 = expected.get(entry.getKey());
-      if (!(entry.getKey().equals(Greek.VARIANCE_ULTIMA))) {
-        assertEquals(entry.getValue(), result2, EPS);
+      final Double result2 = expected.get(entry._1());
+      if (!(entry._1().equals(Greek.VARIANCE_ULTIMA))) {
+        assertEquals(entry._2(), result2, EPS);
       } else {
-        assertEquals(entry.getValue(), result2, 1000 * EPS);
+        assertEquals(entry._2(), result2, 1000 * EPS);
       }
     }
   }

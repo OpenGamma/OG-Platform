@@ -36,8 +36,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A cache decorating a {@code HistoricalTimeSeriesSource}.

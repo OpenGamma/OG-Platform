@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleP
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -40,12 +41,13 @@ public class DepositIborDiscountingMethodTest {
 
   private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 12, 12);
 
   private static final double NOTIONAL = 100000000;
   private static final double RATE = 0.0250;
-  private static final DepositIborDefinition DEPOSIT_IBOR_DEFINITION = DepositIborDefinition.fromTrade(TRADE_DATE, NOTIONAL, RATE, EURIBOR3M);
+  private static final DepositIborDefinition DEPOSIT_IBOR_DEFINITION = DepositIborDefinition.fromTrade(TRADE_DATE, NOTIONAL, RATE, EURIBOR3M, CALENDAR);
 
   private static final MulticurveProviderDiscount PROVIDER_MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final String[] NOT_USED = new String[] {"Not used 1"};
@@ -56,12 +58,12 @@ public class DepositIborDiscountingMethodTest {
 
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PV_C = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PV_C = new ParameterSensitivityParameterCalculator<>(PVCSC);
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVC, SHIFT_FD);
 
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PSMQ_C = new SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PSMQCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PSMQ_C = new SimpleParameterSensitivityParameterCalculator<>(PSMQCSDC);
   private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PSMQ_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PSMQDC, SHIFT_FD);
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -126,7 +128,7 @@ public class DepositIborDiscountingMethodTest {
     final ZonedDateTime referenceDate = TRADE_DATE;
     final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
     final double parSpread = METHOD_DEPOSIT.parSpread(deposit, PROVIDER_MULTICURVES);
-    final DepositIborDefinition deposit0Definition = DepositIborDefinition.fromTrade(referenceDate, NOTIONAL, RATE + parSpread, EURIBOR3M);
+    final DepositIborDefinition deposit0Definition = DepositIborDefinition.fromTrade(referenceDate, NOTIONAL, RATE + parSpread, EURIBOR3M, CALENDAR);
     final DepositIbor deposit0 = deposit0Definition.toDerivative(referenceDate, NOT_USED);
     final MultipleCurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, PROVIDER_MULTICURVES);
     assertEquals("DepositDefinition: present value", 0, pv0.getAmount(EUR), TOLERANCE_PV);

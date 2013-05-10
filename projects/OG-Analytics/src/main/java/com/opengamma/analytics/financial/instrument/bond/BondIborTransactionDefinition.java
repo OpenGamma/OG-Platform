@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * Describes a transaction on a Ibor coupon bond issue.
  */
 public class BondIborTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponIborDefinition>
-    implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Ibor coupon bond transaction from all the transaction details.
@@ -63,7 +63,6 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    @SuppressWarnings("unchecked")
     final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupons().toDerivative(date, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
     final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
@@ -105,7 +104,6 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    @SuppressWarnings("unchecked")
     final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupons().toDerivative(date, indexFixingTS, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
     final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);

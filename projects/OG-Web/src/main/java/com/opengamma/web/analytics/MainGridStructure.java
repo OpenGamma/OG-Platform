@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Column structure of the grid used to display analytics data.

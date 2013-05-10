@@ -6,7 +6,6 @@
 package com.opengamma.master.config.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

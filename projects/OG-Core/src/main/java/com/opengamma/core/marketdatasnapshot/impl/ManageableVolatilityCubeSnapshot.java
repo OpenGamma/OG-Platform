@@ -23,7 +23,7 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPairFudgeBuilder;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

@@ -33,9 +33,9 @@ public class InflationProviderDiscountTest {
   private static final YieldAndDiscountCurve CURVE_40 = YieldCurve.from(ConstantDoublesCurve.from(0.0400));
   private static final YieldAndDiscountCurve CURVE_35 = YieldCurve.from(ConstantDoublesCurve.from(0.0350));
   private static final YieldAndDiscountCurve CURVE_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0300));
-  private static final IborIndex EURIBOR_3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR_EUR);
-  private static final IborIndex EURIBOR_6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR_EUR);
-  private static final IborIndex USDLIBOR_3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
+  private static final IborIndex EURIBOR_3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M");
+  private static final IborIndex EURIBOR_6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M");
+  private static final IborIndex USDLIBOR_3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR);
   private static double[] INDEX_VALUE = new double[] {108.23, 108.64, 111.0, 119.0, 129.0, 149.0 };

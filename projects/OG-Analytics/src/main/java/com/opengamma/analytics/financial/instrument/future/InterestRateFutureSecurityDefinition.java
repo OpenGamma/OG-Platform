@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -93,17 +94,19 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
    * @param iborIndex Ibor index associated to the future.
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor.
+   * @param calendar The holiday calendar for the ibor leg.
    * @param name Future name.
    */
-  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor, final String name) {
+  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor, final String name,
+      final Calendar calendar) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(iborIndex, "Ibor index");
     ArgumentChecker.notNull(name, "Name");
     this._lastTradingDate = lastTradingDate;
     this._iborIndex = iborIndex;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getSpotLag(), _iborIndex.getCalendar());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getSpotLag(), calendar);
     _fixingPeriodEndDate = ScheduleCalculator
-        .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth());
+        .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(), calendar, _iborIndex.isEndOfMonth());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;
@@ -117,14 +120,15 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor.
    * @param name The future name.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The interest rate futures.
    */
   public static InterestRateFutureSecurityDefinition fromFixingPeriodStartDate(final ZonedDateTime fixingPeriodStartDate, final IborIndex iborIndex, final double notional,
-      final double paymentAccrualFactor, final String name) {
+      final double paymentAccrualFactor, final String name, final Calendar calendar) {
     ArgumentChecker.notNull(fixingPeriodStartDate, "Fixing period start date");
     ArgumentChecker.notNull(iborIndex, "Ibor index");
-    final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, -iborIndex.getSpotLag(), iborIndex.getCalendar());
-    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, iborIndex);
+    final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, -iborIndex.getSpotLag(), calendar);
+    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, iborIndex, calendar);
     return new InterestRateFutureSecurityDefinition(lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex, notional, paymentAccrualFactor, name);
   }
 
@@ -226,7 +230,7 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public InterestRateFutureSecurity toDerivative(ZonedDateTime date, Double data, String... yieldCurveNames) {
+  public InterestRateFutureSecurity toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
     return toDerivative(date, yieldCurveNames); //TODO Should disappear.
   }
 

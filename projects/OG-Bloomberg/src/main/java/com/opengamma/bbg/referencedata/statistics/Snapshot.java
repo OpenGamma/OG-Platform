@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-import com.opengamma.util.tuple.LongObjectPair;
+import com.opengamma.lambdava.tuple.LongObjectPair;
 
 /**
  * A snapshot of the statistics.

@@ -12,7 +12,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Tests the {@link HashMap2} implementation.

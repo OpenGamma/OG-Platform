@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.model.volatility.local;
 import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  *  A surface with gives the Dupire local volatility  as a function of time to maturity and some abstraction of strike

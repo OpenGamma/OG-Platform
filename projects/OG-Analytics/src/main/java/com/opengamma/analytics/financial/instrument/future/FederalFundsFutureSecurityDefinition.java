@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -110,20 +111,21 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    * @param notional The future notional.
    * @param paymentAccrualFactor The future payment accrual factor. Usually a standardized number of 1/12 for a 30-day future.
    * @param name The future name.
+   * @param calendar The holiday calendar for the overnight rate.
    * @return The future.
    */
   public static FederalFundsFutureSecurityDefinition from(final ZonedDateTime monthDate, final IndexON index, final double notional, final double paymentAccrualFactor,
-      final String name) {
+      final String name, final Calendar calendar) {
     ArgumentChecker.notNull(monthDate, "Reference date");
     ArgumentChecker.notNull(index, "Index overnight");
-    final ZonedDateTime periodFirstDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1));
-    final ZonedDateTime periodLastDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1).plusMonths(1));
-    final ZonedDateTime last = BUSINESS_DAY_PRECEDING.adjustDate(index.getCalendar(), periodLastDate.minusDays(1));
+    final ZonedDateTime periodFirstDate = BUSINESS_DAY_FOLLOWING.adjustDate(calendar, monthDate.withDayOfMonth(1));
+    final ZonedDateTime periodLastDate = BUSINESS_DAY_FOLLOWING.adjustDate(calendar, monthDate.withDayOfMonth(1).plusMonths(1));
+    final ZonedDateTime last = BUSINESS_DAY_PRECEDING.adjustDate(calendar, periodLastDate.minusDays(1));
     final List<ZonedDateTime> fixingList = new ArrayList<>();
     ZonedDateTime date = periodFirstDate;
     while (!date.isAfter(periodLastDate)) {
       fixingList.add(date);
-      date = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), date.plusDays(1));
+      date = BUSINESS_DAY_FOLLOWING.adjustDate(calendar, date.plusDays(1));
     }
     final ZonedDateTime[] fixingDate = fixingList.toArray(new ZonedDateTime[fixingList.size()]);
     final double[] fixingAccrualFactor = new double[fixingDate.length - 1];
@@ -138,12 +140,13 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    * The last trading date is the last good business day of the month. The notional is 5m. The payment accrual fraction is 1/12. The name is "FF" + month in format "MMMYY".
    * @param monthDate Any date in the future month.
    * @param index The overnight index.
+   * @param calendar The holiday calendar for the overnight rate.
    * @return The future.
    */
-  public static FederalFundsFutureSecurityDefinition fromFedFund(final ZonedDateTime monthDate, final IndexON index) {
+  public static FederalFundsFutureSecurityDefinition fromFedFund(final ZonedDateTime monthDate, final IndexON index, final Calendar calendar) {
     final double notionalFedFund = 5000000;
     final double accrualFedFund = 1.0 / 12.0;
-    return from(monthDate, index, notionalFedFund, accrualFedFund, "FF" + monthDate.toString(DateTimeFormatter.ofPattern("MMMyy")));
+    return from(monthDate, index, notionalFedFund, accrualFedFund, "FF" + monthDate.toString(DateTimeFormatter.ofPattern("MMMyy")), calendar);
   }
 
   /**

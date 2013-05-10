@@ -73,7 +73,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing of physical delivery swaption in LMM displaced diffusion.
@@ -83,7 +83,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar TARGET = EURIBOR6M.getCalendar();
+  private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
@@ -122,7 +122,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final PresentValueCurveSensitivityLMMDDCalculator PVCSLLC = PresentValueCurveSensitivityLMMDDCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-7;
-  private static final ParameterSensitivityParameterCalculator<LiborMarketModelDisplacedDiffusionProviderInterface> PS_LL_C = new ParameterSensitivityParameterCalculator<LiborMarketModelDisplacedDiffusionProviderInterface>(
+  private static final ParameterSensitivityParameterCalculator<LiborMarketModelDisplacedDiffusionProviderInterface> PS_LL_C = new ParameterSensitivityParameterCalculator<>(
       PVCSLLC);
   private static final ParameterSensitivityLMMDDDiscountInterpolatedFDCalculator PS_LL_FDC = new ParameterSensitivityLMMDDDiscountInterpolatedFDCalculator(PVLLC, SHIFT);
 
@@ -263,7 +263,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final int nbTest = 1000;
     final Period swapTenor = Period.ofYears(10);
     final Period expTenor = Period.ofYears(10);
-    final ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expTenor, EURIBOR6M);
+    final ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expTenor, EURIBOR6M, TARGET);
     final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, EURIBOR6M.getSpotLag(), TARGET);
     final LiborMarketModelDisplacedDiffusionParameters parametersLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
         SwapFixedIborDefinition.from(settleDate, swapTenor, EUR1YEURIBOR3M, NOTIONAL, 0.0, FIXED_IS_PAYER).getIborLeg());
@@ -333,7 +333,6 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final CouponFixed[] cpnFixed = new CouponFixed[swapTenorYear.length];
     final AnnuityCouponFixed legFixed = swaptionCalibration[swapTenorYear.length - 1].getUnderlyingSwap().getFixedLeg();
     final CouponIbor[] cpnIbor = new CouponIbor[2 * swapTenorYear.length];
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> legIbor = (Annuity<Payment>) swaptionCalibration[swapTenorYear.length - 1].getUnderlyingSwap().getSecondLeg();
     for (int loopexp = 0; loopexp < swapTenorYear.length; loopexp++) {
       cpnFixed[loopexp] = legFixed.getNthPayment(loopexp).withNotional(legFixed.getNthPayment(loopexp).getNotional() * amortization[loopexp]);
@@ -341,7 +340,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
       cpnIbor[2 * loopexp + 1] = ((CouponIbor) legIbor.getNthPayment(2 * loopexp + 1)).withNotional(((CouponIbor) legIbor.getNthPayment(2 * loopexp + 1)).getNotional() * amortization[loopexp]);
     }
 
-    final SwapFixedCoupon<Coupon> swapAmortized = new SwapFixedCoupon<Coupon>(new AnnuityCouponFixed(cpnFixed), new Annuity<Coupon>(cpnIbor));
+    final SwapFixedCoupon<Coupon> swapAmortized = new SwapFixedCoupon<>(new AnnuityCouponFixed(cpnFixed), new Annuity<Coupon>(cpnIbor));
     final SwaptionPhysicalFixedIbor swaptionAmortized = SwaptionPhysicalFixedIbor.from(swaptionCalibration[0].getTimeToExpiry(), swapAmortized, swaptionCalibration[0].getSettlementTime(), IS_LONG);
 
     final SwaptionPhysicalFixedIbor[] swaptionCalibration2 = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaptionAmortized);
@@ -355,7 +354,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     final SuccessiveRootFinderLMMDDCalibrationObjective objective = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParameters, EUR);
-    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<SABRSwaptionProviderInterface>(objective);
+    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objective);
     calibrationEngine.addInstrument(swaptionCalibration2, PVSSC);
     calibrationEngine.calibrate(SABR_MULTICURVES);
     final LiborMarketModelDisplacedDiffusionProviderInterface lmm = new LiborMarketModelDisplacedDiffusionProvider(MULTICURVES, lmmParameters, EUR);
@@ -388,7 +387,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final LiborMarketModelDisplacedDiffusionParameters lmmParametersShift = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     final SuccessiveRootFinderLMMDDCalibrationObjective objectiveShift = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParametersShift, EUR);
-    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngineShift = new SuccessiveRootFinderLMMDDCalibrationEngine<SABRSwaptionProviderInterface>(objectiveShift);
+    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngineShift = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objectiveShift);
     calibrationEngineShift.addInstrument(swaptionCalibration2, PVSSC);
     final LiborMarketModelDisplacedDiffusionProvider lmmBundleShift = new LiborMarketModelDisplacedDiffusionProvider(MULTICURVES, lmmParametersShift, EUR);
 
@@ -491,7 +490,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
       cpnIbor[2 * loopexp + 1] = ((CouponIborDefinition) legIbor.getNthPayment(2 * loopexp + 1)).withNotional(((CouponIborDefinition) legIbor.getNthPayment(2 * loopexp + 1)).getNotional()
           * amortization[loopexp]);
     }
-    final SwapFixedIborDefinition swapAmortizedDefinition = new SwapFixedIborDefinition(new AnnuityCouponFixedDefinition(cpnFixed), new AnnuityCouponIborDefinition(cpnIbor, EURIBOR6M));
+    final SwapFixedIborDefinition swapAmortizedDefinition = new SwapFixedIborDefinition(new AnnuityCouponFixedDefinition(cpnFixed), new AnnuityCouponIborDefinition(cpnIbor, EURIBOR6M, TARGET));
     final SwaptionPhysicalFixedIborDefinition swaptionAmortizedDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapAmortizedDefinition, IS_LONG);
     final SwaptionPhysicalFixedIbor swaptionAmortized = swaptionAmortizedDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
 

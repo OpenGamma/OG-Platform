@@ -24,7 +24,7 @@ import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Function repository configuration source for the functions contained in this package.

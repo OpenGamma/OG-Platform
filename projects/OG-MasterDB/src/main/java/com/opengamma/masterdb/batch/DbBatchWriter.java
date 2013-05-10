@@ -9,8 +9,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newConcurrentMap;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.opengamma.lambdava.streams.Lambdava.newArray;
 import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
-import static com.opengamma.util.functional.Functional.newArray;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -85,7 +85,7 @@ import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A batch master implementation using a database for persistence.

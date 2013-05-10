@@ -311,7 +311,7 @@ public class DependencyNode {
   /* package */void gatherTerminalOutputValues(final Map<ValueSpecification, ?> outputs) {
     for (Map.Entry<ValueSpecification, Boolean> output : _outputValues.entrySet()) {
       if (output.getValue() == Boolean.TRUE) {
-        if (outputs.containsKey(output.getKey())) {
+        if (!outputs.containsKey(output.getKey())) {
           outputs.put(output.getKey(), null);
         }
       }

@@ -31,7 +31,7 @@ import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Algorithm state. A context object is used by a single job thread. The root context is not used by any builder thread. The synchronization on the collation methods only is therefore sufficient.

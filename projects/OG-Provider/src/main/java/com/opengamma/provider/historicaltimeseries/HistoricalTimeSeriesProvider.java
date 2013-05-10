@@ -14,7 +14,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A provider of daily historical time-series.

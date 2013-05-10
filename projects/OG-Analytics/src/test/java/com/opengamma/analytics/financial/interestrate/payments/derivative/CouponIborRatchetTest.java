@@ -37,7 +37,7 @@ public class CouponIborRatchetTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX_IBOR = new IborIndex(CUR, TENOR_IBOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX_IBOR = new IborIndex(CUR, TENOR_IBOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2014, 9, 5);
   private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -50,7 +50,7 @@ public class CouponIborRatchetTest {
   private static final double[] CAP_COEF = new double[] {1.50, 1.00, 0.0050 };
   private static final double NOTIONAL = 1000000; //1m
   private static final CouponIborRatchetDefinition RATCHET_IBOR_DEFINITION = new CouponIborRatchetDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-      FIXING_DATE, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+      FIXING_DATE, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String FORWARD_CURVE_NAME = "Forward";

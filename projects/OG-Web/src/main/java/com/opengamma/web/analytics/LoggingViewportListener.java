@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Listens for changes to viewports and updates the logging configuration in the {@link ViewClient}.

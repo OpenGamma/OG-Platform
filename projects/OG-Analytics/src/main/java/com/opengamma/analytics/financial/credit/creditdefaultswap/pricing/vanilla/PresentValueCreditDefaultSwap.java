@@ -198,6 +198,7 @@ public class PresentValueCreditDefaultSwap {
 
     double thisPV = 0.0;
 
+    // Note the start index of this loop
     for (int i = 1; i < premiumLegSchedule.length; i++) {
 
       // ---------------------------
@@ -911,7 +912,7 @@ public class PresentValueCreditDefaultSwap {
     final int numberOfDays = 3000;
     ZonedDateTime rollingDate;
     for (int i = 0; i < numberOfDays; i++) {
-      rollingDate = valuationDate.plusDays(10000 + i);
+      rollingDate = valuationDate.plusDays(i);
       final double t = TimeCalculator.getTimeBetween(valuationDate, rollingDate, ACT_365);
       final double survivalProbability = calibratedHazardRateCurve.getSurvivalProbability(t);
       System.out.println("i = " + "\t" + i + "\t" + rollingDate + "\t" + survivalProbability);

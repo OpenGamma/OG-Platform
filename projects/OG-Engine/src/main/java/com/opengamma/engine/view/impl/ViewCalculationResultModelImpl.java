@@ -12,7 +12,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationResultModel;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A simple implementation of the calculation result model.

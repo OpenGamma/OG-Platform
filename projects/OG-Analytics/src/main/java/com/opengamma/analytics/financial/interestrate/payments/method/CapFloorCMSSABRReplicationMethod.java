@@ -34,7 +34,7 @@ import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price of a CMS cap/floor by swaption replication on a SABR formula.

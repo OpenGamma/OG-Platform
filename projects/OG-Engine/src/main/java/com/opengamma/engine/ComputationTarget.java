@@ -26,8 +26,8 @@ import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.functional.Function1;
 
 /**
  * A fully resolved target, sufficient for computation invocation.

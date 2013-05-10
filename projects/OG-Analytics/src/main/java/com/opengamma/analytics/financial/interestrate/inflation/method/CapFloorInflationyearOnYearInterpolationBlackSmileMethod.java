@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 

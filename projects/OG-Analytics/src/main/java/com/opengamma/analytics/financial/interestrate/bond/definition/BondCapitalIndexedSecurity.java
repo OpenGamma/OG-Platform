@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Describes a capital inflation indexed bond issue. Both the coupon and the nominal are indexed on a price index.

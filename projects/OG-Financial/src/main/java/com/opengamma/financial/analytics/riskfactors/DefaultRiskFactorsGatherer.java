@@ -78,7 +78,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Default implementation of {@link RiskFactorsGatherer}.

@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -50,10 +51,11 @@ public class DepositIborDefinition extends CashDefinition {
    * @param notional The deposit notional.
    * @param rate The deposit rate.
    * @param index The associated index.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The deposit.
    */
-  public static DepositIborDefinition fromStart(final ZonedDateTime startDate, final double notional, final double rate, final IborIndex index) {
-    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index);
+  public static DepositIborDefinition fromStart(final ZonedDateTime startDate, final double notional, final double rate, final IborIndex index, final Calendar calendar) {
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index, calendar);
     final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositIborDefinition(index.getCurrency(), startDate, endDate, notional, rate, accrualFactor, index);
   }
@@ -64,11 +66,12 @@ public class DepositIborDefinition extends CashDefinition {
    * @param notional The deposit notional.
    * @param rate The deposit rate.
    * @param index The associated index.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The deposit.
    */
-  public static DepositIborDefinition fromTrade(final ZonedDateTime tradeDate, final double notional, final double rate, final IborIndex index) {
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, index.getSpotLag(), index.getCalendar());
-    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index);
+  public static DepositIborDefinition fromTrade(final ZonedDateTime tradeDate, final double notional, final double rate, final IborIndex index, final Calendar calendar) {
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, index.getSpotLag(), calendar);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index, calendar);
     final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositIborDefinition(index.getCurrency(), startDate, endDate, notional, rate, accrualFactor, index);
   }

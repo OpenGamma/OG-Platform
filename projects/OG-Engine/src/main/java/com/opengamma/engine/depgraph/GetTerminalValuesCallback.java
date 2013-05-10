@@ -31,7 +31,7 @@ import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Handles callback notifications of terminal values to populate a graph set.

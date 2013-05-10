@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.BitSet;
 import java.util.HashMap;
@@ -46,9 +44,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Tests related to the sensitivity of swaptions to the Black volatility when SABR fitting and interpolation is used.
@@ -89,14 +87,14 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     VOLATILITIES_BLACK[2] = new double[][] { {0.33, 0.29, 0.27, 0.25, 0.24, 0.24, 0.24 }, {0.30, 0.27, 0.25, 0.23, 0.22, 0.22, 0.23 }, {0.31, 0.28, 0.26, 0.24, 0.23, 0.23, 0.24 },
         {0.29, 0.27, 0.26, 0.25, 0.24, 0.24, 0.25 } }; // 5Y
     for (int loopexpiry = 0; loopexpiry < NB_EXPIRY; loopexpiry++) {
-      EXPIRY_DATE[loopexpiry] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_TENOR[loopexpiry], USD6MLIBOR3M.getIborIndex());
+      EXPIRY_DATE[loopexpiry] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_TENOR[loopexpiry], USD6MLIBOR3M.getIborIndex(), NYC);
       EXPIRY_TIME[loopexpiry] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRY_DATE[loopexpiry]);
     }
   }
 
   private static final double NOTIONAL = 1000000;
   private static final Period EXPIRY_1_SWPT = Period.ofYears(2);
-  private static final ZonedDateTime EXPIRY_1_SWPT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_1_SWPT, USD6MLIBOR3M.getIborIndex());
+  private static final ZonedDateTime EXPIRY_1_SWPT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_1_SWPT, USD6MLIBOR3M.getIborIndex(), NYC);
   private static final ZonedDateTime SETTLE_1_SWPT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_1_SWPT_DATE, USD6MLIBOR3M.getSpotLag(), NYC);
   private static final Period MATURITY_1_SWPT = Period.ofYears(6);
   private static final double STRIKE_1 = 0.0250;
@@ -104,7 +102,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_1_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_1_SWPT_DATE, SWAP_1_DEFINITION, true);
 
   private static final Period EXPIRY_2_SWPT = Period.ofMonths(9);
-  private static final ZonedDateTime EXPIRY_2_SWPT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_2_SWPT, USD6MLIBOR3M.getIborIndex());
+  private static final ZonedDateTime EXPIRY_2_SWPT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_2_SWPT, USD6MLIBOR3M.getIborIndex(), NYC);
   private static final ZonedDateTime SETTLE_2_SWPT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_1_SWPT_DATE, USD6MLIBOR3M.getSpotLag(), NYC);
   private static final Period MATURITY_2_SWPT = Period.ofYears(4);
   private static final double STRIKE_2 = 0.0300;

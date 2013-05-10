@@ -46,13 +46,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 public class SwaptionPhysicalFixedIborBlackMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final Currency EUR = EURIBOR6M.getCurrency();
   // Data
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 10);
@@ -92,7 +92,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator PVBSSBSC = PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<BlackSwaptionFlatProviderInterface> PS_BS_C = new ParameterSensitivityParameterCalculator<BlackSwaptionFlatProviderInterface>(PVCSBSC);
+  private static final ParameterSensitivityParameterCalculator<BlackSwaptionFlatProviderInterface> PS_BS_C = new ParameterSensitivityParameterCalculator<>(PVCSBSC);
   private static final ParameterSensitivityBlackSwaptionDiscountInterpolatedFDCalculator PS_BS_FDC = new ParameterSensitivityBlackSwaptionDiscountInterpolatedFDCalculator(PVBSC, SHIFT);
 
   private static final BlackSwaptionSensitivityNodeCalculator BSSNC = new BlackSwaptionSensitivityNodeCalculator();

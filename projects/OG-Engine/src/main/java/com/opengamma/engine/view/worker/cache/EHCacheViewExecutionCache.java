@@ -8,6 +8,7 @@ package com.opengamma.engine.view.worker.cache;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -132,7 +133,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
         _nodeParameters[i] = node.getFunction().getParameters();
         _nodeFunctions[i] = node.getFunction().getFunction().getFunctionDefinition().getUniqueId();
         _nodeInputs[i] = node.getInputValues();
-        _nodeOutputs[i] = node.getOutputValues();
+        _nodeOutputs[i] = new HashSet<ValueSpecification>(node.getOutputValues());
         i++;
       }
       _terminalOutputs = graph.getTerminalOutputs();

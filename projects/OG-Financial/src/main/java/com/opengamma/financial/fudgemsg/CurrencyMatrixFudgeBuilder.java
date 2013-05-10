@@ -29,7 +29,7 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueR
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Fudge builder for a {@link CurrencyMatrix}. This handles the general case - matrices may typically be sparse so

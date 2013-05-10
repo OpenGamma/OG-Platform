@@ -46,7 +46,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  *  Test class for the replication method for CMS caplet/floorlet using a SABR smile with extrapolation.
@@ -56,7 +56,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
@@ -77,9 +77,9 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY = AnnuityCouponFixedDefinition.from(EUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,
       BUSINESS_DAY, IS_EOM, 1.0, RATE, FIXED_IS_PAYER);
   //Ibor leg: quarterly money
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, EURIBOR6M, !FIXED_IS_PAYER);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, EURIBOR6M, !FIXED_IS_PAYER, CALENDAR);
   // CMS coupon construction
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR, CALENDAR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, -EURIBOR6M.getSpotLag(), CALENDAR);
   private static final ZonedDateTime ACCRUAL_START_DATE = SETTLEMENT_DATE; // pre-fixed
@@ -120,7 +120,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalculator PVSSSSXC = new PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalculator(CUT_OFF_STRIKE, MU);
 
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface>(PVCSSSXC);
+  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<>(PVCSSSXC);
   private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSXC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;

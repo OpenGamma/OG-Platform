@@ -45,7 +45,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Implementation of {@link AvailableOutputs} that scans a function repository to give possible outputs available on a portfolio.
@@ -131,6 +131,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   private final class FunctionApplicator extends AbstractPortfolioNodeTraversalCallback {
 
+
     private final FunctionCompilationContext _context;
     private final Collection<CompiledFunctionDefinition> _functions;
     private final FunctionExclusionGroups _functionExclusionGroups;
@@ -160,7 +161,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       }
       for (final Pair<List<ValueRequirement>, Set<ValueSpecification>> entry : entries) {
         boolean subset = true;
-        for (final ValueRequirement entryKey : entry.getKey()) {
+        for (final ValueRequirement entryKey : entry._1()) {
           if (!visited.contains(entryKey)) {
             subset = false;
             break;
@@ -170,7 +171,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           //s_logger.debug("Cache hit on {}", requirement);
           //s_logger.debug("Cached parent = {}", entry.getKey());
           //s_logger.debug("Active parent = {}", visited);
-          return entry.getValue();
+          return entry._2();
         }
       }
       return null;

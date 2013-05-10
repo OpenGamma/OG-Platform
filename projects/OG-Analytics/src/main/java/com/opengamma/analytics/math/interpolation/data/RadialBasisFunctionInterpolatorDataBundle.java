@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.linearalgebra.Decomposition;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.linearalgebra.DecompositionResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 
