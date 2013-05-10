@@ -26,7 +26,9 @@ $.register_module({
                             $selector.find('table').css('marginTop', '25px');
                             $msg.slideDown().on('click', '.og-link', function () {$msg.slideUp(null, gadget.update);});
                         }
-                    } else {$selector.html('No log information available'), instantiated = null;}
+                    } else {$selector.html('No log information available').css({
+                        background: '#f8f8f8', padding: '5px'
+                    }), instantiated = null;}
                 });
             };
             gadget.die = function () {try {gadget.dataman.kill();} catch (error) {}};
