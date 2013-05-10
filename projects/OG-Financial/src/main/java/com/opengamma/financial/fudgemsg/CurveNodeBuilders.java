@@ -153,8 +153,11 @@ import com.opengamma.util.time.Tenor;
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
       final String dataField = message.getString(DATA_FIELD_FIELD);
-      final DiscountFactorNode strip = new DiscountFactorNode(curveNodeIdMapperName, tenor, dataField);
-      return strip;
+      if (dataField == null) {
+        return new DiscountFactorNode(curveNodeIdMapperName, tenor);
+      } else {
+        return new DiscountFactorNode(curveNodeIdMapperName, tenor, dataField);
+      }
     }
   }
 
