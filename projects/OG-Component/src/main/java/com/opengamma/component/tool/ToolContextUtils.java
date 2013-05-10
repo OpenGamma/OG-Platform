@@ -5,11 +5,16 @@
  */
 package com.opengamma.component.tool;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import net.sf.ehcache.util.NamedThreadFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.lang.StringUtils;
@@ -118,7 +123,17 @@ public final class ToolContextUtils {
             continue;
           }
           if (ViewProcessor.class.equals(componentInfo.getType())) {
-            toolContext.setViewProcessor(constructViewProcessor(componentInfo));
+            final JmsConnector jmsConnector = createJmsConnector(componentInfo);
+            final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("rvp"));
+            ViewProcessor vp = new RemoteViewProcessor(componentInfo.getUri(), jmsConnector, scheduler);
+            toolContext.setViewProcessor(vp);
+            toolContext.setContextManager(new Closeable() {
+              @Override
+              public void close() throws IOException {
+                scheduler.shutdownNow();
+                jmsConnector.close();
+              }
+            });
           } else {
             String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
             if (clazzName == null) {
@@ -137,16 +152,15 @@ public final class ToolContextUtils {
     }
     return toolContext;
   }
-  
-  private static ViewProcessor constructViewProcessor(ComponentInfo info) {
+
+  private static JmsConnector createJmsConnector(ComponentInfo info) {
     JmsConnectorFactoryBean jmsConnectorFactoryBean = new JmsConnectorFactoryBean();
     jmsConnectorFactoryBean.setName("ToolContext JMS Connector");
     String jmsBroker = info.getAttribute(ComponentInfoAttributes.JMS_BROKER_URI);
     URI jmsBrokerUri = URI.create(jmsBroker);
     jmsConnectorFactoryBean.setClientBrokerUri(jmsBrokerUri);
     jmsConnectorFactoryBean.setConnectionFactory(new ActiveMQConnectionFactory(jmsBrokerUri));
-    JmsConnector jmsConnector = jmsConnectorFactoryBean.getObject();
-    return new RemoteViewProcessor(info.getUri(), jmsConnector, Executors.newSingleThreadScheduledExecutor());
+    return jmsConnectorFactoryBean.getObjectCreating();
   }
 
   private static ComponentInfo getComponentInfo(ComponentServer componentServer, List<String> preferenceList, Class<?> type) {
