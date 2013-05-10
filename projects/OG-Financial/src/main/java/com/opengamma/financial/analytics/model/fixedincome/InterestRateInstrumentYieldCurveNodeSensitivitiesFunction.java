@@ -150,7 +150,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final boolean permissive = OpenGammaCompilationContext.isPermissive(context);
     Set<String> requestedCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
     if (!permissive && (requestedCurveNames == null || requestedCurveNames.isEmpty())) {
-      s_logger.error("Must specify a single curve name; have {}", requestedCurveNames);
+      s_logger.info("Must specify a single curve name; have {}", requestedCurveNames);
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
@@ -158,7 +158,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
-      s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
+      s_logger.info("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
@@ -170,13 +170,13 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     } else {
       final Set<String> intersection = YieldCurveFunctionUtils.intersection(requestedCurveNames, availableCurveNames);
       if (intersection.isEmpty()) {
-        s_logger.error("None of the requested curves {} are available in curve calculation configuration called {}", requestedCurveNames, curveCalculationConfigName);
+        s_logger.info("None of the requested curves {} are available in curve calculation configuration called {}", requestedCurveNames, curveCalculationConfigName);
         return null;
       }
       requestedCurveNames = intersection;
     }
     if (!permissive && (requestedCurveNames.size() != 1)) {
-      s_logger.error("Must specify single curve name constraint, got {}", requestedCurveNames);
+      s_logger.info("Must specify single curve name constraint, got {}", requestedCurveNames);
       return null;
     }
     final String curve = requestedCurveNames.iterator().next();
