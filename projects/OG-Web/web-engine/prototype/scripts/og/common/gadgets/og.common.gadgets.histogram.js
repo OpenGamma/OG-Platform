@@ -21,11 +21,6 @@ $.register_module({
                 try {histogram.resize();}
                 catch (error) {}
             };
-            var prepare_data = function (data) {
-                stripped = data.timeseries.data.reduce(function (a, b){return a.concat(b[1]);}, []);
-                stripped.sort(function(a,b) {return (b -a)});
-                samples = stripped.length;
-            };
             var calc_vars = function () {
                 return false;
               //if (stripped[stripped.length - 1] > 0) return false;
@@ -38,7 +33,7 @@ $.register_module({
               //  cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
               //}
             }
-            var histogram_data = function (data) {
+            var histogram_data = function () {
                 var max_buckets = 50, min_buckets = 10,
                     bucket_calc = Math.ceil(Math.sqrt(samples));
                 buckets = bucket_calc < max_buckets ? bucket_calc : max_buckets;
@@ -92,15 +87,23 @@ $.register_module({
                 });
                 return {norm_pdf_data:norm};
             };
+            var prepare_data = function (data) {
+                stripped = data.timeseries.data.reduce(function (a, b){return a.concat(b[1]);}, []);
+                stripped.sort(function(a,b) {return (b -a)});
+                samples = stripped.length;
+                return $.extend(true, {}, config, histogram_data()/*, normpdf_data()*/,
+                    {callback: bucket_data}, bucket_range(), {vars : calc_vars()}, {update : update});
+            };
+            var update = function () {
+                return prepare_data(gadget.data);
+            };
             gadget.dataman = new og.analytics.Cell({
                 source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'histogram')
                 .on('data', function (value) {
-                    var input, data = typeof value.v !== 'undefined' ? value.v : value;
-                    if (!histogram && data && (typeof data === 'object')) {
-                        prepare_data(data);
-                        input = $.extend(true, {}, config, histogram_data(data)/*, normpdf_data()*/,
-                            {callback: bucket_data}, bucket_range(), {vars : calc_vars()});
-                        histogram = new og.common.gadgets.HistogramPlot(input);
+                    gadget.data = typeof value.v !== 'undefined' ? value.v : value;
+                    if (!histogram && gadget.data && (typeof gadget.data === 'object')) {
+                        //console.log(gadget.data);
+                        histogram = new og.common.gadgets.HistogramPlot(prepare_data(gadget.data));
                     }
                 })
                 .on('fatal', function (message) {$selector.html(message);});

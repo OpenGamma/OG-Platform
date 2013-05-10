@@ -23,6 +23,11 @@ $.register_module({
             gadget.alive = function () {
                 return !!$('.' + alive).length;
             };
+            gadget.update = function (config) {
+                $plot.setData(config);
+                $plot.setupGrid();
+                $plot.draw();
+            }
             show_tooltip = function (x, y, contents) {
                 $('<div id="tooltip">' + contents + '</div>').css( {
                     position: 'absolute', display: 'none', top: y - 70, left: x - 20,
@@ -35,18 +40,24 @@ $.register_module({
                     $selector = $(selector);
                     $selector.html((Handlebars.compile(plot_template))({alive: alive, buckets: config.buckets}));
                     $selector.find('.og-bucket-mid').addClass('OG-link-active');
-                    $selector.find('span').bind('click', function (event) {
-                        var $elm = $(event.target), new_data = config.callback($elm .attr('name'));
+                    $selector.find('span.og-bucket-select').bind('click', function (event) {
+                        var $elm = $(event.target), rebucket_data = config.callback($elm .attr('name'));
                         $elm.siblings().removeClass('OG-link-active');
                         $elm.addClass('OG-link-active');
-                        $plot.setData(get_data(new_data));
+                        $plot.setData(plot_data(rebucket_data));
+                        $plot.setupGrid();
+                        $plot.draw();
+                    });
+                    $selector.find('span.og-histogram-refresh').bind('click', function (event) {
+                        $plot.setData(plot_data(config.update()));
                         $plot.setupGrid();
                         $plot.draw();
                     });
                     gadget.resize();
                 });
             };
-            var get_data = function (input) {
+
+            var plot_data = function (input) {
                 return data = [
                 {
                     label: 'Histogram', hoverable: true,
@@ -76,7 +87,7 @@ $.register_module({
                     legend: {show: false},
                     bars: {show: true, lineWidth: 0, barWidth: 0, fill: true, align: 'left', horizontal: false}
                 };
-                $plot = $.plot($(selector + ' .og-histogram-plot'), get_data(), options);
+                $plot = $.plot($(selector + ' .og-histogram-plot'), plot_data(), options);
                 if(config.vars){
                     var99pos = $plot.pointOffset({ x: config.vars.var99, y: 0});
                     var95pos = $plot.pointOffset({ x: config.vars.var95, y: 0});
