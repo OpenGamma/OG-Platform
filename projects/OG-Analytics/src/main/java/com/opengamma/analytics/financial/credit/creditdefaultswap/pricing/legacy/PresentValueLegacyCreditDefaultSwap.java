@@ -69,13 +69,6 @@ public class PresentValueLegacyCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    /*
-    // If we require the clean price, then calculate the accrued interest and add this to the PV
-    if (priceType == PriceType.CLEAN) {
-      presentValue += (cds.getParSpread() / 10000.0) * presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, cds);
-    }
-    */
-
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
       presentValue = -1 * presentValue;
