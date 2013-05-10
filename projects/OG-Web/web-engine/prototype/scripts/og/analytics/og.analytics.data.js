@@ -11,9 +11,8 @@ $.register_module({
             var pool = this, children = [], parents = [];
             pool.add = function (data) {children.push(data);};
             pool.parent = function (data) {
-                var parent, source;
+                var parent, source = Object.clone(data.source);
                 if (data.pool) return null;
-                source = JSON.parse(JSON.stringify(data.source)); // make a copy
                 ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]}); // normalize sources
                 parent = parents.filter(function (parent) {return Object.equals(parent.source, source);});
                 if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
@@ -213,7 +212,7 @@ $.register_module({
                 if (nonsensical_viewport(new_viewport))
                     return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
                 if (Object.equals(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
-                viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
+                viewport_cache = Object.clone(data.meta.viewport = viewport = new_viewport);
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 try { // viewport definitions come from outside, so try/catch
                     (promise = viewports.put({

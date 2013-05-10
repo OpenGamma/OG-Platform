@@ -50,7 +50,8 @@ $.register_module({
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var css = {
-                    prefix: id, index: idx + (offset || 0), left: partial, right: total_width - partial - val.width
+                    prefix: id, index: idx + (offset || 0),
+                    left: partial, right: total_width - partial - val.width, left_min_one: partial - 1
                 };
                 return (partial += val.width), css;
             });
@@ -198,7 +199,7 @@ $.register_module({
             grid.formatter = new og.common.grid.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
             grid.meta = null;
-            grid.state = {col_override: [], col_reorder: [], nodes: null, structure: null};
+            grid.state = {col_override: [], col_reorder: [], nodes: null, structure: null, highlight: null};
             grid.source = config.source;
             grid.updated = (function (last, delta) {
                 return function (time) {
@@ -353,7 +354,7 @@ $.register_module({
             elements.empty = false;
         };
         var init_grid = function (metadata) {
-            var grid = this, config = grid.config, meta = grid.meta = JSON.parse(JSON.stringify(metadata)); // a copy
+            var grid = this, config = grid.config, meta = grid.meta = Object.clone(metadata);
             ['show_sets', 'show_views'].forEach(function (key) {meta[key] = key in config ? config[key] : true;});
             meta.show_save = 'show_save' in config ? config['show_save'] : false;
             meta.viewport = {format: 'CELL'};
@@ -389,7 +390,7 @@ $.register_module({
         var reorder_cols = function () {
             var grid = this, meta = grid.meta, columns, reorder, scrolls, sets;
             if (!grid.state.col_reorder.length) return false;
-            columns = (meta = grid.meta = $.extend(grid.meta, JSON.parse(JSON.stringify(grid.dataman.meta)))).columns;
+            columns = (meta = grid.meta = $.extend(grid.meta, Object.clone(grid.dataman.meta))).columns;
             reorder = grid.state.col_reorder.slice(meta.fixed_length)
                 .map(function (value) {return value - meta.fixed_length;});
             scrolls = columns.scroll.reduce(function (acc, set, idx) {
@@ -439,27 +440,31 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, fixed, loading) {
-                var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, i, j, index,
-                    data_row, inner = meta.inner, prefix, cols = meta.viewport.cols, rows = meta.viewport.rows,
+                var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, row, col,
+                    index, data_row, data_col, inner = meta.inner, prefix,
+                    cols = meta.viewport.cols, rows = meta.viewport.rows, highlight = state.highlight,
                     grid_row = state.available.indexOf(rows[0]), types = meta.columns.types, type,
                     total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
                     col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
                     widths = meta.columns.widths, result = {rows: [], loading: loading};
                 if (loading) return result;
-                for (i = 0; i < row_len; i += 1) {
-                    result.rows.push({top: row_height * grid_row++, cells: (cells = []), data_row: data_row = rows[i]});
-                    if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
-                    for (; j < col_end; j += 1) {
-                        index = i * total_cols + j;
-                        column = state.col_reorder.length ? state.col_reorder.indexOf(cols[j]) : cols[j];
+                for (row = 0; row < row_len; row += 1) {
+                    result.rows
+                        .push({top: row_height * grid_row++, cells: (cells = []), data_row: data_row = rows[row]});
+                    if (fixed) {col = 0; col_end = col_len;} else {col = fixed_len; col_end = col_len + fixed_len;}
+                    for (; col < col_end; col += 1) {
+                        data_col = cols[col];
+                        index = row * total_cols + col;
+                        column = state.col_reorder.length ? state.col_reorder.indexOf(data_col) : data_col;
                         value = formatter[type = types[column]] ?
                             data[index] && formatter[type](data[index], widths[column], row_height)
                                 : data[index] && data[index].v || '';
-                        prefix = fixed && j === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
+                        prefix = fixed && col === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
                             state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
                         cells.push({
                             column: column, value: prefix + value, type: data[index].t || type,
+                            highlight: highlight && highlight.row === data_row && highlight.col === data_col,
                             logging: data[index] && data[index][logging], error: data[index] && data[index].error
                         });
                     }
@@ -655,7 +660,14 @@ $.register_module({
         };
         Grid.prototype.fire = og.common.events.fire;
         Grid.prototype.highlight = function (row, col) {
-//            console.log('Highlight', row, col);
+            var grid = this, meta = grid.meta, viewport = meta && meta.viewport,
+                data = grid.data, highlit = !!grid.state.highlight;
+            grid.state.highlight = arguments.length ? {row: row, col: col} : null;
+            if (data && ~viewport.rows.indexOf(row) && ~viewport.cols.indexOf(col)) // grid is ready and has this cell
+                return render_rows.call(grid, data), grid;
+            if (data && highlit && !grid.state.highlight) // grid is ready and should un-highlit
+                return render_rows.call(grid, data), grid;
+            return grid;
         };
         Grid.prototype.kill = function () {
             var grid = this;
@@ -734,6 +746,7 @@ $.register_module({
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
                 scroll_left: columns.width.fixed, set_height: meta.set_height, sparklines: grid.config.sparklines,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
+                row_height_min_one: row_height - 1,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });

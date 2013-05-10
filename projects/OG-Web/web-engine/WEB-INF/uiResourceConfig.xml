@@ -218,6 +218,7 @@
     <fragment>/scripts/lib/js.ext.array.prototype.pluck.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.trim.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.clone.js</fragment>
     <fragment>/scripts/lib/js.ext.object.create.js</fragment>
     <fragment>/scripts/lib/js.ext.object.equals.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>

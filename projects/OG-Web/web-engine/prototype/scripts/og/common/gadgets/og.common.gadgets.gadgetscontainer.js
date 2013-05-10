@@ -202,8 +202,7 @@ $.register_module({
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
-                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
-                        options = JSON.parse(JSON.stringify(obj.options)), // make a copy
+                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget, options = Object.clone(obj.options),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
                     $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
@@ -267,8 +266,8 @@ $.register_module({
                     else $tab.removeClass('og-focus'), $box.removeClass('og-focus');
                 };
                 // Highlight grid cell
-                options = JSON.parse(JSON.stringify(container.gadgets()
-                    .filter(function (val) {return !!val.active})[0].config.options));
+                options = Object
+                    .clone(container.gadgets().filter(function (val) {return !!val.active})[0].config.options);
                 containers.fire('cellhighlight', options.source, options.row, options.col);
             };
             container.init = function (data) {

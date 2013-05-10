@@ -13,14 +13,11 @@ $.register_module({
                 show_sets: false, show_views: false, collapse_level: 1,
                 source: $.extend({depgraph: true, row: config.row, col: config.col}, config.source)
             });
+            if (!og.analytics.containers) return; // highlighting only works in analytics view (for now)
             og.analytics.containers.on('cellhighlight', highlight = function (parent, row, col) {
-                if (!Object.equals(parent, depgraph.source)) return;
-                depgraph.highlight(row, col);
+                if (Object.equals(parent, depgraph.source)) depgraph.highlight(row, col); else depgraph.highlight();
             });
-            depgraph.kill = function () {
-                Grid.prototype.kill.call(depgraph);
-                og.analytics.containers.off('cellhighlight', highlight);
-            }
+            depgraph.on('kill', function () {og.analytics.containers.off('cellhighlight', highlight);});
         };
         Depgraph.prototype = Object.create(Grid.prototype);
         Depgraph.prototype.label = 'depgraph';

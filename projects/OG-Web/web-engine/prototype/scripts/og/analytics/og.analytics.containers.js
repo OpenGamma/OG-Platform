@@ -32,7 +32,8 @@ $.register_module({
         containers.fire = og.common.events.fire;
         containers.on('cellhighlight', function (source, row, col) {
             if (!og.analytics.grid) return;
-            if (Object.equals(source, og.analytics.grid.source)) og.analytics.grid.highlight(row, col);
+            if (Object.equals(source, og.analytics.grid.source)) return og.analytics.grid.highlight(row, col);
+            og.analytics.grid.highlight();
         })
         return containers;
     }
