@@ -405,10 +405,12 @@ public final class DependencyGraphBuilder implements Cancelable {
   /**
    * Adds resolution of the given requirement to the run queue. Resolution will start as soon as possible and be available as pending for any tasks already running that require resolution of the
    * requirement.
+   * <p>
+   * This may not be called concurrently because of the way the root/global context gets used. Everything that calls it should hold the {@link #_completionLock} monitor.
    * 
    * @param requirement the requirement to resolve
    */
-  protected void addTargetImpl(final ValueRequirement requirement) {
+  private void addTargetImpl(final ValueRequirement requirement) {
     final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
     resolvedValue.addCallback(getContext(), getTerminalValuesCallback());
     _pendingRequirements.add(getContext(), resolvedValue);
@@ -535,7 +537,7 @@ public final class DependencyGraphBuilder implements Cancelable {
       int cancelled = 0;
       final GraphBuildingContext context = new GraphBuildingContext(this);
       for (final ResolveTask task : activeTasks) {
-        cancelled += task.cancelLoopMembers(getContext(), visited);
+        cancelled += task.cancelLoopMembers(context, visited);
       }
       getContext().mergeThreadContext(context);
       s_logger.info("Cancelled {} looped tasks", cancelled);
