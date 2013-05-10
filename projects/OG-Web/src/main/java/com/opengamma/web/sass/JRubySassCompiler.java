@@ -22,11 +22,13 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
 
 /**
+ * Jruby sass compiler
  * 
+ * <p> Uses Jruby complete and sass-gem to compile scss/sass to css. <p>
  */
-public final class RubySassCompiler {
+public final class JRubySassCompiler {
   
-  private static final RubySassCompiler s_instance = new RubySassCompiler();
+  private static final JRubySassCompiler s_instance = new JRubySassCompiler();
   
   /**
    * Jruby GEMS_PATH
@@ -43,14 +45,14 @@ public final class RubySassCompiler {
   
   private String _options;
   
-  private RubySassCompiler() {
+  private JRubySassCompiler() {
     
     File cacheLocation = new File(new File(System.getProperty("java.io.tmpdir")), "sass-cache");
     _options = ":syntax => :scss, :always_update => true, :style => :expanded, :cache_location => '" + cacheLocation.toString() + "'";
   }
   
   private static void extractRubySassGem() {
-    ClassLoader classLoader = RubySassCompiler.class.getClassLoader();
+    ClassLoader classLoader = JRubySassCompiler.class.getClassLoader();
     URL sassGemUrl = classLoader.getResource(SASS_GEM_RESOURCE);
       
     if (sassGemUrl == null) {
@@ -67,7 +69,7 @@ public final class RubySassCompiler {
     return new File(FileUtils.getUserDirectoryPath(), ".opengamma" + java.io.File.separator + "gems");
   }
 
-  public static RubySassCompiler getInstance() {
+  public static JRubySassCompiler getInstance() {
     return s_instance;
   }
 
