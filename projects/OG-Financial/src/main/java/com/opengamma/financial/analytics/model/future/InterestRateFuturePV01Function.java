@@ -18,7 +18,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
  *
@@ -34,11 +33,10 @@ public class InterestRateFuturePV01Function extends InterestRateFutureCurveSpeci
   protected Set<ComputedValue> getResults(final InstrumentDerivative irFuture, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final YieldCurveBundle curves, final ValueSpecification resultSpec, final Security security) {
     final Map<String, Double> pv01 = CALCULATOR.visit(irFuture, curves);
-    final String fullCurveName = curveName + "_" + FinancialSecurityUtils.getCurrency(security).getCode();
-    if (!pv01.containsKey(fullCurveName)) {
+    if (!pv01.containsKey(curveName)) {
       throw new OpenGammaRuntimeException("Could not get PV01 for curve named " + curveName + "; should never happen");
     }
-    return Collections.singleton(new ComputedValue(resultSpec, pv01.get(fullCurveName)));
+    return Collections.singleton(new ComputedValue(resultSpec, pv01.get(curveName)));
   }
 
 }

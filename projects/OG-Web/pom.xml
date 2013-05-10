@@ -91,10 +91,6 @@
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
     </dependency>
-    <dependency>
-      <groupId>me.n4u.sass</groupId>
-      <artifactId>sass-gems</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.testng</groupId>

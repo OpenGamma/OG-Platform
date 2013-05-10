@@ -22,11 +22,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -41,7 +43,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.id.ExternalId;
@@ -49,6 +50,7 @@ import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -90,13 +92,19 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
       stdVolSurface = getSurfaceFromVolatilityQuote(valDate, rawSurface);
     } else if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
+      // Get the discount curve
+      final Object discountCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
+      if (discountCurveObject == null) {
+        throw new OpenGammaRuntimeException("Could not get discount curve");
+      }
+      final YieldCurve discountCurve = (YieldCurve) discountCurveObject;
       // Get the forward curve
       final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
       if (forwardCurveObject == null) {
         throw new OpenGammaRuntimeException("Could not get forward curve");
       }
       final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
-      stdVolSurface = getSurfaceFromPriceQuote(valDate, rawSurface, forwardCurve, specification);
+      stdVolSurface = getSurfaceFromPriceQuote(valDate, rawSurface, forwardCurve, discountCurve, specification);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle quote units " + surfaceQuoteUnits);
     }
@@ -172,17 +180,31 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     requirements.add(surfaceReq);
     requirements.add(specificationReq);
     if (quoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
-      final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-      if (curveNames == null || curveNames.size() != 1) {
+      // We require forward and discount curves to imply the volatility
+      final Set<String> curveNameValues = constraints.getValues(ValuePropertyNames.CURVE); 
+      if (curveNameValues == null || curveNameValues.size() != 1) {
         return null;
       }
-//      final Set<String> curveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
-//      if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
-//        return null;
-//      }
-      final String curveName = Iterables.getOnlyElement(curveNames);
-      //TODO get rid of hard-coding and add to properties
-      final String curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD; //Iterables.getOnlyElement(curveCalculationMethods);
+      final Set<String> curveCalculationValues = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG); 
+      if (curveCalculationValues == null || curveCalculationValues.size() != 1) {
+        return null;
+      }
+      final Set<String> curveCurrencyValues = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY); 
+      if (curveCurrencyValues == null || curveCurrencyValues.size() != 1) {
+        return null;
+      }
+      final String curveName = Iterables.getOnlyElement(curveNameValues);
+      final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationValues);
+      final Currency ccy = Currency.of(Iterables.getOnlyElement(curveCurrencyValues));
+      // DiscountCurve
+      final ValueProperties fundingProperties = ValueProperties.builder()  // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
+          .with(ValuePropertyNames.CURVE, curveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+          .get();
+      final ValueRequirement discountCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(ccy), fundingProperties);
+      requirements.add(discountCurveRequirement);
+      // ForwardCurve
+      final String curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD; // TODO Remove hard-coding of forward curve calculation method by adding as property
       final ValueProperties curveProperties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, curveName)
           .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod)
@@ -243,7 +265,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
   }
 
   private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final LocalDate valDate, final VolatilitySurfaceData<Number, Double> rawSurface,
-      final ForwardCurve forwardCurve, final VolatilitySurfaceSpecification specification) {
+      final ForwardCurve forwardCurve, final YieldCurve discountCurve, final VolatilitySurfaceSpecification specification) {
     final String surfaceQuoteType = specification.getSurfaceQuoteType();
     double callAboveStrike = 0;
     if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
@@ -257,20 +279,22 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     for (final Number nthExpiry : xAsNumbers) {
       final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
       final double forward = forwardCurve.getForward(t);
+      final double zerobond = discountCurve.getDiscountFactor(t);
       if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
         Double[] ysAsDoubles = getYs(rawSurface.getYs());
         for (final Double strike : ysAsDoubles) {
           final Double price = rawSurface.getVolatility(nthExpiry, strike);
           if (price != null) {
+            final double fwdPrice = price / zerobond;
             try {
               final double vol;
               if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
-                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
+                vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, true);
               } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.PUT_STRIKE)) {
-                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, false);
+                vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, false);
               } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
                 final boolean isCall = strike > callAboveStrike ? true : false;
-                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, isCall);
+                vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, isCall);
               } else {
                 throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
               }

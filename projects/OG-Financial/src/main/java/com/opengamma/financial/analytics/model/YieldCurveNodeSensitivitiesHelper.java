@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import org.apache.commons.lang.ArrayUtils;
 import org.threeten.bp.LocalDate;
 
@@ -123,7 +125,14 @@ public class YieldCurveNodeSensitivitiesHelper {
       startIndex += ((YieldCurve) bundle.getCurve(name)).getCurve().size();
     }
     final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-    final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
+    final Double[] keys;
+    if (curve instanceof YieldCurve) {
+       keys = ((YieldCurve) curve).getCurve().getXData();
+    } else if (curve instanceof DiscountCurve) {
+       keys = ((DiscountCurve) curve).getCurve().getXData();
+    } else {
+        throw new OpenGammaRuntimeException("Cant get underlying curve from: " + curve);
+    }
     final double[] values = new double[nSensitivities];
     final Object[] labels = YieldCurveLabelGenerator.getHybridLabels(curveSpec);
     for (int i = 0; i < nSensitivities; i++) {

@@ -81,8 +81,10 @@ public final class ZipUtils {
 
   private static void createDir(File dir) {
     s_logger.debug("Creating dir {}", dir.getName());
-    if (!dir.mkdirs()) {
-      throw new OpenGammaRuntimeException("Can not create dir " + dir);
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) {
+        throw new OpenGammaRuntimeException("Can not create dir " + dir);
+      }
     }
   }
 

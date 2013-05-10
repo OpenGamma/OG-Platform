@@ -19,12 +19,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -72,6 +74,8 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
   private static final String VIEW_NAME_OPTION = "v";
   /** Valuation time command line option. */
   private static final String VALUATION_TIME_OPTION = "t";
+  /** Take data from historical timeseries */
+  private static final String HISTORICAL_OPTION = "historical";
   /** Time format: yyyyMMdd */
   private static final DateTimeFormatter VALUATION_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
@@ -110,8 +114,9 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     } else {
       valuationInstant = Instant.now();
     }
+    final boolean historicalInput = getCommandLine().hasOption(HISTORICAL_OPTION);
 
-    final MarketDataSpecification marketDataSpecification = MarketData.live();
+    final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
     final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationInstant, marketDataSpecification, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
 
     final List<RemoteViewProcessor> viewProcessors = getRemoteComponentFactory().getViewProcessors();
@@ -160,6 +165,7 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     final Options options = super.createOptions();
     options.addOption(createViewNameOption());
     options.addOption(createValuationTimeOption());
+    options.addOption(createHistoricalOption());
     return options;
   }
 
@@ -173,6 +179,11 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
   private static Option createValuationTimeOption() {
     final Option option = new Option(VALUATION_TIME_OPTION, "valuationTime", true, "the valuation time, HH:mm[:ss] (defaults to now)");
     option.setArgName("valuation time");
+    return option;
+  }
+
+  private static Option createHistoricalOption() {
+    final Option option = new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
     return option;
   }
 

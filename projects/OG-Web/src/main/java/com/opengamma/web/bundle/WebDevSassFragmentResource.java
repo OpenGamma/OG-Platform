@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.common.io.Files;
-import com.opengamma.web.sass.RubySassCompiler;
+import com.opengamma.web.sass.JRubySassCompiler;
 
 /**
  * RESTful resource for a Sass fragment in development mode.
@@ -26,7 +26,7 @@ import com.opengamma.web.sass.RubySassCompiler;
 @Path("/bundles/sass/{fragment: .*}")
 public class WebDevSassFragmentResource extends AbstractWebBundleResource {
     
-  private static final RubySassCompiler s_sassCompiler = RubySassCompiler.getInstance();
+  private static final JRubySassCompiler s_sassCompiler = JRubySassCompiler.getInstance();
   
   private static final File CSS_DIR = new File(System.getProperty("java.io.tmpdir"), ".og-css");
   
