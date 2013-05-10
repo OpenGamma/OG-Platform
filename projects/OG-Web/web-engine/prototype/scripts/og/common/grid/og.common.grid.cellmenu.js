@@ -12,12 +12,12 @@ $.register_module({
             expand_class = 'og-expanded',
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
             width,
-            mapping = og.common.gadgets.mapping;
+            mapping = og.common.gadgets.mapping, scroll_size = og.common.util.scrollbar_size;
         var hide_menu = function (grid, cell) {
             var depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
                 portfolio = !depgraph && !primitives, blotter = !!grid.source.blotter;
             if (!!cell.value.logLevel) return false;                                    // always show if log exists
-            if (cell.right > grid.elements.parent.width()) return true;                 // end of the cell not visible
+            if (cell.right > grid.elements.parent.width() - scroll_size) return true;   // end of the cell not visible
             if (blotter && cell.col) return true;                                       // all blotter cols except 1st
             if (cell.type === 'NODE') return true;                                      // is node
             if (!portfolio && cell.col === 0) return true;                              // 1st column of non-portfolio
