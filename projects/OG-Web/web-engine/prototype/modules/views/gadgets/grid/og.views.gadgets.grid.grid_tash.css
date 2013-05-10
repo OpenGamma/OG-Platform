@@ -19,7 +19,8 @@
 {{id}} .OG-g-h-fixed {width: {{fixed_width}}px}
 {{id}} .OG-g-b {top: {{header_height}}px;}
 {{id}} .OG-g-h-cols {top: {{set_height}}px}
-{{id}} .OG-g-row, .OG-g-cell {height: {{row_height}}px;}
+{{id}} .OG-g-row, .OG-g-cell {height: {{row_height}}px; line-height: {{row_height}}px;}
+{{id}} .OG-g-cell.og-cell-highlight {height: {{row_height_min_one}}px;}
 {{id}} .OG-g-rest {
     position: absolute;
     background: #fff;
@@ -35,6 +36,7 @@
 {{/each}}
 {{#each columns}}
     {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
+    {{prefix}} .OG-g .c{{index}}.OG-g-cell.og-cell-highlight {left: {{left_min_one}}px;}
 {{/each}}
 {{id}} .OG-g .node {width: 8px; height: 8px; display: inline-block}
 {{id}} .OG-g .node.collapse:before {
