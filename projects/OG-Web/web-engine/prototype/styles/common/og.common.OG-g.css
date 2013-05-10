@@ -43,11 +43,7 @@
 .OG-g-cell {
     position: absolute;
     overflow: hidden;
-    height: 18px;
-    line-height: 21px;
     border: 1px solid transparent;
-    border-bottom: 1px solid #dadcdd;
-    border-right: 1px solid #dadcdd;
     text-overflow: ellipsis;
     padding: 0 0 0 5px;
     cursor: default;
@@ -56,6 +52,10 @@
 
 .OG-g-cell.og-error {
     color: #808080;
+}
+
+.OG-g-cell.og-cell-highlight {
+    border: 1px solid #000 !important;
 }
 
 .OG-g-cell.og-log:after {
