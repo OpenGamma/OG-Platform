@@ -91,7 +91,6 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
       delegate._waiting.add(this);
       try {
         do {
-          delegate.wait();
           final RuntimeException e = _error;
           if (e != null) {
             _error = null;
@@ -102,6 +101,7 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
             _result = null;
             return result;
           }
+          delegate.wait();
         } while (true);
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted", e);
