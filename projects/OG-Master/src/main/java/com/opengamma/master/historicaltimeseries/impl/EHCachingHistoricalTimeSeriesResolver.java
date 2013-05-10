@@ -49,6 +49,7 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
     private String _dataField;
     private String _resolutionKey;
 
+    private boolean _haveResult;
     private HistoricalTimeSeriesResolutionResult _result;
     private RuntimeException _error;
 
@@ -67,6 +68,7 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
       ThreadLocalWorker waiting = _waiting.poll();
       if (waiting != null) {
         do {
+          waiting._haveResult = true;
           waiting._result = result;
           waiting = _waiting.poll();
         } while (waiting != null);
@@ -79,6 +81,7 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
       ThreadLocalWorker waiting = _waiting.poll();
       if (waiting != null) {
         do {
+          waiting._haveResult = true;
           waiting._error = error;
           waiting = _waiting.poll();
         } while (waiting != null);
@@ -88,24 +91,23 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
 
     // Caller must hold the monitor on the delegate
     public HistoricalTimeSeriesResolutionResult getResult(ThreadLocalWorker delegate) {
+      _haveResult = false;
       delegate._waiting.add(this);
-      try {
-        do {
-          final RuntimeException e = _error;
-          if (e != null) {
-            _error = null;
-            throw e;
-          }
-          HistoricalTimeSeriesResolutionResult result = _result;
-          if (result != null) {
-            _result = null;
-            return result;
-          }
+      while (!_haveResult) {
+        try {
           delegate.wait();
-        } while (true);
-      } catch (InterruptedException e) {
-        throw new OpenGammaRuntimeException("Interrupted", e);
+        } catch (InterruptedException e) {
+          throw new OpenGammaRuntimeException("Interrupted", e);
+        }
       }
+      final RuntimeException e = _error;
+      if (e != null) {
+        _error = null;
+        throw e;
+      }
+      HistoricalTimeSeriesResolutionResult result = _result;
+      _result = null;
+      return result;
     }
 
     @Override
