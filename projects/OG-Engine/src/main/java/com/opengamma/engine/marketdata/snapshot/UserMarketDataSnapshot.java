@@ -14,22 +14,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Iterables;
+import com.opengamma.core.marketdatasnapshot.*;
 import org.threeten.bp.Instant;
 
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
@@ -53,6 +41,8 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.lambdava.tuple.Pair;
+
+import static com.opengamma.engine.target.ComputationTargetType.*;
 
 // REVIEW jonathan 2011-06-29 -- The user market data provider classes, including this, no longer need to be in the
 // engine and they simply introduce dependencies on the MarketDataSnapshotSource and specific StructuredMarketDataKeys.
@@ -94,7 +84,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
 
     protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
-      return resolve(target, snapshot);
+      return resolve(target, constraints, snapshot);
     }
 
     protected ValueProperties resolve(final Object target, final ValueRequirement desiredValue, final StructuredMarketDataSnapshot snapshot) {
@@ -149,7 +139,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
 
       @Override
-      protected ValueProperties resolve(final Object target, final StructuredMarketDataSnapshot snapshot) {
+      protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
         ValueProperties.Builder properties = null;
         for (final YieldCurveKey curve : snapshot.getYieldCurves().keySet()) {
           if (target.equals(curve.getCurrency())) {
@@ -179,6 +169,49 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
 
     });
+      registerStructuredMarketDataHandler(ValueRequirementNames.CURVE_MARKET_DATA, new StructuredMarketDataHandler() {
+
+          @Override
+          protected boolean isValidTarget(final Object target) {
+              return target == null;
+          }
+
+          @Override
+          protected boolean isValidSnapshot(final StructuredMarketDataSnapshot snapshot) {
+              return (snapshot.getCurves() != null) && !snapshot.getCurves().isEmpty();
+          }
+
+          @Override
+          protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
+              ValueProperties.Builder properties = null;
+              for (final CurveKey curve : snapshot.getCurves().keySet()) {
+                  if (curve.getName().equals(Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE)))) {
+                      if (properties == null) {
+                          properties = createValueProperties();
+                      }
+                      properties.with(ValuePropertyNames.CURVE, curve.getName());
+                  }
+              }
+              if (properties != null) {
+                  return properties.get();
+              } else {
+                  return null;
+              }
+          }
+
+          @Override
+          protected Object query(final UniqueId target, final ValueProperties properties, final StructuredMarketDataSnapshot snapshot) {
+              final String name = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
+              if (snapshot.getCurves() != null) {
+                  final CurveSnapshot data = snapshot.getCurves().get(new CurveKey(name));
+                  if (data != null) {
+                      return convertCurveMarketData(data);
+                  }
+              }
+              return null;
+          }
+
+      });
     registerStructuredMarketDataHandler(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new StructuredMarketDataHandler() {
 
       @Override
@@ -251,7 +284,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
 
       @Override
-      protected ValueProperties resolve(final Object target, final StructuredMarketDataSnapshot snapshot) {
+      protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
         ValueProperties.Builder properties = null;
         for (final VolatilityCubeKey cube : snapshot.getVolatilityCubes().keySet()) {
           if (target.equals(cube.getCurrency())) {
@@ -324,6 +357,10 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     return createSnapshotDataBundle(yieldCurveSnapshot.getValues());
   }
 
+  private static SnapshotDataBundle convertCurveMarketData(final CurveSnapshot curveSnapshot) {
+    return createSnapshotDataBundle(curveSnapshot.getValues());
+  }
+
   private static VolatilitySurfaceData<Object, Object> createVolatilitySurfaceData(final VolatilitySurfaceSnapshot volCubeSnapshot, final VolatilitySurfaceKey marketDataKey) {
     final Set<Object> xs = new HashSet<Object>();
     final Set<Object> ys = new HashSet<Object>();
@@ -393,7 +430,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       final UnstructuredMarketDataSnapshot globalValues = _snapshot.getGlobalValues();
       if (globalValues != null) {
         for (final ExternalIdBundle target : globalValues.getTargets()) {
-          final ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
+          final ComputationTargetReference targetRef = new ComputationTargetRequirement(PRIMITIVE, target);
           for (final Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
             _unstructured.addValue(new ValueRequirement(valuePair.getKey(), targetRef), query(valuePair.getValue()));
           }
@@ -429,6 +466,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         }
       }
     }
+      final Map<CurveKey, CurveSnapshot> curves = getSnapshot().getCurves();
+      if (curves != null) {
+          for (final CurveSnapshot curveSnapshot : curves.values()) {
+              if (latestTimestamp == null || latestTimestamp.isBefore(curveSnapshot.getValuationTime())) {
+                  latestTimestamp = curveSnapshot.getValuationTime();
+              }
+          }
+      }
     if (latestTimestamp == null) {
       // What else can we do until one is guaranteed to be stored with the snapshot?
       latestTimestamp = Instant.now();

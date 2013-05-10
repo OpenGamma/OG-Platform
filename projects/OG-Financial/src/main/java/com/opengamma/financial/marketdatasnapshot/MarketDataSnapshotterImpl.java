@@ -14,18 +14,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.opengamma.core.marketdatasnapshot.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -59,6 +52,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private final ComputationTargetResolver _resolver;
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
+  private final CurveSnapper _curveSnapper = new CurveSnapper();
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
   private final VolatilityCubeSnapper _volatilityCubeSnapper;
   @SuppressWarnings("rawtypes")
@@ -73,7 +67,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     _resolver = resolver;
     _cubeDefinitionSource = cubeDefinitionSource;
     _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
-    _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
+    _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _curveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
   }
 
   @Override
@@ -98,6 +92,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     final ManageableUnstructuredMarketDataSnapshot globalValues = getGlobalValues(resolver, results, graphs);
 
     final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
+    final Map<CurveKey, CurveSnapshot> curves = _curveSnapper.getValues(results, graphs, viewCycle);
     final Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
     final Map<VolatilityCubeKey, VolatilityCubeSnapshot> cubes = _volatilityCubeSnapper.getValues(results, graphs, viewCycle);
 
@@ -105,6 +100,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     ret.setBasisViewName(basisViewName);
     ret.setGlobalValues(globalValues);
     ret.setYieldCurves(yieldCurves);
+    ret.setCurves(curves);
     ret.setVolatilitySurfaces(surfaces);
     ret.setVolatilityCubes(cubes);
     return ret;
