@@ -297,10 +297,11 @@ $.register_module({
                         .on('click', 'li[class^=og-tab-]', function (e) {
                             var id = extract_id($(this).attr('class')), menu, index = extract_index(id);
                             if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
-                            else if (!$(this).hasClass('og-focus')) {
+                            else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
                             }
+                            if (!$(this).hasClass('og-focus')) container.focus();
                         });
                     if (!data) update_tabs(null); else container.add(data);
                     // implement drop
