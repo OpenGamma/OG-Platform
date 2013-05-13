@@ -20,10 +20,10 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
+import com.opengamma.lambdava.tuple.DoublesPair;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  *
@@ -36,7 +36,7 @@ public class SumUtils {
     }
     if (currentTotal.getClass() != value.getClass()) {
       if (!(currentTotal.getClass() == MultipleCurrencyAmount.class && value.getClass() == CurrencyAmount.class)
-       && !(currentTotal.getClass() == CurrencyAmount.class && value.getClass() == MultipleCurrencyAmount.class)) {
+          && !(currentTotal.getClass() == CurrencyAmount.class && value.getClass() == MultipleCurrencyAmount.class)) {
         throw new IllegalArgumentException("Inputs have different value types for requirement " + valueName + " currentTotal type = " + currentTotal.getClass() + " value type = " + value.getClass());
       }
     }
@@ -104,6 +104,7 @@ public class SumUtils {
           result.put(name, temp);
         }
       }
+      return result;
     } else if (value instanceof DoubleLabelledMatrix2D) {
       final DoubleLabelledMatrix2D previousMatrix = (DoubleLabelledMatrix2D) currentTotal;
       final DoubleLabelledMatrix2D currentMatrix = (DoubleLabelledMatrix2D) value;
@@ -140,8 +141,9 @@ public class SumUtils {
       final MultipleCurrencyInflationSensitivity previousSensitivity = (MultipleCurrencyInflationSensitivity) currentTotal;
       final MultipleCurrencyInflationSensitivity currentSensitivity = (MultipleCurrencyInflationSensitivity) value;
       return previousSensitivity.plus(currentSensitivity);
+    } else {
+      throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
     }
-    throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
   }
 
   private static Object calculateCurrencyAmount(Object currentTotal, CurrencyAmount currentAmount) {
@@ -161,7 +163,7 @@ public class SumUtils {
       return ((MultipleCurrencyAmount) currentTotal).plus(currentAmount);
     } else {
       throw new IllegalArgumentException("Expected current total to be of type " + CurrencyAmount.class +
-                                             " or " + MultipleCurrencyAmount.class + " but was: "+ currentTotal.getClass());
+          " or " + MultipleCurrencyAmount.class + " but was: " + currentTotal.getClass());
     }
   }
 
@@ -171,17 +173,18 @@ public class SumUtils {
     // If we have a multiple currency amount we use it,
     // Otherwise we create a new MultipleCurrencyAmount
     if (currentTotal instanceof CurrencyAmount) {
-      return currentAmount.plus((CurrencyAmount)currentTotal);
+      return currentAmount.plus((CurrencyAmount) currentTotal);
     } else if (currentTotal instanceof MultipleCurrencyAmount) {
       return ((MultipleCurrencyAmount) currentTotal).plus(currentAmount);
     } else {
       throw new IllegalArgumentException("Expected current total to be of type " + CurrencyAmount.class +
-                                             " or " + MultipleCurrencyAmount.class + " but was: "+ currentTotal.getClass());
+          " or " + MultipleCurrencyAmount.class + " but was: " + currentTotal.getClass());
     }
   }
 
   /**
    * Gets the intersection of two sets of properties.
+   * 
    * @param currentIntersection The current intersection of the properties
    * @param properties The new set of properties
    * @return The intersection of the two sets of properties
