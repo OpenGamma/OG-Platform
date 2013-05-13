@@ -32,7 +32,10 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
   private final List<Triple<String, String, String>> _comparisons = Lists.newLinkedList();
 
   private final String _tableSet;
-  private final DbTest _dbTest;
+  private final String _databaseType;
+  private final String _targetVersion;
+  private final String _createVersion;
+  private volatile DbTool _dbTool;
 
   /**
    * Creates an instance.
@@ -40,18 +43,21 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
   protected AbstractDbUpgradeTest(String databaseType, String tableSet, final String targetVersion, final String createVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
     _tableSet = tableSet;
-    _dbTest = new DbTest(databaseType, targetVersion, createVersion) {};
+    _databaseType = databaseType;
+    _targetVersion = targetVersion;
+    _createVersion = createVersion;
+    _dbTool = DbTest.createDbTool(databaseType, null);
   }
 
   //-------------------------------------------------------------------------
   @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
-    DbTool dbTool = _dbTest.getDbTool();
-    dbTool.setTargetVersion(_dbTest.getTargetVersion());
-    dbTool.setCreateVersion(_dbTest.getCreateVersion());
+    DbTool dbTool = _dbTool;
+    dbTool.setTargetVersion(_targetVersion);
+    dbTool.setCreateVersion(_createVersion);
     dbTool.dropTestSchema();
     dbTool.createTestSchema();
-    dbTool.createTables(_tableSet, dbTool.getTestCatalog(), dbTool.getTestSchema(), Integer.parseInt(_dbTest.getTargetVersion()), Integer.parseInt(_dbTest.getCreateVersion()), this);
+    dbTool.createTables(_tableSet, dbTool.getTestCatalog(), dbTool.getTestSchema(), Integer.parseInt(_targetVersion), Integer.parseInt(_createVersion), this);
     dbTool.clearTestTables();
   }
 
@@ -61,10 +67,10 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
   }
 
   protected Map<String, String> getVersionSchemas() {
-    Map<String, String> versionSchema = s_targetSchema.get(_dbTest.getDatabaseType());
+    Map<String, String> versionSchema = s_targetSchema.get(_databaseType);
     if (versionSchema == null) {
       versionSchema = new HashMap<>();
-      s_targetSchema.put(_dbTest.getDatabaseType(), versionSchema);
+      s_targetSchema.put(_databaseType, versionSchema);
     }
     return versionSchema;
   }
@@ -87,7 +93,7 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
         System.err.println(" Created --->..." + StringUtils.substring(comparison.getThird(), diff - 200, diff) +
           "<-!!!->" + StringUtils.substring(comparison.getThird(), diff, diff + 200) + "...");
       }
-      assertEquals(_dbTest.getDatabaseType() + ": " + comparison.getFirst(), comparison.getSecond(), comparison.getThird());
+      assertEquals(_databaseType + ": " + comparison.getFirst(), comparison.getSecond(), comparison.getThird());
     }
   }
 
@@ -96,16 +102,16 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
     final Map<String, String> versionSchemas = getVersionSchemas();
     if (versionSchemas.containsKey(prefix + "_" + version)) {
       // if we've already done the full schema, then we want to test that this upgrade has given us the same (but defer the comparison)
-      _comparisons.add(new Triple<String, String, String>(prefix + "_" + version, versionSchemas.get(prefix + "_" + version), _dbTest.getDbTool().describeDatabase(prefix)));
+      _comparisons.add(new Triple<String, String, String>(prefix + "_" + version, versionSchemas.get(prefix + "_" + version), _dbTool.describeDatabase(prefix)));
     } else {
       // tests are run with most recent full schema first, so we can store that as a reference
-      versionSchemas.put(prefix + "_" + version, _dbTest.getDbTool().describeDatabase(prefix));
+      versionSchemas.put(prefix + "_" + version, _dbTool.describeDatabase(prefix));
     }
   }
 
   @Override
   public String toString() {
-    return _dbTest.getDatabaseType() + "/" + _tableSet + ":" + _dbTest.getCreateVersion() + " >>> " + _dbTest.getTargetVersion();
+    return _databaseType + "/" + _tableSet + ":" + _createVersion + " >>> " + _targetVersion;
   }
 
 }

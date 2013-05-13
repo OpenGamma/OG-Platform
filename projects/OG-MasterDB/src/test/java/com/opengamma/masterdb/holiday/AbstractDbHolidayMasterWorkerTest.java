@@ -44,7 +44,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
   protected int _totalHolidays;
 
   public AbstractDbHolidayMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

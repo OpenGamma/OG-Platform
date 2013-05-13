@@ -32,7 +32,7 @@ public class HibernateUserManagerTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public HibernateUserManagerTest(String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
   //-------------------------------------------------------------------------

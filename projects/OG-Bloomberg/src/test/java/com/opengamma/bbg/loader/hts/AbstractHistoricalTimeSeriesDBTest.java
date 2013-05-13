@@ -77,7 +77,7 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
    * @param databaseVersion  the database version
    */
   public AbstractHistoricalTimeSeriesDBTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.debug("running test for database = {}", databaseType);
   }
 

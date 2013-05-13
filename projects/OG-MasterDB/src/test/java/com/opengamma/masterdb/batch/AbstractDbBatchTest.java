@@ -19,7 +19,7 @@ import com.opengamma.util.test.TestGroup;
 public abstract class AbstractDbBatchTest extends DbTest {
 
   public AbstractDbBatchTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
   //-------------------------------------------------------------------------

@@ -49,7 +49,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
   protected boolean _initialized;  // attempt to speed up tests
 
   public AbstractDbUserMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }

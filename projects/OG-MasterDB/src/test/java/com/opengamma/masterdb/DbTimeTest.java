@@ -55,7 +55,7 @@ public class DbTimeTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbTimeTest(final String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
   //-------------------------------------------------------------------------

@@ -47,7 +47,7 @@ public class PortfolioLoaderToolTest extends DbTest{
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public PortfolioLoaderToolTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

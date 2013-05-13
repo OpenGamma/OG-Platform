@@ -48,7 +48,7 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
   final static String PROVIDER_SCHEME = "Markit";
 
   public AbstractDbOrganizationMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

@@ -28,7 +28,7 @@ public class DbClockTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbClockTest(final String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
   //-------------------------------------------------------------------------

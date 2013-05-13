@@ -63,8 +63,7 @@ public abstract class DbTest implements TableCreationCallback {
   }
 
   private final String _databaseType;
-  private final String _targetVersion;
-  private final String _createVersion;
+  private final String _databaseVersion;
   private volatile DbTool _dbTool;
 
   //-------------------------------------------------------------------------
@@ -73,13 +72,11 @@ public abstract class DbTest implements TableCreationCallback {
    * 
    * @param databaseType  the database type
    * @param targetVersion  the target version
-   * @param createVersion  the create version
    */
-  protected DbTest(String databaseType, String targetVersion, String createVersion) {
+  protected DbTest(String databaseType, String targetVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
     _databaseType = databaseType;
-    _targetVersion = targetVersion;
-    _createVersion = createVersion;
+    _databaseVersion = targetVersion;
   }
 
   //-------------------------------------------------------------------------
@@ -111,10 +108,10 @@ public abstract class DbTest implements TableCreationCallback {
   public final void setUp() throws Exception {
     DbTool dbTool = getDbTool();
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
-    if ((prevVersion == null) || !prevVersion.equals(getTargetVersion())) {
-      s_databaseTypeVersion.put(getDatabaseType(), getTargetVersion());
-      dbTool.setTargetVersion(getTargetVersion());
-      dbTool.setCreateVersion(getCreateVersion());
+    if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
+      s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
+      dbTool.setTargetVersion(getDatabaseVersion());
+      dbTool.setCreateVersion(getDatabaseVersion());
       dbTool.dropTestSchema();
       dbTool.createTestSchema();
       dbTool.createTestTables(this);
@@ -297,17 +294,13 @@ public abstract class DbTest implements TableCreationCallback {
     return _databaseType;
   }
 
-  public String getCreateVersion() {
-    return _createVersion;
-  }
-
-  public String getTargetVersion() {
-    return _targetVersion;
+  public String getDatabaseVersion() {
+    return _databaseVersion;
   }
 
   //-------------------------------------------------------------------------
   public DbTool getDbTool() {
-    return init();
+    return initDbTool();
   }
 
   public DataSourceTransactionManager getTransactionManager() {
@@ -342,25 +335,38 @@ public abstract class DbTest implements TableCreationCallback {
    * This works better with TestNG and Maven, where the constructor is called
    * even if the test is never run.
    */
-  private DbTool init() {
+  private DbTool initDbTool() {
     DbTool dbTool = _dbTool;
     if (dbTool == null) {
       synchronized (this) {
         dbTool = _dbTool;
         if (dbTool == null) {
-          String dbHost = DbTestProperties.getDbHost(_databaseType);
-          String user = DbTestProperties.getDbUsername(_databaseType);
-          String password = DbTestProperties.getDbPassword(_databaseType);
           DbConnector connector = s_connectors.get(Pair.<String, Class<?>>of(_databaseType, dbConnectorScope()));
-          DataSource dataSource = (connector != null ? connector.getDataSource() : null);
-          dbTool = new DbTool(dbHost, user, password, dataSource);
-          dbTool.initialize();
-          dbTool.setJdbcUrl(dbTool.getTestDatabaseUrl());
-          dbTool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
-          _dbTool = dbTool;
+          _dbTool = dbTool = createDbTool(_databaseType, connector);
         }
       }
     }
+    return dbTool;
+  }
+
+  /**
+   * Creates a {@code DbTool} for a specific database.
+   * The connector may be passed in to share if it exists already.
+   * 
+   * @param databaseType  the database type, not null
+   * @param connector  the connector, null if not to be shared
+   * @return the tool, not null
+   */
+  static DbTool createDbTool(String databaseType, DbConnector connector) {
+    ArgumentChecker.notNull(databaseType, "databaseType");
+    String dbHost = DbTestProperties.getDbHost(databaseType);
+    String user = DbTestProperties.getDbUsername(databaseType);
+    String password = DbTestProperties.getDbPassword(databaseType);
+    DataSource dataSource = (connector != null ? connector.getDataSource() : null);
+    DbTool dbTool = new DbTool(dbHost, user, password, dataSource);
+    dbTool.initialize();
+    dbTool.setJdbcUrl(dbTool.getTestDatabaseUrl());
+    dbTool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
     return dbTool;
   }
 
@@ -403,7 +409,7 @@ public abstract class DbTest implements TableCreationCallback {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return getDatabaseType() + ":" + getTargetVersion();
+    return getDatabaseType() + ":" + getDatabaseVersion();
   }
 
 }

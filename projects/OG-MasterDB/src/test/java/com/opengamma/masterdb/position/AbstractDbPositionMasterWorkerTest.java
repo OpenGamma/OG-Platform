@@ -51,7 +51,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
   protected OffsetDateTime _now;
 
   public AbstractDbPositionMasterWorkerTest(final String databaseType, final String databaseVersion, final boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

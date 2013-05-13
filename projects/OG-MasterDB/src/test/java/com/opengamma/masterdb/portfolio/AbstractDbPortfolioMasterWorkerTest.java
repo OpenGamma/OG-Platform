@@ -46,7 +46,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   private boolean _includePositions = true;
 
   public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

@@ -59,7 +59,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   protected int _totalBundles;
 
   public AbstractDbConfigMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

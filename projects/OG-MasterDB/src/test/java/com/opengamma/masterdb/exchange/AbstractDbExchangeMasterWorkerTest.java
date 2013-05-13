@@ -54,7 +54,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
   protected int _totalExchanges;
 
   public AbstractDbExchangeMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

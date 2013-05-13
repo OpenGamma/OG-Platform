@@ -30,7 +30,7 @@ public class HibernateAuditLoggerTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public HibernateAuditLoggerTest(String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
   //-------------------------------------------------------------------------

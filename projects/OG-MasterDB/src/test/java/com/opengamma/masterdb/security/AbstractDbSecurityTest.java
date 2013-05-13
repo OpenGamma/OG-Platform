@@ -20,7 +20,7 @@ import com.opengamma.util.test.TestGroup;
 public abstract class AbstractDbSecurityTest extends DbTest {
 
   public AbstractDbSecurityTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
   //-------------------------------------------------------------------------
