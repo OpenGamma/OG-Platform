@@ -141,7 +141,6 @@ public class LogLinearWithSeasonalitiesInterpolator1DTest {
 
   @Test
   public void test() {
-
     assertEquals(INTERPOLATOR.interpolate(MODEL, 3.9), STEP.interpolate(TRANSFORMED_MODEL, 3.9), EPS);
   }
 
