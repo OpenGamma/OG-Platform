@@ -32,6 +32,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   private static final Logger s_logger = LoggerFactory.getLogger(BigDecimalFormatter.class);
   private static final Map<String, DoubleValueFormatter> s_formatters = Maps.newHashMap();
   private static final DoubleValueFormatter s_defaultFormatter = DoubleValueSignificantFiguresFormatter.NON_CCY_5SF;
+  private static final DoubleValueFormatter s_defaultCcyFormatter = DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT;
 
   static {
     // General
@@ -209,7 +210,10 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     if (valueNameFormatter != null) {
       return valueNameFormatter;
     } else {
-      return s_defaultFormatter;
+        if (valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY) != null) {
+            return s_defaultCcyFormatter;
+        }
+        return s_defaultFormatter;
     }
   }
 

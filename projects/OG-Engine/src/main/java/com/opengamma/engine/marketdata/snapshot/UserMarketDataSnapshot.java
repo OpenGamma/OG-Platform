@@ -15,7 +15,22 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.core.marketdatasnapshot.*;
+import com.opengamma.core.marketdatasnapshot.CurveKey;
+import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
+import com.opengamma.engine.target.ComputationTargetType;
 import org.threeten.bp.Instant;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -29,7 +44,6 @@ import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabili
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -42,13 +56,11 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.lambdava.tuple.Pair;
 
-import static com.opengamma.engine.target.ComputationTargetType.*;
-
 // REVIEW jonathan 2011-06-29 -- The user market data provider classes, including this, no longer need to be in the
 // engine and they simply introduce dependencies on the MarketDataSnapshotSource and specific StructuredMarketDataKeys.
 // They are a perfect example of adding a custom market data source and should be moved elsewhere.
 /**
- * Represents a market data snapshot from a {@link MarketDataSnapshotSource}.
+ * Represents a market data snapshot from a {@link com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource}.
  */
 public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
@@ -430,7 +442,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       final UnstructuredMarketDataSnapshot globalValues = _snapshot.getGlobalValues();
       if (globalValues != null) {
         for (final ExternalIdBundle target : globalValues.getTargets()) {
-          final ComputationTargetReference targetRef = new ComputationTargetRequirement(PRIMITIVE, target);
+          final ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
           for (final Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
             _unstructured.addValue(new ValueRequirement(valuePair.getKey(), targetRef), query(valuePair.getValue()));
           }

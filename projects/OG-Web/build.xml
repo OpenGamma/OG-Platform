@@ -6,7 +6,18 @@
 	<target name="publish" depends="zip-webapp,zip-resources,common.publish" />
 
 	<target name="publish-local" depends="zip-webapp,zip-resources,common.publish-local" />
-		
+
+	<target name="compile" depends="common.compile,generate-web-tstamp" />
+
+	<target name="generate-web-tstamp">
+		<tstamp>
+			<format property="web.build.timestamp" pattern="yyyyMMddmmss"/>
+		</tstamp>
+		<replaceregexp file="${classes.dir}/com/opengamma/web/bundle/build-data.properties"
+			match="web.build.timestamp=.*"
+			replace="web.build.timestamp=${web.build.timestamp}" />
+	</target>
+
 	<target name="zip-webapp" description="--> tar up the webapp directories for publishing">
 		<mkdir dir="${dist.dir}" />
 		<zip destfile="${dist.dir}/web-engine-webapp.zip" basedir="${basedir}">
@@ -19,12 +30,12 @@
 			<include name="web-sharedmasters/**/*" />
 		</zip>
 	</target>
-	
+
 	<target name="zip-resources" description="--> create resources file for publishing">
-	  <mkdir dir="${dist.dir}" />
-	  <zip destfile="${dist.dir}/og-web-resource.zip">
-	    <zipfileset dir="${basedir}/config" />
-	  </zip>
+		<mkdir dir="${dist.dir}" />
+		<zip destfile="${dist.dir}/og-web-resource.zip">
+			<zipfileset dir="${basedir}/config" />
+		</zip>
 	</target>
 
 	<target name="dist-common" depends="common.dist-common">

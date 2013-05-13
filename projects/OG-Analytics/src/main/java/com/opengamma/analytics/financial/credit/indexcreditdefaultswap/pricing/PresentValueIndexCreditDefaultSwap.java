@@ -9,6 +9,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -27,6 +28,8 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // TODO : Make sure the Buy/sell convention is coded correctly
   // TODO : Need to make sure sort out the LegacyVanillaCreditDefaultSwapDefinition etc issues with the object hierarchy
+  // TODO : Add a method to value the index swap using SNCDS analytics
+  // TODO : Replace the intrinsic calculations with those based on the ISDA SNCDS model for the individual constituents
 
   // NOTE : We pass in market data as vectors of objects. That is, we pass in a vector of yieldCurves
   // NOTE : (hence in principle each Obligor in the UnderlyingPool can have their cashflows discounted
@@ -36,6 +39,21 @@ public class PresentValueIndexCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static final GenerateCreditDefaultSwapPremiumLegSchedule PREMIUM_LEG_SCHEDULE_CALCULATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the present value of an Index CDS position treating the index as a SNCDS
+
+  public double getPresentValueIndexCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve) {
+
+    double presentValue = 0.0;
+
+    return presentValue;
+  }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
