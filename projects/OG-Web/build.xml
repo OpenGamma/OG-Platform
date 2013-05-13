@@ -19,12 +19,12 @@
 			<include name="web-sharedmasters/**/*" />
 		</zip>
 	</target>
-	
+
 	<target name="zip-resources" description="--> create resources file for publishing">
-	  <mkdir dir="${dist.dir}" />
-	  <zip destfile="${dist.dir}/og-web-resource.zip">
-	    <zipfileset dir="${basedir}/config" />
-	  </zip>
+		<mkdir dir="${dist.dir}" />
+		<zip destfile="${dist.dir}/og-web-resource.zip">
+			<zipfileset dir="${basedir}/config" />
+		</zip>
 	</target>
 
 	<target name="dist-common" depends="common.dist-common">
