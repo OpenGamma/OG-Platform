@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.sql.DataSource;
-
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -223,31 +221,10 @@ public abstract class AbstractDbTest implements TableCreationCallback {
         dbTool = _dbTool;
         if (dbTool == null) {
           DbConnector connector = s_connectors.get(Pair.<String, Class<?>>of(_databaseType, dbConnectorScope()));
-          _dbTool = dbTool = createDbTool(_databaseType, connector);
+          _dbTool = dbTool = DbTest.createDbTool(_databaseType, connector);
         }
       }
     }
-    return dbTool;
-  }
-
-  /**
-   * Creates a {@code DbTool} for a specific database.
-   * The connector may be passed in to share if it exists already.
-   * 
-   * @param databaseType  the database type, not null
-   * @param connector  the connector, null if not to be shared
-   * @return the tool, not null
-   */
-  static DbTool createDbTool(String databaseType, DbConnector connector) {
-    ArgumentChecker.notNull(databaseType, "databaseType");
-    String dbHost = DbTest.getDbHost(databaseType);
-    String user = DbTest.getDbUsername(databaseType);
-    String password = DbTest.getDbPassword(databaseType);
-    DataSource dataSource = (connector != null ? connector.getDataSource() : null);
-    DbTool dbTool = new DbTool(dbHost, user, password, dataSource);
-    dbTool.initialize();
-    dbTool.setJdbcUrl(dbTool.getTestDatabaseUrl());
-    dbTool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
     return dbTool;
   }
 
