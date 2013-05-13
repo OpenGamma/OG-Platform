@@ -53,7 +53,7 @@ public final class ScheduleCalculator {
    * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
    * @param date The initial date.
    * @param shiftDays The number of days of the adjustment. Can be negative or positive.
-   * @param calendar The calendar representing the god business days.
+   * @param calendar The calendar representing the good business days.
    * @return The adjusted date.
    */
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final int shiftDays, final Calendar calendar) {
@@ -88,7 +88,7 @@ public final class ScheduleCalculator {
    * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
    * @param dates The initial dates.
    * @param shiftDays The number of days of the adjustment. Can be negative or positive.
-   * @param calendar The calendar representing the god business days.
+   * @param calendar The calendar representing the good business days.
    * @return The adjusted dates.
    */
   public static ZonedDateTime[] getAdjustedDate(final ZonedDateTime[] dates, final int shiftDays, final Calendar calendar) {
@@ -107,7 +107,7 @@ public final class ScheduleCalculator {
    * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
    * @param date The initial date.
    * @param shiftDays The number of days of the adjustment as a period.
-   * @param calendar The calendar representing the god business days.
+   * @param calendar The calendar representing the good business days.
    * @return The adjusted dates.
    */
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final Period shiftDays, final Calendar calendar) {
@@ -123,7 +123,7 @@ public final class ScheduleCalculator {
    * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
    * @param date The initial date.
    * @param shiftDays The number of days of the adjustment. Can be negative or positive.
-   * @param calendar The calendar representing the god business days.
+   * @param calendar The calendar representing the good business days.
    * @return The adjusted dates.
    */
   public static LocalDate getAdjustedDate(final LocalDate date, final int shiftDays, final Calendar calendar) {

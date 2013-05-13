@@ -16,9 +16,9 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DPiecewisePo
 /**
  * 
  */
-public class MonotonicCubicInterpolator1DTest {
+public class PCHIPInterpolator1DTest {
 
-  private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.MONOTONIC_CUBIC);
+  private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.PCHIP);
 
   private static final double[] X_DATA = new double[] {0, 0.4, 1.0, 1.8, 2.8, 5};
   private static final double[] Y_DATA = new double[] {3., 4., 4.1, 4.5, 7.2, 8.0};

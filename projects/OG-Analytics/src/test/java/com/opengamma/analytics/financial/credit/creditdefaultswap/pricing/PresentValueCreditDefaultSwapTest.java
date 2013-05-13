@@ -48,6 +48,7 @@ public class PresentValueCreditDefaultSwapTest {
     YIELD_CURVE = new ISDADateCurve("ISDA", YIELD_TENORS, YIELD_TIMES, YIELDS, OFFSET);
   }
 
+  /*
   @Test(enabled = false)
   public void testAccruedInterest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
@@ -56,6 +57,7 @@ public class PresentValueCreditDefaultSwapTest {
     final double dirtyPrice = CALCULATOR.calibrateAndGetPresentValue(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE, PriceType.DIRTY);
     //assertEquals(cleanPrice, dirtyPrice + accruedInterest, EPS);
   }
+  */
 
   @Test(enabled = false)
   public void testRecoveryRateEqualsOne() {

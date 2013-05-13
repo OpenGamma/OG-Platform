@@ -8,31 +8,68 @@ package com.opengamma.web.sass;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ZipUtils;
 
 /**
+ * Jruby sass compiler
  * 
+ * <p> Uses Jruby complete and sass-gem to compile scss/sass to css. <p>
  */
-public final class RubySassCompiler {
+public final class JRubySassCompiler {
   
-  private static final RubySassCompiler s_instance = new RubySassCompiler();
+  private static final JRubySassCompiler s_instance = new JRubySassCompiler();
+  
+  /**
+   * Jruby GEMS_PATH
+   */
+  private static final File GEMS_PATH = getGemsPath();
+  /**
+   * Sass-gems resource path
+   */
+  private static final String SASS_GEM_RESOURCE = "gems/sass-lang-3.2.7.jar";
+  
+  static {
+    extractRubySassGem();
+  }
   
   private String _options;
   
-  private RubySassCompiler() {
+  private JRubySassCompiler() {
+    
     File cacheLocation = new File(new File(System.getProperty("java.io.tmpdir")), "sass-cache");
     _options = ":syntax => :scss, :always_update => true, :style => :expanded, :cache_location => '" + cacheLocation.toString() + "'";
   }
   
-  public static RubySassCompiler getInstance() {
+  private static void extractRubySassGem() {
+    ClassLoader classLoader = JRubySassCompiler.class.getClassLoader();
+    URL sassGemUrl = classLoader.getResource(SASS_GEM_RESOURCE);
+      
+    if (sassGemUrl == null) {
+      throw new OpenGammaRuntimeException("Sass gem jar is missing in the classpath");
+    }
+    try {
+      ZipUtils.unzipArchive(new File(sassGemUrl.toURI()), GEMS_PATH);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Error expanding sass gems jar to given GEM_PATH", ex);
+    }
+  }
+  
+  private static File getGemsPath() {
+    return new File(FileUtils.getUserDirectoryPath(), ".opengamma" + java.io.File.separator + "gems");
+  }
+
+  public static JRubySassCompiler getInstance() {
     return s_instance;
   }
 
@@ -40,6 +77,7 @@ public final class RubySassCompiler {
     StringWriter raw = new StringWriter();
     PrintWriter script = new PrintWriter(raw);
     
+    script.println("  ENV['GEM_PATH']='" + GEMS_PATH.getPath() + "'                                           ");
     script.println("  require 'rubygems'                                                            ");
     script.println("  require 'sass/plugin'                                                         ");
     script.println("  require 'sass'                                                                ");
@@ -96,6 +134,7 @@ public final class RubySassCompiler {
     final StringWriter raw = new StringWriter();
     final PrintWriter script = new PrintWriter(raw);
 
+    script.println("  ENV['GEM_PATH']='" + GEMS_PATH.getPath() + "'                      ");
     script.println("  require 'rubygems'                                       ");
     script.println("  require 'sass/plugin'                                    ");
     script.println("  require 'sass/engine'                                    ");

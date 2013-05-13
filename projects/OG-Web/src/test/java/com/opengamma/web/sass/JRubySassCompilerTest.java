@@ -19,12 +19,12 @@ import com.google.common.io.Files;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests {@code RubySassCompiler}
+ * Tests {@code JRubySassCompiler}
  */
 @Test(groups = TestGroup.UNIT)
-public class RubySassCompilerTest {
+public class JRubySassCompilerTest {
 
-  private final static RubySassCompiler s_compiler = RubySassCompiler.getInstance();
+  private final static JRubySassCompiler s_compiler = JRubySassCompiler.getInstance();
     
   private static File NAVBAR_SCSS;
   private static File NAVBAR_CSS;
@@ -38,7 +38,7 @@ public class RubySassCompilerTest {
   @BeforeClass 
   public void staticInit() throws Exception {
     @SuppressWarnings("unused")
-    Class<?> clazz = RubySassCompilerTest.class;
+    Class<?> clazz = JRubySassCompilerTest.class;
     
     NAVBAR_SCSS = new File(getClass().getResource("navbar.scss").toURI());
     NAVBAR_CSS = new File(getClass().getResource("navbar.css").toURI());

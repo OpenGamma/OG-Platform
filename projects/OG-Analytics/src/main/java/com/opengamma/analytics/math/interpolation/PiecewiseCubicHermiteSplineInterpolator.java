@@ -39,15 +39,13 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
       ArgumentChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
     }
 
-    for (int i = 0; i < nDataPts; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-      }
-    }
-
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
+
+    for (int i = 1; i < nDataPts; ++i) {
+      ArgumentChecker.isFalse(xValuesSrt[i - 1] == xValuesSrt[i], "xValues should be distinct");
+    }
 
     final DoubleMatrix2D coefMatrix = solve(xValuesSrt, yValuesSrt);
 
@@ -144,10 +142,8 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
     } else {
       double[] derivatives = slopeFinder(intervals, grads);
       for (int i = 0; i < nDataPts - 1; ++i) {
-        res[i][0] = -2. * yValues[i + 1] / intervals[i] / intervals[i] / intervals[i] + 2. * yValues[i] / intervals[i] / intervals[i] / intervals[i] + derivatives[i + 1] / intervals[i] /
-            intervals[i] +
-            derivatives[i] / intervals[i] / intervals[i];
-        res[i][1] = 3. * yValues[i + 1] / intervals[i] / intervals[i] - 3. * yValues[i] / intervals[i] / intervals[i] - derivatives[i + 1] / intervals[i] - 2. * derivatives[i] / intervals[i];
+        res[i][0] = (derivatives[i] - 2 * grads[i] + derivatives[i + 1]) / intervals[i] / intervals[i];
+        res[i][1] = (3 * grads[i] - 2. * derivatives[i] - derivatives[i + 1]) / intervals[i];
         res[i][2] = derivatives[i];
         res[i][3] = yValues[i];
       }
@@ -168,12 +164,12 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
     res[nInts] = endpointSlope(intervals[nInts - 1], intervals[nInts - 2], grads[nInts - 1], grads[nInts - 2]);
 
     for (int i = 1; i < nInts; ++i) {
-      if (Math.signum(grads[i]) != Math.signum(grads[i - 1]) | (grads[i] == 0 | grads[i - 1] == 0)) {
+      if (grads[i] * grads[i - 1] <= 0) {
         res[i] = 0.;
       } else {
         final double den1 = 2. * intervals[i] + intervals[i - 1];
         final double den2 = intervals[i] + 2. * intervals[i - 1];
-        res[i] = 3. * (intervals[i] + intervals[i - 1]) / (den1 / grads[i - 1] + den2 / grads[i]);
+        res[i] = (den1 + den2) / (den1 / grads[i - 1] + den2 / grads[i]);
       }
     }
 
@@ -181,14 +177,12 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
   }
 
   private double endpointSlope(final double ints1, final double ints2, final double grads1, final double grads2) {
-    final double val = (2. * ints1 + ints2) * grads1 / (ints1 + ints2) - ints1 * grads2 / (ints1 + ints2);
+    final double val = ((2. * ints1 + ints2) * grads1 - ints1 * grads2) / (ints1 + ints2);
 
     if (Math.signum(val) != Math.signum(grads1)) {
       return 0.;
-    } else {
-      if (Math.signum(grads1) != Math.signum(grads2) && Math.abs(val) > 3. * Math.abs(grads1)) {
+    } else if (Math.signum(grads1) != Math.signum(grads2) && Math.abs(val) > 3. * Math.abs(grads1)) {
         return 3. * grads1;
-      }
     }
     return val;
   }
