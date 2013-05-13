@@ -234,7 +234,7 @@ $.register_module({
             grid.clipboard = new og.common.grid.Clipboard(grid);
         };
         var init_elements = function () {
-            var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,
+            var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 5,
                 last_x, last_y, page_x, page_y, last_corner, cell; // cached values for hover events
             var hoverin_handler = function (event, silent) {
                 (page_x = event.pageX), (page_y = event.pageY);
