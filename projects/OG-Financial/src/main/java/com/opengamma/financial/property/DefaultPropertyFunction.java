@@ -30,17 +30,17 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 
 /**
  * Abstract function for injecting default properties into the dependency graph.
  */
-public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompiledInvoker implements OpenGammaFunctionExclusions {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultPropertyFunction.class);
 
   /**
-   * The priority class of {@link DefaultPropertyFunction} instances, allowing them to
-   * be ordered relative to each other.
+   * The priority class of {@link DefaultPropertyFunction} instances, allowing them to be ordered relative to each other.
    */
   public static enum PriorityClass {
 
@@ -138,8 +138,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     }
 
     /**
-     * Queries all available outputs on the target and adds those values to
-     * the default set if property name is defined on their finite outputs.
+     * Queries all available outputs on the target and adds those values to the default set if property name is defined on their finite outputs.
      * 
      * @param propertyName the property name a default is available for, not null
      */
@@ -197,8 +196,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   }
 
   /**
-   * Returns the default value(s) to set for the property. If a default value is
-   * not available, must return null.
+   * Returns the default value(s) to set for the property. If a default value is not available, must return null.
    * 
    * @param context the function compilation context, not null
    * @param target the computation target, not null
@@ -214,8 +212,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   }
 
   /**
-   * Performs the {@link CompiledFunctionDefinition#canApplyTo} test by checking whether any defaults
-   * are returned for the target. If the {@link #getDefaults} cost is high, then consider overloading
+   * Performs the {@link CompiledFunctionDefinition#canApplyTo} test by checking whether any defaults are returned for the target. If the {@link #getDefaults} cost is high, then consider overloading
    * this method with something cheaper.
    * 
    * @param context the compilation context, not null
@@ -329,6 +326,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
    * 
    * @return the mutual exclusion group, defaults to the function instance's class name so that any given default function is only applied once in the resolution chain
    */
+  @Override
   public String getMutualExclusionGroup() {
     return getClass().getName();
   }
