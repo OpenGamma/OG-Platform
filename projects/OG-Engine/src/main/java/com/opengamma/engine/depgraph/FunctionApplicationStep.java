@@ -226,21 +226,10 @@ import com.opengamma.util.tuple.Triple;
       }
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
       final Set<ValueSpecification> resolvedOutputValues = Sets.newHashSetWithExpectedSize(newOutputValues.size());
-      resolvedOutput = null;
-      final ValueRequirement desiredValue = getIterationBase().getDesiredValue();
-      for (ValueSpecification outputValue : newOutputValues) {
-        if ((resolvedOutput == null) && isSatisfied(desiredValue, outputValue)) {
-          resolvedOutput = context.simplifyType(outputValue.compose(desiredValue));
-          s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
-          resolvedOutputValues.add(resolvedOutput);
-        } else {
-          resolvedOutputValues.add(context.simplifyType(outputValue));
-        }
-      }
+      resolvedOutput = getIterationBase().getResolvedOutputs(context, newOutputValues, resolvedOutputValues);
       if (resolvedOutput == null) {
-        if (getIterationBase() instanceof TargetDigestStep) {
-          // This might be a legitimate state; but is probably indicative of an error during development!
-          s_logger.error("Digest {} failed for {}", getIterationBase().getDesiredValue(), getValueRequirement());
+        if (s_logger.isDebugEnabled() && getIterationBase() instanceof TargetDigestStep) {
+          s_logger.debug("Digest {} failed for {}", getIterationBase().getDesiredValue(), getValueRequirement());
         }
         s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
         getWorker().storeFailure(functionApplication(context).requirements(inputs).lateResolutionFailure());
@@ -520,7 +509,8 @@ import com.opengamma.util.tuple.Triple;
       context.declareProduction(result);
       if (substituteWorker != null) {
         if (!substituteWorker.pushResult(context, result, true)) {
-          throw new IllegalStateException(result + " rejected by substitute worker");
+          // The substitute was created specifically for this result; it won't have already had a value pushed and the value must satisfy the requirement
+          throw new IllegalStateException();
         }
         context.discardTaskProducing(resolvedOutput, getTask());
       } else {

@@ -116,6 +116,8 @@ import com.opengamma.util.tuple.Triple;
      */
     protected abstract ValueRequirement getDesiredValue();
 
+    protected abstract ValueSpecification getResolvedOutputs(GraphBuildingContext context, Set<ValueSpecification> newOutputValues, Set<ValueSpecification> resolvedOutputValues);
+
     /**
      * For debugging/diagnostic reporting.
      */

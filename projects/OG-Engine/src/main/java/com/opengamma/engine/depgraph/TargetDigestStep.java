@@ -8,6 +8,7 @@ package com.opengamma.engine.depgraph;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -64,11 +66,12 @@ import com.opengamma.util.tuple.Triple;
             s_logger.debug("Function {} type is not compatible with {}", functionDef, target);
             continue;
           }
-          if (!functionDef.canApplyTo(context.getCompilationContext(), target)) {
+          final ComputationTarget adjustedTarget = ResolutionRule.adjustTarget(functionDef.getTargetType(), target);
+          if (!functionDef.canApplyTo(context.getCompilationContext(), adjustedTarget)) {
             s_logger.debug("Function {} cannot be applied to {}", functionDef, target);
             continue;
           }
-          Collection<ValueSpecification> results = functionDef.getResults(context.getCompilationContext(), target);
+          Collection<ValueSpecification> results = functionDef.getResults(context.getCompilationContext(), adjustedTarget);
           if ((results == null) || results.isEmpty()) {
             s_logger.debug("Function {} applied to {} produced no results", functionDef, target);
             continue;
@@ -120,6 +123,24 @@ import com.opengamma.util.tuple.Triple;
   @Override
   protected ValueRequirement getDesiredValue() {
     return _desiredValue;
+  }
+
+  @Override
+  protected ValueSpecification getResolvedOutputs(final GraphBuildingContext context, final Set<ValueSpecification> newOutputValues, final Set<ValueSpecification> resolvedOutputValues) {
+    final ValueRequirement desiredValue = getDesiredValue();
+    final ValueProperties originalConstraints = getValueRequirement().getConstraints();
+    ValueSpecification resolvedOutput = null;
+    for (ValueSpecification outputValue : newOutputValues) {
+      if ((resolvedOutput == null) && (desiredValue.getValueName() == outputValue.getValueName()) && desiredValue.getConstraints().isSatisfiedBy(outputValue.getProperties()) &&
+          originalConstraints.isSatisfiedBy(outputValue.getProperties())) {
+        resolvedOutput = context.simplifyType(outputValue.compose(desiredValue));
+        s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
+        resolvedOutputValues.add(resolvedOutput);
+      } else {
+        resolvedOutputValues.add(context.simplifyType(outputValue));
+      }
+    }
+    return resolvedOutput;
   }
 
   @Override

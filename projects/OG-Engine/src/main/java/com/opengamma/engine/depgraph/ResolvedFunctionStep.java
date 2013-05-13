@@ -71,6 +71,22 @@ import com.opengamma.util.tuple.Triple;
   }
 
   @Override
+  protected ValueSpecification getResolvedOutputs(final GraphBuildingContext context, final Set<ValueSpecification> newOutputValues, final Set<ValueSpecification> resolvedOutputValues) {
+    final ValueRequirement desiredValue = getValueRequirement();
+    ValueSpecification resolvedOutput = null;
+    for (ValueSpecification outputValue : newOutputValues) {
+      if ((resolvedOutput == null) && (desiredValue.getValueName() == outputValue.getValueName()) && desiredValue.getConstraints().isSatisfiedBy(outputValue.getProperties())) {
+        resolvedOutput = context.simplifyType(outputValue.compose(desiredValue));
+        s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
+        resolvedOutputValues.add(resolvedOutput);
+      } else {
+        resolvedOutputValues.add(context.simplifyType(outputValue));
+      }
+    }
+    return resolvedOutput;
+  }
+
+  @Override
   public String toString() {
     return "RESOLVED_FUNCTION" + getObjectId();
   }

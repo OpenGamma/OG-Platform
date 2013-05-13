@@ -191,7 +191,8 @@ import com.opengamma.lambdava.tuple.Pair;
           return;
         }
       } else {
-        if (oldValues.containsKey(resolvedValue.getProperties())) {
+        // TODO: Tune this value, or use a more logical eviction policy (perhaps a rolling window of N?)
+        if ((oldValues.size() >= 16) || oldValues.containsKey(resolvedValue.getProperties())) {
           return;
         }
         newValues = Maps.newHashMapWithExpectedSize(oldValues.size() + 1);
