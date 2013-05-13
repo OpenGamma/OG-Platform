@@ -37,30 +37,26 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final Position position = target.getPosition();
-    final ComputedValue fairValueCV = inputs.getComputedValue(ValueRequirementNames.FAIR_VALUE);
-    final Object fairValueObj = fairValueCV.getValue();
-    if (fairValueObj == null) {
-      throw new OpenGammaRuntimeException("Asset fair value was null");
-    }
-    final double fairValue = (Double) fairValueObj;
-    final Object priceSeriesObj = inputs.getValue(ValueRequirementNames.PRICE_SERIES);
-    if (priceSeriesObj == null) {
-      throw new OpenGammaRuntimeException("Asset price series was null");
-    }
-    final Set<String> returnCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.RETURN_CALCULATOR);
-    final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorNames);
-    final LocalDateDoubleTimeSeries returnSeries = (LocalDateDoubleTimeSeries) returnCalculator.evaluate((LocalDateDoubleTimeSeries) priceSeriesObj);
-    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
-    // REVIEW 2013-05-10 Andrew -- Don't do the scaling here; operate at SECURITY level and scale the resulting time series to POSITION level
-    return Collections.singleton(new ComputedValue(resultSpec, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue())));
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.POSITION;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getPosition().getSecurity() instanceof EquitySecurity;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
+    final ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.CURRENCY)
+        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
+        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override
@@ -125,21 +121,25 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
-    final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURRENCY)
-        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
-        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final Position position = target.getPosition();
+    final ComputedValue fairValueCV = inputs.getComputedValue(ValueRequirementNames.FAIR_VALUE);
+    final Object fairValueObj = fairValueCV.getValue();
+    if (fairValueObj == null) {
+      throw new OpenGammaRuntimeException("Asset fair value was null");
+    }
+    final double fairValue = (Double) fairValueObj;
+    final Object priceSeriesObj = inputs.getValue(ValueRequirementNames.PRICE_SERIES);
+    if (priceSeriesObj == null) {
+      throw new OpenGammaRuntimeException("Asset price series was null");
+    }
+    final Set<String> returnCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.RETURN_CALCULATOR);
+    final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorNames);
+    final LocalDateDoubleTimeSeries returnSeries = (LocalDateDoubleTimeSeries) returnCalculator.evaluate((LocalDateDoubleTimeSeries) priceSeriesObj);
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
+    // REVIEW 2013-05-10 Andrew -- Don't do the scaling here; operate at SECURITY level and scale the resulting time series to POSITION level
+    return Collections.singleton(new ComputedValue(resultSpec, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue())));
   }
 
   private TimeSeriesReturnCalculator getTimeSeriesReturnCalculator(final Set<String> calculatorNames) {
