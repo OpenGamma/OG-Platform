@@ -54,10 +54,6 @@
     color: #808080;
 }
 
-.OG-g-cell.og-cell-highlight {
-    border: 1px solid #000!important;
-}
-
 .OG-g-cell.og-log:after {
     content: '';
     position: absolute;
