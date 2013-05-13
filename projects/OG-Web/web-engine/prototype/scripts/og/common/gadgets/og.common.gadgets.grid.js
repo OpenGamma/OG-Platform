@@ -665,7 +665,7 @@ $.register_module({
             grid.state.highlight = arguments.length ? {row: row, col: col} : null;
             if (data && ~viewport.rows.indexOf(row) && ~viewport.cols.indexOf(col)) // grid is ready and has this cell
                 return render_rows.call(grid, data), grid;
-            if (data && highlit && !grid.state.highlight) // grid is ready and should un-highlit
+            if (data && highlit && !grid.state.highlight) // grid is ready and should un-highlight
                 return render_rows.call(grid, data), grid;
             return grid;
         };
@@ -738,7 +738,7 @@ $.register_module({
             };
             meta.visible_rows = Math.min(Math.ceil(meta.inner.scroll_height / row_height), meta.rows);
             css = templates.css({
-                id: id, viewport_width: meta.inner.width, rest_top: meta.inner.height,
+                id: id, viewport_width: meta.inner.width, rest_top: meta.inner.height + 1,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_height: Math.max(meta.inner.height, meta.inner.scroll_height - scrollbar),

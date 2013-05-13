@@ -38,7 +38,10 @@
     {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
     {{prefix}} .OG-g .c{{index}}.OG-g-cell.og-cell-highlight {left: {{left_min_one}}px;}
 {{/each}}
-{{id}} .OG-g .node {width: 8px; height: 8px; display: inline-block}
+{{id}} .OG-g .OG-g-b-scroll .OG-g-rows .OG-g-row .OG-g-cell.og-cell-highlight,
+{{id}} .OG-g .OG-g-b-fixed .OG-g-rows .OG-g-row .OG-g-cell.og-cell-highlight {border: 1px solid #000;}
+{{id}} .OG-g .OG-g-b-scroll .OG-g-rows .OG-g-row .OG-g-cell.og-cell-highlight:first-child {left: 0px;}
+{{id}} .OG-g .node {width: 8px; height: 8px; display: inline-block;}
 {{id}} .OG-g .node.collapse:before {
     background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll 0 -25px transparent;
     content: "";
