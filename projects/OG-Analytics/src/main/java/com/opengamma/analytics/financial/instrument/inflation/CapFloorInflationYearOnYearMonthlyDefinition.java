@@ -76,6 +76,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate,
       final int monthLag, final ZonedDateTime referenceStartDate, final ZonedDateTime referenceEndDate, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
+    ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
     _lastKnownFixingDate = lastKnownFixingDate;
@@ -224,6 +225,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
     if (_isCap != other._isCap) {
       return false;
     }
+
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
     }

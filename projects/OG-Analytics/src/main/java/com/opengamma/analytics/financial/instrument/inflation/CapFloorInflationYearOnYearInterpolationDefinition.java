@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -86,6 +88,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
       final int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final double weightStart, final double weightEnd,
       final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
+    ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
     _lastKnownFixingDate = lastKnownFixingDate;
@@ -283,7 +286,19 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     if (_isCap != other._isCap) {
       return false;
     }
+    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
+      return false;
+    }
+    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
       return false;
     }
     return true;

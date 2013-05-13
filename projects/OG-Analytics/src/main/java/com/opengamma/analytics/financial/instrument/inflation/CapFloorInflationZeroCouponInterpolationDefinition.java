@@ -89,6 +89,7 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
       final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
+    ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
     _lastKnownFixingDate = lastKnownFixingDate;
     _indexStartValue = indexStartValue;
