@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.function;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -42,19 +43,14 @@ public class PiecewisePolynomialFunction1D {
     final int dim = pp.getDimensions();
 
     double[] res = new double[dim];
+    
+    int indicator = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    if (indicator == nKnots - 1) {
+      indicator--; //there is 1 less interval that knots 
+    }
+
 
     for (int j = 0; j < dim; ++j) {
-      int indicator = 0;
-      if (xKey <= knots[1]) {
-        indicator = 0;
-      } else {
-        for (int i = 1; i < nKnots - 1; ++i) {
-          if (knots[i] < xKey) {
-            indicator = i;
-          }
-        }
-      }
-
       final double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
       res[j] = getValue(coefs, xKey, knots[indicator]);
 
@@ -431,13 +427,14 @@ public class PiecewisePolynomialFunction1D {
 
     final int nCoefs = coefs.length;
 
-    double res = 0.;
-    for (int i = 0; i < nCoefs; ++i) {
-      res += coefs[nCoefs - 1 - i] * Math.pow((x - leftknot), i);
+    final double s = x - leftknot;
+    double res = coefs[0];
+    for (int i = 1; i < nCoefs; i++) {
+      res *= s;
+      res += coefs[i];
     }
 
     return res;
-
   }
 
 }
