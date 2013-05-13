@@ -177,7 +177,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
+      s_logger.debug("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
+      return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
