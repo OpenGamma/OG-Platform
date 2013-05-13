@@ -18,10 +18,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -53,33 +49,30 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
   protected int _totalPortfolios;
   protected int _totalPositions;
   protected OffsetDateTime _now;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbPositionMasterWorkerTest(final String databaseType, final String databaseVersion, final boolean readOnly) {
     super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }
 
   //-------------------------------------------------------------------------
-  @BeforeClass(groups = TestGroup.UNIT_DB)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
   @Override
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  protected void doTearDown() {
+    _posMaster = null;
+  }
+
+  @Override
+  protected void doTearDownClass() {
+    _posMaster = null;
   }
 
   //-------------------------------------------------------------------------
-  private void init() throws Exception {
-    super.setUp();
+  private void init() {
     _posMaster = new DbPositionMaster(getDbConnector());
 
     _now = OffsetDateTime.now();
@@ -185,26 +178,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 406, 506);
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 407, 507);
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 408, 507);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _posMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @Override
-  @AfterClass(groups = TestGroup.UNIT_DB)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _posMaster = null;
-      super.tearDown();
-    }
-    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

@@ -31,8 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -110,10 +108,9 @@ public class BloombergSecurityLoaderTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod(groups = "bbgSecurityLoaderTests")
-  public void setUp() throws Exception {
-    super.setUp();
+  protected void doSetUp() {
     ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/loader/bloomberg-security-loader-test-context.xml");
     context.start();
     _context = context;
@@ -123,14 +120,12 @@ public class BloombergSecurityLoaderTest extends DbTest {
   }
 
   @Override
-  @AfterMethod(groups = "bbgSecurityLoaderTests")
-  public void tearDown() throws Exception {
+  protected void doTearDown() {
     if (_context != null) {
       _context.stop();
       _context = null;
     }
     _securityMaster = null;
-    super.tearDown();
   }
 
   //-------------------------------------------------------------------------

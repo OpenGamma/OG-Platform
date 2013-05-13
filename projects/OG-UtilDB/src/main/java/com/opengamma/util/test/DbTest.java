@@ -8,7 +8,6 @@ package com.opengamma.util.test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +22,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 
@@ -46,9 +46,9 @@ import com.opengamma.util.tuple.Pair;
 public abstract class DbTest implements TableCreationCallback {
 
   /** Cache. */
-  static final Map<String, String> s_databaseTypeVersion = new HashMap<>();
+  static final Map<String, String> s_databaseTypeVersion = new ConcurrentHashMap<>();
   /** Known dialects. */
-  private static final Map<String, DbDialect> s_dbDialects = new HashMap<>();
+  private static final Map<String, DbDialect> s_dbDialects = new ConcurrentHashMap<>();
   /** Initialized tools. */
   private static final ConcurrentMap<Pair<String, Class<?>>, DbConnector> s_connectors = new ConcurrentHashMap<>();
 
@@ -84,12 +84,31 @@ public abstract class DbTest implements TableCreationCallback {
 
   //-------------------------------------------------------------------------
   /**
+   * Code run before each subclass.
+   * @throws Exception if an error occurs
+   */
+  @BeforeClass(alwaysRun = true)
+  public final void setUpClass() throws Exception {
+    doSetUpClass();
+  }
+
+  /**
+   * Subclasses should override this where necessary and NOT declare @BeforeClass.
+   * This handles TestNG behavior better.
+   * @throws Exception if an error occurs
+   */
+  protected void doSetUpClass() throws Exception {
+    // override in subclasses
+  }
+
+  /**
+   * Code run before each test method.
    * Initialize the database to the required version.
    * This tracks the last initialized version in a static map to avoid duplicate
    * DB operations on bigger test classes. This might not be such a good idea.
    */
-  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void setUp() throws Exception {
+  @BeforeMethod(alwaysRun = true)
+  public final void setUp() throws Exception {
     DbTool dbTool = getDbTool();
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getTargetVersion())) {
@@ -101,23 +120,72 @@ public abstract class DbTest implements TableCreationCallback {
       dbTool.createTestTables(this);
     }
     dbTool.clearTestTables();
+    doSetUp();
   }
 
-  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void tearDown() throws Exception {
+  /**
+   * Subclasses should override this where necessary and NOT declare @BeforeMethod.
+   * This handles TestNG behavior better.
+   * @throws Exception if an error occurs
+   */
+  protected void doSetUp() throws Exception {
+    // override in subclasses
+  }
+
+  /**
+   * Code run after each test method.
+   * @throws Exception if an error occurs
+   */
+  @AfterMethod(alwaysRun = true)
+  public final void tearDown() throws Exception {
+    doTearDown();
     DbTool dbTool = _dbTool;
     if (dbTool != null) {
       dbTool.resetTestCatalog(); // avoids locking issues with Derby
     }
   }
 
-  @AfterClass(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
+  /**
+   * Subclasses should override this where necessary and NOT declare @AfterMethod.
+   * This handles TestNG behavior better.
+   * 
+   * @return true to clear any data in the database
+   * @throws Exception if an error occurs
+   */
+  protected void doTearDown() throws Exception {
+    // override in subclasses
+  }
+
+  /**
+   * Code run after each subclass.
+   * @throws Exception if an error occurs
+   */
+  @AfterClass(alwaysRun = true)
   public void tearDownClass() throws Exception {
+    doTearDownClass();
+    DbTool dbTool = _dbTool;
+    if (dbTool != null) {
+      dbTool.resetTestCatalog(); // avoids locking issues with Derby
+    }
     _dbTool = null;  // do not close as we want to retain the data source
   }
 
-  @AfterSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public static void cleanUp() {
+  /**
+   * Subclasses should override this where necessary and NOT declare @AfterClass.
+   * This handles TestNG behavior better.
+   * 
+   * @throws Exception if an error occurs
+   */
+  protected void doTearDownClass() throws Exception {
+    // override in subclasses
+  }
+
+  /**
+   * Code run after entire suite.
+   * @throws Exception if an error occurs
+   */
+  @AfterSuite(alwaysRun = true)
+  public static final void tearDownSuite() throws Exception {
     for (DbConnector connector : s_connectors.values()) {
       ReflectionUtils.close(connector);
     }

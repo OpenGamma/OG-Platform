@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneId;
@@ -40,16 +38,14 @@ public class DbExchangeMasterTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
+  @Override
+  protected void doSetUp() {
     _exgMaster = new DbExchangeMaster(getDbConnector());
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _exgMaster = null;
-    super.tearDown();
   }
 
   //-------------------------------------------------------------------------

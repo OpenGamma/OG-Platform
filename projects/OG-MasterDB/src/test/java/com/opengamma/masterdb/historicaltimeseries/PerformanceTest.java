@@ -7,8 +7,6 @@ package com.opengamma.masterdb.historicaltimeseries;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -22,7 +20,6 @@ import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.DbTest;
-import com.opengamma.util.test.TestGroup;
 
 /**
  * A performance test of time-series.
@@ -41,15 +38,13 @@ public class PerformanceTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
+  @Override
+  protected void doSetUp() {
     _htsMaster = new DbHistoricalTimeSeriesMaster(getDbConnector());
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _htsMaster = null;
   }
 

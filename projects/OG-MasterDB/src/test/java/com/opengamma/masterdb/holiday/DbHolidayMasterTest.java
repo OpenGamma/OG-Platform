@@ -12,8 +12,6 @@ import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -41,15 +39,13 @@ public class DbHolidayMasterTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
+  @Override
+  protected void doSetUp() {
     _holMaster = new DbHolidayMaster(getDbConnector());
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _holMaster = null;
   }
 

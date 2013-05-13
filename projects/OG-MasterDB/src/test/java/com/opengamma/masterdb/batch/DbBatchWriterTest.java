@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -81,10 +80,7 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
 
   //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
-
+  protected void doSetUp() {
     _batchMaster = new DbBatchMaster(getDbConnector());
     _batchWriter = new DbBatchWriter(_batchMaster.getDbConnector());
 

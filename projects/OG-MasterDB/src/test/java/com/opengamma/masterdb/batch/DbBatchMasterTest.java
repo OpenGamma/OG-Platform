@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -59,10 +58,8 @@ public class DbBatchMasterTest extends AbstractDbBatchTest {
   }
 
   //-------------------------------------------------------------------------
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
-
+  @Override
+  protected void doSetUp() {
     _batchMaster = new DbBatchMaster(getDbConnector());
 
     final String calculationConfigName = "config_1";

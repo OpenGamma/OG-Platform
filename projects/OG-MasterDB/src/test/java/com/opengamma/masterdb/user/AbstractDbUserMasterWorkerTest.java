@@ -18,10 +18,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -49,7 +45,8 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalUsers;
-  protected boolean _readOnly;  // attempt to speed up tests
+  protected final boolean _readOnly;  // attempt to speed up tests
+  protected boolean _initialized;  // attempt to speed up tests
 
   public AbstractDbUserMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion, databaseVersion);
@@ -58,18 +55,19 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @BeforeClass(groups = TestGroup.UNIT_DB)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _usrMaster = null;
+  }
+
+  @Override
+  protected void doTearDownClass() {
+    _usrMaster = null;
   }
 
   //-------------------------------------------------------------------------
@@ -103,8 +101,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     }
   }
 
-  private void init() throws Exception {
-    super.setUp();
+  private void init() {
     _usrMaster = new DbUserMaster(getDbConnector());
     
 //    id bigint NOT NULL,
@@ -192,24 +189,6 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
         202, 2);
     template.update("INSERT INTO usr_oguser2idkey VALUES (?,?)",
         202, 3);
-  }
-
-  //-------------------------------------------------------------------------
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _usrMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(groups = TestGroup.UNIT_DB)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _usrMaster = null;
-      super.tearDown();
-    }
-    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

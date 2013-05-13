@@ -14,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
@@ -40,10 +38,8 @@ public abstract class AbstractDbBatchMasterWorkerTest extends AbstractDbBatchTes
   }
 
   //-------------------------------------------------------------------------
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
-
+  @Override
+  protected void doSetUp() {
     _batchMaster = new DbBatchMaster(getDbConnector());
     
     Timestamp now = toSqlTimestamp(Instant.now());
@@ -60,10 +56,9 @@ public abstract class AbstractDbBatchMasterWorkerTest extends AbstractDbBatchTes
         new SqlParameterValue(Types.TIMESTAMP, null), toSqlTimestamp(_valuationTime), 0, false);
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _batchMaster = null;
-    super.tearDown();
   }
 
 }

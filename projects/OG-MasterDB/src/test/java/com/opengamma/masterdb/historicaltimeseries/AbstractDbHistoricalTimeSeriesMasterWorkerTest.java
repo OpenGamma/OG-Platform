@@ -13,8 +13,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -55,9 +53,8 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
   }
 
   //-------------------------------------------------------------------------
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
+  @Override
+  protected void doSetUp() {
     _htsMaster = new DbHistoricalTimeSeriesMaster(getDbConnector());
     
     _now = OffsetDateTime.now();
@@ -159,10 +156,9 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
         101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version4Instant), 3.33d);
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _htsMaster = null;
-    super.tearDown();
   }
 
   //-------------------------------------------------------------------------

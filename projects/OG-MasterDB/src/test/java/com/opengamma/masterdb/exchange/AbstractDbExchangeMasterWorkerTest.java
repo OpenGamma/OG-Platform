@@ -24,10 +24,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -56,27 +52,26 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalExchanges;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbExchangeMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }
 
   //-------------------------------------------------------------------------
-  @BeforeClass(groups = TestGroup.UNIT_DB)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _exgMaster = null;
+  }
+
+  @Override
+  protected void doTearDownClass() {
+    _exgMaster = null;
   }
 
   //-------------------------------------------------------------------------
@@ -110,8 +105,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     }
   }
 
-  private void init() throws Exception {
-    super.setUp();
+  private void init() {
     _exgMaster = new DbExchangeMaster(getDbConnector());
     
 //    id bigint not null,
@@ -199,24 +193,6 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
         202, 2);
     template.update("INSERT INTO exg_exchange2idkey VALUES (?,?)",
         202, 3);
-  }
-
-  //-------------------------------------------------------------------------
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _exgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(groups = TestGroup.UNIT_DB)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _exgMaster = null;
-      super.tearDown();
-    }
-    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

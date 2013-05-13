@@ -16,8 +16,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
@@ -56,16 +54,14 @@ public class DbSecurityMasterTest extends AbstractDbSecurityTest {
   }
 
   //-------------------------------------------------------------------------
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
+  @Override
+  protected void doSetUp() {
     _secMaster = new DbSecurityMaster(getDbConnector());
     _secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _secMaster = null;
   }
 

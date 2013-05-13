@@ -14,7 +14,6 @@ import java.sql.Timestamp;
 import java.util.Map;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -59,8 +58,9 @@ public class DbTimeTest extends DbTest {
     super(databaseType, databaseVersion, databaseVersion);
   }
 
-  @BeforeClass(groups = TestGroup.UNIT_DB)
-  public void setUpClass() {
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUpClass() {
     _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }
 

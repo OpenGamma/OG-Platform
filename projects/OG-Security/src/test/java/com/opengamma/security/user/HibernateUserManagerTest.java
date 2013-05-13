@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -49,12 +48,8 @@ public class HibernateUserManagerTest extends DbTest {
 
   //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    super.setUp();
+  protected void doSetUp() {
     _userManager = new HibernateUserManager(getDbConnector());
-    
-    System.err.println("User Manager initialization complete:" + _userManager);
   }
 
   //-------------------------------------------------------------------------

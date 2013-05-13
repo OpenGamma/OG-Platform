@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -38,16 +36,15 @@ public class DbConfigMasterTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
     _cfgMaster = new DbConfigMaster(getDbConnector());
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _cfgMaster = null;
-    super.tearDown();
   }
 
   //-------------------------------------------------------------------------

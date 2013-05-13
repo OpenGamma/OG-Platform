@@ -16,10 +16,6 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -46,32 +42,30 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalHolidays;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbHolidayMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }
 
   //-------------------------------------------------------------------------
-  @BeforeClass(groups = TestGroup.UNIT_DB)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _holMaster = null;
+  }
+
+  @Override
+  protected void doTearDownClass() {
+    _holMaster = null;
   }
 
   //-------------------------------------------------------------------------
-  private void init() throws Exception {
-    super.setUp();
+  private void init() {
     _holMaster = new DbHolidayMaster(getDbConnector());
     
 //    id bigint not null,
@@ -119,24 +113,6 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
         201, toSqlDate(LocalDate.of(2010, 2, 1)));
     template.update("INSERT INTO hol_date VALUES (?,?)",
         202, toSqlDate(LocalDate.of(2010, 2, 1)));
-  }
-
-  //-------------------------------------------------------------------------
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _holMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(groups = TestGroup.UNIT_DB)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _holMaster = null;
-      super.tearDown();
-    }
-    super.tearDownClass();
   }
 
   //-------------------------------------------------------------------------

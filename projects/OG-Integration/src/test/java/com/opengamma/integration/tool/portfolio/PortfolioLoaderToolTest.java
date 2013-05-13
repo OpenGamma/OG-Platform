@@ -17,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -53,10 +51,9 @@ public class PortfolioLoaderToolTest extends DbTest{
     s_logger.info("running testcases for {}", databaseType);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
+  public void doSetUp() throws Exception {
     _tempFile = File.createTempFile("portfolio-", ".csv");
     s_logger.info("Created temp file: " + _tempFile.getAbsolutePath());
 
@@ -77,8 +74,7 @@ public class PortfolioLoaderToolTest extends DbTest{
   }
 
   @Override
-  @AfterMethod
-  public void tearDown() throws Exception {
+  public void doTearDown() {
     if (_context != null) {
       _context.stop();
       _context.close();
@@ -93,10 +89,9 @@ public class PortfolioLoaderToolTest extends DbTest{
       s_logger.info("Removing file: " + _tempFile.getAbsolutePath());
       _tempFile.delete();
     }
-
-    super.tearDown();
   }
 
+  //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToolContextMustBeProvided() {
     new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,

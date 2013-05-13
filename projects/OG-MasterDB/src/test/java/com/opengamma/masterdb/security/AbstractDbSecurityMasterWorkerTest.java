@@ -13,11 +13,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -40,37 +35,36 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends AbstractDbSecur
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerTest.class);
 
-  private static DbConnector _dbConnector;
+  private static DbConnector _dbConnector;  // local cache for Hibernate reasons, closed in DbTest
   protected DbSecurityMaster _secMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalSecurities;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbSecurityMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion);
-    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }
 
   //-------------------------------------------------------------------------
-  @BeforeClass(groups = TestGroup.UNIT_DB)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _secMaster = null;
+  }
+
+  @Override
+  protected void doTearDownClass() {
+    _secMaster = null;
+    _dbConnector = null;
   }
 
   //-------------------------------------------------------------------------
-  private void init() throws Exception {
-    super.setUp();
+  private void init() {
     if (_dbConnector == null) {
       _dbConnector = getDbConnector();
     }
@@ -134,30 +128,6 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends AbstractDbSecur
         202, 2);
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
         202, 3);
-  }
-
-  //-------------------------------------------------------------------------
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _secMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(groups = TestGroup.UNIT_DB)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _secMaster = null;
-      super.tearDown();
-    }
-    super.tearDownClass();
-  }
-
-  @AfterSuite(groups = TestGroup.UNIT_DB)
-  public void tearDownSuite() throws Exception {
-    _dbConnector.close();
-    _dbConnector = null;
   }
 
   //-------------------------------------------------------------------------
