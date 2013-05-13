@@ -23,6 +23,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAdesiWhaleyModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -266,12 +267,29 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
 
   private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final LocalDate valDate, final VolatilitySurfaceData<Number, Double> rawSurface,
       final ForwardCurve forwardCurve, final YieldCurve discountCurve, final VolatilitySurfaceSpecification specification) {
+    // quote type
     final String surfaceQuoteType = specification.getSurfaceQuoteType();
     double callAboveStrike = 0;
-    if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
+    boolean optionIsCall = true;
+    boolean quoteTypeIsCallPutStrike = false;
+    if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
+      optionIsCall = true;
+    } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.PUT_STRIKE)) {
+      optionIsCall = false;
+    } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
       callAboveStrike = ((CallPutSurfaceInstrumentProvider<?, ?>) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
+      quoteTypeIsCallPutStrike = true;
+    } else {
+      throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
     }
-    // Remove empties, convert expiries from number to years, and imply vols
+    // exercise type
+    final boolean isAmerican = true; // !!! THIS IS JUST TEST CODE !!! (specification.getExerciseType()).getName().startsWith("A");
+    BaroneAdesiWhaleyModel americanModel = null;
+    final double spot = forwardCurve.getSpot();
+    if (isAmerican) {
+      americanModel = new BaroneAdesiWhaleyModel();
+    }
+    // Main loop: Remove empties, convert expiries from number to years, and imply vols
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
@@ -280,29 +298,27 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
       final double forward = forwardCurve.getForward(t);
       final double zerobond = discountCurve.getDiscountFactor(t);
-      if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
-        Double[] ysAsDoubles = getYs(rawSurface.getYs());
-        for (final Double strike : ysAsDoubles) {
-          final Double price = rawSurface.getVolatility(nthExpiry, strike);
-          if (price != null) {
-            final double fwdPrice = price / zerobond;
-            try {
-              final double vol;
-              if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
-                vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, true);
-              } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.PUT_STRIKE)) {
-                vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, false);
-              } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
-                final boolean isCall = strike > callAboveStrike ? true : false;
-                vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, isCall);
-              } else {
-                throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
-              }
-              tList.add(t);
-              kList.add(strike);
-              volValues.put(Pair.of(t, strike), vol);
-            } catch (final Exception e) {
+      Double[] ysAsDoubles = getYs(rawSurface.getYs());
+      for (final Double strike : ysAsDoubles) {
+        final Double price = rawSurface.getVolatility(nthExpiry, strike);
+        if (price != null) {
+          try {
+            if (quoteTypeIsCallPutStrike) {
+              optionIsCall = strike > callAboveStrike ? true : false;
             }
+            final double vol;
+            if (isAmerican) {
+              vol = americanModel.impliedVolatility(price, spot, strike, -Math.log(zerobond) / t, Math.log(forward / spot) / t, t, optionIsCall); 
+            } else {
+              final double fwdPrice = price / zerobond;
+              vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, optionIsCall);
+            }
+            tList.add(t);
+            kList.add(strike);
+            volValues.put(Pair.of(t, strike), vol);
+          } catch (Exception e) {
+//            s_logger.info("Liquidity problem: input price, forward and zero bond imply negative volatility at strike, {}, and expiry, {}", 
+//                strike, FutureOptionExpiries.EQUITY.getFutureOptionExpiry(nthExpiry.intValue(), valDate));
           }
         }
       }
