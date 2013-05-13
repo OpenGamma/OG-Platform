@@ -13,7 +13,12 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.core.marketdatasnapshot.impl.*;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeTypeDictionary;

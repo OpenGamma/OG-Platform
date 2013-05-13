@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.marketdatasnapshot;
 
-import com.opengamma.core.marketdatasnapshot.*;
+import com.opengamma.core.marketdatasnapshot.CurveKey;
+import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.util.money.Currency;
 
 /**
  * Snapshotter that captures {@code ValueRequirementNames.CURVE_MARKET_DATA}

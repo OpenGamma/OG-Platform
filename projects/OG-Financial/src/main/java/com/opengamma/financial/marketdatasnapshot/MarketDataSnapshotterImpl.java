@@ -14,7 +14,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.opengamma.core.marketdatasnapshot.*;
+import com.opengamma.core.marketdatasnapshot.CurveKey;
+import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
