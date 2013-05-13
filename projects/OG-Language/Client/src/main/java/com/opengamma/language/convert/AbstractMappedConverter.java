@@ -12,7 +12,7 @@ import java.util.Map;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.AbstractTypeConverter;
 import com.opengamma.language.invoke.TypeConverter;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Partial implementation of a {@link TypeConverter} that handles a 1:1 mapping of types.

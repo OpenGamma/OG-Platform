@@ -25,9 +25,9 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.functional.Function1;
 
 /**
  * Encapsulates view-level configuration to describe the types of values required in the calculation results.

@@ -8,6 +8,8 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.text.MessageFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.Cache;
@@ -39,6 +41,7 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
 
   private final class ThreadLocalWorker {
 
+    private final TransferQueue<ThreadLocalWorker> _waiting = new LinkedTransferQueue<ThreadLocalWorker>();
     private ExternalIdBundle _identifierBundle;
     private LocalDate _identifierValidityDate;
     private String _dataSource;
@@ -46,7 +49,7 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
     private String _dataField;
     private String _resolutionKey;
 
-    private int _state;
+    private boolean _haveResult;
     private HistoricalTimeSeriesResolutionResult _result;
     private RuntimeException _error;
 
@@ -60,41 +63,51 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
       _resolutionKey = resolutionKey;
     }
 
-    public synchronized void setResult(final HistoricalTimeSeriesResolutionResult result) {
-      _result = result;
-      if (_state > 0) {
+    // Caller must hold the monitor
+    public void setResult(final HistoricalTimeSeriesResolutionResult result) {
+      ThreadLocalWorker waiting = _waiting.poll();
+      if (waiting != null) {
+        do {
+          waiting._haveResult = true;
+          waiting._result = result;
+          waiting = _waiting.poll();
+        } while (waiting != null);
         notifyAll();
       }
-      _state = -1;
     }
 
-    public synchronized void setError(final RuntimeException error) {
-      _error = error;
-      if (_state > 0) {
+    // Caller must hold the monitor
+    public void setError(final RuntimeException error) {
+      ThreadLocalWorker waiting = _waiting.poll();
+      if (waiting != null) {
+        do {
+          waiting._haveResult = true;
+          waiting._error = error;
+          waiting = _waiting.poll();
+        } while (waiting != null);
         notifyAll();
       }
-      _state = -1;
     }
 
-    public synchronized HistoricalTimeSeriesResolutionResult getResult() {
-      if (_state >= 0) {
-        _state++;
-        while (_state > 0) {
-          try {
-            wait();
-          } catch (InterruptedException e) {
-            throw new OpenGammaRuntimeException("Interrupted", e);
-          } finally {
-            if (_state > 0) {
-              _state--;
-            }
-          }
+    // Caller must hold the monitor on the delegate
+    public HistoricalTimeSeriesResolutionResult getResult(ThreadLocalWorker delegate) {
+      _haveResult = false;
+      delegate._waiting.add(this);
+      while (!_haveResult) {
+        try {
+          delegate.wait();
+        } catch (InterruptedException e) {
+          throw new OpenGammaRuntimeException("Interrupted", e);
         }
       }
-      if (_error != null) {
-        throw _error;
+      final RuntimeException e = _error;
+      if (e != null) {
+        _error = null;
+        throw e;
       }
-      return _result;
+      HistoricalTimeSeriesResolutionResult result = _result;
+      _result = null;
+      return result;
     }
 
     @Override
@@ -418,24 +431,40 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
   @Override
   public HistoricalTimeSeriesResolutionResult resolve(final ExternalIdBundle identifierBundle, final LocalDate identifierValidityDate,
       final String dataSource, final String dataProvider, final String dataField, final String resolutionKey) {
-    final ThreadLocalWorker worker = _worker.get();
+    final HistoricalTimeSeriesResolutionResult result;
+    ThreadLocalWorker worker = _worker.get();
     worker.init(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, resolutionKey);
-    final ThreadLocalWorker delegate = _workers.putIfAbsent(worker, worker);
-    if (delegate != null) {
-      return delegate.getResult();
-    } else {
-      final HistoricalTimeSeriesResolutionResult result;
-      try {
-        result = resolveImpl(worker, identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, resolutionKey);
+    do {
+      final ThreadLocalWorker delegate = _workers.putIfAbsent(worker, worker);
+      if (delegate == null) {
+        break;
+      } else {
+        synchronized (delegate) {
+          if (_workers.get(worker) == delegate) {
+            return worker.getResult(delegate);
+          }
+        }
+      }
+    } while (true);
+    try {
+      result = resolveImpl(worker, identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, resolutionKey);
+      synchronized (worker) {
         worker.setResult(result);
-      } catch (RuntimeException error) {
-        worker.setError(error);
-        throw error;
-      } finally {
         _workers.remove(worker);
       }
-      return result;
+    } catch (Throwable t) {
+      RuntimeException e;
+      if (t instanceof RuntimeException) {
+        e = (RuntimeException) t;
+      } else {
+        e = new OpenGammaRuntimeException("Checked exception", t);
+      }
+      synchronized (worker) {
+        worker.setError(e);
+        _workers.remove(worker);
+      }
+      throw e;
     }
+    return result;
   }
-
 }

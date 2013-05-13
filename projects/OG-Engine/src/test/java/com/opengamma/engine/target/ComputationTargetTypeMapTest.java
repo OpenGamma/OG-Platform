@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.functional.Function2;
+import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.test.TestGroup;
 
 /**

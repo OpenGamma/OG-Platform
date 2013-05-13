@@ -61,7 +61,7 @@ public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
     CURVES = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
   }
 
-  @Test
+  @Test(enabled = false)
   public void regressionTest() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final ZonedDateTime startDate = getStartDate(cds);

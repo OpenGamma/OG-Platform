@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Partial implementation of {@link ViewComputationCache}. A real implementation should handle the multiple value operations more efficiently whenever possible.

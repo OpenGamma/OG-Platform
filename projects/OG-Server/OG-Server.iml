@@ -9,9 +9,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.opengamma:lambdava:0.1" level="project" />
     <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module" module-name="OG-TimeSeries" />
     <orderEntry type="library" name="Maven: org.threeten:threetenbp:0.8.1" level="project" />
+    <orderEntry type="library" name="Maven: com.opengamma:lambdava:0.3" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.3" level="project" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.1" level="project" />
@@ -129,9 +131,9 @@
     <orderEntry type="library" name="Maven: com.yahoo.platform.yui:yuicompressor:2.4.2" level="project" />
     <orderEntry type="library" name="Maven: rhino:js:1.6R7" level="project" />
     <orderEntry type="library" name="Maven: org.jruby:jruby-complete:1.6.8" level="project" />
-    <orderEntry type="library" name="Maven: me.n4u.sass:sass-gems:3.2.1" level="project" />
     <orderEntry type="module" module-name="OG-MasterDB" />
     <orderEntry type="module" module-name="OG-Component" />
+    <orderEntry type="library" name="Maven: com.opengamma:og-component:resources:2.0.0-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="OG-Integration" />
     <orderEntry type="module" module-name="OG-Bloomberg" />
     <orderEntry type="library" name="Maven: com.opengamma.external.blpapi:blpapi:3.4.8.1" level="project" />
@@ -140,6 +142,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.beanshell:bsh:2.0b4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.beust:jcommander:1.12" level="project" />
     <orderEntry type="module" module-name="OG-Web" />
+    <orderEntry type="library" name="Maven: com.opengamma:og-web:resources:2.0.0-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="OG-MavenPlugin" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-api:3.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-model:3.0.4" level="project" />

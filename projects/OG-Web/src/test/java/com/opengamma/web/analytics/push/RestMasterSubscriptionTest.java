@@ -18,7 +18,7 @@ import org.threeten.bp.Instant;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test.

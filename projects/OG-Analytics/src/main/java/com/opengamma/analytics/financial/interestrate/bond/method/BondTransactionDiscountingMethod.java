@@ -108,7 +108,7 @@ public final class BondTransactionDiscountingMethod {
     final double pvNominalTransaction = bond.getBondTransaction().getNominal().accept(PVC, curves);
     final double pvCouponTransaction = bond.getBondTransaction().getCoupon().accept(PVC, curves);
     final double pvDiscountingTransaction = (pvNominalTransaction + pvCouponTransaction);
-    return (pvDiscountingTransaction - pvDiscountingStandard) * bond.getQuantity() + pvPriceStandard;
+    return (pvDiscountingTransaction - pvDiscountingStandard + pvPriceStandard) * bond.getQuantity();
   }
 
   /**

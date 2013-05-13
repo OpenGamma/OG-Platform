@@ -25,6 +25,7 @@ public abstract class StructuredMarketDataKey implements Serializable {
 
     T visitVolatilityCubeKey(VolatilityCubeKey key);
 
+    T visitCurveKey(CurveKey curveKey);
   }
 
   /**

@@ -42,7 +42,7 @@ import com.opengamma.engine.view.helper.AvailablePortfolioOutputs;
 import com.opengamma.financial.filtering.AbstractFilteringFunction;
 import com.opengamma.financial.filtering.PortfolioFilter;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Utility template for generating documentation from a function repository.
@@ -597,9 +597,9 @@ public abstract class AbstractDocumentation implements Runnable {
         int i = -1;
         for (final Pair<Pattern, String> description : _valuePropertyDescription) {
           i++;
-          final Matcher m = description.getKey().matcher(s);
+          final Matcher m = description._1().matcher(s);
           if (m.matches()) {
-            sbDetail.append(description.getValue());
+            sbDetail.append(description._2());
             s = null;
             _valuePropertyDescriptionUsed[i]++;
             break;

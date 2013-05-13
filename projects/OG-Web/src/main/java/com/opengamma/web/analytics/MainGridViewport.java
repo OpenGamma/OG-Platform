@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Viewport on one of the main analytics grids displaying portfolio or primitives data.

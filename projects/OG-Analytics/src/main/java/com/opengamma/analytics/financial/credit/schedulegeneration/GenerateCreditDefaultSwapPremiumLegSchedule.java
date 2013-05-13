@@ -124,6 +124,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ---------------
 
+    // TODO : Need to check that totalDates >= 2
+    // TODO : Need to check that number of schedule dates == totalDates
+
+    // ---------------
+
     final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[totalDates];
 
     for (int i = 0; i < totalDates; i++) {

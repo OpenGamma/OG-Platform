@@ -3,6 +3,7 @@
 	<name>OG-Util</name>
 	<comment></comment>
 	<projects>
+		<project>Lambdava</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

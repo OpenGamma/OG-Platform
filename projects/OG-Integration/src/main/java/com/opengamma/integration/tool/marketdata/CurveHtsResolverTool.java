@@ -7,7 +7,7 @@ package com.opengamma.integration.tool.marketdata;
 
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.functional.Functional.map;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,11 +39,11 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigSearchIterator;
-import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
@@ -105,12 +105,12 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
 
     // Get all other required hts external ids for curves
     final List<LocalDate> dates = buildDates();
-    final Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
+    final Set<String> curveNames = functional(curves).map(new Function1<YieldCurveDefinition, String>() {
       @Override
       public String execute(final YieldCurveDefinition yieldCurveDefinition) {
         return yieldCurveDefinition.getName() + "_" + yieldCurveDefinition.getCurrency().getCode();
       }
-    });
+    }).asSet();
     curveNodesExternalIds = getCurveRequiredExternalIds(configSource, curveNames, dates);
 
     // Load the required time series
@@ -212,9 +212,9 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
 
   private void loadHistoricalData(final boolean write, final String[] dataFields, final String dataProvider, final Set<ExternalId>... externalIdSets) {
     final BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
-      getToolContext().getHistoricalTimeSeriesMaster(),
-      getToolContext().getHistoricalTimeSeriesProvider(),
-      new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
+        getToolContext().getHistoricalTimeSeriesMaster(),
+        getToolContext().getHistoricalTimeSeriesProvider(),
+        new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
     for (final Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {
