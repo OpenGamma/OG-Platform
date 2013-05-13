@@ -298,7 +298,7 @@ $.register_module({
                                 padding: '0 0 0 2px', 'font-size': '10px', 'color': '#999'
                             }).prependTo($legend);
                         }
-                        if (y) $legends.eq(i).text(y.toFixed(2)); // otherwise there is no data, so no update
+                        if (y) $legends.eq(i).text(y); // otherwise there is no data, so no update
                     }
                 };
                 var show_plot = function () {
