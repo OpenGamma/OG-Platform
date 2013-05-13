@@ -12,9 +12,10 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
- * 
+ * Bond clean price from the conventional yield-to-maturity function.
  */
 public final class CleanPriceFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+
   private static final CleanPriceFromYieldCalculator INSTANCE = new CleanPriceFromYieldCalculator();
 
   public static CleanPriceFromYieldCalculator getInstance() {
