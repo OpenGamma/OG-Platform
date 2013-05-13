@@ -49,9 +49,12 @@ $.register_module({
                         $plot.draw();
                     });
                     $selector.find('span.og-histogram-refresh').bind('click', function (event) {
+                        var $elm = $('.og-bucket-mid');
                         $plot.setData(plot_data(config.update()));
                         $plot.setupGrid();
                         $plot.draw();
+                        $elm.siblings().removeClass('OG-link-active');
+                        $elm.addClass('OG-link-active');
                     });
                     gadget.resize();
                 });
