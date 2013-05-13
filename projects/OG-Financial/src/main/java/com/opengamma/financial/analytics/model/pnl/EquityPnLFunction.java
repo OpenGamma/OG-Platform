@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
@@ -39,35 +38,24 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Position position = target.getPosition();
     final ComputedValue fairValueCV = inputs.getComputedValue(ValueRequirementNames.FAIR_VALUE);
     final Object fairValueObj = fairValueCV.getValue();
     if (fairValueObj == null) {
       throw new OpenGammaRuntimeException("Asset fair value was null");
     }
+    final double fairValue = (Double) fairValueObj;
     final Object priceSeriesObj = inputs.getValue(ValueRequirementNames.PRICE_SERIES);
     if (priceSeriesObj == null) {
       throw new OpenGammaRuntimeException("Asset price series was null");
     }
-    final String samplingPeriodName = desiredValues.iterator().next().getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
-    final String scheduleCalculatorName = desiredValues.iterator().next().getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
-    final String samplingFunctionName = desiredValues.iterator().next().getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
-    final Set<String> returnCalculatorNames = desiredValues.iterator().next().getConstraints().getValues(ValuePropertyNames.RETURN_CALCULATOR);
-    final Double fairValue = (Double) fairValueObj;
+    final Set<String> returnCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.RETURN_CALCULATOR);
     final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorNames);
     final LocalDateDoubleTimeSeries returnSeries = (LocalDateDoubleTimeSeries) returnCalculator.evaluate((LocalDateDoubleTimeSeries) priceSeriesObj);
-    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, fairValueCV.getSpecification().getProperty(ValuePropertyNames.CURRENCY))
-        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
-        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
-        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
-        .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorNames.iterator().next())
-        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
-    final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties);
-    //TODO how do we get dividend data for an equity?
-    final ComputedValue result = new ComputedValue(valueSpecification, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue()));
-    return Sets.newHashSet(result);
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
+    // REVIEW 2013-05-10 Andrew -- Don't do the scaling here; operate at SECURITY level and scale the resulting time series to POSITION level
+    return Collections.singleton(new ComputedValue(resultSpec, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue())));
   }
 
   @Override
@@ -95,8 +83,8 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
       return null;
     }
     final Position position = target.getPosition();
-    final String currency = FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode();
     final EquitySecurity equity = (EquitySecurity) position.getSecurity();
+    final String currency = FinancialSecurityUtils.getCurrency(equity).getCode();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ValueProperties priceSeriesProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currency)
@@ -107,7 +95,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
     requirements.add(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, equity.getUniqueId(), priceSeriesProperties));
     return requirements;
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target,
       final Map<ValueSpecification, ValueRequirement> inputs) {
@@ -124,7 +112,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
     }
     if (currency == null) {
       return null;
-    }    
+    }
     // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
