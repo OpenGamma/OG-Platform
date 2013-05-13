@@ -4,18 +4,11 @@
  */
 .OG-cell-options {
     background-color: transparent;
-    border-bottom: 1px solid transparent;
-    border-top: 1px solid transparent;
-    border-right: 1px solid transparent;
     height: 20px;
     position: absolute;
     width: 32px;
     padding-right: 1px;
     z-index: 3;
-}
-
-.single-option {
-    width: 20px;
 }
 
 .OG-cell-options.og-expanded {
@@ -57,8 +50,6 @@
 .OG-cell-options .OG-icon.og-icon-ellipsis {
     background-color: #ccc;
     float: left;
-    margin-left: 1px;
-    padding: 1px;
 }
 
 .OG-cell-options .OG-icon.og-icon-ellipsis {
@@ -76,12 +67,11 @@
     background: #fff;
     border: 1px solid #dadcdd;
     cursor: pointer;
-    height: 11px;
-    left: -2px;
 }
 
 .OG-cell-options .OG-icon.og-icon-down-chevron::after {
-    top: 4px;
+    top: 7px;
+    left: -4px;
 }
 
 .OG-cell-options .og-big {
@@ -89,10 +79,9 @@
 }
 
 .OG-cell-options .og-group {
-    padding-left: 4px;
     position: relative;
-    top: 3px;
 }
+
 .OG-cell-options .og-icon-new-window-2 {
     background-color: #c9cacb;
     padding: 5px 4px 4px 3px;
@@ -123,7 +112,6 @@
 
 .OG-cell-options .og-num:hover,
 .OG-cell-options.og-expanded .og-num:hover {
-    background-color: #6fd66f;
     border: 1px solid #6fd66f;
     color: #fff;
 }
@@ -133,5 +121,13 @@
 }
 
 .OG-icon.og-icon-down-chevron:hover {
-    border-color: #6fd66f!important;
+    border-color: #01467a!important;
+}
+
+.OG-cell-options .og-cell-border {
+    position: absolute;
+    border: 1px solid #01467a;
+    height: 20px;
+    right: 32px;
+    display: none;
 }

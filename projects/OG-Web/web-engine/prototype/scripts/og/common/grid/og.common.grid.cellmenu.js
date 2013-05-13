@@ -11,7 +11,6 @@ $.register_module({
             open_icon = '.og-small',
             expand_class = 'og-expanded',
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
-            width,
             mapping = og.common.gadgets.mapping, scroll_size = og.common.util.scrollbar_size;
         var hide_menu = function (grid, cell) {
             var depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
@@ -29,15 +28,14 @@ $.register_module({
         };
         var constructor = function (grid) {
             var cellmenu = this, depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
-                parent = grid.elements.parent, inplace_config, timer, singlepanel = og.analytics.containers.initialize;
+                parent = grid.elements.parent, inplace_config, timer;
             cellmenu.frozen = false;
             cellmenu.grid = grid;
-            width = singlepanel ? 20 : 34;
             cellmenu.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             og.api.text({module: 'og.views.gadgets.grid.cell_options'}).pipe(function (template) {
-                template = (Handlebars.compile(template))({singlepanel:singlepanel ? true : false});
+                template = (Handlebars.compile(template))();
                 (cellmenu.menu = $(template)).hide()
                 .on('mouseleave', function () {
                     clearTimeout(timer), cellmenu.menu.removeClass(expand_class), cellmenu.hide();
@@ -70,7 +68,8 @@ $.register_module({
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
                     cellmenu.current = cell;
-                    if (hide_menu(grid, cell)) cellmenu.hide(); else cellmenu.show();
+                    if (hide_menu(grid, cell)) cellmenu.hide();
+                    else cellmenu.show(grid.cell_coords(cell.row, cell.col));
                 })
                 .on('cellhoverout', function () {
                     clearTimeout(timer);
@@ -109,14 +108,13 @@ $.register_module({
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             options = mapping.options(cell, cellmenu.grid, panel);
-            cellmenu.container.add([options]);
+            cellmenu.container.add([options], null, true);
             cellmenu.container.on('launch', og.analytics.url.launch);
-            inner_height = $(window).height()/2.5;
-            inner_width = $(window).width()/2.5;
+            inner_height = $(window).height() / 2.5;
+            inner_width = $(window).width() / 2.5;
             inner.height(inner_height);
             inner.width(inner_width)
-            if ((offset.top + inner_height) > $(window).height())
-                inner.css({marginTop: - inner_height - 30});
+            if ((offset.top + inner_height) > $(window).height()) inner.css({marginTop: - inner_height - 30});
             if ((offset.left + inner_width) > $(window).width())
                 inner.css({marginLeft: - inner_width - (offset.left - $(window).width()) - 10} );
             new constructor(cellmenu.grid);
@@ -133,20 +131,17 @@ $.register_module({
             });
         };
         constructor.prototype.hide = function () {
-           var cellmenu = this;
-            if (cellmenu.menu && cellmenu.menu.length && !cellmenu.frozen) {
-                cellmenu.menu.hide();
-            }
+            var cellmenu = this;
+            if (cellmenu.menu && cellmenu.menu.length && !cellmenu.frozen) cellmenu.menu.hide();
         };
-        constructor.prototype.show = function () {
-            var cellmenu = this, current = this.current;
+        constructor.prototype.show = function (coordinates) {
+            var cellmenu = this, current = this.current, width = coordinates.right - coordinates.left;
             if (cellmenu.menu && cellmenu.menu.length) {
-                cellmenu.menu
-                    .appendTo($('body'))
-                    .css({top: current.top, left: current.right - width + cellmenu.grid.elements.parent.offset().left})
-                    .show();
+                cellmenu.menu.appendTo($('body'))
+                    .css({top: current.top, left: current.right + cellmenu.grid.elements.parent.offset().left}).show()
+                    .find('.OG-gadgets-container').css('margin-left', -width + 'px').end()
+                    .find('.og-cell-border').css({left: -width + 'px'}).show();
             }
-
         };
         return constructor;
     }

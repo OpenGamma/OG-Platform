@@ -184,9 +184,13 @@ $.register_module({
                     show_gadget(id);
                 }
             };
+            var inplace_header = function (id) {
+                console.log('inplace header test', id);
+            };
             /**
              * @param {String|Array} data A String that defines what gadgets to load, or an Array of gadgets to load
              * @param {Number} index location to add new gadgets
+             * @param {Boolean} inplace render inplace header or not
              *
              * The data Array is a list of objects that describe the gadgets to load
              *     obj.gadget   Function
@@ -194,11 +198,11 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data, index) {
+            container.add = function (data, index, inplace) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(data, index), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
+                    return container.init(), setTimeout(container.add.partial(data, index, inplace), 10), container;
+                if (!initialized) return setTimeout(container.add.partial(data, index, inplace), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
@@ -220,7 +224,9 @@ $.register_module({
                     } else gadgets.push(gadget);
                     return gadget;
                 });
-                update_tabs(new_gadgets[new_gadgets.length - 1].id);
+//                if (!inplace)
+                    update_tabs(new_gadgets[new_gadgets.length - 1].id);
+//                else inplace_header(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {
