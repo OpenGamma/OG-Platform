@@ -9,9 +9,9 @@ $.register_module({
         var module = this, loading_template;
         return function (config) {
             var gadget = this, selector = config.selector, $selector, $plot, $refresh, options = {}, plot_template,
-                alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30,
-                line_tmpl = Handlebars.compile('<div class="og-histogram-{{{type}}}-line" style="left:{{{left}}}px;height:{{{height}}}px;"></div>');
-                label_tmpl = Handlebars.compile('<div class="og-histogram-var-label" style="left:{{{left}}}px;top:{{{top}}}px;">{{label}}}</div>');
+                alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30, $plot_selector,
+                line_tmpl = Handlebars.compile('<div class="og-histogram-{{{type}}}-line og-histogram-var" style="left:{{{left}}}px;height:{{{height}}}px;"></div>');
+                label_tmpl = Handlebars.compile('<div class="og-histogram-var-label og-histogram-var" style="left:{{{left}}}px;top:{{{top}}}px;">{{label}}}</div>');
             gadget.resize = function () {
                 height = $selector.parent().height();
                 width = $selector.width();
@@ -44,6 +44,7 @@ $.register_module({
                     $selector.html((Handlebars.compile(plot_template))({alive: alive, buckets: config.buckets}));
                     $selector.find('.og-bucket-mid').addClass('OG-link-active');
                     $refresh = $selector.find('div.og-histogram-refresh');
+                    $plot_selector = $(selector + ' .og-histogram-plot');
                     $refresh.hide();
                     $selector.find('span.og-bucket-select').bind('click', function (event) {
                         var $elm = $(event.target), rebucket_data = config.rebucket($elm .attr('name'));
@@ -58,6 +59,7 @@ $.register_module({
                         $plot.setData(plot_data(config.update()));
                         $plot.setupGrid();
                         $plot.draw();
+                        draw_vars();
                         $elm.siblings().removeClass('OG-link-active');
                         $elm.addClass('OG-link-active');
                         $refresh.hide();
@@ -65,7 +67,6 @@ $.register_module({
                     gadget.resize();
                 });
             };
-
             var plot_data = function (input) {
                 return data = [
                 {
@@ -84,10 +85,25 @@ $.register_module({
                     color: '#AA4643',
                     yaxis: 2,
                 }];
-            }
+            };
+            var draw_vars = function () {
+                var var99pos, var95pos, cvar99pos, cvar95pos, vars = config.vars;
+                $plot_selector.find('.og-histogram-var').remove();
+                var99pos = $plot.pointOffset({ x: vars.var99, y: 0});
+                var95pos = $plot.pointOffset({ x: vars.var95, y: 0});
+                cvar99pos = $plot.pointOffset({ x: vars.cvar99, y: 0});
+                cvar95pos = $plot.pointOffset({ x: vars.cvar95, y: 0});
+                $plot_selector.append(line_tmpl({type:'var99', left: var99pos.left, height: $plot.height()}));
+                $plot_selector.append(line_tmpl({type:'var95', left: var95pos.left, height: $plot.height()}));
+                $plot_selector.append(line_tmpl({type:'cvar99', left: cvar99pos.left, height: $plot.height()}));
+                $plot_selector.append(line_tmpl({type:'cvar95', left: cvar95pos.left, height: $plot.height()}));
+                $plot_selector.append(label_tmpl({left: var99pos.left + 4, top: '75', label: 'Var 99%'}));
+                $plot_selector.append(label_tmpl({left: var95pos.left + 4, top: '25', label: 'Var 95%'}));
+                $plot_selector.append(label_tmpl({left: cvar99pos.left + 4, top: '100', label: 'CVar 99%'}));
+                $plot_selector.append(label_tmpl({left: cvar95pos.left + 4, top: '50', label: 'CVar 95%'}));
+            };
             var load_plots = function () {
-                var previousPoint = null, var99pos, var95pos, cvar99pos, cvar95pos,
-                    $plot_selector = $(selector + ' .og-histogram-plot');
+                var previousPoint = null,
                 options = {
                     grid: {
                         borderWidth: 0, labelMargin: 4, color: '#999', minBorderMargin: 0,
@@ -97,26 +113,13 @@ $.register_module({
                     bars: {show: true, lineWidth: 0, barWidth: 0, fill: true, align: 'left', horizontal: false}
                 };
                 $plot = $.plot($(selector + ' .og-histogram-plot'), plot_data(), options);
-                if(config.vars){
-                    var99pos = $plot.pointOffset({ x: config.vars.var99, y: 0});
-                    var95pos = $plot.pointOffset({ x: config.vars.var95, y: 0});
-                    cvar99pos = $plot.pointOffset({ x: config.vars.cvar99, y: 0});
-                    cvar95pos = $plot.pointOffset({ x: config.vars.cvar95, y: 0});
-                    $plot_selector.append(line_tmpl({type:'var99', left: var99pos.left, height: $plot.height()}));
-                    $plot_selector.append(line_tmpl({type:'var95', left: var95pos.left, height: $plot.height()}));
-                    $plot_selector.append(line_tmpl({type:'cvar99', left: cvar99pos.left, height: $plot.height()}));
-                    $plot_selector.append(line_tmpl({type:'cvar95', left: cvar95pos.left, height: $plot.height()}));
-                    $plot_selector.append(label_tmpl({left: var99pos.left + 4, top: '75', label: 'Var 99%'}));
-                    $plot_selector.append(label_tmpl({left: var95pos.left + 4, top: '25', label: 'Var 95%'}));
-                    $plot_selector.append(label_tmpl({left: cvar99pos.left + 4, top: '100', label: 'CVar 99%'}));
-                    $plot_selector.append(label_tmpl({left: cvar95pos.left + 4, top: '50', label: 'CVar 95%'}));
-                }
+                if(config.vars) draw_vars();
                 $(selector).bind('plothover', function (event, pos, item) {
                     if (item) {
                         if (previousPoint != item.dataIndex) {
-                            var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.interval,
+                            var x = item.datapoint[0], y = item.datapoint[1], delta = x + config.interval,
                                 occur = y == 1 ? ' occurrence ' : ' occurrences ',
-                                msg = y + occur + 'in range<br/>' + x.toFixed(5) + ' to ' + x.toFixed(5);
+                                msg = y + occur + 'in range<br/>' + x.toFixed(5) + ' to ' + delta;
                                 previousPoint = item.dataIndex;
                             $('#tooltip').remove();
                             show_tooltip(pos.pageX, pos.pageY, msg);

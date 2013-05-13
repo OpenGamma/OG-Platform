@@ -22,16 +22,16 @@ $.register_module({
                 catch (error) {}
             };
             var calc_vars = function () {
-                return false;
-              //if (stripped[stripped.length - 1] > 0) return false;
-              //var ceil = Math.ceil, sample99 = ceil(samples * 0.99) - 1, sample95 = ceil(samples * 0.95) - 1,
-              //  range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
-              //return {
-              //  var99 : stripped[sample99],
-              //  var95 : stripped[sample95],
-              //  cvar99 : range99.reduce(function(a, b) { return a + b; }, 0) / range99.length,
-              //  cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
-              //}
+                //return false;
+              if (stripped[stripped.length - 1] > 0) return false;
+              var ceil = Math.ceil, sample99 = ceil(samples * 0.99) - 1, sample95 = ceil(samples * 0.95) - 1,
+                range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
+              return {
+                var99 : stripped[sample99],
+                var95 : stripped[sample95],
+                cvar99 : range99.reduce(function(a, b) { return a + b; }, 0) / range99.length,
+                cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
+              }
             }
             var histogram_data = function () {
                 var max_buckets = 50, min_buckets = 10,
@@ -89,7 +89,7 @@ $.register_module({
             };
             var prepare_data = function (data) {
                 stripped = data.timeseries.data.reduce(function (a, b){return a.concat(b[1]);}, []);
-                stripped.sort(function(a,b) {return (b -a)});
+                stripped.sort(function(a, b) {return (b - a)});
                 samples = stripped.length;
                 return $.extend(true, {}, config, histogram_data()/*, normpdf_data()*/,
                     {rebucket: bucket_data}, bucket_range(), {vars : calc_vars()}, {update : update});
