@@ -14,10 +14,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborON;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,6 +28,10 @@ import com.opengamma.util.ArgumentChecker;
  * A wrapper class for a AnnuityDefinition containing CouponOISDefinition.
  */
 public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOISDefinition> {
+  //REVIEW emcleod 13-05-2013 This is supposed to be an object that constructs one leg of a swap. It should
+  // not be necessary for the user to pass in a generator (which, as far as I can tell, are a convenience for
+  // testing), as this implies that they have to know what a swap type is - what if they just want to
+  // construct the leg?
 
   /** Empty array for array conversion of list */
   protected static final Coupon[] EMPTY_ARRAY_COUPON = new Coupon[0];
@@ -97,6 +104,33 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
    * @param settlementDate The annuity settlement or first fixing date, not null.
    * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional.
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @param indexON The overnight index.
+   * @param paymentLag The payment lag.
+   * @param indexCalendar The calendar for the overnight index.
+   * @param businessDayConvention The business day convention.
+   * @param paymentPeriod The payment period.
+   * @param isEOM Is EOM.
+   * @return The annuity.
+   */
+  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final boolean isPayer,
+      final IndexON indexON, final int paymentLag, final Calendar indexCalendar, final BusinessDayConvention businessDayConvention, final Period paymentPeriod, final boolean isEOM) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(endFixingPeriodDate, "End fixing period date");
+    ArgumentChecker.notNull(indexON, "overnight index");
+    ArgumentChecker.notNull(indexCalendar, "index calendar");
+    ArgumentChecker.notNull(businessDayConvention, "business day convention");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, paymentPeriod, true,
+        false, businessDayConvention, indexCalendar, isEOM); //TODO get rid of hard-codings
+    return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDates, notional, isPayer, indexON, paymentLag, indexCalendar);
+  }
+
+  /**
+   * Build a annuity of OIS coupons from financial details.
+   * @param settlementDate The annuity settlement or first fixing date, not null.
+   * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param notional The annuity notional.
    * @param generator The Ibor/ON generator, not null.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
@@ -109,6 +143,19 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, generator.getIndexIbor().getTenor(), generator.isStubShort(),
         generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getOvernightCalendar(), generator.isEndOfMonth());
     return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDates, notional, generator, isPayer);
+  }
+
+  private static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final boolean isPayer,
+      final IndexON indexON, final int paymentLag, final Calendar indexCalendar) {
+    final double sign = isPayer ? -1.0 : 1.0;
+    final double notionalSigned = sign * notional;
+    final CouponOISDefinition[] coupons = new CouponOISDefinition[endFixingPeriodDate.length];
+    coupons[0] = CouponOISDefinition.from(indexON, settlementDate, endFixingPeriodDate[0], notionalSigned, paymentLag, indexCalendar);
+    for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
+      coupons[loopcpn] = CouponOISDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
+          indexCalendar);
+    }
+    return new AnnuityCouponOISDefinition(coupons);
   }
 
   private static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
