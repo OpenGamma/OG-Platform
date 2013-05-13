@@ -106,8 +106,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE,
         new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
             ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA,
-            ValueRequirementNames.TOTAL_RISK_ALPHA });
-    defaultCalc.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()).get());
+            ValueRequirementNames.TOTAL_RISK_ALPHA, ValueRequirementNames.PNL });
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }
