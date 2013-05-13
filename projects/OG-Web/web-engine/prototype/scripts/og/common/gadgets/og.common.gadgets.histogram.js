@@ -92,7 +92,7 @@ $.register_module({
                 stripped.sort(function(a,b) {return (b -a)});
                 samples = stripped.length;
                 return $.extend(true, {}, config, histogram_data()/*, normpdf_data()*/,
-                    {callback: bucket_data}, bucket_range(), {vars : calc_vars()}, {update : update});
+                    {rebucket: bucket_data}, bucket_range(), {vars : calc_vars()}, {update : update});
             };
             var update = function () {
                 return prepare_data(gadget.data);
@@ -102,8 +102,9 @@ $.register_module({
                 .on('data', function (value) {
                     gadget.data = typeof value.v !== 'undefined' ? value.v : value;
                     if (!histogram && gadget.data && (typeof gadget.data === 'object')) {
-                        //console.log(gadget.data);
                         histogram = new og.common.gadgets.HistogramPlot(prepare_data(gadget.data));
+                    } else {
+                        histogram.display_refresh();
                     }
                 })
                 .on('fatal', function (message) {$selector.html(message);});

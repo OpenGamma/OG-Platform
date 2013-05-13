@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, loading_template;
         return function (config) {
-            var gadget = this, selector = config.selector, $selector, $plot, options = {}, plot_template,
+            var gadget = this, selector = config.selector, $selector, $plot, $refresh, options = {}, plot_template,
                 alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30,
                 line_tmpl = Handlebars.compile('<div class="og-histogram-{{{type}}}-line" style="left:{{{left}}}px;height:{{{height}}}px;"></div>');
                 label_tmpl = Handlebars.compile('<div class="og-histogram-var-label" style="left:{{{left}}}px;top:{{{top}}}px;">{{label}}}</div>');
@@ -27,7 +27,10 @@ $.register_module({
                 $plot.setData(config);
                 $plot.setupGrid();
                 $plot.draw();
-            }
+            };
+            gadget.display_refresh = function () {
+                $refresh.show();
+            };
             show_tooltip = function (x, y, contents) {
                 $('<div id="tooltip">' + contents + '</div>').css( {
                     position: 'absolute', display: 'none', top: y - 70, left: x - 20,
@@ -40,21 +43,24 @@ $.register_module({
                     $selector = $(selector);
                     $selector.html((Handlebars.compile(plot_template))({alive: alive, buckets: config.buckets}));
                     $selector.find('.og-bucket-mid').addClass('OG-link-active');
+                    $refresh = $selector.find('div.og-histogram-refresh');
+                    $refresh.hide();
                     $selector.find('span.og-bucket-select').bind('click', function (event) {
-                        var $elm = $(event.target), rebucket_data = config.callback($elm .attr('name'));
+                        var $elm = $(event.target), rebucket_data = config.rebucket($elm .attr('name'));
                         $elm.siblings().removeClass('OG-link-active');
                         $elm.addClass('OG-link-active');
                         $plot.setData(plot_data(rebucket_data));
                         $plot.setupGrid();
                         $plot.draw();
                     });
-                    $selector.find('span.og-histogram-refresh').bind('click', function (event) {
+                    $refresh.on('click', function (event) {
                         var $elm = $('.og-bucket-mid');
                         $plot.setData(plot_data(config.update()));
                         $plot.setupGrid();
                         $plot.draw();
                         $elm.siblings().removeClass('OG-link-active');
                         $elm.addClass('OG-link-active');
+                        $refresh.hide();
                     });
                     gadget.resize();
                 });
