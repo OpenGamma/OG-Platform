@@ -46,14 +46,14 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.MapUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
+public abstract class AbstractHistoricalTimeSeriesDBTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalTimeSeriesDBTest.class);
   

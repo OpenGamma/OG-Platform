@@ -19,13 +19,14 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 
 /**
  * A performance test of time-series.
  */
 @Test(enabled = false)
-public class PerformanceTest extends DbTest {
+public class PerformanceTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);
 

@@ -27,14 +27,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbHistoricalTimeSeriesMasterWorker via DbHistoricalTimeSeriesMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbTest {
+public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbHistoricalTimeSeriesMasterWorkerTest.class);
 

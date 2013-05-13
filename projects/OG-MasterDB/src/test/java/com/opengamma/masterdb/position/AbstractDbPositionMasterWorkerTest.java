@@ -32,14 +32,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbPositionMasterWorker via DbPositionMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
+public abstract class AbstractDbPositionMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbPositionMasterWorkerTest.class);
 

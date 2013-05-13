@@ -9,14 +9,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.HibernateMappingFiles;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbBatchMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbBatchTest extends DbTest {
+public abstract class AbstractDbBatchTest extends AbstractDbTest {
 
   public AbstractDbBatchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);

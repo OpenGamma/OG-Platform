@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -20,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbHistoricalTimeSeriesMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbHistoricalTimeSeriesMasterTest extends DbTest {
+public class DbHistoricalTimeSeriesMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterTest.class);
 

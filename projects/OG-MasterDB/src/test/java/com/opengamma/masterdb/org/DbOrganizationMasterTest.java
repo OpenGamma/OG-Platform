@@ -22,6 +22,7 @@ import com.opengamma.core.obligor.Sector;
 import com.opengamma.master.orgs.ManageableOrganization;
 import com.opengamma.master.orgs.OrganizationDocument;
 import com.opengamma.masterdb.orgs.DbOrganizationMaster;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -29,7 +30,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbOrganizationMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbOrganizationMasterTest extends DbTest {
+public class DbOrganizationMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbOrganizationMasterTest.class);
 

@@ -30,6 +30,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
@@ -39,7 +40,7 @@ import com.opengamma.util.tuple.Pair;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbMarketDataSnapshotMasterTest extends DbTest {
+public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbMarketDataSnapshotMasterTest.class);
 

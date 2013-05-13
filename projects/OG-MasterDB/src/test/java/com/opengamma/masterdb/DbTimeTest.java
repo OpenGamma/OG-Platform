@@ -24,6 +24,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -31,7 +32,7 @@ import com.opengamma.util.test.TestGroup;
  * Tests time in the database.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbTimeTest extends DbTest {
+public class DbTimeTest extends AbstractDbTest {
   // TIMESTAMP WITHOUT TIME ZONE is consistent across Postgres and HSQL
   // it stores the visible field values from Timestamp (ignoring the Java and DB time zones)
   // TIMESTAMP WITH TIME ZONE is inconsistent across Postgres and HSQL

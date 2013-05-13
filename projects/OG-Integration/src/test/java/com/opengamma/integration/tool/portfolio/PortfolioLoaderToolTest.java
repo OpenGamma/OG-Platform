@@ -27,6 +27,7 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -35,7 +36,7 @@ import com.opengamma.util.test.TestGroup;
  * inserted into the correct database masters.
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class PortfolioLoaderToolTest extends DbTest{
+public class PortfolioLoaderToolTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderToolTest.class);
 

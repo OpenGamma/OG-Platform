@@ -19,6 +19,7 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -26,7 +27,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbHolidayMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbHolidayMasterTest extends DbTest {
+public class DbHolidayMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMasterTest.class);
 

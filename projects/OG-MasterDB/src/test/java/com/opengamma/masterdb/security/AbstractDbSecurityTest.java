@@ -10,14 +10,14 @@ import org.testng.annotations.Test;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.HibernateMappingFiles;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbSecurityTest extends DbTest {
+public abstract class AbstractDbSecurityTest extends AbstractDbTest {
 
   public AbstractDbSecurityTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);

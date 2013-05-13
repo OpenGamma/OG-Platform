@@ -18,6 +18,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -25,7 +26,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbExchangeMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbExchangeMasterTest extends DbTest {
+public class DbExchangeMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMasterTest.class);
 

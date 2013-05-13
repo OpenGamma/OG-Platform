@@ -17,6 +17,7 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -24,7 +25,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbConfigMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbConfigMasterTest extends DbTest {
+public class DbConfigMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigMasterTest.class);
 

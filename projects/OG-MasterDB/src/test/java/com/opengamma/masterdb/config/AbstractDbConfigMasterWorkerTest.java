@@ -37,14 +37,14 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbConfigMasterWorker via DbConfigMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
+public abstract class AbstractDbConfigMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigMasterWorkerTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();

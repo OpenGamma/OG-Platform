@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -20,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbPositionMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbPositionMasterTest extends DbTest {
+public class DbPositionMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMasterTest.class);
 

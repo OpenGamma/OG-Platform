@@ -17,6 +17,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -24,7 +25,7 @@ import com.opengamma.util.test.TestGroup;
  * Tests OG-UtilDB clock.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbClockTest extends DbTest {
+public class DbClockTest extends AbstractDbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbClockTest(final String databaseType, String databaseVersion) {

@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -36,6 +37,11 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
   private final String _targetVersion;
   private final String _createVersion;
   private volatile DbTool _dbTool;
+
+  static {
+    // initialize the clock
+    DateUtils.initTimeZone();
+  }
 
   /**
    * Creates an instance.
@@ -63,7 +69,9 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
 
   @AfterMethod(alwaysRun = true)
   public void tearDown() {
-    DbTest.s_databaseTypeVersion.clear();
+    // need to clear version cache from here
+    // this is messy but necessary
+    AbstractDbTest.s_databaseTypeVersion.clear();
   }
 
   protected Map<String, String> getVersionSchemas() {

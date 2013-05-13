@@ -27,14 +27,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbHolidayMasterWorker via DbHolidayMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
+public abstract class AbstractDbHolidayMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbHolidayMasterWorkerTest.class);
 

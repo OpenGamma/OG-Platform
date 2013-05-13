@@ -18,6 +18,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -25,7 +26,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbPortfolioMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbPortfolioMasterTest extends DbTest {
+public class DbPortfolioMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMasterTest.class);
 

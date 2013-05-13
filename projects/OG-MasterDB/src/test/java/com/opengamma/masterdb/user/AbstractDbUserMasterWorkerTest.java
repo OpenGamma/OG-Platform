@@ -30,14 +30,14 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbUserMasterWorker via DbUserMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
+public abstract class AbstractDbUserMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbUserMasterWorkerTest.class);
 

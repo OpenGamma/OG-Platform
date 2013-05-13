@@ -88,13 +88,14 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.provider.security.SecurityProvider;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 
 /**
  * Test.
  */
 @Test(groups = "bbgSecurityLoaderTests")
-public class BloombergSecurityLoaderTest extends DbTest {
+public class BloombergSecurityLoaderTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityLoaderTest.class);
 

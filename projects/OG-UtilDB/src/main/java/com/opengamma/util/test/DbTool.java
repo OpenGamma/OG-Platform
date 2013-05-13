@@ -573,12 +573,12 @@ public class DbTool extends Task {
 
     if (_createTestDb) {
       // used to try to use _testPropertiesDir here, but value was always ignored
-      for (String dbType : DbTestProperties.getDatabaseTypes(_testDbType)) {
+      for (String dbType : DbTest.initDatabaseTypes(_testDbType)) {
         s_logger.debug("Creating " + dbType + " test database...");
 
-        String dbUrl = DbTestProperties.getDbHost(dbType);
-        String user = DbTestProperties.getDbUsername(dbType);
-        String password = DbTestProperties.getDbPassword(dbType);
+        String dbUrl = DbTest.getDbHost(dbType);
+        String user = DbTest.getDbUsername(dbType);
+        String password = DbTest.getDbPassword(dbType);
 
         setDbServerHost(dbUrl);
         setUser(user);
