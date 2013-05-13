@@ -7,16 +7,6 @@ package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.util.Map;
 
-import com.opengamma.core.marketdatasnapshot.CurveKey;
-import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -30,6 +20,16 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Maps;
+import com.opengamma.core.marketdatasnapshot.CurveKey;
+import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
@@ -138,17 +138,17 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
      * @param volatilitySurfaces the volatility surfaces
      * @param volatilityCubes the volatility cubes
      */
-    public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
-                                        final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves, final Map<CurveKey, CurveSnapshot> curves, final Map<VolatilitySurfaceKey,
-            VolatilitySurfaceSnapshot> volatilitySurfaces, final Map<VolatilityCubeKey, VolatilityCubeSnapshot> volatilityCubes) {
-        super();
-        _name = name;
-        _globalValues = (globalValues != null) ? new ManageableUnstructuredMarketDataSnapshot(globalValues) : null;
-        _yieldCurves = yieldCurves;
-        _curves = curves;
-        _volatilitySurfaces = volatilitySurfaces;
-        _volatilityCubes = volatilityCubes;
-    }
+  public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
+      final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves, final Map<CurveKey, CurveSnapshot> curves, final Map<VolatilitySurfaceKey,
+      VolatilitySurfaceSnapshot> volatilitySurfaces, final Map<VolatilityCubeKey, VolatilityCubeSnapshot> volatilityCubes) {
+    super();
+    _name = name;
+    _globalValues = (globalValues != null) ? new ManageableUnstructuredMarketDataSnapshot(globalValues) : null;
+    _yieldCurves = yieldCurves;
+    _curves = curves;
+    _volatilitySurfaces = volatilitySurfaces;
+    _volatilityCubes = volatilityCubes;
+  }
 
   public ManageableMarketDataSnapshot(final StructuredMarketDataSnapshot copyFrom) {
     this(copyFrom.getName(), copyFrom.getGlobalValues(), copyFrom.getYieldCurves(), copyFrom.getCurves(),  copyFrom.getVolatilitySurfaces(), copyFrom.getVolatilityCubes());
