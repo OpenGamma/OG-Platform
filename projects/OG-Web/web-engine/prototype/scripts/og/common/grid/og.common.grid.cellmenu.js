@@ -7,9 +7,6 @@ $.register_module({
     dependencies: ['og.common.gadgets.mapping'],
     obj: function () {
         var module = this,
-            icons = '.og-num, .og-icon-new-window-2',
-            open_icon = '.og-small',
-            expand_class = 'og-expanded',
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
             mapping = og.common.gadgets.mapping, scroll_size = og.common.util.scrollbar_size;
         var hide_menu = function (grid, cell) {
@@ -35,37 +32,9 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             og.api.text({module: 'og.views.gadgets.grid.cell_options'}).pipe(function (template) {
-                template = (Handlebars.compile(template))();
                 (cellmenu.menu = $(template)).hide()
-                .on('mouseleave', function () {
-                    clearTimeout(timer), cellmenu.menu.removeClass(expand_class), cellmenu.hide();
-                })
-                .on('mouseenter', open_icon, function () {
-                    clearTimeout(timer), timer = setTimeout(function () {cellmenu.menu.addClass(expand_class);}, 500);
-                })
-                .on('mouseenter', function () {$.data(cellmenu, 'hover', true);})
-                .on('click', open_icon, function () {
-                    cellmenu.destroy_frozen();
-                    cellmenu.menu.addClass(expand_class);
-                })
-                .on('mouseenter', icons, function () {
-                    var panel = panels[$(this).text() - 1];
-                    panels.forEach(function (val) {og.analytics.containers[val].highlight(true, val === panel);});
-                })
-                .on('mouseleave', icons, function () {
-                    panels.forEach(function (val) {og.analytics.containers[val].highlight(false);});
-                })
-                .on('click', icons, function () {
-                    var panel = panels[+$(this).text() - 1], cell = cellmenu.current,
-                        options = mapping.options(cell, grid, panel);
-                    cellmenu.destroy_frozen();
-                    cellmenu.hide();
-                    if (!panel) og.analytics.url.launch(options); 
-                    else og.analytics.url.add(panel, options);
-                });
                 grid.on('cellhoverin', function (cell) {
                     if (cellmenu.frozen || cellmenu.busy()) return;
-                    cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
                     cellmenu.current = cell;
                     if (hide_menu(grid, cell)) cellmenu.hide();

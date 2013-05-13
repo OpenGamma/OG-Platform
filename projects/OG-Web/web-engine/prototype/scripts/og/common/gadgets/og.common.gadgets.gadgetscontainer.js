@@ -9,7 +9,7 @@ $.register_module({
         var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template,
         counter = 1, header = ' .ui-layout-header';
         var constructor = function (selector_prefix, pane) {
-            var initialized = false, loading, gadgets = [], container = this, highlight_timer,
+            var initialized = false, loading, gadgets = [], container = this,
                 selector = selector_prefix + pane, $selector = $(selector),
                 class_prefix = selector_prefix.substring(1),
                 live_id, // active tab id
@@ -246,19 +246,6 @@ $.register_module({
                 if (!silent) container.fire('del', index);
             };
             container.gadgets = function () {return gadgets;};
-            /**
-             * Highlight gadget panel with number
-             * @param show {Boolean} turn on / off
-             * @param strong {Boolean} set to active panel
-             */
-            container.highlight = function (show, strong) {
-                var number = ({'south': 1, 'dock-north': 2, 'dock-center': 3, 'dock-south': 4})[pane],
-                    query = $selector.find('.og-highlight'), $html = query.length ? query
-                        : $('<div />').text(number).addClass('og-highlight').appendTo($selector);
-                clearTimeout(highlight_timer);
-                if (show) (strong ? $html.addClass('strong') : $html.removeClass('strong')).show();
-                else clearTimeout(highlight_timer), highlight_timer = setTimeout(function () {$html.hide();}, 250);
-            };
             /**
              * Add og-focus class to last clicked container tab and remove from all other gadget container instances
              */
