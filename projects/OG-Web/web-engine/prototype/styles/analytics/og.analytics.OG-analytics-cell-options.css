@@ -21,8 +21,8 @@
     -webkit-box-shadow: 2px 2px 2px #ebebeb;
 }
 
-.OG-cell-options.og-frozen{
-    z-index:5;
+.OG-cell-options.og-frozen {
+    z-index: 5;
 }
 
 .OG-cell-options.og-expanded .og-num {
@@ -126,8 +126,24 @@
 
 .OG-cell-options .og-cell-border {
     position: absolute;
-    border: 1px solid #01467a;
-    height: 20px;
+    height: 0;
     right: 32px;
     display: none;
+}
+
+.OG-cell-options .og-cell-border-top {
+    border-top: 1px solid #01467a;
+    height: 0;
+}
+
+.OG-cell-options .og-cell-border-bottom {
+    border-bottom: 1px solid #01467a;
+    height: 0;
+    bottom: -2px;
+}
+
+.OG-cell-options .og-cell-border-left {
+    border-left: 1px solid #01467a;
+    height: 22px;
+    width: 1px;
 }
