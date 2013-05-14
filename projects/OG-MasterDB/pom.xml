@@ -48,8 +48,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <zip basedir="install" destfile="${project.build.directory}/og-masterdb-sql.zip" />
-                <attachartifact file="${project.build.directory}/og-masterdb-sql.zip" classifier="sql" type="zip" />
+                <zip basedir="install" destfile="${project.build.directory}/og-masterdb-sql.jar" />
+                <attachartifact file="${project.build.directory}/og-masterdb-sql.jar" classifier="sql" type="jar" />
               </target>
             </configuration>
             <goals>
