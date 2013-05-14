@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,7 +39,14 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
    * The index spot lag in days between trade and settlement date (usually 2 or 0).
    */
   private final int _spotLag;
-
+  /**
+   * The holiday calendar for the first ibor leg.
+   */
+  private final Calendar _calendar1;
+  /**
+   * The holiday calendar for the second ibor leg.
+   */
+  private final Calendar _calendar2;
   // REVIEW: Do we need stubShort and stubFirst flags?
 
   /**
@@ -46,17 +54,23 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
    * @param name The generator name. Not null.
    * @param iborIndex1 The Ibor index of the first leg.
    * @param iborIndex2 The Ibor index of the second leg.
+   * @param calendar1 The holiday calendar for the first ibor leg.
+   * @param calendar2 The holiday calendar for the second ibor leg.
    */
-  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2) {
+  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final Calendar calendar1, final Calendar calendar2) {
     super(name);
     ArgumentChecker.notNull(iborIndex1, "ibor index 1");
     ArgumentChecker.notNull(iborIndex2, "ibor index 2");
-    ArgumentChecker.isTrue(iborIndex1.getCurrency() == iborIndex2.getCurrency(), "Currencies of both index should be identical");
+    ArgumentChecker.notNull(calendar1, "calendar 1");
+    ArgumentChecker.notNull(calendar2, "calendar 2");
+    ArgumentChecker.isTrue(iborIndex1.getCurrency().equals(iborIndex2.getCurrency()), "Currencies of both index should be identical");
     _iborIndex1 = iborIndex1;
     _iborIndex2 = iborIndex2;
     _businessDayConvention = iborIndex1.getBusinessDayConvention();
     _endOfMonth = iborIndex1.isEndOfMonth();
     _spotLag = iborIndex1.getSpotLag();
+    _calendar1 = calendar1;
+    _calendar2 = calendar2;
   }
 
   /**
@@ -67,18 +81,24 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
+   * @param calendar1 The holiday calendar for the first ibor leg.
+   * @param calendar2 The holiday calendar for the second ibor leg.
    */
   public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth, final int spotLag) {
+      final boolean endOfMonth, final int spotLag, final Calendar calendar1, final Calendar calendar2) {
     super(name);
     ArgumentChecker.notNull(iborIndex1, "ibor index 1");
     ArgumentChecker.notNull(iborIndex2, "ibor index 2");
-    ArgumentChecker.isTrue(iborIndex1.getCurrency() == iborIndex2.getCurrency(), "Currencies of both index should be identical");
+    ArgumentChecker.notNull(calendar1, "calendar 1");
+    ArgumentChecker.notNull(calendar2, "calendar 2");
+    ArgumentChecker.isTrue(iborIndex1.getCurrency().equals(iborIndex2.getCurrency()), "Currencies of both index should be identical");
     _iborIndex1 = iborIndex1;
     _iborIndex2 = iborIndex2;
     _businessDayConvention = businessDayConvention;
     _endOfMonth = endOfMonth;
     _spotLag = spotLag;
+    _calendar1 = calendar1;
+    _calendar2 = calendar2;
   }
 
   /**
@@ -121,6 +141,22 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
     return _endOfMonth;
   }
 
+  /**
+   * Gets the holiday calendar for the first leg.
+   * @return The holiday calendar
+   */
+  public Calendar getCalendar1() {
+    return _calendar1;
+  }
+
+  /**
+   * Gets the holiday calendar for the second leg.
+   * @return The holiday calendar
+   */
+  public Calendar getCalendar2() {
+    return _calendar2;
+  }
+
   @Override
   /**
    * The effective date is date+_spotLag. The maturity date is effective date+tenor.
@@ -132,8 +168,8 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
   public SwapIborIborDefinition generateInstrument(final ZonedDateTime date, final double spread, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex1);
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar1);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex1, _calendar1);
     return SwapIborIborDefinition.from(startDate, attribute.getEndPeriod(), this, notional, spread, true);
   }
 
@@ -151,6 +187,8 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
     result = prime * result + _iborIndex1.hashCode();
     result = prime * result + _iborIndex2.hashCode();
     result = prime * result + _spotLag;
+    result = prime * result + _calendar1.hashCode();
+    result = prime * result + _calendar2.hashCode();
     return result;
   }
 
@@ -179,6 +217,12 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
       return false;
     }
     if (_spotLag != other._spotLag) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar1, other._calendar1)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar2, other._calendar2)) {
       return false;
     }
     return true;

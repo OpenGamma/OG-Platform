@@ -8,6 +8,8 @@ package com.opengamma.component.factory.web;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import net.sf.ehcache.CacheManager;
 
 import org.joda.beans.BeanBuilder;
@@ -19,6 +21,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -30,6 +33,7 @@ import com.opengamma.web.bundle.EHCachingBundleCompressor;
 import com.opengamma.web.bundle.WebBundlesResource;
 import com.opengamma.web.bundle.YUIBundleCompressor;
 import com.opengamma.web.bundle.YUICompressorOptions;
+import com.opengamma.web.sass.WebJRubySassCompiler;
 
 /**
  * Component factory for the main website.
@@ -86,20 +90,47 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    BundleManagerFactory managerFactory = buildBundleManager();
-    YUICompressorOptions compressorOptions = buildCompressorOptions();
+    final WebResourceBundleInitializer webResourceInitializer = new WebResourceBundleInitializer(buildCompressorOptions(), 
+        buildBundleManager(), getCacheManager(), getDeployMode(), repo);
+    repo.registerServletContextAware(webResourceInitializer);
+  }
+  
+  //-------------------------------------------------------------------------
+  static final class WebResourceBundleInitializer implements ServletContextAware {
+    private WebJRubySassCompiler _sassCompiler;
+    private YUICompressorOptions _compressorOptions;
+    private BundleManagerFactory _bundleManagerFactory;
+    private CacheManager _cacheManager;
+    private DeployMode _deployMode;
+    private ComponentRepository _repo;
     
-    BundleCompressor compressor = new YUIBundleCompressor(compressorOptions);
-    if (getCacheManager() != null) {
-      compressor = new EHCachingBundleCompressor(compressor, getCacheManager());
-    } else {
-      if (getDeployMode() == DeployMode.PROD) {
-        throw new IllegalArgumentException("CacheManager required for production deployment");
-      }
+    public WebResourceBundleInitializer(YUICompressorOptions compressorOptions, BundleManagerFactory bundleManagerFactory, 
+        CacheManager cacheManager, DeployMode deployMode, ComponentRepository repo) {
+      _compressorOptions = compressorOptions;
+      _bundleManagerFactory = bundleManagerFactory;
+      _cacheManager = cacheManager;
+      _deployMode = deployMode;
+      _repo = repo;
     }
     
-    JerseyRestResourceFactory resource = new JerseyRestResourceFactory(WebBundlesResource.class, managerFactory, compressor, getDeployMode());
-    repo.getRestComponents().publishResource(resource);
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+      WebJRubySassCompiler.init(servletContext);
+      _sassCompiler = WebJRubySassCompiler.of(servletContext);
+      
+      BundleCompressor compressor = new YUIBundleCompressor(_compressorOptions, _sassCompiler);
+      if (_cacheManager != null) {
+        compressor = new EHCachingBundleCompressor(compressor, _cacheManager);
+      } else {
+        if (_deployMode == DeployMode.PROD) {
+          throw new IllegalArgumentException("CacheManager required for production deployment");
+        }
+      }
+      
+      JerseyRestResourceFactory resource = new JerseyRestResourceFactory(WebBundlesResource.class, _bundleManagerFactory, compressor, _deployMode);
+      _repo.getRestComponents().publishResource(resource);
+    }
+ 
   }
 
   protected BundleManagerFactory buildBundleManager() {

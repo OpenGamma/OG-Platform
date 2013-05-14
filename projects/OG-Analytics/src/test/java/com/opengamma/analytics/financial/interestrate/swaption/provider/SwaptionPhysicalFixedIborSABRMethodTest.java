@@ -49,7 +49,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
 
 public class SwaptionPhysicalFixedIborSABRMethodTest {
@@ -57,7 +57,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
@@ -106,7 +106,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final PresentValueSABRSensitivitySABRSwaptionCalculator PVSSSSC = PresentValueSABRSensitivitySABRSwaptionCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-7;
-  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface>(PVCSSSC);
+  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<>(PVCSSSC);
   private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSC, SHIFT);
 
   // Pricing functions
@@ -157,13 +157,13 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   @Test
   public void testPresentValueConventionArbitrage() {
     final double rate360 = 0.0360;
-    final IndexSwap index360 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/360"), EURIBOR6M, ANNUITY_TENOR);
-    final SwapFixedIborDefinition swap360 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index360, NOTIONAL, rate360, true);
+    final IndexSwap index360 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/360"), EURIBOR6M, ANNUITY_TENOR, CALENDAR);
+    final SwapFixedIborDefinition swap360 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index360, NOTIONAL, rate360, true, CALENDAR);
     final SwaptionPhysicalFixedIborDefinition swaption360Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap360, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption360 = swaption360Definition.toDerivative(REFERENCE_DATE, NOT_USED_A);
     final double rate365 = 0.0365;
-    final IndexSwap index365 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/365"), EURIBOR6M, ANNUITY_TENOR);
-    final SwapFixedIborDefinition swap365 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index365, NOTIONAL, rate365, true);
+    final IndexSwap index365 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/365"), EURIBOR6M, ANNUITY_TENOR, CALENDAR);
+    final SwapFixedIborDefinition swap365 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index365, NOTIONAL, rate365, true, CALENDAR);
     final SwaptionPhysicalFixedIborDefinition swaption365Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap365, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption365 = swaption365Definition.toDerivative(REFERENCE_DATE, NOT_USED_A);
     final MultipleCurrencyAmount price360 = METHOD_SWPT_SABR.presentValue(swaption360, SABR_MULTICURVES);

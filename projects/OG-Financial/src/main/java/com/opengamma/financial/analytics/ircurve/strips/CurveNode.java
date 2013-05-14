@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -36,12 +37,23 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @PropertyDefinition(validate = "notNull")
   private String _curveNodeIdMapperName;
 
+  /**
+   * The market data field to use. The default value is {@value MarketDataRequirementNames#MARKET_VALUE}
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _dataField;
+
   /* package */CurveNode() {
     super();
   }
 
   public CurveNode(final String curveNodeIdMapperName) {
+    this(curveNodeIdMapperName, MarketDataRequirementNames.MARKET_VALUE);
+  }
+
+  public CurveNode(final String curveNodeIdMapperName, final String dataField) {
     setCurveNodeIdMapperName(curveNodeIdMapperName);
+    setDataField(dataField);
   }
 
   public abstract Tenor getResolvedMaturity();
@@ -80,6 +92,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     switch (propertyName.hashCode()) {
       case 305053208:  // curveNodeIdMapperName
         return getCurveNodeIdMapperName();
+      case -386794640:  // dataField
+        return getDataField();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -90,6 +104,9 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
       case 305053208:  // curveNodeIdMapperName
         setCurveNodeIdMapperName((String) newValue);
         return;
+      case -386794640:  // dataField
+        setDataField((String) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -97,6 +114,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_curveNodeIdMapperName, "curveNodeIdMapperName");
+    JodaBeanUtils.notNull(_dataField, "dataField");
     super.validate();
   }
 
@@ -107,7 +125,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveNode other = (CurveNode) obj;
-      return JodaBeanUtils.equal(getCurveNodeIdMapperName(), other.getCurveNodeIdMapperName());
+      return JodaBeanUtils.equal(getCurveNodeIdMapperName(), other.getCurveNodeIdMapperName()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField());
     }
     return false;
   }
@@ -116,6 +135,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIdMapperName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     return hash;
   }
 
@@ -147,6 +167,32 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the market data field to use. The default value is {@value MarketDataRequirementNames#MARKET_VALUE}
+   * @return the value of the property, not null
+   */
+  public String getDataField() {
+    return _dataField;
+  }
+
+  /**
+   * Sets the market data field to use. The default value is {@value MarketDataRequirementNames#MARKET_VALUE}
+   * @param dataField  the new value of the property, not null
+   */
+  public void setDataField(String dataField) {
+    JodaBeanUtils.notNull(dataField, "dataField");
+    this._dataField = dataField;
+  }
+
+  /**
+   * Gets the the {@code dataField} property.
+   * @return the property, not null
+   */
+  public final Property<String> dataField() {
+    return metaBean().dataField().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code CurveNode}.
    */
   public static class Meta extends DirectMetaBean {
@@ -161,11 +207,17 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     private final MetaProperty<String> _curveNodeIdMapperName = DirectMetaProperty.ofReadWrite(
         this, "curveNodeIdMapperName", CurveNode.class, String.class);
     /**
+     * The meta-property for the {@code dataField} property.
+     */
+    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
+        this, "dataField", CurveNode.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curveNodeIdMapperName");
+        "curveNodeIdMapperName",
+        "dataField");
 
     /**
      * Restricted constructor.
@@ -178,6 +230,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
       switch (propertyName.hashCode()) {
         case 305053208:  // curveNodeIdMapperName
           return _curveNodeIdMapperName;
+        case -386794640:  // dataField
+          return _dataField;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -204,6 +258,14 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
      */
     public final MetaProperty<String> curveNodeIdMapperName() {
       return _curveNodeIdMapperName;
+    }
+
+    /**
+     * The meta-property for the {@code dataField} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> dataField() {
+      return _dataField;
     }
 
   }

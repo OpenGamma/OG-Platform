@@ -62,14 +62,24 @@ public class ActualActualICMA extends ActualTypeDayCount {
       case LONG_START: {
         final long firstNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months * 2)).getLong(JulianFields.MODIFIED_JULIAN_DAY);
         final long secondNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months)).getLong(JulianFields.MODIFIED_JULIAN_DAY);
-        final long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
-        final double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
+        final double daysBetweenTwoNotionalCoupons1 = secondNotionalJulian - firstNotionalJulian;
         if (dateJulian > secondNotionalJulian) {
           daysBetween = dateJulian - secondNotionalJulian;
-          return coupon * (daysBetweenStub / daysBetweenTwoNotionalCoupons + 1) / paymentsPerYear;
+          final long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
+          final double daysBetweenTwoNotionalCoupons2 = nextCouponDateJulian - secondNotionalJulian;
+          return coupon * (daysBetweenStub / daysBetweenTwoNotionalCoupons1 + daysBetween / daysBetweenTwoNotionalCoupons2) / paymentsPerYear;
         }
-        daysBetween = dateJulian - firstNotionalJulian;
-        return coupon * (daysBetween / daysBetweenTwoNotionalCoupons) / paymentsPerYear;
+        daysBetween = dateJulian - previousCouponDateJulian;
+        return coupon * (daysBetween / daysBetweenTwoNotionalCoupons1) / paymentsPerYear;
+
+        //        final long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
+        //        final double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
+        //        if (dateJulian > secondNotionalJulian) {
+        //          daysBetween = dateJulian - secondNotionalJulian;
+        //          return coupon * (daysBetweenStub / daysBetweenTwoNotionalCoupons + 1) / paymentsPerYear;
+        //        }
+        //        daysBetween = dateJulian - firstNotionalJulian;
+        //        return coupon * (daysBetween / daysBetweenTwoNotionalCoupons) / paymentsPerYear;
       }
       case SHORT_END: {
         final LocalDate notionalEnd = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(months));

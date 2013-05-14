@@ -51,7 +51,7 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = INDEX_LIST[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
-  private static final Calendar TARGET = EURIBOR3M.getCalendar();
+  private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
@@ -72,8 +72,8 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
   private static final String NAME_MAR13 = "ERH3";
   private static final String NAME_JUN14 = "ERM4";
   // Futures
-  private static final InterestRateFutureSecurityDefinition ERH3_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_MAR13, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_MAR13);
-  private static final InterestRateFutureSecurityDefinition ERM4_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_JUN14, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_JUN14);
+  private static final InterestRateFutureSecurityDefinition ERH3_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_MAR13, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_MAR13, TARGET);
+  private static final InterestRateFutureSecurityDefinition ERM4_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_JUN14, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_JUN14, TARGET);
   private static final InterestRateFutureSecurity ERH3 = ERH3_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final InterestRateFutureSecurity ERM4 = ERM4_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   // Options on futures - securities
@@ -132,10 +132,10 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
   private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
   private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
   private static final double SHIFT_FD = 1.0E-6;
-  private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> SPSHWC = new SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(
+  private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> SPSHWC = new SimpleParameterSensitivityParameterCalculator<>(
       MQCSHWC);
   private static final SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator SPSHWC_FD = new SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(MQHWC, SHIFT_FD);
-  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(PVCSHWC);
+  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<>(PVCSHWC);
   private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PSHWC_FD = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT_FD);
 
   private static final double TOLERANCE_PRICE = 1.0E-10;

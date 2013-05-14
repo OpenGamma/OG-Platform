@@ -26,7 +26,6 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.DataConfigMasterResource;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.masterdb.config.DbConfigMaster;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
@@ -46,11 +45,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-  /**
-   * The database connector.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private DbConnector _dbConnector;
   /**
    * The JMS connector.
    */
@@ -95,7 +89,7 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "cfg");
+    checkSchema(master.getSchemaVersion(), "cfg");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -134,8 +128,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
-      case 39794031:  // dbConnector
-        return getDbConnector();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
       case -758086398:  // jmsChangeManagerTopic
@@ -157,9 +149,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
@@ -179,7 +168,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
     super.validate();
   }
 
@@ -192,7 +180,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
       DbConfigMasterComponentFactory other = (DbConfigMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
@@ -207,7 +194,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
@@ -264,32 +250,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the database connector.
-   * @return the value of the property, not null
-   */
-  public DbConnector getDbConnector() {
-    return _dbConnector;
-  }
-
-  /**
-   * Sets the database connector.
-   * @param dbConnector  the new value of the property, not null
-   */
-  public void setDbConnector(DbConnector dbConnector) {
-    JodaBeanUtils.notNull(dbConnector, "dbConnector");
-    this._dbConnector = dbConnector;
-  }
-
-  /**
-   * Gets the the {@code dbConnector} property.
-   * @return the property, not null
-   */
-  public final Property<DbConnector> dbConnector() {
-    return metaBean().dbConnector().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -413,11 +373,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", DbConfigMasterComponentFactory.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code dbConnector} property.
-     */
-    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
-        this, "dbConnector", DbConfigMasterComponentFactory.class, DbConnector.class);
-    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
@@ -444,7 +399,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "dbConnector",
         "jmsConnector",
         "jmsChangeManagerTopic",
         "uniqueIdScheme",
@@ -463,8 +417,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
-        case 39794031:  // dbConnector
-          return _dbConnector;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
         case -758086398:  // jmsChangeManagerTopic
@@ -507,14 +459,6 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
-    }
-
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbConnector> dbConnector() {
-      return _dbConnector;
     }
 
     /**

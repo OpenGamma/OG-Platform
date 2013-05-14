@@ -10,6 +10,7 @@ import java.util.Collection;
 import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * A single grid cell in a set of results, including the cell's value, value specification and history.
@@ -23,6 +24,7 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
   private final boolean _updated;
   private final Class<?> _type;
   private final Object _inlineKey;
+  private final TypeFormatter.Format _format;
 
   private ResultsCell(Object value,
                       ValueSpecification valueSpecification,
@@ -30,7 +32,8 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
                       AggregatedExecutionLog executionLog,
                       boolean updated,
                       Class<?> type,
-                      Object inlineKey) {
+                      Object inlineKey,
+                      TypeFormatter.Format format) {
     _value = value;
     _valueSpecification = valueSpecification;
     _history = history;
@@ -38,6 +41,7 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
     _updated = updated;
     _type = type;
     _inlineKey = inlineKey;
+    _format = format;
   }
 
   /**
@@ -47,8 +51,8 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
    * @param type TODO remove
    * @return A cell for displaying the value
    */
-  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type, boolean updated) {
-    return new ResultsCell(value, null, null, null, updated, type, null);
+  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type, TypeFormatter.Format format, boolean updated) {
+    return new ResultsCell(value, null, null, null, updated, type, null, format);
   }
 
   // TODO is this version still required? or should all callers be specifying whether the value was updated?
@@ -58,8 +62,8 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
    * @param type TODO remove
    * @return A cell for displaying the value
    */
-  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type) {
-    return forStaticValue(value, type, false);
+  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type, TypeFormatter.Format format) {
+    return forStaticValue(value, type, format, false);
   }
 
   /**
@@ -76,8 +80,9 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
                                                       Collection<Object> history,
                                                       AggregatedExecutionLog executionLog,
                                                       boolean updated,
-                                                      Class<?> type) {
-    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, null);
+                                                      Class<?> type,
+                                                      TypeFormatter.Format format) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, null, format);
   }
 
   /* package */ static ResultsCell forCalculatedValue(Object value,
@@ -86,8 +91,9 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
                                                       AggregatedExecutionLog executionLog,
                                                       boolean updated,
                                                       Class<?> type,
-                                                      Object inlineKey) {
-    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, inlineKey);
+                                                      Object inlineKey,
+                                                      TypeFormatter.Format format) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, inlineKey, format);
   }
 
   /**
@@ -98,7 +104,7 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
    * @param type TODO remove
    */
   /* package */ static ResultsCell empty(Collection<Object> emptyHistory, Class<?> type) {
-    return new ResultsCell(null, null, emptyHistory, null, false, type, null);
+    return new ResultsCell(null, null, emptyHistory, null, false, type, null, TypeFormatter.Format.CELL);
   }
 
   /**
@@ -143,6 +149,10 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
 
   /* package */ Object getInlineKey() {
     return _inlineKey;
+  }
+
+  /* package */ TypeFormatter.Format getFormat() {
+    return _format;
   }
 
   @Override

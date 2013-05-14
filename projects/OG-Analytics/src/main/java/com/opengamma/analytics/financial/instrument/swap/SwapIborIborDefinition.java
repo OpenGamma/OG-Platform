@@ -64,8 +64,8 @@ public class SwapIborIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(tenor, "Tenor");
     ArgumentChecker.notNull(generator, "Swap generator");
-    final AnnuityCouponIborSpreadDefinition firstLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex1(), spread, isPayer);
-    final AnnuityCouponIborSpreadDefinition secondLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex2(), 0.0, !isPayer);
+    final AnnuityCouponIborSpreadDefinition firstLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex1(), spread, isPayer, generator.getCalendar1());
+    final AnnuityCouponIborSpreadDefinition secondLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex2(), 0.0, !isPayer, generator.getCalendar2());
     return new SwapIborIborDefinition(firstLeg, secondLeg);
   }
 
@@ -105,7 +105,7 @@ public class SwapIborIborDefinition extends SwapDefinition {
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, firstLegCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, secondLegCurveNames);
-    return new Swap<Coupon, Coupon>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 
   @Override
@@ -116,6 +116,6 @@ public class SwapIborIborDefinition extends SwapDefinition {
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
-    return new Swap<Coupon, Coupon>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 }

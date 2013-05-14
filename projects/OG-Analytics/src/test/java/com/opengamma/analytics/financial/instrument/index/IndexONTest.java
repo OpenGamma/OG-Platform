@@ -26,35 +26,30 @@ public class IndexONTest {
   private static final Currency US_CUR = Currency.USD;
   private static final DayCount US_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final int US_PUBLICATION_LAG = 1;
-  private static final Calendar US_CALENDAR = new MondayToFridayCalendar("A");
-  private static final IndexON US_OIS = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+  private static final IndexON US_OIS = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
   //EUR Eonia
   private static final String EUR_OIS_NAME = "EUR EONIA";
   private static final Currency EUR_CUR = Currency.EUR;
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("EUR");
   private static final int EUR_PUBLICATION_LAG = 0;
   private static final DayCount EUR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG, EUR_CALENDAR);
+  private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
-    new IndexON(null, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+    new IndexON(null, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new IndexON(US_OIS_NAME, null, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+    new IndexON(US_OIS_NAME, null, US_DAY_COUNT, US_PUBLICATION_LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
-    new IndexON(US_OIS_NAME, US_CUR, null, US_PUBLICATION_LAG, US_CALENDAR);
+    new IndexON(US_OIS_NAME, US_CUR, null, US_PUBLICATION_LAG);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCalendar() {
-    new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, null);
-  }
 
   @Test
   public void getterUS() {
@@ -62,7 +57,6 @@ public class IndexONTest {
     assertEquals(US_OIS.getCurrency(), US_CUR);
     assertEquals(US_OIS.getDayCount(), US_DAY_COUNT);
     assertEquals(US_OIS.getPublicationLag(), US_PUBLICATION_LAG);
-    assertEquals(US_OIS.getCalendar(), US_CALENDAR);
   }
 
   @Test
@@ -71,7 +65,6 @@ public class IndexONTest {
     assertEquals(EUR_OIS.getCurrency(), EUR_CUR);
     assertEquals(EUR_OIS.getDayCount(), EUR_DAY_COUNT);
     assertEquals(EUR_OIS.getPublicationLag(), EUR_PUBLICATION_LAG);
-    assertEquals(EUR_OIS.getCalendar(), EUR_CALENDAR);
   }
 
   @Test
@@ -81,19 +74,17 @@ public class IndexONTest {
   public void equalHash() {
     assertEquals("OIS Index: equal/hash code", US_OIS, US_OIS);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(EUR_OIS));
-    IndexON other = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+    final IndexON other = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
     assertEquals("OIS Index: equal/hash code", US_OIS, other);
     assertEquals("OIS Index: equal/hash code", US_OIS.hashCode(), other.hashCode());
     IndexON modified;
-    modified = new IndexON("test", US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+    modified = new IndexON("test", US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
-    modified = new IndexON(US_OIS_NAME, EUR_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+    modified = new IndexON(US_OIS_NAME, EUR_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
-    modified = new IndexON(US_OIS_NAME, US_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), US_PUBLICATION_LAG, US_CALENDAR);
+    modified = new IndexON(US_OIS_NAME, US_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), US_PUBLICATION_LAG);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
-    modified = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, 0, US_CALENDAR);
-    assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
-    modified = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, EUR_CALENDAR);
+    modified = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, 0);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
   }
 

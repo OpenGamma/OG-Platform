@@ -50,7 +50,7 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex USDLIBOR3M = INDEX_LIST[2];
   private static final Currency USD = USDLIBOR3M.getCurrency();
-  private static final Calendar NYC = USDLIBOR3M.getCalendar();
+  private static final Calendar NYC = MulticurveProviderDiscountDataSets.getUSDCalendar();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2012, 12, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, -USD6MLIBOR3M.getSpotLag(), NYC);
@@ -75,7 +75,7 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
 
   private static final double SHIFT_FD = 1.0E-6;
 
-  private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PS_MQ_C = new SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(
+  private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PS_MQ_C = new SimpleParameterSensitivityParameterCalculator<>(
       MQCSHWC);
   private static final SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PS_MQ_FDC = new SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(MQHWC, SHIFT_FD);
 

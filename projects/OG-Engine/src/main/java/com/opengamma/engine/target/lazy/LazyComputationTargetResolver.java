@@ -13,7 +13,7 @@ import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.functional.Function2;
+import com.opengamma.lambdava.functions.Function2;
 
 /**
  * A target resolver that does not resolve the targets immediately but returns a deferred handle. This is excellent for consumers of the target that only care about it's unique identifier and don't
@@ -21,7 +21,7 @@ import com.opengamma.util.functional.Function2;
  */
 public final class LazyComputationTargetResolver extends DelegatingComputationTargetResolver {
 
-  private static final ComputationTargetTypeMap<Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>> s_resolvers;
+  private static final ComputationTargetTypeMap<Function2<AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>> s_resolvers;
 
   static {
     s_resolvers = new ComputationTargetTypeMap<Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>>();

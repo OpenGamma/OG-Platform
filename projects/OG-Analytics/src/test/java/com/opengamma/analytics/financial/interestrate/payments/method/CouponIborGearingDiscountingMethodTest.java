@@ -36,7 +36,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing and sensitivities of Ibor coupon with gearing factor and spread in the discounting method.
@@ -50,7 +50,7 @@ public class CouponIborGearingDiscountingMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Coupon
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 5, 23);
@@ -61,7 +61,7 @@ public class CouponIborGearingDiscountingMethodTest {
   private static final double SPREAD = 0.0050;
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final CouponIborGearingDefinition COUPON_DEFINITION = new CouponIborGearingDefinition(CUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-      FIXING_DATE, INDEX, SPREAD, FACTOR);
+      FIXING_DATE, INDEX, SPREAD, FACTOR, CALENDAR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSetsSABR.createCurves1();
   private static final String[] CURVES_NAMES = CURVES_BUNDLE.getAllNames().toArray(new String[CURVES_BUNDLE.size()]);
@@ -76,7 +76,7 @@ public class CouponIborGearingDiscountingMethodTest {
    */
   public void presentValue() {
     final CurrencyAmount pv = METHOD.presentValue(COUPON, CURVES_BUNDLE);
-    final CouponIborDefinition couponIborDefinition = new CouponIborDefinition(CUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX);
+    final CouponIborDefinition couponIborDefinition = new CouponIborDefinition(CUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
     final Payment couponIbor = couponIborDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     final CouponFixedDefinition couponFixedDefinition = new CouponFixedDefinition(couponIborDefinition, SPREAD);
     final Payment couponFixed = couponFixedDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);

@@ -13,7 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.types.FudgeDate;
+import org.fudgemsg.types.FudgeDateTime;
+import org.fudgemsg.wire.types.FudgeWireType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,15 +278,36 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     s_logger.debug("Subscribed values are {}", subscriptions);
     final FudgeMsg msg = valueUpdate.getFields();
     for (final ValueSpecification subscription : subscriptions) {
-      // We assume all market data can be represented as a Double. The request for the field as a Double also ensures
-      // that we consistently provide a Double downstream, even if the value has been represented as a more efficient
-      // type in the message.
-      final Double value = msg.getDouble(subscription.getValueName());
-      if (value == null) {
-        // TODO: Should we report this?
-        continue;
+      final FudgeField field = msg.getByName(subscription.getValueName());
+      if (field == null) {
+        s_logger.info("{} subscription was null, {}", subscription.getValueName(), subscription.getTargetSpecification());
+      } else {
+        Object value;
+        switch (field.getType().getTypeId()) {
+          case FudgeWireType.BYTE_TYPE_ID:
+          case FudgeWireType.SHORT_TYPE_ID:
+          case FudgeWireType.INT_TYPE_ID:
+          case FudgeWireType.LONG_TYPE_ID:
+          case FudgeWireType.FLOAT_TYPE_ID:
+            // All numeric data is presented as a double downstream - convert
+            value = ((Number) field.getValue()).doubleValue();
+            break;
+          case FudgeWireType.DOUBLE_TYPE_ID:
+            // Already a double
+            value = (Double) field.getValue();
+            break;
+          case FudgeWireType.DATE_TYPE_ID:
+            value = ((FudgeDate) field.getValue()).toLocalDate();
+            break;
+          case FudgeWireType.DATETIME_TYPE_ID:
+            value = ((FudgeDateTime) field.getValue()).toLocalDateTime();
+            break;
+          default:
+            s_logger.warn("Unexpected market data type {}", field);
+            continue;
+        }
+        _underlyingProvider.addValue(subscription, value);  
       }
-      _underlyingProvider.addValue(subscription, value);
     }
     valuesChanged(subscriptions);
   }

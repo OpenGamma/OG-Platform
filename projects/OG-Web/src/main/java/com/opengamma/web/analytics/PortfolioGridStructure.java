@@ -35,7 +35,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**

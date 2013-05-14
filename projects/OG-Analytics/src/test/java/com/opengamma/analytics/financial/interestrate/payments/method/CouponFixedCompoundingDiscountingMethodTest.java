@@ -53,7 +53,7 @@ public class CouponFixedCompoundingDiscountingMethodTest {
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final double SHIFT = 1.0E-8;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 
@@ -74,8 +74,8 @@ public class CouponFixedCompoundingDiscountingMethodTest {
 
   @Test
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(COUPON, MULTICURVES, MULTICURVES.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(COUPON, MULTICURVES);
+    final MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(COUPON, MULTICURVES, MULTICURVES.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(COUPON, MULTICURVES);
     AssertSensivityObjects.assertEquals("CouponFixedCompoundingDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
   }
 

@@ -5,11 +5,18 @@
  */
 package com.opengamma.component.tool;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
+import net.sf.ehcache.util.NamedThreadFactory;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
@@ -21,7 +28,11 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.financial.view.rest.RemoteViewProcessor;
+import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
  * Utilities that assist with obtaining a tool context.
@@ -111,21 +122,45 @@ public final class ToolContextUtils {
                 "', no appropriate component found on the server");
             continue;
           }
-          String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
-          if (clazzName == null) {
-            s_logger.warn("Unable to populate tool context '" + metaProperty.name() +
-                "', no remote access class found");
-            continue;
+          if (ViewProcessor.class.equals(componentInfo.getType())) {
+            final JmsConnector jmsConnector = createJmsConnector(componentInfo);
+            final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("rvp"));
+            ViewProcessor vp = new RemoteViewProcessor(componentInfo.getUri(), jmsConnector, scheduler);
+            toolContext.setViewProcessor(vp);
+            toolContext.setContextManager(new Closeable() {
+              @Override
+              public void close() throws IOException {
+                scheduler.shutdownNow();
+                jmsConnector.close();
+              }
+            });
+          } else {
+            String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
+            if (clazzName == null) {
+              s_logger.warn("Unable to populate tool context '" + metaProperty.name() +
+                  "', no remote access class found");
+              continue;
+            }
+            Class<?> clazz = Class.forName(clazzName);
+            metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
+            s_logger.info("Populated tool context '" + metaProperty.name() + "' with " + metaProperty.get(toolContext));
           }
-          Class<?> clazz = Class.forName(clazzName);
-          metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
-          s_logger.info("Populated tool context '" + metaProperty.name() + "' with " + metaProperty.get(toolContext));
         } catch (Throwable ex) {
           s_logger.warn("Unable to populate tool context '" + metaProperty.name() + "': " + ex.getMessage());
         }
       }
     }
     return toolContext;
+  }
+
+  private static JmsConnector createJmsConnector(ComponentInfo info) {
+    JmsConnectorFactoryBean jmsConnectorFactoryBean = new JmsConnectorFactoryBean();
+    jmsConnectorFactoryBean.setName("ToolContext JMS Connector");
+    String jmsBroker = info.getAttribute(ComponentInfoAttributes.JMS_BROKER_URI);
+    URI jmsBrokerUri = URI.create(jmsBroker);
+    jmsConnectorFactoryBean.setClientBrokerUri(jmsBrokerUri);
+    jmsConnectorFactoryBean.setConnectionFactory(new ActiveMQConnectionFactory(jmsBrokerUri));
+    return jmsConnectorFactoryBean.getObjectCreating();
   }
 
   private static ComponentInfo getComponentInfo(ComponentServer componentServer, List<String> preferenceList, Class<?> type) {

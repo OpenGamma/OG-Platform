@@ -61,19 +61,13 @@ public class PresentValueLegacyCreditDefaultSwap {
     final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the value of the contingent leg
+    // TODO : Remember this check in the ISDA code 'if (MAX(stepinDate, startDate) <= endDate)' 
     final double presentValueContingentLeg = presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
     double presentValue = -(cds.getParSpread() / 10000.0) * presentValuePremiumLeg + presentValueContingentLeg;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    /*
-    // If we require the clean price, then calculate the accrued interest and add this to the PV
-    if (priceType == PriceType.CLEAN) {
-      presentValue += (cds.getParSpread() / 10000.0) * presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, cds);
-    }
-    */
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {

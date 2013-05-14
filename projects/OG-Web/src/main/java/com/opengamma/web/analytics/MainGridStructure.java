@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Column structure of the grid used to display analytics data.
@@ -93,7 +93,7 @@ import com.opengamma.util.tuple.Pair;
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       GridColumn column = _columnGroups.getColumn(cell.getColumn());
-      ResultsCell resultsCell = column.buildResults(cell.getRow(), cache);
+      ResultsCell resultsCell = column.buildResults(cell.getRow(), cell.getFormat(), cache);
       updated = updated || resultsCell.isUpdated();
       if (resultsCell.getValue() != null) {
         hasData = true;

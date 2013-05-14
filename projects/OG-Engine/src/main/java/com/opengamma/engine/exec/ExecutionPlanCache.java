@@ -56,7 +56,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
       _functionId = node.getFunction().getFunction().getFunctionDefinition().getUniqueId();
       _functionParameters = node.getFunction().getParameters();
       _inputs = node.getInputValues();
-      _outputs = node.getOutputValues();
+      _outputs = new HashSet<ValueSpecification>(node.getOutputValues());
     }
 
     @Override

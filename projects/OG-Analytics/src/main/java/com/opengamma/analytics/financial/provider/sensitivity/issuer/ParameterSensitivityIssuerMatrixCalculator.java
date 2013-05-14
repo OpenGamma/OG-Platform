@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Forward
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * For an instrument, computes the sensitivity of double value (often par spread) to the parameters used in the curve.

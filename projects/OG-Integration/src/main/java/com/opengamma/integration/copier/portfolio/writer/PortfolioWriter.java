@@ -8,7 +8,7 @@ package com.opengamma.integration.copier.portfolio.writer;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 /**
  * Interface for a portfolio writer, which is able to write positions and securities, and manipulate the portfolio's

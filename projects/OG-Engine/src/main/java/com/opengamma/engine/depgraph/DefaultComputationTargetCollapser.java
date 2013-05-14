@@ -9,8 +9,8 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
+import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.functional.Function2;
 
 /**
  * Default implementation of {@link ComputationTargetCollapser} that allows delegate instances to be registered for known target types.

@@ -29,7 +29,7 @@ import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -38,9 +38,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 @Test(groups = TestGroup.UNIT)
 public class LoggingViewportListenerTest {
 
-  private final GridCell _cell1 = new GridCell(0, 1);
-  private final GridCell _cell2 = new GridCell(0, 2);
-  private final GridCell _cell3 = new GridCell(0, 3);
+  private final GridCell _cell1 = new GridCell(0, 1, TypeFormatter.Format.CELL);
+  private final GridCell _cell2 = new GridCell(0, 2, TypeFormatter.Format.CELL);
+  private final GridCell _cell3 = new GridCell(0, 3, TypeFormatter.Format.CELL);
   private final List<GridCell> _cells12 = Lists.newArrayList(_cell1, _cell2);
   private final List<GridCell> _cells23 = Lists.newArrayList(_cell2, _cell3);
   private final GridStructure _gridStructure = gridStructure(_cell1, _cell2, _cell3);
@@ -121,7 +121,7 @@ public class LoggingViewportListenerTest {
 
   //-------------------------------------------------------------------------
   private static ViewportDefinition viewportDef(final boolean enableLogging, final List<GridCell> cells) {
-    return new ArbitraryViewportDefinition(0, cells, TypeFormatter.Format.CELL, enableLogging);
+    return new ArbitraryViewportDefinition(0, cells, enableLogging);
   }
 
   private static GridStructure gridStructure(final GridCell... cells) {

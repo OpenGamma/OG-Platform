@@ -39,7 +39,7 @@ import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Consumes the results produced on completion of calculation jobs until all jobs have been executed.
@@ -162,11 +162,10 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
               aggregatedExecutionLog = DefaultAggregatedExecutionLog.indicatorLogMode(logs);
             }
             final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
-            final Set<ValueSpecification> nodeTerminals = node.getTerminalOutputValues();
+            node.gatherTerminalOutputValues(terminalOutputs);
             for (ValueSpecification output : node.getOutputValues()) {
               jobExecutionResultCache.put(output, jobExecutionResult);
             }
-            terminalOutputs.addAll(nodeTerminals);
           }
         }
         result = _resultQueue.poll();

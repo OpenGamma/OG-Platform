@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.sass.RubySassCompiler;
+import com.opengamma.util.sass.SassCompiler;
 
 /**
  * Utility to assist in the creation of bundles in HTML.
@@ -70,12 +70,12 @@ public final class BundleUtils {
    * Reads and combines a bundle.
    * 
    * @param bundle  the bundle to read, not null
+   * @param sassCompiler the sass compiler, not null
    * @return the combined source code, not null
    */
-  public static String readBundleSource(Bundle bundle) {
-    
-    RubySassCompiler sassCompiler = RubySassCompiler.getInstance();
-    
+  public static String readBundleSource(Bundle bundle, final SassCompiler sassCompiler) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(sassCompiler, "sass compiler");
     List<Fragment> allFragments = bundle.getAllFragments();
     StringBuilder buf = new StringBuilder(1024);
     for (Fragment fragment : allFragments) {

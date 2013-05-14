@@ -48,7 +48,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.MapUtils;
 import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

@@ -110,6 +110,7 @@ public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
         .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
         .withAny(ISDAFunctionConstants.ISDA_IMPLEMENTATION)
         .withAny(ISDAFunctionConstants.CDS_QUOTE_CONVENTION)
+        .withAny(ISDAFunctionConstants.ISDA_BUCKET_TENORS)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .get();
     final Set<ValueSpecification> specs = new HashSet<>();
@@ -143,12 +144,18 @@ public class ISDARiskMetricsVanillaCDSFunction extends NonCompiledInvoker {
       return null;
     }
 
+    final String bucketTenors = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS);
+    if (bucketTenors == null) {
+      return null;
+    }
+
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, isdaOffset)
         .with(ISDAFunctionConstants.ISDA_CURVE_DATE, isdaCurveDate)
         .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, isdaCurveMethod)
         .with(ISDAFunctionConstants.CDS_QUOTE_CONVENTION, quoteConvention)
+        .with(ISDAFunctionConstants.ISDA_BUCKET_TENORS, bucketTenors)
         .get();
     final ValueRequirement cleanPVRequirment = new ValueRequirement(ValueRequirementNames.CLEAN_PRESENT_VALUE, target.toSpecification(), properties);
     final ValueRequirement dirtyPVRequirment = new ValueRequirement(ValueRequirementNames.DIRTY_PRESENT_VALUE, target.toSpecification(), properties);

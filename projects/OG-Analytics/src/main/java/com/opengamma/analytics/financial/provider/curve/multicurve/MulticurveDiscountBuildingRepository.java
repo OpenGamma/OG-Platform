@@ -31,13 +31,13 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Functions to build curves.
- * TODO: REVIEW: Embed in a better object.
  */
+// TODO: REVIEW: Embed in a better object.
 public class MulticurveDiscountBuildingRepository {
 
   /**
@@ -120,8 +120,8 @@ public class MulticurveDiscountBuildingRepository {
   (usually ParSpreadMarketQuoteDiscountingProviderCalculator (recommended) or converted present value).
    * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
-   * TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
    */
+  // TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
   private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters,
       final MulticurveProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap,
       final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,

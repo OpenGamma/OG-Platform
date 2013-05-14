@@ -48,7 +48,8 @@ public class PresentValueCreditDefaultSwapTest {
     YIELD_CURVE = new ISDADateCurve("ISDA", YIELD_TENORS, YIELD_TIMES, YIELDS, OFFSET);
   }
 
-  @Test
+  /*
+  @Test(enabled = false)
   public void testAccruedInterest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double accruedInterest = CALCULATOR.calculateAccruedInterest(VALUATION_DATE, cds);
@@ -56,8 +57,9 @@ public class PresentValueCreditDefaultSwapTest {
     final double dirtyPrice = CALCULATOR.calibrateAndGetPresentValue(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE, PriceType.DIRTY);
     //assertEquals(cleanPrice, dirtyPrice + accruedInterest, EPS);
   }
+  */
 
-  @Test
+  @Test(enabled = false)
   public void testRecoveryRateEqualsOne() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithRecoveryRate(1).withMaturityDate(
         VALUATION_DATE.plusYears(10));
@@ -72,7 +74,7 @@ public class PresentValueCreditDefaultSwapTest {
     assertEquals(dirtyPremiumLeg, dirtyPrice, 1e-9); //TODO accuracy
   }
 
-  @Test
+  @Test(enabled = false)
   public void testParSpreadEqualsZero() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithParSpread(0).withMaturityDate(VALUATION_DATE.plusYears(10));
     final HazardRateCurve hazardRateCurve = CALCULATOR.calibrateHazardRateCurve(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
@@ -83,7 +85,7 @@ public class PresentValueCreditDefaultSwapTest {
     assertEquals(contingentLeg, dirtyPrice, EPS);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testCreditSpreadsEqualZero() {
     final int n = MARKET_TENORS.length;
     final double[] marketSpreads = new double[n];

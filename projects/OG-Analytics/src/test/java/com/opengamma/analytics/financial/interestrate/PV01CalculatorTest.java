@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +28,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
@@ -52,14 +47,6 @@ public class PV01CalculatorTest {
   private static final String LIBOR_CURVE_NAME = "libor";
   private static YieldCurveBundle CURVES;
   private static final Currency CUR = Currency.EUR;
-
-  private static final Period TENOR = Period.ofMonths(6);
-  private static final int SETTLEMENT_DAYS = 2;
-  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
     CURVES = new YieldCurveBundle();
@@ -86,7 +73,7 @@ public class PV01CalculatorTest {
     final double fixingPeriodEnd = 7. / 12;
     final double fixingYearFraction = 31. / 365;
     final double rate = 0.15;
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
     final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, FUNDING_CURVE_NAME, paymentYearFraction, 1, index, fixingTime, fixingPeriodStart, fixingPeriodEnd, fixingYearFraction,
         rate, LIBOR_CURVE_NAME);
@@ -211,7 +198,7 @@ public class PV01CalculatorTest {
   }
 
   private Map<String, Double> finiteDifferancePV01(final InstrumentDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, Double> result = new HashMap<String, Double>();
+    final Map<String, Double> result = new HashMap<>();
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {
       final YieldAndDiscountCurve curve = curves.getCurve(name);

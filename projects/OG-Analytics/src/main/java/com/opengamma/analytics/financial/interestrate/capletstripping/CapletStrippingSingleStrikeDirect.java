@@ -5,9 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -29,11 +31,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteStrike {
 
+  // This is needed because our Non-linear least square optimizer is not fit for purpose
+  // private final CapletStrippingAbsoluteStrike _altCapletStripper;
+
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
   private static final Interpolator1D DEFAULT_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty();
   private static final int DIFFERENCE_ORDER = 2;
-  private static final double LAMBDA = 100.0;
+  private static final double LAMBDA = 1000;
 
   private final Interpolator1D _interpolator;
   private final DoubleMatrix2D _penalty;
@@ -44,27 +49,35 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
     PSplineFitter psf = new PSplineFitter();
     _penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(getnCaplets(), DIFFERENCE_ORDER), LAMBDA);
     _interpolator = DEFAULT_INTERPOLATOR;
+    // _altCapletStripper = new CapletStrippingAbsoluteStrikeInterpolation(caps, yieldCurves);
   }
 
   @Override
   public CapletStrippingSingleStrikeResult solveForPrices(double[] capPrices) {
-    final int n = getnCaps();
-    ArgumentChecker.notEmpty(capPrices, "null cap prices");
-    ArgumentChecker.isTrue(n == capPrices.length, "cap prices wrong length");
+    checkPrices(capPrices);
 
     MultiCapFloorPricer pricer = getPricer();
     double[] capVols = pricer.impliedVols(capPrices);
     double[] vega = pricer.vega(capVols);
-    return solveForPrice(new DoubleMatrix1D(capPrices), new DoubleMatrix1D(vega), new DoubleMatrix1D(capVols));
+    double[] start = new double[getnCaplets()];
+    Arrays.fill(start, capVols[capVols.length - 1]);
+
+    LeastSquareResults lsRes = solveForPrice(new DoubleMatrix1D(capPrices), new DoubleMatrix1D(vega), new DoubleMatrix1D(start));
+
+    double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
+    double chiSqr = chiSqr(capPrices, mPrices);
+    VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mPrices));
+  }
+
+  private VolatilityTermStructure getVolCurve(final double[] capletVols) {
+    return new VolatilityCurve(InterpolatedDoublesCurve.from(getPricer().getCapletExpiries(), capletVols, _interpolator));
   }
 
   @Override
   public CapletStrippingSingleStrikeResult solveForPrices(double[] capPrices, double[] errors, boolean scaleByVega) {
-    final int n = getnCaps();
-    ArgumentChecker.notEmpty(capPrices, "null cap prices");
-    ArgumentChecker.notEmpty(errors, "null cap prices");
-    ArgumentChecker.isTrue(n == capPrices.length, "cap prices wrong length");
-    ArgumentChecker.isTrue(n == errors.length, "errors wrong length");
+    checkPrices(capPrices);
+    checkErrors(errors);
 
     MultiCapFloorPricer pricer = getPricer();
     double[] capVols = pricer.impliedVols(capPrices);
@@ -72,6 +85,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
     DoubleMatrix1D sigma = null;
     if (scaleByVega) {
       final double[] capVega = pricer.vega(capVols);
+      final int n = getnCaps();
       for (int i = 0; i < n; i++) {
         capVega[i] *= errors[i];
       }
@@ -80,25 +94,45 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
       sigma = new DoubleMatrix1D(errors);
     }
 
-    return solveForPrice(new DoubleMatrix1D(capPrices), sigma, new DoubleMatrix1D(capVols));
+    double[] start = new double[getnCaplets()];
+    Arrays.fill(start, capVols[capVols.length - 1]);
+    LeastSquareResults lsRes = solveForPrice(new DoubleMatrix1D(capPrices), sigma, new DoubleMatrix1D(start));
+
+    double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
+    double chiSqr = chiSqr(capPrices, mPrices, errors);
+    VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mPrices));
   }
 
   @Override
   public CapletStrippingSingleStrikeResult solveForVol(final double[] capVols) {
-    final int n = getnCaps();
-    ArgumentChecker.notEmpty(capVols, "null cap vols");
-    ArgumentChecker.isTrue(n == capVols.length, "cap vols wrong length");
-
-    MultiCapFloorPricer pricer = getPricer();
-    final double[] capPrices = pricer.price(capVols);
-    final double[] vega = pricer.vega(capVols);
-    return solveForPrice(new DoubleMatrix1D(capPrices), new DoubleMatrix1D(vega), new DoubleMatrix1D(capVols));
+    final double err = 0.001; // 10bps
+    final double[] errors = new double[getnCaps()];
+    Arrays.fill(errors, err);
+    return solveForVol(capVols, errors, true);
   }
 
   @Override
   public CapletStrippingSingleStrikeResult solveForVol(final double[] capVols, double[] errors, boolean solveByPrice) {
+    checkVols(capVols);
+    checkErrors(errors);
+
     MultiCapFloorPricer pricer = getPricer();
+
+    double[] start = new double[getnCaplets()];
+    Arrays.fill(start, capVols[capVols.length - 1]);
+
+    // we are using CapletStrippingAbsoluteStrikeInterpolation to give use a starting position
+    // CapletStrippingSingleStrikeResult altRes = _altCapletStripper.solveForVol(capVols);
+    // VolatilityTermStructure altVC = altRes.getVolatilityCurve();
+    // double[] t = pricer.getCapletExpiries();
+    // final int nCaplets = getnCaplets();
+    // for (int i = 0; i < nCaplets; i++) {
+    // start[i] = altVC.getVolatility(t[i]);
+    // }
+
     final int n = getnCaps();
+    LeastSquareResults lsRes;
     if (solveByPrice) {
       double[] capPrices = pricer.price(capVols);
       final double[] capVega = pricer.vega(capVols);
@@ -106,12 +140,33 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
         capVega[i] *= errors[i];
       }
       DoubleMatrix1D sigma = new DoubleMatrix1D(capVega);
-      return solveForPrice(new DoubleMatrix1D(capPrices), sigma, new DoubleMatrix1D(capVols));
+      lsRes = solveForPrice(new DoubleMatrix1D(capPrices), sigma, new DoubleMatrix1D(start));
+    } else {
+      lsRes = solveForVol(new DoubleMatrix1D(capVols), new DoubleMatrix1D(errors), new DoubleMatrix1D(start));
     }
-    return solveForVol(new DoubleMatrix1D(capVols), new DoubleMatrix1D(errors), new DoubleMatrix1D(capVols));
+
+    double[] mVols = pricer.impliedVols(pricer.priceFromCapletVols(lsRes.getFitParameters().getData()));
+    double chiSqr = chiSqr(capVols, mVols, errors);
+    VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mVols));
   }
 
-  protected CapletStrippingSingleStrikeResult solveForPrice(final DoubleMatrix1D capPrices, final DoubleMatrix1D sigma, DoubleMatrix1D start) {
+  private LeastSquareResults solveForPrice(final DoubleMatrix1D capPrices, final DoubleMatrix1D sigma, DoubleMatrix1D start) {
+
+    final Function1D<DoubleMatrix1D, Boolean> allowed = new Function1D<DoubleMatrix1D, Boolean>() {
+      @Override
+      public Boolean evaluate(DoubleMatrix1D x) {
+        double[] temp = x.getData();
+        final int n = temp.length;
+        for (int i = 0; i < n; i++) {
+          if (temp[i] < 0) {
+            return false;
+          }
+        }
+        return true;
+      }
+    };
+
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> modelPriceFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
@@ -127,20 +182,10 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
       }
     };
 
-    LeastSquareResults lsRes = NLLSWP.solve(capPrices, sigma, modelPriceFunc, modelPriceJac, start, _penalty);
-
-    double sum = 0;
-    DoubleMatrix1D mPrices = modelPriceFunc.evaluate(lsRes.getFitParameters());
-    final int n = getnCaps();
-    for (int i = 0; i < n; i++) {
-      sum += FunctionUtils.square((capPrices.getEntry(i) - mPrices.getEntry(i)) / sigma.getEntry(i));
-    }
-    VolatilityCurve vc = new VolatilityCurve(InterpolatedDoublesCurve.from(getPricer().getCapletExpiries(), lsRes.getFitParameters().getData(), _interpolator));
-
-    return new CapletStrippingSingleStrikeResult(sum, lsRes.getFitParameters(), vc, mPrices);
+    return NLLSWP.solve(capPrices, sigma, modelPriceFunc, modelPriceJac, start, _penalty, allowed);
   }
 
-  protected CapletStrippingSingleStrikeResult solveForVol(final DoubleMatrix1D capVols, final DoubleMatrix1D sigma, DoubleMatrix1D start) {
+  private LeastSquareResults solveForVol(final DoubleMatrix1D capVols, final DoubleMatrix1D sigma, DoubleMatrix1D start) {
     final int n = getnCaps();
     final int m = getnCaplets();
     final MultiCapFloorPricer pricer = getPricer();
@@ -174,17 +219,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
       }
     };
 
-    LeastSquareResults lsRes = NLLSWP.solve(capVols, sigma, modelVolFunc, modelVolJac, start, _penalty);
-
-    double sum = 0;
-    DoubleMatrix1D mVols = modelVolFunc.evaluate(lsRes.getFitParameters());
-
-    for (int i = 0; i < n; i++) {
-      sum += FunctionUtils.square((capVols.getEntry(i) - mVols.getEntry(i)) / sigma.getEntry(i));
-    }
-    VolatilityCurve vc = new VolatilityCurve(InterpolatedDoublesCurve.from(pricer.getCapletExpiries(), lsRes.getFitParameters().getData(), _interpolator));
-
-    return new CapletStrippingSingleStrikeResult(sum, lsRes.getFitParameters(), vc, mVols);
+    return NLLSWP.solve(capVols, sigma, modelVolFunc, modelVolJac, start, _penalty);
   }
 
 }

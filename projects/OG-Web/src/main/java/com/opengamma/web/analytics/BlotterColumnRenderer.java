@@ -12,6 +12,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  *
@@ -37,7 +38,11 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
+  public ResultsCell getResults(int rowIndex,
+                                TypeFormatter.Format format,
+                                ResultsCache cache,
+                                Class<?> columnType,
+                                Object inlineKey) {
     PortfolioGridRow row = _rows.get(rowIndex);
     UniqueId securityId = row.getSecurityId();
     Security security;
@@ -51,6 +56,6 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
       security = null;
       updated = false;
     }
-    return ResultsCell.forStaticValue(_columnMappings.valueFor(_column, security), columnType, updated);
+    return ResultsCell.forStaticValue(_columnMappings.valueFor(_column, security), columnType, format, updated);
   }
 }

@@ -46,11 +46,12 @@ public class CouponOISDiscountingMethodTest {
   private static final GeneratorSwapFixedON GENERATOR_SWAP_EONIA = GeneratorSwapFixedONMaster.getInstance().getGenerator("EUR1YEONIA", TARGET);
   private static final IndexON EONIA = MulticurveProviderDiscountDataSets.getIndexesON()[0];
   private static final Currency EUR = EONIA.getCurrency();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2011, 5, 23);
   private static final Period TENOR = Period.ofMonths(3);
   private static final double NOTIONAL = 100000000; // 100m
   private static final CouponOISDefinition CPN_OIS_DEFINITION = CouponOISDefinition.from(EONIA, EFFECTIVE_DATE, TENOR, NOTIONAL, 2, GENERATOR_SWAP_EONIA.getBusinessDayConvention(),
-      GENERATOR_SWAP_EONIA.isEndOfMonth());
+      GENERATOR_SWAP_EONIA.isEndOfMonth(), CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
@@ -59,7 +60,7 @@ public class CouponOISDiscountingMethodTest {
   private static final CouponOISDiscountingMethod METHOD_CPN_OIS = CouponOISDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final double SHIFT = 1.0E-6;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 

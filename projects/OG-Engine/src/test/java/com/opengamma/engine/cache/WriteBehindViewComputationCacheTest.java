@@ -38,7 +38,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT_SLOW)
 public class WriteBehindViewComputationCacheTest {

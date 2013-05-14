@@ -96,6 +96,7 @@ public class BloombergRateClassifier {
         Integer bbgFwdScale = _fwdScaleResolver.getBloombergFXForwardScale(Collections.singleton(buidBundle)).get(buidBundle);
         return getForwardScale(bbgFwdScale);
       case BILL:
+      case BOND:
       case CASH:
       case CREDIT_DEFAULT_SWAP:
       case FRA:

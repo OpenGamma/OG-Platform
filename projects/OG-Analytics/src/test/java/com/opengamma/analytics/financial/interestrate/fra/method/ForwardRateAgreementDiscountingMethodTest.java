@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.fra.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Tests the ForwardRateAgreement discounting method.
@@ -54,7 +53,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Dates : The above dates are not standard but selected for insure correct testing.
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
@@ -66,7 +65,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final double NOTIONAL = 1000000; //1m
   // Coupon with specific payment and accrual dates.
   private static final ForwardRateAgreementDefinition FRA_DEFINITION = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
-      FIXING_DATE, INDEX, FRA_RATE);
+      FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
   // To derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 10, 9);
 
@@ -117,7 +116,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   public void presentValueBuySellParity() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
-        FIXING_DATE, INDEX, FRA_RATE);
+        FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
     final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVE_NAME_1);
     final CurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, curves);
     final CurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, curves);
@@ -275,8 +274,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final ForwardRateAgreement fra2 = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
     final double parSpread = FRA_METHOD.parSpread(fra2, CURVES_2);
     final ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
-        INDEX,
-        FRA_RATE + parSpread);
+        INDEX, FRA_RATE + parSpread, CALENDAR);
     final ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
     final double pv0 = fra0.accept(PVC, CURVES_2);
     assertEquals("FRA discounting: par spread", pv0, 0, TOLERANCE_PV);

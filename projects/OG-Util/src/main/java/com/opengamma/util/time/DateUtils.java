@@ -14,6 +14,7 @@ import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.fudgemsg.types.FudgeDate;
 import org.threeten.bp.Clock;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Duration;
@@ -520,6 +521,24 @@ public final class DateUtils {
       throw new IllegalArgumentException("The date must not be null");
     }
     return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
+  }
+
+  /**
+   * Constructs a LocalDate from a Function Requirement / Input passed over the wire via {@link FudgeMsg} <p>
+   * Example usage: LocalDate nextDividendDate = DateUtils.toLocalDate(inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE));
+   * 
+   * @param date an Object
+   * @return the created LocalDate
+   * @throws IllegalArgumentException if the date is not a recognized type
+   */
+  public static LocalDate toLocalDate(Object date) {
+    if (date instanceof LocalDate) {
+      return (LocalDate) date;
+    }
+    if (date instanceof FudgeDate) {
+      return ((FudgeDate) date).toLocalDate();
+    }
+    throw new IllegalArgumentException(date.toString() + " is not a date");
   }
 
   //-------------------------------------------------------------------------

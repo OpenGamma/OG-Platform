@@ -10,7 +10,8 @@ $.register_module({
         var Portfolio = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
             form.Block.call(block, {module: 'og.blotter.forms.blocks.portfolio_tash',
-                extras: {id: id, counterparty: config.counterparty, node: config.node, trade: config.trade},
+                extras: {id: id, counterparty: config.counterparty, node: config.node, trade: config.trade,
+                    name: config.name, fungible: config.fungible},
                 children: [
                     new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'trade.premiumCurrency'}})
                 ]

@@ -17,6 +17,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.db.DbConnector;
@@ -24,7 +25,6 @@ import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Base DB test.

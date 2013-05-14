@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.model.interestrate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -51,7 +50,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     for (int loopperiod = 0; loopperiod < VOLATILITY.length; loopperiod++) {
       assertEquals(VOLATILITY[loopperiod], MODEL_PARAMETERS.getVolatility()[loopperiod]);
     }
-    double[] volTime = MODEL_PARAMETERS.getVolatilityTime();
+    final double[] volTime = MODEL_PARAMETERS.getVolatilityTime();
     for (int loopperiod = 0; loopperiod < VOLATILITY_TIME.length; loopperiod++) {
       assertEquals(VOLATILITY_TIME[loopperiod], volTime[loopperiod + 1]);
     }
@@ -62,7 +61,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Tests the class setters.
    */
   public void setter() {
-    double volReplaced = 0.02;
+    final double volReplaced = 0.02;
     MODEL_PARAMETERS.setLastVolatility(volReplaced);
     assertEquals(volReplaced, MODEL_PARAMETERS.getVolatility()[MODEL_PARAMETERS.getVolatility().length - 1]);
     MODEL_PARAMETERS.setLastVolatility(VOLATILITY[VOLATILITY.length - 1]);
@@ -76,10 +75,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
-    HullWhiteOneFactorPiecewiseConstantParameters newParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+    final HullWhiteOneFactorPiecewiseConstantParameters newParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     assertTrue("Hull-White model equals", MODEL_PARAMETERS.equals(newParameter));
     assertTrue("Hull-White model hash code", MODEL_PARAMETERS.hashCode() == newParameter.hashCode());
-    HullWhiteOneFactorPiecewiseConstantParameters modifiedParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
+    final HullWhiteOneFactorPiecewiseConstantParameters modifiedParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
     assertFalse("Hull-White model equals", MODEL_PARAMETERS.equals(modifiedParameter));
   }
 
@@ -96,7 +95,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final boolean IS_EOM = true;
     final Currency CUR = Currency.EUR;
-    final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+    final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
     // Future
     final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
     final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -SETTLEMENT_DAYS, CALENDAR);
@@ -107,18 +106,18 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final String NAME = "ERU2";
     final int quantity = 123;
     final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
-    DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.MIDNIGHT), ZoneOffset.UTC);
-    double LAST_TRADING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, LAST_TRADING_DATE);
-    double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
-    double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
-    double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
+    final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final double LAST_TRADING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, LAST_TRADING_DATE);
+    final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
+    final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
+    final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
     final String DISCOUNTING_CURVE_NAME = "Funding";
     final String FORWARD_CURVE_NAME = "Forward";
-    InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, quantity, NAME,
+    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, quantity, NAME,
         DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    double factor = MODEL.futureConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
-    double expectedFactor = 1.000079130767980;
+    final double factor = MODEL.futureConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
+    final double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
   }
 
@@ -127,10 +126,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Test the bond volatility (called alpha) vs a hard-coded value.
    */
   public void bondVolatility() {
-    double expiry1 = 0.25;
-    double expiry2 = 2.25;
-    double numeraire = 10.0;
-    double maturity = 9.0;
+    final double expiry1 = 0.25;
+    final double expiry2 = 2.25;
+    final double numeraire = 10.0;
+    final double maturity = 9.0;
     double alphaExpected = -0.015191631;
     double alpha = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity); //All data
     assertEquals("Hull-White one factor: bond volatility (alpha) - all", alphaExpected, alpha, 1E-8);
@@ -147,19 +146,19 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Test the swaption exercise boundary.
    */
   public void kappa() {
-    double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05};
-    double notional = 100000000; // 100m
-    double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00};
-    double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
-    int nbCF = cashFlowAmount.length;
-    double[] discountedCashFlow = new double[nbCF];
-    double[] alpha = new double[nbCF];
-    double rate = 0.04;
+    final double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05};
+    final double notional = 100000000; // 100m
+    final double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00};
+    final double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
+    final int nbCF = cashFlowAmount.length;
+    final double[] discountedCashFlow = new double[nbCF];
+    final double[] alpha = new double[nbCF];
+    final double rate = 0.04;
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       discountedCashFlow[loopcf] = cashFlowAmount[loopcf] * Math.exp(-rate * cashFlowTime[loopcf]) * notional;
       alpha[loopcf] = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiryTime, expiryTime, cashFlowTime[loopcf]);
     }
-    double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    final double kappa = MODEL.kappa(discountedCashFlow, alpha);
     double swapValue = 0.0;
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       swapValue += discountedCashFlow[loopcf] * Math.exp(-Math.pow(alpha[loopcf], 2.0) / 2.0 - alpha[loopcf] * kappa);
@@ -172,20 +171,20 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Test the adjoint version of alpha.
    */
   public void alphaAdjoint() {
-    double expiry1 = 0.25;
-    double expiry2 = 2.25;
-    double numeraire = 10.0;
-    double maturity = 9.0;
-    int nbVolatility = VOLATILITY.length;
-    double[] alphaDerivatives = new double[nbVolatility];
-    double alpha = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity, alphaDerivatives);
-    double alpha2 = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity);
+    final double expiry1 = 0.25;
+    final double expiry2 = 2.25;
+    final double numeraire = 10.0;
+    final double maturity = 9.0;
+    final int nbVolatility = VOLATILITY.length;
+    final double[] alphaDerivatives = new double[nbVolatility];
+    final double alpha = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity, alphaDerivatives);
+    final double alpha2 = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity);
     assertEquals("Alpha adjoint: value", alpha2, alpha, 1.0E-10);
-    double shiftVol = 1.0E-6;
-    double[] volatilityBumped = new double[nbVolatility];
+    final double shiftVol = 1.0E-6;
+    final double[] volatilityBumped = new double[nbVolatility];
     System.arraycopy(VOLATILITY, 0, volatilityBumped, 0, nbVolatility);
-    double[] alphaBumpedPlus = new double[nbVolatility];
-    double[] alphaBumpedMinus = new double[nbVolatility];
+    final double[] alphaBumpedPlus = new double[nbVolatility];
+    final double[] alphaBumpedMinus = new double[nbVolatility];
     HullWhiteOneFactorPiecewiseConstantParameters parametersBumped;
     for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
       volatilityBumped[loopvol] += shiftVol;
@@ -205,12 +204,12 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Tests of performance. "enabled = false" for the standard testing.
    */
   public void performanceAlphaAdjoint() {
-    double expiry1 = 0.25;
-    double expiry2 = 2.25;
-    double numeraire = 10.0;
-    double maturity = 9.0;
-    int nbVolatility = VOLATILITY.length;
-    double[] alphaDerivatives = new double[nbVolatility];
+    final double expiry1 = 0.25;
+    final double expiry2 = 2.25;
+    final double numeraire = 10.0;
+    final double maturity = 9.0;
+    final int nbVolatility = VOLATILITY.length;
+    final double[] alphaDerivatives = new double[nbVolatility];
     long startTime, endTime;
     final int nbTest = 100000;
     double alpha = 0.0;

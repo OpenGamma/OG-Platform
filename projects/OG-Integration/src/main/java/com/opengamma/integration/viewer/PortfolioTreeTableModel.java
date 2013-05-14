@@ -33,7 +33,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 class PortfolioTreeTableModel extends AbstractTreeTableModel implements ViewResultListener {
 

@@ -103,8 +103,8 @@ public class DbTool extends Task {
   public void initialize() {
     if (_dbServerHost == null) {
       // Parse the server host and catalog from a JDBC URL
+      // REVIEW jonathan 2013-05-14 -- should not be doing this (PLAT-2745)
       if (_jdbcUrl != null) {
-
         int lastSlash = _jdbcUrl.lastIndexOf('/');
         if (lastSlash == -1 || lastSlash == _jdbcUrl.length() - 1) {
           throw new OpenGammaRuntimeException("JDBC URL must contain a slash separating the server host and the database name");

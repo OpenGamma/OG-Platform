@@ -30,8 +30,8 @@ public class CouponIborAverageTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final IndexIborMaster INDEX_IBOR_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex INDEX_EURIBOR3M = INDEX_IBOR_MASTER.getIndex("EURIBOR3M", TARGET);
-  private static final IborIndex INDEX_EURIBOR6M = INDEX_IBOR_MASTER.getIndex("EURIBOR6M", TARGET);
+  private static final IborIndex INDEX_EURIBOR3M = INDEX_IBOR_MASTER.getIndex("EURIBOR3M");
+  private static final IborIndex INDEX_EURIBOR6M = INDEX_IBOR_MASTER.getIndex("EURIBOR6M");
   private static final Currency EUR = INDEX_EURIBOR3M.getCurrency();
   // Coupon
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -42,9 +42,9 @@ public class CouponIborAverageTest {
   private static final double NOTIONAL = 1000000; //1m
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE, -INDEX_EURIBOR3M.getSpotLag(), TARGET); // In arrears
   private static final ZonedDateTime FIXING_START_DATE_1 = ACCRUAL_END_DATE;
-  private static final ZonedDateTime FIXING_END_DATE_1 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_1, INDEX_EURIBOR3M);
+  private static final ZonedDateTime FIXING_END_DATE_1 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_1, INDEX_EURIBOR3M, TARGET);
   private static final ZonedDateTime FIXING_START_DATE_2 = ACCRUAL_END_DATE;
-  private static final ZonedDateTime FIXING_END_DATE_2 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_2, INDEX_EURIBOR3M);
+  private static final ZonedDateTime FIXING_END_DATE_2 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_2, INDEX_EURIBOR3M, TARGET);
 
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
   //  private static final double ACCRUAL_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATE);

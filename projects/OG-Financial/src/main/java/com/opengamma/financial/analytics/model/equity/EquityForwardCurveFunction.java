@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.fudgemsg.types.FudgeDate;
+import org.threeten.bp.LocalDate;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -35,6 +38,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Function produces a FORWARD_CURVE given YIELD_CURVE and Equity MARKET_VALUE
@@ -118,8 +122,8 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     // Dividend yield - optional
     requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
     
-    // Next Dividend date - **** PLAYING AROUND
-    requirements.add(new ValueRequirement(MarketDataRequirementNames.NEXT_DIVIDEND_DATE, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
+    // *** PLAYING AROUND - DISCRETE DIVIDENDS 
+    // requirements.add(new ValueRequirement(MarketDataRequirementNames.NEXT_DIVIDEND_DATE, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
 
     return requirements;
   }
@@ -149,7 +153,8 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
     
-    final Object nextDividendDate = inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE);
+    // *** PLAYING AROUND - DISCRETE DIVIDENDS
+    // LocalDate nextDividendDate = DateUtils.toLocalDate(inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE));
 
     // Cost of Carry - if no dividend yield available set 0 cost of carry
     final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);

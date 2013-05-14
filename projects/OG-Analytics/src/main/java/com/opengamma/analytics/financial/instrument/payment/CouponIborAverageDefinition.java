@@ -20,12 +20,13 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing an average Ibor-like floating coupon (weighted mean of two different Ibor). 
+ * Class describing an average Ibor-like floating coupon (weighted mean of two different Ibor).
  */
 
 public class CouponIborAverageDefinition extends CouponFloatingDefinition {
@@ -67,8 +68,8 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    */
   private final ZonedDateTime _fixingPeriodEndDate2;
   /**
-  * The accrual factor (or year fraction) associated to the fixing period of the second index in the Index day count convention.
-  */
+   * The accrual factor (or year fraction) associated to the fixing period of the second index in the Index day count convention.
+   */
   private final double _fixingPeriodAccrualFactor2;
 
   /**
@@ -81,15 +82,16 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param paymentAccrualFactor The accrual factor of the accrual period of the first index.
    * @param notional The coupon notional.
    * @param fixingDate The coupon fixing date.
-   * @param index1 The first coupon Ibor index. Should of the same currency as the payment.
-   * @param index2 The second coupon Ibor index. Should of the same currency as the payment.
+   * @param index1 The first coupon Ibor index. Should have the same currency as the payment.
+   * @param index2 The second coupon Ibor index. Should have the same currency as the payment.
    * @param weight1 The weight of the first index.
    * @param weight2 The weight of the second index.
+   * @param iborCalendar1 The holiday calendar for the first ibor index.
+   * @param iborCalendar2 The holiday calendar for the second ibor index.
    */
-
   public CouponIborAverageDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1,
-      final double weight2) {
+      final double weight2, final Calendar iborCalendar1, final Calendar iborCalendar2) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate);
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index2");
@@ -99,12 +101,12 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
     _index2 = index2;
     _weight1 = weight1;
     _weight2 = weight2;
-    _fixingPeriodStartDate1 = ScheduleCalculator.getAdjustedDate(fixingDate, _index1.getSpotLag(), _index1.getCalendar());
-    _fixingPeriodEndDate1 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate1, index1.getTenor(), index1.getBusinessDayConvention(), index1.getCalendar(),
+    _fixingPeriodStartDate1 = ScheduleCalculator.getAdjustedDate(fixingDate, _index1.getSpotLag(), iborCalendar1);
+    _fixingPeriodEndDate1 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate1, index1.getTenor(), index1.getBusinessDayConvention(), iborCalendar1,
         index1.isEndOfMonth());
     _fixingPeriodAccrualFactor1 = index1.getDayCount().getDayCountFraction(_fixingPeriodStartDate1, _fixingPeriodEndDate1);
-    _fixingPeriodStartDate2 = ScheduleCalculator.getAdjustedDate(fixingDate, _index2.getSpotLag(), _index2.getCalendar());
-    _fixingPeriodEndDate2 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate2, index2.getTenor(), index2.getBusinessDayConvention(), index2.getCalendar(),
+    _fixingPeriodStartDate2 = ScheduleCalculator.getAdjustedDate(fixingDate, _index2.getSpotLag(), iborCalendar2);
+    _fixingPeriodEndDate2 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate2, index2.getTenor(), index2.getBusinessDayConvention(), iborCalendar2,
         index2.isEndOfMonth());
     _fixingPeriodAccrualFactor2 = index2.getDayCount().getDayCountFraction(_fixingPeriodStartDate2, _fixingPeriodEndDate2);
   }
@@ -160,41 +162,41 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param paymentAccrualFactor Accrual factor of the accrual period of the first index.
    * @param notional Coupon notional.
    * @param fixingDate The coupon fixing date.
-   * @param index1 The first coupon Ibor index. 
-   * @param index2 The second coupon Ibor index. 
+   * @param index1 The first coupon Ibor index.
+   * @param index2 The second coupon Ibor index.
    * @param weight1 The weight of the first index.
    * @param weight2 The weight of the second index.
    * @return The Ibor coupon.
    */
   public static CouponIborAverageDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1,
-      final double weight2) {
+      final double weight2, final Calendar iborCalendar1, final Calendar iborCalendar2) {
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index2");
     ArgumentChecker.isTrue(index1.getCurrency().equals(index2.getCurrency()), "index1 currency different from index2 currency");
     return new CouponIborAverageDefinition(index1.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate, index1,
-        index2, weight1, weight2);
+        index2, weight1, weight2, iborCalendar1, iborCalendar2);
   }
 
   /**
    * Builder of Ibor-like coupon from an underlying coupon, the fixing date, the weights and the indeces. The fixing period dates are deduced from the index and the fixing date.
    * @param coupon Underlying coupon.
    * @param fixingDate The coupon fixing date.
-   * @param index1 The first coupon Ibor index. 
-   * @param index2 The second coupon Ibor index. 
+   * @param index1 The first coupon Ibor index.
+   * @param index2 The second coupon Ibor index.
    * @param weight1 The weight of the first index.
    * @param weight2 The weight of the second index.
    * @return The Ibor coupon.
    */
   public static CouponIborAverageDefinition from(final CouponDefinition coupon, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2,
-      final double weight1, final double weight2) {
+      final double weight1, final double weight2, final Calendar iborCalendar1, final Calendar iborCalendar2) {
     ArgumentChecker.notNull(coupon, "coupon");
     ArgumentChecker.notNull(fixingDate, "fixing date");
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index1");
     ArgumentChecker.isTrue(index1.getCurrency().equals(index2.getCurrency()), "index1 currency different from index2 currency");
     return new CouponIborAverageDefinition(index1.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(),
-        coupon.getPaymentYearFraction(), coupon.getNotional(), fixingDate, index1, index2, weight1, weight2);
+        coupon.getPaymentYearFraction(), coupon.getNotional(), fixingDate, index1, index2, weight1, weight2, iborCalendar1, iborCalendar2);
   }
 
   /**

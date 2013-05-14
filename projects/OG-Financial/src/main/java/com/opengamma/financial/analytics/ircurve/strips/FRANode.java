@@ -55,8 +55,29 @@ public class FRANode extends CurveNode {
     super();
   }
 
+  /**
+   * @param fixingStart The fixing start tenor, not null
+   * @param fixingEnd The fixing end tenor, not null
+   * @param convention The convention of the underlying rate, not null
+   * @param curveNodeIdMapperName The name of the curve node id mapper, not null
+   */
   public FRANode(final Tenor fixingStart, final Tenor fixingEnd, final ExternalId convention, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
+    setFixingStart(fixingStart);
+    setFixingEnd(fixingEnd);
+    setConvention(convention);
+  }
+
+  /**
+   * @param fixingStart The fixing start tenor, not null
+   * @param fixingEnd The fixing end tenor, not null
+   * @param convention The convention of the underlying rate, not null
+   * @param curveNodeIdMapperName The name of the curve node id mapper, not null
+   * @param dataField The name of the data field, not null
+   */
+  public FRANode(final Tenor fixingStart, final Tenor fixingEnd, final ExternalId convention, final String curveNodeIdMapperName,
+      final String dataField) {
+    super(curveNodeIdMapperName, dataField);
     setFixingStart(fixingStart);
     setFixingEnd(fixingEnd);
     setConvention(convention);

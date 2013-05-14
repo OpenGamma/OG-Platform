@@ -12,7 +12,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Static utility class for formatting axis labels reasonably.

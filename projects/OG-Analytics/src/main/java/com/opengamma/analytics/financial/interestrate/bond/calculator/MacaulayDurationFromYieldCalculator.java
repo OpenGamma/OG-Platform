@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
@@ -35,11 +33,14 @@ public final class MacaulayDurationFromYieldCalculator extends InstrumentDerivat
   private MacaulayDurationFromYieldCalculator() {
   }
 
+  /**
+   * The method used for different instruments.
+   */
+  private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
+
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double yield) {
-    Validate.notNull(bond);
-    Validate.notNull(yield);
-    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
-    return method.macaulayDurationFromYield(bond, yield);
+    return METHOD_BOND_SECURITY.macaulayDurationFromYield(bond, yield);
   }
+
 }

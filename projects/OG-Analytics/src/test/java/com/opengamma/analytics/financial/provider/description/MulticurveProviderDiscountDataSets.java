@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.provider.description.inflation.Inflatio
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -39,8 +38,8 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Sets of market data used in tests.
@@ -111,13 +110,13 @@ public class MulticurveProviderDiscountDataSets {
   private static final YieldAndDiscountCurve CURVE_USD_30 = new YieldCurve(USD30, new InterpolatedDoublesCurve(USD30_TIME, USD30_RATE, LINEAR_FLAT, true, USD30));
 
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = MASTER_IBOR_INDEX.getIndex("USDLIBOR3M", CALENDAR_USD);
-  private static final IborIndex USDLIBOR6M = MASTER_IBOR_INDEX.getIndex("USDLIBOR6M", CALENDAR_USD);
-  private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M", CALENDAR_EUR);
-  private static final IborIndex EURIBOR6M = MASTER_IBOR_INDEX.getIndex("EURIBOR6M", CALENDAR_EUR);
-  private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M", CALENDAR_CAD);
-  private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA", CALENDAR_EUR);
-  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", CALENDAR_USD);
+  private static final IborIndex USDLIBOR3M = MASTER_IBOR_INDEX.getIndex("USDLIBOR3M");
+  private static final IborIndex USDLIBOR6M = MASTER_IBOR_INDEX.getIndex("USDLIBOR6M");
+  private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
+  private static final IborIndex EURIBOR6M = MASTER_IBOR_INDEX.getIndex("EURIBOR6M");
+  private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M");
+  private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");
+  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR);
@@ -175,9 +174,6 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   private static final MulticurveProviderDiscount MULTICURVES_USD_WITHOUT_DISCOUNT = new MulticurveProviderDiscount();
-  static {
-
-  }
 
   private static final MulticurveProviderDiscount MULTICURVES_CAD = new MulticurveProviderDiscount();
   static {
@@ -185,15 +181,15 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_CAD.setCurve(CADCDOR3M, CAD_FWD3);
   }
 
-  private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+  private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
   static {
-    ISSUER_CURVES.put(new ObjectsPair<String, Currency>(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
+    ISSUER_CURVES.put(new ObjectsPair<>(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
   }
   private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(MULTICURVES_EUR_USD, ISSUER_CURVES);
 
   // Seasonal factors (from February/January to December/November)
   //  private static final double[] SEASONAL_FACTOR_EUR = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
-  private static final double[] SEASONAL_FACTOR_USD = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010 };
+  //  private static final double[] SEASONAL_FACTOR_USD = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010 };
   //  private static final double[] SEASONAL_FACTOR_GBP = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
   // Price index data
   private static final double[] UKRPI_VALUE_2010 = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4 };
@@ -333,7 +329,7 @@ public class MulticurveProviderDiscountDataSets {
 
   public static InflationIssuerProviderDiscount createMarket2(final ZonedDateTime pricingDate) {
     final InflationIssuerProviderDiscount market = createMarket1(pricingDate);
-    final DoublesCurve curveNoAdj = market.getCurve(PRICE_INDEX_USD).getCurve();
+    //    final DoublesCurve curveNoAdj = market.getCurve(PRICE_INDEX_USD).getCurve();
     //TODO: seasonal have modified, so the following have to be modified
     /*final DoublesCurve adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD, false);*/
     /* final DoublesCurve[] curveSet = new DoublesCurve[] {curveNoAdj, adj };*/
@@ -419,4 +415,15 @@ public class MulticurveProviderDiscountDataSets {
     return new String[] {ISSUER_US_GOVT, ISSUER_UK_GOVT, ISSUER_NAME };
   }
 
+  public static Calendar getCADCalendar() {
+    return CALENDAR_CAD;
+  }
+
+  public static Calendar getEURCalendar() {
+    return CALENDAR_EUR;
+  }
+
+  public static Calendar getUSDCalendar() {
+    return CALENDAR_USD;
+  }
 }

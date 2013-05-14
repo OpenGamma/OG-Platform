@@ -14,13 +14,14 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates) with a spread.
  * Simplified definition which contains only the starting date and end date (not all intermediary dates). The fixing and accrual dates are equal.
- * Can not be used for "aged" coupon but only for forward coupons when all the details of intermediary fixing are not required. 
+ * Can not be used for "aged" coupon but only for forward coupons when all the details of intermediary fixing are not required.
  * In particular can be used for
  */
 public class CouponArithmeticAverageONSpreadSimplifiedDefinition extends CouponDefinition {
@@ -70,12 +71,13 @@ public class CouponArithmeticAverageONSpreadSimplifiedDefinition extends CouponD
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @param spread The spread rate paid above the arithmetic average.
+   * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
   public static CouponArithmeticAverageONSpreadSimplifiedDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional,
-      final int paymentLag, final BusinessDayConvention businessDayConvention, final boolean isEOM, final double spread) {
-    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
-    return from(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, spread);
+      final int paymentLag, final BusinessDayConvention businessDayConvention, final boolean isEOM, final double spread, final Calendar calendar) {
+    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, tenor, businessDayConvention, calendar, isEOM);
+    return from(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, spread, calendar);
   }
 
   /**
@@ -87,12 +89,12 @@ public class CouponArithmeticAverageONSpreadSimplifiedDefinition extends CouponD
    * @param notional The notional.
    * @param paymentLag The number of days between last fixing date and the payment date (also called payment delay).
    * @param spread The spread rate paid above the arithmetic average.
+   * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
   public static CouponArithmeticAverageONSpreadSimplifiedDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
-      final double notional,
-      final int paymentLag, final double spread) {
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, index.getCalendar());
+      final double notional, final int paymentLag, final double spread, final Calendar calendar) {
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, calendar);
     final double paymentYearFraction = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate);
     return new CouponArithmeticAverageONSpreadSimplifiedDefinition(index.getCurrency(), paymentDate, fixingPeriodStartDate, fixingPeriodEndDate, paymentYearFraction, notional, index, spread);
   }
@@ -153,7 +155,7 @@ public class CouponArithmeticAverageONSpreadSimplifiedDefinition extends CouponD
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -163,7 +165,7 @@ public class CouponArithmeticAverageONSpreadSimplifiedDefinition extends CouponD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponArithmeticAverageONSpreadSimplifiedDefinition other = (CouponArithmeticAverageONSpreadSimplifiedDefinition) obj;
+    final CouponArithmeticAverageONSpreadSimplifiedDefinition other = (CouponArithmeticAverageONSpreadSimplifiedDefinition) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }

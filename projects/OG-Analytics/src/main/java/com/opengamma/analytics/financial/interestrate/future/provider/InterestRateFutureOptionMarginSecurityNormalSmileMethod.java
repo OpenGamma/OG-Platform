@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Norma
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Method for the pricing of interest rate future options with daily margining. The pricing is done with a Normal approach on the future price.

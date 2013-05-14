@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.view.rest;
 
-import static com.opengamma.util.functional.Functional.merge;
+import static com.opengamma.lambdava.streams.Lambdava.merge;
 
 import java.net.URI;
 import java.util.ArrayList;

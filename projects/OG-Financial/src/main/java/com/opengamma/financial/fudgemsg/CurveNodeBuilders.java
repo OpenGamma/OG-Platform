@@ -29,6 +29,7 @@ import com.opengamma.util.time.Tenor;
  */
 /* package */ final class CurveNodeBuilders {
   private static final String CURVE_MAPPER_ID_FIELD = "curveNodeIdMapper";
+  private static final String DATA_FIELD_FIELD = "dataField";
 
   private CurveNodeBuilders() {
   }
@@ -70,6 +71,7 @@ import com.opengamma.util.time.Tenor;
       message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(DATA_FIELD_FIELD, object.getDataField());
       return message;
     }
 
@@ -79,7 +81,8 @@ import com.opengamma.util.time.Tenor;
       final Tenor maturityTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(MATURITY_TENOR_FIELD));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
-      return new CashNode(startTenor, maturityTenor, conventionId, curveNodeIdMapperName);
+      final String dataField = message.getString(DATA_FIELD_FIELD);
+      return new CashNode(startTenor, maturityTenor, conventionId, curveNodeIdMapperName, dataField);
     }
   }
 
@@ -93,6 +96,7 @@ import com.opengamma.util.time.Tenor;
       message.add(null, 0, object.getClass().getName());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(TENOR_FIELD, object.getTenor());
+      message.add(DATA_FIELD_FIELD, object.getDataField());
       return message;
     }
 
@@ -100,7 +104,8 @@ import com.opengamma.util.time.Tenor;
     public ContinuouslyCompoundedRateNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
-      final ContinuouslyCompoundedRateNode strip = new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor);
+      final String dataField = message.getString(DATA_FIELD_FIELD);
+      final ContinuouslyCompoundedRateNode strip = new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor, dataField);
       return strip;
     }
   }
@@ -115,6 +120,7 @@ import com.opengamma.util.time.Tenor;
       message.add(null, 0, object.getClass().getName());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(TENOR_FIELD, object.getTenor());
+      message.add(DATA_FIELD_FIELD, object.getDataField());
       return message;
     }
 
@@ -122,7 +128,8 @@ import com.opengamma.util.time.Tenor;
     public CreditSpreadNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
-      final CreditSpreadNode strip = new CreditSpreadNode(curveNodeIdMapperName, tenor);
+      final String dataField = message.getString(DATA_FIELD_FIELD);
+      final CreditSpreadNode strip = new CreditSpreadNode(curveNodeIdMapperName, tenor, dataField);
       return strip;
     }
   }
@@ -137,6 +144,7 @@ import com.opengamma.util.time.Tenor;
       message.add(null, 0, object.getClass().getName());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(TENOR_FIELD, object.getTenor());
+      message.add(DATA_FIELD_FIELD, object.getDataField());
       return message;
     }
 
@@ -144,8 +152,12 @@ import com.opengamma.util.time.Tenor;
     public DiscountFactorNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
-      final DiscountFactorNode strip = new DiscountFactorNode(curveNodeIdMapperName, tenor);
-      return strip;
+      final String dataField = message.getString(DATA_FIELD_FIELD);
+      if (dataField == null) {
+        return new DiscountFactorNode(curveNodeIdMapperName, tenor);
+      } else {
+        return new DiscountFactorNode(curveNodeIdMapperName, tenor, dataField);
+      }
     }
   }
 
@@ -163,6 +175,7 @@ import com.opengamma.util.time.Tenor;
       message.add(FIXING_END_FIELD, object.getFixingEnd());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(DATA_FIELD_FIELD, object.getDataField());
       return message;
     }
 
@@ -172,7 +185,8 @@ import com.opengamma.util.time.Tenor;
       final Tenor fixingStart = deserializer.fieldValueToObject(Tenor.class, message.getByName(FIXING_START_FIELD));
       final Tenor fixingEnd = deserializer.fieldValueToObject(Tenor.class, message.getByName(FIXING_END_FIELD));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
-      return new FRANode(fixingStart, fixingEnd, conventionId, curveNodeIdMapperName);
+      final String dataField = message.getString(DATA_FIELD_FIELD);
+      return new FRANode(fixingStart, fixingEnd, conventionId, curveNodeIdMapperName, dataField);
     }
 
   }
@@ -197,6 +211,7 @@ import com.opengamma.util.time.Tenor;
       message.add(FUTURE_CONVENTION_FIELD, object.getFutureConvention());
       message.add(UNDERLYING_CONVENTION_FIELD, object.getUnderlyingConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(DATA_FIELD_FIELD, object.getDataField());
       return message;
     }
 
@@ -209,7 +224,9 @@ import com.opengamma.util.time.Tenor;
       final ExternalId futureConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FUTURE_CONVENTION_FIELD));
       final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
-      return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName);
+      final String dataField = message.getString(DATA_FIELD_FIELD);
+      return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName,
+          dataField);
     }
 
   }
@@ -230,6 +247,7 @@ import com.opengamma.util.time.Tenor;
       message.add(PAY_LEG_CONVENTION_FIELD, object.getPayLegConvention());
       message.add(RECEIVE_LEG_CONVENTION_FIELD, object.getReceiveLegConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(DATA_FIELD_FIELD, object.getDataField());
       return message;
     }
 
@@ -240,7 +258,8 @@ import com.opengamma.util.time.Tenor;
       final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
       final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
-      return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName);
+      final String dataField = message.getString(DATA_FIELD_FIELD);
+      return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName, dataField);
     }
 
   }

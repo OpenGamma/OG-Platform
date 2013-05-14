@@ -34,7 +34,7 @@ public class SwapFixedCouponMethodTest {
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = INDEX_LIST[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
 
@@ -60,8 +60,8 @@ public class SwapFixedCouponMethodTest {
   private static final PresentValueBasisPointDiscountingCalculator PVBPDC = PresentValueBasisPointDiscountingCalculator.getInstance();
   private static final ParRateCurveSensitivityDiscountingCalculator PRCSDC = ParRateCurveSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueBasisPointCurveSensitivityDiscountingCalculator PVBPCSDC = PresentValueBasisPointCurveSensitivityDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PR_C = new SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PRCSDC);
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PVBP_C = new SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVBPCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PR_C = new SimpleParameterSensitivityParameterCalculator<>(PRCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PVBP_C = new SimpleParameterSensitivityParameterCalculator<>(PVBPCSDC);
   private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PR_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PRDC, SHIFT_FD);
   private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PVBP_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVBPDC, SHIFT_FD);
 

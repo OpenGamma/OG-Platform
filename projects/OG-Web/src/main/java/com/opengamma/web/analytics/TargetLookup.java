@@ -14,7 +14,7 @@ import com.google.common.collect.Iterators;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Allows the {@link ValueSpecification} and calculation configuration name to be looked up for a cell in the main
@@ -47,6 +47,7 @@ import com.opengamma.util.tuple.Pair;
     if (colSpec == null) {
       return null;
     }
+    // TODO is this worth it? would it be better to have a map of cell->valueSpec? would use more memory but be less work
     ValueRequirement valueReq = new ValueRequirement(colSpec.getValueName(), row.getTarget(), colSpec.getValueProperties());
     String calcConfigName = colSpec.getCalcConfigName();
     ValueSpecification valueSpec = _valueMappings.getValueSpecification(calcConfigName, valueReq);
