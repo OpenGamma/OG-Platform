@@ -5,6 +5,7 @@
  */
 package com.opengamma.security.auditlog;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,8 +29,9 @@ import com.opengamma.util.ArgumentChecker;
  * the database may be lost. 
  *
  */
-public class HibernateAuditLogger extends AbstractAuditLogger {
-  
+public class HibernateAuditLogger extends AbstractAuditLogger implements Closeable {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateAuditLogger.class);
   
   private HibernateTemplate _hibernateTemplate;
@@ -81,7 +83,8 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
             _hibernateTemplate.getEntityInterceptor(),
             _hibernateTemplate.getJdbcExceptionTranslator());
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * The <code>Flusher</code> background thread ensures that all log entries are written into 
    * the DB in a timely fashion, even if the flow of new log entries from clients stops abruptly.  
@@ -158,6 +161,23 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
 
   List<AuditLogEntry> findAll() {
     return _hibernateTemplate.loadAll(AuditLogEntry.class);
+  }
+
+  @Override
+  public void close() {
+    Timer timer = _timer;
+    if (timer != null) {
+      try {
+        _timer.cancel();
+      } catch (Throwable ex) {
+        s_logger.info("Error during timer cancellation", ex);
+      }
+      try {
+        flushCache();
+      } catch (Throwable ex) {
+        s_logger.info("Error during flush", ex);
+      }
+    }
   }
 
 }
