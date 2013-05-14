@@ -21,7 +21,7 @@ $.register_module({
          */
         return function (config) {
             var timeseries = this, handler, x_max, alive = og.common.id('gadget_timeseries_plot'),
-                selector = config.selector, load_plots, initial_preset,
+                selector = config.selector, load_plots, initial_preset, $refresh,
                 meta = {}, // object that stores the structure and data of the plots
                 plot_template, data_template, common_plot_options, top_plot_options, bot_plot_options, spoofed_data,
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colors for plot 1 data sets
@@ -42,6 +42,9 @@ $.register_module({
                return function () {timeout = clearTimeout(timeout) || setTimeout(resize, 0);}
             })(null);
             timeseries.alive = function () {return !!$('.' + alive).length;};
+            timeseries.display_refresh = function () {
+                $refresh.show();
+            };
             spoofed_data = (function (data) {
                 if (!data) return null;
                 data.forEach(function (val, idx) {
@@ -99,6 +102,10 @@ $.register_module({
                     empty_plots, update_legend, rescale_yaxis, resize,
                     calculate_y_values, get_legend;
                 $(selector).html((Handlebars.compile(plot_template))({alive: alive}));
+                $refresh = $(selector).find('div.og-timeseries-refresh');
+                $refresh.on('click', function (event) {
+                    timeseries.update(handler({data: config.update()}));
+                });
                 get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated
                 reset_options = function () {p1_options = top_plot_options, p2_options = bot_plot_options;};
                 empty_plots = function () {

@@ -310,3 +310,10 @@
 .OG-timeseries .legend table {
     top: 20px!important;
 }
+
+.og-timeseries-refresh {
+    display: none;
+    margin: 10px 0 0 15px;
+    position: absolute;
+    top: 0;
+}

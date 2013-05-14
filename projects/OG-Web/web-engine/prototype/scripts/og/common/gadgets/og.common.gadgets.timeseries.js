@@ -38,11 +38,18 @@ $.register_module({
                 return dataman.cell = new og.analytics
                     .Cell({source: source, col: col, row: row, format: format}, 'timeseries')
                     .on('data', function (value) {
-                        var data = typeof value.v !== 'undefined' ? value.v : value;
-                        if (!timeseries && data && (typeof data === 'object'))
-                            timeseries = new common.Timeseries($.extend(true, {}, config, {data: [data]}));
+                        gadget.data = typeof value.v !== 'undefined' ? value.v : value;
+                        if (!timeseries && gadget.data && (typeof gadget.data === 'object')) {
+                            timeseries = new common.Timeseries($.extend(true, {}, config,
+                                {data: [gadget.data]}, {update: update}));
+                        } else {
+                            timeseries.display_refresh();
+                        }
                     })
                     .on('fatal', function (message) {$selector.html(message);});
+            };
+            var update = function () {
+                return gadget.data;
             };
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;

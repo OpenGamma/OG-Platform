@@ -24,7 +24,7 @@ $.register_module({
             var calc_vars = function () {
               return false;
               //if (stripped[stripped.length - 1] > 0) return false;
-              //var ceil = Math.ceil, sample99 = ceil(samples * 0.99), sample95 = ceil(samples * 0.95),
+              //var ceil = Math.ceil, sample99 = ceil(samples * 0.99) - 1, sample95 = ceil(samples * 0.95) - 1,
               //  range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
               //return {
               //  var99 : stripped[sample99],
