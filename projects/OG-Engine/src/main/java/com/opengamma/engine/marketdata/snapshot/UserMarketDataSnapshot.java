@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.threeten.bp.Instant;
+
 import com.google.common.collect.Iterables;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
@@ -30,9 +32,6 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.engine.target.ComputationTargetType;
-import org.threeten.bp.Instant;
-
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
@@ -44,6 +43,7 @@ import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabili
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -52,9 +52,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.lambdava.tuple.Pair;
 
 // REVIEW jonathan 2011-06-29 -- The user market data provider classes, including this, no longer need to be in the
 // engine and they simply introduce dependencies on the MarketDataSnapshotSource and specific StructuredMarketDataKeys.
@@ -181,49 +181,49 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
 
     });
-      registerStructuredMarketDataHandler(ValueRequirementNames.CURVE_MARKET_DATA, new StructuredMarketDataHandler() {
+    registerStructuredMarketDataHandler(ValueRequirementNames.CURVE_MARKET_DATA, new StructuredMarketDataHandler() {
 
-          @Override
-          protected boolean isValidTarget(final Object target) {
-              return target == null;
+      @Override
+      protected boolean isValidTarget(final Object target) {
+        return target == null;
+      }
+
+      @Override
+      protected boolean isValidSnapshot(final StructuredMarketDataSnapshot snapshot) {
+        return (snapshot.getCurves() != null) && !snapshot.getCurves().isEmpty();
+      }
+
+      @Override
+      protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
+        ValueProperties.Builder properties = null;
+        for (final CurveKey curve : snapshot.getCurves().keySet()) {
+          if (curve.getName().equals(Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE)))) {
+            if (properties == null) {
+              properties = createValueProperties();
+            }
+            properties.with(ValuePropertyNames.CURVE, curve.getName());
           }
+        }
+        if (properties != null) {
+          return properties.get();
+        } else {
+          return null;
+        }
+      }
 
-          @Override
-          protected boolean isValidSnapshot(final StructuredMarketDataSnapshot snapshot) {
-              return (snapshot.getCurves() != null) && !snapshot.getCurves().isEmpty();
+      @Override
+      protected Object query(final UniqueId target, final ValueProperties properties, final StructuredMarketDataSnapshot snapshot) {
+        final String name = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
+        if (snapshot.getCurves() != null) {
+          final CurveSnapshot data = snapshot.getCurves().get(new CurveKey(name));
+          if (data != null) {
+            return convertCurveMarketData(data);
           }
+        }
+        return null;
+      }
 
-          @Override
-          protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
-              ValueProperties.Builder properties = null;
-              for (final CurveKey curve : snapshot.getCurves().keySet()) {
-                  if (curve.getName().equals(Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE)))) {
-                      if (properties == null) {
-                          properties = createValueProperties();
-                      }
-                      properties.with(ValuePropertyNames.CURVE, curve.getName());
-                  }
-              }
-              if (properties != null) {
-                  return properties.get();
-              } else {
-                  return null;
-              }
-          }
-
-          @Override
-          protected Object query(final UniqueId target, final ValueProperties properties, final StructuredMarketDataSnapshot snapshot) {
-              final String name = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
-              if (snapshot.getCurves() != null) {
-                  final CurveSnapshot data = snapshot.getCurves().get(new CurveKey(name));
-                  if (data != null) {
-                      return convertCurveMarketData(data);
-                  }
-              }
-              return null;
-          }
-
-      });
+    });
     registerStructuredMarketDataHandler(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new StructuredMarketDataHandler() {
 
       @Override
@@ -478,14 +478,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         }
       }
     }
-      final Map<CurveKey, CurveSnapshot> curves = getSnapshot().getCurves();
-      if (curves != null) {
-          for (final CurveSnapshot curveSnapshot : curves.values()) {
-              if (latestTimestamp == null || latestTimestamp.isBefore(curveSnapshot.getValuationTime())) {
-                  latestTimestamp = curveSnapshot.getValuationTime();
-              }
-          }
+    final Map<CurveKey, CurveSnapshot> curves = getSnapshot().getCurves();
+    if (curves != null) {
+      for (final CurveSnapshot curveSnapshot : curves.values()) {
+        if (latestTimestamp == null || latestTimestamp.isBefore(curveSnapshot.getValuationTime())) {
+          latestTimestamp = curveSnapshot.getValuationTime();
+        }
       }
+    }
     if (latestTimestamp == null) {
       // What else can we do until one is guaranteed to be stored with the snapshot?
       latestTimestamp = Instant.now();

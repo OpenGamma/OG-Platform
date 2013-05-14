@@ -31,7 +31,6 @@ import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.masterdb.security.EHCachingSecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.SecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
@@ -56,11 +55,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
    */
   @PropertyDefinition
   private CacheManager _cacheManager;
-  /**
-   * The database connector.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private DbConnector _dbConnector;
   /**
    * The JMS connector.
    */
@@ -118,7 +112,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
         master.setDetailProvider(dp);
       }
     }
-    checkSchemaVersion(master.getSchemaVersion(), "sec");
+    checkSchema(master.getSchemaVersion(), "sec");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -159,8 +153,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
         return isPublishRest();
       case -1452875317:  // cacheManager
         return getCacheManager();
-      case 39794031:  // dbConnector
-        return getDbConnector();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
       case -758086398:  // jmsChangeManagerTopic
@@ -188,9 +180,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
       case -1452875317:  // cacheManager
         setCacheManager((CacheManager) newValue);
         return;
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
@@ -213,7 +202,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
     super.validate();
   }
 
@@ -227,7 +215,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
@@ -244,7 +231,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
@@ -327,32 +313,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
    */
   public final Property<CacheManager> cacheManager() {
     return metaBean().cacheManager().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the database connector.
-   * @return the value of the property, not null
-   */
-  public DbConnector getDbConnector() {
-    return _dbConnector;
-  }
-
-  /**
-   * Sets the database connector.
-   * @param dbConnector  the new value of the property, not null
-   */
-  public void setDbConnector(DbConnector dbConnector) {
-    JodaBeanUtils.notNull(dbConnector, "dbConnector");
-    this._dbConnector = dbConnector;
-  }
-
-  /**
-   * Gets the the {@code dbConnector} property.
-   * @return the property, not null
-   */
-  public final Property<DbConnector> dbConnector() {
-    return metaBean().dbConnector().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -506,11 +466,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", DbSecurityMasterComponentFactory.class, CacheManager.class);
     /**
-     * The meta-property for the {@code dbConnector} property.
-     */
-    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
-        this, "dbConnector", DbSecurityMasterComponentFactory.class, DbConnector.class);
-    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
@@ -544,7 +499,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
         "classifier",
         "publishRest",
         "cacheManager",
-        "dbConnector",
         "jmsConnector",
         "jmsChangeManagerTopic",
         "uniqueIdScheme",
@@ -566,8 +520,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
           return _publishRest;
         case -1452875317:  // cacheManager
           return _cacheManager;
-        case 39794031:  // dbConnector
-          return _dbConnector;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
         case -758086398:  // jmsChangeManagerTopic
@@ -620,14 +572,6 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
-    }
-
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbConnector> dbConnector() {
-      return _dbConnector;
     }
 
     /**

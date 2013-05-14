@@ -24,7 +24,6 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotMasterResource;
-import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotResource;
 import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 

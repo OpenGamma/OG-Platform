@@ -18,7 +18,7 @@ import org.hibernate.dialect.Dialect;
 public interface DbManagement {
 
   /**
-   * Initializes the database.
+   * Initializes the database management API.
    * 
    * @param dbServerHost  the database server, not null
    * @param user  the user name

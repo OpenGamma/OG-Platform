@@ -33,8 +33,15 @@ public final class Interpolator1DFactory {
   public static final String STEP = "Step";
   /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
-  /**Monotonicity-Preserving-Cubic-Spline*/
+  /**Monotonicity-Preserving-Cubic-Spline
+   * @deprecated Use the name PCHIP instead 
+   * */
+  @Deprecated
   public static final String MONOTONIC_CUBIC = "MonotonicityPreservingCubicSpline";
+  /**Piecewise Cubic Hermite Interpolating Polynomial (PCHIP)*/
+  public static final String PCHIP = "PCHIP";
+  /**Modified Piecewise Cubic Hermite Interpolating Polynomial (PCHIP) for yield curves*/
+  public static final String MOD_PCHIP = "ModifiedPCHIP";
   /** Time square */
   public static final String TIME_SQUARE = "TimeSquare";
   /** Flat extrapolator */
@@ -59,8 +66,15 @@ public final class Interpolator1DFactory {
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
-  /** MonotonicityPreservingCubicSpline*/
-  public static final MonotonicCubicInterpolator1D MONOTONIC_CUBIC_INSTANCE = new MonotonicCubicInterpolator1D();
+  /** MonotonicityPreservingCubicSpline
+   * @deprecated use PCHIP_INSTANCE instead 
+   * */
+  @Deprecated
+  public static final PCHIPInterpolator1D MONOTONIC_CUBIC_INSTANCE = new PCHIPInterpolator1D();
+  /**Piecewise Cubic Hermite Interpolating Polynomial (PCHIP)*/
+  public static final PCHIPInterpolator1D PCHIP_INSTANCE = new PCHIPInterpolator1D();
+  /**Modified Piecewise Cubic Hermite Interpolating Polynomial (PCHIP) for yield curves*/
+  public static final PCHIPYieldCurveInterpolator1D MOD_PCHIP_INSTANCE = new PCHIPYieldCurveInterpolator1D();
   /** Time square instance */
   public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
   /** Flat extrapolator instance */
@@ -93,10 +107,14 @@ public final class Interpolator1DFactory {
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(MONOTONIC_CUBIC, MONOTONIC_CUBIC_INSTANCE);
-    instanceNames.put(MonotonicCubicInterpolator1D.class, MONOTONIC_CUBIC);
+    instanceNames.put(PCHIPInterpolator1D.class, MONOTONIC_CUBIC);
+    staticInstances.put(PCHIP, PCHIP_INSTANCE);
+    instanceNames.put(PCHIPInterpolator1D.class, PCHIP);
+    staticInstances.put(MOD_PCHIP, MOD_PCHIP_INSTANCE);
+    instanceNames.put(PCHIPYieldCurveInterpolator1D.class, MOD_PCHIP);
     staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
     instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
-    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);    
+    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
     staticInstances.put(EXPONENTIAL_EXTRAPOLATOR, EXPONENTIAL_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ExponentialExtrapolator1D.class, EXPONENTIAL_EXTRAPOLATOR);

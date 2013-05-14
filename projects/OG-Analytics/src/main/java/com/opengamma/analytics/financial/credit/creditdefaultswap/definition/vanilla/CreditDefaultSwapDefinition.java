@@ -56,6 +56,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   // TODO : Replace rec rate range arg checkers with .isInRangeInclusive
   // TODO : Add a CSA agreement?
   // TODO : Should we also include a CentralCounterParty object in order to track exchange traded contracts?
+  // TODO : Need to extract out the recovery rate input from this definition (since it is actually market data)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

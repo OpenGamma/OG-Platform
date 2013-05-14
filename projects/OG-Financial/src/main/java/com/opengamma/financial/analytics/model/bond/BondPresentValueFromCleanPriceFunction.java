@@ -42,7 +42,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Bond present value from a quoted clean price.
  */
 public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunction {
 

@@ -18,16 +18,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.common.io.Files;
-import com.opengamma.web.sass.JRubySassCompiler;
 
 /**
  * RESTful resource for a Sass fragment in development mode.
  */
 @Path("/bundles/sass/{fragment: .*}")
 public class WebDevSassFragmentResource extends AbstractWebBundleResource {
-    
-  private static final JRubySassCompiler s_sassCompiler = JRubySassCompiler.getInstance();
-  
+      
   private static final File CSS_DIR = new File(System.getProperty("java.io.tmpdir"), ".og-css");
   
   /**
@@ -43,8 +40,9 @@ public class WebDevSassFragmentResource extends AbstractWebBundleResource {
   @GET
   @Produces("text/css")
   public Response get(@PathParam("fragment") String fragment) {
-    File templateDir = new File(data().getBundleManagerFactory().getUriProvider().getUri(""));    
-    s_sassCompiler.updateStyleSheets(templateDir, CSS_DIR);
+    File templateDir = new File(data().getBundleManagerFactory().getUriProvider().getUri(""));  
+    
+    data().getSassCompiler().updateStyleSheets(templateDir, CSS_DIR);
     String cssContent = null;
     try {
       cssContent = Files.toString(new File(CSS_DIR, fragment), Charset.defaultCharset());

@@ -26,6 +26,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class HazardRateCurve {
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(ISDA_INTERPOLATOR, FLAT_EXTRAPOLATOR, ISDA_EXTRAPOLATOR);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -44,6 +46,7 @@ public class HazardRateCurve {
   private final double[] _times;
 
   private final double[] _rates;
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public HazardRateCurve(final ZonedDateTime[] curveTenors, final double[] times, final double[] rates, final double offset) {
@@ -130,6 +133,8 @@ public class HazardRateCurve {
     return _rates;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -141,6 +146,8 @@ public class HazardRateCurve {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public boolean equals(final Object obj) {
@@ -163,4 +170,5 @@ public class HazardRateCurve {
     return true;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }
