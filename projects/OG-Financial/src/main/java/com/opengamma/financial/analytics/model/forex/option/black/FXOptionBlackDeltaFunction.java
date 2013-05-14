@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.GammaValueBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.DeltaValueBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -26,15 +26,15 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * The function to compute the Gamma of Forex options in the Black model.
  */
-public class FXOptionBlackGammaFunction extends FXOptionBlackSingleValuedFunction {
+public class FXOptionBlackDeltaFunction extends FXOptionBlackSingleValuedFunction {
 
   /**
    * The calculator to compute the gamma value.
    */
-  private static final GammaValueBlackForexCalculator CALCULATOR = GammaValueBlackForexCalculator.getInstance();
+  private static final DeltaValueBlackForexCalculator CALCULATOR = DeltaValueBlackForexCalculator.getInstance();
 
-  public FXOptionBlackGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+  public FXOptionBlackDeltaFunction() {
+    super(ValueRequirementNames.VALUE_DELTA);
   }
 
   @Override
@@ -47,10 +47,10 @@ public class FXOptionBlackGammaFunction extends FXOptionBlackSingleValuedFunctio
       if (!expectedCurrency.equals(resultCurrency)) {
         throw new OpenGammaRuntimeException("Expected currency " + expectedCurrency + " does not equal result currency " + resultCurrency);
       }
-      final double gammaValue = result.getAmount();
-      return Collections.singleton(new ComputedValue(spec, gammaValue));
+      final double deltaValue = result.getAmount();
+      return Collections.singleton(new ComputedValue(spec, deltaValue));
     }
-    throw new OpenGammaRuntimeException("Can only calculate gamma for surfaces with smiles");
+    throw new OpenGammaRuntimeException("Can only calculate delta for surfaces with smiles");
   }
 
 }

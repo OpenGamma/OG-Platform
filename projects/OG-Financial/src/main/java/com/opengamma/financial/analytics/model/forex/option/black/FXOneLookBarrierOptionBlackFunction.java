@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -119,24 +118,18 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final CurrencyPair baseQuotePair = getBaseQuotePair(context, target, inputs);
-    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
-    return Collections.singleton(resultSpec);
-  }
-
-  @Override
   protected Builder getResultProperties(final ComputationTarget target) {
     final Builder properties = super.getResultProperties(target);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
-                     .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+        .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
-    final Builder properties = super.getResultProperties(target, baseQuotePair);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig, final String callCurve,
+      final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
+    final Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
-                     .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+        .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
   @Override
@@ -145,7 +138,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     final String binaryOverhead = desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE);
     final String binarySmoothing = desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
     return properties.with(ValuePropertyNames.BINARY_OVERHEDGE, binaryOverhead)
-                     .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, binarySmoothing);
+        .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, binarySmoothing);
   }
 
   /**

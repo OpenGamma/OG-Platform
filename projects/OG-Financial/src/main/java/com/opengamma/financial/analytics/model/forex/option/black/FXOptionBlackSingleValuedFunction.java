@@ -5,13 +5,14 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
-import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getResultCurrency;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
@@ -33,6 +34,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackSingleValuedFunction.class);
 
   public FXOptionBlackSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
@@ -40,30 +42,42 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final CurrencyPair baseQuotePair = getBaseQuotePair(context, target, inputs);
-    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
-    return Collections.singleton(resultSpec);
-  }
-
-  protected CurrencyPair getBaseQuotePair(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String currencyPairConfigName = null;
+    String putCurveName = null;
+    String putCurveCalculationConfig = null;
+    String callCurveName = null;
+    String callCurveCalculationConfig = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-      final ValueSpecification key = entry.getKey();
-      if (key.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
-        currencyPairConfigName = key.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
-        break;
+      final ValueSpecification specification = entry.getKey();
+      final ValueRequirement requirement = entry.getValue();
+      final ValueProperties constraints = requirement.getConstraints();
+      if (requirement.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+        if (constraints.getProperties().contains(PUT_CURVE)) {
+          putCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          putCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        } else if (constraints.getProperties().contains(CALL_CURVE)) {
+          callCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          callCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        }
+      } else if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
+        currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
       }
     }
-    assert currencyPairConfigName != null;
+    if (putCurveName == null || callCurveName == null || currencyPairConfigName == null) {
+      return null;
+    }
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
     if (baseQuotePair == null) {
-      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+      s_logger.error("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+      return null;
     }
-    return baseQuotePair;
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target,
+        putCurveName, putCurveCalculationConfig, callCurveName, callCurveCalculationConfig, baseQuotePair).get());
+    return Collections.singleton(resultSpec);
   }
 
   @Override
@@ -81,13 +95,14 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .withAny(ValuePropertyNames.CURRENCY);
   }
 
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .withAny(PUT_CURVE)
-        .withAny(PUT_CURVE_CALC_CONFIG)
-        .withAny(CALL_CURVE)
-        .withAny(CALL_CURVE_CALC_CONFIG)
+        .with(PUT_CURVE, putCurve)
+        .with(PUT_CURVE_CALC_CONFIG, putCurveCalculationConfig)
+        .with(CALL_CURVE, callCurve)
+        .with(CALL_CURVE_CALC_CONFIG, callCurveCalculationConfig)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
@@ -118,4 +133,13 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
 
+  static String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    if (baseQuotePair.getBase().equals(putCurrency)) {
+      return callCurrency.getCode();
+    }
+    return putCurrency.getCode();
+  }
 }

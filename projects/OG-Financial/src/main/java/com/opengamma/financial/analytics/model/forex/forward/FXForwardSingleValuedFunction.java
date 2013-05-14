@@ -9,8 +9,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
@@ -31,6 +33,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardSingleValuedFunction.class);
 
   public FXForwardSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
@@ -62,11 +65,12 @@ public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
     assert currencyPairConfigName != null;
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Currency putCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
+    final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(payCurrency, receiveCurrency);
     if (baseQuotePair == null) {
-      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+      s_logger.error("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
+      return null;
     }
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair,
         payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig).get());

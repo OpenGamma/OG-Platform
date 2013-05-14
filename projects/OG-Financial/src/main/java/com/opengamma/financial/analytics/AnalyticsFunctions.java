@@ -218,6 +218,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_DELTA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_DUAL_DELTA);
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_GAMMA);
+    addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_GAMMA_P);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_PHI);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_RHO);
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_SPEED);
@@ -292,7 +293,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   protected FunctionConfigurationSource fxForwardCurveFunctionConfiguration() {
     return FXForwardCurveFunctions.instance();
   }
-  
+
   protected FunctionConfigurationSource modelFunctionConfiguration() {
     return ModelFunctions.instance();
   }

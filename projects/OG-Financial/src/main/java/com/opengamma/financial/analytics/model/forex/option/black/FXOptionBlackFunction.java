@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
-import static com.opengamma.financial.analytics.model.YieldCurveFunctionUtils.getCurveRequirement;
+import static com.opengamma.financial.analytics.model.YieldCurveFunctionUtils.getCurveRequirementForFXOption;
 import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -70,12 +70,10 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-
     // Create the derivative
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
@@ -111,8 +109,11 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY);
+    return FinancialSecurityTypes.FX_OPTION_SECURITY
+        .or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY);
   }
 
   @Override
@@ -178,12 +179,18 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     final String rightExtrapolatorName = rightExtrapolatorNames.iterator().next();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ValueRequirement putFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfig);
-    final ValueRequirement callFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(callCurrency), callCurveName, callCurveCalculationConfig);
+    final ValueRequirement putFundingCurve = getCurveRequirementForFXOption(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfig, true);
+    final ValueRequirement callFundingCurve = getCurveRequirementForFXOption(ComputationTargetSpecification.of(callCurrency), callCurveName, callCurveCalculationConfig, false);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(callCurrency, putCurrency);
+    final ValueRequirement spotRequirements = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(callCurrency, putCurrency);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
-    return Sets.newHashSet(putFundingCurve, callFundingCurve, spotRequirement, fxVolatilitySurface, pairQuoteRequirement);
+    final Set<ValueRequirement> requirements = new HashSet<>();
+    requirements.add(spotRequirements);
+    requirements.add(putFundingCurve);
+    requirements.add(callFundingCurve);
+    requirements.add(fxVolatilitySurface);
+    requirements.add(pairQuoteRequirement);
+    return requirements;
   }
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
@@ -197,4 +204,5 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   protected final String getValueRequirementName() {
     return _valueRequirementName;
   }
+
 }

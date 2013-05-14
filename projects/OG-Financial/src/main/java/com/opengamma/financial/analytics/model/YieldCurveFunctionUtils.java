@@ -23,6 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  *
@@ -99,6 +100,51 @@ public class YieldCurveFunctionUtils {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, yieldCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
+  }
+
+
+  public static ValueRequirement getCurveRequirementForFXOption(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
+      final String curveCalculationMethod, final boolean isPut) {
+    final ValueProperties properties;
+    if (isPut) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+          .with(FXOptionBlackFunction.PUT_CURVE, yieldCurveName).withOptional(FXOptionBlackFunction.PUT_CURVE)
+          .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, curveCalculationConfigName).withOptional(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+          .get();
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+          .with(FXOptionBlackFunction.CALL_CURVE, yieldCurveName).withOptional(FXOptionBlackFunction.CALL_CURVE)
+          .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, curveCalculationConfigName).withOptional(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+          .get();
+    }
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
+  }
+
+  public static ValueRequirement getCurveRequirementForFXOption(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
+      final boolean isPut) {
+    final ValueProperties properties;
+    if (isPut) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(FXOptionBlackFunction.PUT_CURVE, yieldCurveName).withOptional(FXOptionBlackFunction.PUT_CURVE)
+          .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, curveCalculationConfigName).withOptional(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+          .get();
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(FXOptionBlackFunction.CALL_CURVE, yieldCurveName).withOptional(FXOptionBlackFunction.CALL_CURVE)
+          .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, curveCalculationConfigName).withOptional(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+          .get();
+    }
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
   }
 
