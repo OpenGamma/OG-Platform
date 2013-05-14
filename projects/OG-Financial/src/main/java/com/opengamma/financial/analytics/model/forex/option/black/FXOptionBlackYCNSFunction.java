@@ -54,7 +54,6 @@ import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYield
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -190,7 +189,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     } else {
       return null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(putFundingCurve);
     requirements.add(callFundingCurve);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
@@ -273,7 +272,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String putCurveCalculationConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);

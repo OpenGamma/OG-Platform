@@ -98,9 +98,8 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
 
     // Get market data
     final ForexOptionDataBundle<?> marketData = FXOptionFunctionUtils.buildMarketBundle(now, inputs, target, desiredValues);
-
     // Create the result specification
-    final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
 
     // Compute result
@@ -195,7 +194,10 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
-  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair);
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair);
+
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
   //TODO clumsy. Push the execute() method down into the functions and have getDerivative() and getData() methods
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,

@@ -62,8 +62,8 @@ public class FXOptionBlackVegaQuoteMatrixFunction extends FXOptionBlackSingleVal
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
-    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
     properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
     return properties;
   }

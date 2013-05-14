@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.forex.option.black;
 
 import static com.opengamma.financial.analytics.model.YieldCurveFunctionUtils.getCurveRequirement;
-import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getResultCurrency;
 import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
 
 import java.util.Collections;
@@ -251,7 +250,7 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String putCurveCalculationConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);
@@ -262,7 +261,7 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
-    final String resultCurrency = getResultCurrency(target, baseQuotePair);
+    final String resultCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     return createValueProperties()
         .with(PUT_CURVE, putCurveName)
         .with(CALL_CURVE, callCurveName)
