@@ -29,7 +29,7 @@ import com.opengamma.web.WebResourceTestUtils;
 /**
  * Test YUI Compression.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.UNIT, enabled = false)
 public class YUIBundleCompressorTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YUIBundleCompressorTest.class);
