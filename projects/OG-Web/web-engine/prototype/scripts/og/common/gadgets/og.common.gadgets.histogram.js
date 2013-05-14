@@ -22,16 +22,16 @@ $.register_module({
                 catch (error) {}
             };
             var calc_vars = function () {
-                //return false;
-              if (stripped[stripped.length - 1] > 0) return false;
-              var ceil = Math.ceil, sample99 = ceil(samples * 0.99) - 1, sample95 = ceil(samples * 0.95) - 1,
-                range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
-              return {
-                var99 : stripped[sample99],
-                var95 : stripped[sample95],
-                cvar99 : range99.reduce(function(a, b) { return a + b; }, 0) / range99.length,
-                cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
-              }
+              return false;
+              //if (stripped[stripped.length - 1] > 0) return false;
+              //var ceil = Math.ceil, sample99 = ceil(samples * 0.99), sample95 = ceil(samples * 0.95),
+              //  range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
+              //return {
+              //  var99 : stripped[sample99],
+              //  var95 : stripped[sample95],
+              //  cvar99 : range99.reduce(function(a, b) { return a + b; }, 0) / range99.length,
+              //  cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
+              //}
             }
             var histogram_data = function () {
                 var max_buckets = 50, min_buckets = 10,
@@ -60,7 +60,7 @@ $.register_module({
                 count[buckets - 1][1] = count[buckets - 1][1] + maxcount;
                 /* test to ensure no data is lost - sum of all items in buckets must match dataset length */
                 /*
-                if (count.map(function(v) { return v[1]; }).reduce(function(a,b) { return a + b; }) != length)
+                if (count.map(function(v) { return v[1]; }).reduce(function(a,b) { return a + b; }) != samples)
                     og.dev.warn('bucket totals to not match dataset length');
                 */
                 return {histogram_data: count, interval: interval};
@@ -81,7 +81,7 @@ $.register_module({
                 $.each(stripped, function(index, value){
                     diff +=  (value-mu)*(value-mu);
                 });
-                sigma = Math.sqrt(diff/(ssamples-1));
+                sigma = Math.sqrt(diff/(samples-1));
                 $.each(stripped, function(index, value){
                     norm.push([value, (normpdf(value, mu, sigma, constant))]);
                 });

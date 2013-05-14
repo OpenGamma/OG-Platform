@@ -9,7 +9,7 @@ $.register_module({
         var module = this, loading_template;
         return function (config) {
             var gadget = this, selector = config.selector, $selector, $plot, $refresh, options = {}, plot_template,
-                alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30, $plot_selector,
+            alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30, $plot_selector,
                 line_tmpl = Handlebars.compile('<div class="og-histogram-{{{type}}}-line og-histogram-var" style="left:{{{left}}}px;height:{{{height}}}px;"></div>');
                 label_tmpl = Handlebars.compile('<div class="og-histogram-var-label og-histogram-var" style="left:{{{left}}}px;top:{{{top}}}px;">{{label}}}</div>');
             gadget.resize = function () {
@@ -55,11 +55,11 @@ $.register_module({
                         $plot.draw();
                     });
                     $refresh.on('click', function (event) {
-                        var $elm = $('.og-bucket-mid');
-                        $plot.setData(plot_data(config.update()));
+                        var $elm = $('.og-bucket-mid'), input = config.update();
+                        $plot.setData(plot_data(input));
                         $plot.setupGrid();
                         $plot.draw();
-                        draw_vars();
+                        draw_vars(input.vars);
                         $elm.siblings().removeClass('OG-link-active');
                         $elm.addClass('OG-link-active');
                         $refresh.hide();
@@ -86,8 +86,9 @@ $.register_module({
                     yaxis: 2,
                 }];
             };
-            var draw_vars = function () {
-                var var99pos, var95pos, cvar99pos, cvar95pos, vars = config.vars;
+            var draw_vars = function (vars) {
+                if (!vars) return;
+                var var99pos, var95pos, cvar99pos, cvar95pos, abs = Math.abs;
                 $plot_selector.find('.og-histogram-var').remove();
                 var99pos = $plot.pointOffset({ x: vars.var99, y: 0});
                 var95pos = $plot.pointOffset({ x: vars.var95, y: 0});
@@ -97,10 +98,14 @@ $.register_module({
                 $plot_selector.append(line_tmpl({type:'var95', left: var95pos.left, height: $plot.height()}));
                 $plot_selector.append(line_tmpl({type:'cvar99', left: cvar99pos.left, height: $plot.height()}));
                 $plot_selector.append(line_tmpl({type:'cvar95', left: cvar95pos.left, height: $plot.height()}));
-                $plot_selector.append(label_tmpl({left: var99pos.left + 4, top: '75', label: 'Var 99%'}));
-                $plot_selector.append(label_tmpl({left: var95pos.left + 4, top: '25', label: 'Var 95%'}));
-                $plot_selector.append(label_tmpl({left: cvar99pos.left + 4, top: '100', label: 'CVar 99%'}));
-                $plot_selector.append(label_tmpl({left: cvar95pos.left + 4, top: '50', label: 'CVar 95%'}));
+                $plot_selector.append(label_tmpl({left: var99pos.left + 4, top: '75',
+                    label: 'Var 99% ' + abs(vars.var99.toFixed(0))}));
+                $plot_selector.append(label_tmpl({left: var95pos.left + 4, top: '25',
+                    label: 'Var 95% ' + abs(vars.var95.toFixed(0))}));
+                $plot_selector.append(label_tmpl({left: cvar99pos.left + 4, top: '100',
+                    label: 'CVar 99% ' + abs(vars.cvar99.toFixed(0))}));
+                $plot_selector.append(label_tmpl({left: cvar95pos.left + 4, top: '50',
+                    label: 'CVar 95% ' + abs(vars.cvar95.toFixed(0))}));
             };
             var load_plots = function () {
                 var previousPoint = null,
@@ -113,13 +118,13 @@ $.register_module({
                     bars: {show: true, lineWidth: 0, barWidth: 0, fill: true, align: 'left', horizontal: false}
                 };
                 $plot = $.plot($(selector + ' .og-histogram-plot'), plot_data(), options);
-                if(config.vars) draw_vars();
+                if(config.vars) draw_vars(config.vars);
                 $(selector).bind('plothover', function (event, pos, item) {
                     if (item) {
                         if (previousPoint != item.dataIndex) {
                             var x = item.datapoint[0], y = item.datapoint[1], delta = x + config.interval,
                                 occur = y == 1 ? ' occurrence ' : ' occurrences ',
-                                msg = y + occur + 'in range<br/>' + x.toFixed(5) + ' to ' + delta;
+                                msg = y + occur + 'in range<br/>' + x.toFixed(5) + ' to ' + delta.toFixed(5);
                                 previousPoint = item.dataIndex;
                             $('#tooltip').remove();
                             show_tooltip(pos.pageX, pos.pageY, msg);
