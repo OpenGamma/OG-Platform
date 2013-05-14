@@ -49,7 +49,6 @@ public final class ZipUtils {
     ArgumentChecker.notNull(outputDir, "outputDir");
 
     s_logger.debug("Unzipping file:{} to {}", archive, outputDir);
-    System.err.println("Unzipping file: " + archive + " to " + outputDir);
     try {
       unzipArchive(new ZipFile(archive), outputDir);
     } catch (Exception ex) {
