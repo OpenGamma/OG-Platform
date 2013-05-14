@@ -224,6 +224,7 @@ $.register_module({
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
+                .on('title', function (row_name, col_name, name) {grid.fire('title', row_name, col_name, name);})
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
                     grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
