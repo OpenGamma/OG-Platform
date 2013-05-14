@@ -8,6 +8,8 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,9 +28,6 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotMasterResource;
 import com.opengamma.master.marketdatasnapshot.impl.EHCachingMarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
-import com.opengamma.util.ehcache.EHCacheUtils;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the combined marketdatasnapshot master.
