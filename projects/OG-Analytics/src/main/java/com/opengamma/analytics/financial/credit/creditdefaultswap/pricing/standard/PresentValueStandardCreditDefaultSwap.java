@@ -32,11 +32,13 @@ public class PresentValueStandardCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO :
+  // TODO : Add argument checkers for all the functions
+  // TODO : Need to check through these calculations again carefully
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Given a points upfront amount, compute the flat par spread implied by this
+
   public double calculateParSpreadFlat(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -72,6 +74,7 @@ public class PresentValueStandardCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the upfront amount given a specified spread curve level
+
   public double calculateUpfrontFlat(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -79,10 +82,6 @@ public class PresentValueStandardCreditDefaultSwap {
       final double[] marketSpreads,
       final ISDADateCurve yieldCurve,
       final PriceType priceType) {
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // TODO : Add arg checkers
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -120,6 +119,7 @@ public class PresentValueStandardCreditDefaultSwap {
     // Build a hazard rate curve object based on the input market data
     final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
 
+    // Calculate the points upfront
     final double pointsUpfront = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
