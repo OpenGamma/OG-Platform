@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
@@ -179,8 +180,18 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     ArgumentChecker.notNull(dayCount, "Day count");
     ArgumentChecker.notNull(businessDay, "Business day convention");
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
-    final int couponPerYear = (int) Math.round(12.0 / paymentPeriod.getMonths() + paymentPeriod.getYears() * 12);
-    double firstCouponAccrual = dayCount.getAccruedInterest(firstAccrualDate, firstCouponDate, firstCouponDate, 1.0, couponPerYear);
+    // Guess the number of coupon per year.
+    final int couponPerYear = (int) Math.round(12.0 / (paymentPeriod.getMonths() + paymentPeriod.getYears() * 12));
+    double firstCouponAccrual;
+    if (dayCount instanceof ActualActualICMA) { // In case day-count is ActualActualICMA, need to guess the stub-type 
+      if (firstCouponDate.minus(paymentPeriod).isAfter(firstAccrualDate)) { // Stub: Long start
+        firstCouponAccrual = ((ActualActualICMA) dayCount).getAccruedInterest(firstAccrualDate, firstCouponDate, firstCouponDate, 1.0, couponPerYear, StubType.LONG_START);
+      } else {
+        firstCouponAccrual = ((ActualActualICMA) dayCount).getAccruedInterest(firstAccrualDate, firstCouponDate, firstCouponDate, 1.0, couponPerYear, StubType.SHORT_START);
+      }
+    } else {
+      firstCouponAccrual = dayCount.getAccruedInterest(firstAccrualDate, firstCouponDate, firstCouponDate, 1.0, couponPerYear);
+    }
     CouponFixedDefinition[] couponAfterFirst = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstCouponDate, maturityDate, paymentPeriod, couponPerYear, true, true, calendar,
         dayCount, businessDay, isEOM, DEFAULT_NOTIONAL, rate, false).getPayments();
     CouponFixedDefinition[] allCoupons = new CouponFixedDefinition[couponAfterFirst.length + 1];
