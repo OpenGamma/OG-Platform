@@ -824,7 +824,7 @@
 	  <dependency>
 	     <groupId>org.jruby</groupId>
 		 <artifactId>jruby-complete</artifactId>
-		 <version>1.6.8</version>
+		 <version>1.7.3</version>
 	  </dependency>
  
       <!-- JMS -->
