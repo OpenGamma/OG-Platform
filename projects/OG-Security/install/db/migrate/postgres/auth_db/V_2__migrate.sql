@@ -19,5 +19,7 @@ START TRANSACTION;
   $$ LANGUAGE plpgsql;
   SELECT copy_sequence_value('hibernate_sequence', 'auth_hibernate_sequence');
   DROP FUNCTION copy_sequence_value (from_name text, to_name text);
-	  
+
+  DROP SEQUENCE IF EXISTS hibernate_sequence;
+
 COMMIT;

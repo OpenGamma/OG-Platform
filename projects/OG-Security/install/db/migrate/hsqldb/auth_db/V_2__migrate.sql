@@ -11,6 +11,7 @@ START TRANSACTION;
   -- to be greater than the current sequence value. 
   CREATE SEQUENCE auth_hibernate_sequence AS bigint
       START WITH 1000000 INCREMENT BY 1;
-  
-COMMIT;
 
+  DROP SEQUENCE hibernate_sequence IF EXISTS;
+
+COMMIT;
