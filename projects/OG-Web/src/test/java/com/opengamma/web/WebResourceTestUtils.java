@@ -53,6 +53,8 @@ import com.opengamma.util.time.ExpiryAccuracy;
  * Utility class used by WebResource testcases
  */
 public final class WebResourceTestUtils {
+  
+  public static final String SASS_PATH = "gems" + File.separator + "sass-3.2.7" + File.separator + "lib";
 
   public static final ContainerFactory s_sortedJSONObjectFactory = new ContainerFactory() {
     
@@ -197,7 +199,7 @@ public final class WebResourceTestUtils {
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Error extracting Sass gem jar to " + sassDir.getPath(), ex);
     }
-    return new File(sassDir, "gems" + File.separator + "sass-3.2.7" + File.separator + "lib");
+    return sassDir;
   }
   
 }
