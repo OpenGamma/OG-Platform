@@ -6,11 +6,11 @@
 package com.opengamma.financial.analytics.model.credit;
 
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.engine.value.ValueRequirementNames;
 
@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
  */
 public class ISDAPointsUpfrontVanillaCDSFunction extends ISDAVanillaCDSFunction {
 
-  private static PresentValueCreditDefaultSwap CALCULATOR = new PresentValueCreditDefaultSwap();
+  private static PresentValueStandardCreditDefaultSwap CALCULATOR = new PresentValueStandardCreditDefaultSwap();
 
   public ISDAPointsUpfrontVanillaCDSFunction() {
     super(ValueRequirementNames.POINTS_UPFRONT);
