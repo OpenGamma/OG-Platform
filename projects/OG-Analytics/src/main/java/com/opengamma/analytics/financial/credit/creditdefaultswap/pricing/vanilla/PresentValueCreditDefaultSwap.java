@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
@@ -17,18 +18,16 @@ import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.analytics.financial.credit.schedulegeneration.ScheduleUtils;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing the methods for valuing a CDS which are common to all types of CDS e.g. the contingent leg
- * calculation
+ * Class containing the methods for valuing a CDS which are common to all types of CDS 
+ * e.g. the contingent leg calculation
  */
 public class PresentValueCreditDefaultSwap {
 
@@ -36,15 +35,15 @@ public class PresentValueCreditDefaultSwap {
 
   private static final int cashSettlementDays = 3;
 
-  private static final boolean businessDayAdjustCashSettlementDate = true;
+  //private static final boolean businessDayAdjustCashSettlementDate = true;
 
   private static final BusinessDayConvention cashSettlementDateBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
 
-  private static final double spreadLowerBound = 1e-10;
-  private static final double spreadUpperBound = 1e10;
+  // private static final double spreadLowerBound = 1e-10;
+  //private static final double spreadUpperBound = 1e10;
 
   // Create objects used for the construction of the various legs in the CDS valuation
   private static final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegScheduleBuilder = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -53,27 +52,25 @@ public class PresentValueCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Lots of ongoing work to do in this class - Work In Progress
   // TODO : The code in this class is a complete mess at the moment - will be completely rewritten and modularised 
 
-  // TODO : Lots of ongoing work to do in this class - Work In Progress
-
   // TODO : Will need to revisit to look at how we can optimise the calculations (e.g. not repeating schedule generation calculations)
-
   // TODO : Need to add the PROT_PAY_MAT option as well
 
   // TODO : when the ISDA calibration routine fails, then should fall back to the simple bi-section that was originally implemented
   // TODO : since this routine very rarely falls over
 
+  // TODO : Need to move the cashSettlemtndays variable and calculation methods into the standard CDS contract class
+  // TODO : Need to move the points upfront etc calculations out of this class and into the standard CDS contract class
+  // TODO : Review the use of day-count conventions in all the calculations (make sure they are all correct and consistent)
   // TODO : Need to move the calibration code out of this class
-
   // TODO : Check if valDate > matDate and return zero if so in the contingent leg calculation
   // TODO : Remember that the start date for protection to begin (in the contingent leg calculation) is MAX(stepinDate, startDate)
 
-  // TODO : Need to move the calculateWorkDays function into the schedule generation class (and check the logic more thoroughly)
-
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Method to calculate the value of the premium leg of a CDS (with a hazard rate curve calibrated to market observed data)
+  // Method to calculate the value of the premium leg of a CDS (replicates the calculation in the ISDA model)
 
   @Deprecated
   public double calculatePremiumLeg(
@@ -87,6 +84,13 @@ public class PresentValueCreditDefaultSwap {
 
     double presentValuePremiumLeg = 0.0;
 
+    double thisPV = 0.0;
+
+    int obsOffset = 0;
+
+    final ZonedDateTime today = valuationDate;
+    final ZonedDateTime stepinDate = cds.getEffectiveDate();
+
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Build the premium leg cashflow schedule from the contract specification
@@ -96,13 +100,6 @@ public class PresentValueCreditDefaultSwap {
     final ZonedDateTime[] accruedLegIntegrationSchedule = accruedLegScheduleBuilder.constructCreditDefaultSwapAccruedLegIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, false);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    double thisPV = 0.0;
-
-    int obsOffset = 0;
-
-    final ZonedDateTime today = valuationDate;
-    final ZonedDateTime stepinDate = cds.getEffectiveDate();
 
     // TODO : Add the extra logic for this calculation (safe for the moment since 'protectionStart' is TRUE always)
     // TODO : ISDA uses accEndDates - check this
@@ -236,7 +233,7 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, cashSettlementDateBusinessDayConvention, yieldCurve);
+    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, /*cashSettlementDateBusinessDayConvention,*/yieldCurve);
 
     presentValuePremiumLeg /= valueDatePV;
 
@@ -255,6 +252,8 @@ public class PresentValueCreditDefaultSwap {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Method to calculate the accrued interest between the last accrual date and the current valuation date
 
   private double calculateAccruedInterest(final CreditDefaultSwapDefinition cds, final ZonedDateTime[][] premiumLegSchedule, final ZonedDateTime stepinDate) {
 
@@ -289,58 +288,25 @@ public class PresentValueCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Function to compute the discount factor for discounting the upfront payment made at the cash settlement date back to the valuation date
+  // Method to compute the discount factor for discounting the upfront payment made at the cash settlement date back to the valuation date
 
   private double calculateCashSettlementDiscountFactor(
       final CreditDefaultSwapDefinition cds,
-      final ZonedDateTime valuationDate,
+      final ZonedDateTime spotDate,
       final int spotDays,
-      final BusinessDayConvention cashSettlementDateBusinessDayConvention,
+      /*final BusinessDayConvention cashSettlementDateBusinessDayConvention,*/
       final ISDADateCurve yieldCurve) {
 
-    // From the valuationDate, determine the next working day spotDays in the future
-    ZonedDateTime bdaCashSettlementDate = calculateWorkdays(cds, valuationDate, spotDays);
+    // From the spotDate, determine the next working day spotDays in the future
+    ZonedDateTime bdaCashSettlementDate = ScheduleUtils.calculateWorkday(cds, spotDate, spotDays);
 
-    // Compute the time between the valuationDate and the business day adjusted cash settlement date
-    final double timeToCashSettlement = TimeCalculator.getTimeBetween(valuationDate, bdaCashSettlementDate);
+    // Compute the time between the spotDate and the business day adjusted cash settlement date
+    final double timeToCashSettlement = TimeCalculator.getTimeBetween(spotDate, bdaCashSettlementDate);
 
     // Compute the discount factor
     final double cashSettlementDateDiscountFactor = yieldCurve.getDiscountFactor(timeToCashSettlement);
 
     return cashSettlementDateDiscountFactor;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  private ZonedDateTime calculateWorkdays(
-      final CreditDefaultSwapDefinition cds,
-      final ZonedDateTime valuationDate,
-      final int spotDays) {
-
-    ArgumentChecker.notNegative(spotDays, "Cash settlement days");
-
-    ZonedDateTime requiredDate = valuationDate;
-
-    if (spotDays > 0) {
-      int n = 0;
-
-      for (int i = 0; i < spotDays; i++) {
-
-        requiredDate = requiredDate.plusDays(1);
-
-        if (!cds.getCalendar().isWorkingDay(requiredDate.toLocalDate())) {
-          n++;
-        }
-      }
-
-      requiredDate = requiredDate.plusDays(n);
-
-      while (!cds.getCalendar().isWorkingDay(requiredDate.toLocalDate())) {
-        requiredDate = requiredDate.plusDays(1);
-      }
-    }
-
-    return requiredDate;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -450,107 +416,9 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, cashSettlementDateBusinessDayConvention, yieldCurve);
+    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, /*cashSettlementDateBusinessDayConvention,*/yieldCurve);
 
     return cds.getNotional() * presentValueContingentLeg / valueDatePV;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // TODO : Need to move this function
-
-  // Given a points upfront amount, compute the flat par spread implied by this
-  public double calculateParSpreadFlat(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final double upfrontAmount,
-      final ZonedDateTime[] marketTenors,
-      final ISDADateCurve yieldCurve,
-      final PriceType priceType) {
-
-    // 1 x 1 vector to hold the flat spread (term structure)
-    final double[] marketSpreads = new double[1];
-
-    final Function1D<Double, Double> function = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double parSpread) {
-
-        // For this value of the flat spread, compute the upfront amount
-        marketSpreads[0] = parSpread;
-        final double pointsUpfront = calculateUpfrontFlat(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
-
-        // Compute the difference between the calculated and input upfront amount
-        final double delta = pointsUpfront - upfrontAmount;
-
-        return delta;
-      }
-    };
-
-    final double parSpreadFlat = new BisectionSingleRootFinder().getRoot(function, spreadLowerBound, spreadUpperBound);
-
-    return parSpreadFlat;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // TODO : Need to move this function
-
-  // Calculate the upfront amount given a specified spread curve level
-  public double calculateUpfrontFlat(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final ISDADateCurve yieldCurve,
-      final PriceType priceType) {
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // TODO : Add arg checkers
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Vectors of time nodes and spreads for the hazard rate curve (note the sizes of these arrays)
-    final double[] times = new double[1];
-
-    final double[] spreads = new double[1];
-
-    times[0] = ACT_365.getDayCountFraction(valuationDate, marketTenors[0]);
-    spreads[0] = marketSpreads[0];
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Create a CDS for calibration
-    final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
-
-    // Create a CDS for valuation
-    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Call the constructor to create a CDS present value object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // Call the constructor to create a calibrate hazard rate curve object
-    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, marketSpreads, yieldCurve, PriceType.CLEAN);
-
-    final double[] modifiedHazardRateCurve = new double[1];
-
-    modifiedHazardRateCurve[0] = calibratedHazardRates[0];
-
-    // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
-
-    final double pointsUpfront = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    return pointsUpfront / cds.getNotional();
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -573,7 +441,8 @@ public class PresentValueCreditDefaultSwap {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = calibrateHazardRateCurve(valuationDate, valuationCDS, marketTenors, marketSpreads, yieldCurve);
+    //final HazardRateCurve calibratedHazardRateCurve = calibrateHazardRateCurve(valuationDate, valuationCDS, marketTenors, marketSpreads, yieldCurve);
+    final HazardRateCurve calibratedHazardRateCurve = isdaCalibrateHazardRateCurve(valuationDate, valuationCDS, marketTenors, marketSpreads, yieldCurve);
 
     // Calculate the CDS PV using the just calibrated hazard rate term structure
     final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
@@ -583,7 +452,7 @@ public class PresentValueCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public double newCalibrateAndGetPresentValue(
+  public double isdaCalibrateAndGetPresentValue(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
@@ -598,7 +467,7 @@ public class PresentValueCreditDefaultSwap {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = newCalibrateHazardRateCurve(valuationDate, valuationCDS, marketTenors, marketSpreads, yieldCurve);
+    final HazardRateCurve calibratedHazardRateCurve = isdaCalibrateHazardRateCurve(valuationDate, valuationCDS, marketTenors, marketSpreads, yieldCurve);
 
     // Calculate the CDS PV using the just calibrated hazard rate term structure
     final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
@@ -620,9 +489,13 @@ public class PresentValueCreditDefaultSwap {
     // NOTE : We divide the values returned from the premium and contingent leg calculations by the trade notional. This is only for the purposes of the calibration
     // NOTE : routine because we require a unit notional (so that the comparison with the accuracy variables are meaningful)
 
+    // Compute the PV of the premium leg
     final double presentValuePremiumLeg = (cds.getParSpread() / 10000) * calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, PriceType.CLEAN) / cds.getNotional();
+
+    // Compute the PV of the contingent leg
     final double presentValueContingentLeg = calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve) / cds.getNotional();
 
+    // Compute the CDS PV
     final double presentValue = presentValueContingentLeg - presentValuePremiumLeg;
 
     return presentValue;
@@ -634,7 +507,7 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : This code is simply adapted from the ISDA code. No attempt has been made to make it more logical or correct e.g. using Double.tobits
 
-  private double jpmCDSRootFindBrent(
+  private double isdaRootFinder(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
       final ISDADateCurve yieldCurve,
@@ -644,6 +517,7 @@ public class PresentValueCreditDefaultSwap {
 
     // ------------------------------
 
+    // TODO : Move these constants out of the actual root finding algorithm
     final double boundLo = 0.0;
     final double boundHi = 1e10;
     final int numIterations = 100;
@@ -784,9 +658,8 @@ public class PresentValueCreditDefaultSwap {
         }
         else
         {
-          // Root could not be found - give up
-          // TODO : Need to make sure the routine fails more elegantly than this
-          return -1;
+          // If the algorithm gets here the root has not been found, need to make sure it reports its failure and falls over
+          throw new OpenGammaRuntimeException("Could not calibrate hazard rate curve");
         }
       } // end if yPoints[0]*fLo < 0
 
@@ -805,10 +678,10 @@ public class PresentValueCreditDefaultSwap {
 
     // ------------------------------
 
-    // TODO : Need to make the routine fail more elegantly than this - don't want to fail and return nonsense
-    double spread = 100.0;
+    // If the algorithm gets here the root has not been found, need to make sure it reports its failure and falls over
+    throw new OpenGammaRuntimeException("Could not calibrate hazard rate curve");
 
-    return spread;
+    //return spread;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -911,10 +784,8 @@ public class PresentValueCreditDefaultSwap {
 
     } // End loop over j
 
-    // TODO : If the algorithm gets here the maximum number of iterations has been exceeded, need to make sure it fails more elegantly
-    double root = -1.0;
-
-    return root;
+    // If the algorithm gets here the maximum number of iterations has been exceeded, need to make sure it reports its failure and falls over
+    throw new OpenGammaRuntimeException("Could not calibrate hazard rate curve");
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -926,8 +797,10 @@ public class PresentValueCreditDefaultSwap {
     final double[] hazardCurveTimes = hazardRateCurve.getTimes();
     final double[] hazardCurveRates = hazardRateCurve.getRates();
 
+    // Replace the final point on the piecewise calibrated hazard rate curve with the updated value
     hazardCurveRates[hazardCurveRates.length - 1] = h;
 
+    // Return an updated hazard rate curve
     return hazardRateCurve.bootstrapHelperHazardRateCurve(hazardCurveTenors, hazardCurveTimes, hazardCurveRates);
   }
 
@@ -1080,7 +953,7 @@ public class PresentValueCreditDefaultSwap {
 
   // The ISDA calibration routine (this is the equivalent of the 'CdsBootstrap' function in the ISDA code)
 
-  public HazardRateCurve newCalibrateHazardRateCurve(
+  public HazardRateCurve isdaCalibrateHazardRateCurve(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
@@ -1141,10 +1014,12 @@ public class PresentValueCreditDefaultSwap {
       HazardRateCurve runningHazardRateCurve = new HazardRateCurve(runningMarketTenors, runningTenorsAsDoubles, runningHazardRates, 0.0);
 
       // Now calculate the calibrated hazard rate for tenor i (given that the prior tenors have been calibrated) using the ISDA calibration routine
-      calibratedHazardRateCurve[i] = jpmCDSRootFindBrent(valuationDate, calibrationCDS, yieldCurve, runningHazardRateCurve, guess, PriceType.CLEAN);
+      calibratedHazardRateCurve[i] = isdaRootFinder(valuationDate, calibrationCDS, yieldCurve, runningHazardRateCurve, guess, PriceType.CLEAN);
     }
 
     // ------------------------------
+
+    // Construct the curve from the calibrated hazard rates
 
     final double[] modifiedHazardRateCurve = new double[calibratedHazardRateCurve.length + 1];
 
@@ -1157,10 +1032,14 @@ public class PresentValueCreditDefaultSwap {
     // Now build the complete, calibrated hazard rate curve
     HazardRateCurve hazardRateCurve = new HazardRateCurve(marketTenors, tenorsAsDoubles, modifiedHazardRateCurve, 0.0);
 
+    // ------------------------------
+
     return hazardRateCurve;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // The original calibration routine based on the bisection method
 
   @Deprecated
   public HazardRateCurve calibrateHazardRateCurve(
