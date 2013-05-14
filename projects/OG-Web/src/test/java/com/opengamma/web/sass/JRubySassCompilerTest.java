@@ -25,7 +25,7 @@ import com.opengamma.web.WebResourceTestUtils;
 /**
  * Tests {@code JRubySassCompiler}
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.UNIT, enabled = false)
 public class JRubySassCompilerTest {
 
   private static JRubySassCompiler s_compiler;
@@ -39,12 +39,9 @@ public class JRubySassCompilerTest {
   
   private static File VARIABLES_SCSS;
   private static File VARIABLES_CSS;
-  
+
   @BeforeClass 
-  public void staticInit() throws Exception {
-    @SuppressWarnings("unused")
-    Class<?> clazz = JRubySassCompilerTest.class;
-    
+  public void setUp() throws Exception {
     NAVBAR_SCSS = new File(getClass().getResource("navbar.scss").toURI());
     NAVBAR_CSS = new File(getClass().getResource("navbar.css").toURI());
     
@@ -57,22 +54,22 @@ public class JRubySassCompilerTest {
     s_sassDir = WebResourceTestUtils.extractRubySassGem();
     s_compiler = new JRubySassCompiler(ImmutableList.of(s_sassDir.getPath()));
   }
-  
+
   @AfterClass 
-  public void cleanUp() {
+  public void tearDown() {
     if (s_sassDir != null) {
       FileUtils.deleteQuietly(s_sassDir);
     }
   }
-    
+
+  //-------------------------------------------------------------------------
   public void compileSassString() throws Exception {
-    
     final String input = Files.toString(NAVBAR_SCSS, Charset.defaultCharset());
     final String output = s_compiler.sassConvert(input);
     
     assertEquals(Files.toString(NAVBAR_CSS, Charset.defaultCharset()), output);
   }
-  
+
   public void updateStyleSheets() throws Exception {
     final File templateDir = Files.createTempDir();
     Files.copy(NAVBAR_SCSS, new File(templateDir, NAVBAR_SCSS.getName()));
@@ -97,4 +94,5 @@ public class JRubySassCompilerTest {
     FileUtils.deleteDirectory(templateDir);
     FileUtils.deleteDirectory(cssDir);
   }
+
 }
