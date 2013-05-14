@@ -10,10 +10,14 @@ import static com.opengamma.financial.analytics.model.forex.option.black.FXOptio
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -32,6 +36,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -49,6 +55,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackFunction.class);
   /** Property name for the put curve */
   public static final String PUT_CURVE = "PutCurve";
   /** Property name for the call curve */
@@ -190,6 +197,46 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     requirements.add(fxVolatilitySurface);
     requirements.add(pairQuoteRequirement);
     return requirements;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String currencyPairConfigName = null;
+    String putCurveName = null;
+    String putCurveCalculationConfig = null;
+    String callCurveName = null;
+    String callCurveCalculationConfig = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification specification = entry.getKey();
+      final ValueRequirement requirement = entry.getValue();
+      final ValueProperties constraints = requirement.getConstraints();
+      if (requirement.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+        if (constraints.getProperties().contains(PUT_CURVE)) {
+          putCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          putCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        } else if (constraints.getProperties().contains(CALL_CURVE)) {
+          callCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          callCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        }
+      } else if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
+        currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
+      }
+    }
+    if (putCurveName == null || callCurveName == null || currencyPairConfigName == null) {
+      return null;
+    }
+    final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      s_logger.error("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+      return null;
+    }
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target,
+        putCurveName, putCurveCalculationConfig, callCurveName, callCurveCalculationConfig, baseQuotePair).get());
+    return Collections.singleton(resultSpec);
   }
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);

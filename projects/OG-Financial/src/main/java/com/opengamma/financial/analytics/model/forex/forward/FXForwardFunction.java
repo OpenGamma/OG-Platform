@@ -10,9 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
@@ -32,8 +35,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -44,6 +51,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardFunction.class);
   /**
    * @deprecated Deprecated value property name - has been moved to {@link ValuePropertyNames#PAY_CURVE_CALCULATION_CONFIG}
    */
@@ -162,10 +170,50 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-    final ValueRequirement payFundingCurve = getPayCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
-    final ValueRequirement receiveFundingCurve = getReceiveCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
+    final ValueRequirement payFundingCurve = YieldCurveFunctionUtils.getCurveRequirementForFXForward(ComputationTargetSpecification.of(payCurrency), payCurveName, payCurveCalculationConfig, true);
+    final ValueRequirement receiveFundingCurve = YieldCurveFunctionUtils.getCurveRequirementForFXForward(ComputationTargetSpecification.of(receiveCurrency),
+        receiveCurveName, receiveCurveCalculationConfig, false);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
     return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);
+  }
+
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String currencyPairConfigName = null;
+    String payCurveName = null;
+    String payCurveCalculationConfig = null;
+    String receiveCurveName = null;
+    String receiveCurveCalculationConfig = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification specification = entry.getKey();
+      final ValueRequirement requirement = entry.getValue();
+      if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
+        currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
+      } else if (requirement.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+        final ValueProperties constraints = requirement.getConstraints();
+        if (constraints.getProperties().contains(ValuePropertyNames.PAY_CURVE)) {
+          payCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          payCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        } else if (constraints.getProperties().contains(ValuePropertyNames.RECEIVE_CURVE)) {
+          receiveCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          receiveCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        }
+      }
+    }
+    assert currencyPairConfigName != null;
+    final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
+    final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(payCurrency, receiveCurrency);
+    if (baseQuotePair == null) {
+      s_logger.error("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
+      return null;
+    }
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target,
+        payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig, baseQuotePair).get());
+    return Collections.singleton(resultSpec);
   }
 
   /**
@@ -175,6 +223,20 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
    * @return The result properties
    */
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
+
+  /**
+   * Gets the result properties with curve information set.
+   * 
+   * @param target The target
+   * @param payCurve The name of the pay curve
+   * @param payCurveCalculationConfig The name of the pay curve calculation configuration
+   * @param receiveCurve The name of the receive curve
+   * @param receiveCurveCalculationConfig The name of the receive curve calculation configuration
+   * @param baseQuotePair The base / counter information for the currency pair
+   * @return The result properties
+   */
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurve, final String payCurveCalculationConfig,
+      final String receiveCurve, final String receiveCurveCalculationConfig, final CurrencyPair baseQuotePair);
 
   /**
    * Gets the result properties.
@@ -195,22 +257,6 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
   }
 
   /**
-   * Gets the requirement for the pay curve.
-   * 
-   * @param curveName The pay curve name
-   * @param currency The pay currency
-   * @param curveCalculationConfigName The pay curve calculation configuration name
-   * @return The pay curve requirement
-   */
-  protected static ValueRequirement getPayCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
-    final ValueProperties.Builder properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .withOptional(ValuePropertyNames.PAY_CURVE);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), properties.get());
-  }
-
-  /**
    * Gets the pay curve.
    * 
    * @param inputs The function inputs
@@ -220,28 +266,12 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
    * @return The pay curve
    */
   protected static YieldAndDiscountCurve getPayCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
-    final Object curveObject = inputs.getValue(getPayCurveRequirement(curveName, currency, curveCalculationConfig));
+    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirementForFXForward(ComputationTargetSpecification.of(currency), curveName, curveCalculationConfig, true));
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     return curve;
-  }
-
-  /**
-   * Gets the requirement for the receive curve.
-   * 
-   * @param curveName The receive curve name
-   * @param currency The receive currency
-   * @param curveCalculationConfigName The receive curve calculation configuration name
-   * @return The receive curve requirement
-   */
-  protected static ValueRequirement getReceiveCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
-    final ValueProperties.Builder properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .withOptional(ValuePropertyNames.RECEIVE_CURVE);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), properties.get());
   }
 
   /**
@@ -254,7 +284,8 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
    * @return The receive curve
    */
   protected static YieldAndDiscountCurve getReceiveCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
-    final Object curveObject = inputs.getValue(getReceiveCurveRequirement(curveName, currency, curveCalculationConfig));
+    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirementForFXForward(ComputationTargetSpecification.of(currency),
+        curveName, curveCalculationConfig, false));
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }

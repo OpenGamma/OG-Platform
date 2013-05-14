@@ -175,7 +175,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   private static Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
       final double smoothingFullWidth, final double overhedge, final ZonedDateTime valTime, final Set<ValueRequirement> desiredValues) {
 
-    final HashSet<ForexOptionVanilla> vanillas = new HashSet<ForexOptionVanilla>();
+    final HashSet<ForexOptionVanilla> vanillas = new HashSet<>();
     // Unpack the barrier security
     final boolean isLong = barrierSec.getLongShort().isLong();
     final ZonedDateTime expiry = barrierSec.getExpiry().getExpiry();

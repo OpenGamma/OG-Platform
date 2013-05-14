@@ -103,7 +103,6 @@ public class YieldCurveFunctionUtils {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
   }
 
-
   public static ValueRequirement getCurveRequirementForFXOption(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
       final String curveCalculationMethod, final boolean isPut) {
     final ValueProperties properties;
@@ -143,6 +142,51 @@ public class YieldCurveFunctionUtils {
           .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
           .with(FXOptionBlackFunction.CALL_CURVE, yieldCurveName).withOptional(FXOptionBlackFunction.CALL_CURVE)
           .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, curveCalculationConfigName).withOptional(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+          .get();
+    }
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
+  }
+
+
+  public static ValueRequirement getCurveRequirementForFXForward(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
+      final String curveCalculationMethod, final boolean isPay) {
+    final ValueProperties properties;
+    if (isPay) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+          .with(ValuePropertyNames.PAY_CURVE, yieldCurveName).withOptional(ValuePropertyNames.PAY_CURVE)
+          .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withOptional(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
+          .get();
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+          .with(ValuePropertyNames.RECEIVE_CURVE, yieldCurveName).withOptional(ValuePropertyNames.RECEIVE_CURVE)
+          .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withOptional(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
+          .get();
+    }
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
+  }
+
+  public static ValueRequirement getCurveRequirementForFXForward(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
+      final boolean isPay) {
+    final ValueProperties properties;
+    if (isPay) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(ValuePropertyNames.PAY_CURVE, yieldCurveName).withOptional(ValuePropertyNames.PAY_CURVE)
+          .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withOptional(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
+          .get();
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, yieldCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+          .with(ValuePropertyNames.RECEIVE_CURVE, yieldCurveName).withOptional(ValuePropertyNames.RECEIVE_CURVE)
+          .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withOptional(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
           .get();
     }
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
