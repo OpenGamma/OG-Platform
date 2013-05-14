@@ -358,12 +358,14 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
   public synchronized void start() {
     if (_environment == null) {
       _environment = BerkeleyDBViewComputationCacheSource.constructDatabaseEnvironment(_dir, true);
+      startHousekeep();
     }
   }
 
   @Override
   public synchronized void stop() {
     if (_environment != null) {
+      stopHousekeep();
       Generation gen = _old;
       if (gen != null) {
         gen.delete();
