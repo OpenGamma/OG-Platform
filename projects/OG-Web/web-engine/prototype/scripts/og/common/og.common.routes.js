@@ -8,7 +8,7 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, hash = window.RouteMap.hash, hashchange = false;
+        var routes, hash = window.RouteMap.hash, hashchange = false,
             SL = '/', MOZSLASH = 'MOZSLOG', MOZSLASH_EXP = new RegExp(MOZSLASH, 'g'), ENCODEDSL = '%2F';
         var slash_replace = function (obj, acc, val) {return acc[val] = ('' + obj[val]).replace(/\//g, MOZSLASH), acc;};
         return routes = $.extend(true, window.RouteMap, {
