@@ -285,7 +285,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     }
     final String domesticCurveName = domesticCurveCalculationConfig.getYieldCurveNames()[0];
     if (!domesticCurveCalculationConfig.getTarget().equals(target.toSpecification())) {
-      s_logger.error("Invalid target, was {} - expected {}", target, domesticCurveCalculationConfig.getTarget());
+      s_logger.info("Invalid target, was {} - expected {}", target, domesticCurveCalculationConfig.getTarget());
       return null;
     }
     final Currency domesticCurrency = target.getValue(ComputationTargetType.CURRENCY);
