@@ -30,7 +30,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
+import com.opengamma.util.db.script.DbScriptDirectory;
 import com.opengamma.util.db.script.DbScriptReader;
+import com.opengamma.util.db.script.FileDbScriptDirectory;
 import com.opengamma.util.db.script.ZipFileDbScriptDirectory;
 import com.opengamma.util.db.tool.DbCreateOperation;
 import com.opengamma.util.db.tool.DbSchemaVersionUtils;
@@ -85,7 +87,7 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     
     // REVIEW jonathan 2013-05-14 -- don't look at this :-)
     if (!(getDbConnector().getDataSource() instanceof BoneCPDataSource)) {
-      s_logger.warn("Unable to obtain database management instance. Database objects cannot be inspected or modified, and may be missing or out-of-date.");
+      s_logger.warn("Unable to obtain database management instance. Database objects will not be managed automatically.");
       return; 
     }
     BoneCPDataSource dataSource = (BoneCPDataSource) getDbConnector().getDataSource();
@@ -118,7 +120,10 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     
     DbScriptReader dbScriptReader = getDbScriptReader();
     if (dbScriptReader == null) {
-      s_logger.info("Unable to find database scripts on classpath. Database objects cannot be managed.");
+      s_logger.warn("Unable to find database scripts on classpath. Database objects will not be managed automatically.");
+      if (actualSchemaVersion == null) {
+        throw new OpenGammaRuntimeException(schemaName + " schema appears to be missing and unable to find database scripts on classpath to create it automatically");
+      }
       return;
     }
     
@@ -148,14 +153,24 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   protected DbScriptReader getDbScriptReader() {
     try {
       // REVIEW jonathan 2013-05-14 -- temporary solution to locate the scripts resource pending PLAT-3442
-      URL knownResourceUrl = getClass().getClassLoader().getResource("db/create/postgres/sec_db/V_43__create_security.sql");
-      String knownResourcePath = knownResourceUrl.getPath();
-      int separatorIdx = knownResourcePath.indexOf('!');
-      if (separatorIdx == -1) {
+      String knownScriptResource = "db/create/postgres/sec_db/V_43__create_security.sql";
+      URL knownResourceUrl = getClass().getClassLoader().getResource(knownScriptResource);
+      if (knownResourceUrl == null) {
         return null;
       }
-      String jarPath = knownResourcePath.substring(0, separatorIdx);
-      ZipFileDbScriptDirectory dbScriptDirectory = new ZipFileDbScriptDirectory(new File(URI.create(jarPath)), "db");
+      String knownResourcePath = knownResourceUrl.getPath();
+      int separatorIdx = knownResourcePath.indexOf("/" + knownScriptResource);
+      DbScriptDirectory dbScriptDirectory;
+      if (knownResourcePath.charAt(separatorIdx - 1) == '!') {
+        // JAR
+        String jarPath = knownResourcePath.substring(0, separatorIdx - 1);
+        File jarFile = new File(URI.create(jarPath));
+        dbScriptDirectory = new ZipFileDbScriptDirectory(jarFile, "db");
+      } else {
+        // Directory
+        File directory = new File(knownResourcePath.substring(0, separatorIdx) + "/db");
+        dbScriptDirectory = new FileDbScriptDirectory(directory);
+      }
       return new DbScriptReader(dbScriptDirectory);
     } catch (Exception e) {
       return null;
