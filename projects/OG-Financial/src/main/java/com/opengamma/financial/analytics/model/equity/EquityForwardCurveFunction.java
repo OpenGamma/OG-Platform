@@ -12,7 +12,9 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYieldImplied;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -117,12 +119,17 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     // Funding Curve Requirement
     requirements.add(getFundingCurveRequirement(currency, fundingCurveName, curveCalculationConfig));
 
-    // Dividend yield - optional
-    requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
-    
-    // *** PLAYING AROUND - DISCRETE DIVIDENDS 
-    requirements.add(new ValueRequirement(ValueRequirementNames.AFFINE_DIVIDENDS, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
-
+    // Dividend Requirements depend on type
+    final Set<String> dividendTypeSet = constraints.getValues(ValuePropertyNames.DIVIDEND_TYPE);
+    if (dividendTypeSet == null || dividendTypeSet.size() != 1) {
+      return null;
+    }
+    final String dividendType = dividendTypeSet.iterator().next();
+    if (ValuePropertyNames.DIVIDEND_TYPE_DISCRETE.equalsIgnoreCase(dividendType)) {
+      requirements.add(new ValueRequirement(ValueRequirementNames.AFFINE_DIVIDENDS, ComputationTargetType.PRIMITIVE, target.getUniqueId()));  
+    } else if (ValuePropertyNames.DIVIDEND_TYPE_CONTINUOUS.equalsIgnoreCase(dividendType)) {
+      requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
+    } 
     return requirements;
   }
 
@@ -150,27 +157,26 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
       throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
-    
-    // *** PLAYING AROUND - DISCRETE DIVIDENDS
+    // Dividend type: Discrete or Continuous 
     final String dividendType = desiredValue.getConstraint(ValuePropertyNames.DIVIDEND_TYPE);
-    boolean isContinuousDividends = true; // ValuePropertyNames.DIVIDEND_TYPE_CONTINUOUS.equalsIgnoreCase(dividendType);
+    boolean isContinuousDividends = ValuePropertyNames.DIVIDEND_TYPE_CONTINUOUS.equalsIgnoreCase(dividendType);
     // Compute ForwardCurve
     final ForwardCurve forwardCurve;
-//    if (isContinuousDividends) {
+    if (isContinuousDividends) {
       // Cost of Carry - if no dividend yield available set 0 cost of carry
       final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);
       final double dividendYield = dividendYieldObject == null ? 0.0 : dividendYieldObject.doubleValue();
       final YieldCurve costOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(dividendYield, "CostOfCarry"));
       forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);      
-//    } else {
-//      Object discreteDividendsInput = inputs.getValue(ValueRequirementNames.AFFINE_DIVIDENDS);
-//      if ((discreteDividendsInput != null) && (discreteDividendsInput instanceof AffineDividends)) {
-//        final AffineDividends discreteDividends = (AffineDividends) discreteDividendsInput;
-//        forwardCurve = new ForwardCurveAffineDividends(spot, fundingCurve, discreteDividends);
-//      } else {
-//        forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"))); 
-//      }
-//    }
+    } else {
+      Object discreteDividendsInput = inputs.getValue(ValueRequirementNames.AFFINE_DIVIDENDS);
+      if ((discreteDividendsInput != null) && (discreteDividendsInput instanceof AffineDividends)) {
+        final AffineDividends discreteDividends = (AffineDividends) discreteDividendsInput;
+        forwardCurve = new ForwardCurveAffineDividends(spot, fundingCurve, discreteDividends);
+      } else {
+        forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"))); 
+      }
+    }
     
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
@@ -186,6 +192,6 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE; // ticker or weak ticker
+    return ComputationTargetType.PRIMITIVE;
   }
 }
