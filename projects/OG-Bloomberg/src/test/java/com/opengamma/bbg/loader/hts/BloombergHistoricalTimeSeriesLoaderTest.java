@@ -44,7 +44,6 @@ public class BloombergHistoricalTimeSeriesLoaderTest extends AbstractHistoricalT
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void updateTimeSeries() throws Exception {
     HistoricalTimeSeriesMaster htsMaster = getHtsMaster();
     BloombergHistoricalTimeSeriesLoader loader = getLoader();

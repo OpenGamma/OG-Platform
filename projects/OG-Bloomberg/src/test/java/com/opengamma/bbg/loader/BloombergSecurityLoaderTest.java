@@ -90,11 +90,12 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "bbgSecurityLoaderTests")
+@Test(groups = TestGroup.INTEGRATION, singleThreaded = true, enabled = false)
 public class BloombergSecurityLoaderTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityLoaderTest.class);
@@ -618,78 +619,64 @@ public class BloombergSecurityLoaderTest extends AbstractDbTest {
         return null;
       }
 
-	@Override
-	public Void visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
-		assertSecurity();
-		return null;
-	}
+    	@Override
+    	public Void visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
+    		assertSecurity();
+    		return null;
+    	}
 
-	@Override
-	public Void visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
-		assertSecurity();
-		return null;
-	}
+    	@Override
+    	public Void visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
+    		assertSecurity();
+    		return null;
+    	}
 
-	@Override
-	public Void visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
-		assertSecurity();
-		return null;
-	}
-
+    	@Override
+    	public Void visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
+    		assertSecurity();
+    		return null;
+    	}
     });
-
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityOptionSecurity() {
     assertLoadAndSaveSecurity(makeAPVLEquityOptionSecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityIndexOptionSecurity() {
     assertLoadAndSaveSecurity(makeSPXIndexOptionSecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityIndexFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeEquityIndexFutureOptionSecurity());
   }
 
-
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityIndexDividendFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeEquityIndexDividendFutureOptionSecurity());
   }
 
-
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquitySecurity() {
     assertLoadAndSaveSecurity(makeExpectedAAPLEquitySecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testInterestRateFutureSecurity() {
     assertLoadAndSaveSecurity(makeInterestRateFuture());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testBondFutureSecurity() {
     assertLoadAndSaveSecurity(makeUSBondFuture());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testIRFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeEURODOLLARFutureOptionSecurity());
     assertLoadAndSaveSecurity(makeLIBORFutureOptionSecurity());
     assertLoadAndSaveSecurity(makeEURIBORFutureOptionSecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testCommodityFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeCommodityFutureOptionSecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testFxFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeFxFutureOptionSecurity());
   }

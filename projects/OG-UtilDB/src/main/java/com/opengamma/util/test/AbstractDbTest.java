@@ -160,7 +160,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
    * Code run after entire suite.
    * @throws Exception if an error occurs
    */
-  @AfterSuite(alwaysRun = true)
+  @AfterSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION })
   public static final void tearDownSuite() throws Exception {
     for (DbConnector connector : s_connectors.values()) {
       ReflectionUtils.close(connector);

@@ -49,7 +49,6 @@ public class BloombergHTSMasterUpdaterTest extends AbstractHistoricalTimeSeriesD
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void update() throws Exception {
     HistoricalTimeSeriesMaster htsMaster = getHtsMaster();
     BloombergHTSMasterUpdater htsMasterUpdater = getHtsMasterUpdater();
@@ -73,7 +72,6 @@ public class BloombergHTSMasterUpdaterTest extends AbstractHistoricalTimeSeriesD
     }
   }
 
-  @Test
   public void updateGivenDates() throws Exception {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> previousSeriesDocs = addTimeSeries();
     final LocalDate previousSeriesEnd = previousWeekDay().minusWeeks(1);
@@ -102,7 +100,6 @@ public class BloombergHTSMasterUpdaterTest extends AbstractHistoricalTimeSeriesD
     }
   }
 
-  @Test
   public void reload() throws Exception {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> previousDocs = addTimeSeries();
     HistoricalTimeSeriesMaster htsMaster = getHtsMaster();
