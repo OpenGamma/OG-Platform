@@ -17,7 +17,7 @@ $.register_module({
             };
             gadget.load = function () {
                 $selector.addClass(alive).css(css_position).html(loading_template({text: 'loading...'}));
-                gadget.dataman = new og.analytics.Cell(cell_options, 'text').on('data', function (cell) {
+                gadget.dataman = new og.analytics.Cells(cell_options, 'text').on('data', function (cell) {
                     if (gadget.data = cell.v || cell) {
                         if (!instantiated)
                             $.when(og.api.text({module: 'og.analytics.text_tash'})).then(function (tmpl) {

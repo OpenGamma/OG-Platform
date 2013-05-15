@@ -22,7 +22,7 @@ $.register_module({
             gadget.load = function () {
                 $(config.selector).html(loading_template({text: 'loading...'}));
                 gadget.dataman = new og.analytics
-                    .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'surface')
+                    .Cells({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'surface')
                     .on('data', function (data) {
                         var error = data.error;
                         data = data.v || data;

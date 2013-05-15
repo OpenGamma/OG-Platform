@@ -3,11 +3,11 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.Cell',
+    name: 'og.analytics.Cells',
     dependencies: ['og.api.rest', 'og.analytics.Data', 'og.common.events'],
     obj: function () {
         var module = this, events = og.common.events;
-        var Cell = function (config, label) {
+        var Cells = function (config, label) {
             var cell = this, options = {bypass: true, label: 'cell' + label},
                 row = config.row, col = config.col, headers = [];
             cell.row_name = null; cell.col_name = null;
@@ -39,8 +39,8 @@ $.register_module({
             }).on('fatal', fatal_handler);
             cell.id = cell.dataman.id;
         };
-        ['fire', 'off', 'on'].forEach(function (key) {Cell.prototype[key] = events[key];});
-        Cell.prototype.kill = function () {this.dataman.kill();};
-        return Cell;
+        ['fire', 'off', 'on'].forEach(function (key) {Cells.prototype[key] = events[key];});
+        Cells.prototype.kill = function () {this.dataman.kill();};
+        return Cells;
     }
 });

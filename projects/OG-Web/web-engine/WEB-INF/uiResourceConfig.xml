@@ -394,7 +394,7 @@
   <bundle id="common_analytics.js">
     <fragment>/scripts/og/analytics/og.analytics.url.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.cells.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.portfolios.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.viewdefinitions.js</fragment>
