@@ -72,17 +72,17 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
    * @param paymentYearFraction Accrual factor of the accrual period; used for the payment.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
    * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param maturity The cap/floor maturity in years.
-   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndDate The reference date for the index at the coupon end.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
   public CapFloorInflationZeroCouponMonthlyDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
-      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int monthLag, final int maturity,
-      final ZonedDateTime lastKnownFixingDate, final double indexStartValue, final ZonedDateTime referenceEndDate,
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate, final int monthLag,
+      final int maturity, final double indexStartValue, final ZonedDateTime referenceEndDate,
       final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
@@ -117,7 +117,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
       final double strike, final boolean isCap) {
     Validate.notNull(priceIndex, "Price index");
     return new CapFloorInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
-        notional, priceIndex, monthLag, maturity, lastKnownFixingDate, indexStartValue, referenceEndDate, strike, isCap);
+        notional, priceIndex, lastKnownFixingDate, monthLag, maturity, indexStartValue, referenceEndDate, strike, isCap);
   }
 
   /**
@@ -130,12 +130,11 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
    * @return The cap/floor
    */
   public static CapFloorInflationZeroCouponMonthlyDefinition from(final CouponInflationZeroCouponMonthlyDefinition couponInflation, final ZonedDateTime lastKnownFixingDate, final int maturity,
-      final double strike,
-      final boolean isCap) {
+      final double strike, final boolean isCap) {
     Validate.notNull(couponInflation, "coupon Ibor");
     return new CapFloorInflationZeroCouponMonthlyDefinition(couponInflation.getCurrency(), couponInflation.getPaymentDate(), couponInflation.getAccrualStartDate(),
         couponInflation.getAccrualEndDate(), couponInflation.getPaymentYearFraction(), couponInflation.getNotional(), couponInflation.getPriceIndex(),
-        couponInflation.getMonthLag(), maturity, lastKnownFixingDate, couponInflation.getIndexStartValue(), couponInflation.getReferenceEndDate(),
+        lastKnownFixingDate, couponInflation.getMonthLag(), maturity, couponInflation.getIndexStartValue(), couponInflation.getReferenceEndDate(),
         strike, isCap);
   }
 
@@ -244,8 +243,14 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + (_isCap ? 1231 : 1237);
     long temp;
+    temp = Double.doubleToLongBits(_indexStartValue);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_isCap ? 1231 : 1237);
+    result = prime * result + ((_lastKnownFixingDate == null) ? 0 : _lastKnownFixingDate.hashCode());
+    result = prime * result + _maturity;
+    result = prime * result + _monthLag;
+    result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
@@ -263,7 +268,30 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
       return false;
     }
     CapFloorInflationZeroCouponMonthlyDefinition other = (CapFloorInflationZeroCouponMonthlyDefinition) obj;
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+      return false;
+    }
     if (_isCap != other._isCap) {
+      return false;
+    }
+    if (_lastKnownFixingDate == null) {
+      if (other._lastKnownFixingDate != null) {
+        return false;
+      }
+    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate)) {
+      return false;
+    }
+    if (_maturity != other._maturity) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_referenceEndDate == null) {
+      if (other._referenceEndDate != null) {
+        return false;
+      }
+    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
       return false;
     }
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {

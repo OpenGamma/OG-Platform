@@ -265,8 +265,16 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + (_isCap ? 1231 : 1237);
+    result = prime * result + ((_lastKnownFixingDate == null) ? 0 : _lastKnownFixingDate.hashCode());
+    result = prime * result + _monthLag;
+    result = prime * result + Arrays.hashCode(_referenceEndDate);
+    result = prime * result + Arrays.hashCode(_referenceStartDate);
     long temp;
     temp = Double.doubleToLongBits(_strike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightStart);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -284,6 +292,16 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     }
     CapFloorInflationYearOnYearInterpolationDefinition other = (CapFloorInflationYearOnYearInterpolationDefinition) obj;
     if (_isCap != other._isCap) {
+      return false;
+    }
+    if (_lastKnownFixingDate == null) {
+      if (other._lastKnownFixingDate != null) {
+        return false;
+      }
+    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate)) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
       return false;
     }
     if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {

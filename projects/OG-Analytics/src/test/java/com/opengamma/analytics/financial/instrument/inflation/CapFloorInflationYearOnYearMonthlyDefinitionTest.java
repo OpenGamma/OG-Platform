@@ -113,20 +113,20 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
    * Tests the class getter.
    */
   public void getter() {
-    assertEquals("Inflation Year on Year coupon: getter", CUR, YoY_CAP_DEFINITION.getCurrency());
-    assertEquals("Inflation Year on Year coupon: getter", PAYMENT_DATE, YoY_CAP_DEFINITION.getPaymentDate());
-    assertEquals("Inflation Year on Year coupon: getter", ACCRUAL_START_DATE, YoY_CAP_DEFINITION.getAccrualStartDate());
-    assertEquals("Inflation Year on Year coupon: getter", ACCRUAL_END_DATE, YoY_CAP_DEFINITION.getAccrualEndDate());
-    assertEquals("Inflation Year on Year coupon: getter", LAST_KNOWN_FIXING_DATE, YoY_CAP_DEFINITION.getLastKnownFixingDate());
-    assertEquals("Inflation Year on Year coupon: getter", 1.0, YoY_CAP_DEFINITION.getPaymentYearFraction());
-    assertEquals("Inflation Year on Year coupon: getter", NOTIONAL, YoY_CAP_DEFINITION.getNotional());
-    assertEquals("Inflation Year on Year coupon: getter", PRICE_INDEX, YoY_CAP_DEFINITION.getPriceIndex());
-    assertEquals("Inflation Year on Year coupon: getter", REFERENCE_START_DATE, YoY_CAP_DEFINITION.getReferenceStartDate());
-    assertEquals("Inflation Year on Year coupon: getter", REFERENCE_END_DATE, YoY_CAP_DEFINITION.getReferenceEndDate());
-    assertEquals("Inflation Year on Year coupon: getter", MONTH_LAG, YoY_CAP_DEFINITION.getMonthLag());
-    assertEquals("Inflation Year on Year coupon: getter", IS_CAP, YoY_CAP_DEFINITION.isCap());
-    assertEquals("Inflation Year on Year coupon: getter", 1.0, YoY_CAP_DEFINITION.getPaymentYearFraction());
-    assertEquals("Inflation Year on Year coupon: getter", STRIKE, YoY_CAP_DEFINITION.getStrike());
+    assertEquals("Inflation Year on Year cap: getter", CUR, YoY_CAP_DEFINITION.getCurrency());
+    assertEquals("Inflation Year on Year cap: getter", PAYMENT_DATE, YoY_CAP_DEFINITION.getPaymentDate());
+    assertEquals("Inflation Year on Year cap: getter", ACCRUAL_START_DATE, YoY_CAP_DEFINITION.getAccrualStartDate());
+    assertEquals("Inflation Year on Year cap: getter", ACCRUAL_END_DATE, YoY_CAP_DEFINITION.getAccrualEndDate());
+    assertEquals("Inflation Year on Year cap: getter", LAST_KNOWN_FIXING_DATE, YoY_CAP_DEFINITION.getLastKnownFixingDate());
+    assertEquals("Inflation Year on Year cap: getter", 1.0, YoY_CAP_DEFINITION.getPaymentYearFraction());
+    assertEquals("Inflation Year on Year cap: getter", NOTIONAL, YoY_CAP_DEFINITION.getNotional());
+    assertEquals("Inflation Year on Year cap: getter", PRICE_INDEX, YoY_CAP_DEFINITION.getPriceIndex());
+    assertEquals("Inflation Year on Year cap: getter", REFERENCE_START_DATE, YoY_CAP_DEFINITION.getReferenceStartDate());
+    assertEquals("Inflation Year on Year cap: getter", REFERENCE_END_DATE, YoY_CAP_DEFINITION.getReferenceEndDate());
+    assertEquals("Inflation Year on Year cap: getter", MONTH_LAG, YoY_CAP_DEFINITION.getMonthLag());
+    assertEquals("Inflation Year on Year cap: getter", IS_CAP, YoY_CAP_DEFINITION.isCap());
+    assertEquals("Inflation Year on Year cap: getter", 1.0, YoY_CAP_DEFINITION.getPaymentYearFraction());
+    assertEquals("Inflation Year on Year cap: getter", STRIKE, YoY_CAP_DEFINITION.getStrike());
 
   }
 
@@ -154,7 +154,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
     modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, modifiedReferenceStartDate, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(YoY_CAP_DEFINITION.equals(modified));
-    /*  final ZonedDateTime modifiedReferenceEndDate = REFERENCE_END_DATE.minusDays(1);
+    final ZonedDateTime modifiedReferenceEndDate = REFERENCE_END_DATE.minusDays(1);
     modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, REFERENCE_START_DATE, modifiedReferenceEndDate, STRIKE, IS_CAP);
     assertFalse(YoY_CAP_DEFINITION.equals(modified));
@@ -169,7 +169,23 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
     assertFalse(YoY_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, false);
-    assertFalse(YoY_CAP_DEFINITION.equals(modified));*/
+    assertFalse(YoY_CAP_DEFINITION.equals(modified));
+    modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE.minusDays(1), MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+    assertFalse(YoY_CAP_DEFINITION.equals(modified));
+    modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG - 1, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+    assertFalse(YoY_CAP_DEFINITION.equals(modified));
+    modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE.minusDays(1), MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+    assertFalse(YoY_CAP_DEFINITION.equals(modified));
+    modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG - 1, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+    assertFalse(YoY_CAP_DEFINITION.equals(modified));
+    final IndexPrice modifiedPriceIndex = new IndexPrice("US CPI x", Currency.USD);
+    modified = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, modifiedPriceIndex, LAST_KNOWN_FIXING_DATE, MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+    assertFalse(YoY_CAP_DEFINITION.equals(modified));
   }
 
   @Test

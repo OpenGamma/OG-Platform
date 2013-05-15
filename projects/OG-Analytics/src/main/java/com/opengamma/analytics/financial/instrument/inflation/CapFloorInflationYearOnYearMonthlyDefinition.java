@@ -204,6 +204,10 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + (_isCap ? 1231 : 1237);
+    result = prime * result + ((_lastKnownFixingDate == null) ? 0 : _lastKnownFixingDate.hashCode());
+    result = prime * result + _monthLag;
+    result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
+    result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -225,7 +229,30 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
     if (_isCap != other._isCap) {
       return false;
     }
-
+    if (_lastKnownFixingDate == null) {
+      if (other._lastKnownFixingDate != null) {
+        return false;
+      }
+    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate)) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_referenceEndDate == null) {
+      if (other._referenceEndDate != null) {
+        return false;
+      }
+    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
+      return false;
+    }
+    if (_referenceStartDate == null) {
+      if (other._referenceStartDate != null) {
+        return false;
+      }
+    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
     }
