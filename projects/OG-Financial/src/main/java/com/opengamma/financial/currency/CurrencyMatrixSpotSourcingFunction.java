@@ -140,6 +140,8 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
    */
   public static ValueRequirement getConversionRequirement(final Currency source, final Currency target) {
     //TODO is the reversal of the inputs intentional?
+    // Yes - pending a thorough change across all currency matrix based code. Everything that refers to "source" and "target" is unfortunately back to front.
+    // "Source" should really have been "counter", and "target" should really have been "base". The ordering would then be reversed. [PLAT-3453] 
     return new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(target, source)));
   }
 
