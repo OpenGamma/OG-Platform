@@ -52,13 +52,12 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
     _databaseType = databaseType;
     _targetVersion = targetVersion;
     _createVersion = createVersion;
-    _dbTool = DbTest.createDbTool(databaseType, null);
   }
 
   //-------------------------------------------------------------------------
   @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
-    DbTool dbTool = _dbTool;
+    DbTool dbTool = getDbTool();
     dbTool.setTargetVersion(_targetVersion);
     dbTool.setCreateVersion(_createVersion);
     dbTool.dropTestSchema();
@@ -74,6 +73,30 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
     AbstractDbTest.s_databaseTypeVersion.clear();
   }
 
+  //-------------------------------------------------------------------------
+  protected DbTool getDbTool() {
+    return initDbTool();
+  }
+
+  /**
+   * Initializes the DBTool outside the constructor.
+   * This works better with TestNG and Maven, where the constructor is called
+   * even if the test is never run.
+   */
+  private DbTool initDbTool() {
+    DbTool dbTool = _dbTool;
+    if (dbTool == null) {
+      synchronized (this) {
+        dbTool = _dbTool;
+        if (dbTool == null) {
+          _dbTool = dbTool = DbTest.createDbTool(_databaseType, null);
+        }
+      }
+    }
+    return dbTool;
+  }
+
+  //-------------------------------------------------------------------------
   protected Map<String, String> getVersionSchemas() {
     Map<String, String> versionSchema = s_targetSchema.get(_databaseType);
     if (versionSchema == null) {
