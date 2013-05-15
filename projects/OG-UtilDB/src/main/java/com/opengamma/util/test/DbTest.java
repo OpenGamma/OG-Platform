@@ -37,6 +37,8 @@ public final class DbTest {
 
   /** Known dialects. */
   private static final Map<String, DbDialect> s_dbDialects = new ConcurrentHashMap<>();
+  /** Available dialects. */
+  private static final Map<String, Boolean> s_availableDialects = new ConcurrentHashMap<String, Boolean>();
 
   static {
     // initialize the clock
@@ -103,22 +105,29 @@ public final class DbTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "localDatabase")
   public static Object[][] data_localDatabase() {
-    return getParametersForDatabase("hsqldb");
+    Object[][] data = getParametersForDatabase("hsqldb");
+    if (data.length == 0) {
+      throw new IllegalStateException("No databases available");
+    }
+    return data;
   }
 
   @DataProvider(name = "databases")
   public static Object[][] data_databases() {
-    try {
-      return getParameters();
-    } catch (Exception ex) {
-      System.out.println(ex.getMessage());
-      return null;
+    Object[][] data = getParameters();
+    if (data.length == 0) {
+      throw new IllegalStateException("No databases available");
     }
+    return data;
   }
 
   @DataProvider(name = "databasesVersionsForSeparateMasters")
   public static Object[][] data_databasesVersionsForSeparateMasters() {
-    return getParametersForSeparateMasters(3);
+    Object[][] data = getParametersForSeparateMasters(3);
+    if (data.length == 0) {
+      throw new IllegalStateException("No databases available");
+    }
+    return data;
   }
 
   //-------------------------------------------------------------------------
@@ -178,11 +187,19 @@ public final class DbTest {
     }
     for (Iterator<String> it = databaseTypes.iterator(); it.hasNext(); ) {
       String dbType = it.next();
-      DbDialect dbDialect = s_dbDialects.get(dbType);
-      try {
-        Objects.requireNonNull(dbDialect.getJDBCDriverClass());
-      } catch (RuntimeException | Error ex) {
-        System.err.println("Database driver not available: " + dbDialect);
+      Boolean available = s_availableDialects.get(dbType);
+      if (available == null) {
+        DbDialect dbDialect = s_dbDialects.get(dbType);
+        try {
+          Objects.requireNonNull(dbDialect.getJDBCDriverClass());
+          available = true;
+        } catch (RuntimeException | Error ex) {
+          available = false;
+          System.err.println("Database driver not available: " + dbType);
+        }
+        s_availableDialects.put(dbType, available);
+      }
+      if (available == false) {
         it.remove();
       }
     }
