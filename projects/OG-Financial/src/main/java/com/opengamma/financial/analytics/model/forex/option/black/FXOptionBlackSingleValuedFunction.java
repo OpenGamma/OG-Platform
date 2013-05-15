@@ -82,7 +82,7 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .with(ValuePropertyNames.CURRENCY, currency);
   }
 
-  static String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+  protected String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());

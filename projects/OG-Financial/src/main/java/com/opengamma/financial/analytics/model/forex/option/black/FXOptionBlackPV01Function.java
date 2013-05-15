@@ -58,8 +58,6 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String resultCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
@@ -175,9 +173,7 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, resultCurrency).withOptional(ValuePropertyNames.CURRENCY)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency).withOptional(ValuePropertyNames.CURVE_CURRENCY)
-        .with(ValuePropertyNames.CURVE, resultCurveName).withOptional(ValuePropertyNames.CURVE).get();
+        .get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }
 }

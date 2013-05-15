@@ -167,7 +167,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
     final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
-    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
+    final List<InstrumentDerivative> derivatives = new ArrayList<>();
     for (final Tenor tenor : definition.getTenors()) {
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
@@ -180,10 +180,10 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       }
     }
     final YieldCurveBundle knownCurve = new YieldCurveBundle(new String[] {fullForeignCurveName }, new YieldAndDiscountCurve[] {foreignCurve });
-    final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
+    final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<>();
     curveKnots.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
-    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName,
         rightExtrapolatorName);
     curveNodes.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
@@ -289,7 +289,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       return null;
     }
     final Currency domesticCurrency = target.getValue(ComputationTargetType.CURRENCY);
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final Map<String, String[]> exogenousConfigs = domesticCurveCalculationConfig.getExogenousConfigData();
     if (exogenousConfigs.size() != 1) {
       s_logger.error("Can only handle curves with one foreign curve config");
