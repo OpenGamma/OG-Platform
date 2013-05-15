@@ -17,7 +17,7 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSna
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the volatility surface tensor functions.

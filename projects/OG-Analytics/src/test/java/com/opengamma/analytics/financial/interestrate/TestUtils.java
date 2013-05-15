@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Collection of useful stuff to stop repeating code it tests

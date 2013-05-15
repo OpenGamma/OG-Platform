@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeMapWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides remote access to an {@link HistoricalTimeSeriesSource}.

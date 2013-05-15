@@ -21,7 +21,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to classify positions by Currency.
@@ -99,7 +99,7 @@ public class LiquidityAggregationFunction implements AggregationFunction<String>
     
     Pair<LocalDate, Double> latestDataPoint = _htsSource.getLatestDataPoint(FIELD, security.getExternalIdBundle(), RESOLUTION_KEY);
     if (latestDataPoint != null) {
-      double volume = latestDataPoint._2();
+      double volume = latestDataPoint.getSecond();
       double daysToLiquidate = (volume / position.getQuantity().doubleValue()) * LIQUIDATE_FACTOR;
       
       if (_caching && cacheKey != null) {

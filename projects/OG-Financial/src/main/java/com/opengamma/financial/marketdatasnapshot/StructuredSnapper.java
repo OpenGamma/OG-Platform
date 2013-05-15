@@ -33,7 +33,7 @@ import com.opengamma.engine.view.cycle.ComputationCacheResponse;
 import com.opengamma.engine.view.cycle.ComputationCycleQuery;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Extracts some type of structured object from a cycle

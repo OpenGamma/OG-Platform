@@ -22,8 +22,8 @@ import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.ObjectsPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * In memory source, typically used for testing.

@@ -37,7 +37,7 @@ import com.opengamma.financial.analytics.model.volatility.local.defaultpropertie
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.SingletonFactoryBean;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
 
 /**

@@ -20,7 +20,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.SingleRootFinder;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 

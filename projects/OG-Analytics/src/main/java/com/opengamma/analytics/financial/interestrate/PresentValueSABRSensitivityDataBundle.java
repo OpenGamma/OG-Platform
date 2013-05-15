@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing the present value SABR sensitivity.

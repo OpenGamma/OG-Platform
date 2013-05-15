@@ -26,7 +26,7 @@ import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 
 /**

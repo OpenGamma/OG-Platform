@@ -20,8 +20,8 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.lambdava.tuple.ObjectsPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Test ArgumentChecker.

@@ -26,7 +26,7 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A portfolio copier that copies positions/securities from readers to the specified writer while resolving time-series.

@@ -93,7 +93,7 @@ import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The job which schedules and executes computation cycles for a view process. See {@link SingleThreadViewProcessWorkerFactory} for a more detailed description.
@@ -1008,7 +1008,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final CompiledViewDefinitionWithGraphs compiledViewDefinition, final InvalidMarketDataDependencyNodeFilter filter) {
     if (previousGraphs != null) {
       for (Pair<DependencyGraph, Set<ValueRequirement>> previousGraph : previousGraphs.values()) {
-        getInvalidMarketData(previousGraph._1(), filter);
+        getInvalidMarketData(previousGraph.getFirst(), filter);
       }
     } else {
       for (DependencyGraphExplorer graphExp : compiledViewDefinition.getDependencyGraphExplorers()) {

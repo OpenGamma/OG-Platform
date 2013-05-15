@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Forward
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivityUtils;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a present value curve sensitivity for inflation and multi-curves framework.

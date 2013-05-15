@@ -11,8 +11,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
-import com.opengamma.lambdava.tuple.ObjectsPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

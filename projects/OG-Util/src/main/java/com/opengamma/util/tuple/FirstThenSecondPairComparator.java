@@ -7,8 +7,6 @@ package com.opengamma.util.tuple;
 
 import java.util.Comparator;
 
-import com.opengamma.lambdava.tuple.Pair;
-
 /**
  * A comparator for two pair instances capturing the generic types ensuring they are comparable.
  * <p>

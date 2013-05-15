@@ -28,7 +28,7 @@ import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Base class for objects that manage a set of AbstractCalculationNodes with the intention of invoking job executions on them.

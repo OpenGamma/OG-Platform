@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.sensitivity.PositionGreek;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -27,8 +27,8 @@ public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, M
     final Map<PositionGreek, Double> riskFactors = new HashMap<>();
     PositionGreek positionGreek;
     for (final Pair<Greek, Double> entry : greeks) {
-      positionGreek = new PositionGreek(entry._1());
-      riskFactors.put(positionGreek, entry._2() * data.getOptionTradeData().getNumberOfContracts());
+      positionGreek = new PositionGreek(entry.getFirst());
+      riskFactors.put(positionGreek, entry.getSecond() * data.getOptionTradeData().getNumberOfContracts());
     }
     return riskFactors;
   }

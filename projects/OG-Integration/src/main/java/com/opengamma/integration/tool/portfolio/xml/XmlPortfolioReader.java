@@ -10,7 +10,7 @@ import java.util.Iterator;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Portfolio reader for a single portfolio from the xml file format. Note that

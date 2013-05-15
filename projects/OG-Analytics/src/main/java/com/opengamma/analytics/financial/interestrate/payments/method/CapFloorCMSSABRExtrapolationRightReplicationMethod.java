@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFor
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price of a CMS cap/floor by swaption replication on a SABR formula with extrapolation.

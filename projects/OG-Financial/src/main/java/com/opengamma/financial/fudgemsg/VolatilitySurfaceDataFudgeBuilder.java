@@ -23,7 +23,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Builder for converting VolatilitySurfaceData instances to/from Fudge messages.

@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Defines a general surface <i>(x, y, z)</i> class. The <i>x</i>, <i>y</i> and <i>z</i> data can be any type. The surfaces are named; if a name is not provided then a unique

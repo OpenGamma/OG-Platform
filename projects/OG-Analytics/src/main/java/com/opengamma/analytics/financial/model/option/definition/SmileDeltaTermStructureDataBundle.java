@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.model.option.definition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing the data required to price instruments with the volatility delta and time dependent.
