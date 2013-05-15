@@ -26,7 +26,7 @@ import com.opengamma.web.WebResourceTestUtils;
 /**
  * Tests {@code JRubySassCompiler}
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.UNIT, enabled = false)
 public class JRubySassCompilerTest {
 
   private static JRubySassCompiler s_compiler;
@@ -42,7 +42,7 @@ public class JRubySassCompilerTest {
   private static File VARIABLES_SCSS;
   private static File VARIABLES_CSS;
 
-  @BeforeClass 
+  @BeforeClass
   public void setUp() throws Exception {
     NAVBAR_SCSS = new File(getClass().getResource("navbar.scss").toURI());
     NAVBAR_CSS = new File(getClass().getResource("navbar.css").toURI());
@@ -75,7 +75,6 @@ public class JRubySassCompilerTest {
     assertEquals(expected, output);
   }
 
-  @Test(enabled=false)
   public void updateStyleSheets() throws Exception {
     final File templateDir = Files.createTempDir();
     Files.copy(NAVBAR_SCSS, new File(templateDir, NAVBAR_SCSS.getName()));
