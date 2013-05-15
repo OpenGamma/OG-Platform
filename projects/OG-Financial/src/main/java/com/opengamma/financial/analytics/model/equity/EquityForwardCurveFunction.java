@@ -12,10 +12,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
-import com.opengamma.analytics.financial.equity.variance.pricing.EquityDividendsCurvesBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYieldImplied;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -159,21 +156,21 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     boolean isContinuousDividends = true; // ValuePropertyNames.DIVIDEND_TYPE_CONTINUOUS.equalsIgnoreCase(dividendType);
     // Compute ForwardCurve
     final ForwardCurve forwardCurve;
-    if (isContinuousDividends) {
+//    if (isContinuousDividends) {
       // Cost of Carry - if no dividend yield available set 0 cost of carry
       final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);
       final double dividendYield = dividendYieldObject == null ? 0.0 : dividendYieldObject.doubleValue();
       final YieldCurve costOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(dividendYield, "CostOfCarry"));
       forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);      
-    } else {
-      Object discreteDividendsInput = inputs.getValue(ValueRequirementNames.AFFINE_DIVIDENDS);
-      if ((discreteDividendsInput != null) && (discreteDividendsInput instanceof AffineDividends)) {
-        final AffineDividends discreteDividends = (AffineDividends) discreteDividendsInput;
-        forwardCurve = new ForwardCurveAffineDividends(spot, fundingCurve, discreteDividends);
-      } else {
-        forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"))); 
-      }
-    }
+//    } else {
+//      Object discreteDividendsInput = inputs.getValue(ValueRequirementNames.AFFINE_DIVIDENDS);
+//      if ((discreteDividendsInput != null) && (discreteDividendsInput instanceof AffineDividends)) {
+//        final AffineDividends discreteDividends = (AffineDividends) discreteDividendsInput;
+//        forwardCurve = new ForwardCurveAffineDividends(spot, fundingCurve, discreteDividends);
+//      } else {
+//        forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"))); 
+//      }
+//    }
     
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
