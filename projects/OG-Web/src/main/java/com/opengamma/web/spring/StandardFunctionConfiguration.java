@@ -36,8 +36,8 @@ import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.lambdava.functions.Function1;
-import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
 
 /**
@@ -115,11 +115,11 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     public String getCurveName(final String key) {
       return _curveName.get(key);
     }
-    
+
     public void setCurveCalculationMethodName(final String key, final String curveCalculationMethodName) {
       _curveCalculationMethodName.set(key, curveCalculationMethodName);
     }
-    
+
     public String getCurveCalculationMethodName(final String key) {
       return _curveCalculationMethodName.get(key);
     }
@@ -593,7 +593,6 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
   }
 
-  
   protected void addLocalVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceDefaults.class.getName(),
         GeneralLocalVolatilitySurfaceDefaults.getLocalVolatilitySurfaceDefaults()));
@@ -686,9 +685,9 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected void setXCcySwapFunctionDefaults(final CurrencyInfo i, FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
-    defaults.setCurveCalculationConfig(i.getCurveName("model/xccyswap"));  
+    defaults.setCurveCalculationConfig(i.getCurveName("model/xccyswap"));
   }
-  
+
   protected void setXCcySwapFunctionDefaults(final FixedIncomeFunctions.Defaults defaults) {
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FixedIncomeFunctions.Defaults.CurrencyInfo>() {
       @Override
@@ -697,9 +696,9 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
         setXCcySwapFunctionDefaults(i, d);
         return d;
       }
-    }));    
+    }));
   }
-  
+
   protected FunctionConfigurationSource xCcySwapFunctions() {
     final FixedIncomeFunctions.Defaults defaults = new FixedIncomeFunctions.Defaults();
     setXCcySwapFunctionDefaults(defaults);
@@ -865,7 +864,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   protected void setFutureFunctionCalculators(FutureFunctions.Calculators calculators) {
     calculators.setClosingPriceField(getMark2MarketField());
   }
-  
+
   protected FunctionConfigurationSource futureFunctions() {
     final FutureFunctions.Calculators calculators = new FutureFunctions.Calculators();
     setFutureFunctionCalculators(calculators);
@@ -994,12 +993,6 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
         return d;
       }
     }));
-  }
-
-  protected FunctionConfigurationSource pnlFunctionDefaults() {
-    final PNLFunctions.Defaults defaults = new PNLFunctions.Defaults();
-    setPNLFunctionDefaults(defaults);
-    return getRepository(defaults);
   }
 
   protected FunctionConfigurationSource pnlFunctions() {
