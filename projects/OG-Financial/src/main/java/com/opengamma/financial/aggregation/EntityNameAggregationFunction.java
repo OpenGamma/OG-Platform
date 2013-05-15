@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -47,9 +46,8 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
   /**
    * Creates the aggregation function.
    *
-   * @param name the name to be used for this aggregation, not null
-   * @param securitySource the security source used for resolution of the CDS security, not null
-   * @param extractor the extractor which will process the cds option and return the required type, not null
+   * @param organizationSource  the organization source, not null
+   * @param securitySource  the security source used for resolution of the CDS security, not null
    */
   public EntityNameAggregationFunction(OrganizationSource organizationSource, SecuritySource securitySource) {
     ArgumentChecker.notNull(organizationSource, "organizationSource");
@@ -58,6 +56,7 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
     _organizationSource = organizationSource;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Collection<String> getRequiredEntries() {
     return ImmutableList.of();
@@ -65,10 +64,7 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
 
   @Override
   public String classifyPosition(Position position) {
-
     Security security = resolveSecurity(position);
-
-
     if (security instanceof CreditDefaultSwapOptionSecurity) {
       CreditDefaultSwapOptionSecurity cdsOption = (CreditDefaultSwapOptionSecurity) security;
       ExternalId underlyingId = cdsOption.getUnderlyingId();
@@ -85,10 +81,11 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
       AbstractCreditDefaultSwapSecurity cds = (AbstractCreditDefaultSwapSecurity) security;
       String redCode = cds.getReferenceEntity().getValue();
       Organization organisation = _organizationSource.getOrganizationByRedCode(redCode);
-      if(organisation != null)
+      if (organisation != null) {
         return organisation.getObligor().getObligorShortName();
-      else
+      } else {
         return redCode;
+      }
     }
 
     return NOT_APPLICABLE;
@@ -99,7 +96,6 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
   }
 
   private Security resolveSecurity(Position position) {
-
     Security security = position.getSecurityLink().getTarget();
     return security != null ? security : position.getSecurityLink().resolveQuiet(_securitySource);
   }
@@ -118,4 +114,5 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
   public int compare(String sector1, String sector2) {
     return sector1.compareTo(sector2);
   }
+
 }

@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,6 +14,8 @@ import com.opengamma.id.ExternalId;
 
 /**
  * Class uses an organization source to extract the Obligor from a CDS.
+ * 
+ * @param <T>  the value type
  */
 public class CdsRedCodeExtractor<T> {
 
@@ -25,10 +26,16 @@ public class CdsRedCodeExtractor<T> {
    */
   private final RedCodeHandler<T> _redCodeHandler;
 
-  public CdsRedCodeExtractor(RedCodeHandler redCodeHandler) {
+  /**
+   * Creates an instance.
+   * 
+   * @param redCodeHandler  the handler, not null
+   */
+  public CdsRedCodeExtractor(RedCodeHandler<T> redCodeHandler) {
     _redCodeHandler = redCodeHandler;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Extract the RED code from the CDS if it can be found.
    *
@@ -36,16 +43,14 @@ public class CdsRedCodeExtractor<T> {
    * @return the RED code if found, null otherwise
    */
   public T extract(AbstractCreditDefaultSwapSecurity cds) {
-
     ExternalId refEntityId = cds.getReferenceEntity();
     if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
 
       return _redCodeHandler.extract(refEntityId.getValue());
-    }
-    else {
-
+    } else {
       s_logger.warn("Unable to lookup RED code as reference entity external id uses scheme: {}", refEntityId.getScheme());
       return null;
     }
   }
+
 }

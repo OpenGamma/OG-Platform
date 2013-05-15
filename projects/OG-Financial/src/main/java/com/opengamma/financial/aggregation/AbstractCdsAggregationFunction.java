@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -34,12 +33,10 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
    * The name to be used for this aggregation, not null.
    */
   private final String _name;
-
   /**
    * The security source used for resolution of the CDS security, not null.
    */
   private final SecuritySource _securitySource;
-
   /**
    * The extractor which will process the red code and return the required type, not null.
    */
@@ -48,12 +45,11 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
   /**
    * Creates the aggregation function.
    *
-   * @param name the name to be used for this aggregation, not null
-   * @param securitySource the security source used for resolution of the CDS security, not null
-   * @param extractor the extractor which will process the cds and return the required type, not null
+   * @param name  the name to be used for this aggregation, not null
+   * @param securitySource  the security source used for resolution of the CDS security, not null
+   * @param extractor  the extractor which will process the cds and return the required type, not null
    */
   public AbstractCdsAggregationFunction(String name, SecuritySource securitySource, CdsValueExtractor<T> extractor) {
-
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _name = name;
@@ -61,6 +57,7 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
     _extractor = extractor;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Collection<String> getRequiredEntries() {
     return ImmutableList.of();
@@ -68,20 +65,16 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
 
   @Override
   public String classifyPosition(Position position) {
-
     Security security = resolveSecurity(position);
-
-
     if (security instanceof AbstractCreditDefaultSwapSecurity) {
       AbstractCreditDefaultSwapSecurity cds = (AbstractCreditDefaultSwapSecurity) security;
       T extracted = _extractor.extract(cds);
       if (extracted != null) {
         return handleExtractedData(extracted);
-      }else{
+      } else {
         return NOT_APPLICABLE;
       }
     }
-
     return NOT_APPLICABLE;
   }
 
@@ -98,7 +91,6 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
   }
 
   private Security resolveSecurity(Position position) {
-
     Security security = position.getSecurityLink().getTarget();
     return security != null ? security : position.getSecurityLink().resolveQuiet(_securitySource);
   }
@@ -117,4 +109,5 @@ public abstract class AbstractCdsAggregationFunction<T> implements AggregationFu
   public int compare(String sector1, String sector2) {
     return sector1.compareTo(sector2);
   }
+
 }

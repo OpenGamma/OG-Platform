@@ -45,11 +45,20 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public class UnderlyingIdVisitor extends FinancialSecurityVisitorAdapter<String> {
 
+  /**
+   * Code to use for not applicable.
+   */
   public static final String NOT_APPLICABLE = "N/A";
 
   private final ExternalScheme _preferredScheme;
   private final SecuritySource _securitySource;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param preferredScheme  the preferred scheme, not null
+   * @param securitySource  the security source, not null
+   */
   public UnderlyingIdVisitor(ExternalScheme preferredScheme, SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "secSource");
     ArgumentChecker.notNull(preferredScheme, "preferredScheme");
@@ -57,6 +66,7 @@ public class UnderlyingIdVisitor extends FinancialSecurityVisitorAdapter<String>
     _securitySource = securitySource;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
     if (security.getUnderlyingId().isScheme(_preferredScheme)) {
@@ -199,7 +209,6 @@ public class UnderlyingIdVisitor extends FinancialSecurityVisitorAdapter<String>
     return ticker != null ? ticker : NOT_APPLICABLE;
   }
 
-
   @Override
   public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity fxOptionSecurity) {
     UnorderedCurrencyPair unorderedPair = UnorderedCurrencyPair.of(fxOptionSecurity.getCallCurrency(),
@@ -259,4 +268,5 @@ public class UnderlyingIdVisitor extends FinancialSecurityVisitorAdapter<String>
     String name = underlying.getName();
     return (name != null && name.length() > 0) ? name : NOT_APPLICABLE;
   }
+
 }

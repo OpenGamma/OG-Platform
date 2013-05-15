@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,15 +18,23 @@ import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
  */
 public class CdsSeniorityAggregationFunction extends AbstractCdsAggregationFunction<DebtSeniority> {
 
+  /**
+   * Function name.
+   */
   private static final String NAME = "Seniority";
 
+  /**
+   * Creates an instance.
+   * 
+   * @param securitySource  the security source, not null
+   */
   public CdsSeniorityAggregationFunction(SecuritySource securitySource) {
-    super(NAME, securitySource, new CdsValueExtractor() {
+    super(NAME, securitySource, new CdsValueExtractor<DebtSeniority>() {
       @Override
       public DebtSeniority extract(AbstractCreditDefaultSwapSecurity cds) {
-        if(cds instanceof CreditDefaultSwapSecurity){
-          return ((CreditDefaultSwapSecurity)cds).getDebtSeniority();
-        }else{
+        if (cds instanceof CreditDefaultSwapSecurity) {
+          return ((CreditDefaultSwapSecurity) cds).getDebtSeniority();
+        } else {
           // CreditDefaultSwapOptionSecurity
           // null communicates N/A
           return null;
@@ -37,8 +44,10 @@ public class CdsSeniorityAggregationFunction extends AbstractCdsAggregationFunct
     });
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected String handleExtractedData(DebtSeniority extracted) {
     return extracted.toString();
   }
+
 }

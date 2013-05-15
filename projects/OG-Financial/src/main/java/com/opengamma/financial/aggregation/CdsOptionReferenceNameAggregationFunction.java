@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,11 +12,9 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Simple aggregator function to allow positions to be aggregated by debt seniority. This is
@@ -26,8 +23,17 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class CdsOptionReferenceNameAggregationFunction extends AbstractCdsOptionAggregationFunction<Obligor> {
 
+  /**
+   * Function name.
+   */
   private static final String NAME = "Reference Entity Names";
 
+  /**
+   * Creates an instance.
+   * 
+   * @param securitySource  the security source, not null
+   * @param organizationSource  the organization source, not null
+   */
   public CdsOptionReferenceNameAggregationFunction(final SecuritySource securitySource, final OrganizationSource organizationSource) {
     super(NAME, securitySource, new CdsOptionValueExtractor<Obligor>() {
       @Override
@@ -45,14 +51,13 @@ public class CdsOptionReferenceNameAggregationFunction extends AbstractCdsOption
         }
 
       }
-    }
-
-    );
+    });
   }
 
-
+  //-------------------------------------------------------------------------
   @Override
   protected String handleExtractedData(Obligor extracted) {
     return extracted.getObligorShortName();
   }
+
 }

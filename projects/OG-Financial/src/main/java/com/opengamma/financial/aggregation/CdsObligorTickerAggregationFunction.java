@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -16,14 +15,25 @@ import com.opengamma.core.security.SecuritySource;
  */
 public class CdsObligorTickerAggregationFunction extends AbstractRedCodeHandlingCdsAggregationFunction<Obligor> {
 
+  /**
+   * Function name.
+   */
   private static final String NAME = "Reference Entity Tickers";
 
+  /**
+   * Creates an instance.
+   * 
+   * @param securitySource  the security source, not null
+   * @param organizationSource  the organization source, not null
+   */
   public CdsObligorTickerAggregationFunction(SecuritySource securitySource, OrganizationSource organizationSource) {
     super(NAME, securitySource, new CdsObligorExtractor(organizationSource));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected String handleExtractedData(Obligor obligor) {
     return obligor.getObligorTicker();
   }
+
 }

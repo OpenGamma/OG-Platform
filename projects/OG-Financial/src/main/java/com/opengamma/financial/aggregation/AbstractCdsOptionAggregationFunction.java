@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,7 +13,6 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,18 +33,14 @@ public abstract class AbstractCdsOptionAggregationFunction<T> implements Aggrega
    * The name to be used for this aggregation, not null.
    */
   private final String _name;
-
   /**
    * The security source used for resolution of the CDS security, not null.
    */
   private final SecuritySource _securitySource;
-
   /**
    * The extractor which will process the red code and return the required type, not null.
    */
   private final CdsOptionValueExtractor<T> _extractor;
-
-
 
   /**
    * Creates the aggregation function.
@@ -56,7 +50,6 @@ public abstract class AbstractCdsOptionAggregationFunction<T> implements Aggrega
    * @param extractor the extractor which will process the cds option and return the required type, not null
    */
   public AbstractCdsOptionAggregationFunction(String name, SecuritySource securitySource, CdsOptionValueExtractor<T> extractor) {
-
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _name = name;
@@ -64,6 +57,7 @@ public abstract class AbstractCdsOptionAggregationFunction<T> implements Aggrega
     _extractor = extractor;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Collection<String> getRequiredEntries() {
     return ImmutableList.of();
@@ -71,16 +65,13 @@ public abstract class AbstractCdsOptionAggregationFunction<T> implements Aggrega
 
   @Override
   public String classifyPosition(Position position) {
-
     Security security = resolveSecurity(position);
-
-
     if (security instanceof CreditDefaultSwapOptionSecurity) {
       CreditDefaultSwapOptionSecurity cdsOption = (CreditDefaultSwapOptionSecurity) security;
       T extracted = _extractor.extract(cdsOption);
       if (extracted != null) {
         return handleExtractedData(extracted);
-      }else{
+      } else {
         return NOT_APPLICABLE;
       }
     }
@@ -120,4 +111,5 @@ public abstract class AbstractCdsOptionAggregationFunction<T> implements Aggrega
   public int compare(String sector1, String sector2) {
     return sector1.compareTo(sector2);
   }
+
 }
