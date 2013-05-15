@@ -82,7 +82,7 @@ public class BondSecurityDEDiscountingMethodTest {
   public void dirtyPriceFromYieldGerman() {
     final double yield = 0.02;
     final double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_DE_SECURITY_1, yield);
-    final double dirtyPriceExpected = 0.9607827735500185; // To be check with another source.
+    final double dirtyPriceExpected = 0.9619145229504982; // To be check with another source.
     assertEquals("Fixed coupon bond security: dirty price from yield", dirtyPriceExpected, dirtyPrice, TOLERANCE_PRICE);
   }
 

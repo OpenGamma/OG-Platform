@@ -11,7 +11,7 @@ import java.util.Collections;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.core.position.Position;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents the result of a position set comparison operation, providing:

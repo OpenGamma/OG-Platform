@@ -12,6 +12,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -25,11 +26,12 @@ import com.opengamma.web.WebResourceTestUtils;
 /**
  * Tests {@code JRubySassCompiler}
  */
-@Test(groups = TestGroup.UNIT, enabled = false)
+@Test(groups = TestGroup.UNIT)
 public class JRubySassCompilerTest {
 
   private static JRubySassCompiler s_compiler;
   private static File s_sassDir;
+  private static File s_sassRoot;
     
   private static File NAVBAR_SCSS;
   private static File NAVBAR_CSS;
@@ -51,25 +53,29 @@ public class JRubySassCompilerTest {
     VARIABLES_SCSS = new File(getClass().getResource("variables.scss").toURI());
     VARIABLES_CSS = new File(getClass().getResource("variables.css").toURI());
     
-    s_sassDir = WebResourceTestUtils.extractRubySassGem();
+    s_sassRoot = WebResourceTestUtils.extractRubySassGem();
+    s_sassDir = new File(s_sassRoot, WebResourceTestUtils.SASS_PATH);
+    
     s_compiler = new JRubySassCompiler(ImmutableList.of(s_sassDir.getPath()));
   }
 
   @AfterClass 
   public void tearDown() {
-    if (s_sassDir != null) {
-      FileUtils.deleteQuietly(s_sassDir);
+    if (s_sassRoot != null) {
+      FileUtils.deleteQuietly(s_sassRoot);
     }
   }
 
   //-------------------------------------------------------------------------
   public void compileSassString() throws Exception {
     final String input = Files.toString(NAVBAR_SCSS, Charset.defaultCharset());
-    final String output = s_compiler.sassConvert(input);
-    
-    assertEquals(Files.toString(NAVBAR_CSS, Charset.defaultCharset()), output);
+    String output = s_compiler.sassConvert(input);
+    output = StringUtils.deleteWhitespace(output);
+    final String expected = StringUtils.deleteWhitespace(Files.toString(NAVBAR_CSS, Charset.defaultCharset()));
+    assertEquals(expected, output);
   }
 
+  @Test(enabled=false)
   public void updateStyleSheets() throws Exception {
     final File templateDir = Files.createTempDir();
     Files.copy(NAVBAR_SCSS, new File(templateDir, NAVBAR_SCSS.getName()));

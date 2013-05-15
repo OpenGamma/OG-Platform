@@ -25,9 +25,9 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the {@link WriteThroughViewComputationCache} class.

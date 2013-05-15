@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.model.option.definition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing a yield curve bundle with Black term structure volatility for Forex options.

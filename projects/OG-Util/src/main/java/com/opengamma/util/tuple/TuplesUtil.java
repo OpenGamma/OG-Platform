@@ -5,18 +5,12 @@
  */
 package com.opengamma.util.tuple;
 
-import java.util.Map;
-
-import com.opengamma.lambdava.tuple.IntDoublePair;
-import com.opengamma.lambdava.tuple.IntObjectPair;
-import com.opengamma.lambdava.tuple.LongDoublePair;
-import com.opengamma.lambdava.tuple.LongObjectPair;
-import com.opengamma.lambdava.tuple.Pair;
-
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+
+import java.util.Map;
 
 /**
  * Utilities.
@@ -28,12 +22,12 @@ public class TuplesUtil {
     return new Map.Entry() {
       @Override
       public Object getKey() {
-        return pair._1();
+        return pair.getFirst();
       }
 
       @Override
       public Object getValue() {
-        return pair._2();
+        return pair.getSecond();
       }
 
       @Override
@@ -52,12 +46,12 @@ public class TuplesUtil {
 
       @Override
       public Object getKey() {
-        return pair._1();
+        return pair.getFirst();
       }
 
       @Override
       public Object getValue() {
-        return pair._2();
+        return pair.getSecond();
       }
 
       @Override
@@ -86,12 +80,12 @@ public class TuplesUtil {
 
       @Override
       public Long getKey() {
-        return pair._1();
+        return pair.getFirst();
       }
 
       @Override
       public Double getValue() {
-        return pair._2();
+        return pair.getSecond();
       }
 
       @Override
@@ -120,12 +114,12 @@ public class TuplesUtil {
 
       @Override
       public Integer getKey() {
-        return pair._1();
+        return pair.getFirst();
       }
 
       @Override
       public Double getValue() {
-        return pair._2();
+        return pair.getSecond();
       }
 
       @Override
@@ -144,12 +138,12 @@ public class TuplesUtil {
 
       @Override
       public Object getKey() {
-        return pair._1();
+        return pair.getFirst();
       }
 
       @Override
       public Object getValue() {
-        return pair._2();
+        return pair.getSecond();
       }
 
       @Override

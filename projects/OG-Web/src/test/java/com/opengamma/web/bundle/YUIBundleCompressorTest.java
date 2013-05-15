@@ -37,6 +37,7 @@ public class YUIBundleCompressorTest {
   private YUIBundleCompressor _compressor;
   private Bundle _bundle;
   private File _sassDir;
+  private File _sassRoot;
 
   @BeforeMethod
   public void setUp() throws Exception {
@@ -46,14 +47,15 @@ public class YUIBundleCompressorTest {
   
   @AfterMethod
   public void cleanUp() {
-    if (_sassDir != null) {
-      FileUtils.deleteQuietly(_sassDir);
+    if (_sassRoot != null) {
+      FileUtils.deleteQuietly(_sassRoot);
     }
   }
 
   private YUIBundleCompressor createCompressor() {
     JRubySassCompiler compiler;
-    _sassDir = WebResourceTestUtils.extractRubySassGem();
+    _sassRoot = WebResourceTestUtils.extractRubySassGem();
+    _sassDir = new File(_sassRoot, WebResourceTestUtils.SASS_PATH);
     compiler = new JRubySassCompiler(ImmutableList.of(_sassDir.getPath()));
     
     YUICompressorOptions compressorOptions = new YUICompressorOptions();

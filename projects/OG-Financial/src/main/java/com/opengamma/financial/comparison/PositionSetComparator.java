@@ -17,7 +17,7 @@ import org.fudgemsg.FudgeContext;
 import com.google.common.collect.Maps;
 import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides comparison operations between sets of {@link Position} objects.

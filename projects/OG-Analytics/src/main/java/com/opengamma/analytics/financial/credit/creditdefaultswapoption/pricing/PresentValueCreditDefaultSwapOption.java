@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.CalibrateHazardRateTermStructureISDAMethod;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
@@ -44,6 +45,8 @@ public class PresentValueCreditDefaultSwapOption {
 
   // TODO : Have to sort out the hazard rate calibration objects (the type of the underlying CDS should just be CreditDefaultSwapDefinition)
 
+  // TODO : Check that the underlying CDS calibration is performed correctly
+
   // NOTE : Have not included the PriceType field for the CDS - assume this is entered as part of the underlying CDS contract definition
   // NOTE : The test for a negative option strike is done in the CDS Swaption ctor
   // NOTE : The checks of the efficacy of the input spread data are done in the underlying CDS classes (so don't need to be done here)
@@ -62,6 +65,9 @@ public class PresentValueCreditDefaultSwapOption {
 
   // Create a CDS PV calculator object (this is used in the calibration of the survival probabilities)
   private static final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+
+  // Create an object for calibrating a SNCDS
+  private static final CalibrateHazardRateTermStructureISDAMethod cdsCalibrator = new CalibrateHazardRateTermStructureISDAMethod();
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -106,7 +112,8 @@ public class PresentValueCreditDefaultSwapOption {
     final LegacyVanillaCreditDefaultSwapDefinition underlyingCalibrationCDS = (LegacyVanillaCreditDefaultSwapDefinition) cdsSwaption.getUnderlyingCDS();
 
     // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = creditDefaultSwap.calibrateHazardRateCurve(valuationDate, underlyingCalibrationCDS, calibrationTenors, marketSpreads, yieldCurve);
+    //final HazardRateCurve calibratedHazardRateCurve = creditDefaultSwap.calibrateHazardRateCurve(valuationDate, underlyingCalibrationCDS, calibrationTenors, marketSpreads, yieldCurve);
+    final HazardRateCurve calibratedHazardRateCurve = cdsCalibrator.isdaCalibrateHazardRateCurve(valuationDate, underlyingCalibrationCDS, calibrationTenors, marketSpreads, yieldCurve);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

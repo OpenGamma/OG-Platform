@@ -6,7 +6,7 @@
 package com.opengamma.web.analytics;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The row and column structure of a grid that displays analytics data.

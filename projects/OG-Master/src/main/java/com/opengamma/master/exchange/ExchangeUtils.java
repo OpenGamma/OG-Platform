@@ -13,7 +13,7 @@ import org.threeten.bp.ZoneId;
 
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Utilities for working with Exchanges.

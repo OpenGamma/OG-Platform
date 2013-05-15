@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -31,8 +31,8 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
     final Map<UnderlyingType, Double> underlyingData = data.getUnderlyingData();
     final OptionTradeData tradeData = data.getOptionTradeData();
     for (final Pair<Greek, Double> entry : greeks) {
-      final Greek key = entry._1();
-      final Double value = entry._2();
+      final Greek key = entry.getFirst();
+      final Double value = entry.getSecond();
       riskFactors.put(new ValueGreek(key), getValueGreek(key, value, underlyingData, tradeData));
     }
     return riskFactors;

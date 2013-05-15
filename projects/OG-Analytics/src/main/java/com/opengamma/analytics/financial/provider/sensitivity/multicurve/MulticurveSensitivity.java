@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a present value curve sensitivity for multi-curves framework.

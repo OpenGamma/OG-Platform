@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Comparator;
 
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;

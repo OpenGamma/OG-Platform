@@ -16,7 +16,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class containing data describing the sensitivity of some analytic value (present value, par rate, etc.) to a family of yield curves.

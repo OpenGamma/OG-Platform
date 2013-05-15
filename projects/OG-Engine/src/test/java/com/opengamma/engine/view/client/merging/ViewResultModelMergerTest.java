@@ -25,7 +25,7 @@ import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *

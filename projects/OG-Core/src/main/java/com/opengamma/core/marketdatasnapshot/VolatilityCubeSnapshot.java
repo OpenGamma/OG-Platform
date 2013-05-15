@@ -8,7 +8,7 @@ package com.opengamma.core.marketdatasnapshot;
 import java.util.Map;
 
 import com.opengamma.util.time.Tenor;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A snapshot of volatility cube data.

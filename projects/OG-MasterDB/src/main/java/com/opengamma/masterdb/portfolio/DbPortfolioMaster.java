@@ -53,7 +53,7 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
-import com.opengamma.lambdava.tuple.LongObjectPair;
+import com.opengamma.util.tuple.LongObjectPair;
 
 /**
  * A portfolio master implementation using a database for persistence.
