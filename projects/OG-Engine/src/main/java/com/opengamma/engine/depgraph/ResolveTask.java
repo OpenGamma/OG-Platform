@@ -26,14 +26,13 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Unit of task resolution. A resolve task executes to convert a {@link ValueRequirement} into a dependency node.
  */
-/* package */final class ResolveTask extends AbstractResolvedValueProducer implements ContextRunnable {
+/* package */final class ResolveTask extends DirectResolvedValueProducer implements ContextRunnable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolveTask.class);
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
 
   /**
-   * State within a task. As the task executes, the execution is delegated to the
-   * current state object.
+   * State within a task. As the task executes, the execution is delegated to the current state object.
    */
   protected abstract static class State implements ResolvedValueProducer.Chain {
 
@@ -117,8 +116,7 @@ import com.opengamma.engine.value.ValueSpecification;
     }
 
     /**
-     * Tests if the state is somehow active and may reschedule the task to run (i.e. it's blocked on something) given that the
-     * parent task is going to neither call {@link #run} nor {@link #pump}
+     * Tests if the state is somehow active and may reschedule the task to run (i.e. it's blocked on something) given that the parent task is going to neither call {@link #run} nor {@link #pump}
      * 
      * @return true if the state is active
      */
@@ -149,11 +147,6 @@ import com.opengamma.engine.value.ValueSpecification;
    * Current state.
    */
   private volatile State _state;
-
-  /**
-   * Flag to mark whether any child production was rejected because of a value requirement loop.
-   */
-  private volatile boolean _recursion;
 
   /**
    * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task for a given target.
@@ -321,19 +314,6 @@ import com.opengamma.engine.value.ValueSpecification;
       }
     }
     return count;
-  }
-
-  // TODO: The recursion logic isn't entirely correct. A resolve task may end up working from
-  // a substitute/delegate (see FunctionApplicationStep) that encountered recursion causing a
-  // failure. This will not be flagged using the current mechanism preventing complete state
-  // exploration.
-
-  public void setRecursionDetected() {
-    _recursion = true;
-  }
-
-  public boolean wasRecursionDetected() {
-    return _recursion;
   }
 
 }

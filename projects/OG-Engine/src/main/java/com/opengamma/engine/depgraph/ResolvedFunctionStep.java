@@ -49,6 +49,7 @@ import com.opengamma.util.tuple.Triple;
         final FunctionExclusionGroup exclusion = context.getFunctionExclusionGroups().getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
         if ((exclusion != null) && groups.contains(exclusion)) {
           s_logger.debug("Ignoring {} from exclusion group {}", resolvedFunction, exclusion);
+          // TODO: Should we set the recursion detected flag here?
           setRunnableTaskState(this, context);
           return true;
         }

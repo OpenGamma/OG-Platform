@@ -147,6 +147,11 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
+  public void recursionDetected() {
+    // No-op by default
+  }
+
+  @Override
   protected void pumpImpl(final GraphBuildingContext context) {
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {

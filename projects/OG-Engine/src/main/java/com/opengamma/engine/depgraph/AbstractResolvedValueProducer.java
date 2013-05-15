@@ -460,6 +460,19 @@ import com.opengamma.engine.value.ValueSpecification;
     return _callbacks > 0;
   }
 
+  protected void setRecursionDetected() {
+    final List<Callback> pumped;
+    synchronized (this) {
+      if ((_pumped == null) || _pumped.isEmpty()) {
+        return;
+      }
+      pumped = new ArrayList<Callback>(_pumped);
+    }
+    for (Callback callback : pumped) {
+      callback._callback.recursionDetected();
+    }
+  }
+
   @Override
   public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
     final List<Callback> pumped;

@@ -171,9 +171,8 @@ import com.opengamma.lambdava.tuple.Pair;
     final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
-      dependent.setRecursionDetected();
       s_logger.debug("Can't introduce a ValueRequirement loop");
-      return new NullResolvedValueProducer(requirement, recursiveRequirement(requirement));
+      return null;
     }
     RequirementResolver resolver = null;
     final ResolveTask[] tasks = getTasksResolving(requirement);

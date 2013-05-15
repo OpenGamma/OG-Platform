@@ -19,7 +19,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
-/* package */final class FunctionApplicationWorker extends AbstractResolvedValueProducer implements ResolvedValueCallback {
+/* package */final class FunctionApplicationWorker extends DirectResolvedValueProducer implements ResolvedValueCallback {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationWorker.class);
 
@@ -309,6 +309,19 @@ import com.opengamma.engine.value.ValueSpecification;
         // Remove the handle placeholder if the producer didn't give us a handle 
         _inputHandles.remove(valueRequirement);
       }
+    }
+  }
+
+  @Override
+  public void recursionDetected() {
+    // No-op
+  }
+
+  @Override
+  protected void setRecursionDetected() {
+    super.setRecursionDetected();
+    synchronized (this) {
+      _validInputs--;
     }
   }
 

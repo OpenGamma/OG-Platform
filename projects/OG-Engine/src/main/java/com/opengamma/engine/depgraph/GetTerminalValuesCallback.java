@@ -730,6 +730,11 @@ import com.opengamma.lambdava.tuple.Pair;
   }
 
   @Override
+  public void recursionDetected() {
+    // No-op
+  }
+
+  @Override
   public String toString() {
     return "TerminalValueCallback";
   }

@@ -108,6 +108,12 @@ import com.opengamma.util.tuple.Triple;
     }
 
     @Override
+    public void recursionDetected() {
+      s_logger.debug("Recursion detected in {}", this);
+      getTask().setRecursionDetected();
+    }
+
+    @Override
     protected void pump(final GraphBuildingContext context) {
       final ResolutionPump pump;
       synchronized (this) {
@@ -193,12 +199,6 @@ import com.opengamma.util.tuple.Triple;
 
     public boolean canHandleMissingInputs() {
       return getFunction().getFunction().canHandleMissingRequirements();
-    }
-
-    private static boolean isSatisfied(final ValueRequirement requirement, final ValueSpecification specification) {
-      // Don't need to test the target as by definition should be on the same thing. Value names are interned.
-      return (requirement.getValueName() == specification.getValueName())
-          && requirement.getConstraints().isSatisfiedBy(specification.getProperties());
     }
 
     public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final boolean lastWorkerResult) {
@@ -355,6 +355,12 @@ import com.opengamma.util.tuple.Triple;
       }
 
       @Override
+      public final void recursionDetected() {
+        s_logger.debug("Recursion detected in {}", this);
+        getTask().setRecursionDetected();
+      }
+
+      @Override
       public final void pump(final GraphBuildingContext context) {
         final ResolutionPump pump;
         synchronized (this) {
@@ -461,6 +467,11 @@ import com.opengamma.util.tuple.Triple;
         }
 
         @Override
+        public void recursionDetected() {
+          // No-op
+        }
+
+        @Override
         public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
           int result = getWorker().cancelLoopMembers(context, visited);
           if (substituteWorker != null) {
@@ -479,8 +490,13 @@ import com.opengamma.util.tuple.Triple;
       for (ValueRequirement inputRequirement : additionalRequirements) {
         final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
         lock.incrementAndGet();
-        inputProducer.addCallback(context, callback);
-        inputProducer.release(context);
+        if (inputProducer != null) {
+          inputProducer.addCallback(context, callback);
+          inputProducer.release(context);
+        } else {
+          getTask().setRecursionDetected();
+          callback.failed(context, inputRequirement, context.recursiveRequirement(inputRequirement));
+        }
       }
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
@@ -611,8 +627,13 @@ import com.opengamma.util.tuple.Triple;
         final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion = getFunctionExclusion(context, functionDefinition);
         for (ValueRequirement inputRequirement : inputRequirements) {
           final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
-          worker.addInput(context, inputProducer);
-          inputProducer.release(context);
+          if (inputProducer != null) {
+            worker.addInput(context, inputProducer);
+            inputProducer.release(context);
+          } else {
+            worker.setRecursionDetected();
+            getTask().setRecursionDetected();
+          }
         }
         worker.start(context);
       }

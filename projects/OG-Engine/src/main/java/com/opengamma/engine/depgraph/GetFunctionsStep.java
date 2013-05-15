@@ -169,6 +169,11 @@ import com.opengamma.util.tuple.Triple;
             setTaskStateFinished(context);
           }
 
+          @Override
+          public void recursionDetected() {
+            getTask().setRecursionDetected();
+          }
+
         });
         existing.release(context);
       }

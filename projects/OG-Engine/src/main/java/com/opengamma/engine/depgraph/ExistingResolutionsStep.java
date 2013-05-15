@@ -59,6 +59,11 @@ import com.opengamma.util.tuple.Triple;
   }
 
   @Override
+  public void recursionDetected() {
+    // No-op
+  }
+
+  @Override
   protected void pump(final GraphBuildingContext context) {
     final ResolutionPump pump;
     synchronized (this) {
