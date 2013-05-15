@@ -22,8 +22,8 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.lambdava.tuple.IntObjectPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.IntObjectPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Fudge message builder for {@link DependencyGraph}

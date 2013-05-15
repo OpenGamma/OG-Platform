@@ -7,8 +7,8 @@ package com.opengamma.util.tuple;
 
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.opengamma.lambdava.tuple.DoublesPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;

@@ -25,7 +25,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.language.context.SessionContextFactory;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Reads OG-Language-oriented Spring configuration files, and interprets any language-specific extensions.

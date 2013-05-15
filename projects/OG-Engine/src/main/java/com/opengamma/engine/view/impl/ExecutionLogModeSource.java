@@ -16,7 +16,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents a queryable source of the execution log mode to apply for a value specification.

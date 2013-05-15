@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.S
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class used to compute the price and sensitivity of a physical delivery swaption with SABR model and extrapolation to the right.

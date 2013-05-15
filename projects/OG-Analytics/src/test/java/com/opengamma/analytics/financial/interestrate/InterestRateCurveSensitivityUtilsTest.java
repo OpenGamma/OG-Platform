@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 

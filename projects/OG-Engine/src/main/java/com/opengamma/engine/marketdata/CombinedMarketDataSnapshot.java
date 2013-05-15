@@ -15,7 +15,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -87,7 +87,7 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
   @Override
   public Object query(final ValueSpecification value) {
     final Pair<MarketDataProvider, ValueSpecification> providerAndSpec = _combinedMarketDataProvider.getProvider(value);
-    return _snapshotByProvider.get(providerAndSpec.getFirst()).query(providerAndSpec._2());
+    return _snapshotByProvider.get(providerAndSpec.getFirst()).query(providerAndSpec.getSecond());
   }
 
   @Override

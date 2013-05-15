@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Central point for function statistics.
@@ -209,7 +209,7 @@ public final class FunctionCosts implements FunctionInvocationStatisticsGatherer
             count++;
             // [PLAT-882] Temporary hack until JMX support is properly implemented
             if (s_logger.isInfoEnabled()) {
-              report.put(stats.getFunctionId() + "\t" + pair._1(), stats.toFudgeMsg(FudgeContext.GLOBAL_DEFAULT));
+              report.put(stats.getFunctionId() + "\t" + pair.getFirst(), stats.toFudgeMsg(FudgeContext.GLOBAL_DEFAULT));
             }
           }
         }

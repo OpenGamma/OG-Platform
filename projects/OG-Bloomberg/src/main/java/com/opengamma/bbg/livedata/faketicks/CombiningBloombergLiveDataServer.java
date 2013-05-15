@@ -16,7 +16,7 @@ import com.opengamma.bbg.livedata.BloombergLiveDataServer;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.livedata.server.StandardLiveDataServer;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Combines the real and fake Bloomberg servers.

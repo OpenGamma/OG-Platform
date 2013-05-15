@@ -35,7 +35,7 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteT
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -78,7 +78,7 @@ public class ForexFlatWithTermStructureVolatilitySurfaceFunction extends ForexVo
         Double volatility = fxVolatilitySurface.getVolatility(tenor, y);
         if (volatility != null) {
           volatility *= shiftMultiplier;
-          if (y._2().equals(FXVolQuoteType.ATM)) {
+          if (y.getSecond().equals(FXVolQuoteType.ATM)) {
             volsList.add(volatility);
             timesList.add(t);
           }

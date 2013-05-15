@@ -35,7 +35,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A computation target resolver implementation that caches another implementation.
