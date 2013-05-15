@@ -21,12 +21,15 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
@@ -59,9 +62,11 @@ public class BondFixedSecurityDefinitionTest {
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
   //  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 18);
+
+  private static final double TOLERANCE_PRICE = 1.0E-10;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
@@ -115,7 +120,7 @@ public class BondFixedSecurityDefinitionTest {
   public void testPositiveNominal() {
     final AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true,
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, false);
-    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
+    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0) });
     new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   }
 
@@ -123,7 +128,7 @@ public class BondFixedSecurityDefinitionTest {
   public void testPositiveCoupon() {
     final AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true,
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, true);
-    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, 1.0)});
+    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, 1.0) });
     new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   }
 
@@ -139,7 +144,7 @@ public class BondFixedSecurityDefinitionTest {
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, false);
     assertEquals(coupon, BOND_SECURITY_DEFINITION.getCoupons());
     final AnnuityDefinition<PaymentFixedDefinition> nominal = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR,
-        BUSINESS_DAY.adjustDate(CALENDAR, MATURITY_DATE), 1.0)});
+        BUSINESS_DAY.adjustDate(CALENDAR, MATURITY_DATE), 1.0) });
     assertEquals(nominal.getCurrency(), BOND_SECURITY_DEFINITION.getNominal().getCurrency());
     assertEquals(nominal.getNthPayment(0).getPaymentDate(), BOND_SECURITY_DEFINITION.getNominal().getNthPayment(0).getPaymentDate());
     assertEquals(nominal.getNthPayment(0).getReferenceAmount(), BOND_SECURITY_DEFINITION.getNominal().getNthPayment(0).getReferenceAmount());
@@ -150,11 +155,11 @@ public class BondFixedSecurityDefinitionTest {
     final BondFixedSecurityDefinition BOND_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS,
         CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
     final ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13),
-        DateUtils.getUTCDate(2013, 1, 14), DateUtils.getUTCDate(2013, 7, 15)};
+        DateUtils.getUTCDate(2013, 1, 14), DateUtils.getUTCDate(2013, 7, 15) };
     final ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2012, 1, 13),
-        DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 13)};
+        DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 13) };
     final ZonedDateTime[] expectedEndDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13),
-        DateUtils.getUTCDate(2013, 1, 13), DateUtils.getUTCDate(2013, 7, 13)};
+        DateUtils.getUTCDate(2013, 1, 13), DateUtils.getUTCDate(2013, 7, 13) };
     for (int loopcpn = 0; loopcpn < BOND_DEFINITION.getCoupons().getNumberOfPayments(); loopcpn++) {
       assertEquals("Payment " + loopcpn, expectedPaymentDates[loopcpn], BOND_DEFINITION.getCoupons().getNthPayment(loopcpn).getPaymentDate());
       assertEquals("Start accrual " + loopcpn, expectedStartDates[loopcpn], BOND_DEFINITION.getCoupons().getNthPayment(loopcpn).getAccrualStartDate());
@@ -277,6 +282,33 @@ public class BondFixedSecurityDefinitionTest {
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccrualFactorToNextCoupon(), bondConverted.getAccrualFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccruedInterest(), bondConverted.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());
+  }
+
+  // DBR 1 1/2 02/15/23 - ISIN: DE0001102309 - Check the long first coupon
+
+  private static final Currency EUR = Currency.EUR;
+  private static final ActualActualICMA DAY_COUNT_ACTACTICMA = new ActualActualICMA();
+  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final boolean IS_EOM_FIXED = true;
+
+  private static final String ISSUER_DE = "BUNDESREPUB. DEUTSCHLAND";
+  private static final YieldConvention YIELD_CONVENTION_GERMANY = SimpleYieldConvention.GERMAN_BOND;
+  private static final int SETTLEMENT_DAYS_DE = 3;
+  private static final Period PAYMENT_TENOR_DE = Period.ofMonths(12);
+  private static final int COUPON_PER_YEAR_DE = 1;
+  private static final ZonedDateTime BOND_MATURITY_DE = DateUtils.getUTCDate(2023, 2, 15);
+  private static final ZonedDateTime BOND_START_DE = DateUtils.getUTCDate(2013, 1, 18);
+  private static final ZonedDateTime BOND_FIRSTCPN_DE = DateUtils.getUTCDate(2014, 2, 15);
+  private static final double RATE_DE = 0.0150;
+  private static final BondFixedSecurityDefinition BOND_DE_SECURITY_DEFINITION = BondFixedSecurityDefinition.from(EUR, BOND_START_DE, BOND_FIRSTCPN_DE, BOND_MATURITY_DE, PAYMENT_TENOR_DE, RATE_DE,
+      SETTLEMENT_DAYS_DE, CALENDAR, DAY_COUNT_ACTACTICMA, BUSINESS_DAY_FIXED, YIELD_CONVENTION_GERMANY, IS_EOM_FIXED, ISSUER_DE);
+
+  @Test
+  public void longFirstCoupon() {
+    final double accrualFirstComputed = BOND_DE_SECURITY_DEFINITION.getCoupons().getNthPayment(0).getPaymentYearFraction();
+    assertTrue("Bond Fixed Security - long first coupon ActActICMA", accrualFirstComputed > 1);
+    final double accrualFirstExpected = DAY_COUNT_ACTACTICMA.getAccruedInterest(BOND_START_DE, BOND_FIRSTCPN_DE, BOND_FIRSTCPN_DE, 1.0, COUPON_PER_YEAR_DE, StubType.LONG_START);
+    assertEquals("Bond Fixed Security - long first coupon ActActICMA", accrualFirstExpected, accrualFirstComputed, TOLERANCE_PRICE);
   }
 
 }

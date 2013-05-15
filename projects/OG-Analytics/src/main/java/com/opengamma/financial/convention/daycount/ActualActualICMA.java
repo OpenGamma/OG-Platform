@@ -32,6 +32,16 @@ public class ActualActualICMA extends ActualTypeDayCount {
     return getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, StubType.NONE);
   }
 
+  /**
+   * Computes the accrued interest for a specific stub-type.
+   * @param previousCouponDate  the previous coupon date, not null
+   * @param date  the evaluated coupon date, not null
+   * @param nextCouponDate  the next coupon date, not null
+   * @param coupon  the coupon value
+   * @param paymentsPerYear  the number of payments per year, one, two, three, four, six or twelve
+   * @param stubType The stub type.
+   * @return The accrued interest.
+   */
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear,
       final StubType stubType) {
     return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear, stubType);

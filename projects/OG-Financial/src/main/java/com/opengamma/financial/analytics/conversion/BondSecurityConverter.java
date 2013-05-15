@@ -104,8 +104,11 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     }
     final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
     final Period paymentPeriod = getTenor(security.getCouponFrequency());
-    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
+    final ZonedDateTime firstCouponDate = security.getFirstCouponDate();
+    return BondFixedSecurityDefinition.from(currency, firstAccrualDate, firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
         yieldConvention, isEOM, security.getIssuerName());
+    //    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
+    //        yieldConvention, isEOM, security.getIssuerName()); // TODO: use first coupon date and long/short first coupon.
   }
 
   @Override
