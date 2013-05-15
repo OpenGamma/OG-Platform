@@ -177,7 +177,6 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);
   }
 
-
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String currencyPairConfigName = null;
