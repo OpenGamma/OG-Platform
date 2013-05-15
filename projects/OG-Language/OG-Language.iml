@@ -78,6 +78,7 @@
     <orderEntry type="library" name="Maven: net.sf.ehcache:ehcache-core:2.6.3" level="project" />
     <orderEntry type="library" name="Maven: redis.clients:jedis:2.1.0" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.5" level="project" />
+    <orderEntry type="library" name="Maven: org.jruby:jruby-complete:1.6.8" level="project" />
     <orderEntry type="library" name="Maven: org.mindrot:jbcrypt:0.3m" level="project" />
     <orderEntry type="library" name="Maven: com.opengamma:og-region-data:1.0.0.v20110908a" level="project" />
     <orderEntry type="module" module-name="OG-Provider" />
