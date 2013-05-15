@@ -115,13 +115,21 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
       s_logger.warn("Unable to find schema version information for {}. Database objects cannot be managed.", schemaName);
       return;
     }
+    
+    DbScriptReader dbScriptReader = getDbScriptReader();
+    if (dbScriptReader == null) {
+      s_logger.info("Unable to find database scripts on classpath. Database objects cannot be managed.");
+      return;
+    }
+    
     // DbToolContext should not be closed as DbConnector needs to remain started
     DbToolContext dbToolContext = new DbToolContext();
     dbToolContext.setDbConnector(getDbConnector());
     dbToolContext.setDbManagement(dbManagement);
     dbToolContext.setCatalog(catalog);
     dbToolContext.setSchemaNames(ImmutableSet.of(schemaName));
-    dbToolContext.setScriptReader(getDbScriptReader());
+    dbToolContext.setScriptReader(dbScriptReader);
+    
     if (actualSchemaVersion == null) {
       // Assume empty database, so attempt to create tables
       DbCreateOperation createOperation = new DbCreateOperation(dbToolContext, true, null, false);
@@ -144,13 +152,13 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
       String knownResourcePath = knownResourceUrl.getPath();
       int separatorIdx = knownResourcePath.indexOf('!');
       if (separatorIdx == -1) {
-        throw new OpenGammaRuntimeException("Expected to find known resource inside a JAR");
+        return null;
       }
       String jarPath = knownResourcePath.substring(0, separatorIdx);
       ZipFileDbScriptDirectory dbScriptDirectory = new ZipFileDbScriptDirectory(new File(URI.create(jarPath)), "db");
       return new DbScriptReader(dbScriptDirectory);
     } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Could not locate database scripts on classpath");
+      return null;
     }
   }
   
