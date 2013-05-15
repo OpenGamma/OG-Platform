@@ -55,6 +55,7 @@ public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
     final String receiveCurveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
