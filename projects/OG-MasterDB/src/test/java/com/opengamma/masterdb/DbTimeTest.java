@@ -61,7 +61,7 @@ public class DbTimeTest extends AbstractDbTest {
 
   //-------------------------------------------------------------------------
   @Override
-  protected void doSetUpClass() {
+  protected void doSetUp() {
     _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }
 
@@ -69,63 +69,63 @@ public class DbTimeTest extends AbstractDbTest {
   @Test
   public void test_writeRead_timestamp() {
     try {
-    // create test table
-    String drop = _elSqlBundle.getSql("DropTstTimes"); // "DROP TABLE IF EXISTS tst_times";
-    getDbConnector().getJdbcTemplate().update(drop);
-    String create = _elSqlBundle.getSql("CreateTstTimes"); // "CREATE TABLE tst_times ( id bigint not null, ver timestamp without time zone not null )";
-    getDbConnector().getJdbcTemplate().update(create);
-    
-    // insert data
-    String insert = _elSqlBundle.getSql("InsertTstTimes"); // "INSERT INTO tst_times VALUES (?,?)";
-    final Timestamp tsOut1 = DbDateUtils.toSqlTimestamp(INSTANT1);
-    final Timestamp tsOut2 = DbDateUtils.toSqlTimestamp(INSTANT2);
-    final Timestamp tsOut3 = DbDateUtils.toSqlTimestamp(INSTANT3);
-    
-    getDbConnector().getJdbcTemplate().update(insert, 1, tsOut1);
-    getDbConnector().getJdbcTemplate().update(insert, 2, tsOut2);
-    getDbConnector().getJdbcTemplate().update(insert, 3, tsOut3);
-    
-    // pull back to check roundtripping
-    String select1 = _elSqlBundle.getSql("SelectTstTimes"); // "SELECT ver FROM tst_times WHERE id = ?";
-    
-    Map<String, Object> result1 = getDbConnector().getJdbcTemplate().queryForMap(select1, 1);
-    Map<String, Object> result2 = getDbConnector().getJdbcTemplate().queryForMap(select1, 2);
-    Map<String, Object> result3 = getDbConnector().getJdbcTemplate().queryForMap(select1, 3);
-    Timestamp tsIn1 = (Timestamp) result1.get("ver");
-    Timestamp tsIn2 = (Timestamp) result2.get("ver");
-    Timestamp tsIn3 = (Timestamp) result3.get("ver");
-    Instant retrieved1 = DbDateUtils.fromSqlTimestamp(tsIn1);
-    Instant retrieved2 = DbDateUtils.fromSqlTimestamp(tsIn2);
-    Instant retrieved3 = DbDateUtils.fromSqlTimestamp(tsIn3);
-    assertEquals(super.toString() + " Instant " + retrieved1, INSTANT1, retrieved1);
-    assertEquals(super.toString() + " Instant " + retrieved2, INSTANT2, retrieved2);
-    assertEquals(super.toString() + " Instant " + retrieved3, INSTANT3, retrieved3);
-    
-    // pull back the raw DB string form to ensure it actually stored UTC field values
-    String retrievedText1 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString("ver");
-      }
-    }, 1);
-    String retrievedText2 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString("ver");
-      }
-    }, 2);
-    String retrievedText3 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString("ver");
-      }
-    }, 3);
-    assertEquals(super.toString() + " Instant " + retrieved1, OffsetDateTime.ofInstant(INSTANT1, ZoneOffset.UTC).toString(FORMAT), retrievedText1);
-    assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT2, ZoneOffset.UTC).toString(FORMAT), retrievedText2);
-    assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT3, ZoneOffset.UTC).toString(FORMAT), retrievedText3);
-    
-    // tidy up
-    getDbConnector().getJdbcTemplate().update(drop);
+      // create test table
+      String drop = _elSqlBundle.getSql("DropTstTimes"); // "DROP TABLE IF EXISTS tst_times";
+      getDbConnector().getJdbcTemplate().update(drop);
+      String create = _elSqlBundle.getSql("CreateTstTimes"); // "CREATE TABLE tst_times ( id bigint not null, ver timestamp without time zone not null )";
+      getDbConnector().getJdbcTemplate().update(create);
+      
+      // insert data
+      String insert = _elSqlBundle.getSql("InsertTstTimes"); // "INSERT INTO tst_times VALUES (?,?)";
+      final Timestamp tsOut1 = DbDateUtils.toSqlTimestamp(INSTANT1);
+      final Timestamp tsOut2 = DbDateUtils.toSqlTimestamp(INSTANT2);
+      final Timestamp tsOut3 = DbDateUtils.toSqlTimestamp(INSTANT3);
+      
+      getDbConnector().getJdbcTemplate().update(insert, 1, tsOut1);
+      getDbConnector().getJdbcTemplate().update(insert, 2, tsOut2);
+      getDbConnector().getJdbcTemplate().update(insert, 3, tsOut3);
+      
+      // pull back to check roundtripping
+      String select1 = _elSqlBundle.getSql("SelectTstTimes"); // "SELECT ver FROM tst_times WHERE id = ?";
+      
+      Map<String, Object> result1 = getDbConnector().getJdbcTemplate().queryForMap(select1, 1);
+      Map<String, Object> result2 = getDbConnector().getJdbcTemplate().queryForMap(select1, 2);
+      Map<String, Object> result3 = getDbConnector().getJdbcTemplate().queryForMap(select1, 3);
+      Timestamp tsIn1 = (Timestamp) result1.get("ver");
+      Timestamp tsIn2 = (Timestamp) result2.get("ver");
+      Timestamp tsIn3 = (Timestamp) result3.get("ver");
+      Instant retrieved1 = DbDateUtils.fromSqlTimestamp(tsIn1);
+      Instant retrieved2 = DbDateUtils.fromSqlTimestamp(tsIn2);
+      Instant retrieved3 = DbDateUtils.fromSqlTimestamp(tsIn3);
+      assertEquals(super.toString() + " Instant " + retrieved1, INSTANT1, retrieved1);
+      assertEquals(super.toString() + " Instant " + retrieved2, INSTANT2, retrieved2);
+      assertEquals(super.toString() + " Instant " + retrieved3, INSTANT3, retrieved3);
+      
+      // pull back the raw DB string form to ensure it actually stored UTC field values
+      String retrievedText1 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
+        @Override
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return rs.getString("ver");
+        }
+      }, 1);
+      String retrievedText2 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
+        @Override
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return rs.getString("ver");
+        }
+      }, 2);
+      String retrievedText3 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
+        @Override
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return rs.getString("ver");
+        }
+      }, 3);
+      assertEquals(super.toString() + " Instant " + retrieved1, OffsetDateTime.ofInstant(INSTANT1, ZoneOffset.UTC).toString(FORMAT), retrievedText1);
+      assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT2, ZoneOffset.UTC).toString(FORMAT), retrievedText2);
+      assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT3, ZoneOffset.UTC).toString(FORMAT), retrievedText3);
+      
+      // tidy up
+      getDbConnector().getJdbcTemplate().update(drop);
     } catch (Exception ex) {
       fail(ex.getMessage());
     }
