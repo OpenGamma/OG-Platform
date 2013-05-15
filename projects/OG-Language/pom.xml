@@ -23,6 +23,11 @@
   <build>
     <sourceDirectory>Client/src/main/java</sourceDirectory>
     <testSourceDirectory>Client/src/test/java</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>${project.basedir}Client/src/test/resources</directory>
+      </testResource>
+    </testResources>
   </build>
 
   <dependencies>
