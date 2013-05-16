@@ -72,7 +72,7 @@
     <orderEntry type="library" name="Maven: net.sf.ehcache:ehcache-core:2.6.3" level="project" />
     <orderEntry type="library" name="Maven: redis.clients:jedis:2.1.0" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.5" level="project" />
-    <orderEntry type="library" name="Maven: org.jruby:jruby-complete:1.6.8" level="project" />
+    <orderEntry type="library" name="Maven: org.jruby:jruby-complete:1.7.3" level="project" />
     <orderEntry type="library" name="Maven: com.opengamma:elsql:0.7" level="project" />
     <orderEntry type="library" name="Maven: com.jolbox:bonecp:0.7.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-orm:3.0.7.RELEASE" level="project" />
