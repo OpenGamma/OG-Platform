@@ -255,6 +255,20 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
   }
 
   /**
+   * Computes the delta of the Forex option. The delta is the first order derivative of the option present value to the spot fx rate.
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @param directQuote Flag indicating if the delta should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The delta.
+   */
+  public CurrencyAmount delta(final ForexOptionVanilla optionForex, final YieldCurveBundle curves, final boolean directQuote) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double deltaRelative = deltaRelative(optionForex, smile, directQuote);
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), deltaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+  }
+  /**
    * Computes the gamma of the Forex option. The gamma is the second order derivative of the option present value to the spot fx rate.
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.

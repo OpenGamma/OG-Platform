@@ -12,6 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.financial.convention.CMSLegConvention;
@@ -20,12 +21,10 @@ import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
-import com.opengamma.financial.convention.ForwardTickerConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
-import com.opengamma.financial.convention.SpotTickerConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -66,7 +65,7 @@ public final class ConventionBuilders {
       final MutableFudgeMsg message = serializer.newMessage();
       FudgeSerializer.addClassHeader(message, CMSLegConvention.class);
       serializer.addToMessage(message, SWAP_INDEX_ID_FIELD, null, object.getSwapIndexConvention());
-      serializer.addToMessage(message, PAYMENT_TENOR_FIELD, null, object.getPaymentTenor());
+      message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor());
       message.add(ADVANCE_FIXING_FIELD, object.isIsAdvanceFixing());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
@@ -79,7 +78,7 @@ public final class ConventionBuilders {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_INDEX_ID_FIELD));
-      final Tenor paymentTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAYMENT_TENOR_FIELD));
+      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final boolean isAdvanceFixing = message.getBoolean(ADVANCE_FIXING_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final CMSLegConvention convention = new CMSLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, isAdvanceFixing);
@@ -103,7 +102,7 @@ public final class ConventionBuilders {
       final MutableFudgeMsg message = serializer.newMessage();
       FudgeSerializer.addClassHeader(message, CompoundingIborLegConvention.class);
       serializer.addToMessage(message, SWAP_INDEX_ID_FIELD, null, object.getIborIndexConvention());
-      serializer.addToMessage(message, PAYMENT_TENOR_FIELD, null, object.getPaymentTenor());
+      message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor().getPeriod().toString());
       message.add(COMPOUNDING_TYPE_FIELD, object.getCompoundingType().name());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
@@ -116,7 +115,7 @@ public final class ConventionBuilders {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_INDEX_ID_FIELD));
-      final Tenor paymentTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAYMENT_TENOR_FIELD));
+      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, compoundingType);
@@ -136,6 +135,7 @@ public final class ConventionBuilders {
     private static final String IS_EOM_FIELD = "isEOM";
     private static final String CURRENCY_FIELD = "currency";
     private static final String REGION_FIELD = "region";
+    private static final String TENOR_FIELD = "tenor";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final DepositConvention object) {
@@ -147,6 +147,7 @@ public final class ConventionBuilders {
       message.add(IS_EOM_FIELD, object.isIsEOM());
       message.add(CURRENCY_FIELD, object.getCurrency().getCode());
       serializer.addToMessage(message, REGION_FIELD, null, object.getRegionCalendar());
+      message.add(TENOR_FIELD, object.getTenor().getPeriod().toString());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
@@ -163,8 +164,9 @@ public final class ConventionBuilders {
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final ExternalId regionCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
+      final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
-      final DepositConvention convention = new DepositConvention(name, externalIdBundle, dayCount, businessDayConvention, daysToSettle, isEOM, currency, regionCalendar);
+      final DepositConvention convention = new DepositConvention(name, externalIdBundle, dayCount, businessDayConvention, daysToSettle, isEOM, currency, regionCalendar, tenor);
       convention.setUniqueId(uniqueId);
       return convention;
     }
@@ -257,6 +259,7 @@ public final class ConventionBuilders {
     private static final String FIXING_CALENDAR_FIELD = "fixingCalendar";
     private static final String REGION_FIELD = "region";
     private static final String FIXING_PAGE_FIELD = "fixingPage";
+    private static final String TENOR_FIELD = "tenor";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IborIndexConvention object) {
@@ -271,6 +274,7 @@ public final class ConventionBuilders {
       serializer.addToMessage(message, FIXING_CALENDAR_FIELD, null, object.getFixingCalendar());
       serializer.addToMessage(message, REGION_FIELD, null, object.getRegionCalendar());
       message.add(FIXING_PAGE_FIELD, object.getFixingPage());
+      message.add(TENOR_FIELD, object.getTenor().getPeriod().toString());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
@@ -290,9 +294,10 @@ public final class ConventionBuilders {
       final ExternalId fixingCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXING_CALENDAR_FIELD));
       final ExternalId regionCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
       final String fixingPage = message.getString(FIXING_PAGE_FIELD);
+      final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final IborIndexConvention convention = new IborIndexConvention(name, externalIdBundle, dayCount, businessDayConvention, daysToSettle, isEOM, currency,
-          fixingTime, fixingCalendar, regionCalendar, fixingPage);
+          fixingTime, fixingCalendar, regionCalendar, fixingPage, tenor);
       convention.setUniqueId(uniqueId);
       return convention;
     }
@@ -342,14 +347,20 @@ public final class ConventionBuilders {
     private static final String OVERNIGHT_INDEX_CONVENTION_FIELD = "oisIndexConvention";
     private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
     private static final String PAYMENT_DELAY_FIELD = "paymentDelay";
+    private static final String SETTLEMENT_DAYS_FIELD = "settlementDays";
+    private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    private static final String IS_EOM_FIELD = "isEOM";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final OISLegConvention object) {
       final MutableFudgeMsg message = serializer.newMessage();
       FudgeSerializer.addClassHeader(message, OISLegConvention.class);
       serializer.addToMessage(message, OVERNIGHT_INDEX_CONVENTION_FIELD, null, object.getOvernightIndexConvention());
-      serializer.addToMessage(message, PAYMENT_TENOR_FIELD, null, object.getPaymentTenor());
+      message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor().getPeriod().toString());
       message.add(PAYMENT_DELAY_FIELD, object.getPaymentDelay());
+      message.add(SETTLEMENT_DAYS_FIELD, object.getSettlementDays());
+      message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getConventionName());
+      message.add(IS_EOM_FIELD, object.isIsEOM());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
@@ -361,10 +372,14 @@ public final class ConventionBuilders {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final ExternalId overnightIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(OVERNIGHT_INDEX_CONVENTION_FIELD));
-      final Tenor paymentTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAYMENT_TENOR_FIELD));
+      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final int paymentDelay = message.getInt(PAYMENT_DELAY_FIELD);
+      final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
+      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
+      final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
-      final OISLegConvention convention = new OISLegConvention(name, externalIdBundle, overnightIndexConvention, paymentTenor, paymentDelay);
+      final OISLegConvention convention = new OISLegConvention(name, externalIdBundle, overnightIndexConvention, paymentTenor, paymentDelay, settlementDays,
+          businessDayConvention, isEOM);
       convention.setUniqueId(uniqueId);
       return convention;
     }
@@ -460,7 +475,7 @@ public final class ConventionBuilders {
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SwapFixedLegConvention object) {
       final MutableFudgeMsg message = serializer.newMessage();
       FudgeSerializer.addClassHeader(message, SwapFixedLegConvention.class);
-      serializer.addToMessageWithClassHeaders(message, PAYMENT_TENOR, null, object.getPaymentTenor());
+      message.add(PAYMENT_TENOR, object.getPaymentTenor().getPeriod().toString());
       message.add(DAY_COUNT_FIELD, object.getDayCount().getConventionName());
       message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getConventionName());
       message.add(DAYS_TO_SETTLE_FIELD, object.getDaysToSettle());
@@ -478,7 +493,7 @@ public final class ConventionBuilders {
     public SwapFixedLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
-      final Tenor paymentTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAYMENT_TENOR));
+      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR)));
       final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
       final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
       final int daysToSettle = message.getInt(DAYS_TO_SETTLE_FIELD);
@@ -566,72 +581,4 @@ public final class ConventionBuilders {
     }
   }
 
-  /**
-   * Fudge builder for spot ticker conventions.
-   */
-  @FudgeBuilderFor(SpotTickerConvention.class)
-  public static class SpotTickerConventionBuilder implements FudgeBuilder<SpotTickerConvention> {
-    private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
-    private static final String TENOR_FIELD = "tenor";
-
-    @Override
-    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SpotTickerConvention object) {
-      final MutableFudgeMsg message = serializer.newMessage();
-      FudgeSerializer.addClassHeader(message, SpotTickerConvention.class);
-      serializer.addToMessage(message, UNDERLYING_CONVENTION_FIELD, null, object.getUnderlyingConvention());
-      serializer.addToMessage(message, TENOR_FIELD, null, object.getTenor());
-      message.add(NAME_FIELD, object.getName());
-      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
-      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
-      return message;
-    }
-
-    @Override
-    public SpotTickerConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final String name = message.getString(NAME_FIELD);
-      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
-      final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
-      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
-      final SpotTickerConvention convention = new SpotTickerConvention(name, externalIdBundle, underlyingConvention, tenor);
-      convention.setUniqueId(uniqueId);
-      return convention;
-    }
-  }
-
-  /**
-   * Fudge builder for forward ticker conventions.
-   */
-  @FudgeBuilderFor(ForwardTickerConvention.class)
-  public static class ForwardTickerConventionBuilder implements FudgeBuilder<ForwardTickerConvention> {
-    private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
-    private static final String START_TENOR_FIELD = "startTenor";
-    private static final String END_TENOR_FIELD = "endTenor";
-
-    @Override
-    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ForwardTickerConvention object) {
-      final MutableFudgeMsg message = serializer.newMessage();
-      FudgeSerializer.addClassHeader(message, ForwardTickerConvention.class);
-      serializer.addToMessage(message, UNDERLYING_CONVENTION_FIELD, null, object.getUnderlyingConvention());
-      serializer.addToMessage(message, START_TENOR_FIELD, null, object.getStartTenor());
-      serializer.addToMessage(message, END_TENOR_FIELD, null, object.getEndTenor());
-      message.add(NAME_FIELD, object.getName());
-      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
-      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
-      return message;
-    }
-
-    @Override
-    public ForwardTickerConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final String name = message.getString(NAME_FIELD);
-      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
-      final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
-      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
-      final Tenor endTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(END_TENOR_FIELD));
-      final ForwardTickerConvention convention = new ForwardTickerConvention(name, externalIdBundle, underlyingConvention, startTenor, endTenor);
-      convention.setUniqueId(uniqueId);
-      return convention;
-    }
-  }
 }

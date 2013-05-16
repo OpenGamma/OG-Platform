@@ -82,10 +82,13 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     final CurrencyInfo i = super.audCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAAUDCurveConfig");
+    i.setCurveConfiguration("model/forex", "AUDFX");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveName("model/forex/discounting", "FX");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
+    i.setCurveCalculationMethodName("model/forex/discounting", "FXImplied");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -168,8 +171,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAJPYCurveConfig");
+    i.setCurveConfiguration("model/forex", "JPYFX");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveName("model/forex/discounting", "FX");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     return i;
@@ -179,7 +184,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo krwCurrencyInfo() {
     final CurrencyInfo i = super.krwCurrencyInfo();
     i.setCurveConfiguration(null, "SingleCurveKRWConfig");
+    i.setCurveConfiguration("model/forex", "KRWFX");
     i.setCurveName(null, "Forward");
+    i.setCurveName("model/forex/discounting", "FX");
+    i.setCurveCalculationMethodName("model/forex/discounting", "FXImplied");
     return i;
   }
 
@@ -213,8 +221,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAUSDCurveConfig");
     i.setCurveConfiguration("model/xccyswap", "DefaultTwoCurveUSDConfig");
+    i.setCurveConfiguration("model/forex", "DefaultTwoCurveUSDConfig");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveName("model/forex/discounting", "Discounting");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setSurfaceName("model/bondfutureoption", "BBG");
@@ -232,6 +242,13 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     return i;
   }
 
+  @Override
+  protected CurrencyPairInfo audKrwCurrencyPairInfo() {
+    CurrencyPairInfo i = super.audKrwCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+  
   @Override
   protected CurrencyPairInfo eurChfCurrencyPairInfo() {
     final CurrencyPairInfo i = super.eurChfCurrencyPairInfo();
@@ -256,7 +273,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyPairInfo usdAudCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdAudCurrencyPairInfo();
-    i.setSurfaceName(null, "TULLETT");
+    i.setSurfaceName(null, "DEFAULT");
     return i;
   }
 

@@ -36,7 +36,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Functions to build curves.
+ * Functions to build inflation curves.
  * TODO: REVIEW: Embed in a better object.
  */
 public class InflationDiscountBuildingRepository {

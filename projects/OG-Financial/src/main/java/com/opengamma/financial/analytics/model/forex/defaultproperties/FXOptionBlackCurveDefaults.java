@@ -35,6 +35,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VALUE_GAMMA_P,

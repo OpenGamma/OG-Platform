@@ -119,7 +119,8 @@ public class FXOptionFunctionUtils {
   }
 
   public static YieldAndDiscountCurve getCurveForCurrency(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
-    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirement(ComputationTargetSpecification.of(currency), curveName, curveCalculationConfig));
+    final ValueRequirement curveRequirement = YieldCurveFunctionUtils.getCurveRequirement(ComputationTargetSpecification.of(currency), curveName, curveCalculationConfig);
+    final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }

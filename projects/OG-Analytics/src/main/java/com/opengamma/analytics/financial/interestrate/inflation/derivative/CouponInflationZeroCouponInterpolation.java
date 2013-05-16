@@ -51,8 +51,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double indexStartValue,
-      final double[] referenceEndTime, final double weight, final boolean payNotional) {
+      final double indexStartValue, final double[] referenceEndTime, final double weight, final boolean payNotional) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;

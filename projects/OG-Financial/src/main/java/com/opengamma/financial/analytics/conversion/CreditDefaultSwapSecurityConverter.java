@@ -93,7 +93,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
   public CreditDefaultSwapSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
-    ArgumentChecker.notNull(organizationSource, "organization source");
+    //ArgumentChecker.notNull(organizationSource, "organization source");
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _organizationSource = organizationSource;
@@ -205,7 +205,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
   private com.opengamma.analytics.financial.credit.obligor.definition.Obligor getObligorForReferenceEntity(final ExternalId obligorId) {
     final Organization organization;
     //TODO temporary fix until securities are reloaded with references to the org master
-    if (obligorId.getScheme().getName().equals("DbOrg")) {
+    if (obligorId.getScheme().getName().equals("DbOrg") && _organizationSource != null) {
       organization = _organizationSource.get(UniqueId.of(obligorId.getScheme().getName(), obligorId.getValue()));
     } else {
       return DUMMY_OBLIGOR_C;

@@ -471,6 +471,10 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return new CurrencyPairInfo(Pair.of(c1, c2));
   }
 
+  protected CurrencyPairInfo audKrwCurrencyPairInfo() {
+    return defaultCurrencyPairInfo("AUD", "KRW");
+  }
+  
   protected CurrencyPairInfo eurBrlCurrencyPairInfo() {
     return defaultCurrencyPairInfo("EUR", "BRL");
   }
@@ -564,6 +568,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected void setDefaultCurrencyPairInfo() {
+    setCurrencyPairInfo(Pair.of("AUD", "KRW"), audKrwCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "BRL"), eurBrlCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "CHF"), eurChfCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "JPY"), eurJpyCurrencyPairInfo());

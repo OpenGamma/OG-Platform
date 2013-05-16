@@ -73,7 +73,7 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
     final YieldAndDiscountCurve payFundingCurve = getPayCurve(inputs, payCurrency, payCurveName, payCurveConfig);
     final YieldAndDiscountCurve receiveFundingCurve = getReceiveCurve(inputs, receiveCurrency, receiveCurveName, receiveCurveConfig);
     final YieldAndDiscountCurve[] curves;
-    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
+    final Map<String, Currency> curveCurrency = new HashMap<>();
     curveCurrency.put(fullPayCurveName, payCurrency);
     curveCurrency.put(fullReceiveCurveName, receiveCurrency);
     final String[] allCurveNames;
@@ -114,27 +114,28 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    final ValueProperties.Builder properties = super.getResultProperties(target)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurveName, final String receiveCurveName,
-      final String payCurveCalculationConfig, final String receiveCurveCalculationConfig) {
-    final ValueProperties.Builder properties = super.getResultProperties(target, payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
+      final String payCurveCalculationConfig, final String receiveCurveCalculationConfig, final CurrencyPair baseQuotePair) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig,
+        baseQuotePair)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-              .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return properties;
   }
 

@@ -283,7 +283,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
     }
     // exercise type
-    final boolean isAmerican = true; // !!! THIS IS JUST TEST CODE !!! (specification.getExerciseType()).getName().startsWith("A");
+    final boolean isAmerican = (specification.getExerciseType()).getName().startsWith("A");
     BaroneAdesiWhaleyModel americanModel = null;
     final double spot = forwardCurve.getSpot();
     if (isAmerican) {

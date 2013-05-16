@@ -34,6 +34,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.DateUtils;
 
@@ -46,6 +47,20 @@ import com.opengamma.util.time.DateUtils;
  */
 public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoker {
   
+  private final double _dividendHorizon;
+  private final double _timeThatProportionalDividendsBegin;
+  
+  public DiscreteDividendFunction(final double dividendHorizon, final double timeThatProportionalDividendsBegin) {
+    ArgumentChecker.notNull(dividendHorizon, "dividendHorizon is null");
+    ArgumentChecker.notNull(timeThatProportionalDividendsBegin, "timeThatProportionalDividendsBegin is null");
+    _dividendHorizon = dividendHorizon;
+    _timeThatProportionalDividendsBegin = timeThatProportionalDividendsBegin;
+  }
+  /** Default constructor */
+  public DiscreteDividendFunction() {
+    _dividendHorizon = 30.0;
+    _timeThatProportionalDividendsBegin = 2.0;    
+  }
   private static final Logger s_logger = LoggerFactory.getLogger(DiscreteDividendFunction.class);
   private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
   
@@ -59,9 +74,8 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
     if (dividendFrequencyInput != null && !dividendFrequencyInput.equals(4.0)) {
       s_logger.warn("Unrecognized dividend frequency. Trivial to add handling for this. Defaulting to 4 / year.");
     }
-    final double dividendInterval = 1.0 / nDividendsPerYear; // !!! Check to see that this is a fraction, not 0 or 1 !!!
-    final int nYears = 5; // In this prototype, we will work with a horizon of approximately five years
-    final int nDividends = nYears * nDividendsPerYear;
+    final double dividendInterval = 1.0 / nDividendsPerYear;
+    final int nDividends = (int) Math.ceil(getDividendHorizon()) * nDividendsPerYear;
     
     // The next dividend date anchors the vector of dividend times
     final double firstDivTime;
@@ -100,14 +114,20 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
     final double[] divTimes = new double[nDividends];
     final double[] fixedAmounts = new double[nDividends];
     final double[] proportionalAmounts = new double[nDividends];
+    final double crossover = getTimeThatProportionalDividendsBegin();
     for (int i = 0; i < nDividends; i++) {
       divTimes[i] = firstDivTime + i * dividendInterval;
-      fixedAmounts[i] = divTimes[i] < 2.0 ? fixedAmt : 0.0;
-      proportionalAmounts[i] = divTimes[i] < 2.0 ? 0.0 : proportionalAmt;
+      if (divTimes[i] < crossover) {
+        fixedAmounts[i] = fixedAmt;
+        proportionalAmounts[i] = 0.0; 
+      } else {
+        fixedAmounts[i] = 0.0;
+        proportionalAmounts[i] = proportionalAmt;
+      }
     }
     
     final AffineDividends dividends = new AffineDividends(divTimes, fixedAmounts, proportionalAmounts);
-    final ValueProperties properties = createValueProperties().get();
+    final ValueProperties properties = getValuePropertiesBuilder().get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.AFFINE_DIVIDENDS, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, dividends));
   }
@@ -134,8 +154,21 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.AFFINE_DIVIDENDS, target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.AFFINE_DIVIDENDS, target.toSpecification(), getValuePropertiesBuilder().get()));
+  }
+
+  private ValueProperties.Builder getValuePropertiesBuilder() {
+    return createValueProperties()
+        .with("DividendHorizon", String.valueOf(getDividendHorizon())) // TODO: Add "DividendHorizon" to ValuePropertyNames
+        .with("TimeThatProportionalDividendsBegin", String.valueOf(getTimeThatProportionalDividendsBegin())); // TODO: Add "TimeThatProportionalDividendsBegin" to ValuePropertyNames
+  }
+  
+  public double getDividendHorizon() {
+    return _dividendHorizon;
+  }
+  
+  public double getTimeThatProportionalDividendsBegin() {
+    return _timeThatProportionalDividendsBegin;
   }
 
   @Override

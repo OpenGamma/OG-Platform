@@ -239,13 +239,15 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     long temp;
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _monthLag;
+    result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
     result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -255,8 +257,14 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponInflationZeroCouponMonthlyDefinition other = (CouponInflationZeroCouponMonthlyDefinition) obj;
+    CouponInflationZeroCouponMonthlyDefinition other = (CouponInflationZeroCouponMonthlyDefinition) obj;
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_payNotional != other._payNotional) {
       return false;
     }
     if (_referenceEndDate == null) {

@@ -80,6 +80,7 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(FXOptionBlackCurrencyExposureFunction.class));
     functions.add(functionConfiguration(FXOptionBlackForwardSlideThetaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackFXPresentValueFunction.class));
+    functions.add(functionConfiguration(FXOptionBlackDeltaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackGammaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackGammaSpotFunction.class));
     functions.add(functionConfiguration(FXOptionBlackImpliedVolatilityFunction.class));
