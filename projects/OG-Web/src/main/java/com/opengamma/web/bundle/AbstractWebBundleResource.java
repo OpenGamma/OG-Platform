@@ -7,6 +7,7 @@ package com.opengamma.web.bundle;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -77,6 +78,11 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
     data().setSassCompiler(WebJRubySassCompiler.of(servletContext));
   }
+  
+  @Context
+  public void setHttpHeaders(HttpHeaders httpHeaders) {
+    data().setHttpHeaders(httpHeaders);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -88,6 +94,7 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     FlexiBean out = getFreemarker().createRootData();
     out.put("ogStyle", new StyleTag(data()));
     out.put("ogScript", new ScriptTag(data()));
+    out.put("httpHeaders", data().getHttpHeaders());
     return out;
   }
 
