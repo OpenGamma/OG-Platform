@@ -368,7 +368,7 @@ public class PresentValueCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Build the integration schedule for the calculation of the contingent leg (this is not a cashflow schedule per se, but a set of time nodes for evaluating the contingent leg integral)
+    // Build the integration schedule for the calculation of the contingent leg (this is not a cashflow schedule per se, but a set of timenodes for evaluating the contingent leg integral)
     final double[] contingentLegIntegrationSchedule = contingentLegScheduleBuilder.constructCreditDefaultSwapContingentLegIntegrationSchedule(
         valuationDate,
         startDate,
@@ -393,7 +393,7 @@ public class PresentValueCreditDefaultSwap {
     // Loop over each of the points in the integration schedule
     for (int i = 1; i < contingentLegIntegrationSchedule.length; ++i) {
 
-      // Calculate the time between adjacent points in the integration schedule
+      // Calculate the time between adjacent points in the integration schedule (note this can be zero which causes problems later)
       final double deltat = contingentLegIntegrationSchedule[i] - contingentLegIntegrationSchedule[i - 1];
 
       // Set the probability of survival up to the previous point in the integration schedule
@@ -414,9 +414,11 @@ public class PresentValueCreditDefaultSwap {
       // Calculate the forward interest rate over the interval deltat (assumes the interest rate is constant over this period)
       final double interestRate = Math.log(discountFactorPrevious / discountFactor) / deltat;
 
-      // Calculate the contribution of the interval deltat to the overall contingent leg integral
-      presentValueContingentLeg += lossGivenDefault * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious *
-          discountFactorPrevious;
+      // Calculate the contribution of the interval deltat to the overall contingent leg integral (if deltat is v.small the log's above can return zero, therefore have to check for this)
+      if (Double.compare(hazardRate, 0.0) != 0) {
+        presentValueContingentLeg += lossGivenDefault * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious *
+            discountFactorPrevious;
+      }
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
