@@ -107,7 +107,7 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
         openfin = Iterables.getFirst(openfinHeader, StringUtils.EMPTY);
       }
     }
-    out.put("openfin", openfin);
+    out.put("openfin", openfin.toLowerCase());
     return out;
   }
 
