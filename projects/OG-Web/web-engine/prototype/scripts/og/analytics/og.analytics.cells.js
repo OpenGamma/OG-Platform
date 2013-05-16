@@ -4,22 +4,22 @@
  */
 $.register_module({
     name: 'og.analytics.Cells',
-    dependencies: ['og.api.rest', 'og.analytics.Data', 'og.common.events'],
+    dependencies: ['og.analytics.Data', 'og.common.events'],
     obj: function () {
         var module = this, events = og.common.events;
         var Cells = function (config, label) {
             var cell = this, options = {bypass: true, label: 'cell' + label},
-                row = config.row, col = config.col, headers = [];
+                row = config.single.row, col = config.single.col, headers = [];
             cell.row_name = null; cell.col_name = null;
             label = label ? '[' + label + ']' : '';
             var fatal_handler = function (message) {
                 try {cell.fire('fatal', message);}
                 catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
             };
-            if (typeof config.row === 'undefined' || typeof config.col === 'undefined')
-                throw new TypeError(module.name + ': {row & col} are undefined');
+            if (!config.multiple && !config.single)
+                throw new TypeError(module.name + ': single or multiple must be defined');
             cell.dataman = new og.analytics.Data(config.source, options).on('meta', function (meta) {
-                var coordinate = [row, col, config.format].join(','), title = [config.row, '0', 'CELL'].join(','),
+                var coordinate = [row, col, config.format].join(','), title = [row, '0', 'CELL'].join(','),
                     fixed_headers = meta.columns.fixed[0].columns.pluck('header'), // only one fixed set ever
                     scroll_headers = meta.columns.scroll.pluck('columns')
                         .reduce(function (acc, val) {return acc.concat(val);}, []).pluck('header');

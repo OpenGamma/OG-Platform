@@ -10,8 +10,9 @@ $.register_module({
         return function (config) {
             var gadget = this, alive = og.common.id('gadget_log'), $selector = $(config.selector),
                 instantiated, tash, $msg, sbar_size = og.common.util.scrollbar_size + 'px',
-                cell_options = {source: config.source, col: config.col, row: config.row, format: 'EXPANDED', log: true},
-                css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0},
+                cell_options = {
+                    source: config.source, single: {row: config.row, col: config.col}, format: 'EXPANDED', log: true
+                }, css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0},
                 nolog = '<div class="OG-logger og-nolog">No log information available</div>';
             gadget.alive = function () {return $(config.selector).length ? true : (gadget.die(), false);};
             gadget.load = function () {

@@ -98,7 +98,7 @@ $.register_module({
                 return prepare_data(gadget.data);
             };
             gadget.dataman = new og.analytics.Cells({
-                source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'histogram')
+                source: config.source, single: {row: config.row, col: config.col}, format: 'EXPANDED'}, 'histogram')
                 .on('data', function (value) {
                     gadget.data = typeof value.v !== 'undefined' ? value.v : value;
                     if (!histogram && gadget.data && (typeof gadget.data === 'object')) {

@@ -10,7 +10,7 @@ $.register_module({
         return function (config) {
             var gadget = this, $curve, alive = og.common.id('gadget_curve');
             gadget.dataman = new og.analytics
-                .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'curve')
+                .Cells({source: config.source, single: {row: config.row, col: config.col}, format: 'EXPANDED'}, 'curve')
                 .on('data', function (data) {
                     data = data.v || data;
                     if (!$.isArray(data)) return og.dev.warn(module.name + ': data should be an Array', data);

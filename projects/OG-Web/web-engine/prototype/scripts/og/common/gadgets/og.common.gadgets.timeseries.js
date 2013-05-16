@@ -36,7 +36,7 @@ $.register_module({
             var CellDataMan = function (row, col, type, source) {
                 var dataman = this, format = type === 'CURVE' ? 'CELL' : 'EXPANDED';
                 return dataman.cell = new og.analytics
-                    .Cells({source: source, col: col, row: row, format: format}, 'timeseries')
+                    .Cells({source: source, single: {row: row, col: col}, format: format}, 'timeseries')
                     .on('data', function (value) {
                         gadget.data = typeof value.v !== 'undefined' ? value.v : value;
                         if (!timeseries && gadget.data && (typeof gadget.data === 'object')) {

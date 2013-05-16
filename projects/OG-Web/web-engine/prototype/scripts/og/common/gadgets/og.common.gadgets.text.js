@@ -10,7 +10,7 @@ $.register_module({
         return function (config) {
             var gadget = this, alive = og.common.id('gadget_text'), $selector = $(config.selector),
                 instantiated, tash, $msg, sbar_size = og.common.util.scrollbar_size + 'px',
-                cell_options = {source: config.source, col: config.col, row: config.row, format: 'CELL'},
+                cell_options = {source: config.source, single: {row: config.row, col: config.col}, format: 'CELL'},
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0};
             gadget.alive = function () {
                 return $(config.selector).length ? true : (gadget.die(), false);

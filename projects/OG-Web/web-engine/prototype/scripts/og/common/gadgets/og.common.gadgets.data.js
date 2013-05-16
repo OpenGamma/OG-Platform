@@ -122,8 +122,8 @@ $.register_module({
         var DataMan = function (row, col, type, source, config) {
             var dataman = this, format = formatters[type].partial(dataman);
             dataman.cell = (config.parent ? config.parent.cell : new og.analytics
-                .Cell({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
-                    source: source, col: col, row: row, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
+                .Cells({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
+                    source: source, single: {row: row, col: col}, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
                 }, config.label))
                 .on('title', function (row_name, col_name, name) {dataman.fire('title', row_name, col_name, name);})
                 .on('data', function (raw) {
