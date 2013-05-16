@@ -53,8 +53,7 @@ import com.opengamma.util.paging.PagingRequest;
  * <p>
  * This master does not support versioning of configuration documents.
  * <p>
- * This implementation does not copy stored elements, making it thread-hostile.
- * As such, this implementation is currently most useful for testing scenarios.
+ * This implementation does not copy stored elements, making it thread-hostile. As such, this implementation is currently most useful for testing scenarios.
  */
 public class InMemoryConfigMaster implements ConfigMaster {
 
@@ -85,8 +84,8 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   *
-   * @param changeManager  the change manager, not null
+   * 
+   * @param changeManager the change manager, not null
    */
   public InMemoryConfigMaster(final ChangeManager changeManager) {
     this(new ObjectIdSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME), changeManager);
@@ -94,8 +93,8 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   *
-   * @param objectIdSupplier  the supplier of object identifiers, not null
+   * 
+   * @param objectIdSupplier the supplier of object identifiers, not null
    */
   public InMemoryConfigMaster(final Supplier<ObjectId> objectIdSupplier) {
     this(objectIdSupplier, new BasicChangeManager());
@@ -103,9 +102,9 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   *
-   * @param objectIdSupplier  the supplier of object identifiers, not null
-   * @param changeManager  the change manager, not null
+   * 
+   * @param objectIdSupplier the supplier of object identifiers, not null
+   * @param changeManager the change manager, not null
    */
   public InMemoryConfigMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
@@ -185,6 +184,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
+    IdUtils.setInto(document.getConfig().getValue(), uniqueId);
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
@@ -323,30 +323,30 @@ public class InMemoryConfigMaster implements ConfigMaster {
     final PagingRequest pagingRequest = request.getPagingRequest();
 
     return new ConfigHistoryResult<R>(
-      pagingRequest.select(
-        functional(_store.keySet())
-          .map(new Function1<ObjectId, ConfigDocument>() {
-            @Override
-            public ConfigDocument execute(final ObjectId objectId) {
-              return _store.get(objectId);
-            }
-          })
-          .filter(new Function1<ConfigDocument, Boolean>() {
-            @Override
-            public Boolean execute(final ConfigDocument configDocument) {
-              return
-                (oid == null || (configDocument.getObjectId().equals(oid)))
-                  &&
-                  (type == null || (type.isAssignableFrom(configDocument.getType())));
-            }
-          })
-          .sortBy(new Comparator<ConfigDocument>() {
-            @Override
-            public int compare(final ConfigDocument configDocument, final ConfigDocument configDocument1) {
-              return configDocument.getVersionFromInstant().compareTo(configDocument1.getVersionFromInstant());
-            }
-          })
-          .asList()));
+        pagingRequest.select(
+            functional(_store.keySet())
+                .map(new Function1<ObjectId, ConfigDocument>() {
+                  @Override
+                  public ConfigDocument execute(final ObjectId objectId) {
+                    return _store.get(objectId);
+                  }
+                })
+                .filter(new Function1<ConfigDocument, Boolean>() {
+                  @Override
+                  public Boolean execute(final ConfigDocument configDocument) {
+                    return
+                    (oid == null || (configDocument.getObjectId().equals(oid)))
+                        &&
+                        (type == null || (type.isAssignableFrom(configDocument.getType())));
+                  }
+                })
+                .sortBy(new Comparator<ConfigDocument>() {
+                  @Override
+                  public int compare(final ConfigDocument configDocument, final ConfigDocument configDocument1) {
+                    return configDocument.getVersionFromInstant().compareTo(configDocument1.getVersionFromInstant());
+                  }
+                })
+                .asList()));
   }
 
   @Override
