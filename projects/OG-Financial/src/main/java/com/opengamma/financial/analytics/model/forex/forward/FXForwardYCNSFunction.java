@@ -216,10 +216,12 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING, MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
         .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE);
     return properties;
@@ -236,6 +238,7 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
       final String currency) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING, MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)
         .with(ValuePropertyNames.PAY_CURVE, payCurve)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurve)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
@@ -256,6 +259,7 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING, MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
