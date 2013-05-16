@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -24,7 +25,7 @@ public class AnalyticsNodeJsonWriterTest {
 
   @Test
   public void emptyPortfolio() throws JSONException {
-    String json = AnalyticsNodeJsonWriter.getJson(null);
+    String json = getJson(null);
     assertTrue(JsonTestUtils.equal(new JSONArray("[]"), new JSONArray(json)));
   }
 
@@ -37,7 +38,7 @@ public class AnalyticsNodeJsonWriterTest {
     3  |_pos
     */
     AnalyticsNode root = new AnalyticsNode(0, 3, Collections.<AnalyticsNode>emptyList(), false);
-    String json = AnalyticsNodeJsonWriter.getJson(root);
+    String json = getJson(root);
     assertTrue(JsonTestUtils.equal(new JSONArray("[0,3,[]]"), new JSONArray(json)));
   }
 
@@ -54,7 +55,7 @@ public class AnalyticsNodeJsonWriterTest {
     AnalyticsNode child1 = new AnalyticsNode(1, 2, Collections.<AnalyticsNode>emptyList(), false);
     AnalyticsNode child2 = new AnalyticsNode(3, 4, Collections.<AnalyticsNode>emptyList(), false);
     AnalyticsNode root = new AnalyticsNode(0, 5, ImmutableList.of(child1, child2), false);
-    String json = AnalyticsNodeJsonWriter.getJson(root);
+    String json = getJson(root);
     assertTrue(JsonTestUtils.equal(new JSONArray("[0,5,[[1,2,[]],[3,4,[]]]]"), new JSONArray(json)));
   }
 
@@ -70,7 +71,15 @@ public class AnalyticsNodeJsonWriterTest {
     AnalyticsNode child2 = new AnalyticsNode(2, 4, Collections.<AnalyticsNode>emptyList(), false);
     AnalyticsNode child1 = new AnalyticsNode(1, 4, ImmutableList.of(child2), false);
     AnalyticsNode root = new AnalyticsNode(0, 4, ImmutableList.of(child1), false);
-    String json = AnalyticsNodeJsonWriter.getJson(root);
+    String json = getJson(root);
     assertTrue(JsonTestUtils.equal(new JSONArray("[0,4,[[1,4,[[2,4,[]]]]]]"), new JSONArray(json)));
+  }
+
+  private static String getJson(AnalyticsNode node) {
+    try {
+      return new JSONArray(AnalyticsNodeJsonWriter.getJsonStructure(node)).toString();
+    } catch (JSONException e) {
+      throw new OpenGammaRuntimeException("Failed to create JSON for node " + node, e);
+    }
   }
 }

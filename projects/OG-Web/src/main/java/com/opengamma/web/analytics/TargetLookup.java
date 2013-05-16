@@ -70,4 +70,8 @@ import com.opengamma.util.tuple.Pair;
   /* package */ int getRowCount() {
     return _rows.size();
   }
+
+  /* package */ MainGridStructure.Row getRow(int index) {
+    return _rows.get(index);
+  }
 }
