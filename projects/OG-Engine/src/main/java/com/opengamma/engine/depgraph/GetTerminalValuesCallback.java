@@ -581,13 +581,13 @@ import com.opengamma.util.tuple.Pair;
                   if (newConsumers <= existingConsumers) {
                     // Adjust the consumers of the reduced value to use the existing one
                     for (final DependencyNode child : node.getDependentNodes()) {
-                      child.replaceInput(newValue, node, n);
+                      child.replaceInput(oldValue, newValue, node, n);
                     }
                     node.removeOutputValue(newValue);
                   } else {
                     // Adjust the consumers of the existing value to use the new one
                     for (final DependencyNode child : n.getDependentNodes()) {
-                      child.replaceInput(newValue, n, node);
+                      child.replaceInput(oldValue, newValue, n, node);
                     }
                     n.removeOutputValue(newValue);
                     _spec2Node.put(newValue, node);
