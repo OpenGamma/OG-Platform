@@ -184,7 +184,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
-    //addScalingAndSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
+    addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functions, ValueRequirementNames.POSITION_DELTA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_RHO);
