@@ -9,7 +9,7 @@ $.register_module({
         var module = this, loading_template;
         return function (config) {
             var gadget = this, selector = config.selector, $selector, $plot, $refresh, options = {}, plot_template,
-            alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30, $plot_selector,
+                alive = og.common.id('gadget_histogram_plot'), width, height, buckets_height = 30, $plot_selector,
                 line_tmpl = Handlebars.compile('<div class="og-histogram-{{{type}}}-line og-histogram-var" style="left:{{{left}}}px;height:{{{height}}}px;"></div>');
                 label_tmpl = Handlebars.compile('<div class="og-histogram-var-label og-histogram-var" style="left:{{{left}}}px;top:{{{top}}}px;">{{label}}}</div>');
             gadget.resize = function () {

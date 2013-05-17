@@ -54,16 +54,6 @@
          */
         var formatter = function (data, options) {
             var obj = {options: options, data: []};
-            //var rand = Math.random();
-            //var one = data[0].curve.map(function(single){
-            //    return [single[0],single[1]*.1];;
-            //});
-            //rand = Math.random();
-            //var two = data[0].curve.map(function(single){
-            //    return [single[0],single[1]*rand];
-            //});
-            //data.push({curve:one});
-            //data.push({curve:two});
             if ($.isArray(data)) data.forEach(function (val, i) {
                 if (val.curve) {
                     obj.data.push({data: val.curve});
@@ -71,6 +61,10 @@
                 }
                 if (val.nodes) {
                     obj.data.push({data: val.nodes, points: {show: true}});
+                    obj.options.colors.push(color_arr[i]);
+                }
+                if (val.knots) {
+                    obj.data.push({data: val.knots, points: {show: true}, lines: {dashPattern: [20,5]}});
                     obj.options.colors.push(color_arr[i]);
                 }
             });
@@ -122,9 +116,28 @@
          * Updates data only
          */
         curve.update = function (input) {
-            $flot.setData(formatter(input, flot_options).data);
+            var multiple = temp_manipulation(input);
+            $flot.setData(formatter(multiple, flot_options).data);
             $flot.draw();
         };
+        temp_manipulation = function (input) {
+            var one = input[0].curve.map(function(single, index){
+                if (index%10 == 4) return [single[0],single[1]*.8];
+            }).filter(function(single) {
+                return typeof single !== 'undefined';
+            });
+            var two = input[0].curve.map(function(single, index) {
+                if (index%10 == 0)  return [single[0],single[1]*1.1];
+            }).filter(function(single) {
+                return typeof single !== 'undefined';
+            });
+            input.push({knots:one});
+            input.push({nodes:two});
+            return input;
+        };
+        curve.add = function () {
+            $flot = $.plot($plot, data.data, data.options);
+        }
         curve.load();
         return curve;
     }
