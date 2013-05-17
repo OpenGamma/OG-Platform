@@ -10,9 +10,17 @@ package com.opengamma.analytics.financial.credit.centralcounterparty;
  */
 public enum AssetClasses {
   /**
-   * 
+   * Single name products e.g. SNCDS, SNCDS Swaptions, CLN's
    */
-  CREDIT,
+  CREDIT_SINGLENAME,
+  /**
+   * CDS indices e.g. CDX
+   */
+  CREDIT_INDEX,
+  /**
+   * Multi-name products e.g. default baskets, synthetic CDO's
+   */
+  CREDIT_CORRELATION,
   /**
    * 
    */

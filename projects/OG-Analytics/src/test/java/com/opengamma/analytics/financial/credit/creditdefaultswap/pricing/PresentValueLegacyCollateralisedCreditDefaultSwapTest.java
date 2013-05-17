@@ -420,7 +420,7 @@ public class PresentValueLegacyCollateralisedCreditDefaultSwapTest {
   private static final double minimumTransferAmount = 0.0;
   private static final double collateralTriggerThreshold = 0.0;
 
-  private static final CollateralDefinition collateral = new CollateralDefinition(collateralAmount, independentAmount, minimumTransferAmount, collateralTriggerThreshold);
+  private static final CollateralDefinition collateral = new CollateralDefinition(collateralAmount, independentAmount, minimumTransferAmount, collateralTriggerThreshold, marginCallFrequency);
 
   private static final CreditSupportAnnexDefinition creditSupportAnnex = new CreditSupportAnnexDefinition(
       protectionBuyer,
