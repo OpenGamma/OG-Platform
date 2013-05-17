@@ -191,7 +191,7 @@ import com.opengamma.engine.value.ValueSpecification;
   private final ValueRequirement _valueRequirement;
   private final int _objectId = s_nextObjectId.getAndIncrement();
   //private final InstanceCount _instanceCount = new InstanceCount(this);
-  private final Set<ValueSpecification> _resolvedValues = new HashSet<ValueSpecification>();
+  private Set<ValueSpecification> _resolvedValues;
   private Set<Callback> _pumped = new HashSet<Callback>();
   private int _pumping; // 0 = not, 1 = pumpImpl about to be called, 3 = next result ready, 7 = last result ready
   private int _refCount;
@@ -319,9 +319,44 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     Collection<Callback> pumped = null;
     synchronized (this) {
-      if (!_resolvedValues.add(value.getValueSpecification())) {
-        s_logger.debug("Rejecting {} already available from {}", value, this);
-        return false;
+      if (_resolvedValues != null) {
+        if (!_resolvedValues.add(value.getValueSpecification())) {
+          s_logger.debug("Rejecting {} already available from {}", value, this);
+          return false;
+        }
+      } else {
+        switch (_results.length) {
+          case 0:
+            // No results yet
+            break;
+          case 1:
+            if (value.getValueSpecification().equals(_results[0].getValueSpecification())) {
+              s_logger.debug("Rejecting {} already available from {}", value, this);
+              return false;
+            }
+            break;
+          case 2:
+            if (value.getValueSpecification().equals(_results[0].getValueSpecification())
+                || value.getValueSpecification().equals(_results[1].getValueSpecification())) {
+              s_logger.debug("Rejecting {} already available from {}", value, this);
+              return false;
+            }
+            break;
+          case 3:
+            if (value.getValueSpecification().equals(_results[0].getValueSpecification())
+                || value.getValueSpecification().equals(_results[1].getValueSpecification())
+                || value.getValueSpecification().equals(_results[2].getValueSpecification())) {
+              s_logger.debug("Rejecting {} already available from {}", value, this);
+              return false;
+            }
+            _resolvedValues = new HashSet<ValueSpecification>(8);
+            _resolvedValues.add(_results[0].getValueSpecification());
+            _resolvedValues.add(_results[1].getValueSpecification());
+            _resolvedValues.add(_results[2].getValueSpecification());
+            break;
+          default:
+            throw new IllegalStateException();
+        }
       }
       final int l = _results.length;
       s_logger.debug("Result {} available from {}", value, this);
