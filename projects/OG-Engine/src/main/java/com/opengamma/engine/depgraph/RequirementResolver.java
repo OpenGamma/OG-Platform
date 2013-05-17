@@ -41,7 +41,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   protected void addTask(final GraphBuildingContext context, final ResolveTask task) {
     if (_tasks.add(task)) {
-      task.addRef();
+      task.addRef(); // Caller has open reference
       addProducer(context, task);
     }
   }
@@ -102,7 +102,7 @@ import com.opengamma.engine.value.ValueRequirement;
         useFallback = _tasks.add(fallback);
       }
       if (useFallback) {
-        fallback.addRef();
+        fallback.addRef(); // Got open reference, this is for _fallback
         s_logger.debug("Creating fallback task {}", fallback);
         synchronized (this) {
           assert _fallback == null;
@@ -121,7 +121,8 @@ import com.opengamma.engine.value.ValueRequirement;
       // Keep any fallback tasks that are recursion free - to prevent future fallbacks for this requirement
       if (fallback.wasRecursionDetected()) {
         final ResolvedValue[] fallbackResults = getResults();
-        if (fallbackResults.length == 0) {
+        // If this resolver was ref-counted to zero (nothing subscribed to it) then the results can be null at this point
+        if ((fallbackResults == null) || (fallbackResults.length == 0)) {
           // Task produced no new results - discard
           s_logger.debug("Discarding fallback task {} by {}", fallback, this);
           context.discardTask(fallback);
@@ -173,9 +174,7 @@ import com.opengamma.engine.value.ValueRequirement;
         _fallback = null;
       }
       if (fallback != null) {
-        // Discard the fallback task
-        s_logger.debug("Discarding unfinished fallback task {} by {}", fallback, this);
-        context.discardTask(fallback);
+        // Release/discard the fallback task
         fallback.release(context);
       }
       // Release any other tasks

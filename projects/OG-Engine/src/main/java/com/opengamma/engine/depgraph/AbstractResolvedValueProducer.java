@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +30,6 @@ import com.opengamma.engine.value.ValueSpecification;
     private final ResolvedValueCallback _callback;
     private ResolvedValue[] _results;
     private int _resultsPushed;
-    private boolean _closed;
 
     public Callback(final ResolvedValueCallback callback) {
       _callback = callback;
@@ -41,7 +41,6 @@ import com.opengamma.engine.value.ValueSpecification;
     @Override
     public void pump(final GraphBuildingContext context) {
       s_logger.debug("Pump called on {}", this);
-      assert !_closed;
       ResolvedValue nextValue = null;
       boolean finished = false;
       ResolutionFailure failure = null;
@@ -59,13 +58,11 @@ import com.opengamma.engine.value.ValueSpecification;
               nextValue = _results[_resultsPushed++];
               if (_finished && (_resultsPushed == _results.length)) {
                 finished = true;
-                _callbacks--;
               }
             } else {
               if (_finished) {
                 finished = true;
                 failure = _failure;
-                _callbacks--;
               } else {
                 if (_pumped != null) {
                   needsOuterPump = _pumped.isEmpty();
@@ -83,7 +80,6 @@ import com.opengamma.engine.value.ValueSpecification;
                 } else {
                   finished = true;
                   failure = _failure;
-                  _callbacks--;
                 }
               }
             }
@@ -93,7 +89,7 @@ import com.opengamma.engine.value.ValueSpecification;
       if (nextValue != null) {
         if (finished) {
           s_logger.debug("Publishing final value {}", nextValue);
-          release(context);
+          release(context); // the reference added by addCallback
           context.resolved(_callback, getValueRequirement(), nextValue, null);
         } else {
           s_logger.debug("Publishing value {}", nextValue);
@@ -104,7 +100,7 @@ import com.opengamma.engine.value.ValueSpecification;
           pumpImpl(context);
           boolean lastResult = false;
           Collection<Callback> pumped = null;
-          synchronized (this) {
+          synchronized (AbstractResolvedValueProducer.this) {
             switch (_pumping) {
               case 1:
                 // No deferred results
@@ -138,7 +134,7 @@ import com.opengamma.engine.value.ValueSpecification;
           if (finished) {
             s_logger.debug("Finished {}", getValueRequirement());
             context.failed(_callback, getValueRequirement(), failure);
-            release(context);
+            release(context); // the reference added by addCallback
           }
         }
       }
@@ -148,13 +144,10 @@ import com.opengamma.engine.value.ValueSpecification;
     public void close(final GraphBuildingContext context) {
       s_logger.debug("Closing callback {}", this);
       synchronized (AbstractResolvedValueProducer.this) {
-        assert !_closed;
-        _closed = true;
         // Shouldn't be in the pumped state - a caller can't call close after calling pump
         assert _pumped == null || !_pumped.remove(this);
-        _callbacks--;
       }
-      release(context);
+      release(context); // the reference added by addCallback
     }
 
     @Override
@@ -163,14 +156,12 @@ import com.opengamma.engine.value.ValueSpecification;
       synchronized (AbstractResolvedValueProducer.this) {
         if ((_pumped != null) && _pumped.remove(this)) {
           // Was in a pumped state; close and release the parent resolver
-          assert !_closed;
-          _closed = true;
         } else {
+          // Not in a pumped state - perhaps cancel was already called
           return false;
         }
-        _callbacks--;
       }
-      release(context);
+      release(context); // the reference added by addCallback
       return true;
     }
 
@@ -195,7 +186,6 @@ import com.opengamma.engine.value.ValueSpecification;
   private Set<Callback> _pumped = new HashSet<Callback>();
   private int _pumping; // 0 = not, 1 = pumpImpl about to be called, 3 = next result ready, 7 = last result ready
   private int _refCount;
-  private int _callbacks;
   private ResolvedValue[] _results;
   private volatile boolean _finished;
   private ResolutionFailure _failure;
@@ -209,27 +199,24 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
-    addRef(); // reference held by the callback object
+    addRef(); // Caller already has open reference, this is for the reference held by the callback object
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
     boolean finished = false;
     ResolutionFailure failure = null;
     synchronized (this) {
       s_logger.debug("Added callback {} to {}", valueCallback, this);
-      _callbacks++;
       callback._results = _results;
       if (_results.length > 0) {
         callback._resultsPushed = 1;
         firstResult = _results[0];
         if (_finished && _results.length == 1) {
           finished = true;
-          _callbacks--;
         }
       } else {
         if (_finished) {
           finished = true;
           failure = _failure;
-          _callbacks--;
         } else {
           _pumped.add(callback);
         }
@@ -278,9 +265,6 @@ import com.opengamma.engine.value.ValueSpecification;
         if (pumpValue != null) {
           if (lastCallbackResult) {
             s_logger.debug("Pushing last result to {}", callback._callback);
-            synchronized (this) {
-              _callbacks--;
-            }
             release(context); // reference held by the callback object
             context.resolved(callback._callback, getValueRequirement(), pumpValue, null);
           } else {
@@ -289,9 +273,6 @@ import com.opengamma.engine.value.ValueSpecification;
           }
         } else {
           s_logger.debug("Pushing failure to {}", callback._callback);
-          synchronized (this) {
-            _callbacks--;
-          }
           context.failed(callback._callback, getValueRequirement(), failure);
         }
       }
@@ -319,6 +300,10 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     Collection<Callback> pumped = null;
     synchronized (this) {
+      if (_results == null) {
+        // Already discarded -- accept the value silently
+        return true;
+      }
       if (_resolvedValues != null) {
         if (!_resolvedValues.add(value.getValueSpecification())) {
           s_logger.debug("Rejecting {} already available from {}", value, this);
@@ -436,7 +421,7 @@ import com.opengamma.engine.value.ValueSpecification;
   protected void storeFailure(final ResolutionFailure failure) {
     if (failure != null) {
       synchronized (this) {
-        if (_results.length == 0) {
+        if ((_results != null) && (_results.length == 0)) {
           // Only store failure info if there are no results to push
           if (_failure == null) {
             _failure = failure;
@@ -472,32 +457,33 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public synchronized boolean addRef() {
-    if (_refCount > 0) {
-      _refCount++;
-      return true;
-    } else {
-      return false;
-    }
+  public synchronized void addRef() {
+    assert _refCount > 0;
+    _refCount++;
   }
 
   @Override
   public synchronized int release(final GraphBuildingContext context) {
     assert _refCount > 0;
-    if (s_logger.isDebugEnabled()) {
-      s_logger.debug("Release called on {}, refCount={}", this, _refCount);
-    }
     final int result = --_refCount;
     if (result == 0) {
       // help out the garbage collector
+      _resolvedValues = null;
+      _pumped = null;
+      _results = null;
       _failure = null;
     }
     return result;
   }
 
+  /**
+   * Returns the current reference count for the object.
+   * 
+   * @return the reference count
+   */
   @Override
-  public synchronized boolean hasActiveCallbacks() {
-    return _callbacks > 0;
+  public synchronized int getRefCount() {
+    return _refCount;
   }
 
   protected void setRecursionDetected() {
@@ -514,7 +500,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
+  public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, LoopState> visited) {
     final List<Callback> pumped;
     synchronized (this) {
       if ((_pumped == null) || _pumped.isEmpty()) {
@@ -527,11 +513,27 @@ import com.opengamma.engine.value.ValueSpecification;
     int result = 0;
     for (Callback callback : pumped) {
       if (callback._callback instanceof Chain) {
-        if (visited.add(callback)) {
-          result += ((Chain) callback._callback).cancelLoopMembers(context, visited);
-          visited.remove(callback);
+        final Chain chained = (Chain) callback._callback;
+        final LoopState state = visited.put(chained, LoopState.CHECKING);
+        if (state == null) {
+          // Not visited yet
+          final int looped = chained.cancelLoopMembers(context, visited);
+          if (looped > 0) {
+            result += looped;
+            // The callback is at least in a chain that leads to a loop, but might not be in a loop itself
+            if (visited.get(chained) == LoopState.CHECKING) {
+              visited.remove(chained);
+            }
+          } else {
+            // Known not to be in a loop
+            visited.put(chained, LoopState.NOT_IN_LOOP);
+          }
+        } else if (state == LoopState.NOT_IN_LOOP) {
+          // Callback is not in a loop - reset the flag
+          visited.put(chained, LoopState.NOT_IN_LOOP);
         } else {
-          // The callback is in a loop; cancel it
+          // The callback is in a loop - reset the flag and cancel it
+          visited.put(chained, LoopState.IN_LOOP);
           s_logger.info("Detected loop at {}, callback {}", this, callback);
           if (callback.cancel(context)) {
             s_logger.debug("Canceled callback; signalling failure");

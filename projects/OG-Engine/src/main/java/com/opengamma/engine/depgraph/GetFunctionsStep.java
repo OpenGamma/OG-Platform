@@ -193,7 +193,6 @@ import com.opengamma.util.tuple.Triple;
         if (!pushResult(context, resolvedValue, true)) {
           throw new IllegalStateException(resolvedValue + " rejected by pushResult");
         }
-        // Leave in current state; will go to finished after being pumped
       } else {
         producer.release(context);
         existing.addCallback(context, new ResolvedValueCallback() {
@@ -275,12 +274,6 @@ import com.opengamma.util.tuple.Triple;
   protected void pump(final GraphBuildingContext context) {
     // Only had one market data result so go to finished state
     setTaskStateFinished(context);
-  }
-
-  @Override
-  protected boolean isActive() {
-    // Get functions has no background behavior - if run isn't called, nothing will happen
-    return false;
   }
 
   @Override

@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
+import com.opengamma.engine.depgraph.ResolvedValueProducer.Chain;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -80,9 +81,6 @@ import com.opengamma.util.tuple.Triple;
     public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
       s_logger.debug("Failed {} at {}", value, this);
       storeFailure(failure);
-      synchronized (this) {
-        _pump = null;
-      }
       context.run(getTask());
     }
 
@@ -101,7 +99,11 @@ import com.opengamma.util.tuple.Triple;
           context.pump(pump);
         }
       } else {
-        if (!pushResult(context, value, true)) {
+        // The last result from the producer, but we can always reschedule ourselves
+        synchronized (this) {
+          _pump = ResolutionPump.Dummy.INSTANCE;
+        }
+        if (!pushResult(context, value, false)) {
           context.failed(this, valueRequirement, null);
         }
       }
@@ -121,16 +123,20 @@ import com.opengamma.util.tuple.Triple;
         _pump = null;
       }
       if (pump == null) {
-        // Either pump called twice for a resolve, called before the first resolve, or after failed
-        throw new IllegalStateException();
-      } else {
+        // Rogue pump -- see PumpingState.finished for an explanation
+        return;
+      }
+      if (pump != ResolutionPump.Dummy.INSTANCE) {
         s_logger.debug("Pumping underlying delegate");
         context.pump(pump);
+      } else {
+        // Reschedule ourself
+        context.run(getTask());
       }
     }
 
     @Override
-    protected void onDiscard(final GraphBuildingContext context) {
+    protected void discard(final GraphBuildingContext context) {
       final ResolutionPump pump;
       synchronized (this) {
         pump = _pump;
@@ -139,12 +145,6 @@ import com.opengamma.util.tuple.Triple;
       if (pump != null) {
         context.close(pump);
       }
-    }
-
-    @Override
-    protected synchronized boolean isActive() {
-      // Only active if pump has been called
-      return _pump == null;
     }
 
     @Override
@@ -159,6 +159,7 @@ import com.opengamma.util.tuple.Triple;
     private final ParameterizedFunction _function;
     private final ValueSpecification _valueSpecification;
     private final Collection<ValueSpecification> _outputs;
+    // The worker reference is not ref-counted
     private final FunctionApplicationWorker _worker;
 
     private PumpingState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base, final ValueSpecification valueSpecification,
@@ -168,7 +169,7 @@ import com.opengamma.util.tuple.Triple;
       _valueSpecification = valueSpecification;
       _outputs = outputs;
       _function = function;
-      worker.addRef();
+      // _worker is not ref-counted
       _worker = worker;
     }
 
@@ -347,8 +348,12 @@ import com.opengamma.util.tuple.Triple;
             context.pump(pump);
           }
         } else {
-          getWorker().pushResult(context, resolvedValue, true);
-          if (!pushResult(context, resolvedValue, true)) {
+          // This is the last value from the producer, but we have a state to go to afterwards
+          synchronized (this) {
+            _pump = ResolutionPump.Dummy.INSTANCE;
+          }
+          getWorker().pushResult(context, resolvedValue, false);
+          if (!pushResult(context, resolvedValue, false)) {
             context.failed(this, valueRequirement, null);
           }
         }
@@ -367,20 +372,28 @@ import com.opengamma.util.tuple.Triple;
           pump = _pump;
           _pump = null;
         }
-        if (pump != null) {
+        if (pump == null) {
+          // Rogue pump -- see PumpingState.finished for an explanation
+          return;
+        }
+        if (pump != ResolutionPump.Dummy.INSTANCE) {
           s_logger.debug("Pumping underlying delegate");
           context.pump(pump);
+        } else {
+          // Go back to the original state
+          setTaskState(PumpingState.this);
+          // Do the required action
+          failedImpl(context);
         }
       }
 
       @Override
-      protected final synchronized boolean isActive() {
-        // Only active if a resolve has been received, and there is no failure (i.e. it is waiting on the task to pump it)
-        return _pump == null;
+      public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+        return PumpingState.this.cancelLoopMembers(context, visited);
       }
 
       @Override
-      protected final void onDiscard(final GraphBuildingContext context) {
+      protected final void discard(final GraphBuildingContext context) {
         final ResolutionPump pump;
         synchronized (this) {
           pump = _pump;
@@ -389,7 +402,7 @@ import com.opengamma.util.tuple.Triple;
         if (pump != null) {
           context.close(pump);
         }
-        getWorker().abort(context);
+        getWorker().discard(context);
       }
 
       @Override
@@ -400,12 +413,13 @@ import com.opengamma.util.tuple.Triple;
     }
 
     @Override
-    protected void onDiscard(final GraphBuildingContext context) {
-      getWorker().abort(context);
+    protected void discard(final GraphBuildingContext context) {
+      getWorker().discard(context);
     }
 
     private boolean getAdditionalRequirementsAndPushResults(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker,
         final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
+      // the substituteWorker is not ref-counted from here
       Set<ValueRequirement> additionalRequirements = null;
       try {
         //DebugUtils.getAdditionalRequirements_enter();
@@ -472,8 +486,8 @@ import com.opengamma.util.tuple.Triple;
         }
 
         @Override
-        public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
-          int result = getWorker().cancelLoopMembers(context, visited);
+        public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+          int result = PumpingState.this.cancelLoopMembers(context, visited);
           if (substituteWorker != null) {
             result += substituteWorker.cancelLoopMembers(context, visited);
           }
@@ -508,6 +522,7 @@ import com.opengamma.util.tuple.Triple;
 
     private boolean pushResult(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker, final Map<ValueSpecification, ValueRequirement> inputs,
         final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
+      // the substituteWorker is not ref-counted from here
       if (context.getCompilationContext().getGraphBuildingBlacklist().isBlacklisted(getFunction(), resolvedOutput.getTargetSpecification(), inputs.keySet(), resolvedOutputs)) {
         s_logger.info("Result {} for {} suppressed by blacklist", resolvedOutput, getValueRequirement());
         final ResolutionFailure failure = functionApplication(context).requirements(inputs).suppressed();
@@ -535,7 +550,7 @@ import com.opengamma.util.tuple.Triple;
       return pushResult(context, result, false);
     }
 
-    public void finished(final GraphBuildingContext context) {
+    public void finished(final GraphBuildingContext context, final int refCounts) {
       if (s_logger.isInfoEnabled()) {
         if (getWorker().getResults().length == 0) {
           s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
@@ -544,8 +559,14 @@ import com.opengamma.util.tuple.Triple;
         }
       }
       context.discardTaskProducing(getValueSpecification(), getTask());
-      // Become runnable again; the next function will then be considered
+      // Become runnable again; the next function will then be considered.
       context.run(getTask());
+      // Release any ref-counts held by the worker on the task
+      for (int i = 0; i < refCounts; i++) {
+        getTask().release(context);
+      }
+      // Note: We're effectively pumped ourselves, a consumer of the ResolveTask may also pump us and so we'll see a rogue call to
+      // pump here, or to one of the next states that this task adopts. The call to pump from there may even already be scheduled.
     }
 
     @Override
@@ -555,8 +576,8 @@ import com.opengamma.util.tuple.Triple;
     }
 
     @Override
-    protected boolean isActive() {
-      return getWorker().isActive();
+    public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+      return getWorker().cancelLoopMembers(context, visited);
     }
 
     @Override
@@ -651,9 +672,9 @@ import com.opengamma.util.tuple.Triple;
   }
 
   @Override
-  protected boolean isActive() {
-    // Won't do anything unless {@link #tryRun} is called
-    return false;
+  protected void pump(final GraphBuildingContext context) {
+    // No-op; happens if a worker "finishes" a function application PumpingState and it progresses to the next natural
+    // state in advance of the pump from the abstract value producer. See PumpingState.finished for an explanation
   }
 
   @Override

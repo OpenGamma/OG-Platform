@@ -88,7 +88,7 @@ import com.opengamma.util.tuple.Pair;
    * @param runnable task to execute, not null
    */
   public void run(final ResolveTask runnable) {
-    runnable.addRef();
+    runnable.addRef(); // Caller has an open reference, this is for the run queue
     submit(runnable);
   }
 
@@ -209,10 +209,10 @@ import com.opengamma.util.tuple.Pair;
         }
         task = tasks.get(newTask);
         if (task == null) {
-          newTask.addRef();
+          newTask.addRef(); // Already got a reference
           tasks.put(newTask, newTask);
         } else {
-          task.addRef();
+          task.addRef(); // Got the task lock
         }
       }
       if (task != null) {
@@ -243,7 +243,7 @@ import com.opengamma.util.tuple.Pair;
         int i = 0;
         for (final ResolveTask task : tasks.keySet()) {
           result[i++] = task;
-          task.addRef();
+          task.addRef(); // Got the task lock
         }
       }
       return result;
@@ -271,7 +271,7 @@ import com.opengamma.util.tuple.Pair;
             // Don't ref-count the tasks; they're just used for parent comparisons
             resultTasks[i] = task.getKey();
             resultProducers[i++] = task.getValue();
-            task.getValue().addRef();
+            task.getValue().addRef(); // We're holding the task lock
           }
         }
         return Pair.of(resultTasks, resultProducers);
@@ -310,6 +310,17 @@ import com.opengamma.util.tuple.Pair;
         if (tasks.containsKey(null)) {
           continue;
         }
+        final int rc = task.getRefCount();
+        if (rc == 0) {
+          // Not referenced by us by definition
+          return;
+        }
+        if (rc != 1) {
+          if (!task.isFinished()) {
+            // Can't discard this -- something might be waiting on a result from it??
+            return;
+          }
+        }
         final ResolveTask removed = tasks.remove(task);
         if (removed == null) {
           // Task has already been discarded
@@ -342,14 +353,14 @@ import com.opengamma.util.tuple.Pair;
               if (resolveTask.getKey() == task) {
                 // Replace an earlier attempt from this task with the new producer
                 discard = resolveTask.getValue();
-                producer.addRef();
+                producer.addRef(); // The caller already holds an open reference
                 resolveTask.setValue(producer);
                 result = producer;
               } else {
                 // An equivalent task is doing the work
                 result = resolveTask.getValue();
               }
-              result.addRef();
+              result.addRef(); // Either the caller holds an open reference on the producer, or we've got the task lock
             }
           }
           if (result == null) {
@@ -360,10 +371,10 @@ import com.opengamma.util.tuple.Pair;
           }
           if (result == null) {
             // No matching tasks
-            producer.addRef();
+            producer.addRef(); // Caller already holds open reference
             tasks.put(task, producer);
             result = producer;
-            result.addRef();
+            result.addRef(); // Caller already holds open reference (this is the producer)
           }
         }
         if (discard != null) {

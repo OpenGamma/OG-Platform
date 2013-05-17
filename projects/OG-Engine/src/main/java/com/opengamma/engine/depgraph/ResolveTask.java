@@ -105,30 +105,24 @@ import com.opengamma.engine.value.ValueSpecification;
       throw new UnsupportedOperationException("Not runnable state (" + toString() + ")");
     }
 
-    protected void pump(final GraphBuildingContext context) {
-      // No-op; happens if a worker "finishes" a function application PumpingState and it progresses to the next natural
-      // state in advance of the pump from the abstract value producer
-    }
+    protected abstract void pump(final GraphBuildingContext context);
 
     @Override
-    public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
-      return getTask().cancelLoopMembers(context, visited);
+    public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+      return cancelLoopMembersImpl(context, visited);
     }
 
-    /**
-     * Tests if the state is somehow active and may reschedule the task to run (i.e. it's blocked on something) given that the parent task is going to neither call {@link #run} nor {@link #pump}
-     * 
-     * @return true if the state is active
-     */
-    protected abstract boolean isActive();
+    protected int cancelLoopMembersImpl(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+      return getTask().cancelLoopMembers(context, visited);
+    }
 
     /**
      * Called when the parent task is discarded.
      * 
      * @param context the graph building context, not null
      */
-    protected void onDiscard(final GraphBuildingContext context) {
-      // No-op
+    protected void discard(final GraphBuildingContext context) {
+      // No-op; only implement if there is data to discard (e.g. cancel things to free resources) for the state
     }
 
   }
@@ -185,10 +179,6 @@ import com.opengamma.engine.value.ValueSpecification;
   private void setState(final State state) {
     assert state != null;
     s_logger.debug("State transition {} to {}", _state, state);
-    if (_state == null) {
-      // Increase the ref-count as the state holds a reference to us
-      addRef();
-    }
     _state = state;
   }
 
@@ -197,21 +187,10 @@ import com.opengamma.engine.value.ValueSpecification;
     return _state == null;
   }
 
-  public boolean isActive() {
-    final State state = getState();
-    if (state != null) {
-      return state.isActive();
-    } else {
-      return false;
-    }
-  }
-
   @Override
   protected void finished(final GraphBuildingContext context) {
     assert _state != null;
     _state = null;
-    // Decrease the ref-count as the state no longer holds a reference to us
-    release(context);
     super.finished(context);
   }
 
@@ -295,25 +274,17 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public int release(final GraphBuildingContext context) {
-    final int count = super.release(context);
-    final State state = getState();
-    if (state != null) {
-      if (count == 2) {
-        // References held from the cache and the simulated one from our state
-        if (!state.isActive()) {
-          s_logger.debug("Remove unfinished {} from the cache", this);
-          context.discardTask(this);
-        }
-      } else if (count == 1) {
-        // Simulated reference held from our state only
-        if (!state.isActive()) {
-          s_logger.debug("Discarding state for unfinished {}", this);
-          state.onDiscard(context);
-          _state = null;
-        }
+    int count = super.release(context);
+    if (count == 1) {
+      // It's possible that only the _requirements collection from the graph builder now holds a reference to us that we care about
+      context.discardTask(this);
+    } else if (count == 0) {
+      // Nothing holds a reference to us; discard any state remnants
+      final State state = getState();
+      if (state != null) {
+        state.discard(context);
       }
     }
     return count;
   }
-
 }

@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -32,8 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.ResolvedValueProducer.Chain;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
@@ -46,6 +47,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.Cancelable;
+import com.opengamma.util.test.Profiler;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given set of value requirements. Although a graph builder may itself use additional threads to complete the
@@ -91,6 +93,9 @@ public final class DependencyGraphBuilder implements Cancelable {
    */
   private static final boolean DEBUG_DUMP_FAILURE_INFO =
       System.getProperty("DependencyGraphBuilder.dumpFailureInfo", "FALSE").equalsIgnoreCase("TRUE");
+
+  /** Profiler for monitoring the {@link #abortLoops} operation. */
+  private static final Profiler s_abortLoops = Profiler.create(DependencyGraphBuilder.class, "abortLoops");
 
   /** The object id of this DependencyGraphBuilder (used in logs) */
   private final int _objectId = s_nextObjectId.incrementAndGet();
@@ -518,33 +523,39 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   @SuppressWarnings("unchecked")
   protected void abortLoops() {
-    s_logger.debug("Checking for active tasks to abort");
-    List<ResolveTask> activeTasks = null;
-    for (final MapEx<ResolveTask, ResolvedValueProducer> tasks : _specifications.values()) {
-      synchronized (tasks) {
-        for (final ResolveTask task : (Set<ResolveTask>) tasks.keySet()) {
-          if ((task != null) && task.isActive()) {
-            if (activeTasks == null) {
-              activeTasks = new LinkedList<ResolveTask>();
-            }
-            activeTasks.add(task);
+    s_logger.debug("Checking for tasks to abort");
+    s_abortLoops.begin();
+    try {
+      final Collection<ResolveTask> toCheck = new ArrayList<ResolveTask>();
+      for (final MapEx<ResolveTask, ResolvedValueProducer> tasks : _specifications.values()) {
+        synchronized (tasks) {
+          if (!tasks.containsKey(null)) {
+            toCheck.addAll((Collection<ResolveTask>) tasks.keySet());
           }
         }
       }
-    }
-    if (activeTasks != null) {
-      final Set<Object> visited = new HashSet<Object>();
-      int cancelled = 0;
+      for (final Map<ResolveTask, ResolveTask> tasks : _requirements.values()) {
+        synchronized (tasks) {
+          if (!tasks.containsKey(null)) {
+            toCheck.addAll(tasks.keySet());
+          }
+        }
+      }
       final GraphBuildingContext context = new GraphBuildingContext(this);
-      for (final ResolveTask task : activeTasks) {
-        cancelled += task.cancelLoopMembers(context, visited);
+      int cancelled = 0;
+      final Map<Chain, Chain.LoopState> checked = Maps.newHashMapWithExpectedSize(toCheck.size());
+      for (ResolveTask task : toCheck) {
+        cancelled += task.cancelLoopMembers(context, checked);
       }
       getContext().mergeThreadContext(context);
-      s_logger.info("Cancelled {} looped tasks", cancelled);
-    } else {
-      s_logger.debug("No looped tasks");
+      s_logger.info("Cancelled {} looped task(s)", cancelled);
+    } finally {
+      s_abortLoops.end();
     }
   }
+
+  // TODO: Might want to do the abort loops operation as part of a cache flush for long running views to detect the loops because
+  // they are eating the memory before we run out of useful work to do.
 
   /**
    * Job running thread.
@@ -848,7 +859,6 @@ public final class DependencyGraphBuilder implements Cancelable {
    */
   @SuppressWarnings("unchecked")
   protected boolean flushCachedStates() {
-    boolean result = false;
     // TODO: use heuristics to throw data away more sensibly (e.g. LRU)
     int removed = 0;
     final Iterator<Map.Entry<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>> itrSpecifications = _specifications.entrySet().iterator();
@@ -864,13 +874,8 @@ public final class DependencyGraphBuilder implements Cancelable {
         final Iterator<Map.Entry<ResolveTask, ResolvedValueProducer>> itrProducer = producers.entrySet().iterator();
         while (itrProducer.hasNext()) {
           final Map.Entry<ResolveTask, ResolvedValueProducer> producer = itrProducer.next();
-          if (!producer.getValue().hasActiveCallbacks()) {
+          if (producer.getValue().getRefCount() == 1) {
             discards.add(producer.getValue());
-            // The key isn't ref counted, but we need to release it after the producer has been discarded in case it is then available
-            // for discard because the producer is complete & inactive
-            if (producer.getKey().addRef()) {
-              discards.add(producer.getKey());
-            }
             itrProducer.remove();
             removed++;
           }
@@ -885,9 +890,12 @@ public final class DependencyGraphBuilder implements Cancelable {
           context = new GraphBuildingContext(this);
         }
         for (final ResolvedValueProducer discard : discards) {
+          // Releasing the producer may transitively release the reference on the ResolveTask that owns it which may then
+          // cause a discard from _requirements
           discard.release(context);
         }
         discards.clear();
+        getContext().mergeThreadContext(context);
       }
     }
     if (s_logger.isInfoEnabled()) {
@@ -897,50 +905,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         s_logger.info("No production tasks to discard");
       }
     }
-    if (removed > 0) {
-      result = true;
-    }
-    removed = 0;
-    final Iterator<Map<ResolveTask, ResolveTask>> itrRequirements = _requirements.values().iterator();
-    while (itrRequirements.hasNext()) {
-      final Map<ResolveTask, ResolveTask> entries = itrRequirements.next();
-      synchronized (entries) {
-        if (entries.containsKey(null)) {
-          continue;
-        }
-        final Iterator<ResolveTask> itrTask = entries.keySet().iterator();
-        while (itrTask.hasNext()) {
-          final ResolveTask task = itrTask.next();
-          if (task.isFinished()) {
-            itrTask.remove();
-            discards.add(task);
-          }
-        }
-        if (entries.isEmpty()) {
-          itrRequirements.remove();
-          entries.put(null, null);
-        }
-      }
-      if (!discards.isEmpty()) {
-        if (context == null) {
-          context = new GraphBuildingContext(this);
-        }
-        removed += discards.size();
-        for (final ResolvedValueProducer discard : discards) {
-          discard.release(context);
-        }
-        discards.clear();
-      }
-    }
-    if (removed > 0) {
-      _activeResolveTasks.addAndGet(-removed);
-      s_logger.info("Discarded {} resolve task(s) - {} still active", removed, _activeResolveTasks);
-      getContext().mergeThreadContext(context);
-      result = true;
-    } else {
-      s_logger.info("No tasks to discard - {} active", _activeResolveTasks);
-    }
-    return result;
+    return removed > 0;
   }
 
   protected void reportStateSize() {
@@ -982,8 +947,10 @@ public final class DependencyGraphBuilder implements Cancelable {
       graph.dumpStructureASCII(ps);
       ps.close();
     }
-    // Clear out the build caches
-    s_logger.info("{} node graph built after {} steps", graph.getSize(), _completedSteps);
+    s_logger.info("{} built after {} steps", graph, _completedSteps);
+    // Help out the GC
+    _requirements.clear();
+    _specifications.clear();
     return graph;
   }
 

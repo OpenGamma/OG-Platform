@@ -29,10 +29,7 @@ import com.opengamma.util.tuple.Triple;
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.debug("Failed to resolve {} from {}", value, this);
-    storeFailure(failure);
-    synchronized (this) {
-      _pump = null;
-    }
+    // Don't store the failures from trying the existing ones; they might be for different value requirements that we've just piggy-backed onto
     // All existing resolutions have been completed, so now try the actual application
     setRunnableTaskState(new FunctionApplicationStep(getTask(), getIterationBase(), getResolved(), getResolvedOutput()), context);
   }
@@ -52,7 +49,11 @@ import com.opengamma.util.tuple.Triple;
         context.pump(pump);
       }
     } else {
-      if (!pushResult(context, value, true)) {
+      // We don't have a state to pump as this is the producer's last result, but this isn't the last we'll do
+      synchronized (this) {
+        _pump = ResolutionPump.Dummy.INSTANCE;
+      }
+      if (!pushResult(context, value, false)) {
         context.failed(this, valueRequirement, null);
       }
     }
@@ -70,14 +71,21 @@ import com.opengamma.util.tuple.Triple;
       pump = _pump;
       _pump = null;
     }
-    if (pump != null) {
+    if (pump == null) {
+      // Rogue pump -- see PumpingState.finished for an explanation
+      return;
+    }
+    if (pump != ResolutionPump.Dummy.INSTANCE) {
       s_logger.debug("Pumping underlying delegate");
       context.pump(pump);
+    } else {
+      // All existing resolutions have been completed, so now try the actual application
+      setRunnableTaskState(new FunctionApplicationStep(getTask(), getIterationBase(), getResolved(), getResolvedOutput()), context);
     }
   }
 
   @Override
-  protected void onDiscard(final GraphBuildingContext context) {
+  protected void discard(final GraphBuildingContext context) {
     final ResolutionPump pump;
     synchronized (this) {
       pump = _pump;

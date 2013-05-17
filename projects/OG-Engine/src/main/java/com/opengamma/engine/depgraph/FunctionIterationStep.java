@@ -74,7 +74,7 @@ import com.opengamma.util.tuple.Triple;
             // Can use this task without creating a loop
             if (singleTask == null) {
               singleTask = existingProducers[i];
-              singleTask.addRef();
+              singleTask.addRef(); // There is already an open count from when we got the producers
             } else {
               if (aggregate == null) {
                 aggregate = new AggregateResolvedValueProducer(getValueRequirement());
@@ -124,9 +124,9 @@ import com.opengamma.util.tuple.Triple;
     protected abstract void reportResult();
 
     @Override
-    protected boolean isActive() {
-      // Won't do anything unless {@link #tryRun} is called
-      return false;
+    protected void pump(final GraphBuildingContext context) {
+      // No-op; happens if a worker "finishes" a function application PumpingState and it progresses to the next natural
+      // state in advance of the pump from the abstract value producer. See PumpingState.finished for an explanation
     }
 
   }
