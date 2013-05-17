@@ -296,8 +296,12 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
     for (final Map.Entry<String, Set<String>> valueName2PropertyNames : defaults.getValueName2PropertyNames().entrySet()) {
       final String valueName = valueName2PropertyNames.getKey();
-      for (final String propertyName : valueName2PropertyNames.getValue()) {
-        result.add(new ValueSpecification(valueName, targetSpec, isPermitWithout() ? ValueProperties.all() : ValueProperties.all().withoutAny(propertyName)));
+      if (isPermitWithout()) {
+        result.add(new ValueSpecification(valueName, targetSpec, ValueProperties.all()));
+      } else {
+        for (final String propertyName : valueName2PropertyNames.getValue()) {
+          result.add(new ValueSpecification(valueName, targetSpec, ValueProperties.all().withoutAny(propertyName)));
+        }
       }
     }
     s_logger.debug("Produced results {} for {}", result, target);
