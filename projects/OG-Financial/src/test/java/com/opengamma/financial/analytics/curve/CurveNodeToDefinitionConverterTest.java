@@ -5,14 +5,24 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.holiday.Holiday;
@@ -20,9 +30,16 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.holiday.impl.SimpleHoliday;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
+import com.opengamma.financial.analytics.ircurve.strips.CashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
+import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
+import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
@@ -35,7 +52,14 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.SwapFixedLegConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -43,18 +67,129 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
 @Test(groups = TestGroup.UNIT)
 public class CurveNodeToDefinitionConverterTest {
+  private static final MondayToFridayCalendar CALENDAR = new MondayToFridayCalendar("Weekend");
+  private static final String SCHEME = "Test";
+  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount THIRTY_360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final ExternalId US = ExternalSchemes.financialRegionId("US");
+  private static final ExternalId NYLON = ExternalSchemes.financialRegionId("US+GB");
+  private static final Currency USD = Currency.of("USD");
+  private static final ExternalId FIXED_LEG_ID = ExternalId.of(SCHEME, "USD Swap Fixed Leg");
+  private static final ExternalId DEPOSIT_1D_ID = ExternalId.of(SCHEME, "USD 1d Deposit");
+  private static final ExternalId DEPOSIT_1M_ID = ExternalId.of(SCHEME, "USD 1m Deposit");
+  private static final ExternalId LIBOR_3M_ID = ExternalId.of(SCHEME, "USD 3m Libor");
+  private static final SwapFixedLegConvention FIXED_LEG = new SwapFixedLegConvention("USD Swap Fixed Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Swap Fixed Leg")),
+      Tenor.THREE_MONTHS, THIRTY_360, MODIFIED_FOLLOWING, 2, false, USD, NYLON, StubType.NONE);
+  private static final DepositConvention DEPOSIT_1D = new DepositConvention("USD 1d Deposit", ExternalIdBundle.of(DEPOSIT_1D_ID),
+      ACT_360, MODIFIED_FOLLOWING, 0, false, USD, US, Tenor.ONE_DAY);
+  private static final DepositConvention DEPOSIT_1M = new DepositConvention("USD 1m Deposit", ExternalIdBundle.of(DEPOSIT_1M_ID),
+      ACT_360, MODIFIED_FOLLOWING, 2, false, USD, US, Tenor.ONE_MONTH);
+  private static final IborIndexConvention LIBOR_3M = new IborIndexConvention("USD 3m Libor", ExternalIdBundle.of(LIBOR_3M_ID),
+      THIRTY_360, MODIFIED_FOLLOWING, 2, false, USD, LocalTime.of(11, 0), US, US, "Page", Tenor.ONE_MONTH);
+  private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
+  private static final CurveNodeToDefinitionConverter CONVERTER;
+
+  static {
+    CONVENTIONS.put(DEPOSIT_1D_ID, DEPOSIT_1D);
+    CONVENTIONS.put(DEPOSIT_1M_ID, DEPOSIT_1M);
+    CONVENTIONS.put(FIXED_LEG_ID, FIXED_LEG);
+    CONVENTIONS.put(LIBOR_3M_ID, LIBOR_3M);
+    CONVERTER = new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, USD, "US"), new MyRegionSource("US"));
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testContinuouslyCompoundedRateNode() {
+    CONVERTER.getDefinitionForNode(new ContinuouslyCompoundedRateNode("name", Tenor.ONE_DAY), DEPOSIT_1D_ID, DateUtils.getUTCDate(2013, 5, 1), new SnapshotDataBundle());
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testCreditSpreadNode() {
+    CONVERTER.getDefinitionForNode(new CreditSpreadNode("name", Tenor.ONE_DAY), DEPOSIT_1D_ID, DateUtils.getUTCDate(2013, 5, 1), new SnapshotDataBundle());
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testDiscountFactorNode() {
+    CONVERTER.getDefinitionForNode(new DiscountFactorNode("name", Tenor.ONE_DAY), DEPOSIT_1D_ID, DateUtils.getUTCDate(2013, 5, 1), new SnapshotDataBundle());
+  }
+
+  @Test
+  public void testOneDayDeposit() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US1d");
+    final double rate = 0.0012345;
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    marketValues.setDataPoint(marketDataId, rate);
+    final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
+    final CurveNode cashNode = new CashNode(new Tenor(Period.ZERO), Tenor.ONE_DAY, DEPOSIT_1D_ID, "Mapper");
+    final InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(cashNode, marketDataId, now, marketValues);
+    assertTrue(definition instanceof CashDefinition);
+    final CashDefinition cash = (CashDefinition) definition;
+    final CashDefinition expectedCash = new CashDefinition(USD, DateUtils.getUTCDate(2013, 5, 1), DateUtils.getUTCDate(2013, 5, 2), 1, rate, 1. / 360);
+    assertEquals(expectedCash, cash);
+  }
+
+  @Test
+  public void testOneMonthDeposit() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US1m");
+    final double rate = 0.0012345;
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    marketValues.setDataPoint(marketDataId, rate);
+    ZonedDateTime now = DateUtils.getUTCDate(2013, 2, 4);
+    CurveNode cashNode = new CashNode(new Tenor(Period.ZERO), Tenor.ONE_MONTH, DEPOSIT_1M_ID, "Mapper");
+    InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(cashNode, marketDataId, now, marketValues);
+    assertTrue(definition instanceof CashDefinition);
+    CashDefinition cash = (CashDefinition) definition;
+    CashDefinition expectedCash = new CashDefinition(USD, DateUtils.getUTCDate(2013, 2, 6), DateUtils.getUTCDate(2013, 3, 6), 1, rate, 28. / 360);
+    assertEquals(expectedCash, cash);
+    now = DateUtils.getUTCDate(2013, 5, 2);
+    cashNode = new CashNode(new Tenor(Period.ZERO), Tenor.ONE_MONTH, DEPOSIT_1M_ID, "Mapper");
+    definition = CONVERTER.getDefinitionForNode(cashNode, marketDataId, now, marketValues);
+    assertTrue(definition instanceof CashDefinition);
+    cash = (CashDefinition) definition;
+    expectedCash = new CashDefinition(USD, DateUtils.getUTCDate(2013, 5, 6), DateUtils.getUTCDate(2013, 6, 6), 1, rate, 31. / 360);
+    assertEquals(expectedCash, cash);
+    now = DateUtils.getUTCDate(2013, 5, 7);
+    cashNode = new CashNode(Tenor.ONE_MONTH, Tenor.THREE_MONTHS, DEPOSIT_1M_ID, "Mapper");
+    definition = CONVERTER.getDefinitionForNode(cashNode, marketDataId, now, marketValues);
+    assertTrue(definition instanceof CashDefinition);
+    cash = (CashDefinition) definition;
+    expectedCash = new CashDefinition(USD, DateUtils.getUTCDate(2013, 6, 10), DateUtils.getUTCDate(2013, 9, 10), 1, rate, 92. / 360);
+    assertEquals(expectedCash, cash);
+  }
+
+  @Test
+  public void testFRA() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US6x9");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01234;
+    marketValues.setDataPoint(marketDataId, rate);
+    final FRANode fraNode = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, LIBOR_3M_ID, "Mapper");
+    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false);
+    final InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(fraNode, marketDataId, DateUtils.getUTCDate(2013, 6, 1), marketValues);
+    assertTrue(definition instanceof ForwardRateAgreementDefinition);
+    final ForwardRateAgreementDefinition fra = (ForwardRateAgreementDefinition) definition;
+    final ForwardRateAgreementDefinition expectedFRA = ForwardRateAgreementDefinition.from(DateUtils.getUTCDate(2013, 9, 1), DateUtils.getUTCDate(2013, 12, 1), 1, index, rate, CALENDAR);
+    assertEquals(expectedFRA, fra);
+  }
 
   private static class MyConventionSource implements ConventionSource {
+    private final Map<ExternalId, Convention> _conventions;
+
+    public MyConventionSource(final Map<ExternalId, Convention> conventions) {
+      _conventions = conventions;
+    }
 
     @Override
     public Convention getConvention(final ExternalId identifier) {
-      return null;
+      return _conventions.get(identifier);
     }
 
     @Override
@@ -123,7 +258,7 @@ public class CurveNodeToDefinitionConverterTest {
       _regionId = ExternalId.of(ExternalSchemes.ISO_COUNTRY_ALPHA2, country);
       _regionIds = ExternalIdBundle.of(_regionId);
       _holiday = new SimpleHoliday();
-      _uniqueId = UniqueId.of(_regionId);
+      _uniqueId = UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), _regionId.getValue());
       _holiday.setUniqueId(_uniqueId);
     }
 
@@ -137,7 +272,7 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
-      if (objectId.equals(_regionId)) {
+      if (_regionId.equals(objectId)) {
         return _holiday;
       }
       return null;
@@ -146,7 +281,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<UniqueId, Holiday> get(final Collection<UniqueId> uniqueIds) {
       for (final UniqueId uniqueId : uniqueIds) {
-        if (uniqueId.equals(_uniqueId)) {
+        if (_uniqueId.equals(uniqueId)) {
           return Collections.<UniqueId, Holiday>singletonMap(uniqueId, _holiday);
         }
       }
@@ -156,7 +291,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<ObjectId, Holiday> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
       for (final ObjectId objectId : objectIds) {
-        if (objectId.equals(_regionId)) {
+        if (_regionId.equals(objectId)) {
           return Collections.<ObjectId, Holiday>singletonMap(objectId, _holiday);
         }
       }
@@ -165,26 +300,18 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
-      if (!currency.equals(_currency)) {
-        throw new OpenGammaRuntimeException("Do not have calendar for " + currency);
-      }
       return !_calendar.isWorkingDay(dateToCheck);
     }
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
-      if (!regionOrExchangeIds.equals(_regionIds)) {
-        throw new OpenGammaRuntimeException("Do not have calendar for " + regionOrExchangeIds);
-      }
       return !_calendar.isWorkingDay(dateToCheck);
     }
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalId regionOrExchangeId) {
-      if (!regionOrExchangeId.equals(_regionId)) {
-        throw new OpenGammaRuntimeException("Do not have calendar for " + regionOrExchangeId);
-      }
-      return !_calendar.isWorkingDay(dateToCheck);    }
+      return !_calendar.isWorkingDay(dateToCheck);
+    }
 
   }
 
@@ -196,7 +323,7 @@ public class CurveNodeToDefinitionConverterTest {
       final SimpleRegion region = new SimpleRegion();
       final ExternalId id = ExternalId.of(ExternalSchemes.ISO_COUNTRY_ALPHA2, countryId);
       region.addExternalId(id);
-      region.setUniqueId(UniqueId.of(id));
+      region.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), id.getValue()));
       _regionBundle = ExternalIdBundle.of(id);
       _region = region;
     }
@@ -209,7 +336,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<ExternalIdBundle, Collection<Region>> getAll(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
       for (final ExternalIdBundle bundle : bundles) {
-        if(bundle.equals(_regionBundle)) {
+        if(_regionBundle.equals(bundle)) {
           return Collections.<ExternalIdBundle, Collection<Region>>singletonMap(_regionBundle, Collections.singleton(_region));
         }
       }
@@ -218,7 +345,7 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public Collection<Region> get(final ExternalIdBundle bundle) {
-      if (bundle.equals(_regionBundle)) {
+      if (_regionBundle.equals(bundle)) {
         return Collections.singleton(_region);
       }
       return Collections.emptySet();
@@ -226,7 +353,7 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public Region getSingle(final ExternalIdBundle bundle) {
-      if (bundle.equals(_regionBundle)) {
+      if (_regionBundle.equals(bundle)) {
         return _region;
       }
       return null;
@@ -234,7 +361,7 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public Region getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
-      if (bundle.equals(_regionBundle)) {
+      if (_regionBundle.equals(bundle)) {
         return _region;
       }
       return null;
@@ -243,7 +370,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<ExternalIdBundle, Region> getSingle(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
       for (final ExternalIdBundle bundle : bundles) {
-        if(bundle.equals(_regionBundle)) {
+        if(_regionBundle.equals(bundle)) {
           return Collections.<ExternalIdBundle, Region>singletonMap(_regionBundle, _region);
         }
       }
@@ -252,7 +379,7 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public Region get(final UniqueId uniqueId) {
-      if (uniqueId.equals(_region.getUniqueId())) {
+      if (_region.getUniqueId().equals(uniqueId)) {
         return _region;
       }
       return null;
@@ -260,7 +387,7 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public Region get(final ObjectId objectId, final VersionCorrection versionCorrection) {
-      if (objectId.atLatestVersion().equals(_region.getUniqueId())) {
+      if (_region.getUniqueId().equals(objectId.atLatestVersion())) {
         return _region;
       }
       return null;
@@ -269,7 +396,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<UniqueId, Region> get(final Collection<UniqueId> uniqueIds) {
       for (final UniqueId uniqueId : uniqueIds) {
-        if (uniqueId.equals(_region.getUniqueId())) {
+        if (_region.getUniqueId().equals(uniqueId)) {
           return Collections.singletonMap(uniqueId, _region);
         }
       }
@@ -279,7 +406,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<ObjectId, Region> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
       for (final ObjectId objectId : objectIds) {
-        if (objectId.atLatestVersion().equals(_region.getUniqueId())) {
+        if (_region.getUniqueId().equals(objectId.atLatestVersion())) {
           return Collections.singletonMap(objectId, _region);
         }
       }
