@@ -61,7 +61,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR model. 
+ * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR model.
  */
 public class SwaptionCashFixedIborSABRMethodTest {
   // Swaption description
@@ -89,9 +89,9 @@ public class SwaptionCashFixedIborSABRMethodTest {
   //  Ibor leg: quarterly money
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, FIXED_IS_PAYER);
+  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER, CALENDAR);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, FIXED_IS_PAYER, CALENDAR);
   // Swaption construction: All combinations
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = new SwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new SwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
@@ -207,14 +207,14 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
     final SwaptionCashFixedIbor swaptionBumpedForward = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
-    final Set<Double> timeForwardSet = new TreeSet<Double>();
+    final Set<Double> timeForwardSet = new TreeSet<>();
     for (final Payment pay : SWAPTION_LONG_PAYER.getUnderlyingSwap().getSecondLeg().getPayments()) {
       final CouponIbor coupon = (CouponIbor) pay;
       timeForwardSet.add(coupon.getFixingPeriodStartTime());
       timeForwardSet.add(coupon.getFixingPeriodEndTime());
     }
     final int nbForwardDate = timeForwardSet.size();
-    final List<Double> timeForwardList = new ArrayList<Double>(timeForwardSet);
+    final List<Double> timeForwardList = new ArrayList<>(timeForwardSet);
     Double[] timeForwardArray = new Double[nbForwardDate];
     timeForwardArray = timeForwardList.toArray(timeForwardArray);
     final double[] yieldsForward = new double[nbForwardDate + 1];

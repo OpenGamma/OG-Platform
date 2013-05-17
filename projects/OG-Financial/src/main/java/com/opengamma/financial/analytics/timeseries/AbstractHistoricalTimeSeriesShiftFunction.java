@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.lambdava.functions.Function3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
-import com.opengamma.util.functional.Function3;
 
 /**
  * Base class for functions to shift historical market data values, implemented using properties and constraints.

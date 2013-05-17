@@ -59,7 +59,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
@@ -110,7 +110,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final PresentValueSABRSensitivitySABRSwaptionCalculator PVSSSSC = PresentValueSABRSensitivitySABRSwaptionCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-7;
-  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface>(PVCSSSC);
+  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<>(PVCSSSC);
   private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -274,7 +274,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     final Period capPeriod = Period.ofMonths(6);
     final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-    final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP);
+    final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP, CALENDAR);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
     final double pvCalculator = PVSSC.visit(cap, SABR_MULTICURVES).getAmount(EUR);
     double pvExpected = 0.0;
@@ -296,7 +296,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     final Period capPeriod = Period.ofMonths(6);
     final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-    final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP);
+    final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP, CALENDAR);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
     MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSSSC.visit(cap, SABR_MULTICURVES);
     pvcsCalculator = pvcsCalculator.cleaned();

@@ -473,4 +473,28 @@ public class SemiLocalCubicSplineInterpolatorTest {
 
   }
 
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notReconnectedTest() {
+    double[] xValues = new double[] {1., 2.0000000001, 2., 4. };
+    double[] yValues = new double[] {2., 400., 3., 500000000. };
+
+    PiecewisePolynomialInterpolator interpPos = new SemiLocalCubicSplineInterpolator();
+    interpPos.interpolate(xValues, yValues);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void notReconnectedMultiTest() {
+    double[] xValues = new double[] {1., 2., 4., 2.0000000001 };
+    double[][] yValues = new double[][] {{2., 3., 500000000., 400. } };
+
+    PiecewisePolynomialInterpolator interpPos = new SemiLocalCubicSplineInterpolator();
+    interpPos.interpolate(xValues, yValues);
+  }
+
 }

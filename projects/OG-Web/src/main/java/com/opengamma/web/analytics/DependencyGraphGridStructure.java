@@ -8,7 +8,6 @@ package com.opengamma.web.analytics;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -18,13 +17,13 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Row and column structure for a grid that displays the dependency graph used when calculating a value.
@@ -45,9 +44,9 @@ public class DependencyGraphGridStructure implements GridStructure {
   private static final int FUNCTION_NAME_COL = 4;
   /** Index of the value properties column */
   private static final int PROPERTIES_COL = 5;
-
   /** Map of target types to displayable names. */
   private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
+
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs;
   /** Function names for all rows in the grid in row index order. */
@@ -60,16 +59,26 @@ public class DependencyGraphGridStructure implements GridStructure {
   private final String _calcConfigName;
   /** The columns in the grid. */
   private final GridColumnGroups _columnGroups;
+  /** Row name of the root cell of the dependency graph in the parent grid. */
+  private final String _rootRowName;
+  /** Column name of the root cell of the dependency graph in the parent grid */
+  private final String _rootColumnName;
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
                                              List<ValueSpecification> valueSpecs,
                                              List<String> fnNames,
-                                             ComputationTargetResolver targetResolver) {
+                                             ComputationTargetResolver targetResolver,
+                                             String rootRowName,
+                                             String rootColumnName) {
     ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(valueSpecs, "valueSpecs");
     ArgumentChecker.notNull(fnNames, "fnNames");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(rootRowName, "rootRowName");
+    ArgumentChecker.notNull(rootColumnName, "rootColumnName");
+    _rootColumnName = rootColumnName;
+    _rootRowName = rootRowName;
     _root = root;
     _calcConfigName = calcConfigName;
     _valueSpecs = Collections.unmodifiableList(valueSpecs);
@@ -111,7 +120,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       GridColumn column = _columnGroups.getColumn(cell.getColumn());
-      results.add(column.buildResults(cell.getRow(), cache));
+      results.add(column.buildResults(cell.getRow(), cell.getFormat(), cache));
     }
     ViewportResults newResults = new ViewportResults(results,
                                                      viewportDefinition,
@@ -179,8 +188,22 @@ public class DependencyGraphGridStructure implements GridStructure {
   /**
    * @return The root of the node structure representing the dependency graph
    */
-  public AnalyticsNode getRoot() {
+  public AnalyticsNode getRootNode() {
     return _root;
+  }
+
+  /**
+   * @return Row name of the root of the dependency graph in the parent grid.
+   */
+  public String getRootRowName() {
+    return _rootRowName;
+  }
+
+  /**
+   * @return Column name of the root of the dependency graph in the parent grid
+   */
+  public String getRootColumnName() {
+    return _rootColumnName;
   }
 
   private static ComputationTargetTypeMap<String> createTargetTypeNames() {
@@ -228,68 +251,34 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
+    public ResultsCell getResults(int rowIndex,
+                                  TypeFormatter.Format format,
+                                  ResultsCache cache,
+                                  Class<?> columnType,
+                                  Object inlineKey) {
       ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
       switch (_colIndex) {
         case TARGET_COL:
-          return ResultsCell.forStaticValue(getTargetName(valueSpec.getTargetSpecification()), columnType);
+          return ResultsCell.forStaticValue(getTargetName(valueSpec.getTargetSpecification()), columnType, format);
         case TARGET_TYPE_COL:
-          return ResultsCell.forStaticValue(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), columnType);
+          return ResultsCell.forStaticValue(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), columnType, format);
         case VALUE_NAME_COL:
-          return ResultsCell.forStaticValue(valueSpec.getValueName(), columnType);
+          return ResultsCell.forStaticValue(valueSpec.getValueName(), columnType, format);
         case VALUE_COL:
           ResultsCache.Result cacheResult = cache.getResult(_calcConfigName, valueSpec, null);
           Collection<Object> history = cacheResult.getHistory();
           Object value = cacheResult.getValue();
           AggregatedExecutionLog executionLog = cacheResult.getAggregatedExecutionLog();
-          return ResultsCell.forCalculatedValue(value, valueSpec, history, executionLog, cacheResult.isUpdated(), columnType);
+          return ResultsCell.forCalculatedValue(value, valueSpec, history, executionLog, cacheResult.isUpdated(), columnType, format);
         case FUNCTION_NAME_COL:
           String fnName = _fnNames.get(rowIndex);
-          return ResultsCell.forStaticValue(fnName, columnType);
+          return ResultsCell.forStaticValue(fnName, columnType, format);
         case PROPERTIES_COL:
-          return ResultsCell.forStaticValue(valueSpec.getProperties(), columnType);
-          //return ResultsCell.forStaticValue(getValuePropertiesForDisplay(valueSpec.getProperties()), columnType);
+          return ResultsCell.forStaticValue(valueSpec.getProperties(), columnType, format);
         default: // never happen
           throw new IllegalArgumentException("Column index " + _colIndex + " is invalid");
       }
     }
-
-    /**
-     * Formats a set of {@link ValueProperties} for display in the grid
-     * @param properties The value properties
-     * @return A formatted version of the properties
-     */
-    private String getValuePropertiesForDisplay(ValueProperties properties) {
-      StringBuilder sb = new StringBuilder();
-      boolean isFirst = true;
-      for (String property : properties.getProperties()) {
-        if (ValuePropertyNames.FUNCTION.equals(property)) {
-          continue;
-        }
-        if (isFirst) {
-          isFirst = false;
-        } else {
-          sb.append("; ");
-        }
-        sb.append(property).append("=");
-        Set<String> propertyValues = properties.getValues(property);
-        if (propertyValues.isEmpty()) {
-          sb.append("*");
-        } else {
-          boolean isFirstValue = true;
-          for (String value : propertyValues) {
-            if (isFirstValue) {
-              isFirstValue = false;
-            } else {
-              sb.append(", ");
-            }
-            sb.append(value);
-          }
-        }
-      }
-      return sb.toString();
-    }
-
 
     /**
      * @param targetSpec Specification of the target for a grid row

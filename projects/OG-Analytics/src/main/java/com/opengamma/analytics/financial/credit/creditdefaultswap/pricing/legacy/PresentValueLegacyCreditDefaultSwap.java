@@ -13,7 +13,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.leg
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -61,19 +60,13 @@ public class PresentValueLegacyCreditDefaultSwap {
     final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the value of the contingent leg
+    // TODO : Remember this check in the ISDA code 'if (MAX(stepinDate, startDate) <= endDate)' 
     final double presentValueContingentLeg = presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
     double presentValue = -(cds.getParSpread() / 10000.0) * presentValuePremiumLeg + presentValueContingentLeg;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    /*
-    // If we require the clean price, then calculate the accrued interest and add this to the PV
-    if (priceType == PriceType.CLEAN) {
-      presentValue += (cds.getParSpread() / 10000.0) * presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, cds);
-    }
-    */
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -109,15 +102,6 @@ public class PresentValueLegacyCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     double parSpread = 0.0;
-    double accruedInterest = 0.0;
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Construct a cashflow schedule object
-    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
-
-    // Check if the valuationDate equals the adjusted effective date (have to do this after the schedule is constructed)
-    //ArgumentChecker.isTrue(valuationDate.equals(cashflowSchedule.getAdjustedEffectiveDate(cds)), "Valuation Date should equal the adjusted effective date when computing par spreads");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -127,20 +111,13 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Calculate the value of the contingent leg
     final double presentValueContingentLeg = presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
 
-    /*
-    // If we require the clean price, then calculate the accrued interest and add this to the PV of the premium leg
-    if (priceType == PriceType.CLEAN) {
-      accruedInterest = presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, cds);
-    }
-    */
-
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the par spread (NOTE : Returned value is in bps)
     if (Double.doubleToLongBits(presentValuePremiumLeg) == 0.0) {
       throw new IllegalStateException("Warning : The premium leg has a PV of zero - par spread cannot be computed");
     } else {
-      parSpread = 10000.0 * presentValueContingentLeg / (presentValuePremiumLeg + accruedInterest);
+      parSpread = 10000.0 * presentValueContingentLeg / presentValuePremiumLeg;
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -149,5 +126,4 @@ public class PresentValueLegacyCreditDefaultSwap {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
-
 }

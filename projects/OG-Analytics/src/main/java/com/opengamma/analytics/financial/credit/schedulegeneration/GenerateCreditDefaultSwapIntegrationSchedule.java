@@ -143,7 +143,13 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
     final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegCashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-    final ZonedDateTime[] cashflowSchedule = premiumLegCashflowSchedule.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
+    final ZonedDateTime[][] tempCashflowSchedule = premiumLegCashflowSchedule.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
+
+    final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[tempCashflowSchedule.length];
+
+    for (int i = 0; i < cashflowSchedule.length; i++) {
+      cashflowSchedule[i] = tempCashflowSchedule[i][0];
+    }
 
     final double[] cashflowScheduleAsDoubles = premiumLegCashflowSchedule.convertTenorsToDoubles(cashflowSchedule, valuationDate, ACT_365);
 

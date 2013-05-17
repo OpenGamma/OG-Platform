@@ -175,47 +175,50 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   @Override
   public GridStructure getGridStructure(GridType gridType) {
     GridStructure gridStructure = getGrid(gridType).getGridStructure();
-    s_logger.debug("View {} returning grid structure for the {} grid: {}", new Object[]{_viewId, gridType, gridStructure});
+    s_logger.debug("View {} returning grid structure for the {} grid: {}", _viewId, gridType, gridStructure);
     return gridStructure;
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public boolean createViewport(int requestId,
+                                GridType gridType,
+                                int viewportId,
+                                String callbackId,
+                                ViewportDefinition viewportDefinition) {
     boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
-                   new Object[]{_viewId, viewportId, gridType, viewportDefinition});
+                   _viewId, viewportId, gridType, viewportDefinition);
     return hasData;
   }
 
   @Override
   public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
-    s_logger.debug("View {} updating viewport {} for {} grid to {}",
-                   new Object[]{_viewId, viewportId, gridType, viewportDefinition});
+    s_logger.debug("View {} updating viewport {} for {} grid to {}", _viewId, viewportId, gridType, viewportDefinition);
     return getGrid(gridType).updateViewport(viewportId, viewportDefinition, _cache);
   }
 
   @Override
   public void deleteViewport(GridType gridType, int viewportId) {
-    s_logger.debug("View {} deleting viewport {} from the {} grid", new Object[]{_viewId, viewportId, gridType});
+    s_logger.debug("View {} deleting viewport {} from the {} grid", _viewId, viewportId, gridType);
     getGrid(gridType).deleteViewport(viewportId);
   }
 
   @Override
   public ViewportResults getData(GridType gridType, int viewportId) {
-    s_logger.debug("View {} getting data for viewport {} of the {} grid", new Object[]{_viewId, viewportId, gridType});
+    s_logger.debug("View {} getting data for viewport {} of the {} grid", _viewId, viewportId, gridType);
     return getGrid(gridType).getData(viewportId);
   }
 
   @Override
   public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
     s_logger.debug("View {} opening dependency graph {} for cell ({}, {}) of the {} grid",
-                   new Object[]{_viewId, graphId, row, col, gridType});
+                   _viewId, graphId, row, col, gridType);
     getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition, _viewportListener);
   }
 
   @Override
   public void closeDependencyGraph(GridType gridType, int graphId) {
-    s_logger.debug("View {} closing dependency graph {} of the {} grid", new Object[]{_viewId, graphId, gridType});
+    s_logger.debug("View {} closing dependency graph {} of the {} grid", _viewId, graphId, gridType);
     getGrid(gridType).closeDependencyGraph(graphId);
   }
 
@@ -223,36 +226,41 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   public GridStructure getGridStructure(GridType gridType, int graphId) {
     DependencyGraphGridStructure gridStructure = getGrid(gridType).getGridStructure(graphId);
     s_logger.debug("View {} returning grid structure for dependency graph {} of the {} grid: {}",
-                   new Object[]{_viewId, graphId, gridType, gridStructure});
+                   _viewId, graphId, gridType, gridStructure);
     return gridStructure;
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public boolean createViewport(int requestId,
+                                GridType gridType,
+                                int graphId,
+                                int viewportId,
+                                String callbackId,
+                                ViewportDefinition viewportDefinition) {
     boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for dependency graph {} of the {} grid using {}",
-                   new Object[]{_viewId, viewportId, graphId, gridType, viewportDefinition});
+                   _viewId, viewportId, graphId, gridType, viewportDefinition);
     return hasData;
   }
 
   @Override
   public String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport for dependency graph {} of the {} grid using {}",
-                   new Object[]{_viewId, graphId, gridType, viewportDefinition});
+                   _viewId, graphId, gridType, viewportDefinition);
     return getGrid(gridType).updateViewport(graphId, viewportId, viewportDefinition, _cache);
   }
 
   @Override
   public void deleteViewport(GridType gridType, int graphId, int viewportId) {
     s_logger.debug("View {} deleting viewport {} from dependency graph {} of the {} grid",
-                   new Object[]{_viewId, viewportId, graphId, gridType});
+                   _viewId, viewportId, graphId, gridType);
     getGrid(gridType).deleteViewport(graphId, viewportId);
   }
 
   @Override
   public ViewportResults getData(GridType gridType, int graphId, int viewportId) {
     s_logger.debug("View {} getting data for viewport {} of dependency graph {} of the {} grid",
-                   new Object[]{_viewId, viewportId, graphId, gridType});
+                   _viewId, viewportId, graphId, gridType);
     return getGrid(gridType).getData(graphId, viewportId);
   }
 

@@ -8,7 +8,10 @@ package com.opengamma.financial.analytics.model.credit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -16,7 +19,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.util.ArgumentChecker;
@@ -27,11 +30,11 @@ import com.opengamma.util.time.Tenor;
  */
 public class SpreadCurveFunctions {
 
-  private final static PresentValueCreditDefaultSwap cdsPresentValueCalculator = new PresentValueCreditDefaultSwap();
+  //private final static PresentValueCreditDefaultSwap cdsPresentValueCalculator = new PresentValueCreditDefaultSwap();
+  private static PresentValueStandardCreditDefaultSwap cdsPresentValueCalculator = new PresentValueStandardCreditDefaultSwap();
 
-  public static final Collection<Tenor> BUCKET_TENORS = new ArrayList<>();
+  private static final Collection<Tenor> BUCKET_TENORS = new ArrayList<>();
 
-  //FIXME: Derive these instead of hardcoding
   static {
     BUCKET_TENORS.add(Tenor.SIX_MONTHS);
     BUCKET_TENORS.add(Tenor.ONE_YEAR);
@@ -49,10 +52,27 @@ public class SpreadCurveFunctions {
     BUCKET_TENORS.add(new Tenor(Period.ofYears(30)));
   }
 
-  public static final ZonedDateTime[] getIMMDates(final ZonedDateTime now, final Collection<Tenor> tenors) {
-    final ZonedDateTime[] dates = new ZonedDateTime[tenors.size()];
+  public static final ZonedDateTime[] getIMMDates(final ZonedDateTime now, final String inputs) {
+    if (inputs == null || inputs.isEmpty()) {
+      return getDefaultBuckets(now);
+    }
+    List<ZonedDateTime> dates = new ArrayList<>();
+    for (final String tenorOrDate : inputs.split(",")) {
+      if (tenorOrDate.startsWith("P")) { // tenor
+        Tenor tenor = new Tenor(Period.parse(tenorOrDate));
+        dates.add(IMMDateGenerator.getNextIMMDate(now, tenor));
+      } else { // date
+        LocalDate date = LocalDate.parse(tenorOrDate);
+        dates.add(date.atStartOfDay(now.getZone()));
+      }
+    }
+    return dates.toArray(new ZonedDateTime[dates.size()]);
+  }
+
+  public static final ZonedDateTime[] getDefaultBuckets(final ZonedDateTime now) {
+    final ZonedDateTime[] dates = new ZonedDateTime[BUCKET_TENORS.size()];
     int i = 0;
-    for (final Tenor tenor : tenors) {
+    for (final Tenor tenor : BUCKET_TENORS) {
       dates[i++] = IMMDateGenerator.getNextIMMDate(now, tenor);
     }
     return dates;
@@ -96,7 +116,7 @@ public class SpreadCurveFunctions {
         case POINTS_UPFRONT:
           // can price type vary?
           //FIXME: Conversion to percentage should happen upstream or in analytics
-          spreadRate = cdsPresentValueCalculator.calculateParSpreadFlat(valuationDate, cds, spreadRate / 100.0, new ZonedDateTime[] { cds.getMaturityDate() }, isdaCurve, PriceType.CLEAN);
+          spreadRate = cdsPresentValueCalculator.calculateParSpreadFlat(valuationDate, cds, spreadRate / 100.0, new ZonedDateTime[] {cds.getMaturityDate() }, isdaCurve, PriceType.CLEAN);
           break;
         default:
           throw new OpenGammaRuntimeException("Unknown quote convention " + quoteConvention);

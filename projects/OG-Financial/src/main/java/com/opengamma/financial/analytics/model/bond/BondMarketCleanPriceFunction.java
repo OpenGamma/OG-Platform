@@ -40,7 +40,6 @@ public class BondMarketCleanPriceFunction extends BondMarketDataFunction {
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.MARKET_CLEAN_PRICE, target.toSpecification(), properties.get()));
-    //return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, target.getSecurity()), getUniqueId()));
   }
 
 }

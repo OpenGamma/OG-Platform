@@ -11,7 +11,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Viewport containing an arbitrary collection of cells.
@@ -27,11 +26,8 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
    * @param format
    * @param enableLogging Whether full logging info should be collected for the viewport's cells
    */
-  /* package */ ArbitraryViewportDefinition(int version,
-                                            List<GridCell> cells,
-                                            TypeFormatter.Format format,
-                                            boolean enableLogging) {
-    super(version, format, enableLogging);
+  /* package */ ArbitraryViewportDefinition(int version, List<GridCell> cells, boolean enableLogging) {
+    super(version, enableLogging);
     ArgumentChecker.notEmpty(cells, "cells");
     _cells = Lists.newArrayList(cells);
     Collections.sort(_cells);
@@ -55,9 +51,6 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
 
   @Override
   public String toString() {
-    return "ArbitraryViewportDefinition [" +
-        "_enableLogging=" + enableLogging() +
-        ", _cells=" + _cells +
-        "]";
+    return "ArbitraryViewportDefinition [_enableLogging=" + enableLogging() + ", _cells=" + _cells + "]";
   }
 }

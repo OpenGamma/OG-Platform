@@ -64,15 +64,20 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     }
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency));
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
-    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar, iborConvention.getDayCount(),
+    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), iborConvention.getDayCount(),
         iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
     final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount for one percent
-    return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName());
+    return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName(), calendar);
   }
 
+  /**
+   * Returns the conventional accrual factor for a given period. For 3 months, the factor is 0.25; for 1 month, the factor is 1/12.
+   * @param period The period.
+   * @return The accrual factor.
+   */
   private double getAccrualFactor(final Period period) {
     final long nMonths = period.toTotalMonths();
-    return 1. / nMonths;
+    return nMonths / 12.0d;
   }
 
 }

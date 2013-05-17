@@ -209,7 +209,7 @@ public final class FunctionCosts implements FunctionInvocationStatisticsGatherer
             count++;
             // [PLAT-882] Temporary hack until JMX support is properly implemented
             if (s_logger.isInfoEnabled()) {
-              report.put(stats.getFunctionId() + "\t" + pair.getKey(), stats.toFudgeMsg(FudgeContext.GLOBAL_DEFAULT));
+              report.put(stats.getFunctionId() + "\t" + pair.getFirst(), stats.toFudgeMsg(FudgeContext.GLOBAL_DEFAULT));
             }
           }
         }

@@ -38,8 +38,8 @@ import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.functional.Function2;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 

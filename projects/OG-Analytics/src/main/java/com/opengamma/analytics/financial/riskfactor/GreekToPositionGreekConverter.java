@@ -27,8 +27,8 @@ public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, M
     final Map<PositionGreek, Double> riskFactors = new HashMap<>();
     PositionGreek positionGreek;
     for (final Pair<Greek, Double> entry : greeks) {
-      positionGreek = new PositionGreek(entry.getKey());
-      riskFactors.put(positionGreek, entry.getValue() * data.getOptionTradeData().getNumberOfContracts());
+      positionGreek = new PositionGreek(entry.getFirst());
+      riskFactors.put(positionGreek, entry.getSecond() * data.getOptionTradeData().getNumberOfContracts());
     }
     return riskFactors;
   }

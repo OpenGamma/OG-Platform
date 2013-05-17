@@ -31,8 +31,8 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
     final Map<UnderlyingType, Double> underlyingData = data.getUnderlyingData();
     final OptionTradeData tradeData = data.getOptionTradeData();
     for (final Pair<Greek, Double> entry : greeks) {
-      final Greek key = entry.getKey();
-      final Double value = entry.getValue();
+      final Greek key = entry.getFirst();
+      final Double value = entry.getSecond();
       riskFactors.put(new ValueGreek(key), getValueGreek(key, value, underlyingData, tradeData));
     }
     return riskFactors;

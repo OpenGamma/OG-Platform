@@ -99,7 +99,7 @@ public class LiquidityAggregationFunction implements AggregationFunction<String>
     
     Pair<LocalDate, Double> latestDataPoint = _htsSource.getLatestDataPoint(FIELD, security.getExternalIdBundle(), RESOLUTION_KEY);
     if (latestDataPoint != null) {
-      double volume = latestDataPoint.getValue();
+      double volume = latestDataPoint.getSecond();
       double daysToLiquidate = (volume / position.getQuantity().doubleValue()) * LIQUIDATE_FACTOR;
       
       if (_caching && cacheKey != null) {

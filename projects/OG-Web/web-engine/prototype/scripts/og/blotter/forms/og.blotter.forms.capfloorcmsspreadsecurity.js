@@ -7,10 +7,10 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, validate;
+            var constructor = this, form, ui = og.common.util.ui, data, validate, util =  og.blotter.util;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "CapFloorCMSSpreadSecurity", externalIdBundle: "", attributes: {}}, 
-                trade: og.blotter.util.otc_trade};}
+                trade: util.otc_trade};}
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Cap/Floor CMS Spread';
@@ -19,13 +19,13 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     data: data,
                     processor: function (data) {
-                        data.security.name = og.blotter.util.create_name(data);
-                        og.blotter.util.cleanup(data);
+                        data.security.name = util.create_name(data);
+                        util.cleanup(data);
                     }
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
-                        portfolio: data.nodeId, trade: data.trade}),
+                        portfolio: data.nodeId, trade: data.trade, name: data.security.name}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_cms_tash',
                         extras: {start: data.security.startDate, maturity: data.security.maturityDate,
@@ -58,13 +58,13 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_date_picker('.blotter-date');
-                    og.blotter.util.add_time_picker('.blotter-time');
-                    og.blotter.util.set_initial_focus();
+                    util.add_date_picker('.blotter-date');
+                    util.add_time_picker('.blotter-time');
+                    util.set_initial_focus();
                     if(data.security.length) return;
-                    og.blotter.util.set_select("security.currency", data.security.currency);
-                    og.blotter.util.check_radio("security.cap", data.security.cap);
-                    og.blotter.util.check_radio("security.payer", data.security.payer);
+                    util.set_select("security.currency", data.security.currency);
+                    util.check_radio("security.cap", data.security.cap);
+                    util.check_radio("security.payer", data.security.payer);
                 });
                 form.on('form:submit', function (result){
                    $.when(config.handler(result.data)).then(validate);
@@ -77,7 +77,7 @@ $.register_module({
             };
             constructor.submit_new = function (handler) {
                 validate = handler;
-                delete data.id;
+                util.clear_save_as(data);
                 form.submit();
             };
         };

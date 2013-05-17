@@ -7,11 +7,23 @@
 #ifndef __inc_common_config_h
 #define __inc_common_config_h
 
+class CConfigSourceSection {
+public:
+	virtual ~CConfigSourceSection () { }
+	virtual int ReadInteger (PCSTR pszName, int nDefault) = 0;
+	virtual int ReadString (PCSTR pszName, PSTR pszBuffer, int cbBuffer, PCSTR pszDefault) = 0;
+};
+
+class CConfigSource {
+public:
+	virtual CConfigSourceSection *OpenSection (PCSTR pszSection) = 0;
+};
+
 class CConfigEntry {
 public:
 	CConfigEntry () { }
 	virtual ~CConfigEntry () { }
-	virtual BOOL Read (PCSTR pszFilename, PCSTR pszSection) = 0;
+	virtual BOOL Read (CConfigSourceSection *poConfig) = 0;
 };
 
 class CConfigString : public CConfigEntry {
@@ -23,7 +35,7 @@ public:
 	CConfigString (PCSTR pszParameter, PCSTR pszDefault);
 	~CConfigString ();
 	PCSTR GetValue () const { return m_pszValue ? m_pszValue : m_pszDefault; }
-	BOOL Read (PCSTR pszFilename, PCSTR pszSection);
+	BOOL Read (CConfigSourceSection *poConfig);
 };
 
 class CConfigMultiString : public CConfigEntry {
@@ -37,7 +49,7 @@ public:
 	~CConfigMultiString ();
 	UINT GetValueCount () const { return m_nValues; }
 	PCSTR GetValue (UINT nIndex) const { return (nIndex < m_nValues) ? m_ppszValues[nIndex] : NULL; }
-	BOOL Read (PCSTR pszFilename, PCSTR pszSection);
+	BOOL Read (CConfigSourceSection *poConfig);
 };
 
 class CConfigSection {
@@ -47,7 +59,7 @@ private:
 	CConfigEntry **m_ppEntries;
 public:
 	CConfigSection (PCSTR pszSection, UINT nEntries, CConfigEntry **ppEntries);
-	BOOL Read (PCSTR pszFilename);
+	BOOL Read (CConfigSource *poConfig);
 };
 
 class CConfig {
@@ -56,6 +68,7 @@ private:
 	CConfigSection **m_ppSections;
 public:
 	CConfig (UINT nSections, CConfigSection **ppSections);
+	BOOL Read (CConfigSource *poConfig);
 	BOOL Read (PCSTR pszFilename);
 };
 

@@ -185,8 +185,8 @@ public class BloombergReferenceDataStatisticsTest {
   }
 
   private <TValue> void assertPairEquals(Pair<? extends Number, TValue> expected, Pair<? extends Number, TValue> actual) {
-    assertEquals(expected.getKey().longValue(), actual.getKey().longValue());
-    assertEquals(expected.getValue(), actual.getValue());
+    assertEquals(expected.getFirst().longValue(), actual.getFirst().longValue());
+    assertEquals(expected.getSecond(), actual.getSecond());
   }
 
 }

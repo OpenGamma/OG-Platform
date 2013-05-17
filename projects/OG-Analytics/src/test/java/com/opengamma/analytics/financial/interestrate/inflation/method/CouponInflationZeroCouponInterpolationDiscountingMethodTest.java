@@ -41,14 +41,11 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
-  //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
   private static final IndexPrice PRICE_INDEX_US = PRICE_INDEXES[2];
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
-  private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
-  //  private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];
   private static final IborIndex USDLIBOR3M = IBOR_INDEXES[2];
-  private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
-  private static final Calendar CALENDAR_USD = USDLIBOR3M.getCalendar();
+  private static final Calendar CALENDAR_EUR = MulticurveProviderDiscountDataSets.getEURCalendar();
+  private static final Calendar CALENDAR_USD = MulticurveProviderDiscountDataSets.getUSDCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
@@ -67,7 +64,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   private static final NetAmountInflationCalculator NAIC = NetAmountInflationCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
-  private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<InflationProviderInterface>(PVCSDC);
+  private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
   @Test

@@ -10,6 +10,7 @@ import java.util.Collection;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  *
@@ -27,7 +28,11 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
+  public ResultsCell getResults(int rowIndex,
+                                TypeFormatter.Format format,
+                                ResultsCache cache,
+                                Class<?> columnType,
+                                Object inlineKey) {
     Pair<String, ValueSpecification> cellTarget = _targetLookup.getTargetForCell(rowIndex, _columnKey);
     if (cellTarget != null) {
       String calcConfigName = cellTarget.getFirst();
@@ -40,7 +45,7 @@ import com.opengamma.util.tuple.Pair;
                                             cacheResult.getAggregatedExecutionLog(),
                                             cacheResult.isUpdated(),
                                             columnType,
-                                            inlineKey);
+                                            inlineKey, format);
     } else {
       Collection<Object> emptyHistory = cache.emptyHistory(columnType);
       return ResultsCell.empty(emptyHistory, columnType);

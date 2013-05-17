@@ -25,12 +25,13 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a Ibor-like coupon with compounding and spread. There are three ISDA versions of compounding with spread. 
+ * Class describing a Ibor-like coupon with compounding and spread. There are three ISDA versions of compounding with spread.
  * The one referred in this class is the "compounding" (not "Flat Compounding" and not "Compounding treating spread as simple interest").
  * The Ibor fixing are compounded over several sub-periods.
  * The amount paid is equal to
@@ -158,10 +159,12 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
    * @param accrualEndDates The end dates of the accrual sub-periods.
    * @param paymentAccrualFactors The accrual factors (or year fraction) associated to the sub-periods.
    * @param spread The spread paid above the Ibor rate.
+   * @param calendar The holiday calendar for the ibor index.
    * @return The compounded coupon.
    */
   public static CouponIborCompoundingSpreadDefinition from(final ZonedDateTime paymentDate, final double notional, final IborIndex index,
-      final ZonedDateTime[] accrualStartDates, final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors, final double spread) {
+      final ZonedDateTime[] accrualStartDates, final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors, final double spread,
+      final Calendar calendar) {
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime accrualStartDate = accrualStartDates[0];
     final ZonedDateTime accrualEndDate = accrualEndDates[nbSubPeriod - 1];
@@ -171,8 +174,8 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
     final double[] fixingPeriodAccrualFactors = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       paymentAccrualFactor += paymentAccrualFactors[loopsub];
-      fixingDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], -index.getSpotLag(), index.getCalendar());
-      fixingPeriodEndDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], index);
+      fixingDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], -index.getSpotLag(), calendar);
+      fixingPeriodEndDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], index, calendar);
       fixingPeriodAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], fixingPeriodEndDates[loopsub]);
     }
     return new CouponIborCompoundingSpreadDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index,
@@ -187,11 +190,12 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
    * @param tenor The total coupon tenor.
    * @param index The underlying Ibor index.
    * @param spread The spread paid above the Ibor rate.
+   * @param calendar The holiday calendar for the ibor index.
    * @return The compounded coupon.
    */
   public static CouponIborCompoundingSpreadDefinition from(final double notional, final ZonedDateTime accrualStartDate, final Period tenor, final IborIndex index,
-      final double spread) {
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, tenor, true, false, index);
+      final double spread, final Calendar calendar) {
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, tenor, true, false, index, calendar);
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;
@@ -200,7 +204,7 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       paymentAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], accrualEndDates[loopsub]);
     }
-    return from(accrualEndDates[nbSubPeriod - 1], notional, index, accrualStartDates, accrualEndDates, paymentAccrualFactors, spread);
+    return from(accrualEndDates[nbSubPeriod - 1], notional, index, accrualStartDates, accrualEndDates, paymentAccrualFactors, spread, calendar);
   }
 
   /**

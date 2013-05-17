@@ -44,9 +44,9 @@ public class AnnuityCouponOISSimplifiedDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE = DateUtils.getUTCDate(2022, 2, 1);
   private static final Period MATURITY_TENOR = Period.ofYears(10);
   private static final double NOTIONAL = 100000000;
-  private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 1, CALENDAR);
+  private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 1);
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final GeneratorSwapFixedON GENERATOR = new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1);
+  private static final GeneratorSwapFixedON GENERATOR = new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1, CALENDAR);
   private static final boolean IS_PAYER = true;
   private static final AnnuityCouponOISSimplifiedDefinition DEFINITION = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, IS_PAYER);
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
@@ -54,8 +54,8 @@ public class AnnuityCouponOISSimplifiedDefinitionTest {
 
   static {
     ZonedDateTime date = SETTLEMENT_DATE;
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    final List<Double> data = new ArrayList<Double>();
+    final List<ZonedDateTime> dates = new ArrayList<>();
+    final List<Double> data = new ArrayList<>();
     while (date.isBefore(DATE) || date.equals(DATE)) {
       dates.add(date);
       data.add(Math.random() / 100);
@@ -136,7 +136,7 @@ public class AnnuityCouponOISSimplifiedDefinitionTest {
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL / 2, GENERATOR, IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
-    definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0),
+    definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0, CALENDAR),
         IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, !IS_PAYER);

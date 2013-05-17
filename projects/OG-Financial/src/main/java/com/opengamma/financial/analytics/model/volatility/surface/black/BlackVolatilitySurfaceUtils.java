@@ -155,9 +155,9 @@ public class BlackVolatilitySurfaceUtils {
 
   public static ForexSmileDeltaSurfaceDataBundle getDataFromStrangleRiskReversalQuote(final ForwardCurve forwardCurve,
       final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface) {
-    final Tenor[] tenors = fxVolatilitySurface.getXs();
+    final Object[] tenors = fxVolatilitySurface.getXs();
     Arrays.sort(tenors);
-    final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs();
+    final Object[] quotes = fxVolatilitySurface.getYs();
     final Number[] deltaValues = getDeltaValues(quotes);
     final int nExpiries = tenors.length;
     final int nDeltas = deltaValues.length - 1;
@@ -167,7 +167,7 @@ public class BlackVolatilitySurfaceUtils {
     final double[][] riskReversals = new double[nDeltas][nExpiries];
     final double[][] strangle = new double[nDeltas][nExpiries];
     for (int i = 0; i < nExpiries; i++) {
-      final Tenor tenor = tenors[i];
+      final Tenor tenor = (Tenor) tenors[i];
       final double t = getTime(tenor);
       final Double atm = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[0], FXVolQuoteType.ATM));
       if (atm == null) {
@@ -183,8 +183,8 @@ public class BlackVolatilitySurfaceUtils {
         final DoubleArrayList riskReversalList = new DoubleArrayList();
         final DoubleArrayList strangleList = new DoubleArrayList();
         for (int j = 0; j < nExpiries; j++) {
-          final Double rr = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
-          final Double s = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
+          final Double rr = fxVolatilitySurface.getVolatility((Tenor) tenors[j], ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
+          final Double s = fxVolatilitySurface.getVolatility((Tenor) tenors[j], ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
           if (rr != null && s != null) {
             riskReversalList.add(rr);
             strangleList.add(s);
@@ -214,14 +214,13 @@ public class BlackVolatilitySurfaceUtils {
     throw new OpenGammaRuntimeException("Should never happen");
   }
 
-  private static Number[] getDeltaValues(final Pair<Number, FXVolQuoteType>[] quotes) {
-    final TreeSet<Number> values = new TreeSet<Number>();
-    for (final Pair<Number, FXVolQuoteType> pair : quotes) {
-      values.add(pair.getFirst());
+  private static Number[] getDeltaValues(final Object[] quotes) {
+    final TreeSet<Object> values = new TreeSet<Object>();
+    for (final Object pair : quotes) {
+      values.add(((Pair) pair).getFirst());
     }
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
   }
-
 
   private static double[] getArrayOfDoubles(final Object[] arrayOfObject) {
     final double[] expiries;

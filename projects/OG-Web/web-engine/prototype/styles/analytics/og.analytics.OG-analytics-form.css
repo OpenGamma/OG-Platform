@@ -325,6 +325,10 @@
     background-color: #0c9605;
 }
 
+.OG-analytics-form .og-status .disconnected {
+    background-color: #a10000;
+}
+
 .OG-analytics-form .og-portfolios,
 .OG-analytics-form .og-view,
 .OG-analytics-form .og-datasources,

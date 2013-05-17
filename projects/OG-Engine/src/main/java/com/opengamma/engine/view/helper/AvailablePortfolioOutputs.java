@@ -131,6 +131,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   private final class FunctionApplicator extends AbstractPortfolioNodeTraversalCallback {
 
+
     private final FunctionCompilationContext _context;
     private final Collection<CompiledFunctionDefinition> _functions;
     private final FunctionExclusionGroups _functionExclusionGroups;
@@ -160,7 +161,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       }
       for (final Pair<List<ValueRequirement>, Set<ValueSpecification>> entry : entries) {
         boolean subset = true;
-        for (final ValueRequirement entryKey : entry.getKey()) {
+        for (final ValueRequirement entryKey : entry.getFirst()) {
           if (!visited.contains(entryKey)) {
             subset = false;
             break;
@@ -170,7 +171,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           //s_logger.debug("Cache hit on {}", requirement);
           //s_logger.debug("Cached parent = {}", entry.getKey());
           //s_logger.debug("Active parent = {}", visited);
-          return entry.getValue();
+          return entry.getSecond();
         }
       }
       return null;

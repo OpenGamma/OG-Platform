@@ -135,6 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
+    <ClInclude Include="errorref.h" />
     <ClInclude Include="feedbackwindow.h" />
     <ClInclude Include="jvm.h" />
     <ClInclude Include="param.h" />
@@ -142,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="config.cpp" />
+    <ClCompile Include="errorref.cpp" />
     <ClCompile Include="feedbackwindow.cpp" />
     <ClCompile Include="jvm.cpp" />
     <ClCompile Include="param.cpp" />

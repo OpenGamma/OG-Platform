@@ -5,24 +5,15 @@
  */
 package com.opengamma.util.test;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.difference;
-import static com.opengamma.util.RegexUtils.extract;
-import static com.opengamma.util.RegexUtils.matches;
-
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
+import java.util.SortedMap;
 
 import javax.sql.DataSource;
 
@@ -46,7 +37,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Command-line interface to create or clear databases.
@@ -57,17 +47,6 @@ public class DbTool extends Task {
    * During installation, INFO level messages will be reported to the user as progress.
    */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
-
-  private static final String DATABASE_INSTALL_FOLDER = "install/db";
-  private static final Pattern DATABASE_SCRIPT_FOLDER_PATTERN = Pattern.compile("(.+)_db");
-
-  private static final String DATABASE_CREATE_FOLDER = DATABASE_INSTALL_FOLDER + File.separatorChar + "create";
-  private static final String DATABASE_MIGRATE_FOLDER = DATABASE_INSTALL_FOLDER + File.separatorChar + "migrate";
-  private static final String DATABASE_CRAETE_SCRIPT_PREFIX = "V_";
-  private static final String DATABASE_MIGRATE_SCRIPT_PREFIX = "V_";
-
-  private static final Pattern CREATE_SCRIPT_PATTERN = Pattern.compile("^" + DATABASE_CRAETE_SCRIPT_PREFIX + "([0-9]+)__create_(.+?)\\.sql");
-  private static final Pattern MIGRATE_SCRIPT_PATTERN = Pattern.compile("^" + DATABASE_MIGRATE_SCRIPT_PREFIX + "([0-9]+)__(.+?)\\.sql");
 
   /**
    */
@@ -116,8 +95,8 @@ public class DbTool extends Task {
   public void initialize() {
     if (_dbServerHost == null) {
       // Parse the server host and catalog from a JDBC URL
+      // REVIEW jonathan 2013-05-14 -- should not be doing this (PLAT-2745)
       if (_jdbcUrl != null) {
-
         int lastSlash = _jdbcUrl.lastIndexOf('/');
         if (lastSlash == -1 || lastSlash == _jdbcUrl.length() - 1) {
           throw new OpenGammaRuntimeException("JDBC URL must contain a slash separating the server host and the database name");
@@ -302,6 +281,18 @@ public class DbTool extends Task {
     _dbScriptDirs.add(directory);
   }
 
+  /**
+   * Adds a collection of directories to the set.
+   * 
+   * @param directories  the directories, not null
+   */
+  public void addDbScriptDirectories(Iterable<File> directories) {
+    ArgumentChecker.notNull(directories, "directories");
+    for (File dir : directories) {
+      _dbScriptDirs.add(dir.getAbsolutePath());
+    }
+  }
+
   public void setCreateVersion(final String createVersion) {
     try {
       _createVersion = Integer.parseInt(createVersion);
@@ -466,255 +457,61 @@ public class DbTool extends Task {
     }
   }
 
-  private int getScriptVersion(File script, Pattern scriptVersionPattern) {
-    return Integer.parseInt(extract(script.getName(), scriptVersionPattern, 1));
-  }
-
   /**
-   * Creates map from versions to sql scripts
-   * @param dbCreateSuperDir the directory holding versioned scripts
-   * @return the map
-   */
-  private Map<File, Map<Integer, File>> getScripts(File dbCreateSuperDir, final Pattern scriptPattern) {
-    ArgumentChecker.isTrue(dbCreateSuperDir.exists(), "Directory " + dbCreateSuperDir.getAbsolutePath() + " does not exist");
-    ArgumentChecker.isTrue(dbCreateSuperDir.isDirectory(), "dbCreateSuperDir must be directory not a regular file");
-    final File[] dbCreateScriptDirs = dbCreateSuperDir.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return matches(pathname.getName(), DATABASE_SCRIPT_FOLDER_PATTERN);
-      }
-    });
-    //
-    Map<File, Map<Integer, File>> dbFolder2versionedScripts = newHashMap();
-    //
-    for (File dbCreateScriptDir : dbCreateScriptDirs) {
-      final File[] scripts = dbCreateScriptDir.listFiles(new FileFilter() {
-        @Override
-        public boolean accept(File pathname) {
-          return pathname.isFile()
-            && matches(pathname.getName(), scriptPattern);
-        }
-      });
-      //
-
-      Map<Integer, File> versionedScripts = newHashMap();
-      for (File script : scripts) {
-        Integer version = getScriptVersion(script, scriptPattern);
-        versionedScripts.put(version, script);
-      }
-
-      dbFolder2versionedScripts.put(dbCreateScriptDir, versionedScripts);
-
-    }
-    return dbFolder2versionedScripts;
-  }
-
-
-  /**
+   * Gets the scripts.
    *
-   * @return db_name => version_number => (create_script, migrate_script)
+   * @return schema => version_number => (create_script, migrate_script)
    */
-  public Map<String, Map<Integer, Pair<File, File>>> getScriptDirs() {
-
-    Map<String, ConcurrentHashMap<Integer, File>> createScripts = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, File>>() {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public ConcurrentHashMap<Integer, File> get(Object key) {
-        super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, File>());
-        return super.get(key);
-      }
-    };
-
-    Map<String, ConcurrentHashMap<Integer, File>> migrateScripts = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, File>>() {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public ConcurrentHashMap<Integer, File> get(Object key) {
-        super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, File>());
-        return super.get(key);
-      }
-    };
-
-    for (String scriptDir : _dbScriptDirs) {
-
-      Map<File, Map<Integer, File>> scripts1 = getScripts(new File(scriptDir, DATABASE_CREATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), CREATE_SCRIPT_PATTERN);
-      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : scripts1.entrySet()) {
-        File dbFolder = dbFolder2versionedScripts.getKey();
-        createScripts.get(dbFolder.getName()); // creates empty slot for dbFolder.getName() 
-        Map<Integer, File> versionedScripts = dbFolder2versionedScripts.getValue();
-        for (Map.Entry<Integer, File> version2script : versionedScripts.entrySet()) {
-          Integer version = version2script.getKey();
-          File script = version2script.getValue();
-
-          ConcurrentHashMap<Integer, File> createDbScripts = createScripts.get(dbFolder.getName());
-
-          File prev = createDbScripts.putIfAbsent(version, script);
-          if (prev != null) {
-            throw new OpenGammaRuntimeException("Can't add " + script.getAbsolutePath() + " script. Version " + version + " already added by " + prev.getAbsolutePath() + " script.");
-          }
-        }
-      }
-
-      Map<File, Map<Integer, File>> scripts2 = getScripts(new File(scriptDir, DATABASE_MIGRATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), MIGRATE_SCRIPT_PATTERN);
-      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : scripts2.entrySet()) {
-        File dbFolder = dbFolder2versionedScripts.getKey();
-        migrateScripts.get(dbFolder.getName()); // creates empty slot for dbFolder.getName()
-        Map<Integer, File> versionedScripts = dbFolder2versionedScripts.getValue();
-        for (Map.Entry<Integer, File> version2script : versionedScripts.entrySet()) {
-          Integer version = version2script.getKey();
-          File script = version2script.getValue();
-
-          ConcurrentHashMap<Integer, File> migrateDbScripts = migrateScripts.get(dbFolder.getName());
-
-          File prev = migrateDbScripts.putIfAbsent(version, script);
-          if (prev != null) {
-            throw new OpenGammaRuntimeException("Can't add " + script.getAbsolutePath() + " script. Version " + version + " already added by " + prev.getAbsolutePath() + " script.");
-          }
-        }
-      }
-
+  public Map<String, SortedMap<Integer, DbScriptPair>> getScriptDirs() {
+    Collection<File> dirs = new ArrayList<>();
+    for (String dir : _dbScriptDirs) {
+      dirs.add(new File(dir));
     }
-
-    Set<String> migrateDbDirs = migrateScripts.keySet();
-
-    Set<String> createDbDirs = createScripts.keySet();
-
-    Set<String> unmatchedCreateDbDirs = difference(migrateDbDirs, createDbDirs);
-    if (unmatchedCreateDbDirs.size() > 0) {
-      StringBuilder errorMessage = new StringBuilder();
-      for (String unmatchedCreateDbDir : unmatchedCreateDbDirs) {
-        errorMessage.append("There is no corresponding create db directory for migrate one: " + unmatchedCreateDbDir + "\n");
-      }
-      throw new OpenGammaRuntimeException(errorMessage.toString());
-    }
-
-    Set<String> unmatchedMigrateDbDirs = difference(createDbDirs, migrateDbDirs);
-    if (unmatchedMigrateDbDirs.size() > 0) {
-      StringBuilder errorMessage = new StringBuilder();
-      for (String unmatchedMigrateDbDir : unmatchedMigrateDbDirs) {
-        errorMessage.append("There is no corresponding migrate db directory for create one: " + unmatchedMigrateDbDir + "\n");
-      }
-      throw new OpenGammaRuntimeException(errorMessage.toString());
-    }
-
-    final Map<String, Map<Integer, Pair<File, File>>> scripts = new ConcurrentHashMap<String, Map<Integer, Pair<File, File>>>() {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public Map<Integer, Pair<File, File>> get(Object key) {
-        super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, Pair<File, File>>());
-        return super.get(key);
-      }
-    };
-
-    for (String dir : migrateDbDirs) {
-
-      ConcurrentHashMap<Integer, File> versionedCreateScripts = createScripts.get(dir);
-      ConcurrentHashMap<Integer, File> versionedMigrateScripts = migrateScripts.get(dir);
-
-      Set<Integer> migrateVersions = versionedCreateScripts.keySet();
-//      Set<Integer> createVersions = versionedMigrateScripts.keySet();
-//
-//      Set<Integer> unmatchedCreateVersions = difference(migrateVersions, createVersions);
-//      if (unmatchedCreateVersions.size() > 0) {
-//        StringBuilder errorMessage = new StringBuilder();
-//        for (Integer unmatchedCreateVersion : unmatchedCreateVersions) {
-//          errorMessage.append("There is no corresponding version of create script for the migrate one: " + DATABASE_CRAETE_SCRIPT_PREFIX + unmatchedCreateVersion + "\n");
-//        }
-//        throw new OpenGammaRuntimeException(errorMessage.toString());
-//      }
-//
-//      Set<Integer> unmatchedMigrateVersions = difference(createVersions, migrateVersions);
-//      if (unmatchedMigrateVersions.size() > 0) {
-//        StringBuilder errorMessage = new StringBuilder();
-//        for (Integer unmatchedMigrateVersion : unmatchedMigrateVersions) {
-//          errorMessage.append("There is no corresponding version of migrate script for the create one: " + DATABASE_MIGRATE_SCRIPT_PREFIX + unmatchedMigrateVersion + "\n");
-//        }
-//        throw new OpenGammaRuntimeException(errorMessage.toString());
-//      }
-
-      for (Integer version : migrateVersions) {
-        File createScript = versionedCreateScripts.get(version);
-        File migrateScript = versionedMigrateScripts.get(version);
-        scripts.get(dir).put(version, Pair.of(createScript, migrateScript));
-      }
-    }
-
-    if (scripts.isEmpty()) {
-      throw new OpenGammaRuntimeException("No script directories found: " + _dbScriptDirs);
-    }
-    return scripts;
+    DbScripts scripts = DbScripts.of(dirs, _dialect.getDatabaseName());
+    return scripts.getScriptPairs();
   }
-  
+
   public Map<String, Integer> getLatestVersions() {
-    Map<String, Integer> result = new HashMap<>();
-    for (String scriptDir : _dbScriptDirs) {
-      File parentDirectory = new File(scriptDir, DATABASE_CREATE_FOLDER);
-      for (File dialectDir : parentDirectory.listFiles()) {
-        if (!dialectDir.isDirectory()) {
-          continue;
-        }
-        Map<File, Map<Integer, File>> scripts = getScripts(dialectDir, CREATE_SCRIPT_PATTERN);
-        for (Map.Entry<File, Map<Integer, File>> masterScripts : scripts.entrySet()) {
-          String masterName = masterScripts.getKey().getName(); 
-          Set<Integer> versions = masterScripts.getValue().keySet();
-          if (versions.isEmpty()) {
-            continue;
-          }
-          int maxVersion = -1;
-          for (int version : versions) {
-            if (version > maxVersion) {
-              maxVersion = version;
-            }
-          }
-          if (result.containsKey(masterName)) {
-            if (((int) result.get(masterName)) != maxVersion) {
-              throw new BuildException("Latest versions differ between database dialects for master '" + masterName +
-                  "'. Found latest versions of both " + result.get(masterName) + " and " + maxVersion + ".");
-            }
-          } else {
-            result.put(masterName, maxVersion);
-          }
-        }
-      }
+    Collection<File> dirs = new ArrayList<>();
+    for (String dir : _dbScriptDirs) {
+      dirs.add(new File(dir));
     }
-    return result;
+    return DbScripts.getLatestVersions(dirs);
   }
 
   public void createTables(String catalog, String schema, final TableCreationCallback callback) {
-    final Map<String, Map<Integer, Pair<File, File>>> dbScripts = getScriptDirs();
-    for (String masterDB : dbScripts.keySet()) {
-      int targetVersion = getTargetVersion() != null ? getTargetVersion() : Collections.max(dbScripts.get(masterDB).keySet());
+    final Map<String, SortedMap<Integer, DbScriptPair>> dbScripts = getScriptDirs();
+    for (String tableSet : dbScripts.keySet()) {
+      int targetVersion = getTargetVersion() != null ? getTargetVersion() : Collections.max(dbScripts.get(tableSet).keySet());
       int migrateFromVersion = getCreateVersion() != null ? getCreateVersion() : targetVersion;
-      createTables(masterDB, catalog, schema, targetVersion, migrateFromVersion, callback);
+      createTables(tableSet, catalog, schema, targetVersion, migrateFromVersion, callback);
     }
   }
 
-  public void createTables(String masterDB, String catalog, String schema, int targetVersion, int migrateFromVersion, final TableCreationCallback callback) {
-    Map<Integer, Pair<File, File>> dbScripts = getScriptDirs().get(masterDB);
+  public void createTables(String tableSet, String catalog, String schema, int targetVersion, int migrateFromVersion, final TableCreationCallback callback) {
+    final SortedMap<Integer, DbScriptPair> dbScripts = getScriptDirs().get(tableSet);
     // create
-    final File createScript = dbScripts.get(migrateFromVersion).getFirst();
+    final File createScript = dbScripts.get(migrateFromVersion).getCreateScript();
     if (createScript == null || !createScript.exists()) {
       throw new OpenGammaRuntimeException("The " + migrateFromVersion + " create script is missing (" + createScript + ")");
     }
-    s_logger.debug("Creating {} DB version {}", masterDB, migrateFromVersion);
-    s_logger.debug("Executing create script {}", dbScripts.get(migrateFromVersion).getFirst());
+    s_logger.debug("Creating {} DB version {}", tableSet, migrateFromVersion);
+    s_logger.debug("Executing create script {}", dbScripts.get(migrateFromVersion).getCreateScript());
     executeSQLScript(catalog, schema, createScript);
     if (callback != null) {
-      callback.tablesCreatedOrUpgraded(Integer.toString(migrateFromVersion), masterDB);
+      callback.tablesCreatedOrUpgraded(Integer.toString(migrateFromVersion), tableSet);
     }
     // migrates
     for (int v = migrateFromVersion + 1; v <= targetVersion; v++) {
-      final File migrateScript = dbScripts.get(v).getSecond();
+      final File migrateScript = dbScripts.get(v).getMigrateScript();
       if (migrateScript == null || !migrateScript.exists()) {
         throw new OpenGammaRuntimeException("The " + v + " migrate script is missing (" + migrateScript + ")");
       }
       s_logger.debug("Migrating DB from version {} to {}", (v - 1), v);
-      s_logger.debug("Executing migrate script {}", dbScripts.get(v).getFirst());
+      s_logger.debug("Executing migrate script {}", dbScripts.get(v).getCreateScript());
       executeSQLScript(catalog, schema, migrateScript);
       if (callback != null) {
-        callback.tablesCreatedOrUpgraded(Integer.toString(v), masterDB);
+        callback.tablesCreatedOrUpgraded(Integer.toString(v), tableSet);
       }
     }
   }

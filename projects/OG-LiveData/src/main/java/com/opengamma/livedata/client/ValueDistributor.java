@@ -17,8 +17,7 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
 /**
  * A stand-alone class which distributes live data values to all subscribed listeners.
  * <p>
- * This is separate from all live data client instances as it needs to be
- * compact to be able to have efficient concurrency.
+ * This is separate from all live data client instances as it needs to be compact to be able to have efficient concurrency.
  */
 public class ValueDistributor {
 
@@ -26,7 +25,7 @@ public class ValueDistributor {
    * The map of specification to listeners.
    */
   private final ConcurrentMap<LiveDataSpecification, Set<LiveDataListener>> _listenersBySpec =
-    new ConcurrentHashMap<LiveDataSpecification, Set<LiveDataListener>>();
+      new ConcurrentHashMap<LiveDataSpecification, Set<LiveDataListener>>();
 
   /**
    * Gets the current specifications.
@@ -38,10 +37,19 @@ public class ValueDistributor {
   }
 
   /**
+   * Gets the number of current specifications.
+   * 
+   * @return the number of current specifications.
+   */
+  public int getActiveSpecificationCount() {
+    return _listenersBySpec.size();
+  }
+
+  /**
    * Adds a listener.
    * 
-   * @param fullyQualifiedSpecification  the fully qualified specification, not null
-   * @param listener  the listener
+   * @param fullyQualifiedSpecification the fully qualified specification, not null
+   * @param listener the listener
    */
   public void addListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
     Set<LiveDataListener> freshListeners = new HashSet<LiveDataListener>();
@@ -57,8 +65,8 @@ public class ValueDistributor {
   /**
    * Removes a listener.
    * 
-   * @param fullyQualifiedSpecification  the fully qualified specification, not null
-   * @param listener  the listener
+   * @param fullyQualifiedSpecification the fully qualified specification, not null
+   * @param listener the listener
    * @return true iff there are still active listeners
    */
   public boolean removeListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {

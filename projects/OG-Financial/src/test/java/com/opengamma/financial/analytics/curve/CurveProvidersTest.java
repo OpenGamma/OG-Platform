@@ -71,6 +71,7 @@ public class CurveProvidersTest {
   private static final CurveConfigurationSpecification EUR_3M_LIBOR_CONFIG = new CurveConfigurationSpecification(EUR_3M_LIBOR_TARGET, 1);
   private static final CurveConfigurationSpecification DE_CASH_SECURITY_CONFIG = new CurveConfigurationSpecification(DE_CASH_SECURITY_TARGET, 0);
   private static final InstrumentExposureConfiguration EXPOSURE_CONFIG;
+  private static final SecurityCurveProvider PROVIDER = new SecurityCurveProvider();
 
   static {
     final List<CurveConfiguration> deCashSecurityConfigs = Arrays.asList(EUR_CASH_SECURITY_DISCOUNTING, EUR_CASH_SECURITY_FORWARDING);
@@ -97,7 +98,7 @@ public class CurveProvidersTest {
   public void testNoConfigForSecurity() {
     final EquitySecurity equity = new EquitySecurity("A", "B", "C", Currency.USD);
     equity.setUniqueId(UniqueId.of("Security", "Equity"));
-    CurveProviders.getValueRequirements(equity, EXPOSURE_CONFIG);
+    PROVIDER.getValueRequirements(equity, EXPOSURE_CONFIG);
   }
 
   @Test
@@ -111,7 +112,7 @@ public class CurveProvidersTest {
         ValueProperties.builder().with(CURVE, "EUR Discounting 1").with(CURVE_CALCULATION_CONFIG, "EUR Config 1").get()));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "EUR Forward3M 1").with(CURVE_CALCULATION_CONFIG, "EUR Config 1").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(cash, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(cash, EXPOSURE_CONFIG));
   }
 
   @Test
@@ -122,7 +123,7 @@ public class CurveProvidersTest {
     fra.setUniqueId(UniqueId.of("Security", "DE FRA"));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "EUR Forward3M 2").with(CURVE_CALCULATION_CONFIG, "EUR Config 2").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(fra, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(fra, EXPOSURE_CONFIG));
   }
 
   @Test
@@ -135,7 +136,7 @@ public class CurveProvidersTest {
         ValueProperties.builder().with(CURVE, "EUR Discounting 6").with(CURVE_CALCULATION_CONFIG, "EUR Config 6").get()));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "EUR Forward3M 6").with(CURVE_CALCULATION_CONFIG, "EUR Config 6").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(frCash, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(frCash, EXPOSURE_CONFIG));
   }
 
   @Test
@@ -148,7 +149,7 @@ public class CurveProvidersTest {
         ValueProperties.builder().with(CURVE, "EUR Discounting 7").with(CURVE_CALCULATION_CONFIG, "EUR Config 7").get()));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "EUR Forward3M 7").with(CURVE_CALCULATION_CONFIG, "EUR Config 7").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(cash, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(cash, EXPOSURE_CONFIG));
   }
 
   @Test
@@ -161,7 +162,7 @@ public class CurveProvidersTest {
         ValueProperties.builder().with(CURVE, "EUR Discounting 3").with(CURVE_CALCULATION_CONFIG, "EUR Config 3").get()));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "EUR Forward3M 3").with(CURVE_CALCULATION_CONFIG, "EUR Config 3").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(fra, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(fra, EXPOSURE_CONFIG));
 
     expected = new HashSet<>();
     fra = new FRASecurity(Currency.EUR, ExternalId.of("Region", "FR"), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 7, 1), 0.01,
@@ -171,7 +172,7 @@ public class CurveProvidersTest {
         ValueProperties.builder().with(CURVE, "EUR Discounting 4").with(CURVE_CALCULATION_CONFIG, "EUR Config 4").get()));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "EUR Forward3M 4").with(CURVE_CALCULATION_CONFIG, "EUR Config 4").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(fra, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(fra, EXPOSURE_CONFIG));
   }
 
   @Test
@@ -184,7 +185,7 @@ public class CurveProvidersTest {
         ValueProperties.builder().with(CURVE, "EUR Discounting 5").with(CURVE_CALCULATION_CONFIG, "EUR Config 5").get()));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "EUR Forward3M 5").with(CURVE_CALCULATION_CONFIG, "EUR Config 5").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(fra, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(fra, EXPOSURE_CONFIG));
   }
 
   @Test
@@ -195,6 +196,6 @@ public class CurveProvidersTest {
     cash.setUniqueId(UniqueId.of("Security", "US Cash"));
     expected.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL,
         ValueProperties.builder().with(CURVE, "Discounting 8").with(CURVE_CALCULATION_CONFIG, "Config 8").get()));
-    assertEquals(expected, CurveProviders.getValueRequirements(cash, EXPOSURE_CONFIG));
+    assertEquals(expected, PROVIDER.getValueRequirements(cash, EXPOSURE_CONFIG));
   }
 }

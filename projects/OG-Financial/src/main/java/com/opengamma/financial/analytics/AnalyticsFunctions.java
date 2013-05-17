@@ -14,6 +14,7 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
 import com.opengamma.financial.analytics.covariance.CovarianceFunctions;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
@@ -217,6 +218,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_DELTA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_DUAL_DELTA);
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_GAMMA);
+    addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_GAMMA_P);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_PHI);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_RHO);
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_SPEED);
@@ -288,6 +290,10 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     return IRCurveFunctions.instance();
   }
 
+  protected FunctionConfigurationSource fxForwardCurveFunctionConfiguration() {
+    return FXForwardCurveFunctions.instance();
+  }
+
   protected FunctionConfigurationSource modelFunctionConfiguration() {
     return ModelFunctions.instance();
   }
@@ -303,7 +309,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), covarianceFunctionConfiguration(), irCurveFunctionConfiguration(),
-        modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
+        fxForwardCurveFunctionConfiguration(), modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 
 }

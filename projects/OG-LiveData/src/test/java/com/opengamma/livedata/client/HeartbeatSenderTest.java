@@ -34,7 +34,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)  // test fails spuriously
 public class HeartbeatSenderTest {
 
   private Timer _timer = null;

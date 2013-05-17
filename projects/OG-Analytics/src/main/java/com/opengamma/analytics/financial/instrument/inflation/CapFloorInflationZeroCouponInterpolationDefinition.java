@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -75,25 +77,26 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
    * @param paymentYearFraction Accrual factor of the accrual period; used for the payment.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
    * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param maturity The cap/floor maturity in years.
-   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndDate The reference date for the index at the coupon end.
+   * @param weight The weight for the index value in the interpolation.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
   public CapFloorInflationZeroCouponInterpolationDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
-      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int monthLag, final int maturity,
-      final ZonedDateTime lastKnownFixingDate, final double indexStartValue, final ZonedDateTime[] referenceEndDate,
-      final double strike, final boolean isCap) {
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate, final int monthLag,
+      final int maturity, final double indexStartValue, final ZonedDateTime[] referenceEndDate, final double weight, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
+    ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
     _lastKnownFixingDate = lastKnownFixingDate;
     _indexStartValue = indexStartValue;
     _referenceEndDate = referenceEndDate;
-    _weight = 1.0 - (getPaymentDate().getDayOfMonth() - 1.0) / getPaymentDate().toLocalDate().lengthOfMonth();
+    _weight = weight;
     _monthLag = monthLag;
     _maturity = maturity;
     _strike = strike;
@@ -101,7 +104,7 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
   }
 
   /**
-   * Builder from all the cap/floor details.
+   * Builder from all the cap/floor details except weight which are calculated using the payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param paymentDate Coupon payment date.
    * @param notional Coupon notional.
@@ -119,8 +122,10 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
       final IndexPrice priceIndex, final int monthLag, final int maturity, final ZonedDateTime lastKnownFixingDate, final double indexStartValue, final ZonedDateTime[] referenceEndDate,
       final double strike, final boolean isCap) {
     Validate.notNull(priceIndex, "Price index");
+    final double weight;
+    weight = 1.0 - (paymentDate.getDayOfMonth() - 1.0) / paymentDate.toLocalDate().lengthOfMonth();
     return new CapFloorInflationZeroCouponInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
-        notional, priceIndex, monthLag, maturity, lastKnownFixingDate, indexStartValue, referenceEndDate, strike, isCap);
+        notional, priceIndex, lastKnownFixingDate, monthLag, maturity, indexStartValue, referenceEndDate, weight, strike, isCap);
   }
 
   /**
@@ -137,8 +142,8 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
     Validate.notNull(couponInflation, "coupon Ibor");
     return new CapFloorInflationZeroCouponInterpolationDefinition(couponInflation.getCurrency(), couponInflation.getPaymentDate(), couponInflation.getAccrualStartDate(),
         couponInflation.getAccrualEndDate(), couponInflation.getPaymentYearFraction(), couponInflation.getNotional(), couponInflation.getPriceIndex(),
-        couponInflation.getMonthLag(), maturity, lastKnownFixingDate, couponInflation.getIndexStartValue(), couponInflation.getReferenceEndDate(),
-        strike, isCap);
+        lastKnownFixingDate, couponInflation.getMonthLag(), maturity, couponInflation.getIndexStartValue(), couponInflation.getReferenceEndDate(),
+        couponInflation.getWeight(), strike, isCap);
   }
 
   public ZonedDateTime getLastKnownFixingDate() {
@@ -254,9 +259,17 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + (_isCap ? 1231 : 1237);
     long temp;
+    temp = Double.doubleToLongBits(_indexStartValue);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_isCap ? 1231 : 1237);
+    result = prime * result + ((_lastKnownFixingDate == null) ? 0 : _lastKnownFixingDate.hashCode());
+    result = prime * result + _maturity;
+    result = prime * result + _monthLag;
+    result = prime * result + Arrays.hashCode(_referenceEndDate);
     temp = Double.doubleToLongBits(_strike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weight);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -273,10 +286,32 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
       return false;
     }
     CapFloorInflationZeroCouponInterpolationDefinition other = (CapFloorInflationZeroCouponInterpolationDefinition) obj;
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+      return false;
+    }
     if (_isCap != other._isCap) {
       return false;
     }
+    if (_lastKnownFixingDate == null) {
+      if (other._lastKnownFixingDate != null) {
+        return false;
+      }
+    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate)) {
+      return false;
+    }
+    if (_maturity != other._maturity) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight)) {
       return false;
     }
     return true;

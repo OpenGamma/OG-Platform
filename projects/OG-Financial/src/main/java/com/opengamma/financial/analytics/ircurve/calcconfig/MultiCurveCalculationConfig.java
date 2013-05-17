@@ -65,6 +65,10 @@ public class MultiCurveCalculationConfig {
     return _yieldCurveNames;
   }
 
+  public String[] getCurveNames() {
+    return _yieldCurveNames;
+  }
+
   public String getCalculationMethod() {
     return _calculationMethod;
   }

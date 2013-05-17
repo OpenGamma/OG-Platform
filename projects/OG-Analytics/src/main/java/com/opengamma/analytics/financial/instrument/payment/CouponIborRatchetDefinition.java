@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -88,15 +89,17 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
    * @param floorCoefficients The coefficients of the floor. Array of length 3. The first coefficient is the previous coupon factor,
    * the second is the Ibor factor and the third is the additive term.
    * @param capCoefficients The coefficients of the cap. Array of length 3.
+   * @param calendar The holiday calendar for the ibor index.
    */
   public CouponIborRatchetDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients) {
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients,
+      final Calendar calendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     _index = index;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), _index.getCalendar());
-    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
     _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     ArgumentChecker.notNull(mainCoefficients, "Main coefficients");
     ArgumentChecker.notNull(floorCoefficients, "Floor coefficients");

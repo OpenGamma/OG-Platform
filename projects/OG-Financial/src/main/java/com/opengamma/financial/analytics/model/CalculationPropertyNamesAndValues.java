@@ -32,6 +32,10 @@ public final class CalculationPropertyNamesAndValues {
   public static final String DISCOUNTING = "Discounting";
   /** Pricing FX forwards using a forward points curve */
   public static final String FORWARD_POINTS = "ForwardPoints";
+  /** The name of the Black call spread calculation method */
+  public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
+  /** The name of the property that sets the value of the call spread */
+  public static final String PROPERTY_CALL_SPREAD_VALUE = "CallSpreadValue";
 
   //Values for PROPERTY_MODEL_TYPE
   /** Analytic */

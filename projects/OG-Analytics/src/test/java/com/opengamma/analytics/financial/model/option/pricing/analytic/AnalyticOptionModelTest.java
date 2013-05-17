@@ -83,11 +83,11 @@ public abstract class AnalyticOptionModelTest {
   protected void assertResults(final GreekResultCollection results, final GreekResultCollection expected) {
     assertEquals(results.size(), expected.size());
     for (final Pair<Greek, Double> entry : results) {
-      final Double result2 = expected.get(entry.getKey());
-      if (!(entry.getKey().equals(Greek.VARIANCE_ULTIMA))) {
-        assertEquals(entry.getValue(), result2, EPS);
+      final Double result2 = expected.get(entry.getFirst());
+      if (!(entry.getFirst().equals(Greek.VARIANCE_ULTIMA))) {
+        assertEquals(entry.getSecond(), result2, EPS);
       } else {
-        assertEquals(entry.getValue(), result2, 1000 * EPS);
+        assertEquals(entry.getSecond(), result2, 1000 * EPS);
       }
     }
   }

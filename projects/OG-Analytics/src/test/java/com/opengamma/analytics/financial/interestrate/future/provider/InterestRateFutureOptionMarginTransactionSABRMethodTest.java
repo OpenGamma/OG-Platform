@@ -47,7 +47,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
-  private static final Calendar TARGET = EURIBOR3M.getCalendar();
+  private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR1();
   private static final SABRSTIRFuturesProviderDiscount SABR_MULTICURVES = new SABRSTIRFuturesProviderDiscount(MULTICURVES, SABR_PARAMETERS, EURIBOR3M);
@@ -63,7 +63,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "EDU2";
   private static final double STRIKE = 0.9850;
-  private static final InterestRateFutureSecurityDefinition EDU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureSecurityDefinition EDU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, TARGET);
   private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
@@ -88,7 +88,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final PresentValueSABRSensitivitySABRSTIRFuturesCalculator PVSSSFC = PresentValueSABRSensitivitySABRSTIRFuturesCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<SABRSTIRFuturesProviderInterface> PSSFC = new ParameterSensitivityParameterCalculator<SABRSTIRFuturesProviderInterface>(PVCSSFC);
+  private static final ParameterSensitivityParameterCalculator<SABRSTIRFuturesProviderInterface> PSSFC = new ParameterSensitivityParameterCalculator<>(PVCSSFC);
   private static final ParameterSensitivitySABRSTIRFuturesDiscountInterpolatedFDCalculator PSSFC_FD = new ParameterSensitivitySABRSTIRFuturesDiscountInterpolatedFDCalculator(PVSFC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;

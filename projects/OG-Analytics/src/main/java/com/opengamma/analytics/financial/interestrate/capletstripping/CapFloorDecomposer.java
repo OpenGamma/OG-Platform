@@ -39,7 +39,7 @@ public abstract class CapFloorDecomposer {
     for (int i = 0; i < n; i++) {
       final YieldAndDiscountCurve discountCurve = ycb.getCurve(caplets[i].getFundingCurveName());
       double fwd = caplets[i].accept(PRC, ycb);
-      double t = caplets[i].getFixingPeriodStartTime();
+      double t = caplets[i].getFixingTime();
       // Vol is at fixing time, discounting from payment. This included the year fraction
       double df = discountCurve.getDiscountFactor(caplets[i].getPaymentTime()) * caplets[i].getPaymentYearFraction();
       options[i] = new SimpleOptionData(fwd, caplets[i].getStrike(), t, df, caplets[i].isCap());

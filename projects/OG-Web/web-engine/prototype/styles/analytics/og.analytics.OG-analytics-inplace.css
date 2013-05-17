@@ -24,10 +24,8 @@
 .OG-analytics-inplace .OG-gadgets-container {
     background: none;
     display: none;
-    height: 300px;
     margin-left: -1px;
     margin-top: 17px;
-    width: 480px;
     position: absolute;
 }
 

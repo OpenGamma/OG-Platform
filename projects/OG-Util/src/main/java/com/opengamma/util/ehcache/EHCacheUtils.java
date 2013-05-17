@@ -50,7 +50,7 @@ public final class EHCacheUtils {
 
   /**
    * Creates a unique cache manager.
-   * 
+   *
    * @param uniqueName  the unique name, typically a test case class
    * @return the unique cache manager, not null
    */
@@ -61,7 +61,7 @@ public final class EHCacheUtils {
 
   /**
    * Creates a unique cache manager.
-   * 
+   *
    * @param uniqueName  the unique name, typically a test case class name
    * @return the unique cache manager, not null
    */
@@ -149,7 +149,7 @@ public final class EHCacheUtils {
   //-------------------------------------------------------------------------
   /**
    * Clears the contents of all caches (without deleting the caches themselves). Should be called e.g. between tests.
-   * 
+   *
    * @deprecated  This method is not thread-safe, affects the entire singleton CacheManager, and is likely to cause
    *              problems if used in concurrently-running tests.
    */
@@ -160,7 +160,7 @@ public final class EHCacheUtils {
 
   /**
    * Clears the contents of a cache manager.
-   * 
+   *
    * @param cacheManager  the cache manager, not null
    */
   public static void clear(CacheManager cacheManager) {
@@ -170,7 +170,7 @@ public final class EHCacheUtils {
 
   /**
    * Clears the contents of a named cache, if that cache exists, without deleting the cache itself.
-   * 
+   *
    * @param cacheManager  the cache manager, not null
    * @param cacheName  the cache name, not null
    */
@@ -232,7 +232,7 @@ public final class EHCacheUtils {
       return manager.getCache(name);
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException(
-        "Unable to retrieve from CacheManager, cache: " + name, ex);
+          "Unable to retrieve from CacheManager, cache: " + name, ex);
     }
   }
 
@@ -282,7 +282,7 @@ public final class EHCacheUtils {
    * <p>
    * The cache manager that is shutdown should be started with
    * {@code new CacheManager()} or similar.
-   * 
+   *
    * @param cacheManager  the cache manager, null ignored
    * @return null
    */

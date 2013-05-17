@@ -18,7 +18,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 
 /**
  * Convert the Trade on Interest Rate Future to the Definition version.
+ * @deprecated Use the generic FutureTradeConverter.
  */
+@Deprecated
 public class InterestRateFutureTradeConverter {
   private final InterestRateFutureSecurityConverter _securityConverter;
 
@@ -32,7 +34,7 @@ public class InterestRateFutureTradeConverter {
     Validate.isTrue(trade.getSecurity() instanceof InterestRateFutureSecurity, "Can only handle trades with security type InterestRateFutureSecurity");
     final InterestRateFutureSecurityDefinition securityDefinition = _securityConverter.visitInterestRateFutureSecurity((InterestRateFutureSecurity) trade.getSecurity());
     // REVIEW: Setting this quantity to one so that we don't double-count the number of trades when the position scaling takes place
-    final int quantity = 1;
+    final int quantity = trade.getQuantity().intValue();
     ZonedDateTime tradeDate;
     if (trade.getTradeTime() != null) {
       final ZoneId zone = trade.getTradeTime().getOffset();

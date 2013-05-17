@@ -28,6 +28,7 @@ import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.IBOR_FIXING_SERIES;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.IBOR_SPREAD;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.LONG_NDF;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.NO_HOLIDAY;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_FRA;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP_WITH_SPREAD;
@@ -77,14 +78,14 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class FixedPayCashFlowVisitorTest {
   private static final ForwardRateAgreementDefinition RECEIVER_FRA_UNFIXED = ForwardRateAgreementDefinition.from(FRA_START.plusYears(3), FRA_END.plusYears(3),
-      -FRA_NOTIONAL, USD_IBOR_INDEX1, FRA_RATE);
+      -FRA_NOTIONAL, USD_IBOR_INDEX1, FRA_RATE, NO_HOLIDAY);
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS_WITHOUT_FIXINGS;
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES;
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES;
   private static final FixedPayCashFlowVisitor VISITOR = FixedPayCashFlowVisitor.getInstance();
 
   static {
-    INSTRUMENTS_WITHOUT_FIXINGS = new HashSet<InstrumentDefinition<?>>();
+    INSTRUMENTS_WITHOUT_FIXINGS = new HashSet<>();
     INSTRUMENTS_WITHOUT_FIXINGS.add(PAY_CASH);
     INSTRUMENTS_WITHOUT_FIXINGS.add(PAY_FIXED_PAYMENT);
     INSTRUMENTS_WITHOUT_FIXINGS.add(PAY_FIXED_COUPON);
@@ -95,11 +96,11 @@ public class FixedPayCashFlowVisitorTest {
     INSTRUMENTS_WITHOUT_FIXINGS.add(FX_PAY_EUR);
     INSTRUMENTS_WITHOUT_FIXINGS.add(LONG_NDF);
     INSTRUMENTS_WITHOUT_FIXINGS.add(SHORT_NDF);
-    INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES = new HashSet<InstrumentDefinition<?>>();
+    INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES = new HashSet<>();
     INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES.add(RECEIVER_FRA);
     INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES.add(RECEIVER_SWAP);
     INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES.add(RECEIVER_SWAP_WITH_SPREAD);
-    INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES = new HashSet<InstrumentDefinition<?>>();
+    INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES = new HashSet<>();
     INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES.add(PAY_IBOR_COUPON);
     INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES.add(PAY_IBOR_SPREAD_COUPON);
 
@@ -132,8 +133,8 @@ public class FixedPayCashFlowVisitorTest {
 
   @Test
   public void testMissingFixingData() {
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
-    final List<Double> fixings = new ArrayList<Double>();
+    final List<LocalDate> dates = new ArrayList<>();
+    final List<Double> fixings = new ArrayList<>();
     LocalDate date = LocalDate.of(2013, 1, 1);
     final LocalDate lastDate = LocalDate.of(2014, 1, 1);
     while (date.isBefore(lastDate)) {
@@ -142,7 +143,7 @@ public class FixedPayCashFlowVisitorTest {
       date = date.plusDays(1);
     }
     final LocalDateDoubleTimeSeries fixingSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, fixings);
-    final Set<InstrumentDefinition<?>> floatingInstruments = new HashSet<InstrumentDefinition<?>>(INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES);
+    final Set<InstrumentDefinition<?>> floatingInstruments = new HashSet<>(INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES);
     floatingInstruments.addAll(INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES);
     for (final InstrumentDefinition<?> definition : floatingInstruments) {
       try {
@@ -241,7 +242,7 @@ public class FixedPayCashFlowVisitorTest {
 
   @Test
   public void testPayerSwap() {
-    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(PAYER_SWAP.accept(VISITOR));
+    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<>(PAYER_SWAP.accept(VISITOR));
     assertEquals(60, payments.size());
     LocalDate paymentDate = SWAP_START.toLocalDate().plusMonths(6);
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
@@ -251,7 +252,7 @@ public class FixedPayCashFlowVisitorTest {
       assertEquals(SWAP_NOTIONAL * SWAP_FIXED_RATE / 2, entry.getValue().getCurrencyAmounts()[0].getAmount(), 1e-15);
       paymentDate = paymentDate.plusMonths(6);
     }
-    payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(PAYER_SWAP_WITH_SPREAD.accept(VISITOR));
+    payments = new TreeMap<>(PAYER_SWAP_WITH_SPREAD.accept(VISITOR));
     assertEquals(60, payments.size());
     paymentDate = SWAP_START.toLocalDate().plusMonths(6);
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
@@ -265,7 +266,7 @@ public class FixedPayCashFlowVisitorTest {
 
   @Test
   public void testReceiverSwap() {
-    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVER_SWAP.accept(VISITOR, IBOR_FIXING_SERIES));
+    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<>(RECEIVER_SWAP.accept(VISITOR, IBOR_FIXING_SERIES));
     assertEquals(24, payments.size());
     LocalDate paymentDate = SWAP_START.toLocalDate().plusMonths(6);
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
@@ -275,7 +276,7 @@ public class FixedPayCashFlowVisitorTest {
       assertEquals(SWAP_NOTIONAL * FIXING_RATE / 2, entry.getValue().getCurrencyAmounts()[0].getAmount(), 1e-15);
       paymentDate = paymentDate.plusMonths(6);
     }
-    payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVER_SWAP_WITH_SPREAD.accept(VISITOR, IBOR_FIXING_SERIES));
+    payments = new TreeMap<>(RECEIVER_SWAP_WITH_SPREAD.accept(VISITOR, IBOR_FIXING_SERIES));
     assertEquals(24, payments.size());
     paymentDate = SWAP_START.toLocalDate().plusMonths(6);
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {

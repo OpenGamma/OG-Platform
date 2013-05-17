@@ -40,24 +40,24 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = INDEX_LIST[0];
-  private static final Calendar TARGET = EURIBOR3M.getCalendar();
+  private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
-  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
+  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M, TARGET);
 
   private static final Period START_TENOR = Period.ofMonths(6);
   private static final Period SWAP_TENOR = Period.ofYears(5);
-  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
+  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M, TARGET);
   private static final double NOTIONAL = 123000000;
   private static final double SPREAD = 0.0010;
   private static final double FIXED_RATE = 0.0150;
   private static final boolean IS_PAYER = false;
 
   private static final SwapFixedIborSpreadDefinition SWAP_SPREAD_EUR1Y3M_DEFINITION = SwapFixedIborSpreadDefinition
-      .from(START_DATE, SWAP_TENOR, EUR1YEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER);
+      .from(START_DATE, SWAP_TENOR, EUR1YEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final SwapFixedIborSpreadDefinition SWAP_SPREAD_EUR3M3M_DEFINITION = SwapFixedIborSpreadDefinition
-      .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER);
+      .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final AnnuityCouponFixedDefinition ANNUITY_SPREAD_DEFINITION = AnnuityCouponFixedDefinition.from(EUR, START_DATE, SWAP_TENOR, EURIBOR3M.getTenor(), TARGET, EURIBOR3M.getDayCount(),
       EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), NOTIONAL, SPREAD, !IS_PAYER);
 
@@ -128,7 +128,7 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
     startTime = System.currentTimeMillis();
     for (int loopswap = 0; loopswap <= nbSwap; loopswap++) {
       final double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
-      swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER);
+      swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER, TARGET);
       final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
       pv[loopswap] = swap.accept(PVDC, MULTICURVES).getAmount(EUR);
       final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);
@@ -140,7 +140,7 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
     startTime = System.currentTimeMillis();
     for (int loopswap = 0; loopswap <= nbSwap; loopswap++) {
       final double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
-      swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER);
+      swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER, TARGET);
       final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
       pv[loopswap] = swap.accept(PVDC, MULTICURVES).getAmount(EUR);
       final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);

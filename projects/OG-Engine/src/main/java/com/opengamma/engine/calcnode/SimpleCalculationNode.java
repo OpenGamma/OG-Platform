@@ -705,10 +705,10 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     int inputSamples = 0;
     final DeferredViewComputationCache cache = getCache();
     for (final Pair<ValueSpecification, Object> input : cache.getValues(inputValueSpecs, getJob().getCacheSelectHint())) {
-      if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
-        missing.add(input.getKey());
+      if ((input.getSecond() == null) || (input.getSecond() instanceof MissingInput)) {
+        missing.add(input.getFirst());
       } else {
-        final ComputedValue value = new ComputedValue(input.getKey(), input.getValue());
+        final ComputedValue value = new ComputedValue(input.getFirst(), input.getSecond());
         inputs.add(value);
         final Integer bytes = cache.estimateValueSize(value);
         if (bytes != null) {

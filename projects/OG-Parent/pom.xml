@@ -442,6 +442,11 @@
         <artifactId>elsql</artifactId>
         <version>0.7</version>
       </dependency>
+      <dependency>
+        <groupId>com.opengamma</groupId>
+        <artifactId>lambdava</artifactId>
+        <version>0.3</version>
+      </dependency>
 
       <!-- Basic low-level libraries -->
       <dependency>
@@ -819,13 +824,8 @@
 	  <dependency>
 	     <groupId>org.jruby</groupId>
 		 <artifactId>jruby-complete</artifactId>
-		 <version>1.6.8</version>
+		 <version>1.7.3</version>
 	  </dependency>
-	  <dependency>
-	     <groupId>me.n4u.sass</groupId>
-		 <artifactId>sass-gems</artifactId>
-		 <version>3.2.1</version>
-      </dependency>
  
       <!-- JMS -->
       <dependency>

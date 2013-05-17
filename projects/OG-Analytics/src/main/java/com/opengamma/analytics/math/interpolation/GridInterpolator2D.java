@@ -68,7 +68,7 @@ public class GridInterpolator2D extends Interpolator2D {
     for (final Map.Entry<Double, Interpolator1DDataBundle> entry : dataBundle.entrySet()) {
       xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
     }
-    return _xInterpolator.interpolate(_xInterpolator.getDataBundle(xData), value.getKey());
+    return _xInterpolator.interpolate(_xInterpolator.getDataBundle(xData), value.getFirst());
   }
 
   @Override
@@ -84,7 +84,7 @@ public class GridInterpolator2D extends Interpolator2D {
       xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
     }
     //this is the sensitivity of the point to the points projected onto y columns
-    final double[] xSense = _xInterpolator.getNodeSensitivitiesForValue(_xInterpolator.getDataBundle(xData), value.getKey());
+    final double[] xSense = _xInterpolator.getNodeSensitivitiesForValue(_xInterpolator.getDataBundle(xData), value.getFirst());
     ArgumentChecker.isTrue(xSense.length == dataBundle.size(), "Number of x sensitivities {} must be equal to the data bundle size {}", xSense.length, dataBundle.size());
     final Map<DoublesPair, Double> res = new HashMap<>();
 

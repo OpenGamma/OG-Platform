@@ -87,7 +87,7 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
   @Override
   public Object query(final ValueSpecification value) {
     final Pair<MarketDataProvider, ValueSpecification> providerAndSpec = _combinedMarketDataProvider.getProvider(value);
-    return _snapshotByProvider.get(providerAndSpec.getFirst()).query(providerAndSpec.getValue());
+    return _snapshotByProvider.get(providerAndSpec.getFirst()).query(providerAndSpec.getSecond());
   }
 
   @Override

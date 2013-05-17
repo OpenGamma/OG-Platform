@@ -16,7 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.google.common.collect.Iterables;
+import com.opengamma.core.marketdatasnapshot.CurveKey;
+import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -53,12 +55,13 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+;
 
 // REVIEW jonathan 2011-06-29 -- The user market data provider classes, including this, no longer need to be in the
 // engine and they simply introduce dependencies on the MarketDataSnapshotSource and specific StructuredMarketDataKeys.
 // They are a perfect example of adding a custom market data source and should be moved elsewhere.
 /**
- * Represents a market data snapshot from a {@link MarketDataSnapshotSource}.
+ * Represents a market data snapshot from a {@link com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource}.
  */
 public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
@@ -94,7 +97,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
 
     protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
-      return resolve(target, snapshot);
+      return resolve(target, constraints, snapshot);
     }
 
     protected ValueProperties resolve(final Object target, final ValueRequirement desiredValue, final StructuredMarketDataSnapshot snapshot) {
@@ -149,7 +152,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
 
       @Override
-      protected ValueProperties resolve(final Object target, final StructuredMarketDataSnapshot snapshot) {
+      protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
         ValueProperties.Builder properties = null;
         for (final YieldCurveKey curve : snapshot.getYieldCurves().keySet()) {
           if (target.equals(curve.getCurrency())) {
@@ -173,6 +176,49 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
           final YieldCurveSnapshot data = snapshot.getYieldCurves().get(new YieldCurveKey(Currency.of(target.getValue()), name));
           if (data != null) {
             return convertYieldCurveMarketData(data);
+          }
+        }
+        return null;
+      }
+
+    });
+    registerStructuredMarketDataHandler(ValueRequirementNames.CURVE_MARKET_DATA, new StructuredMarketDataHandler() {
+
+      @Override
+      protected boolean isValidTarget(final Object target) {
+        return target == null;
+      }
+
+      @Override
+      protected boolean isValidSnapshot(final StructuredMarketDataSnapshot snapshot) {
+        return (snapshot.getCurves() != null) && !snapshot.getCurves().isEmpty();
+      }
+
+      @Override
+      protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
+        ValueProperties.Builder properties = null;
+        for (final CurveKey curve : snapshot.getCurves().keySet()) {
+          if (curve.getName().equals(Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE)))) {
+            if (properties == null) {
+              properties = createValueProperties();
+            }
+            properties.with(ValuePropertyNames.CURVE, curve.getName());
+          }
+        }
+        if (properties != null) {
+          return properties.get();
+        } else {
+          return null;
+        }
+      }
+
+      @Override
+      protected Object query(final UniqueId target, final ValueProperties properties, final StructuredMarketDataSnapshot snapshot) {
+        final String name = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
+        if (snapshot.getCurves() != null) {
+          final CurveSnapshot data = snapshot.getCurves().get(new CurveKey(name));
+          if (data != null) {
+            return convertCurveMarketData(data);
           }
         }
         return null;
@@ -251,7 +297,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
 
       @Override
-      protected ValueProperties resolve(final Object target, final StructuredMarketDataSnapshot snapshot) {
+      protected ValueProperties resolve(final Object target, final ValueProperties constraints, final StructuredMarketDataSnapshot snapshot) {
         ValueProperties.Builder properties = null;
         for (final VolatilityCubeKey cube : snapshot.getVolatilityCubes().keySet()) {
           if (target.equals(cube.getCurrency())) {
@@ -322,6 +368,10 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static SnapshotDataBundle convertYieldCurveMarketData(final YieldCurveSnapshot yieldCurveSnapshot) {
     return createSnapshotDataBundle(yieldCurveSnapshot.getValues());
+  }
+
+  private static SnapshotDataBundle convertCurveMarketData(final CurveSnapshot curveSnapshot) {
+    return createSnapshotDataBundle(curveSnapshot.getValues());
   }
 
   private static VolatilitySurfaceData<Object, Object> createVolatilitySurfaceData(final VolatilitySurfaceSnapshot volCubeSnapshot, final VolatilitySurfaceKey marketDataKey) {
@@ -426,6 +476,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       for (final YieldCurveSnapshot yieldCurveSnapshot : yieldCurves.values()) {
         if (latestTimestamp == null || latestTimestamp.isBefore(yieldCurveSnapshot.getValuationTime())) {
           latestTimestamp = yieldCurveSnapshot.getValuationTime();
+        }
+      }
+    }
+    final Map<CurveKey, CurveSnapshot> curves = getSnapshot().getCurves();
+    if (curves != null) {
+      for (final CurveSnapshot curveSnapshot : curves.values()) {
+        if (latestTimestamp == null || latestTimestamp.isBefore(curveSnapshot.getValuationTime())) {
+          latestTimestamp = curveSnapshot.getValuationTime();
         }
       }
     }

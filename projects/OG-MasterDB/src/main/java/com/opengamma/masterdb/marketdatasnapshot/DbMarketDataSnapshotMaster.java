@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
@@ -71,6 +72,7 @@ public class DbMarketDataSnapshotMaster
     typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableUnstructuredMarketDataSnapshot", ManageableUnstructuredMarketDataSnapshot.class);
     typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot", ManageableMarketDataSnapshot.class);
     typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableYieldCurveSnapshot", ManageableYieldCurveSnapshot.class);
+    typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableCurveSnapshot", ManageableCurveSnapshot.class);
     typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableVolatilitySurfaceSnapshot", ManageableVolatilitySurfaceSnapshot.class);
     typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableVolatilityCubeSnapshot", ManageableVolatilityCubeSnapshot.class);
   }

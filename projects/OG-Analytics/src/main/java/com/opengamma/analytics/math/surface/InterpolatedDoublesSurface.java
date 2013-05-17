@@ -14,9 +14,10 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -447,7 +448,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
 
   // TODO this logic should be in the interpolator
   private void init() {
-    final Map<DoublesPair, Double> map = new TreeMap<>();
+    final Map<DoublesPair, Double> map = new TreeMap<>(new FirstThenSecondDoublesPairComparator());
     final double[] x = getXDataAsPrimitive();
     final double[] y = getYDataAsPrimitive();
     final double[] z = getZDataAsPrimitive();

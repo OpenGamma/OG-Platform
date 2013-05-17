@@ -34,15 +34,15 @@ public class RectangularViewportDefinitionTest {
                                                                                     false);
     ImmutableList<GridCell> gridCells = ImmutableList.copyOf(viewportCells.iterator());
     List<GridCell> expectedCells = ImmutableList.of(
-        new GridCell(3, 8),
-        new GridCell(3, 10),
-        new GridCell(3, 11),
-        new GridCell(4, 8),
-        new GridCell(4, 10),
-        new GridCell(4, 11),
-        new GridCell(6, 8),
-        new GridCell(6, 10),
-        new GridCell(6, 11));
+        new GridCell(3, 8, TypeFormatter.Format.EXPANDED),
+        new GridCell(3, 10, TypeFormatter.Format.EXPANDED),
+        new GridCell(3, 11, TypeFormatter.Format.EXPANDED),
+        new GridCell(4, 8, TypeFormatter.Format.EXPANDED),
+        new GridCell(4, 10, TypeFormatter.Format.EXPANDED),
+        new GridCell(4, 11, TypeFormatter.Format.EXPANDED),
+        new GridCell(6, 8, TypeFormatter.Format.EXPANDED),
+        new GridCell(6, 10, TypeFormatter.Format.EXPANDED),
+        new GridCell(6, 11, TypeFormatter.Format.EXPANDED));
     assertEquals(expectedCells, gridCells);
   }
 

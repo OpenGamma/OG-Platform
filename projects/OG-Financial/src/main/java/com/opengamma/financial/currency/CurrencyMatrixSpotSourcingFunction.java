@@ -69,7 +69,8 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
   }
 
   @Override
-  protected boolean getRequirements(final FunctionCompilationContext context, final ValueRequirement desiredValue, final CurrencyMatrix matrix, final Set<ValueRequirement> requirements, final Currency source, final Currency target) {
+  protected boolean getRequirements(final FunctionCompilationContext context, final ValueRequirement desiredValue, final CurrencyMatrix matrix, final Set<ValueRequirement> requirements,
+      final Currency source, final Currency target) {
     return getRequirements(matrix, requirements, new HashSet<Pair<Currency, Currency>>(), Pair.of(source, target));
   }
 
@@ -139,7 +140,24 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
    */
   public static ValueRequirement getConversionRequirement(final Currency source, final Currency target) {
     //TODO is the reversal of the inputs intentional?
+    // Yes - pending a thorough change across all currency matrix based code. Everything that refers to "source" and "target" is unfortunately back to front.
+    // "Source" should really have been "counter", and "target" should really have been "base". The ordering would then be reversed. [PLAT-3453] 
     return new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(target, source)));
+  }
+
+  /**
+   * Creates a requirement that will supply a value which gives the number of units of the source currency for each unit of the target currency.
+   * 
+   * @param source the source currency to convert from
+   * @param target the target currency to convert to
+   * @return the requirement, not null
+   */
+  public static Set<ValueRequirement> getConversionRequirements(final Currency source, final Currency target) {
+    //TODO is the reversal of the inputs intentional?
+    final Set<ValueRequirement> requirements = new HashSet<>();
+    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(target, source))));
+    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(source, target))));
+    return requirements;
   }
 
   /**

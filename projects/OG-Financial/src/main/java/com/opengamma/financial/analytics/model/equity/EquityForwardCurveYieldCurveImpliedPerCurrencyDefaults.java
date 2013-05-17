@@ -24,8 +24,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Triple;
 
 /**
  *
@@ -41,7 +42,7 @@ public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends Defa
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** Map from currency to curve configuration, curve name and currency */
-  private final Map<String, Pair<String, String>> _perCurrencyConfig;
+  private final Map<String, Triple<String, String, String>> _perCurrencyConfig;
 
   /**
    * @param priority The priority, not null
@@ -52,11 +53,11 @@ public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends Defa
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyConfig, "per currency config");
     final int nPairs = perCurrencyConfig.length;
-    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
+    ArgumentChecker.isTrue(nPairs % 4 == 0, "Must have one curve config and discounting curve name per currency");
     _priority = PriorityClass.valueOf(priority);
     _perCurrencyConfig = new HashMap<>();
-    for (int i = 0; i < perCurrencyConfig.length; i += 3) {
-      final Pair<String, String> config = Pair.of(perCurrencyConfig[i + 1], perCurrencyConfig[i + 2]);
+    for (int i = 0; i < perCurrencyConfig.length; i += 4) {
+      final Triple<String, String, String> config = Triple.of(perCurrencyConfig[i + 1], perCurrencyConfig[i + 2], perCurrencyConfig[i + 3]);
       _perCurrencyConfig.put(perCurrencyConfig[i].toUpperCase(), config);
     }
   }
@@ -80,6 +81,7 @@ public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends Defa
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CURRENCY);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.DIVIDEND_TYPE);
     }
   }
 
@@ -96,12 +98,15 @@ public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends Defa
       s_logger.error("Could not get currency for {}; should never happen", target.getUniqueId());
       return null;
     }
-    final Pair<String, String> config = _perCurrencyConfig.get(currency);
+    final Triple<String, String, String> config = _perCurrencyConfig.get(currency);
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(config.getFirst());
     }
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(config.getSecond());
+    }
+    if (ValuePropertyNames.DIVIDEND_TYPE.equals(propertyName)) {
+      return Collections.singleton(config.getThird());
     }
     if (ValuePropertyNames.CURVE_CURRENCY.equals(propertyName)) {
       return Collections.singleton(currency);

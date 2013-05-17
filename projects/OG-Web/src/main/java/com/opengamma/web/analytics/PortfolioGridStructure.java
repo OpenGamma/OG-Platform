@@ -36,6 +36,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * The structure of the grid that displays portfolio data and analytics. Contains the column definitions and
@@ -49,7 +50,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   private final ValueMappings _valueMappings;
   /** Definition of the view driving the grid. */
   private final ViewDefinition _viewDef;
-  /** Number of exploded child columns for each column whose values can be exploded. */
+  /** Meta data for exploded child columns, keyed by the specification of the parent column. */
   private final Map<ColumnSpecification, SortedSet<ColumnMeta>> _inlineColumnMeta;
   /** Rows in the grid. */
   private final List<PortfolioGridRow> _rows;
@@ -183,16 +184,24 @@ public class PortfolioGridStructure extends MainGridStructure {
                                                                    TargetLookup targetLookup,
                                                                    Map<ColumnSpecification, SortedSet<ColumnMeta>> inlineColumnMeta) {
     List<GridColumnGroup> columnGroups = Lists.newArrayList();
-    Set<ColumnSpecification> columnSpecs = Sets.newHashSet();
+    Set<Triple<String, String, ValueProperties>> columnSpecs = Sets.newHashSet();
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
+      List<ColumnSpecification> allSpecs = Lists.newArrayList();
+      for (ViewCalculationConfiguration.Column column : calcConfig.getColumns()) {
+        allSpecs.add(new ColumnSpecification(calcConfig.getName(),
+                                             column.getValueName(),
+                                             column.getProperties(),
+                                             column.getHeader()));
+      }
+      for (Pair<String, ValueProperties> output : calcConfig.getAllPortfolioRequirements()) {
+        allSpecs.add(new ColumnSpecification(calcConfig.getName(), output.getFirst(), output.getSecond()));
+      }
       List<GridColumn> columns = Lists.newArrayList();
-      for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
-        String valueName = portfolioOutput.getFirst();
-        Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
-        ValueProperties constraints = portfolioOutput.getSecond();
-        ColumnSpecification columnSpec = new ColumnSpecification(calcConfig.getName(), valueName, constraints);
-        // ensure columnSpec isn't a duplicate
-        if (columnSpecs.add(columnSpec)) {
+      for (ColumnSpecification columnSpec : allSpecs) {
+        Class<?> columnType = ValueTypes.getTypeForValueName(columnSpec.getValueName());
+        // ensure column isn't a duplicate. can't use a set of col specs because we need to treat columns as duplicates
+        // even if they have different headers
+        if (columnSpecs.add(Triple.of(columnSpec.getCalcConfigName(), columnSpec.getValueName(), columnSpec.getValueProperties()))) {
           SortedSet<ColumnMeta> meta = inlineColumnMeta.get(columnSpec);
           if (meta == null) { // column can't be inlined
             columns.add(GridColumn.forSpec(columnSpec, columnType, targetLookup));
@@ -201,7 +210,7 @@ public class PortfolioGridStructure extends MainGridStructure {
             for (ColumnMeta columnMeta : meta) {
               String header;
               if (inlineIndex++ == 0) {
-                header = columnSpec.getValueName() + " / " + columnMeta.getHeader();
+                header = columnSpec.getHeader() + " / " + columnMeta.getHeader();
               } else {
                 header = columnMeta.getHeader();
               }

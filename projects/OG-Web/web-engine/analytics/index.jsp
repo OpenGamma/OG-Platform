@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
     <script src="/prototype/scripts/lib/js.ext.array.prototype.map.js"></script>
+    <script src="/prototype/scripts/lib/js.ext.function.prototype.partial.js"></script>
 
     <script type="text/javascript" src="/js/jquery/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.event.drag-2.0.min.js"></script>

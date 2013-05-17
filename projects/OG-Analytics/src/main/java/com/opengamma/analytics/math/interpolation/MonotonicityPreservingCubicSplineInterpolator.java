@@ -54,12 +54,6 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       ArgumentChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
     }
 
-    for (int i = 0; i < nDataPts - 1; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-      }
-    }
-
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt = new double[nDataPts];
     if (nDataPts == yValuesLen) {
@@ -68,6 +62,11 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
     }
     ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
+
+    for (int i = 1; i < nDataPts; ++i) {
+      ArgumentChecker.isFalse(xValuesSrt[i - 1] == xValuesSrt[i], "xValues should be distinct");
+    }
+    
 
     final double[] intervals = _solver.intervalsCalculator(xValuesSrt);
     final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
@@ -78,6 +77,13 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     final double[] initialFirst = _function.differentiate(result, xValuesSrt).getData()[0];
     final double[] first = firstDerivativeCalculator(yValuesSrt, intervals, slopes, initialFirst);
     final double[][] coefs = _solver.solve(yValuesSrt, intervals, slopes, first);
+
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = 0; j < 4; ++j) {
+        ArgumentChecker.isFalse(Double.isNaN(coefs[i][j]), "Too large input");
+        ArgumentChecker.isFalse(Double.isInfinite(coefs[i][j]), "Too large input");
+      }
+    }
 
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
   }
@@ -192,8 +198,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       res[i] = Math.signum(initialFirst[i]) != Math.signum(pSlopes[i - 1][1]) ? 0. : Math.signum(initialFirst[i]) * Math.min(Math.abs(initialFirst[i]), refValue);
     }
     res[0] = Math.signum(initialFirst[0]) != Math.signum(slopes[0]) ? 0. : Math.signum(initialFirst[0]) * Math.min(Math.abs(initialFirst[0]), 3. * Math.abs(slopes[0]));
-    res[nDataPts - 1] = Math.signum(initialFirst[nDataPts - 1]) != Math.signum(slopes[nDataPts - 2]) ? 0. : Math.signum(initialFirst[nDataPts - 1]) *
-        Math.min(Math.abs(initialFirst[nDataPts - 1]), 3. * Math.abs(slopes[nDataPts - 2]));
+    res[nDataPts - 1] = Math.signum(initialFirst[nDataPts - 1]) != Math.signum(slopes[nDataPts - 2]) ? 0. : Math.signum(initialFirst[nDataPts - 1])
+        * Math.min(Math.abs(initialFirst[nDataPts - 1]), 3. * Math.abs(slopes[nDataPts - 2]));
     return res;
   }
 

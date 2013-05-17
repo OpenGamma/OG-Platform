@@ -83,6 +83,13 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     final double[] second = secondDerivativeCalculator(yValuesSrt, intervals, first, initialSecond);
     final double[][] coefs = _solver.solve(yValuesSrt, intervals, slopes, first, second);
 
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = 0; j < 6; ++j) {
+        ArgumentChecker.isFalse(Double.isNaN(coefs[i][j]), "Too large input");
+        ArgumentChecker.isFalse(Double.isInfinite(coefs[i][j]), "Too large input");
+      }
+    }
+
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(coefs), 6, 1);
   }
 
@@ -174,12 +181,16 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     final int nDataPts = yValues.length;
     double[] res = new double[nDataPts];
 
-    res[0] = _solver.endpointDerivatives(intervals[0], intervals[1], slopes[0], slopes[1]);
-    res[nDataPts - 1] = _solver.endpointDerivatives(intervals[nDataPts - 2], intervals[nDataPts - 3], slopes[nDataPts - 2], slopes[nDataPts - 3]);
     for (int i = 1; i < nDataPts - 1; ++i) {
-      final double tau = Math.signum(initialFirst[i]);
-      res[i] = tau == 0. ? 0. : Math.min(5. * tau * yValues[i] / intervals[i], Math.max(-5. * tau * yValues[i] / intervals[i - 1], tau * initialFirst[i])) / tau;
+      final double tau = Math.signum(yValues[i]);
+      res[i] = tau == 0. ? 0. : Math.min(5. * tau * yValues[i] / intervals[i - 1], Math.max(-5. * tau * yValues[i] / intervals[i], tau * initialFirst[i])) / tau;
     }
+    final double tauIni = Math.signum(yValues[0]);
+    final double tauFin = Math.signum(yValues[nDataPts - 1]);
+    res[0] = tauIni == 0. ? 0. : Math.min(5. * tauIni * yValues[0] / intervals[0], Math.max(-5. * tauIni * yValues[0] / intervals[0], tauIni * initialFirst[0])) / tauIni;
+    res[nDataPts - 1] = tauFin == 0. ? 0. : Math.min(5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2],
+        Math.max(-5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2], tauFin * initialFirst[nDataPts - 1])) /
+        tauFin;
 
     return res;
   }
@@ -189,13 +200,22 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     double[] res = new double[nDataPts];
 
     for (int i = 1; i < nDataPts - 1; ++i) {
-      final double tau = Math.signum(first[i]);
+      final double tau = Math.signum(yValues[i]);
       res[i] = tau == 0. ? 0. : Math.max(initialSecond[i] * tau,
           tau * Math.max(8. * first[i] / intervals[i - 1] - 20. * yValues[i] / intervals[i - 1] / intervals[i - 1], -8. * first[i] / intervals[i] - 20. * yValues[i] / intervals[i] / intervals[i])) /
           tau;
     }
-    res[0] = -8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0];
-    res[nDataPts - 1] = 8. * first[nDataPts - 1] / intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2];
+    final double tauIni = Math.signum(yValues[0]);
+    final double tauFin = Math.signum(yValues[nDataPts - 1]);
+    res[0] = tauIni == 0. ? 0. : Math.max(initialSecond[0] * tauIni,
+        tauIni * Math.max(8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0], -8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0])) /
+        tauIni;
+    res[nDataPts - 1] = tauFin == 0. ? 0. : Math.max(
+        initialSecond[0] * tauFin,
+        tauFin *
+            Math.max(8. * first[nDataPts - 1] / intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2], -8. * first[nDataPts - 1] /
+                intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2])) / tauFin;
+    ;
 
     return res;
   }

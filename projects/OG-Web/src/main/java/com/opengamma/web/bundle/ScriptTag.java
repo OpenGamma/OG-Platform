@@ -82,7 +82,7 @@ public class ScriptTag {
   private String printDevInline(Bundle bundle) {
     StringBuilder buf = new StringBuilder();
     buf.append("<script src=\"text/javascript\"><!--//--><![CDATA[//><!--\n");
-    buf.append(BundleUtils.readBundleSource(bundle));
+    buf.append(BundleUtils.readBundleSource(bundle, _data.getSassCompiler()));
     buf.append("//--><!]]>\n</script>");
     return buf.toString();
   }

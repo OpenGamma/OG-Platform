@@ -94,9 +94,9 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
       }
       ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
       Pair<LocalDate, Double> latest = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
-      if (latest != null && latest.getValue() != null) {
-        _currMktCapCache.put(security.getUniqueId(), latest.getValue());
-        return latest.getValue();
+      if (latest != null && latest.getSecond() != null) {
+        _currMktCapCache.put(security.getUniqueId(), latest.getSecond());
+        return latest.getSecond();
       } else {
         _currMktCapCache.put(security.getUniqueId(), null);
         return null;

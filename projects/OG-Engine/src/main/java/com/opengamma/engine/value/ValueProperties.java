@@ -73,7 +73,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * If the property is already a wild-card, the builder is left unchanged.
      * 
      * @param propertyName the name of the property, not null
-     * @param propertyValues the values to add, not null and not containing nulls
+     * @param propertyValues the values to add, not null or empty, and not containing nulls
      * @return the builder instance
      */
     Builder with(String propertyName, Collection<String> propertyValues);
@@ -99,6 +99,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @return {@code this} for chaining in the builder pattern, not null
      */
     Builder withOptional(String propertyName);
+
+    /**
+     * Clears the optional flag of a property.
+     * 
+     * @param propertyName the name of the property, not null
+     * @return {@code this} for chaining in the builder pattern, not null
+     */
+    Builder notOptional(String propertyName);
 
     /**
      * Removes a property from the builder definition.
@@ -207,6 +215,15 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         _optional = new HashSet<String>();
       }
       _optional.add(propertyName);
+      return this;
+    }
+
+    @Override
+    public Builder notOptional(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      if (_optional != null) {
+        _optional.remove(propertyName);
+      }
       return this;
     }
 
@@ -797,6 +814,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
+    public Builder notOptional(String propertyName) {
+      // Nothing is ever optional, so this is okay
+      return this;
+    }
+
+    @Override
     public Builder withoutAny(String propertyName) {
       _without.add(propertyName);
       return this;
@@ -1054,6 +1077,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         @Override
         public Builder withOptional(String propertyName) {
           throw new UnsupportedOperationException("Can't have optionality within the infinite set");
+        }
+
+        @Override
+        public Builder notOptional(String propertyName) {
+          // Nothing is ever optional, so this is okay
+          return this;
         }
 
         @Override

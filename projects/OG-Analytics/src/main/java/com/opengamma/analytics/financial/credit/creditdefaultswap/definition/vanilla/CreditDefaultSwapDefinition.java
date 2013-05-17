@@ -44,6 +44,9 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   // NOTE : There are no builder methods implemented in this class because it is abstract
 
+  // NOTE : If protectionStart = TRUE then default protection begins at the time 00:01 of startDate
+  // NOTE : If protectionStart = FALSE then default protection begins at the time 23:59 of startDate
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice - although MarkIt enforces N > 0)
@@ -53,6 +56,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   // TODO : Replace rec rate range arg checkers with .isInRangeInclusive
   // TODO : Add a CSA agreement?
   // TODO : Should we also include a CentralCounterParty object in order to track exchange traded contracts?
+  // TODO : Need to extract out the recovery rate input from this definition (since it is actually market data)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -182,7 +186,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
     ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
     ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
-    ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
+    //ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
 
     ArgumentChecker.notNull(stubType, "Stub Type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");

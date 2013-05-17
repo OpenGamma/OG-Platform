@@ -276,4 +276,21 @@ public final class ValuePropertyNames {
    * The name of a property that provides the name of a forward curve.
    */
   public static final String FORWARD_CURVE_NAME = "ForwardCurveName";
+  
+  /**
+   * A general name for a property describing a transformation method to use.
+   */
+  public static final String TRANSFORMATION_METHOD = "TransformationMethod";
+  
+  /** The name of a property that provides the type of dividends, be they Continuous, Discrete or None */
+  public static final String DIVIDEND_TYPE = "DividendType";
+  
+  /** Instance of DIVIDEND_TYPE_PROPERTY representing a continuous dividend yield */
+  public static final String DIVIDEND_TYPE_CONTINUOUS = "Continuous";
+  
+  /** Instance of DIVIDEND_TYPE_PROPERTY representing discrete dividend payments. See { @link DiscreteDividendFunction} */
+  public static final String DIVIDEND_TYPE_DISCRETE = "Discrete";
+  
+  /** Instance of DIVIDEND_TYPE_PROPERTY representing no dividends */
+  public static final String DIVIDEND_TYPE_NONE = "None";
 }

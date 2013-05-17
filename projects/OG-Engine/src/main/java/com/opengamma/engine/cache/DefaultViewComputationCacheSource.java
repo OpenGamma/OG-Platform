@@ -101,7 +101,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     final InMemoryIdentifierMap identifierMap = new InMemoryIdentifierMap();
     final FudgeMessageStore dataStore = new DefaultFudgeMessageStore(new InMemoryBinaryDataStore(), getFudgeContext());
     for (Pair<ValueSpecification, FudgeMsg> value : cache) {
-      dataStore.put(identifierMap.getIdentifier(value.getKey()), value.getValue());
+      dataStore.put(identifierMap.getIdentifier(value.getFirst()), value.getSecond());
     }
     return new DefaultViewComputationCache(identifierMap, dataStore, dataStore, getFudgeContext());
   }

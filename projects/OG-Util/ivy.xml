@@ -9,6 +9,7 @@
   <dependencies>
     <dependency name="og-timeseries" rev="latest.integration" />
 
+    <dependency org="com.opengamma" name="lambdava" rev="0.3" />
     <dependency org="org.fudgemsg" name="fudge-java" rev="0.3.9.8" />
     <dependency org="org.fudgemsg" name="fudge-proto" rev="0.3.9.6" />
     <dependency org="org.apache.commons" name="commons-lang" rev="2.6" />
@@ -45,6 +46,9 @@
     <dependency org="com.codahale.metrics" name="metrics-core" rev="3.0.0-BETA2" />
     <dependency org="com.codahale.metrics" name="metrics-ganglia" rev="3.0.0-BETA2" />
     <dependency org="redis" name="jedis" rev="2.1.0"/>
+    
+    <dependency org="org.jruby" name="jruby-complete" rev="1.7.3"/>
+    
     <exclude org="org.junit"/>
   </dependencies>
 </ivy-module>

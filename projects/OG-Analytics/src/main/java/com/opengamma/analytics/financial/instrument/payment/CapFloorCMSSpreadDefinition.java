@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -54,6 +55,14 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * The cap (true) / floor (false) flag.
    */
   private final boolean _isCap;
+  /**
+   * The calendar associated with the first leg.
+   */
+  private final Calendar _calendar1;
+  /**
+   * The calendar associated with the second leg.
+   */
+  private final Calendar _calendar2;
 
   /**
    * Cap/floor CMS spread constructor from all the details.
@@ -70,10 +79,12 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @param cmsIndex2 The index associated to the second CMS.
    * @param strike The strike
    * @param isCap The cap (true) /floor (false) flag.
+   * @param calendar1 The holiday calendar for the first leg.
+   * @param calendar2 The holiday calendar for the second leg.
    */
   public CapFloorCMSSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedIborDefinition underlyingSwap2,
-      final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
+      final IndexSwap cmsIndex2, final double strike, final boolean isCap, final Calendar calendar1, final Calendar calendar2) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     ArgumentChecker.notNull(underlyingSwap1, "underlying swap");
     ArgumentChecker.notNull(cmsIndex1, "CMS index");
@@ -86,6 +97,8 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     _cmsIndex2 = cmsIndex2;
     _strike = strike;
     _isCap = isCap;
+    _calendar1 = calendar1;
+    _calendar2 = calendar2;
   }
 
   /**
@@ -100,19 +113,21 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @param cmsIndex2 The index associated to the second CMS.
    * @param strike The strike
    * @param isCap The cap (true) /floor (false) flag.
+   * @param calendar1 The holiday calendar of the first leg.
+   * @param calendar2 The holiday calendar of the second leg.
    * @return The CMS spread cap/floor.
    */
   public static CapFloorCMSSpreadDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final IndexSwap cmsIndex1, final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
+      final double notional, final IndexSwap cmsIndex1, final IndexSwap cmsIndex2, final double strike, final boolean isCap, final Calendar calendar1, final Calendar calendar2) {
     ArgumentChecker.notNull(accrualStartDate, "Accrual start date.");
     ArgumentChecker.notNull(cmsIndex1, "CMS index");
     ArgumentChecker.notNull(cmsIndex2, "CMS index");
-    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex1.getIborIndex().getSpotLag(), cmsIndex1.getIborIndex().getCalendar());
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex1.getIborIndex().getSpotLag(), calendar1);
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
-    final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true);
-    final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true);
+    final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true, calendar1);
+    final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true, calendar2);
     return new CapFloorCMSSpreadDefinition(cmsIndex1.getIborIndex().getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap1, cmsIndex1,
-        underlyingSwap2, cmsIndex2, strike, isCap);
+        underlyingSwap2, cmsIndex2, strike, isCap, calendar1, calendar2);
   }
 
   /**
@@ -270,7 +285,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
         fixedRate = data.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCmsIndex1().getIborIndex().getCalendar(),
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(_calendar1,
             getFixingDate().minusDays(1));
         fixedRate = data.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way

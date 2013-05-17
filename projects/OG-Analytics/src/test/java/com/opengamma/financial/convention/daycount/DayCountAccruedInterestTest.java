@@ -65,6 +65,8 @@ public class DayCountAccruedInterestTest {
     final ZonedDateTime d1 = DateUtils.getUTCDate(2002, 8, 15);
     final ZonedDateTime d2 = DateUtils.getUTCDate(2003, 7, 15);
     final ZonedDateTime d3 = DateUtils.getUTCDate(2004, 1, 15);
+    final ZonedDateTime d4 = DateUtils.getUTCDate(2002, 9, 15);
+    final ZonedDateTime d5 = DateUtils.getUTCDate(2003, 2, 15);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_ACT_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (334. / 365), EPS);
@@ -73,6 +75,8 @@ public class DayCountAccruedInterestTest {
     assertEquals(ACT_ACT_AFB.getAccruedInterest(d2, d3, d3, coupon, paymentsPerYear), coupon * (184. / 365), EPS);
     assertEquals(ACT_ACT_ICMA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear, StubType.LONG_START), coupon * (181. / 362 + 153. / 368), EPS);
     assertEquals(ACT_ACT_ICMA.getAccruedInterest(d2, d3, d3, coupon, paymentsPerYear, StubType.LONG_START), coupon * (184. / 368), EPS);
+    assertEquals(ACT_ACT_ICMA.getAccruedInterest(d1, d4, d2, coupon, paymentsPerYear, StubType.LONG_START), coupon * (31.0 / 184.0) / 2.0, EPS);
+    assertEquals(ACT_ACT_ICMA.getAccruedInterest(d1, d5, d2, coupon, paymentsPerYear, StubType.LONG_START), coupon * (153.0 / 184.0 + 31.0 / 181.0) / 2.0, EPS);
   }
 
   @Test

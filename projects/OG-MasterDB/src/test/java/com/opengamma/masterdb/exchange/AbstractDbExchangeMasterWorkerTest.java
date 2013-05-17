@@ -67,14 +67,14 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass
+  @BeforeClass(alwaysRun = true)
   public void setUpClass() throws Exception {
     if (_readOnly) {
       init();
     }
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();

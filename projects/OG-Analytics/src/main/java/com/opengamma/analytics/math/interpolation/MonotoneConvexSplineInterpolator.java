@@ -204,21 +204,6 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
     return new DoubleMatrix2D(res);
   }
 
-  @Override
-  public DoubleMatrix1D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double x) {
-    throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
-  }
-
-  @Override
-  public DoubleMatrix2D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[] x) {
-    throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
-  }
-
-  @Override
-  public DoubleMatrix2D[] interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[][] x) {
-    throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
-  }
-
   /**
    * Determine f(t) = \frac{\partial r(t) t}{\partial t}
    * @param xValues Data t_i
@@ -404,8 +389,8 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
     final int nDataPts = time.length;
     final double[] discFwds = discFwdsFinder(time, spotRates);
     double[] fwds = fwdsFinder(time, discFwds);
-    ArrayList<double[]> coefsList = new ArrayList<double[]>();
-    ArrayList<Double> knots = new ArrayList<Double>();
+    ArrayList<double[]> coefsList = new ArrayList<>();
+    ArrayList<Double> knots = new ArrayList<>();
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       final double gValue0 = fwds[i] - discFwds[i];

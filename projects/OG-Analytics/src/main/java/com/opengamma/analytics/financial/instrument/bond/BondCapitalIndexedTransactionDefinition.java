@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  */
 public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition> extends BondTransactionDefinition<C, C>
-    implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Capital indexed bond transaction from all the transaction details.
@@ -60,7 +60,6 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final BondCapitalIndexedSecurity<Coupon> bondPurchase = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, getSettlementDate(), data);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
-    @SuppressWarnings("unchecked")
     final BondCapitalIndexedSecurity<Coupon> bondStandard = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, spot, data);
     final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
@@ -71,7 +70,7 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
-    final BondCapitalIndexedTransaction<Coupon> result = new BondCapitalIndexedTransaction<Coupon>(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
+    final BondCapitalIndexedTransaction<Coupon> result = new BondCapitalIndexedTransaction<>(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
 

@@ -13,6 +13,7 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getIds;
 
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.id.ExternalSchemes;
@@ -37,25 +38,78 @@ import com.opengamma.util.time.Tenor;
  */
 public class ZAConventions {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final ExternalId ZA = ExternalSchemes.financialRegionId("ZA");
   private static final Currency ZAR = Currency.of("ZAR");
 
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionMaster conventionMaster) {
-    final String jiborConventionName = getConventionName(ZAR, IBOR);
-    final String depositConventionName = getConventionName(ZAR, DEPOSIT);
     final String fixedSwapLegConventionName = getConventionName(ZAR, FIXED_SWAP_LEG);
     final String vanillaIborLegConventionName = getConventionName(ZAR, VANILLA_IBOR_LEG);
-    final ExternalId jiborConventionId = InMemoryConventionBundleMaster.simpleNameSecurityId(jiborConventionName);
-    final Convention jibor3mConvention = new IborIndexConvention(jiborConventionName, getIds(ZAR, IBOR), ACT_365, FOLLOWING, 0, false, ZAR, Tenor.THREE_MONTHS, LocalTime.of(11, 00), ZA, ZA, "");
-    final Convention depositConvention = new DepositConvention(depositConventionName, getIds(ZAR, DEPOSIT), ACT_365, FOLLOWING, 0, false, ZAR, ZA);
+    final String tenorString = "3m";
+    final String libor3mConventionName = getConventionName(ZAR, tenorString, IBOR);
+    final ExternalId libor3mConventionId = InMemoryConventionBundleMaster.simpleNameSecurityId(libor3mConventionName);
     final Convention fixedLegConvention = new SwapFixedLegConvention(fixedSwapLegConventionName, getIds(ZAR, FIXED_SWAP_LEG),
-        Tenor.THREE_MONTHS, ACT_365, FOLLOWING, 0, false, ZAR, ZA, StubType.NONE);
+        Tenor.THREE_MONTHS, ACT_365, FOLLOWING, 2, false, ZAR, ZA, StubType.NONE);
     final Convention vanillaIborLegConvention = new VanillaIborLegConvention(vanillaIborLegConventionName, getIds(ZAR, VANILLA_IBOR_LEG),
-        jiborConventionId, true, StubType.NONE, Interpolator1DFactory.LINEAR);
-    conventionMaster.add(jibor3mConvention);
-    conventionMaster.add(depositConvention);
+        libor3mConventionId, true, StubType.NONE, Interpolator1DFactory.LINEAR);
     conventionMaster.add(fixedLegConvention);
     conventionMaster.add(vanillaIborLegConvention);
+    addDepositConventions(conventionMaster);
+    addLiborConventions(conventionMaster);
+  }
+
+  private static void addDepositConventions(final InMemoryConventionMaster conventionMaster) {
+    for (int i = 1; i < 3; i++) {
+      final String tenorString = i + "d";
+      final Tenor tenor = new Tenor(Period.ofDays(i));
+      final String depositConventionName = getConventionName(ZAR, tenorString, DEPOSIT);
+      final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(ZAR, tenorString, DEPOSIT), ACT_360, FOLLOWING, 0, false, ZAR, ZA,
+          tenor);
+      conventionMaster.add(depositConvention);
+    }
+    for (int i = 1; i < 4; i++) {
+      final String tenorString = i + "w";
+      final Tenor tenor = new Tenor(Period.ofDays(i * 7));
+      final String depositConventionName = getConventionName(ZAR, tenorString, DEPOSIT);
+      final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(ZAR, tenorString, DEPOSIT), ACT_360, FOLLOWING, 2, false, ZAR, ZA,
+          tenor);
+      conventionMaster.add(depositConvention);
+    }
+    for (int i = 1; i < 24; i++) {
+      final String tenorString = i + "m";
+      final Tenor tenor = new Tenor(Period.ofMonths(i));
+      final String depositConventionName = getConventionName(ZAR, tenorString, DEPOSIT);
+      final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(ZAR, tenorString, DEPOSIT), ACT_360, FOLLOWING, 2, false, ZAR, ZA,
+          tenor);
+      conventionMaster.add(depositConvention);
+    }
+    for (int i = 1; i < 20; i++) {
+      final String tenorString = i + "y";
+      final Tenor tenor = new Tenor(Period.ofYears(i));
+      final String depositConventionName = getConventionName(ZAR, tenorString, DEPOSIT);
+      final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(ZAR, tenorString, DEPOSIT), ACT_360, FOLLOWING, 2, false, ZAR, ZA,
+          tenor);
+      conventionMaster.add(depositConvention);
+    }
+  }
+
+  private static void addLiborConventions(final InMemoryConventionMaster conventionMaster) {
+    for (int i = 1; i < 4; i++) {
+      final String tenorString = i + "w";
+      final Tenor tenor = new Tenor(Period.ofDays(i * 7));
+      final String liborConventionName = getConventionName(ZAR, tenorString, IBOR);
+      final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(ZAR, tenorString, IBOR), ACT_365, FOLLOWING, 2, false, ZAR,
+          LocalTime.of(11, 00), ZA, ZA, "", tenor);
+      conventionMaster.add(liborConvention);
+    }
+    for (int i = 1; i < 13; i++) {
+      final String tenorString = i + "m";
+      final Tenor tenor = new Tenor(Period.ofMonths(i));
+      final String liborConventionName = getConventionName(ZAR, tenorString, IBOR);
+      final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(ZAR, tenorString, IBOR), ACT_365, FOLLOWING, 2, false, ZAR,
+          LocalTime.of(11, 00), ZA, ZA, "", tenor);
+      conventionMaster.add(liborConvention);
+    }
   }
 }

@@ -182,8 +182,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
     <ROW Feature_="og_bloombergexample" Level="1" Condition="BLOOMBERG_SAPI_PORT"/>
-    <ROW Feature_="JRE32" Level="4" Condition="JRE_32"/>
-    <ROW Feature_="JRE64" Level="4" Condition="JRE_64"/>
+    <ROW Feature_="JRE64" Level="4" Condition="JAVASOFT_JRE_1_7_64 OR OPENGAMMA_JRE_1_7_64"/>
+    <ROW Feature_="JRE32" Level="4" Condition="JAVASOFT_JRE_1_7_32 OR OPENGAMMA_JRE_1_7_32"/>
     <ROW Feature_="og_language_core" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64 OR R32_PATH OR R64_PATH"/>
     <ROW Feature_="og_excel" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64"/>
     <ROW Feature_="og_excel_32" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32"/>
@@ -352,7 +352,7 @@
     <ROW Module="OG_Language_SDK.msm" Path="..\install\install\OG-Language-SDK.msm" Feature="og_language_sdk" Directory="APPDIR"/>
     <ROW Module="OG_Language_i386.msm" Path="..\install\install\OG-Language-i386.msm" Feature="og_language_32" Directory="APPDIR"/>
     <ROW Module="OG_Language_x64.msm" Path="..\install\install\OG-Language-x64.msm" Feature="og_language_64" Directory="APPDIR"/>
-    <ROW Module="OG_RStats.msm" Path="..\install\install\OG-RStats.msm" Feature="og_rstats" Directory="APPDIR" Params="OG_LANGUAGE_EXT=[OG_LANGUAGE_EXT];OG_LANGUAGE_JAR=[OG_LANGUAGE_JAR];R32_PATH=[R32_PATH];R64_PATH=[R64_PATH];"/>
+    <ROW Module="OG_RStats.msm" Path="..\install\install\OG-RStats.msm" Feature="og_rstats" Directory="APPDIR"/>
     <ROW Module="common.msm" Path="build\common.msm" Feature="common" Directory="APPDIR"/>
     <ROW Module="common32.msm" Path="build\common32.msm" Feature="common32" Directory="APPDIR"/>
     <ROW Module="common64.msm" Path="build\common64.msm" Feature="common64" Directory="APPDIR"/>
@@ -453,39 +453,45 @@
     <ROW XmlElement="2" Name="class" Flags="14" Order="0" Value="ch.qos.logback.core.rolling.FixedWindowRollingPolicy"/>
     <ROW XmlElement="7" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
     <ROW XmlElement="9" Name="class" Flags="14" Order="0" Value="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"/>
-    <ROW XmlElement="1" Name="name" Flags="14" Order="0" Value="FILE"/>
+    <ROW XmlElement="1" Name="name" Flags="15" Order="0" Value="FILE"/>
     <ROW XmlElement="1" Name="class" Flags="14" Order="1" Value="ch.qos.logback.core.rolling.RollingFileAppender"/>
-    <ROW XmlElement="12" Name="ref" Flags="14" Order="0" Value="FILE"/>
+    <ROW XmlElement="12" Name="ref" Flags="15" Order="0" Value="FILE"/>
     <ROW XmlElement="11" Name="level" Flags="14" Order="0" Value="warn"/>
-    <ROW XmlElement="15" Name="ref" Flags="14" Order="0" Value="FILE"/>
+    <ROW XmlElement="15" Name="ref" Flags="15" Order="0" Value="FILE"/>
     <ROW XmlElement="14" Name="level" Flags="14" Order="0" Value="warn"/>
     <ROW XmlElement="17" Name="class" Flags="14" Order="0" Value="ch.qos.logback.core.rolling.FixedWindowRollingPolicy"/>
     <ROW XmlElement="21" Name="class" Flags="14" Order="0" Value="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"/>
     <ROW XmlElement="24" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
-    <ROW XmlElement="16" Name="name" Flags="14" Order="0" Value="FILE"/>
+    <ROW XmlElement="16" Name="name" Flags="15" Order="0" Value="FILE"/>
     <ROW XmlElement="16" Name="class" Flags="14" Order="1" Value="ch.qos.logback.core.rolling.RollingFileAppender"/>
-    <ROW XmlElement="26" Name="name" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="26" Name="name" Flags="15" Order="0" Value="INSTALL"/>
     <ROW XmlElement="26" Name="class" Flags="14" Order="1" Value="com.opengamma.install.feedback.Logback"/>
     <ROW XmlElement="27" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
-    <ROW XmlElement="29" Name="name" Flags="14" Order="0" Value="com.opengamma.bloombergexample.tool.ExampleDatabasePopulator"/>
+    <ROW XmlElement="29" Name="name" Flags="15" Order="0" Value="com.opengamma.bloombergexample.tool.ExampleDatabasePopulator"/>
     <ROW XmlElement="29" Name="level" Flags="14" Order="1" Value="info"/>
     <ROW XmlElement="30" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
-    <ROW XmlElement="31" Name="name" Flags="14" Order="0" Value="com.opengamma.util.test.DbTool"/>
+    <ROW XmlElement="31" Name="name" Flags="15" Order="0" Value="com.opengamma.util.test.DbTool"/>
     <ROW XmlElement="31" Name="level" Flags="14" Order="1" Value="info"/>
     <ROW XmlElement="32" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
-    <ROW XmlElement="33" Name="name" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="33" Name="name" Flags="15" Order="0" Value="INSTALL"/>
     <ROW XmlElement="33" Name="class" Flags="14" Order="1" Value="com.opengamma.install.feedback.Logback"/>
     <ROW XmlElement="34" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
-    <ROW XmlElement="36" Name="name" Flags="14" Order="0" Value="com.opengamma.examples.tool.ExampleDatabasePopulator"/>
+    <ROW XmlElement="36" Name="name" Flags="15" Order="0" Value="com.opengamma.examples.tool.ExampleDatabasePopulator"/>
     <ROW XmlElement="36" Name="level" Flags="14" Order="1" Value="info"/>
     <ROW XmlElement="37" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
-    <ROW XmlElement="38" Name="name" Flags="14" Order="0" Value="com.opengamma.util.test.DbTool"/>
+    <ROW XmlElement="38" Name="name" Flags="15" Order="0" Value="com.opengamma.util.test.DbTool"/>
     <ROW XmlElement="38" Name="level" Flags="14" Order="1" Value="info"/>
     <ROW XmlElement="39" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
-    <ROW XmlElement="40" Name="name" Flags="14" Order="0" Value="com.opengamma.install"/>
+    <ROW XmlElement="40" Name="name" Flags="15" Order="0" Value="com.opengamma.install"/>
     <ROW XmlElement="40" Name="level" Flags="14" Order="1" Value="INFO"/>
-    <ROW XmlElement="41" Name="name" Flags="14" Order="0" Value="com.opengamma.install"/>
+    <ROW XmlElement="41" Name="name" Flags="15" Order="0" Value="com.opengamma.install"/>
     <ROW XmlElement="41" Name="level" Flags="14" Order="1" Value="INFO"/>
+    <ROW XmlElement="42" Name="name" Flags="15" Order="0" Value="BRIDGE"/>
+    <ROW XmlElement="42" Name="class" Flags="14" Order="1" Value="com.opengamma.util.log.LogbackBridgeAppender"/>
+    <ROW XmlElement="43" Name="ref" Flags="15" Order="0" Value="BRIDGE"/>
+    <ROW XmlElement="44" Name="ref" Flags="15" Order="0" Value="BRIDGE"/>
+    <ROW XmlElement="45" Name="name" Flags="15" Order="0" Value="BRIDGE"/>
+    <ROW XmlElement="45" Name="class" Flags="14" Order="1" Value="com.opengamma.util.log.LogbackBridgeAppender"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlElementComponent">
     <ROW XmlElement="0" Name="configuration" Order="0" Flags="30"/>
@@ -499,10 +505,10 @@
     <ROW XmlElement="8" ParentElement="7" Name="Pattern" Order="0" Flags="14" Text="%date [\[]%thread[\]] %-5level %logger{36} - %msg%n"/>
     <ROW XmlElement="9" ParentElement="1" Name="triggeringPolicy" Order="2" Flags="14"/>
     <ROW XmlElement="10" ParentElement="9" Name="maxFileSize" Order="0" Flags="14" Text="50MB"/>
-    <ROW XmlElement="11" ParentElement="0" Name="root" Order="2" Flags="14"/>
+    <ROW XmlElement="11" ParentElement="0" Name="root" Order="3" Flags="14"/>
     <ROW XmlElement="12" ParentElement="11" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="13" Name="configuration" Order="0" Flags="30"/>
-    <ROW XmlElement="14" ParentElement="13" Name="root" Order="2" Flags="14"/>
+    <ROW XmlElement="14" ParentElement="13" Name="root" Order="3" Flags="14"/>
     <ROW XmlElement="15" ParentElement="14" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="16" ParentElement="13" Name="appender" Order="0" Flags="14"/>
     <ROW XmlElement="17" ParentElement="16" Name="rollingPolicy" Order="1" Flags="14"/>
@@ -517,19 +523,23 @@
     <ROW XmlElement="26" ParentElement="0" Name="appender" Order="1" Flags="14"/>
     <ROW XmlElement="27" ParentElement="26" Name="layout" Order="0" Flags="14"/>
     <ROW XmlElement="28" ParentElement="27" Name="Pattern" Order="0" Flags="14" Text="%msg"/>
-    <ROW XmlElement="29" ParentElement="0" Name="logger" Order="3" Flags="14"/>
+    <ROW XmlElement="29" ParentElement="0" Name="logger" Order="4" Flags="14"/>
     <ROW XmlElement="30" ParentElement="29" Name="appender-ref" Order="0" Flags="14"/>
-    <ROW XmlElement="31" ParentElement="0" Name="logger" Order="4" Flags="14"/>
+    <ROW XmlElement="31" ParentElement="0" Name="logger" Order="5" Flags="14"/>
     <ROW XmlElement="32" ParentElement="31" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="33" ParentElement="13" Name="appender" Order="1" Flags="14"/>
     <ROW XmlElement="34" ParentElement="33" Name="layout" Order="0" Flags="14"/>
     <ROW XmlElement="35" ParentElement="34" Name="Pattern" Order="0" Flags="14" Text="%msg"/>
-    <ROW XmlElement="36" ParentElement="13" Name="logger" Order="3" Flags="14"/>
+    <ROW XmlElement="36" ParentElement="13" Name="logger" Order="4" Flags="14"/>
     <ROW XmlElement="37" ParentElement="36" Name="appender-ref" Order="0" Flags="14"/>
-    <ROW XmlElement="38" ParentElement="13" Name="logger" Order="4" Flags="14"/>
+    <ROW XmlElement="38" ParentElement="13" Name="logger" Order="5" Flags="14"/>
     <ROW XmlElement="39" ParentElement="38" Name="appender-ref" Order="0" Flags="14"/>
-    <ROW XmlElement="40" ParentElement="0" Name="logger" Order="5" Flags="14"/>
-    <ROW XmlElement="41" ParentElement="13" Name="logger" Order="5" Flags="14"/>
+    <ROW XmlElement="40" ParentElement="0" Name="logger" Order="6" Flags="14"/>
+    <ROW XmlElement="41" ParentElement="13" Name="logger" Order="6" Flags="14"/>
+    <ROW XmlElement="42" ParentElement="0" Name="appender" Order="2" Flags="14"/>
+    <ROW XmlElement="43" ParentElement="11" Name="appender-ref" Order="1" Flags="14"/>
+    <ROW XmlElement="44" ParentElement="14" Name="appender-ref" Order="1" Flags="14"/>
+    <ROW XmlElement="45" ParentElement="13" Name="appender" Order="2" Flags="14"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlFileComponent">
     <ROW XmlFile="bloombergexample_logback.xml" FileName="bloomb~1.xml|bloombergexample-logback.xml" DirProperty="config_Dir" Component="og_bloombergexample" RootElement="0" Flags="89" Version="1.0" Encoding="UTF-8" IndentUnits="2"/>

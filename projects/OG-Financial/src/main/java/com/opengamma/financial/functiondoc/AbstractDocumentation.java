@@ -597,9 +597,9 @@ public abstract class AbstractDocumentation implements Runnable {
         int i = -1;
         for (final Pair<Pattern, String> description : _valuePropertyDescription) {
           i++;
-          final Matcher m = description.getKey().matcher(s);
+          final Matcher m = description.getFirst().matcher(s);
           if (m.matches()) {
-            sbDetail.append(description.getValue());
+            sbDetail.append(description.getSecond());
             s = null;
             _valuePropertyDescriptionUsed[i]++;
             break;

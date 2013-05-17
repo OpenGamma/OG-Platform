@@ -39,7 +39,7 @@ $.register_module({
                     })
                     .on('fatal', function (message) {$selector.html(message)});
             };
-            if (loading_template) gadget.load(); else og.api.text({module: 'og.analytics.loading_tash'})
+            if (loading_template) gadget.load(); else og.api.text({module: 'og.views.gadgets.loading_tash'})
                 .pipe(function (template) {loading_template = Handlebars.compile(template); gadget.load();});
             if (!config.child) og.common.gadgets.manager.register(gadget);
         }

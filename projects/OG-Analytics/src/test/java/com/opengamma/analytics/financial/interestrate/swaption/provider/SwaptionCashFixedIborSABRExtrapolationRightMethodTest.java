@@ -52,7 +52,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();
-  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
@@ -78,11 +78,11 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   private static final boolean FIXED_IS_PAYER = true;
   //  Ibor leg: quarterly money
   // Swaption construction
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR);
-  private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
-  private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER);
-  private static final SwapFixedIborDefinition SWAP_PAYER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE_HIGH, FIXED_IS_PAYER);
-  private static final SwapFixedIborDefinition SWAP_RECEIVER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE_HIGH, !FIXED_IS_PAYER);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_PAYER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE_HIGH, FIXED_IS_PAYER, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_RECEIVER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE_HIGH, !FIXED_IS_PAYER, CALENDAR);
   private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_PAYER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_RECEIVER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_SHORT_PAYER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
@@ -110,7 +110,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   private static final PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalculator PVSSSSXC = new PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalculator(CUT_OFF_STRIKE, MU);
 
   private static final double SHIFT = 1.0E-7;
-  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_X_C = new ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface>(PVCSSSXC);
+  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_X_C = new ParameterSensitivityParameterCalculator<>(PVCSSSXC);
   private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SS_X_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSXC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;

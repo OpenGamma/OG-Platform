@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.calibrat
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.CalibrateHazardRateTermStructureISDAMethod;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
@@ -21,11 +22,15 @@ public class CalibrateIndexCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Check that the number of columns in marketSpreads is equal to the length of calibrationTenors
+  // TODO : Add the arg checkers for the inputs
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Create a CDS PV calculator object (this is used in the calibration of the survival probabilities)
   private static final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+
+  // Create an object for calibrating a SNCDS
+  private static final CalibrateHazardRateTermStructureISDAMethod cdsCalibrator = new CalibrateHazardRateTermStructureISDAMethod();
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -58,7 +63,8 @@ public class CalibrateIndexCreditDefaultSwap {
       }
 
       // Build a hazard rate curve object based on the input market data
-      hazardRateCurves[i] = creditDefaultSwap.calibrateHazardRateCurve(valuationDate, underlyingCalibrationCDS, calibrationTenors, obligorMarketSpreads, yieldCurves[i]);
+      //hazardRateCurves[i] = creditDefaultSwap.calibrateHazardRateCurve(valuationDate, underlyingCalibrationCDS, calibrationTenors, obligorMarketSpreads, yieldCurves[i]);
+      hazardRateCurves[i] = cdsCalibrator.isdaCalibrateHazardRateCurve(valuationDate, underlyingCalibrationCDS, calibrationTenors, obligorMarketSpreads, yieldCurves[i]);
     }
 
     return hazardRateCurves;

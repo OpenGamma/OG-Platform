@@ -15,16 +15,60 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * Class containing utility functions associated with schedule generation for credit instruments
  */
 public final class ScheduleUtils {
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Need to check the logic of calculateWorkday more thoroughly
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   private ScheduleUtils() {
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Function to compute the next business day that is spotDays after baseDate (takes into account we may have e.g. weekends in between working days)
+
+  public static ZonedDateTime calculateWorkday(
+      final CreditDefaultSwapDefinition cds,
+      final ZonedDateTime baseDate,
+      final int spotDays) {
+
+    ArgumentChecker.notNegative(spotDays, "Cash settlement days");
+
+    ZonedDateTime requiredDate = baseDate;
+
+    if (spotDays > 0) {
+      int n = 0;
+
+      for (int i = 0; i < spotDays; i++) {
+
+        requiredDate = requiredDate.plusDays(1);
+
+        if (!cds.getCalendar().isWorkingDay(requiredDate.toLocalDate())) {
+          n++;
+        }
+      }
+
+      requiredDate = requiredDate.plusDays(n);
+
+      while (!cds.getCalendar().isWorkingDay(requiredDate.toLocalDate())) {
+        requiredDate = requiredDate.plusDays(1);
+      }
+    }
+
+    return requiredDate;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public static ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] allDates, final ZonedDateTime startDate, final ZonedDateTime endDate,
       final boolean sorted) {
@@ -75,6 +119,8 @@ public final class ScheduleUtils {
     return result;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   public static double[] getTruncatedTimeLine(final double[] allTimes, final double startTime, final double endTime, final boolean sorted,
       final double tolerance) {
     ArgumentChecker.notNull(allTimes, "all dates");
@@ -119,6 +165,8 @@ public final class ScheduleUtils {
     return result;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   public static ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(final ISDAYieldCurveAndHazardRateCurveProvider curves,
       final ZonedDateTime startDate, final ZonedDateTime endDate) {
     final ZonedDateTime[] yieldCurveDates = curves.getYieldCurve().getCurveDates();
@@ -131,4 +179,6 @@ public final class ScheduleUtils {
     System.arraycopy(hazardCurveDates, 0, result, nYieldCurveDates, nHazardCurveDates);
     return ScheduleUtils.getTruncatedTimeLine(result, startDate, endDate, false);
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

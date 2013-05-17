@@ -48,7 +48,7 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
       final HistoricalTimeSeriesAdjustment htsa = HistoricalTimeSeriesAdjustment.parse(adjusterString);
-      value = htsa.adjust(latestDataPoint.getValue());
+      value = htsa.adjust(latestDataPoint.getSecond());
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), value));
   }

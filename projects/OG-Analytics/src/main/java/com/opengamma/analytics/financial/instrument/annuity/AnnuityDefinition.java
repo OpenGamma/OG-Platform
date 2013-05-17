@@ -178,7 +178,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
         }
       }
     }
-    return new Annuity<Payment>(resultList.toArray(new Payment[resultList.size()]));
+    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
   }
 
   @Override

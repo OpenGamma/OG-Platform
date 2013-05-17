@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -84,13 +85,14 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
    * @param accrualFactor Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param cmsIndex The CMS index associated to the coupon.
+   * @param iborCalendar The holiday calendar for the ibor index.
    * @return The CMS coupon.
    */
   public static CouponCMSDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional,
-      final IndexSwap cmsIndex) {
-    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex.getIborIndex().getSpotLag(), cmsIndex.getIborIndex().getCalendar());
+      final IndexSwap cmsIndex, final Calendar iborCalendar) {
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex.getIborIndex().getSpotLag(), iborCalendar);
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
-    final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex, 1.0, 1.0, true);
+    final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex, 1.0, 1.0, true, iborCalendar);
     return new CouponCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex);
   }
 
@@ -112,14 +114,15 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
    * Builder from a floating coupon and a CMS Index.
    * @param coupon A floating coupon with the details of the coupon to construct.
    * @param cmsIndex The CMS index associated to the coupon.
+   * @param iborCalendar The holiday calendar for the ibor index.
    * @return The constructed CMS coupon.
    */
-  public static CouponCMSDefinition from(final CouponFloatingDefinition coupon, final IndexSwap cmsIndex) {
+  public static CouponCMSDefinition from(final CouponFloatingDefinition coupon, final IndexSwap cmsIndex, final Calendar iborCalendar) {
     ArgumentChecker.notNull(coupon, "floating coupon");
     ArgumentChecker.notNull(cmsIndex, "CMS index");
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(coupon.getFixingDate(), cmsIndex.getIborIndex().getSpotLag(), cmsIndex.getIborIndex().getCalendar());
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(coupon.getFixingDate(), cmsIndex.getIborIndex().getSpotLag(), iborCalendar);
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
-    final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(settlementDate, cmsIndex, 1.0, 1.0, true);
+    final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(settlementDate, cmsIndex, 1.0, 1.0, true, iborCalendar);
     return new CouponCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
         coupon.getFixingDate(), underlyingSwap, cmsIndex);
   }

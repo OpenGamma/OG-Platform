@@ -15,6 +15,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -41,12 +42,14 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * @param calcConfigName The calculation configuration used when calculating the value
    * @param targetResolver For looking up calculation targets given their specification
    * @param cycle The most recent view cycle
+   * @param rootRowName Row name of the root of the dependency graph in the parent grid
    */
   /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
                                                 ValueSpecification root,
                                                 String calcConfigName,
                                                 ComputationTargetResolver targetResolver,
-                                                ViewCycle cycle) {
+                                                ViewCycle cycle,
+                                                String rootRowName) {
     // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
@@ -65,7 +68,19 @@ import com.opengamma.engine.view.cycle.ViewCycle;
     DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
     DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
     AnalyticsNode node = createNode(root, depGraph, true);
-    _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver);
+    ViewCalculationConfiguration calcConfig = compiledViewDef.getViewDefinition().getCalculationConfiguration(calcConfigName);
+    String rootColumnName = getRootColumnName(root, calcConfig.getColumns());
+    _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver,
+                                                  rootRowName, rootColumnName);
+  }
+
+  private static String getRootColumnName(ValueSpecification root, List<ViewCalculationConfiguration.Column> columns) {
+    for (ViewCalculationConfiguration.Column column : columns) {
+      if (column.getValueName().equals(root.getValueName()) && column.getProperties().equals(root.getProperties())) {
+        return column.getHeader();
+      }
+    }
+    return root.getValueName();
   }
 
   /**

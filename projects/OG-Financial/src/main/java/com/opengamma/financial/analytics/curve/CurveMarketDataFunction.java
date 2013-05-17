@@ -56,6 +56,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
         .with(ValuePropertyNames.CURVE, _curveName)
         .get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
@@ -84,8 +86,6 @@ public class CurveMarketDataFunction extends AbstractFunction {
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         final Set<ValueRequirement> requirements = new HashSet<>();
-        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-        final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
         for (final CurveNodeWithIdentifier id : specification.getNodes()) {
           requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
         }

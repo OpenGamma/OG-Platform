@@ -39,20 +39,20 @@ public class CashFlowEquivalentCalculatorTest {
   private static final int SETTLEMENT_DAYS = 2;
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
 
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final int FIXED_PAYMENT_PAYMENT_BY_YEAR = 2;
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR, CALENDAR);
 
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 7, 11);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
-  private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
   //to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final String FUNDING_CURVE_NAME = "Funding";
@@ -136,7 +136,7 @@ public class CashFlowEquivalentCalculatorTest {
           * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getPaymentTime()) / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime());
       assertEquals("Ibor leg: Amount - item " + loopcf,
           (beta * cpnIbor.getPaymentYearFraction() / cpnIbor.getFixingAccrualFactor() - 1 * cpnIborPrevious.getPaymentYearFraction() / cpnIborPrevious.getFixingAccrualFactor()) * NOTIONAL
-              * (FIXED_IS_PAYER ? 1.0 : -1.0), cfe.getNthPayment(loopcf).getAmount(), 1E-4);
+          * (FIXED_IS_PAYER ? 1.0 : -1.0), cfe.getNthPayment(loopcf).getAmount(), 1E-4);
       assertEquals("Ibor leg: Time", leg.getNthPayment(loopcf - 1).getPaymentTime(), cfe.getNthPayment(loopcf).getPaymentTime(), 1E-5);
     }
     assertEquals("Ibor leg: Amount", -1 * NOTIONAL * (FIXED_IS_PAYER ? 1.0 : -1.0), cfe.getNthPayment(leg.getNumberOfPayments()).getAmount(), 1E-4);
@@ -167,7 +167,7 @@ public class CashFlowEquivalentCalculatorTest {
           * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getPaymentTime()) / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime());
       assertEquals("Swap: Amount",
           (beta * cpnIbor.getPaymentYearFraction() / cpnIbor.getFixingAccrualFactor() - 1 * cpnIborPrevious.getPaymentYearFraction() / cpnIborPrevious.getFixingAccrualFactor()) * NOTIONAL
-              * (FIXED_IS_PAYER ? 1.0 : -1.0) + SWAP.getFixedLeg().getNthPayment(loopcf / 2 - 1).getAmount(), cfe.getNthPayment(loopcf).getAmount(), 1E-4);
+          * (FIXED_IS_PAYER ? 1.0 : -1.0) + SWAP.getFixedLeg().getNthPayment(loopcf / 2 - 1).getAmount(), cfe.getNthPayment(loopcf).getAmount(), 1E-4);
       assertEquals("Swap: Time", leg.getNthPayment(loopcf - 1).getPaymentTime(), cfe.getNthPayment(loopcf).getPaymentTime(), 1E-5);
     }
     for (int loopcf = 1; loopcf < leg.getNumberOfPayments(); loopcf += 2) {
@@ -177,7 +177,7 @@ public class CashFlowEquivalentCalculatorTest {
           * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getPaymentTime()) / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime());
       assertEquals("Swap: Amount",
           (beta * cpnIbor.getPaymentYearFraction() / cpnIbor.getFixingAccrualFactor() - 1 * cpnIborPrevious.getPaymentYearFraction() / cpnIborPrevious.getFixingAccrualFactor()) * NOTIONAL
-              * (FIXED_IS_PAYER ? 1.0 : -1.0), cfe.getNthPayment(loopcf).getAmount(), 1E-4);
+          * (FIXED_IS_PAYER ? 1.0 : -1.0), cfe.getNthPayment(loopcf).getAmount(), 1E-4);
       assertEquals("Swap: Time", leg.getNthPayment(loopcf - 1).getPaymentTime(), cfe.getNthPayment(loopcf).getPaymentTime(), 1E-5);
     }
     assertEquals("Swap: Amount", (-1 * NOTIONAL * (FIXED_IS_PAYER ? 1.0 : -1.0)) + SWAP.getFixedLeg().getNthPayment(SWAP.getFixedLeg().getNumberOfPayments() - 1).getAmount(),
