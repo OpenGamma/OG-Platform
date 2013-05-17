@@ -353,6 +353,7 @@ import com.opengamma.engine.value.ValueSpecification;
             _resolvedValues.add(_results[0].getValueSpecification());
             _resolvedValues.add(_results[1].getValueSpecification());
             _resolvedValues.add(_results[2].getValueSpecification());
+            _resolvedValues.add(value.getValueSpecification());
             break;
           default:
             throw new IllegalStateException();
@@ -360,10 +361,14 @@ import com.opengamma.engine.value.ValueSpecification;
       }
       final int l = _results.length;
       s_logger.debug("Result {} available from {}", value, this);
-      final ResolvedValue[] newResults = new ResolvedValue[l + 1];
-      System.arraycopy(_results, 0, newResults, 0, l);
-      newResults[l] = value;
-      _results = newResults;
+      if (l > 0) {
+        final ResolvedValue[] newResults = new ResolvedValue[l + 1];
+        System.arraycopy(_results, 0, newResults, 0, l);
+        newResults[l] = value;
+        _results = newResults;
+      } else {
+        _results = new ResolvedValue[] {value };
+      }
       if (_failure != null) {
         // Don't hold onto any failure state if there is a result
         _failure = null;
