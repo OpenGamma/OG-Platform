@@ -177,12 +177,16 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     final int nDataPts = yValues.length;
     double[] res = new double[nDataPts];
 
-    res[0] = _solver.endpointDerivatives(intervals[0], intervals[1], slopes[0], slopes[1]);
-    res[nDataPts - 1] = _solver.endpointDerivatives(intervals[nDataPts - 2], intervals[nDataPts - 3], slopes[nDataPts - 2], slopes[nDataPts - 3]);
     for (int i = 1; i < nDataPts - 1; ++i) {
-      final double tau = Math.signum(initialFirst[i]);
-      res[i] = tau == 0. ? 0. : Math.min(3. * tau * yValues[i] / intervals[i], Math.max(-3. * tau * yValues[i] / intervals[i - 1], tau * initialFirst[i])) / tau;
+      final double tau = Math.signum(yValues[i]);
+      res[i] = tau == 0. ? 0. : Math.min(3. * tau * yValues[i] / intervals[i - 1], Math.max(-3. * tau * yValues[i] / intervals[i], tau * initialFirst[i])) / tau;
     }
+    final double tauIni = Math.signum(yValues[0]);
+    final double tauFin = Math.signum(yValues[nDataPts - 1]);
+    res[0] = tauIni == 0. ? 0. : Math.min(5. * tauIni * yValues[0] / intervals[0], Math.max(-5. * tauIni * yValues[0] / intervals[0], tauIni * initialFirst[0])) / tauIni;
+    res[nDataPts - 1] = tauFin == 0. ? 0. : Math.min(5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2],
+        Math.max(-5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2], tauFin * initialFirst[nDataPts - 1])) /
+        tauFin;
 
     return res;
   }

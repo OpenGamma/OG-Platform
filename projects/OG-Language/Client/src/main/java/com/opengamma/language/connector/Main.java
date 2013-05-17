@@ -17,7 +17,7 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextFactory;
 import com.opengamma.language.install.ConfigureMain;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Entry point for the Language add-in, defining static methods for calling externally.

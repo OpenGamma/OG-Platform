@@ -14,7 +14,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ParallelArrayBinarySort;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /** 
  * Parent class for a family of curves where the data is stored as arrays.

@@ -15,9 +15,12 @@ import com.opengamma.analytics.financial.interestrate.PV01Calculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 
 /**
  * Computes the PV01 of interest rate instruments.
@@ -38,5 +41,10 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCu
       throw new OpenGammaRuntimeException("Could not get PV01 for curve named " + curveName + "; should never happen");
     }
     return Collections.singleton(new ComputedValue(resultSpec, pv01.get(curveName)));
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE.or(FinancialSecurityTypes.BOND_SECURITY).or(FinancialSecurityTypes.BOND_FUTURE_SECURITY);
   }
 }

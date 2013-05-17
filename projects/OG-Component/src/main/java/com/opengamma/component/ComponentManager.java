@@ -138,7 +138,7 @@ public class ComponentManager {
     ArgumentChecker.notNull(repo, "repo");
     _repo = repo;
     _logger = repo.getLogger();
-    getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
+    setServerName(serverName);
   }
 
   //-------------------------------------------------------------------------
@@ -184,6 +184,7 @@ public class ComponentManager {
    */
   public void setServerName(String serverName) {
     getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
+    System.setProperty(OPENGAMMA_SERVER_NAME, serverName);
   }
 
   //-------------------------------------------------------------------------

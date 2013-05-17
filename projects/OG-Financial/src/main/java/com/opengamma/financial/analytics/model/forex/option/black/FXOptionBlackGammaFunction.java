@@ -17,6 +17,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -41,6 +42,11 @@ public class FXOptionBlackGammaFunction extends FXOptionBlackSingleValuedFunctio
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
       final CurrencyAmount result = forex.accept(CALCULATOR, data);
+      final String resultCurrency = result.getCurrency().getCode();
+      final String expectedCurrency = spec.getProperty(ValuePropertyNames.CURRENCY);
+      if (!expectedCurrency.equals(resultCurrency)) {
+        throw new OpenGammaRuntimeException("Expected currency " + expectedCurrency + " does not equal result currency " + resultCurrency);
+      }
       final double gammaValue = result.getAmount();
       return Collections.singleton(new ComputedValue(spec, gammaValue));
     }

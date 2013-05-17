@@ -97,11 +97,7 @@ public final class DbScripts {
             FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
           }
           for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-            try {
-              ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
-            } catch (IOException ex) {
-              throw new OpenGammaRuntimeException("Unable to unzip database scripts: " + SCRIPT_INSTALL_DIR);
-            }
+            ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
           }
           dirs.add(SCRIPT_INSTALL_DIR.getCanonicalFile());
         } else {

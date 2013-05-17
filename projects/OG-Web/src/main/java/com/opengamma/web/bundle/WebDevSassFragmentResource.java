@@ -17,18 +17,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.google.common.io.Files;
-import com.opengamma.web.sass.JRubySassCompiler;
 
 /**
  * RESTful resource for a Sass fragment in development mode.
  */
 @Path("/bundles/sass/{fragment: .*}")
 public class WebDevSassFragmentResource extends AbstractWebBundleResource {
-    
-  private static final JRubySassCompiler s_sassCompiler = JRubySassCompiler.getInstance();
-  
-  private static final File CSS_DIR = new File(System.getProperty("java.io.tmpdir"), ".og-css");
   
   /**
    * Creates the resource.
@@ -43,15 +41,22 @@ public class WebDevSassFragmentResource extends AbstractWebBundleResource {
   @GET
   @Produces("text/css")
   public Response get(@PathParam("fragment") String fragment) {
-    File templateDir = new File(data().getBundleManagerFactory().getUriProvider().getUri(""));    
-    s_sassCompiler.updateStyleSheets(templateDir, CSS_DIR);
-    String cssContent = null;
-    try {
-      cssContent = Files.toString(new File(CSS_DIR, fragment), Charset.defaultCharset());
-    } catch (IOException ex) {
-      return Response.status(Status.NOT_FOUND).build();
-    }
-    return Response.ok(cssContent).build();
+    fragment = StringUtils.stripToNull(fragment);
+    Response result = Response.status(Status.NOT_FOUND).build();
+    
+    if (fragment != null) {
+      File templateDir = new File(data().getBundleManagerFactory().getUriProvider().getUri(""));
+      fragment = FilenameUtils.removeExtension(fragment) + "." + BundleType.SCSS.getSuffix();
+      try {
+        String sassContent = Files.toString(new File(templateDir, fragment), Charset.defaultCharset());
+        String cssContent = data().getSassCompiler().sassConvert(sassContent);
+        result = Response.ok(cssContent).build();
+      } catch (IOException ex) {
+        result = Response.status(Status.NOT_FOUND).build();
+      }
+    } 
+    return result;
+    
   }
 
   //-------------------------------------------------------------------------

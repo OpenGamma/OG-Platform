@@ -16,7 +16,7 @@ import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ParallelArrayBinarySort;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A surface that is constructed from a set of parallel curves ({@link Curve}), with an interpolator to find points between these curves. The

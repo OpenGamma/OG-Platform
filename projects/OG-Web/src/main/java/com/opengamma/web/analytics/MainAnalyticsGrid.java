@@ -25,10 +25,12 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the portfolio (primitives). This class isn't thread safe.
+ * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the
+ * portfolio
+ * (primitives). This class isn't thread safe.
  */
 /* package */abstract class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
 
@@ -45,10 +47,10 @@ import com.opengamma.lambdava.tuple.Pair;
   protected ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
   /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
-      MainGridStructure gridStructure,
-      String gridId,
-      ComputationTargetResolver targetResolver,
-      ViewportListener viewportListener) {
+                                 MainGridStructure gridStructure,
+                                 String gridId,
+                                 ComputationTargetResolver targetResolver,
+                                 ViewportListener viewportListener) {
     super(viewportListener, gridId);
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
@@ -60,7 +62,7 @@ import com.opengamma.lambdava.tuple.Pair;
 
   /**
    * Updates the data in the viewports of the main grid and all dependency graph grids when new results arrive from the calculation engine.
-   * 
+   *
    * @param cache Cache of calculation results
    * @param cycle Calculation cycle that calculated the latest results
    * @return List of IDs specifiying the viewports whose data has changed as a result of the new update
@@ -84,7 +86,7 @@ import com.opengamma.lambdava.tuple.Pair;
 
   /**
    * Opens a depdency graph grid showing the steps used to calculate a cell's value.
-   * 
+   *
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
    * @param row Row index of the cell whose dependency graph is required
@@ -93,11 +95,11 @@ import com.opengamma.lambdava.tuple.Pair;
    * @param viewportListener Receives notification when there are changes to a viewport TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
    */
   /* package */void openDependencyGraph(int graphId,
-      String gridId,
-      int row,
-      int col,
-      CompiledViewDefinition compiledViewDef,
-      ViewportListener viewportListener) {
+                                        String gridId,
+                                        int row,
+                                        int col,
+                                        CompiledViewDefinition compiledViewDef,
+                                        ViewportListener viewportListener) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
@@ -107,14 +109,15 @@ import com.opengamma.lambdava.tuple.Pair;
     }
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
+    MainGridStructure.Row gridRow = _gridStructure.getTargetLookup().getRow(row);
     DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId,
-        _targetResolver, viewportListener);
+                                                          _targetResolver, viewportListener, gridRow.getName());
     _depGraphs.put(graphId, grid);
   }
 
   /**
    * Returns an existing dependency graph grid.
-   * 
+   *
    * @param graphId ID of the dependency graph
    * @return The dependency graph grid
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
@@ -129,7 +132,7 @@ import com.opengamma.lambdava.tuple.Pair;
 
   /**
    * Closes an existing dependency graph grid.
-   * 
+   *
    * @param graphId ID of the dependency graph
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
@@ -142,7 +145,7 @@ import com.opengamma.lambdava.tuple.Pair;
 
   /**
    * Returns the grid structure for a dependency graph.
-   * 
+   *
    * @param graphId ID of the dependency graph
    * @return The grid structure of the specified dependency graph
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
@@ -153,7 +156,7 @@ import com.opengamma.lambdava.tuple.Pair;
 
   /**
    * Creates a viewport on a dependency graph grid.
-   * 
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
    * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
@@ -162,10 +165,10 @@ import com.opengamma.lambdava.tuple.Pair;
    * @return {@code true} if there is data available for the new viewport
    */
   /* package */boolean createViewport(int graphId,
-      int viewportId,
-      String callbackId,
-      ViewportDefinition viewportDefinition,
-      ResultsCache cache) {
+                                      int viewportId,
+                                      String callbackId,
+                                      ViewportDefinition viewportDefinition,
+                                      ResultsCache cache) {
     return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition, cache);
   }
 
@@ -176,7 +179,7 @@ import com.opengamma.lambdava.tuple.Pair;
 
   /**
    * Updates an existing viewport on a dependency graph grid
-   * 
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport
    * @param viewportDefinition Definition of the viewport
@@ -185,15 +188,15 @@ import com.opengamma.lambdava.tuple.Pair;
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
   /* package */String updateViewport(int graphId,
-      int viewportId,
-      ViewportDefinition viewportDefinition,
-      ResultsCache cache) {
+                                     int viewportId,
+                                     ViewportDefinition viewportDefinition,
+                                     ResultsCache cache) {
     return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, cache);
   }
 
   /**
    * Deletes an existing viewport on a dependency graph grid.
-   * 
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
@@ -204,7 +207,7 @@ import com.opengamma.lambdava.tuple.Pair;
 
   /**
    * Returns the data for a viewport on a dependency graph grid.
-   * 
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
    * @return The current data for the viewport
@@ -249,7 +252,8 @@ import com.opengamma.lambdava.tuple.Pair;
   protected static class DummyTargetResolver implements ComputationTargetResolver {
 
     @Override
-    public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
+    public ComputationTarget resolve(final ComputationTargetSpecification specification,
+                                     final VersionCorrection versionCorrection) {
       return null;
     }
 

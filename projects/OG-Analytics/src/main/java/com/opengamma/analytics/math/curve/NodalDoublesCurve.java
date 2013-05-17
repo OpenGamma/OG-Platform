@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data). Any attempt to find a <i>y</i> value 

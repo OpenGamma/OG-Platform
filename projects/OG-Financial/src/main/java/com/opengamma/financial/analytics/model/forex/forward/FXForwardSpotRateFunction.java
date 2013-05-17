@@ -84,10 +84,9 @@ public class FXForwardSpotRateFunction extends AbstractFunction.NonCompiledInvok
     if ((dataTypes == null) || dataTypes.isEmpty() || dataTypes.contains(LIVE)) {
       // Live
       return Collections.singleton(ConventionBasedFXRateFunction.getSpotRateRequirement(currencyPair));
-    } else {
-      // Last close
-      return Collections.singleton(ConventionBasedFXRateFunction.getLatestHistoricalRequirement(currencyPair));
     }
+    // Last close
+    return Collections.singleton(ConventionBasedFXRateFunction.getLatestHistoricalRequirement(currencyPair));
   }
 
 }

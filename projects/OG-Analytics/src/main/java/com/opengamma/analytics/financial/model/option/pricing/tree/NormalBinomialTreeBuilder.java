@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.option.definition.GeneralNormalOptionDataBundle;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
 * Builds a binomial tree where the nodes are set to locally match a normal process. The process that the tree is emulating is of the form  df = a(f,t)dt + b(f,t)dw.

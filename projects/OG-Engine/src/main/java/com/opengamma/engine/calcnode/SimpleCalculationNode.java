@@ -58,7 +58,7 @@ import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A calculation node implementation. The node can only be used by one thread - i.e. executeJob cannot be called concurrently to do multiple jobs. To execute multiple jobs concurrently separate
@@ -705,10 +705,10 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     int inputSamples = 0;
     final DeferredViewComputationCache cache = getCache();
     for (final Pair<ValueSpecification, Object> input : cache.getValues(inputValueSpecs, getJob().getCacheSelectHint())) {
-      if ((input._2() == null) || (input._2() instanceof MissingInput)) {
-        missing.add(input._1());
+      if ((input.getSecond() == null) || (input.getSecond() instanceof MissingInput)) {
+        missing.add(input.getFirst());
       } else {
-        final ComputedValue value = new ComputedValue(input._1(), input._2());
+        final ComputedValue value = new ComputedValue(input.getFirst(), input.getSecond());
         inputs.add(value);
         final Integer bytes = cache.estimateValueSize(value);
         if (bytes != null) {

@@ -58,12 +58,12 @@ public final class PrimitivesGridStructure extends MainGridStructure {
   }
 
   private PrimitivesGridStructure(GridColumnGroup fixedColumns,
-      GridColumnGroups nonFixedColumns,
-      TargetLookup targetLookup) {
+                                  GridColumnGroups nonFixedColumns,
+                                  TargetLookup targetLookup) {
     super(fixedColumns, nonFixedColumns, targetLookup);
   }
 
-  /* package */static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef) {
+  /* package */ static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
     GridColumn labelColumn = new GridColumn("Name", "", String.class, new PrimitivesLabelRenderer(rows));
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
@@ -110,7 +110,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
     return rows;
   }
 
-  /* package */static PrimitivesGridStructure empty() {
+  /* package */ static PrimitivesGridStructure empty() {
     return new PrimitivesGridStructure();
   }
 }

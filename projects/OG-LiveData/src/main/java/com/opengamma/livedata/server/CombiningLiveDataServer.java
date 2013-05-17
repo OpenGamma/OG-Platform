@@ -36,7 +36,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.NamedThreadPoolFactory;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A {@link StandardLiveDataServer} which delegates all the work to a set of {@link StandardLiveDataServer}

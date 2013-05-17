@@ -50,7 +50,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -283,7 +283,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
     }
     // exercise type
-    final boolean isAmerican = true; // !!! THIS IS JUST TEST CODE !!! (specification.getExerciseType()).getName().startsWith("A");
+    final boolean isAmerican = (specification.getExerciseType()).getName().startsWith("A");
     BaroneAdesiWhaleyModel americanModel = null;
     final double spot = forwardCurve.getSpot();
     if (isAmerican) {

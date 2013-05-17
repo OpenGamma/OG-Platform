@@ -7,8 +7,6 @@ package com.opengamma.util.tuple;
 
 import java.util.Comparator;
 
-import com.opengamma.lambdava.tuple.Pair;
-
 /**
  * A comparator for a pair of doubles that evaluates the magnitude of the pairs.
  * <p>

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

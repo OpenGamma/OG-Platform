@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransa
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class with methods related to bill transaction valued by discounting.

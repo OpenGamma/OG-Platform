@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import org.springframework.web.context.ServletContextAware;
 import org.threeten.bp.Instant;
 
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Temporary resource to supplement the CometD-based LiveResultsService with a RESTful API

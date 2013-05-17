@@ -20,6 +20,5 @@
     <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.4.2"/>
     <dependency org="org.junit" name="junit" rev="4.8.2" />
     
-    <dependency org="org.jruby" name="jruby-complete" rev="1.6.8"/>
   </dependencies>
 </ivy-module>

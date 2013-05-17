@@ -23,7 +23,7 @@ import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.lambdava.streams.Stream;
 import com.opengamma.lambdava.streams.StreamI;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,8 +92,8 @@ abstract public class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
     FunctionSignature signature = getFunctionSignature();
     Pair<Map<String, StreamI<FunctionInput>>, Map<String, StreamI<FunctionOutput>>> ioputsByName = ioputsByName(signature);
 
-    Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName._1();
-    Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName._2();
+    Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName.getFirst();
+    Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName.getSecond();
 
     Set<ValueSpecification> valueSpecifications = new HashSet<ValueSpecification>();
 
@@ -135,8 +135,8 @@ abstract public class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
     FunctionSignature signature = getFunctionSignature();
     Pair<Map<String, StreamI<FunctionInput>>, Map<String, StreamI<FunctionOutput>>> ioputsByName = ioputsByName(signature);
 
-    Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName._1();
-    Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName._2();
+    Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName.getFirst();
+    Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName.getSecond();
 
     Set<ValueRequirement> valueRequirements = new HashSet<ValueRequirement>();
 
@@ -187,8 +187,8 @@ abstract public class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
     FunctionSignature signature = getFunctionSignature();
     Pair<Map<String, StreamI<FunctionInput>>, Map<String, StreamI<FunctionOutput>>> ioputsByName = ioputsByName(signature);
 
-    Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName._1();
-    Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName._2();
+    Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName.getFirst();
+    Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName.getSecond();
 
     Set<ValueSpecification> valueSpecifications = new HashSet<ValueSpecification>();
 

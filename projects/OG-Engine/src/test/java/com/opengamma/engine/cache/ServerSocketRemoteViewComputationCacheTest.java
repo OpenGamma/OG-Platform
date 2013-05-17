@@ -46,7 +46,7 @@ import com.opengamma.util.ThreadUtils;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;

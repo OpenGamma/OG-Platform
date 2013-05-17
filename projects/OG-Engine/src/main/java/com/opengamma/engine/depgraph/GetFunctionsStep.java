@@ -14,6 +14,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -62,6 +63,43 @@ import com.opengamma.util.tuple.Triple;
 
   };
 
+  /**
+   * Removes any optional flags on constraints. If the constraint is optional and the provider produced no value, then the constraint is removed. If the provider produced values for the constraint,
+   * and an intersection exists, then the intersection is used. Otherwise the maximal value set is used to satisfy the original constraint.
+   * 
+   * @param constraints the requested constraints, not null
+   * @param properties the provider's value specification properties, not null
+   * @return the builder for constraints
+   */
+  private static ValueProperties.Builder intersectOptional(final ValueProperties constraints, final ValueProperties properties) {
+    ValueProperties.Builder builder = constraints.copy();
+    // TODO: [PLAT-3446] Return the builder immediately to recreate the observed fault
+    for (String property : constraints.getProperties()) {
+      final Set<String> providerValues = properties.getValues(property);
+      if (providerValues != null) {
+        // Remove optional flag and take intersection if there is one
+        builder.notOptional(property);
+        final Set<String> constrainedValues = constraints.getValues(property);
+        if (!providerValues.isEmpty()) {
+          if (constrainedValues.isEmpty()) {
+            builder.with(property, providerValues);
+          } else {
+            final Set<String> intersection = Sets.intersection(constrainedValues, providerValues);
+            if (!intersection.isEmpty()) {
+              builder.withoutAny(property).with(property, intersection);
+            }
+          }
+        }
+      } else {
+        if (constraints.isOptional(property)) {
+          // Constraint is optional, remove
+          builder.withoutAny(property);
+        }
+      }
+    }
+    return builder;
+  }
+
   @Override
   protected boolean run(final GraphBuildingContext context) {
     final ValueRequirement requirement = getValueRequirement();
@@ -100,41 +138,49 @@ import com.opengamma.util.tuple.Triple;
       }
       ResolvedValue resolvedValue = createResult(marketDataSpec, MARKET_DATA_SOURCING_FUNCTION, Collections.<ValueSpecification>emptySet(), Collections.singleton(marketDataSpec));
       final ValueProperties constraints = requirement.getConstraints();
+      boolean constraintsSatisfied = constraints.isSatisfiedBy(marketDataSpec.getProperties());
       if ((requirement.getValueName() != marketDataSpec.getValueName())
           || !targetSpec.equals(marketDataSpec.getTargetSpecification())
-          || !constraints.isSatisfiedBy(marketDataSpec.getProperties())) {
+          || !constraintsSatisfied) {
         // The specification returned by market data provision does not match the logical target; publish a substitute node
         context.declareProduction(resolvedValue);
-        ValueProperties properties;
-        final Set<String> functionNames = constraints.getValues(ValuePropertyNames.FUNCTION);
-        if (functionNames == null) {
-          final Set<String> allProperties = constraints.getProperties();
-          if (allProperties == null) {
-            // Requirement made no constraints
-            properties = ValueProperties.with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
-          } else if (!allProperties.isEmpty()) {
-            // Requirement made no constraint on function identifier
-            properties = constraints.copy().with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
-          } else {
-            // Requirement used a nearly infinite property bundle that omitted a function identifier
-            properties = constraints.copy().withAny(ValuePropertyNames.FUNCTION).get();
-          }
+        final ValueProperties properties;
+        if (constraintsSatisfied) {
+          // Just the target or value name that was a mismatch; use the provider properties
+          properties = marketDataSpec.getProperties();
         } else {
-          if (functionNames.isEmpty()) {
+          final Set<String> functionNames = constraints.getValues(ValuePropertyNames.FUNCTION);
+          if (functionNames == null) {
             final Set<String> allProperties = constraints.getProperties();
-            if (allProperties.isEmpty()) {
-              // Requirement is for an infinite or nearly infinite property bundle. This is valid but may be indicative of an error
-              properties = constraints;
+            if (allProperties == null) {
+              // Requirement made no constraints
+              properties = ValueProperties.with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
+            } else if (!allProperties.isEmpty()) {
+              // Requirement made no constraint on function identifier
+              properties = intersectOptional(constraints, marketDataSpec.getProperties()).with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
             } else {
-              // Requirement had a wild card for the function but is otherwise finite
-              properties = constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
+              // Requirement used a nearly infinite property bundle that omitted a function identifier
+              properties = constraints.copy().withAny(ValuePropertyNames.FUNCTION).get();
             }
-          } else if (functionNames.size() == 1) {
-            // Requirement is fully specified 
-            properties = constraints;
           } else {
-            // Requirement allowed a choice of function - pick one
-            properties = constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionNames.iterator().next()).get();
+            if (functionNames.isEmpty()) {
+              final Set<String> allProperties = constraints.getProperties();
+              if (allProperties.isEmpty()) {
+                // Requirement is for an infinite or nearly infinite property bundle. This is valid but may be indicative of an error
+                properties = constraints;
+              } else {
+                // Requirement had a wild card for the function but is otherwise finite
+                properties = intersectOptional(constraints, marketDataSpec.getProperties()).withoutAny(ValuePropertyNames.FUNCTION)
+                    .with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
+              }
+            } else if (functionNames.size() == 1) {
+              // Requirement is fully specified
+              properties = intersectOptional(constraints, marketDataSpec.getProperties()).get();
+            } else {
+              // Requirement allowed a choice of function - pick one
+              properties = intersectOptional(constraints, marketDataSpec.getProperties()).withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionNames.iterator().next())
+                  .get();
+            }
           }
         }
         final ValueSpecification relabelledSpec = new ValueSpecification(requirement.getValueName(), targetSpec, properties);

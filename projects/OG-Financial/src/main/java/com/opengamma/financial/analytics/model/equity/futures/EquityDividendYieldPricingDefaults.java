@@ -28,7 +28,7 @@ import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *

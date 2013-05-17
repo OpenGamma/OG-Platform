@@ -17,7 +17,7 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A master for storing and managing batch job runs.

@@ -14,7 +14,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A specialist cache to optimize the results of {@code MasterHolidaySource}.

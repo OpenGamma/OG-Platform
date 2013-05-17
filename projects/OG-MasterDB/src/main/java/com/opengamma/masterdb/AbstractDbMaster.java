@@ -361,12 +361,22 @@ public abstract class AbstractDbMaster {
   }
   
   //-------------------------------------------------------------------------
-  public int getSchemaVersion() {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
-    String version = namedJdbc.queryForObject(sql, args, String.class);
-    return Integer.parseInt(version);
+  /**
+   * Retrieves the version of the master schema from the database.
+   *  
+   * @return the schema version, or null if not found
+   */
+  public Integer getSchemaVersion() {
+    try {
+      final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
+      final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+      final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
+      String version = namedJdbc.queryForObject(sql, args, String.class);
+      return Integer.parseInt(version);
+    } catch (Exception e) {
+      s_logger.debug("Error reading schema version from database", e);
+      return null;
+    }
   }
 
   //-------------------------------------------------------------------------

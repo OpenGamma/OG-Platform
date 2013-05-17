@@ -17,7 +17,7 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

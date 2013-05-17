@@ -58,6 +58,7 @@ public class CurrencyFunctions extends AbstractFunctionConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.PV01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_DELTA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_GAMMA);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_GAMMA_P);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_PHI);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_RHO);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_SPEED);

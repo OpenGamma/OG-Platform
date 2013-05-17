@@ -21,7 +21,7 @@ import com.opengamma.analytics.math.regression.LeastSquaresRegression;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 

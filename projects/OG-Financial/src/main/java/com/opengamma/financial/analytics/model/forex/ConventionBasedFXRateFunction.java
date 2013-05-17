@@ -83,6 +83,7 @@ public class ConventionBasedFXRateFunction extends AbstractFunction {
       _currencyPairs = currencyPairs;
     }
 
+    @SuppressWarnings("synthetic-access")
     protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
       final ValueProperties.Builder properties = ConventionBasedFXRateFunction.this.createValueProperties();
       properties.with(CONVENTION_NAME_PROPERTY, _convention);
@@ -95,11 +96,11 @@ public class ConventionBasedFXRateFunction extends AbstractFunction {
       return properties;
     }
 
-    private ValueSpecification createSpotRateResult(ComputationTargetSpecification targetSpec, ValueProperties properties) {
+    private ValueSpecification createSpotRateResult(final ComputationTargetSpecification targetSpec, final ValueProperties properties) {
       return new ValueSpecification(ValueRequirementNames.SPOT_RATE, targetSpec, properties);
     }
 
-    private ValueSpecification createHistoricalTimeSeriesResult(ComputationTargetSpecification targetSpec, ValueProperties properties) {
+    private ValueSpecification createHistoricalTimeSeriesResult(final ComputationTargetSpecification targetSpec, ValueProperties properties) {
       properties = properties.copy()
           .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
           .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.NO_VALUE, HistoricalTimeSeriesFunctionUtils.YES_VALUE)
@@ -108,7 +109,7 @@ public class ConventionBasedFXRateFunction extends AbstractFunction {
       return new ValueSpecification(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, targetSpec, properties);
     }
 
-    private ValueSpecification createTimeSeriesLatestResult(ComputationTargetSpecification targetSpec, ValueProperties properties) {
+    private ValueSpecification createTimeSeriesLatestResult(final ComputationTargetSpecification targetSpec, final ValueProperties properties) {
       return new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, targetSpec, properties);
     }
 
@@ -135,7 +136,7 @@ public class ConventionBasedFXRateFunction extends AbstractFunction {
       final ValueProperties constraints;
       if (desiredValue.getConstraints().getProperties() != null) {
         final ValueProperties.Builder constraintsBuilder = ValueProperties.builder();
-        for (String constraintName : desiredValue.getConstraints().getProperties()) {
+        for (final String constraintName : desiredValue.getConstraints().getProperties()) {
           if (ValuePropertyNames.FUNCTION.equals(constraintName) || constraintName.startsWith(ValuePropertyNames.OUTPUT_RESERVED_PREFIX) || QUOTING_CONVENTION_PROPERTY.equals(constraintName)) {
             continue;
           }
@@ -162,10 +163,10 @@ public class ConventionBasedFXRateFunction extends AbstractFunction {
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
       final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(inputs.size());
       final ComputationTargetSpecification targetSpec = target.toSpecification();
-      for (ValueSpecification input : inputs.keySet()) {
+      for (final ValueSpecification input : inputs.keySet()) {
         final ValueProperties.Builder properties = createValueProperties(target);
         final ValueProperties inputProperties = input.getProperties();
-        for (String propertyName : inputProperties.getProperties()) {
+        for (final String propertyName : inputProperties.getProperties()) {
           if (!ValuePropertyNames.FUNCTION.equals(propertyName)) {
             final Set<String> values = inputProperties.getValues(propertyName);
             if (values.isEmpty()) {
@@ -185,7 +186,7 @@ public class ConventionBasedFXRateFunction extends AbstractFunction {
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
-      for (ValueRequirement desiredValue : desiredValues) {
+      for (final ValueRequirement desiredValue : desiredValues) {
         final Object input = inputs.getValue(desiredValue.getValueName());
         results.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), input));
       }

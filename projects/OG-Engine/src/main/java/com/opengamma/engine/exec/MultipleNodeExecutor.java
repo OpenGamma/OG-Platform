@@ -39,7 +39,7 @@ import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * This DependencyGraphExecutor executes the given dependency graph as a number of dependent jobs suitable for a number of calculation nodes to exploit parallelism from the dependency graph.

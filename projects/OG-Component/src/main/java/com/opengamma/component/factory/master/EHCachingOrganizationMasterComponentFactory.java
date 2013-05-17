@@ -8,6 +8,8 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,9 +28,6 @@ import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.orgs.impl.DataOrganizationMasterResource;
 import com.opengamma.master.orgs.impl.EHCachingOrganizationMaster;
 import com.opengamma.master.orgs.impl.RemoteOrganizationMaster;
-import com.opengamma.util.ehcache.EHCacheUtils;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the combined organization master.

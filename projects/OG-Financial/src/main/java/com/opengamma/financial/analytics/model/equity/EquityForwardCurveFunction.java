@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fudgemsg.types.FudgeDate;
-import org.threeten.bp.LocalDate;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYieldImplied;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -38,7 +38,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Function produces a FORWARD_CURVE given YIELD_CURVE and Equity MARKET_VALUE
@@ -55,6 +54,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.DIVIDEND_TYPE)
         .get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties));
   }
@@ -119,12 +119,17 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     // Funding Curve Requirement
     requirements.add(getFundingCurveRequirement(currency, fundingCurveName, curveCalculationConfig));
 
-    // Dividend yield - optional
-    requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
-    
-    // *** PLAYING AROUND - DISCRETE DIVIDENDS 
-    // requirements.add(new ValueRequirement(MarketDataRequirementNames.NEXT_DIVIDEND_DATE, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
-
+    // Dividend Requirements depend on type
+    final Set<String> dividendTypeSet = constraints.getValues(ValuePropertyNames.DIVIDEND_TYPE);
+    if (dividendTypeSet == null || dividendTypeSet.size() != 1) {
+      return null;
+    }
+    final String dividendType = dividendTypeSet.iterator().next();
+    if (ValuePropertyNames.DIVIDEND_TYPE_DISCRETE.equalsIgnoreCase(dividendType)) {
+      requirements.add(new ValueRequirement(ValueRequirementNames.AFFINE_DIVIDENDS, ComputationTargetType.PRIMITIVE, target.getUniqueId()));  
+    } else if (ValuePropertyNames.DIVIDEND_TYPE_CONTINUOUS.equalsIgnoreCase(dividendType)) {
+      requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
+    } 
     return requirements;
   }
 
@@ -152,23 +157,33 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
       throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
-    
-    // *** PLAYING AROUND - DISCRETE DIVIDENDS
-    // LocalDate nextDividendDate = DateUtils.toLocalDate(inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE));
-
-    // Cost of Carry - if no dividend yield available set 0 cost of carry
-    final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);
-    final double dividendYield = dividendYieldObject == null ? 0.0 : dividendYieldObject.doubleValue();
-    final YieldCurve costOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(dividendYield, "CostOfCarry"));
-
+    // Dividend type: Discrete or Continuous 
+    final String dividendType = desiredValue.getConstraint(ValuePropertyNames.DIVIDEND_TYPE);
+    boolean isContinuousDividends = ValuePropertyNames.DIVIDEND_TYPE_CONTINUOUS.equalsIgnoreCase(dividendType);
     // Compute ForwardCurve
-    final ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);
-
+    final ForwardCurve forwardCurve;
+    if (isContinuousDividends) {
+      // Cost of Carry - if no dividend yield available set 0 cost of carry
+      final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);
+      final double dividendYield = dividendYieldObject == null ? 0.0 : dividendYieldObject.doubleValue();
+      final YieldCurve costOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(dividendYield, "CostOfCarry"));
+      forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);      
+    } else {
+      Object discreteDividendsInput = inputs.getValue(ValueRequirementNames.AFFINE_DIVIDENDS);
+      if ((discreteDividendsInput != null) && (discreteDividendsInput instanceof AffineDividends)) {
+        final AffineDividends discreteDividends = (AffineDividends) discreteDividendsInput;
+        forwardCurve = new ForwardCurveAffineDividends(spot, fundingCurve, discreteDividends);
+      } else {
+        forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"))); 
+      }
+    }
+    
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, ccyName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+        .with(ValuePropertyNames.DIVIDEND_TYPE, dividendType)
         .get();
 
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
@@ -177,6 +192,6 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE; // ticker or weak ticker
+    return ComputationTargetType.PRIMITIVE;
   }
 }

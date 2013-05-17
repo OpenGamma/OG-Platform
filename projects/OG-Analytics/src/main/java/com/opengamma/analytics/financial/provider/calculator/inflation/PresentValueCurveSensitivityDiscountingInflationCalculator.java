@@ -37,7 +37,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.

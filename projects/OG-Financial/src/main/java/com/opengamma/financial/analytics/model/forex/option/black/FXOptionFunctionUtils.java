@@ -44,7 +44,7 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -119,7 +119,8 @@ public class FXOptionFunctionUtils {
   }
 
   public static YieldAndDiscountCurve getCurveForCurrency(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
-    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirement(ComputationTargetSpecification.of(currency), curveName, curveCalculationConfig));
+    final ValueRequirement curveRequirement = YieldCurveFunctionUtils.getCurveRequirement(ComputationTargetSpecification.of(currency), curveName, curveCalculationConfig);
+    final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }

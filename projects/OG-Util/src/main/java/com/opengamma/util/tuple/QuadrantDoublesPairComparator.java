@@ -7,8 +7,6 @@ package com.opengamma.util.tuple;
 
 import java.util.Comparator;
 
-import com.opengamma.lambdava.tuple.DoublesPair;
-
 /**
  * A comparator for a {@code DoublesPair} that evaluates which quadrant the elements are in.
  * <p>

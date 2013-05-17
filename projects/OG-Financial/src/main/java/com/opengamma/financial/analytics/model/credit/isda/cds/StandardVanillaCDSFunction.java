@@ -68,7 +68,6 @@ import com.opengamma.util.time.Tenor;
 public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private final String[] _valueRequirements;
-  private CreditDefaultSwapSecurityConverter _converter;
 
   public StandardVanillaCDSFunction(final String... valueRequirements) {
     ArgumentChecker.notNull(valueRequirements, "value requirements");
@@ -76,18 +75,13 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final OrganizationSource organizationSource = OpenGammaCompilationContext.getOrganizationSource(context);
-    _converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
-  }
-
-  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+    OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
@@ -97,7 +91,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       throw new OpenGammaRuntimeException("Could not get recovery rate");
     }
     final double recoveryRate = (Double) recoveryRateObject;
-    LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(_converter);
+    LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
     definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     definition = definition.withRecoveryRate(recoveryRate);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);

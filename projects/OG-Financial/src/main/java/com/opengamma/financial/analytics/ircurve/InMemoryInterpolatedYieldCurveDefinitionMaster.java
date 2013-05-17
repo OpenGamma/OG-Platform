@@ -29,7 +29,7 @@ import com.opengamma.master.MasterUtils;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * An in-memory master for yield curve definitions, backed by a hash-map.
