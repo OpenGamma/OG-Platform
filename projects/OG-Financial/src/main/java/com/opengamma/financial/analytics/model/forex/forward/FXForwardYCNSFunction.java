@@ -176,8 +176,10 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     String currencyPairConfigName = null;
     String payCurveName = null;
     String payCurveCalculationConfig = null;
+    String payCurveCalculationMethod = null;
     String receiveCurveName = null;
     String receiveCurveCalculationConfig = null;
+    String receiveCurveCalculationMethod = null;
     String currency = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification specification = entry.getKey();
@@ -189,26 +191,38 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
         if (constraints.getProperties().contains(ValuePropertyNames.PAY_CURVE)) {
           payCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
           payCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+          payCurveCalculationMethod = specification.getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
         } else if (constraints.getProperties().contains(ValuePropertyNames.RECEIVE_CURVE)) {
           receiveCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
           receiveCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+          receiveCurveCalculationMethod = specification.getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
         }
       } else if (requirement.getValueName().equals(ValueRequirementNames.FX_CURVE_SENSITIVITIES)) {
         currency = requirement.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
       }
     }
-    assert currencyPairConfigName != null;
+    if (currencyPairConfigName == null) {
+      return null;
+    }
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+    final String curve, curveCalculationMethod;
+    if (payCurrency.getCode().equals(currency)) {
+      curve = payCurveName;
+      curveCalculationMethod = payCurveCalculationMethod;
+    } else {
+      curve = receiveCurveName;
+      curveCalculationMethod = receiveCurveCalculationMethod;
+    }
     final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(payCurrency, receiveCurrency);
     if (baseQuotePair == null) {
       s_logger.error("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
       return null;
     }
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target,
-        payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig, baseQuotePair, currency).get());
+        payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig, baseQuotePair, currency, curve, curveCalculationMethod).get());
     return Collections.singleton(resultSpec);
   }
 
@@ -235,16 +249,16 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
 
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurve, final String receiveCurve,
       final String payCurveCalculationConfig, final String receiveCurveCalculationConfig, final CurrencyPair baseQuotePair,
-      final String currency) {
+      final String currency, final String curve, final String curveCalculationMethod) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING, MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.PAY_CURVE, payCurve)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurve)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
         .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig)
-        .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .withAny(ValuePropertyNames.CURVE)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE, curve)
         .with(ValuePropertyNames.CURRENCY, currency);
     return properties;
   }
@@ -257,9 +271,10 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     final String receiveCurveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
+    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING, MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)

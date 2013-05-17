@@ -109,7 +109,8 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
         .withoutAny(ValuePropertyNames.PAY_CURVE)
         .withoutAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
         .withoutAny(ValuePropertyNames.CURVE_CURRENCY)
-        .withoutAny(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS).get();
+        .withoutAny(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS)
+        .withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD).get();
     final ValueRequirement returnSeriesRequirement = getReturnSeriesRequirement(curveName, curveCurrency, curveCalculationConfigName, returnSeriesBaseConstraints);
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(ycnsRequirement);
@@ -161,9 +162,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     builder.with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     ValueProperties properties = builder.get(); 
     ComputationTargetSpecification targetSpec = target.toSpecification();
-    return ImmutableSet.of(
-        new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, targetSpec, properties),
-        new ValueSpecification(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, targetSpec, properties));
   }
 
   @Override
@@ -186,14 +185,4 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     return ImmutableSet.of(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, target.toSpecification(), resultProperties), pnlSeriesVector));
   }
 
-
-  @Override
-  public boolean canHandleMissingInputs() {
-    return true;
-  }
-
-  @Override
-  public boolean canHandleMissingRequirements() {
-    return true;
-  }
 }
