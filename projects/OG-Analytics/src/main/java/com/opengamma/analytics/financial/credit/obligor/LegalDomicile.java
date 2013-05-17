@@ -1,14 +1,14 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.obligor;
 
 /**
- * Enumerate the geographical region of the reference entity (doesn't have to be the same as the legal domicile)
+ * Enumerate the legal domicile of the reference entity
  */
-public enum Region {
+public enum LegalDomicile {
   /**
    * 
    */
@@ -65,4 +65,6 @@ public enum Region {
    * 
    */
   NONE;
+
+  // TODO : Need to make these fields more realistic
 }
