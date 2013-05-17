@@ -128,7 +128,14 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
       return null;
     }
     boolean includeEnd = includeEnds == null ? false : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeEnds));
-    
+    final Set<String> samplingMethod = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
+    if (samplingMethod == null || samplingMethod.size() != 1) {
+      return null;
+    }
+    final Set<String> scheduleMethod = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleMethod == null || scheduleMethod.size() != 1) {
+      return null;
+    }
     Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(HistoricalTimeSeriesFunctionUtils.createYCHTSRequirement(currency, curveName, MarketDataRequirementNames.MARKET_VALUE, null, start, includeStart, end, includeEnd));
     

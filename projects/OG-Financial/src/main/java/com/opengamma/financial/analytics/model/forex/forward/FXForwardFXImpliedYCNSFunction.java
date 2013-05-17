@@ -158,6 +158,10 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
       s_logger.error("Could not find curve calculation configuration named " + resultCurveConfigName + " for currency " + resultCurrency);
       return null;
     }
+    if (resultCurveCalculationConfig.getExogenousConfigData() == null) {
+      s_logger.error("Curve calculation config does not contain exogenous data");
+      return null;
+    }
     final Map.Entry<String, String[]> underlyingCurveConfigNames = resultCurveCalculationConfig.getExogenousConfigData().entrySet().iterator().next();
     final MultiCurveCalculationConfig underlyingConfig = curveCalculationConfigSource.getConfig(underlyingCurveConfigNames.getKey());
     if (underlyingConfig == null) {
@@ -227,6 +231,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXImpliedYieldCurveFunction.FX_IMPLIED)
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
         .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
@@ -249,6 +254,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
       final String underlyingCurrency) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXImpliedYieldCurveFunction.FX_IMPLIED)
         .with(ValuePropertyNames.PAY_CURVE, payCurve)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurve)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
@@ -271,6 +277,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
     final String underlyingCurrency = desiredValue.getConstraint(UNDERLYING_CURRENCY);
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXImpliedYieldCurveFunction.FX_IMPLIED)
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
