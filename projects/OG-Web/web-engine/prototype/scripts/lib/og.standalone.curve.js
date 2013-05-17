@@ -44,8 +44,7 @@
                     </table></div>';
     html.init_msg = '<strong>Zoom</strong>: mouse scroll wheel <br /> <strong>Pan</strong>: left click drag';
     $.fn.ogcurve = function (input) {
-        var $selector = $(this), $reset, $init_msg, $plot, $flot, curve = {}, data = {},
-            range = {xmin: null, xmax: null, ymin: null, ymax: null};
+        var $selector = $(this), $reset, $init_msg, $plot, $flot, curve = {}, data = {};
         css.plot.width = $selector.width();
         css.plot.height = $selector.height();
         /**
@@ -54,30 +53,25 @@
          * @param options {Object} flot options object. colors and ranges need updating based on the data
          */
         var formatter = function (data, options) {
-            var obj = {options: options, data: []},
-                update_range = function (obj) {
-                    range = obj.reduce(function (acc, val) {
-                        if (acc.xmin === null) acc.xmin = val[0];
-                        if (acc.xmax === null) acc.xmax = val[0];
-                        if (acc.ymin === null) acc.ymin = val[1];
-                        if (acc.ymax === null) acc.ymax = val[1];
-                        if (val[0] < acc.xmin) acc.xmin = val[0];
-                        if (val[0] > acc.xmax) acc.xmax = val[0];
-                        if (val[1] < acc.ymin) acc.ymin = val[1];
-                        if (val[1] > acc.ymax) acc.ymax = val[1];
-                        return acc;
-                    }, range);
-                };
+            var obj = {options: options, data: []};
+            //var rand = Math.random();
+            //var one = data[0].curve.map(function(single){
+            //    return [single[0],single[1]*.1];;
+            //});
+            //rand = Math.random();
+            //var two = data[0].curve.map(function(single){
+            //    return [single[0],single[1]*rand];
+            //});
+            //data.push({curve:one});
+            //data.push({curve:two});
             if ($.isArray(data)) data.forEach(function (val, i) {
                 if (val.curve) {
                     obj.data.push({data: val.curve});
                     obj.options.colors.push(color_arr[i]);
-                    update_range(val.curve);
                 }
                 if (val.nodes) {
                     obj.data.push({data: val.nodes, points: {show: true}});
                     obj.options.colors.push(color_arr[i]);
-                    update_range(val.nodes);
                 }
             });
             return obj;
