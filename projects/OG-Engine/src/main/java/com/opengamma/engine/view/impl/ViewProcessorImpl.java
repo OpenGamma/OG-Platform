@@ -432,7 +432,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       viewProcess.shutdownCore();
 
       _allProcessesById.remove(viewProcess.getUniqueId());
-      final ViewProcessDescription description = (ViewProcessDescription)viewProcess.getDescriptionKey();
+      final ViewProcessDescription description = (ViewProcessDescription) viewProcess.getDescriptionKey();
       final ViewProcessImpl sharedProc = _sharedProcessesByDescription.get(description);
       if (sharedProc != null && sharedProc == viewProcess) { //PLAT-1287
         _sharedProcessesByDescription.remove(description);
@@ -454,7 +454,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
 
   private boolean isShared(ViewProcessImpl process) {
-    ViewProcessDescription description = (ViewProcessDescription)process.getDescriptionKey();
+    ViewProcessDescription description = (ViewProcessDescription) process.getDescriptionKey();
     _processLock.lock();
     try {
       return _sharedProcessesByDescription.containsKey(description);
