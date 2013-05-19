@@ -3,23 +3,23 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.obligor;
+package com.opengamma.analytics.financial.credit.obligor.definition;
 
-import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.CreditRating;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.Sector;
 
 /**
- * Class to define a General Clearing Member of a CCP (an extension of the Obligor class)
+ * Class to define a Non Clearing Member (an extension of the Obligor class) i.e. an Obligor who does not clear trades through a CCP
  */
-public class GeneralClearingMember extends Obligor {
+public class NonClearingMember extends Obligor {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // The contribution of this GCM to the CCP's reserve fund
-  private final double _reserveFundContribution;
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  public GeneralClearingMember(
+  public NonClearingMember(
       final String obligorTicker,
       final String obligorShortName,
       final String obligorREDCode,
@@ -31,22 +31,13 @@ public class GeneralClearingMember extends Obligor {
       final boolean hasDefaulted,
       final Sector sector,
       final Region region,
-      final String country,
-      final double reserveFundContribution) {
+      final String country) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     super(obligorTicker, obligorShortName, obligorREDCode, compositeRating, impliedRating, moodysCreditRating, standardAndPoorsCreditRating, fitchCreditRating, hasDefaulted, sector, region, country);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    _reserveFundContribution = reserveFundContribution;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  public double getReserveFundContribution() {
-    return _reserveFundContribution;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
