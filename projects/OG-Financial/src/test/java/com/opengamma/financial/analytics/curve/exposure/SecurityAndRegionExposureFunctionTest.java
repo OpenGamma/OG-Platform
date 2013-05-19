@@ -36,7 +36,7 @@ public class SecurityAndRegionExposureFunctionTest {
   @Test
   public void testFRA() {
     final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndCurrencyExposureFunction(securitySource);
+    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final FRASecurity fra = ExposureFunctionTestHelper.getFRA();
     final List<ExternalId> ids = fra.accept(exposureFunction);
     assertEquals(1, ids.size());
