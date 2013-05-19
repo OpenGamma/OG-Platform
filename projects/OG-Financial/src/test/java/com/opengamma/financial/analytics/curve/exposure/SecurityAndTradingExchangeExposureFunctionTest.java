@@ -12,6 +12,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -28,4 +29,13 @@ public class SecurityAndTradingExchangeExposureFunctionTest {
     final List<ExternalId> ids = cash.accept(exposureFunction);
     assertNull(ids);
   }
+
+  @Test
+  public void testFRA() {
+    final ExposureFunction exposureFunction = new SecurityAndSettlementExchangeExposureFunction();
+    final FRASecurity fra = ExposureFunctionTestHelper.getFRA();
+    final List<ExternalId> ids = fra.accept(exposureFunction);
+    assertNull(ids);
+  }
+
 }

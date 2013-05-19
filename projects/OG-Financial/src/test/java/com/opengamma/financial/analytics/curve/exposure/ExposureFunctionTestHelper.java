@@ -9,11 +9,13 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -34,6 +36,13 @@ public class ExposureFunctionTestHelper {
     final CashSecurity cash = new CashSecurity(USD, US, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2014, 1, 1), DC, 0.01, 10000);
     cash.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "123"));
     return cash;
+  }
+
+  public static FRASecurity getFRA() {
+    final FRASecurity fra = new FRASecurity(USD, US, DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), 0.02, 1000,
+        ExternalSchemes.bloombergTickerSecurityId("US0003 Index"), DateUtils.getUTCDate(2013, 6, 1));
+    fra.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1234"));
+    return fra;
   }
 
   public static SecuritySource getSecuritySource(final Security security) {

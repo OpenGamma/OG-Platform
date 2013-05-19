@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -28,6 +29,16 @@ public class RegionExposureFunctionTest {
     final ExposureFunction regionExposureFunction = new RegionExposureFunction(securitySource);
     final CashSecurity cash = ExposureFunctionTestHelper.getCash();
     final List<ExternalId> ids = cash.accept(regionExposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of("Test", "US"), ids.get(0));
+  }
+
+  @Test
+  public void testFRA() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction regionExposureFunction = new RegionExposureFunction(securitySource);
+    final FRASecurity fra = ExposureFunctionTestHelper.getFRA();
+    final List<ExternalId> ids = fra.accept(regionExposureFunction);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of("Test", "US"), ids.get(0));
   }
