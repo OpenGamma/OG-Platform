@@ -340,36 +340,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
-    // TEMPORARY CODE - This should be removed post credit work and supports Excel (Jim)
-    ViewCycleExecutionOptions defaultExecutionOptions = executionOptions.getDefaultExecutionOptions();
-    if (defaultExecutionOptions != null) {
-      List<MarketDataSpecification> specifications = defaultExecutionOptions.getMarketDataSpecifications();
-      if (specifications != null && !specifications.isEmpty()) {
-        specifications = new ArrayList<MarketDataSpecification>(specifications);
-        boolean changed = false;
-        for (int i = 0; i < specifications.size(); i++) {
-          final MarketDataSpecification specification = specifications.get(i);
-          if (specification instanceof LiveMarketDataSpecification) {
-            final String dataSource = ((LiveMarketDataSpecification) specification).getDataSource();
-            if (dataSource != null) {
-              final MarketDataSpecification namedSpec = _namedMarketDataSpecificationRepository.getSpecification(dataSource);
-              if (namedSpec != null) {
-                s_logger.info("Replacing live data {} with named spec {}", dataSource, namedSpec);
-                specifications.set(i, namedSpec);
-                changed = true;
-              }
-            }
-          }
-        }
-        if (changed) {
-          executionOptions = new ExecutionOptions(executionOptions.getExecutionSequence(), executionOptions.getFlags(), executionOptions.getMaxSuccessiveDeltaCycles(), ViewCycleExecutionOptions
-              .builder().setMarketDataSpecifications(specifications).setResolverVersionCorrection(defaultExecutionOptions.getResolverVersionCorrection())
-              .setValuationTime(defaultExecutionOptions.getValuationTime()).create());
-        }
-      }
-    }
+  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions viewExecutionOptions) {
+
+    // TEMPORARY CODE - This method should be removed post credit work and supports Excel (Jim)
+    ViewExecutionOptions executionOptions = verifyLiveDataViewExecutionOptions(viewExecutionOptions);
     // END TEMPORARY CODE
+
     _processLock.lock();
     try {
       final String idValue = generateIdValue(_processIdSource);
@@ -402,6 +378,40 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     } finally {
       _processLock.unlock();
     }
+  }
+
+  // TEMPORARY CODE - This method should be removed post credit work and supports Excel (Jim)
+  private ViewExecutionOptions verifyLiveDataViewExecutionOptions(final ViewExecutionOptions executionOptions) {
+    ViewCycleExecutionOptions defaultExecutionOptions = executionOptions.getDefaultExecutionOptions();
+    if (defaultExecutionOptions != null) {
+      List<MarketDataSpecification> specifications = defaultExecutionOptions.getMarketDataSpecifications();
+      if (!specifications.isEmpty()) {
+        specifications = new ArrayList<>(specifications);
+        boolean changed = false;
+        for (int i = 0; i < specifications.size(); i++) {
+          final MarketDataSpecification specification = specifications.get(i);
+          if (specification instanceof LiveMarketDataSpecification) {
+            final String dataSource = ((LiveMarketDataSpecification) specification).getDataSource();
+            if (dataSource != null) {
+              final MarketDataSpecification namedSpec = _namedMarketDataSpecificationRepository.getSpecification(dataSource);
+              if (namedSpec != null && !namedSpec.equals(specification)) {
+                s_logger.info("Replacing live data {} with named spec {}", dataSource, namedSpec);
+                specifications.set(i, namedSpec);
+                changed = true;
+              }
+            }
+          }
+        }
+        if (changed) {
+          ViewCycleExecutionOptions defaultOptions = defaultExecutionOptions.copy()
+              .setMarketDataSpecifications(specifications)
+              .create();
+          return new ExecutionOptions(executionOptions.getExecutionSequence(), executionOptions.getFlags(),
+                                                  executionOptions.getMaxSuccessiveDeltaCycles(), defaultOptions);
+        }
+      }
+    }
+    return executionOptions;
   }
 
   /**
@@ -601,7 +611,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _overrideOperationCompiler,
         _cycleManager,
         cycleIds,
-        _executionCache);
+        _executionCache
+    );
   }
 
   private String generateIdValue(final AtomicLong source) {

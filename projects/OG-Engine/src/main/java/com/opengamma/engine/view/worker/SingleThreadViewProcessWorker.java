@@ -50,6 +50,7 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -248,6 +249,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    */
   private final BorrowedThread _thread;
 
+  private final MarketDataManipulator _marketDataManipulator;
+
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -280,6 +283,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _executeGraphs = !executionOptions.getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
+    _marketDataManipulator = new MarketDataManipulator(_executionOptions.getDefaultExecutionOptions().getMarketDataShiftSpecification());
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
     s_executor.submit(_thread);
@@ -455,8 +459,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             marketDataSnapshot.init();
           }
           if (executionOptions.getValuationTime() == null) {
-            executionOptions = ViewCycleExecutionOptions.builder().setValuationTime(marketDataSnapshot.getSnapshotTime()).setMarketDataSpecifications(executionOptions.getMarketDataSpecifications())
-                .create();
+            executionOptions = executionOptions.copy().setValuationTime(marketDataSnapshot.getSnapshotTime()).create();
           }
         } catch (final Exception e) {
           s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
@@ -1221,6 +1224,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         s_logger.info("Performing full graph compilation");
         _compilationTask = ViewDefinitionCompiler.fullCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
       }
+
       try {
         if (!getJob().isTerminated()) {
           compiledViewDefinition = _compilationTask.get();
@@ -1231,6 +1235,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       } finally {
         _compilationTask = null;
       }
+
+      _marketDataManipulator.modifyDependencyGraphs(_latestCompiledViewDefinition.getDependencyGraphExplorers());
+
     } catch (final Exception e) {
       final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
