@@ -14,13 +14,13 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackGammaFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackValueGammaFunction;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function to compute the Gamma of Forex options in the Black model.
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see FXOptionBlackGammaFunction
+ * @see FXOptionBlackValueGammaFunction
  */
 @Deprecated
 public class FXOptionBlackGammaFunctionDeprecated extends FXOptionBlackSingleValuedFunctionDeprecated {

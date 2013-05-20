@@ -9,30 +9,31 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class OptionThetaBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
+public class ForwardBlackVegaForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final OptionThetaBlackForexCalculator INSTANCE = new OptionThetaBlackForexCalculator();
+  private static final ForwardBlackVegaForexCalculator INSTANCE = new ForwardBlackVegaForexCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static OptionThetaBlackForexCalculator getInstance() {
+  public static ForwardBlackVegaForexCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  OptionThetaBlackForexCalculator() {
+  ForwardBlackVegaForexCalculator() {
   }
 
   /**
@@ -41,8 +42,9 @@ public class OptionThetaBlackForexCalculator extends InstrumentDerivativeVisitor
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
 
   @Override
-  public CurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    return METHOD_FXOPTIONVANILLA.theta(derivative, data);
+  public Double visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    ArgumentChecker.isTrue(data instanceof SmileDeltaTermStructureDataBundle, "Must have data bundle with volatility data");
+    return METHOD_FXOPTIONVANILLA.forwardVegaTheoretical(derivative, data);
   }
 
 }

@@ -1321,6 +1321,10 @@ public final class ValueRequirementNames {
    */
   public static final String FORWARD_DELTA = "Forward Delta";
   /**
+   * The forward driftless theta of an instrument
+   */
+  public static final String FORWARD_DRIFTLESS_THETA = "Forward Driftless Theta";
+  /**
    * The forward gamma of an instrument
    */
   public static final String FORWARD_GAMMA = "Forward Gamma";

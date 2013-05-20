@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.GammaSpotBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.DeltaValueBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -17,23 +17,24 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * The function to compute the Gamma Spot of Forex options in the Black model.
+ * The function to compute the value delta of Forex options in the Black model.
  */
-public class FXOptionBlackGammaSpotFunction extends FXOptionBlackSingleValuedFunction {
+public class FXOptionBlackValueDeltaFunction extends FXOptionBlackSingleValuedFunction {
 
   /**
-   * The calculator to compute the gamma value.
+   * The calculator to compute the delta value.
    */
-  private static final GammaSpotBlackForexCalculator CALCULATOR = GammaSpotBlackForexCalculator.getInstance();
+  private static final DeltaValueBlackForexCalculator CALCULATOR = DeltaValueBlackForexCalculator.getInstance();
 
-  public FXOptionBlackGammaSpotFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA_P);
+  public FXOptionBlackValueDeltaFunction() {
+    super(ValueRequirementNames.VALUE_DELTA);
   }
 
   @Override
@@ -41,9 +42,15 @@ public class FXOptionBlackGammaSpotFunction extends FXOptionBlackSingleValuedFun
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
       final CurrencyAmount result = forex.accept(CALCULATOR, data);
-      final double gammaValue = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
-      return Collections.singleton(new ComputedValue(spec, gammaValue));
+      final String resultCurrency = result.getCurrency().getCode();
+      final String expectedCurrency = spec.getProperty(ValuePropertyNames.CURRENCY);
+      if (!expectedCurrency.equals(resultCurrency)) {
+        throw new OpenGammaRuntimeException("Expected currency " + expectedCurrency + " does not equal result currency " + resultCurrency);
+      }
+      final double deltaValue = result.getAmount();
+      return Collections.singleton(new ComputedValue(spec, deltaValue));
     }
-    throw new OpenGammaRuntimeException("Can only calculate gamma spot for surfaces with smiles");
+    throw new OpenGammaRuntimeException("Can only calculate delta for surfaces with smiles");
   }
+
 }

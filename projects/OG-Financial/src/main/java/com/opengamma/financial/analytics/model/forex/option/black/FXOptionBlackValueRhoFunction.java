@@ -43,7 +43,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  *
  */
-public class FXOptionBlackPhiFunction extends AbstractFunction.NonCompiledInvoker {
+public class FXOptionBlackValueRhoFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -56,7 +56,6 @@ public class FXOptionBlackPhiFunction extends AbstractFunction.NonCompiledInvoke
     }
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final String putCurrencyCurve = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
     final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
     if (baseQuotePairsObject == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair data");
@@ -66,13 +65,15 @@ public class FXOptionBlackPhiFunction extends AbstractFunction.NonCompiledInvoke
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
+    //final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
+    final String callCurrencyCurve = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
     final String resultCurrency = getResultCurrency(target, baseQuotePair);
-    final String fullCurveName = putCurrencyCurve + "_" + putCurrency.getCode();
+    final String fullCurveName = callCurrencyCurve + "_" + callCurrency.getCode();
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
     final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(resultCurrency)).getSensitivities();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_PHI, target.toSpecification(), getResultProperties(target, desiredValue, baseQuotePair).get());
-    final double phi = sensitivitiesForCurrency.get(fullCurveName).get(0).second;
-    return Collections.singleton(new ComputedValue(spec, phi));
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_RHO, target.toSpecification(), getResultProperties(target, desiredValue, baseQuotePair).get());
+    final double rho = sensitivitiesForCurrency.get(fullCurveName).get(0).second;
+    return Collections.singleton(new ComputedValue(spec, rho));
   }
 
   @Override
@@ -84,7 +85,7 @@ public class FXOptionBlackPhiFunction extends AbstractFunction.NonCompiledInvoke
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = getResultProperties();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VALUE_PHI, target.toSpecification(), properties.get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VALUE_RHO, target.toSpecification(), properties.get()));
   }
 
   @Override
@@ -133,7 +134,7 @@ public class FXOptionBlackPhiFunction extends AbstractFunction.NonCompiledInvoke
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
     final ValueRequirement sensitivitiesRequirement = getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfig,
         callCurveName, callCurveCalculationConfig, surfaceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target);
-    return Sets.newHashSet(sensitivitiesRequirement, pairQuoteRequirement);
+    return Sets.newHashSet(pairQuoteRequirement, sensitivitiesRequirement);
   }
 
   private ValueProperties.Builder getResultProperties() {
