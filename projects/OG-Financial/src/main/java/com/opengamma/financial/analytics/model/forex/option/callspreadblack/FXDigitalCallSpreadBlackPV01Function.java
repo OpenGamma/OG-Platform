@@ -111,14 +111,12 @@ public class FXDigitalCallSpreadBlackPV01Function extends FXDigitalCallSpreadBla
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final String resultCurrency, resultCurveName, resultCurveConfigName;
+    final String resultCurrency, resultCurveConfigName;
     if (currency.equals(putCurrency.getCode())) {
       resultCurrency = putCurrency.getCode();
-      resultCurveName = putCurveName;
       resultCurveConfigName = putCurveCalculationConfigName;
     } else if (currency.equals(callCurrency.getCode())) {
       resultCurrency = callCurrency.getCode();
-      resultCurveName = callCurveName;
       resultCurveConfigName = callCurveCalculationConfigName;
     } else {
       return null;
