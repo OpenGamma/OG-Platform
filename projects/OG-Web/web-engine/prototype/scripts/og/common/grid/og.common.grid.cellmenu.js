@@ -70,7 +70,7 @@ $.register_module({
            $('.og-inplace-resizer').remove();
            og.common.gadgets.manager.clean();
         };
-        constructor.prototype.create_inplace = function (unique, grid) {
+        constructor.prototype.create_inplace = function (selector, grid) {
             var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, inner_height, inner_width,
                 cell_coordinates = grid.cell_coords(cellmenu.current.row, cellmenu.current.col),
                 cell_width = cell_coordinates.right - cell_coordinates.left,
@@ -84,7 +84,7 @@ $.register_module({
             inner_height = $(window).height() / 2.5;
             inner_width = $(window).width() / 2.5;
             inner.height(inner_height);
-            inner.width(inner_width)
+            inner.width(inner_width);
             if ((offset.top + inner_height + 10) > $(window).height()) {
                 cellmenu.menu.addClass('og-pop-up');
                 inner.css({marginTop: - inner_height + 1});
@@ -93,7 +93,7 @@ $.register_module({
                 inner.css({marginLeft: - inner_width - (offset.left - $(window).width())});
             new constructor(cellmenu.grid);
             og.analytics.resize({
-                selector: unique,
+                selector: selector,
                 offset: {top: -25, left: -1},
                 tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
                 mouseup_handler: function (right, bottom) {
