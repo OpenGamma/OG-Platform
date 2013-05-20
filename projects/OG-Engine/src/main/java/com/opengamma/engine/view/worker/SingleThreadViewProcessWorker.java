@@ -51,6 +51,7 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataShiftSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -249,6 +250,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    */
   private final BorrowedThread _thread;
 
+  /**
+   * The manipulator for structured market data.
+   */
   private final MarketDataManipulator _marketDataManipulator;
 
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
@@ -283,10 +287,18 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _executeGraphs = !executionOptions.getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
-    _marketDataManipulator = new MarketDataManipulator(_executionOptions.getDefaultExecutionOptions().getMarketDataShiftSpecification());
+    _marketDataManipulator = createMarketDataManipulator();
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
     s_executor.submit(_thread);
+  }
+
+  private MarketDataManipulator createMarketDataManipulator() {
+
+    ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
+    return new MarketDataManipulator(defaultExecutionOptions != null ?
+                                         defaultExecutionOptions.getMarketDataShiftSpecification() :
+                                         NoOpMarketDataShiftSpecification.getInstance());
   }
 
   private ViewProcessWorkerContext getWorkerContext() {
