@@ -88,7 +88,7 @@ $.register_module({
                 inner.css({marginTop: - inner_height + 1});
             }
             if ((offset.left + inner_width) > $(window).width())
-                inner.css({marginLeft: - inner_width - (offset.left - $(window).width()) - 10});
+                inner.css({marginLeft: - inner_width - (offset.left - $(window).width())});
             new constructor(cellmenu.grid);
             og.analytics.resize({
                 selector: unique,
