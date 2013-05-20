@@ -45,26 +45,26 @@ public class DependencyGraph {
   /**
    * All nodes in the graph, including the root nodes.
    */
-  private final Set<DependencyNode> _dependencyNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _dependencyNodes = new HashSet<>();
 
   /**
    * The root nodes in the graph.
    */
-  private final Set<DependencyNode> _rootNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _rootNodes = new HashSet<>();
 
   /**
    * A cache of terminal output values from this graph's nodes. Each output may be associated with one or more original value requirements that triggered the outputs inclusion in the graph.
    */
-  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs = new HashMap<>();
 
   /**
    * A cache of output values from this graph's nodes. Each output is associated with the node that produces it.
    */
-  private final Map<ValueSpecification, DependencyNode> _outputValues = new HashMap<ValueSpecification, DependencyNode>();
+  private final Map<ValueSpecification, DependencyNode> _outputValues = new HashMap<>();
 
-  private final Set<ValueSpecification> _allRequiredMarketData = new HashSet<ValueSpecification>();
+  private final Set<ValueSpecification> _allRequiredMarketData = new HashSet<>();
 
-  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
+  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<>();
 
   /**
    * Creates a new, initially empty, dependency graph for the named configuration.
@@ -169,7 +169,7 @@ public class DependencyGraph {
    */
   public Set<ValueSpecification> getOutputSpecifications(final ComputationTargetType type) {
     // REVIEW 2012-05-24 aiwg -- Do we really need this? It's only used by some of the unit tests.
-    final Set<ValueSpecification> outputValues = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> outputValues = new HashSet<>();
     for (final ValueSpecification spec : _outputValues.keySet()) {
       if (spec.getTargetSpecification().getType() == type) {
         outputValues.add(spec);
@@ -411,7 +411,7 @@ public class DependencyGraph {
     // Maintain a cache of all terminal outputs at the graph level
     Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
     if (requirements == null) {
-      requirements = new HashSet<ValueRequirement>();
+      requirements = new HashSet<>();
       _terminalOutputs.put(specification, requirements);
     }
     requirements.add(requirement);
@@ -433,7 +433,7 @@ public class DependencyGraph {
       // Maintain a cache of all terminal outputs at the graph level
       Set<ValueRequirement> requirements = _terminalOutputs.get(specification.getKey());
       if (requirements == null) {
-        requirements = new HashSet<ValueRequirement>();
+        requirements = new HashSet<>();
         _terminalOutputs.put(specification.getKey(), requirements);
       }
       requirements.addAll(specification.getValue());
@@ -471,7 +471,7 @@ public class DependencyGraph {
    * When a backtracking algorithm is used for graph building nodes may remain which generate no terminal output. These nodes are also removed.
    */
   public void removeUnnecessaryValues() {
-    final List<DependencyNode> unnecessaryNodes = new LinkedList<DependencyNode>();
+    final List<DependencyNode> unnecessaryNodes = new LinkedList<>();
     do {
       for (final DependencyNode node : _dependencyNodes) {
         final Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
@@ -511,8 +511,8 @@ public class DependencyGraph {
    * @return Nodes in an executable order. E.g., if there are two nodes, A and B, and A depends on B, then list [B, A] is returned (and not [A, B]).
    */
   public List<DependencyNode> getExecutionOrder() {
-    final ArrayList<DependencyNode> executionOrder = new ArrayList<DependencyNode>();
-    final HashSet<DependencyNode> alreadyEvaluated = new HashSet<DependencyNode>();
+    final ArrayList<DependencyNode> executionOrder = new ArrayList<>();
+    final HashSet<DependencyNode> alreadyEvaluated = new HashSet<>();
     for (final DependencyNode root : getRootNodes()) {
       getExecutionOrder(root, executionOrder, alreadyEvaluated);
     }
@@ -570,7 +570,7 @@ public class DependencyGraph {
   }
 
   public void dumpStructureLGL(final PrintStream out) {
-    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    final Map<DependencyNode, Integer> uid = new HashMap<>();
     int nextId = 1;
     for (final DependencyNode node : getDependencyNodes()) {
       uid.put(node, nextId++);
@@ -602,12 +602,12 @@ public class DependencyGraph {
   }
 
   public void dumpStructureASCII(final PrintStream out) {
-    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    final Map<DependencyNode, Integer> uid = new HashMap<>();
     int nextId = 1;
     for (final DependencyNode node : getDependencyNodes()) {
       uid.put(node, nextId++);
     }
-    final Set<DependencyNode> visited = new HashSet<DependencyNode>();
+    final Set<DependencyNode> visited = new HashSet<>();
     for (final DependencyNode root : _rootNodes) {
       dumpNodeASCII(out, "", root, uid, visited);
     }
