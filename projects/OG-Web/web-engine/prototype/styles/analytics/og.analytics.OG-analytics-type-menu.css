@@ -11,6 +11,7 @@
 	z-index: 6;
 	font-size: 11px;
 	line-height: 20px;
+	color: #01467a;
 }
 
 .OG-analytics-typemenu .og-menu div {
@@ -19,7 +20,7 @@
 }
 
 .OG-analytics-typemenu .og-menu div:hover {
-    background-color: #80c696;
+    background-color: #01467a;
     color: #fff;
     text-shadow: none;
 }
@@ -46,6 +47,10 @@
     background-color: #fff;
 }
 
+.OG-analytics-typemenu .og-menu-toggle:hover {
+    background-color: #01467a;
+}
+
 .OG-analytics-typemenu .og-menu-toggle:after {
     background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
     background-color: transparent;
@@ -58,6 +63,11 @@
     top: 7px;
     width: 7px;
     z-index: 6;
+}
+
+.OG-analytics-typemenu .OG-gadget-buttons.og-active:after,
+.OG-analytics-typemenu .og-menu-toggle:hover:after {
+    background-position: -26px -4px;
 }
 
 .OG-analytics-typemenu .og-menu-toggle {
