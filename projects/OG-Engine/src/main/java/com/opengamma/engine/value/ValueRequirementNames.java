@@ -168,6 +168,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
   /**
+   * The bundle of historical time series objects for instruments on an FX forward curve.
+   */
+  public static final String FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES = "FX Forward Curve Historical Time Series";
+  /**
    * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
    */
   public static final String YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Instrument Conversion Historical Time Series";
@@ -212,6 +216,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_RETURN_SERIES = "Yield Curve Return Series";
   /**
+   * A vector of return series for the nodal points of an FX forward curve.
+   */
+  public static final String FX_FORWARD_CURVE_RETURN_SERIES = "FX Forward Curve Return Series";
+  /**
    * Curve calculation property metadata
    */
   public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
@@ -236,9 +244,9 @@ public final class ValueRequirementNames {
    */
   public static final String FX_FORWARD_CURVE_DEFINITION = "FXForwardCurveDefinition";
   /**
-   * FX forward curve property metadata
+   * FX forward curve specification
    */
-  public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
+  public static final String FX_FORWARD_CURVE_SPECIFICATION = "FXForwardCurveSpecification";
   /**
    * Currency pairs property metadata
    */
