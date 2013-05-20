@@ -56,7 +56,7 @@ $.register_module({
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function () {
                         if (cellmenu.inplace.toggle_handler()) {
-                            cellmenu.create_inplace('.OG-layout-analytics-' + unique);
+                            cellmenu.create_inplace('.OG-layout-analytics-' + unique, grid);
                             cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
                         }
                         else cellmenu.destroy_frozen();
@@ -70,8 +70,10 @@ $.register_module({
            $('.og-inplace-resizer').remove();
            og.common.gadgets.manager.clean();
         };
-        constructor.prototype.create_inplace = function (unique) {
+        constructor.prototype.create_inplace = function (unique, grid) {
             var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, inner_height, inner_width,
+                cell_coordinates = grid.cell_coords(cellmenu.current.row, cellmenu.current.col),
+                cell_width = cell_coordinates.right - cell_coordinates.left,
                 offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu;
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
@@ -82,12 +84,12 @@ $.register_module({
             inner_height = $(window).height() / 2.5;
             inner_width = $(window).width() / 2.5;
             inner.height(inner_height);
-            inner.width(inner_width)
+            inner.width(inner_width);
             if ((offset.top + inner_height + 10) > $(window).height()) {
                 cellmenu.menu.addClass('og-pop-up');
                 inner.css({marginTop: - inner_height + 1});
             }
-            if ((offset.left + inner_width) > $(window).width())
+            if ((offset.left - cell_width + inner_width) > $(window).width())
                 inner.css({marginLeft: - inner_width - (offset.left - $(window).width())});
             new constructor(cellmenu.grid);
             og.analytics.resize({
