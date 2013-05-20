@@ -24,7 +24,7 @@ $.register_module({
                 current = mapping.gadgets[types_array[i]];
                 if (depgraph && current === 'Depgraph') continue;
                 gadget = {name: current, gadget_name: gadget_names[current]};
-                if (current === gadget_type) gadget.defaul_type = true;
+                if (current === gadget_type) gadget.default_type = true;
                 !is_complex(current) ? types.complex_gadgets.push(gadget) : types.simple_gadgets.push(gadget);
             }
             return types;
