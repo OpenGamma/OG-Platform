@@ -21,8 +21,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
-import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.holiday.Holiday;
@@ -39,7 +37,6 @@ import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRa
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
-import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
@@ -165,20 +162,20 @@ public class CurveNodeToDefinitionConverterTest {
     assertEquals(expectedCash, cash);
   }
 
-  @Test
-  public void testFRA() {
-    final ExternalId marketDataId = ExternalId.of(SCHEME, "US6x9");
-    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
-    final double rate = 0.01234;
-    marketValues.setDataPoint(marketDataId, rate);
-    final FRANode fraNode = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, LIBOR_3M_ID, "Mapper");
-    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false);
-    final InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(fraNode, marketDataId, DateUtils.getUTCDate(2013, 6, 1), marketValues);
-    assertTrue(definition instanceof ForwardRateAgreementDefinition);
-    final ForwardRateAgreementDefinition fra = (ForwardRateAgreementDefinition) definition;
-    final ForwardRateAgreementDefinition expectedFRA = ForwardRateAgreementDefinition.from(DateUtils.getUTCDate(2013, 9, 1), DateUtils.getUTCDate(2013, 12, 1), 1, index, rate, CALENDAR);
-    assertEquals(expectedFRA, fra);
-  }
+  //  @Test
+  //  public void testFRA() {
+  //    final ExternalId marketDataId = ExternalId.of(SCHEME, "US6x9");
+  //    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+  //    final double rate = 0.01234;
+  //    marketValues.setDataPoint(marketDataId, rate);
+  //    final FRANode fraNode = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, LIBOR_3M_ID, "Mapper");
+  //    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false);
+  //    final InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(fraNode, marketDataId, DateUtils.getUTCDate(2013, 6, 1), marketValues);
+  //    assertTrue(definition instanceof ForwardRateAgreementDefinition);
+  //    final ForwardRateAgreementDefinition fra = (ForwardRateAgreementDefinition) definition;
+  //    final ForwardRateAgreementDefinition expectedFRA = ForwardRateAgreementDefinition.from(DateUtils.getUTCDate(2013, 9, 1), DateUtils.getUTCDate(2013, 12, 1), 1, index, rate, CALENDAR);
+  //    assertEquals(expectedFRA, fra);
+  //  }
 
   private static class MyConventionSource implements ConventionSource {
     private final Map<ExternalId, Convention> _conventions;
