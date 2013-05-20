@@ -47,7 +47,6 @@ $.register_module({
             return gadget_options;
         };
         var type = function (cell, panel) {
-            if (cell.value.logLevel === 'ERROR') return 'Log';
             var order = mapping.panel_preference[panel || 'new-window'],
                 type_map = mapping.data_type_map[cell.type], i, k;
             if (!type_map) throw new Error(module.name + ': no type information available for ' + cell.type);
