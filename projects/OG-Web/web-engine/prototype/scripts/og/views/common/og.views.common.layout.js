@@ -14,7 +14,7 @@ $.register_module({
                         enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
                         togglerLength_open: 0
                     },
-                    north:    {spacing_open: 0, size: 25, paneClass: 'OG-layout-admin-masthead'},
+                    north:    {spacing_open: 0, size: 25, paneClass: 'OG-layout-masthead'},
                     west:     {spacing_open: 8, size: '33%', paneClass: 'OG-layout-admin-search'},
                     center:   {paneClass: 'ui-layout-details'}
                 }),
@@ -42,7 +42,7 @@ $.register_module({
             analytics: function () {return {
                 main: $('.OG-layout-admin-container').layout({
                     defaults: {enableCursorHotkey: false},
-                    north: {spacing_open: 0, paneClass: 'OG-layout-admin-masthead', size: 25},
+                    north: {spacing_open: 0, paneClass: 'OG-layout-masthead', size: 25},
                     center: {paneClass: 'OG-layout-analytics', contentSelector: '.ui-layout-content'}
                 })
             };},
@@ -59,7 +59,7 @@ $.register_module({
                         enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
                         togglerLength_open: 0
                     },
-                    north: {spacing_open: 0, paneClass: 'OG-layout-analytics-masthead', size: 67},
+                    north: {spacing_open: 0, paneClass: 'OG-layout-masthead', size: 67},
                     east: {spacing_open: 7, paneClass: 'OG-layout-analytics-dock', size: "25%"},
                     center: {paneClass: 'OG-layout-analytics2'}
                 }),

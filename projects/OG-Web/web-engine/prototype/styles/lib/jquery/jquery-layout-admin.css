@@ -3,8 +3,9 @@
     visibility: hidden;
 }
 
-.OG-layout-admin-masthead {
+.OG-layout-masthead {
     background: transparent;
+    z-index: 6!important;
 }
 
 .OG-layout-admin-search,
