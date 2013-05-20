@@ -106,7 +106,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     // Get market data
     final ForexOptionDataBundle<?> marketData = FXOptionFunctionUtils.buildMarketBundle(now, inputs, target, desiredValues);
     // Create the result specification
-    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
 
     // Compute result
@@ -175,14 +175,14 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
-    final String putCurveName = putCurveNames.iterator().next();
-    final String callCurveName = callCurveNames.iterator().next();
-    final String putCurveCalculationConfig = putCurveCalculationConfigs.iterator().next();
-    final String callCurveCalculationConfig = callCurveCalculationConfigs.iterator().next();
-    final String surfaceName = surfaceNames.iterator().next();
-    final String interpolatorName = interpolatorNames.iterator().next();
-    final String leftExtrapolatorName = leftExtrapolatorNames.iterator().next();
-    final String rightExtrapolatorName = rightExtrapolatorNames.iterator().next();
+    final String putCurveName = Iterables.getOnlyElement(putCurveNames);
+    final String callCurveName = Iterables.getOnlyElement(callCurveNames);
+    final String putCurveCalculationConfig = Iterables.getOnlyElement(putCurveCalculationConfigs);
+    final String callCurveCalculationConfig = Iterables.getOnlyElement(callCurveCalculationConfigs);
+    final String surfaceName = Iterables.getOnlyElement(surfaceNames);
+    final String interpolatorName = Iterables.getOnlyElement(interpolatorNames);
+    final String leftExtrapolatorName = Iterables.getOnlyElement(leftExtrapolatorNames);
+    final String rightExtrapolatorName = Iterables.getOnlyElement(rightExtrapolatorNames);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement putFundingCurve = getCurveRequirementForFXOption(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfig, true);
@@ -244,7 +244,8 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
       final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair);
 
-  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue,
+      final CurrencyPair baseQuotePair);
 
   //TODO clumsy. Push the execute() method down into the functions and have getDerivative() and getData() methods
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,

@@ -62,7 +62,7 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
 
     }
 
-    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
+    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
     private boolean _includeIRFutures;
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {

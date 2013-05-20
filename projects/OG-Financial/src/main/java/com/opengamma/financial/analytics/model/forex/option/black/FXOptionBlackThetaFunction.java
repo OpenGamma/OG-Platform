@@ -64,8 +64,8 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
     return properties.with(ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD, OPTION_THETA);
   }
 }
