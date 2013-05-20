@@ -21,6 +21,9 @@ public class CentralCounterpartyDefinition {
 
   // TODO : Work-in-progress
 
+  // TODO : Need to add the IM and VM accounts for each clearing member
+  // TODO : Need to include netting rules
+  // TODO : Need to include frequency with which reserve fund amounts from GCM's are re-calculated
   // TODO : Add hashCode() and equals() methods
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

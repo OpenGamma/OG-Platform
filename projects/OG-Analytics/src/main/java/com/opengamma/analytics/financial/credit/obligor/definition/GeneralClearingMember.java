@@ -19,6 +19,11 @@ public class GeneralClearingMember extends Obligor {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Add a list of clients (which are NCM's) and give them IM and VM accounts
+  // TODO : Add a boolean to specify if IM and VM accounts  are segregated
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   // The contribution of this GCM to the CCP's reserve fund
   private final double _reserveFundContribution;
 
