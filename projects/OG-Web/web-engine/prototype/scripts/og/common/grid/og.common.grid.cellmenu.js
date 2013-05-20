@@ -84,7 +84,7 @@ $.register_module({
             inner_height = $(window).height() / 2.5;
             inner_width = $(window).width() / 2.5;
             inner.height(inner_height);
-            inner.width(inner_width);
+            inner.width(inner_width)
             if ((offset.top + inner_height + 10) > $(window).height()) {
                 cellmenu.menu.addClass('og-pop-up');
                 inner.css({marginTop: - inner_height + 1});
