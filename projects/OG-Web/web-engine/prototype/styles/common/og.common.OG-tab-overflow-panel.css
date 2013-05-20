@@ -28,3 +28,7 @@
 .OG-tab-overflow-panel .OG-multiselect {
     display: none;
 }
+
+.OG-tab-overflow-panel .OG-gadget-tabs-label {
+    top: 0;
+}
