@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisito
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.centralcounterparty.CentralCounterpartyDefinition;
 import com.opengamma.analytics.financial.credit.collateralmodel.CreditSupportAnnexDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
@@ -38,6 +39,9 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
 
   // The CSA that this trade is executed under (specifies the details of the collateral arrangements between the protection buyer and seller)
   private final CreditSupportAnnexDefinition _creditSupportAnnex;
+
+  // The CCP that this trade is cleared through
+  private final CentralCounterpartyDefinition _centralCounterparty;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -71,7 +75,8 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
       final double upfrontAmount,
       final ZonedDateTime cashSettlementDate,
       final boolean adjustCashSettlementDate,
-      final CreditSupportAnnexDefinition creditSupportAnnex) {
+      final CreditSupportAnnexDefinition creditSupportAnnex,
+      final CentralCounterpartyDefinition centralCounterparty) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -108,8 +113,11 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     ArgumentChecker.notNull(creditSupportAnnex, "Credit support annex");
+    ArgumentChecker.notNull(centralCounterparty, "Central Counterparty");
 
     _creditSupportAnnex = creditSupportAnnex;
+
+    _centralCounterparty = centralCounterparty;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
@@ -147,7 +155,8 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
         getUpfrontAmount(),
         getCashSettlementDate(),
         getAdjustCashSettlementDate(),
-        _creditSupportAnnex);
+        _creditSupportAnnex,
+        _centralCounterparty);
   }
 
   @Override
@@ -179,7 +188,8 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
         getUpfrontAmount(),
         getCashSettlementDate(),
         getAdjustCashSettlementDate(),
-        _creditSupportAnnex);
+        _creditSupportAnnex,
+        _centralCounterparty);
   }
 
   @Override
@@ -211,8 +221,10 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
         getUpfrontAmount(),
         getCashSettlementDate(),
         getAdjustCashSettlementDate(),
-        _creditSupportAnnex);
+        _creditSupportAnnex,
+        _centralCounterparty);
   }
+
   @Override
   public StandardCollateralizedVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
     return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
@@ -242,7 +254,8 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
         getUpfrontAmount(),
         getCashSettlementDate(),
         getAdjustCashSettlementDate(),
-        _creditSupportAnnex);
+        _creditSupportAnnex,
+        _centralCounterparty);
   }
 
   @Override

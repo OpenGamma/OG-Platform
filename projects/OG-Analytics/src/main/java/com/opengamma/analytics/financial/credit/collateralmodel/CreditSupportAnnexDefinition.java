@@ -28,8 +28,8 @@ public class CreditSupportAnnexDefinition {
   private final Obligor _counterpartyA;
   private final Obligor _counterpartyB;
 
-  // Specify the obligor designated as the Valuation Agent (can be one of the two counterparties)
-  private final Obligor _valuationAgent;
+  // Specify the obligor designated as the Calculation Agent (can be one of the two counterparties) - calculates the collateral flowing between the two counterparties
+  private final Obligor _calculationAgent;
 
   // The date when a request for collateral to be posted is made
   private final ZonedDateTime _collateralCallDate;
@@ -109,7 +109,7 @@ public class CreditSupportAnnexDefinition {
 
     _counterpartyA = counterpartyA;
     _counterpartyB = counterpartyB;
-    _valuationAgent = valuationAgent;
+    _calculationAgent = valuationAgent;
 
     _collateralCallDate = collateralCallDate;
 
@@ -141,7 +141,7 @@ public class CreditSupportAnnexDefinition {
   }
 
   public Obligor getValuationAgent() {
-    return _valuationAgent;
+    return _calculationAgent;
   }
 
   public ZonedDateTime getCollateralCallDate() {
