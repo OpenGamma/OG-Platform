@@ -53,7 +53,7 @@
     text-decoration: underline;
 }
 
-.OG-logger.og-nolog {
+.OG-logger .og-nolog {
     background: #f8f8f8;
     padding: 5px;
     position: absolute;
