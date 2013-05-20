@@ -210,6 +210,22 @@ public class AnalyticsViewManager {
     }
     return connection.getView();
   }
+  
+  /**
+   * Returns a view client given its view ID.
+   * 
+   * @param viewId ID of the view
+   * @return the view client.
+   * @throws DataNotFoundException If there's no view with the specified ID
+   */
+  public ViewClient getViewCient(String viewId) {
+    AnalyticsViewClientConnection connection = _viewConnections.get(viewId);
+    if (connection == null) {
+      s_logger.debug("Received request for unknown view ID {}", viewId);
+      throw new DataNotFoundException("No view found with ID " + viewId);
+    }
+    return connection.getViewClient();
+  }
 
   /**
    * Closes a view if it's still open when the associated client disconnects.
