@@ -83,13 +83,16 @@ $.register_module({
             inner_width = $(window).width() / 2.5;
             inner.height(inner_height);
             inner.width(inner_width)
-            if ((offset.top + inner_height) > $(window).height()) inner.css({marginTop: - inner_height - 30});
+            if ((offset.top + inner_height + 10) > $(window).height()) {
+                cellmenu.menu.addClass('og-pop-up');
+                inner.css({marginTop: - inner_height + 1});
+            }
             if ((offset.left + inner_width) > $(window).width())
-                inner.css({marginLeft: - inner_width - (offset.left - $(window).width()) - 10} );
+                inner.css({marginLeft: - inner_width - (offset.left - $(window).width()) - 10});
             new constructor(cellmenu.grid);
             og.analytics.resize({
                 selector: unique,
-                offset: {top: 1},
+                offset: {top: -25, left: -1},
                 tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
                 mouseup_handler: function (right, bottom) {
                     var newWidth = Math.max(480,($(document).outerWidth() - right) - inner.offset().left),
@@ -104,8 +107,12 @@ $.register_module({
             if (cellmenu.menu && cellmenu.menu.length && !cellmenu.frozen) cellmenu.menu.hide();
         };
         constructor.prototype.show = function (coordinates) {
-            var cellmenu = this, current = this.current, width = coordinates.right - coordinates.left;
+            var cellmenu = this, current = this.current, width = coordinates.right - coordinates.left,
+                gadget_type = mapping.type(cellmenu.current, 'inplace'),
+                $chevron = cellmenu.menu.find('.og-icon-down-chevron');
             if (cellmenu.menu && cellmenu.menu.length) {
+                if (!mapping.is_complex(gadget_type)) $chevron.addClass('og-complex');
+                else $chevron.removeClass('og-complex');
                 cellmenu.menu.appendTo($('body'))
                     .css({top: current.top, left: current.right + cellmenu.grid.elements.parent.offset().left}).show()
                     .find('.OG-gadgets-container').css('margin-left', -width + 'px').end()

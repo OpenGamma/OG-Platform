@@ -465,7 +465,8 @@ $.register_module({
                         }) : '';
                         cells.push({
                             column: column, value: prefix + value, type: data[index].t || type,
-                            highlight: highlight && highlight.row === data_row && highlight.col === data_col,
+                            highlight: highlight && highlight.row === data_row && highlight.col === data_col
+                                && highlight.event_type,
                             logging: data[index] && data[index][logging], error: data[index] && data[index].error
                         });
                     }
@@ -660,10 +661,10 @@ $.register_module({
                 (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
-        Grid.prototype.highlight = function (row, col) {
+        Grid.prototype.highlight = function (row, col, event_type) {
             var grid = this, meta = grid.meta, viewport = meta && meta.viewport,
                 data = grid.data, highlit = !!grid.state.highlight;
-            grid.state.highlight = arguments.length ? {row: row, col: col} : null;
+            grid.state.highlight = arguments.length ? {row: row, col: col, event_type: event_type} : null;
             if (data && ~viewport.rows.indexOf(row) && ~viewport.cols.indexOf(col)) // grid is ready and has this cell
                 return render_rows.call(grid, data), grid;
             if (data && highlit && !grid.state.highlight) // grid is ready and should un-highlight

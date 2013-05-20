@@ -87,6 +87,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-minimize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-move.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window-2.css</fragment>
@@ -108,6 +109,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-loader.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-gadget-buttons.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>

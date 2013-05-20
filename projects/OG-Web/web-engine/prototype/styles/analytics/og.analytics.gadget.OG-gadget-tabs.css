@@ -41,6 +41,10 @@
     font-size: 11px;
 }
 
+.ie9 .OG-gadget-tabs li {
+    top: -2px;
+}
+
 .OG-gadget-tabs li:first-child {
     border-left: 1px solid #d8d8d8;
 }
@@ -81,6 +85,7 @@
         border: 1px solid #bbb;
         border-bottom: 1px solid #fff;
         line-height: 18px;
+        top: -1px;
     }
 
     .OG-gadget-tabs li.og-focus {
@@ -172,8 +177,7 @@
 /* multiselect */
     .OG-gadget-tabs .OG-multiselect {
         display: none;
-        margin: -1px 0 0 -4px;
-        top: -1px;
+        margin: -3px 0 0 -4px;
         position: relative;
     }
 

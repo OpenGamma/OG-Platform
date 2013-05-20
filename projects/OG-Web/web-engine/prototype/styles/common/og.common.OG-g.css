@@ -50,6 +50,10 @@
     white-space: nowrap;
 }
 
+.OG-g-cell.og-cell-highlight {
+    background-color: #eee;
+}
+
 .OG-g-cell.og-error {
     color: #808080;
 }
