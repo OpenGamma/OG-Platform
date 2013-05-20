@@ -83,12 +83,15 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAAUDCurveConfig");
     i.setCurveConfiguration("model/forex", "AUDFX");
+    i.setCurveConfiguration("model/pnl", "AUDFX");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
     i.setCurveName("model/forex/discounting", "FX");
+    i.setCurveName("model/pnl/discounting", "FX");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setCurveCalculationMethodName("model/forex/discounting", "FXImplied");
+    i.setCurveCalculationMethodName("model/pnl/discounting", "FXImplied");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }

@@ -53,7 +53,8 @@ public abstract class FXDigitalCallSpreadBlackSingleValuedFunction extends FXOpt
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
       final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
-    final ValueProperties.Builder properties = super.getResultProperties(target)
+    final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig,
+        baseQuotePair)
         .withoutAny(CALCULATION_METHOD)
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
         .withAny(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
@@ -61,16 +62,17 @@ public abstract class FXDigitalCallSpreadBlackSingleValuedFunction extends FXOpt
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String callSpread = desiredValue.getConstraint(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
-    final ValueProperties.Builder properties = super.getResultProperties(target)
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair)
         .withoutAny(CALCULATION_METHOD)
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
         .with(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE, callSpread);
     return properties;
   }
 
-  protected String getResultCurrency(final ComputationTarget target) {
+  @Override
+  protected String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     if (security instanceof FXDigitalOptionSecurity) {
       return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
