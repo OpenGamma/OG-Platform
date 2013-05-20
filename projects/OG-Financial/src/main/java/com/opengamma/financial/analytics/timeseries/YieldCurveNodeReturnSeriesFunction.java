@@ -288,4 +288,14 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
     return TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
   }
 
+
+  @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
 }

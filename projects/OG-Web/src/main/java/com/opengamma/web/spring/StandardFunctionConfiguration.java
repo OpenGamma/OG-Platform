@@ -985,7 +985,6 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   protected void setPNLFunctionDefaults(final CurrencyInfo i, final PNLFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/pnl"));
     defaults.setDiscountingCurve(i.getCurveName("model/pnl/discounting"));
-    defaults.setSurfaceName(i.getSurfaceName("model/pnl"));
   }
 
   protected void setPNLFunctionDefaults(final CurrencyPairInfo i, final PNLFunctions.Defaults.CurrencyPairInfo defaults) {
