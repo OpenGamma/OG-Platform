@@ -326,7 +326,8 @@ $.register_module({
                     // implement drop
                     $selector.droppable({
                         hoverClass: 'og-drop',
-                        accept: function (draggable) {return $(draggable).is('.ui-layout-header [class*=og-tab-]');},
+                        accept: function (draggable) {return $(draggable)
+                            .is('.ui-layout-header [class*=og-tab-], .OG-tab-overflow-panel [class*=og-tab-]');},
                         tolerance: 'pointer',
                         over: function () {setTimeout(toggle_dropbox);}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox);},  // order, toggle function seems to solve issue
