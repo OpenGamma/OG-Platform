@@ -59,11 +59,11 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
@@ -188,6 +188,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
