@@ -64,7 +64,7 @@
 
 .OG-analytics-inplace .ui-layout-header .og-label div {
     position: relative;
-    padding: 5px 30px 5px 5px;
+    padding: 5px;
     cursor: move;
     z-index: 2;
 }
@@ -92,13 +92,6 @@
 
 .OG-analytics-inplace .ui-layout-header .og-dock div:hover .og-icon-dock:after {
     background-position: -52px -162px;
-}
-
-.OG-analytics-inplace .ui-layout-header .og-icon-move {
-    right: 24px;
-    top: 4px;
-    position: absolute;
-    cursor: move;
 }
 
 .OG-analytics-inplace .ui-layout-header .og-separator {

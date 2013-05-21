@@ -87,7 +87,6 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-minimize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-move.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-dock.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
