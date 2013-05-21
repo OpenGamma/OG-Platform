@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import com.opengamma.util.money.Currency;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
