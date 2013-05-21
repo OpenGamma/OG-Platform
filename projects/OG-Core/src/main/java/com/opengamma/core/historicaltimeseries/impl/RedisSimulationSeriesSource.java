@@ -94,7 +94,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
    * Gets the jedisPool.
    * @return the jedisPool
    */
-  protected JedisPool getJedisPool() {
+  public JedisPool getJedisPool() {
     return _jedisPool;
   }
   
@@ -102,7 +102,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
    * Gets the redisPrefix.
    * @return the redisPrefix
    */
-  protected String getRedisPrefix() {
+  public String getRedisPrefix() {
     return _redisPrefix;
   }
 
@@ -323,7 +323,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
   // UTILITY METHODS:
   // ------------------------------------------------------------------------
   
-  private String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
+  public String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
     StringBuilder sb = new StringBuilder();
     
     sb.append(_redisPrefix);
@@ -479,7 +479,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
 
   @Override
   public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    return ExternalId.of(uniqueId.getScheme(), uniqueId.getValue()).toBundle();
   }
 
 }

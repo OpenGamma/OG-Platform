@@ -33,6 +33,7 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.NoOpFunction;
+import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -133,7 +134,7 @@ public class RepositoryFactoryTest {
     assertNotNull(repo);
     assertEquals(repo.getAllFunctions().size(), FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT);
     for (final FunctionDefinition definition : repo.getAllFunctions()) {
-      assertTrue((definition instanceof NoOpFunction) || (definition instanceof MarketDataAliasingFunction));
+      assertTrue(isIntrinsicFunctionDefinition(definition));
       assertNotNull(definition.getUniqueId());
     }
   }
@@ -189,12 +190,16 @@ public class RepositoryFactoryTest {
         final MockMultiArgumentFunctionIndividualParameterForm multi = (MockMultiArgumentFunctionIndividualParameterForm) definition;
         assertEquals("bar1", multi.getParam1());
         assertEquals("bar2", multi.getParam2());
-      } else if ((definition instanceof NoOpFunction) || (definition instanceof MarketDataAliasingFunction)) {
+      } else if (isIntrinsicFunctionDefinition(definition)) {
         // Ignore
       } else {
         Assert.fail("Unexpected type of definition " + definition);
       }
     }
+  }
+
+  private boolean isIntrinsicFunctionDefinition(FunctionDefinition definition) {
+    return (definition instanceof NoOpFunction) || (definition instanceof MarketDataAliasingFunction) || (definition instanceof StructureManipulationFunction);
   }
 
 }

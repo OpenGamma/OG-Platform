@@ -27,7 +27,7 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Check hashCode and equals methods (fix these)
+  // TODO : 
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -89,8 +89,9 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         includeAccruedPremium,
         protectionStart,
         parSpread);
-
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public LegacyVanillaCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {

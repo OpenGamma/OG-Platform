@@ -28,6 +28,11 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(CreditSpreadCurveHistoricalTimeSeriesFunction.class));
+    functions.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
+    functions.add(functionConfiguration(FXForwardCurveHistoricalTimeSeriesFunction.class));
+    functions.add(functionConfiguration(FXForwardCurveNodeReturnSeriesFunction.class));
+    functions.add(functionConfiguration(FXReturnSeriesFunction.class));
+    functions.add(functionConfiguration(FXVolatilitySurfaceHistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(HistoricalTimeSeriesSecurityFunction.class));
     functions.add(functionConfiguration(HistoricalTimeSeriesLatestPositionProviderIdValueFunction.class));
@@ -35,15 +40,13 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(HistoricalTimeSeriesLatestValueFunction.class));
     functions.add(functionConfiguration(HistoricalValuationFunction.class));
     functions.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
-    functions.add(functionConfiguration(FXVolatilitySurfaceHistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
     functions.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated.class));
-    functions.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
-    functions.add(functionConfiguration(FXReturnSeriesFunction.class));
-    functions.add(functionConfiguration(YieldCurveNodeReturnSeriesFunction.class));
-    functions.add(functionConfiguration(VolatilityWeightedYieldCurveNodeReturnSeriesFunction.class));
+    functions.add(functionConfiguration(VolatilityWeightedFXForwardCurveNodeReturnSeriesFunction.class));
     functions.add(functionConfiguration(VolatilityWeightedFXReturnSeriesFunction.class));
+    functions.add(functionConfiguration(VolatilityWeightedYieldCurveNodeReturnSeriesFunction.class));
+    functions.add(functionConfiguration(YieldCurveNodeReturnSeriesFunction.class));
   }
 
 }

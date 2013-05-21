@@ -7,10 +7,10 @@ package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
-import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesDeliverableSecurityHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
@@ -42,7 +42,7 @@ public final class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVi
   /**
    * Pricing methods.
    */
-  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT = SwapFuturesPriceDeliverableSecurityHullWhiteMethod.getInstance();
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_STIRFUT = InterestRateFutureSecurityHullWhiteMethod.getInstance();
   private static final InterestRateFutureOptionMarginSecurityHullWhiteMethod METHOD_OPT_STIRFUT_MARG = InterestRateFutureOptionMarginSecurityHullWhiteMethod.getInstance();
 
@@ -59,7 +59,7 @@ public final class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVi
   }
 
   @Override
-  public Double visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public Double visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAP_FUT.price(futures, hullWhite);
   }
 

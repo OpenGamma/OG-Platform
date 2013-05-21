@@ -42,7 +42,7 @@ public class OptionThetaBlackForexCalculator extends InstrumentDerivativeVisitor
 
   @Override
   public CurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    return METHOD_FXOPTIONVANILLA.thetaTheoretical(derivative, data);
+    return METHOD_FXOPTIONVANILLA.theta(derivative, data);
   }
 
 }

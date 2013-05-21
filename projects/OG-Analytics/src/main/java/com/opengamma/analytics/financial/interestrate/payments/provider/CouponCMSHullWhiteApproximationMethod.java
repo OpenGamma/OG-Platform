@@ -89,7 +89,7 @@ public final class CouponCMSHullWhiteApproximationMethod {
     final double alphaPayment = MODEL.alpha(parameters, 0.0, expiryTime, expiryTime, cms.getPaymentTime());
     final double x0 = -alphaPayment;
     final double a0 = MODEL.swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
-    final double a2 = MODEL.swapRateD2(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
+    final double a2 = MODEL.swapRateDx2(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
     final double pv = (a0 + a2 / 2) * dfPayment * cms.getNotional() * cms.getPaymentYearFraction();
     return MultipleCurrencyAmount.of(cms.getCurrency(), pv);
   }

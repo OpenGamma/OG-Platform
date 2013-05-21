@@ -7,9 +7,9 @@ package com.opengamma.analytics.financial.credit.centralcounterparty;
 
 import java.util.ArrayList;
 
-import com.opengamma.analytics.financial.credit.obligor.GeneralClearingMember;
 import com.opengamma.analytics.financial.credit.obligor.LegalDomicile;
 import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.definition.GeneralClearingMember;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,6 +21,9 @@ public class CentralCounterpartyDefinition {
 
   // TODO : Work-in-progress
 
+  // TODO : Need to add the IM and VM accounts for each clearing member
+  // TODO : Need to include netting rules
+  // TODO : Need to include frequency with which reserve fund amounts from GCM's are re-calculated
   // TODO : Add hashCode() and equals() methods
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -49,7 +52,7 @@ public class CentralCounterpartyDefinition {
   // The number of days grace a GCM is granted before a failure to honour their obligations results in the CCP liquidating positions
   private final int _gracePeriod;
 
-  // The time in days it takes the CCP to become the legal counterparty between the two GCM's
+  // The time in days it takes the CCP to become the legal counterparty between the two GCM's (can be zero to represent intraday novation)
   private final int _novationPeriod;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -135,5 +138,29 @@ public class CentralCounterpartyDefinition {
     return _novationPeriod;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public int getNumberOfGeneralClearingMembers() {
+    return _generalClearingMembers.size();
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public double calculateReserveFundValue() {
+
+    double reserveFundValue = 0.0;
+
+    /*
+    for (Iterator i = _generalClearingMembers.iterator(); i.hasNext(); ) {
+      reserveFundValue += _generalClearingMembers.get(i).getReserveFundContribution();
+    }
+    */
+
+    for (int i = 0; i < getNumberOfGeneralClearingMembers(); i++) {
+      reserveFundValue += _generalClearingMembers.get(i).getReserveFundContribution();
+    }
+
+    return reserveFundValue;
+  }
   // ----------------------------------------------------------------------------------------------------------------------------------------
 }

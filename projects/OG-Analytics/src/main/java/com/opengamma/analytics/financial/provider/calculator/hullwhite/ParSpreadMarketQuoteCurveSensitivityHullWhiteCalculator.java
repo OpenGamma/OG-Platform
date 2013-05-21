@@ -7,9 +7,9 @@ package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
-import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesDeliverableSecurityHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -43,7 +43,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
    * Pricing methods.
    */
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteMethod.getInstance();
-  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT = SwapFuturesPriceDeliverableSecurityHullWhiteMethod.getInstance();
 
   //     -----     Futures     -----
 
@@ -59,7 +59,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
   }
 
   @Override
-  public MulticurveSensitivity visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
+  public MulticurveSensitivity visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
     return METHOD_SWAP_FUT.priceCurveSensitivity(futures.getUnderlying(), multicurves);
   }
 

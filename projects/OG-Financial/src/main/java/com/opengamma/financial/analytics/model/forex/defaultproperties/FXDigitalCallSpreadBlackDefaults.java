@@ -35,18 +35,14 @@ public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.CALL_SPREAD_VALUE_VEGA,
     ValueRequirementNames.VALUE_THETA
   };
-  private final PriorityClass _priority;
   private final String _spread;
 
   /**
-   * @param priority The priority of the functions
    * @param spread The spread to use
    */
-  public FXDigitalCallSpreadBlackDefaults(final String priority, final String spread) {
+  public FXDigitalCallSpreadBlackDefaults(final String spread) {
     super(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY), true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(spread, "spread");
-    _priority = PriorityClass.valueOf(priority);
     _spread = spread;
   }
 
@@ -63,11 +59,6 @@ public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
       return Collections.singleton(_spread);
     }
     return null;
-  }
-
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
   }
 
   @Override

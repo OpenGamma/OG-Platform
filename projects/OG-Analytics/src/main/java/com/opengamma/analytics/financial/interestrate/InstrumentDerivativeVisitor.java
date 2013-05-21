@@ -51,8 +51,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -333,13 +333,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
 
-  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesDeliverableSecurity futures, DATA_TYPE data);
+  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesPriceDeliverableSecurity futures, DATA_TYPE data);
 
-  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesDeliverableSecurity futures);
+  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesPriceDeliverableSecurity futures);
 
-  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures, DATA_TYPE data);
+  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures, DATA_TYPE data);
 
-  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures);
+  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures);
 
   // -----     Futures options   -----
 

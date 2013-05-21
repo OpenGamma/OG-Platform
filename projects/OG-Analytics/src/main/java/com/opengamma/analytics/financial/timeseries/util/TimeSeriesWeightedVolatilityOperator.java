@@ -38,12 +38,13 @@ public class TimeSeriesWeightedVolatilityOperator extends Function1D<DateDoubleT
     double[] weightedVolatilities = new double[n];
     double oldestPercentageChange = percentageChangeSeries.getEarliestValueFast();
     weightedVariances[0] = oldestPercentageChange * oldestPercentageChange;
-    weightedVolatilities[0] = oldestPercentageChange;
+    weightedVolatilities[0] = Math.abs(oldestPercentageChange);
     for (int i = 1; i < n; i++) {
       double percentageChange = percentageChangeSeries.getValueAtIndexFast(i);
       weightedVariances[i] = ((1 - _lambda) * percentageChange * percentageChange) + (_lambda * weightedVariances[i - 1]);
       weightedVolatilities[i] = Math.sqrt(weightedVariances[i]);
     }
+    
     return ImmutableLocalDateDoubleTimeSeries.of(percentageChangeSeries.timesArrayFast(), weightedVolatilities);
   }
 

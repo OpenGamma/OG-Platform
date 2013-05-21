@@ -15,6 +15,8 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.manipulator.MarketDataShiftSpecification;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataShiftSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -78,11 +80,16 @@ import com.opengamma.util.ArgumentChecker;
     _marketDataSpecRepo = marketDataSpecificationRepository;
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
+
+    // TODO - At this point we need to pick up a shift specification from the UI - for now we'll add the NoOp
+    MarketDataShiftSpecification marketDataShiftSpecification = NoOpMarketDataShiftSpecification.getInstance();
+
     ViewCycleExecutionOptions defaultOptions =
         ViewCycleExecutionOptions
             .builder()
             .setValuationTime(viewRequest.getValuationTime())
             .setMarketDataSpecifications(actualMarketDataSpecs)
+            .setMarketDataShiftSpecification(marketDataShiftSpecification)
             .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection())
             .create();
     EnumSet<ViewExecutionFlags> flags =
@@ -163,6 +170,14 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ AnalyticsView getView() {
     return _view;
   }
+  
+  /**
+   * Gets the viewClient.
+   * @return the viewClient
+   */
+  /* package */ ViewClient getViewClient() {
+    return _viewClient;
+  }
 
   /**
    * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public
@@ -203,4 +218,5 @@ import com.opengamma.util.ArgumentChecker;
       s_logger.warn("Compilation of the view definition failed", exception);
     }
   }
+
 }

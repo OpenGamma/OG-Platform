@@ -52,7 +52,7 @@ public abstract class FXOptionBlackMultiValuedFunction extends FXOptionBlackFunc
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String putCurveConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);

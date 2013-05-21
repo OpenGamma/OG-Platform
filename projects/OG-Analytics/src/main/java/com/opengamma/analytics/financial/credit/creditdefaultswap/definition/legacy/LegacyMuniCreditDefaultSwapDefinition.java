@@ -231,7 +231,7 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyCreditDefaultSw
 
   @Override
   public CreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
+    return new LegacyMuniCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
         getProtectionSeller(),
         getReferenceEntity(),
