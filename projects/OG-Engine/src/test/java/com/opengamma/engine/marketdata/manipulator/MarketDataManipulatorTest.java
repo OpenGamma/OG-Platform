@@ -64,13 +64,12 @@ public class MarketDataManipulatorTest {
     MarketDataManipulator manipulator = new MarketDataManipulator(YieldCurveSelector.of(new YieldCurveKey(Currency.USD, "Forward3M")));
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
-    ValueSpecification originalValueSpec = Iterables.getOnlyElement(originalOutputSpecifications);
 
     Map<DependencyGraph,Map<MarketDataSelector,Set<ValueSpecification>>> result =
         manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of(new DependencyGraphExplorerImpl(
             graph)));
 
-    checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, originalValueSpec, result);
+    checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
   }
 
   @Test
@@ -80,13 +79,12 @@ public class MarketDataManipulatorTest {
     MarketDataManipulator manipulator = new MarketDataManipulator(CompositeMarketDataSelector.of(yieldCurveSelector));
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
-    ValueSpecification originalValueSpec = Iterables.getOnlyElement(originalOutputSpecifications);
 
     Map<DependencyGraph,Map<MarketDataSelector,Set<ValueSpecification>>> result =
         manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of(new DependencyGraphExplorerImpl(
             graph)));
 
-    checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, originalValueSpec, result);
+    checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
 
     Map<MarketDataSelector, Set<ValueSpecification>> selectorMap = result.get(graph);
     assertEquals(selectorMap.size(), 1);
@@ -97,11 +95,13 @@ public class MarketDataManipulatorTest {
 
   private void checkNodeHasBeenAddedToGraph(DependencyGraph graph,
                                             Set<ValueSpecification> originalOutputSpecifications,
-                                            ValueSpecification originalValueSpec,
                                             Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> result) {
+
     assertEquals(result.isEmpty(), false);
+    ValueSpecification originalValueSpec = Iterables.getOnlyElement(originalOutputSpecifications);
+
     Set<ValueSpecification> outputSpecifications = new HashSet<>(graph.getOutputSpecifications());
-    assertEquals(outputSpecifications.size(), originalOutputSpecifications.size() + 1);
+    assertEquals(outputSpecifications.size(), 2);
 
     outputSpecifications.removeAll(originalOutputSpecifications);
     ValueSpecification additionalSpec = Iterables.getOnlyElement(outputSpecifications);
