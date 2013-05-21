@@ -70,6 +70,35 @@ public class MarketDataManipulatorTest {
         manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of(new DependencyGraphExplorerImpl(
             graph)));
 
+    checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, originalValueSpec, result);
+  }
+
+  @Test
+  public void testCompositeSelectorReturnsUnderlyingSelector() {
+
+    MarketDataSelector yieldCurveSelector = YieldCurveSelector.of(new YieldCurveKey(Currency.USD, "Forward3M"));
+    MarketDataManipulator manipulator = new MarketDataManipulator(CompositeMarketDataSelector.of(yieldCurveSelector));
+    DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
+    Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
+    ValueSpecification originalValueSpec = Iterables.getOnlyElement(originalOutputSpecifications);
+
+    Map<DependencyGraph,Map<MarketDataSelector,Set<ValueSpecification>>> result =
+        manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of(new DependencyGraphExplorerImpl(
+            graph)));
+
+    checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, originalValueSpec, result);
+
+    Map<MarketDataSelector, Set<ValueSpecification>> selectorMap = result.get(graph);
+    assertEquals(selectorMap.size(), 1);
+
+    // Selector is the underlying, not composite
+    assertEquals(selectorMap.containsKey(yieldCurveSelector), true);
+  }
+
+  private void checkNodeHasBeenAddedToGraph(DependencyGraph graph,
+                                            Set<ValueSpecification> originalOutputSpecifications,
+                                            ValueSpecification originalValueSpec,
+                                            Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> result) {
     assertEquals(result.isEmpty(), false);
     Set<ValueSpecification> outputSpecifications = new HashSet<>(graph.getOutputSpecifications());
     assertEquals(outputSpecifications.size(), originalOutputSpecifications.size() + 1);
@@ -82,7 +111,6 @@ public class MarketDataManipulatorTest {
 
     ValueProperties expectedProps = originalValueSpec.getProperties().copy().with("MANIPULATION_NODE", "true").get();
     assertEquals(additionalSpec.getProperties(), expectedProps);
-
   }
 
   private DependencyGraph createSimpleGraphWithMarketDataNodes() {
