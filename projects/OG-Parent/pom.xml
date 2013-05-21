@@ -1188,6 +1188,7 @@
             <link>http://download.oracle.com/javase/7/docs/api/</link>
           </links>
           <encoding>UTF-8</encoding>
+          <footer><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i>]]></footer>
         </configuration>
       </plugin>
       <plugin>
@@ -1303,6 +1304,7 @@
     <fudge.proto.excludes>*Security.proto;*ExerciseType.proto;*OptionType.proto;*PayoffStyle.proto;*SwapLeg.proto;*Notional.proto</fudge.proto.excludes>
     <fudge.proto.fileHeader>///CLOVER:OFF - CSOFF</fudge.proto.fileHeader>
     <fudge.proto.fileFooter>///CLOVER:ON - CSON</fudge.proto.fileFooter>
+    <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
   </properties>
 
 </project>
