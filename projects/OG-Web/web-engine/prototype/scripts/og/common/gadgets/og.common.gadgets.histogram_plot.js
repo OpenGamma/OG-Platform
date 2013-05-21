@@ -38,14 +38,13 @@ $.register_module({
                 }).appendTo("body").fadeIn(200);
             };
             var setup = function () {
-                $.when(og.api.text({module: 'og.views.gadgets.histogram.plot_tash'})).then(function (plot_tmpl) {
-                    plot_template = plot_tmpl;
+                og.api.text({module: 'og.views.gadgets.histogram.plot_tash'}).pipe(function (template) {
+                    plot_template = template;
                     $selector = $(selector);
                     $selector.html((Handlebars.compile(plot_template))({alive: alive, buckets: config.buckets}));
                     $selector.find('.og-bucket-mid').addClass('OG-link-active');
-                    $refresh = $selector.find('div.og-histogram-refresh');
+                    $refresh = $selector.find('div.og-histogram-refresh').hide();
                     $plot_selector = $(selector + ' .og-histogram-plot');
-                    $refresh.hide();
                     $selector.find('span.og-bucket-select').bind('click', function (event) {
                         var $elm = $(event.target), rebucket_data = config.rebucket($elm .attr('name'));
                         $elm.siblings().removeClass('OG-link-active');

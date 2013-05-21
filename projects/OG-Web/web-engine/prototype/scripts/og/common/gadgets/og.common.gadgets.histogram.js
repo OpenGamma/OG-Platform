@@ -72,8 +72,8 @@ $.register_module({
                             ooright: round(buckets + triple_step)}};
             };
             var normpdf = function (x, mu, sigma, constant) {
-                var diff = x-mu;
-                return (Math.exp(-( (diff*diff) / (2*(sigma*sigma)) ))) / (sigma*constant);
+                var diff = x - mu;
+                return (Math.exp(-((diff * diff) / (2 * (sigma * sigma))))) / (sigma * constant);
             };
             var normpdf_data = function () {
                 var norm = [], diff = 0, sigma, constant = Math.sqrt(2*Math.PI),
