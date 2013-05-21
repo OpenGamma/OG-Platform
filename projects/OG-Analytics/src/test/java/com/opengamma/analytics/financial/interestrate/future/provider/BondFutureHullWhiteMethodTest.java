@@ -41,7 +41,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Tests related to the bond future figures computed with the Hull-White one factor model for the delivery option.
  */
-public class BondFutureSecurityHullWhiteMethodTest {
+public class BondFutureHullWhiteMethodTest {
 
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();

@@ -38,7 +38,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the bond future figures computed with the Hull-White one factor model for the delivery option.
  */
-public class BondFutureSecurityHullWhiteMethodTest {
+public class BondFutureHullWhiteMethodTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.EUR;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);

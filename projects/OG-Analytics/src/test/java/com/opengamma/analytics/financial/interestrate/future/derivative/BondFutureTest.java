@@ -32,7 +32,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to bond futures security Derivative construction.
  */
-public class BondFutureSecurityTest {
+public class BondFutureTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.EUR;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);

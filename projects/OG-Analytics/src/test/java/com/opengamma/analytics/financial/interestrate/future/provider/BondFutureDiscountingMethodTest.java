@@ -39,7 +39,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the bond future figures computed by discounting.
  */
-public class BondFutureSecurityDiscountingMethodTest {
+public class BondFutureDiscountingMethodTest {
 
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
