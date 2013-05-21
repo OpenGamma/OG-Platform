@@ -15,12 +15,12 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an interest rate future security.
  */
-public class SwapFuturesDeliverableTransaction implements InstrumentDerivative {
+public class SwapFuturesPriceDeliverableTransaction implements InstrumentDerivative {
 
   /**
    * The underlying swap futures security.
    */
-  private final SwapFuturesDeliverableSecurity _underlying;
+  private final SwapFuturesPriceDeliverableSecurity _underlying;
   /**
    * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
    * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
@@ -31,7 +31,7 @@ public class SwapFuturesDeliverableTransaction implements InstrumentDerivative {
    */
   private final int _quantity;
 
-  public SwapFuturesDeliverableTransaction(final SwapFuturesDeliverableSecurity underlying, final double referencePrice, final int quantity) {
+  public SwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableSecurity underlying, final double referencePrice, final int quantity) {
     ArgumentChecker.notNull(underlying, "Underlying futures");
     ArgumentChecker.notNull(referencePrice, "The reference price");
     ArgumentChecker.notNull(quantity, "Quantity");
@@ -44,7 +44,7 @@ public class SwapFuturesDeliverableTransaction implements InstrumentDerivative {
    * Gets the future last trading time.
    * @return The future last trading time.
    */
-  public SwapFuturesDeliverableSecurity getUnderlying() {
+  public SwapFuturesPriceDeliverableSecurity getUnderlying() {
     return _underlying;
   }
 
@@ -113,7 +113,7 @@ public class SwapFuturesDeliverableTransaction implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwapFuturesDeliverableTransaction other = (SwapFuturesDeliverableTransaction) obj;
+    SwapFuturesPriceDeliverableTransaction other = (SwapFuturesPriceDeliverableTransaction) obj;
     if (_quantity != other._quantity) {
       return false;
     }

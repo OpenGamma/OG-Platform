@@ -122,6 +122,8 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(BondTradePV01Function.class));
+    functions.add(functionConfiguration(BondTradeYCNSFunction.class));
     functions.add(functionConfiguration(InterestRateInstrumentParRateCurveSensitivityFunction.class));
     functions.add(functionConfiguration(InterestRateInstrumentParRateFunction.class));
     functions.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));

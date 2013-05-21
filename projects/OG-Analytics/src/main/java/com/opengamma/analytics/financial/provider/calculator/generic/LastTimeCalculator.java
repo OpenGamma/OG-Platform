@@ -33,7 +33,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -105,7 +105,7 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   }
 
   @Override
-  public Double visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction future) {
+  public Double visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction future) {
     return visitSwap(future.getUnderlying().getUnderlyingSwap());
   }
 

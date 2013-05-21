@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -14,28 +14,28 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
  */
-public final class SwapFuturesDeliverableTransactionHullWhiteMethod extends SwapFuturesDeliverableTransactionMethod {
+public final class SwapFuturesPriceDeliverableTransactionHullWhiteMethod extends SwapFuturesPriceDeliverableTransactionMethod {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final SwapFuturesDeliverableTransactionHullWhiteMethod INSTANCE = new SwapFuturesDeliverableTransactionHullWhiteMethod();
+  private static final SwapFuturesPriceDeliverableTransactionHullWhiteMethod INSTANCE = new SwapFuturesPriceDeliverableTransactionHullWhiteMethod();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static SwapFuturesDeliverableTransactionHullWhiteMethod getInstance() {
+  public static SwapFuturesPriceDeliverableTransactionHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private SwapFuturesDeliverableTransactionHullWhiteMethod() {
+  private SwapFuturesPriceDeliverableTransactionHullWhiteMethod() {
   }
 
-  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SECURITY = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod METHOD_SECURITY = SwapFuturesPriceDeliverableSecurityHullWhiteMethod.getInstance();
 
   /**
    * Computes the present value without convexity adjustment.
@@ -43,7 +43,7 @@ public final class SwapFuturesDeliverableTransactionHullWhiteMethod extends Swap
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MultipleCurrencyAmount presentValue(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     return presentValueFromPrice(futures, METHOD_SECURITY.price(futures.getUnderlying(), hwMulticurves));
   }
 
@@ -53,7 +53,7 @@ public final class SwapFuturesDeliverableTransactionHullWhiteMethod extends Swap
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The present value curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     return presentValueCurveSensitivity(futures, METHOD_SECURITY.priceCurveSensitivity(futures.getUnderlying(), hwMulticurves));
   }
 

@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -41,7 +41,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the pricing of deliverable interest rate swap futures as traded on CME.
  */
-public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
+public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
 
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
@@ -61,14 +61,14 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
   private static final SwapFuturesDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION = new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 9, 20);
-  private static final SwapFuturesDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFuturesPriceDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
 
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, PARAMETERS_HW, USD);
 
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
-  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT_HW = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT_HW = SwapFuturesPriceDeliverableSecurityHullWhiteMethod.getInstance();
 
   private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
   private static final MarketQuoteCurveSensitivityHullWhiteCalculator MQCSHWC = MarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
@@ -90,7 +90,7 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
     final double[] df = new double[nbCfe];
     for (int loopcf = 0; loopcf < nbCfe; loopcf++) {
       df[loopcf] = MULTICURVES.getDiscountFactor(USD, cfe.getNthPayment(loopcf).getPaymentTime());
-      adj[loopcf] = MODEL.futureConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
+      adj[loopcf] = MODEL.futuresConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
       assertTrue("DeliverableSwapFuturesSecurityHullWhiteMethod: price", adj[loopcf] <= 1.0);
     }
     double priceExpected = 1.0;

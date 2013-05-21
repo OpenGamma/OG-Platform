@@ -25,7 +25,9 @@ import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivit
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -59,19 +61,20 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends InterestRateInstrumentCurveSpecificFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class);
+public class BondTradeYCNSFunction extends BondTradeCurveSpecificFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(BondTradeYCNSFunction.class);
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
 
-  public InterestRateInstrumentYieldCurveNodeSensitivitiesFunction() {
+  public BondTradeYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Trade trade = target.getTrade();
+    final FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
@@ -108,7 +111,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     }
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
-    DoubleMatrix1D sensitivities;
+    final DoubleMatrix1D sensitivities;
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       final Object couponSensitivitiesObject = inputs.getValue(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
       if (couponSensitivitiesObject == null) {
@@ -119,11 +122,14 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     } else {
       sensitivities = CALCULATOR.calculateFromParRate(derivative, fixedCurves, curves, jacobian, NSC);
     }
+    final double quantity = trade.getQuantity().doubleValue();
+    final DoubleMatrix1D scaledSensitivities = (DoubleMatrix1D) MatrixAlgebraFactory.OG_ALGEBRA.scale(sensitivities, quantity);
     if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       final Currency domesticCurrency = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
       final Currency foreignCurrency = ComputationTargetType.CURRENCY.resolve(curveCalculationConfigSource.getConfig(curveCalculationConfig.getExogenousConfigData().keySet().iterator().next())
           .getTarget().getUniqueId());
-      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves, configSource, localNow, resultSpec);
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(scaledSensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves, configSource, localNow,
+          resultSpec);
     }
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName, curveCalculationMethod);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
@@ -132,15 +138,15 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     }
     if (curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       final CurveSpecification curveSpec = (CurveSpecification) curveSpecObject;
-      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName + "_" + currency.getCode(), curves, sensitivities, curveSpec, resultSpec);
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName + "_" + currency.getCode(), curves, scaledSensitivities, curveSpec, resultSpec);
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName + "_" + currency.getCode(), curves, sensitivities, curveSpec, resultSpec);
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName + "_" + currency.getCode(), curves, scaledSensitivities, curveSpec, resultSpec);
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
@@ -158,7 +164,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
-      s_logger.info("Could not find curve calculation configuration named " + curveCalculationConfigName);
+      s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {

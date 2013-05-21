@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
@@ -27,24 +27,24 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute the price for an deliverable swap futures with convexity adjustment from a Hull-White one factor model.
  * <p> Reference: Henrard M., Deliverable Interest Rate Swap Futures: pricing in Gaussian HJM model, September 2012.
  */
-public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
+public final class SwapFuturesPriceDeliverableSecurityHullWhiteMethod {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final SwapFuturesDeliverableSecurityHullWhiteMethod INSTANCE = new SwapFuturesDeliverableSecurityHullWhiteMethod();
+  private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod INSTANCE = new SwapFuturesPriceDeliverableSecurityHullWhiteMethod();
 
   /**
    * Constructor.
    */
-  private SwapFuturesDeliverableSecurityHullWhiteMethod() {
+  private SwapFuturesPriceDeliverableSecurityHullWhiteMethod() {
   }
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static SwapFuturesDeliverableSecurityHullWhiteMethod getInstance() {
+  public static SwapFuturesPriceDeliverableSecurityHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
@@ -67,7 +67,7 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The price.
    */
-  public double price(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public double price(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     final Currency ccy = futures.getCurrency();
@@ -79,7 +79,7 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
     final double[] adjustments = new double[nbCf];
     final double[] df = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
-      adjustments[loopcf] = MODEL.futureConvexityFactor(parameters, futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
+      adjustments[loopcf] = MODEL.futuresConvexityFactor(parameters, futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
       df[loopcf] = multicurves.getDiscountFactor(ccy, cfe.getNthPayment(loopcf).getPaymentTime());
     }
     double price = 1.0;
@@ -96,7 +96,7 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
    * @return The sensitivity.
    * TODO: review Dsc sensitivity
    */
-  public MulticurveSensitivity priceCurveSensitivity(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MulticurveSensitivity priceCurveSensitivity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     final Currency ccy = futures.getCurrency();
@@ -108,7 +108,7 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
     final double[] adjustments = new double[nbCf];
     final double[] df = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
-      adjustments[loopcf] = MODEL.futureConvexityFactor(parameters, futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
+      adjustments[loopcf] = MODEL.futuresConvexityFactor(parameters, futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
       df[loopcf] = multicurves.getDiscountFactor(ccy, cfe.getNthPayment(loopcf).getPaymentTime());
     }
     double price = 1.0;

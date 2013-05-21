@@ -13,6 +13,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PV01Calculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -22,10 +23,10 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Computes the PV01 of interest rate instruments.
  */
-public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCurveSpecificFunction {
+public class BondTradePV01Function extends BondTradeCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();
 
-  public InterestRateInstrumentPV01Function() {
+  public BondTradePV01Function() {
     super(ValueRequirementNames.PV01);
   }
 
@@ -33,11 +34,12 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCu
   public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves,
       final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target,
       final ValueSpecification resultSpec) {
+    final Trade trade = target.getTrade();
     final Map<String, Double> pv01 = CALCULATOR.visit(derivative, curves);
     if (!pv01.containsKey(curveName)) {
       throw new OpenGammaRuntimeException("Could not get PV01 for curve named " + curveName + "; should never happen");
     }
-    return Collections.singleton(new ComputedValue(resultSpec, pv01.get(curveName)));
+    return Collections.singleton(new ComputedValue(resultSpec, trade.getQuantity().doubleValue() * pv01.get(curveName)));
   }
 
 }

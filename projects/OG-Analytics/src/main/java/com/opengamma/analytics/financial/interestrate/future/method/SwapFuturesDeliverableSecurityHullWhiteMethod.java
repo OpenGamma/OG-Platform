@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculat
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
@@ -65,13 +65,13 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
    * @param curves The curves and the Hull-White parameters.
    * @return The price.
    */
-  public double price(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public double price(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     final AnnuityPaymentFixed cfe = futures.getUnderlyingSwap().accept(CFEC, curves);
     final int nbCf = cfe.getNumberOfPayments();
     final double[] adjustments = new double[nbCf];
     final double[] df = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
-      adjustments[loopcf] = MODEL.futureConvexityFactor(curves.getHullWhiteParameter(), futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
+      adjustments[loopcf] = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
       df[loopcf] = curves.getCurve(cfe.getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
     }
     double price = 1.0;
@@ -81,13 +81,13 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
     return price;
   }
 
-  public InterestRateCurveSensitivity pricecurveSensitivity(final SwapFuturesDeliverableSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public InterestRateCurveSensitivity pricecurveSensitivity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     final AnnuityPaymentFixed cfe = futures.getUnderlyingSwap().accept(CFEC, curves);
     final int nbCf = cfe.getNumberOfPayments();
     final double[] adjustments = new double[nbCf];
     final double[] df = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
-      adjustments[loopcf] = MODEL.futureConvexityFactor(curves.getHullWhiteParameter(), futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
+      adjustments[loopcf] = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
       df[loopcf] = curves.getCurve(cfe.getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
     }
     double price = 1.0;

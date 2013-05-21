@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
@@ -34,7 +34,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
-public class DeliverableSwapFuturesTransactionHullWhiteMethodTest {
+public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
 
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
@@ -60,13 +60,13 @@ public class DeliverableSwapFuturesTransactionHullWhiteMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 3, 28);
   private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final SwapFuturesDeliverableTransaction SWAP_FUTURES_TRANSACTION = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, LASTMARG_PRICE, NOT_USED_A);
+  private static final SwapFuturesPriceDeliverableTransaction SWAP_FUTURES_TRANSACTION = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, LASTMARG_PRICE, NOT_USED_A);
 
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount MULTICURVES_HW = new HullWhiteOneFactorProviderDiscount(MULTICURVES, PARAMETERS_HW, USD);
 
-  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT_SEC_HW = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
-  private static final SwapFuturesDeliverableTransactionHullWhiteMethod METHOD_SWAP_FUT_TRA_HW = SwapFuturesDeliverableTransactionHullWhiteMethod.getInstance();
+  private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT_SEC_HW = SwapFuturesPriceDeliverableSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesPriceDeliverableTransactionHullWhiteMethod METHOD_SWAP_FUT_TRA_HW = SwapFuturesPriceDeliverableTransactionHullWhiteMethod.getInstance();
   private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
   private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
 

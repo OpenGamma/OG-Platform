@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class DeliverableSwapFuturesSecurityTest {
+public class SwapFuturesPriceDeliverableSecurityTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
@@ -44,11 +44,11 @@ public class DeliverableSwapFuturesSecurityTest {
   private static final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
   private static final double EFFECTIVE_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EFFECTIVE_DATE);
 
-  private static final SwapFuturesDeliverableSecurity SWAP_FUTURES_SECURITY = new SwapFuturesDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, SWAP, NOTIONAL);
+  private static final SwapFuturesPriceDeliverableSecurity SWAP_FUTURES_SECURITY = new SwapFuturesPriceDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, SWAP, NOTIONAL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSwap() {
-    new SwapFuturesDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, null, NOTIONAL);
+    new SwapFuturesPriceDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, null, NOTIONAL);
   }
 
   @Test

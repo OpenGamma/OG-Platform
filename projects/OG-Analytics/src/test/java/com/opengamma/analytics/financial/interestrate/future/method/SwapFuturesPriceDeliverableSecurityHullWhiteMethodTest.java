@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculat
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -33,7 +33,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the pricing of deliverable interest rate swap futures as traded on CME.
  */
-public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
+public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
@@ -48,7 +48,7 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVES_NAMES = TestsDataSetsSABR.curves2Names();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 9, 20);
-  private static final SwapFuturesDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+  private static final SwapFuturesPriceDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
 
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
@@ -67,7 +67,7 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
     final double[] df = new double[nbCfe];
     for (int loopcf = 0; loopcf < nbCfe; loopcf++) {
       df[loopcf] = CURVES.getCurve(CURVES_NAMES[0]).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
-      adj[loopcf] = MODEL.futureConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
+      adj[loopcf] = MODEL.futuresConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
       assertTrue("DeliverableSwapFuturesSecurityHullWhiteMethod: price", adj[loopcf] <= 1.0);
     }
     double priceExpected = 1.0;

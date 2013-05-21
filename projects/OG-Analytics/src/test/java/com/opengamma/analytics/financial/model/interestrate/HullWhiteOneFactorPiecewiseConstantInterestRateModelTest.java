@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
@@ -27,6 +28,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -36,10 +38,19 @@ import com.opengamma.util.time.DateUtils;
 public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
 
   private static final double MEAN_REVERSION = 0.01;
-  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
-  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
+  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014 };
+  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0 };
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
+
+  private static final double[] DCF_FIXED = new double[] {0.50, 0.48 };
+  private static final double[] ALPHA_FIXED = new double[] {0.02, 0.03, 0.04 };
+  private static final double[] DCF_IBOR = new double[] {1.0, -0.25, -0.24, -0.23, -1.20 };
+  private static final double[] ALPHA_IBOR = new double[] {0.00, 0.01, 0.02, 0.03, 0.04 };
+
+  private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double TOLERANCE_RATE_DELTA = 1.0E-8;
+  private static final double TOLERANCE_RATE_DELTA2 = 1.0E-7;
 
   @Test
   /**
@@ -114,9 +125,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
     final String DISCOUNTING_CURVE_NAME = "Funding";
     final String FORWARD_CURVE_NAME = "Forward";
-    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, quantity, NAME,
+    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
+        FUTURE_FACTOR, quantity, NAME,
         DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    final double factor = MODEL.futureConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
+    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
   }
@@ -146,9 +158,9 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Test the swaption exercise boundary.
    */
   public void kappa() {
-    final double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05};
+    final double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05 };
     final double notional = 100000000; // 100m
-    final double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00};
+    final double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00 };
     final double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
     final int nbCF = cashFlowAmount.length;
     final double[] discountedCashFlow = new double[nbCF];
@@ -197,6 +209,86 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
           (alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol), alphaDerivatives[loopvol], 1.0E-9);
       volatilityBumped[loopvol] = VOLATILITY[loopvol];
     }
+  }
+
+  @Test
+  public void swapRate() {
+    final double shift = 1.0E-4;
+    double x = 0.1;
+    double numerator = 0.0;
+    for (int loopcf = 0; loopcf < DCF_IBOR.length; loopcf++) {
+      numerator += DCF_IBOR[loopcf] * Math.exp(-ALPHA_IBOR[loopcf] * x - 0.5 * ALPHA_IBOR[loopcf] * ALPHA_IBOR[loopcf]);
+    }
+    double denominator = 0.0;
+    for (int loopcf = 0; loopcf < DCF_FIXED.length; loopcf++) {
+      denominator += DCF_FIXED[loopcf] * Math.exp(-ALPHA_FIXED[loopcf] * x - 0.5 * ALPHA_FIXED[loopcf] * ALPHA_FIXED[loopcf]);
+    }
+    double swapRateExpected = -numerator / denominator;
+    double swapRateComputed = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    assertEquals("Hull-White model: swap rate", swapRateExpected, swapRateComputed, TOLERANCE_RATE);
+    double swapRatePlus = MODEL.swapRate(x + shift, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    double swapRateMinus = MODEL.swapRate(x - shift, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    double swapRateDx1Expected = (swapRatePlus - swapRateMinus) / (2 * shift);
+    double swapRateDx1Computed = MODEL.swapRateDx1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    assertEquals("Hull-White model: swap rate", swapRateDx1Expected, swapRateDx1Computed, TOLERANCE_RATE_DELTA);
+    double swapRateDx2Expected = (swapRatePlus + swapRateMinus - 2 * swapRateComputed) / (shift * shift);
+    double swapRateDx2Computed = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    assertEquals("Hull-White model: swap rate", swapRateDx2Expected, swapRateDx2Computed, TOLERANCE_RATE_DELTA2);
+  }
+
+  @Test
+  public void swapRateDdcf() {
+    final double shift = 1.0E-7;
+    double x = 0.0;
+    double[] ddcffExpected = new double[DCF_FIXED.length];
+    for (int loopcf = 0; loopcf < DCF_FIXED.length; loopcf++) {
+      double[] dsf_bumped = DCF_FIXED.clone();
+      dsf_bumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRate(x, dsf_bumped, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRate(x, dsf_bumped, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      ddcffExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    double[] ddcffComputed = MODEL.swapRateDdcff1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate", ddcffExpected, ddcffComputed, TOLERANCE_RATE_DELTA);
+    double[] ddcfiExpected = new double[DCF_IBOR.length];
+    for (int loopcf = 0; loopcf < DCF_IBOR.length; loopcf++) {
+      double[] dsf_bumped = DCF_IBOR.clone();
+      dsf_bumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, dsf_bumped, ALPHA_IBOR);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, dsf_bumped, ALPHA_IBOR);
+      ddcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    double[] ddcfiComputed = MODEL.swapRateDdcfi1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate", ddcfiExpected, ddcfiComputed, TOLERANCE_RATE_DELTA);
+  }
+
+  @Test
+  public void swapRateDx2Ddcf() {
+    final double shift = 1.0E-7;
+    double x = 0.0;
+    double[] dx2DdcffExpected = new double[DCF_FIXED.length];
+    for (int loopcf = 0; loopcf < DCF_FIXED.length; loopcf++) {
+      double[] dsf_bumped = DCF_FIXED.clone();
+      dsf_bumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRateDx2(x, dsf_bumped, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRateDx2(x, dsf_bumped, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      dx2DdcffExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    Pair<double[], double[]> dx2ddcfComputed = MODEL.swapRateDx2Ddcf1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate", dx2DdcffExpected, dx2ddcfComputed.getFirst(), TOLERANCE_RATE_DELTA2);
+    double[] dx2DdcfiExpected = new double[DCF_IBOR.length];
+    for (int loopcf = 0; loopcf < DCF_IBOR.length; loopcf++) {
+      double[] dsf_bumped = DCF_IBOR.clone();
+      dsf_bumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, dsf_bumped, ALPHA_IBOR);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, dsf_bumped, ALPHA_IBOR);
+      dx2DdcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate", dx2DdcfiExpected, dx2ddcfComputed.getSecond(), TOLERANCE_RATE_DELTA2);
   }
 
   @Test(enabled = false)

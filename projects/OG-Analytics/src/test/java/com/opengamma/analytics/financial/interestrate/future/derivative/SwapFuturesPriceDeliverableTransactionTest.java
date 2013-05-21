@@ -23,7 +23,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class DeliverableSwapFuturesTransactionTest {
+public class SwapFuturesPriceDeliverableTransactionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
@@ -42,16 +42,16 @@ public class DeliverableSwapFuturesTransactionTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 3, 28);
 
-  private static final SwapFuturesDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFuturesPriceDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
 
   private static final double REF_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%.
   private static final int QUANTITY = 1234;
 
-  private static final SwapFuturesDeliverableTransaction SWAP_FUTURES_TRANSACTION = new SwapFuturesDeliverableTransaction(SWAP_FUTURES_SECURITY, REF_PRICE, QUANTITY);
+  private static final SwapFuturesPriceDeliverableTransaction SWAP_FUTURES_TRANSACTION = new SwapFuturesPriceDeliverableTransaction(SWAP_FUTURES_SECURITY, REF_PRICE, QUANTITY);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSwap() {
-    new SwapFuturesDeliverableTransaction(null, REF_PRICE, QUANTITY);
+    new SwapFuturesPriceDeliverableTransaction(null, REF_PRICE, QUANTITY);
   }
 
   @Test
