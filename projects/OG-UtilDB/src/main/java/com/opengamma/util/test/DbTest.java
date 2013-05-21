@@ -93,6 +93,20 @@ public final class DbTest {
   }
 
   /**
+   * Gets the known dialect, checking it is known.
+   * 
+   * @param databaseType  the database type, not null
+   * @return the dialect, not null
+   */
+  public static DbDialect getSupportedDbDialect(String databaseType) {
+    DbDialect dbDialect = getSupportedDbDialects().get(databaseType);
+    if (dbDialect == null) {
+      throw new OpenGammaRuntimeException("Config error - no DbDialect setup for " + databaseType);
+    }
+    return dbDialect;
+  }
+
+  /**
    * Adds a dialect to the map of known.
    *
    * @param dbType  the database type, not null
@@ -210,15 +224,15 @@ public final class DbTest {
    * Creates a {@code DbTool} for a specific database.
    * The connector may be passed in to share if it exists already.
    * 
-   * @param databaseType  the database type, not null
+   * @param databaseConfigPrefix  the prefix for a database in the config file, not null
    * @param connector  the connector, null if not to be shared
    * @return the tool, not null
    */
-  public static DbTool createDbTool(String databaseType, DbConnector connector) {
-    ArgumentChecker.notNull(databaseType, "databaseType");
-    String dbHost = getDbHost(databaseType);
-    String user = getDbUsername(databaseType);
-    String password = getDbPassword(databaseType);
+  public static DbTool createDbTool(String databaseConfigPrefix, DbConnector connector) {
+    ArgumentChecker.notNull(databaseConfigPrefix, "databaseConfigPrefix");
+    String dbHost = getDbHost(databaseConfigPrefix);
+    String user = getDbUsername(databaseConfigPrefix);
+    String password = getDbPassword(databaseConfigPrefix);
     DataSource dataSource = (connector != null ? connector.getDataSource() : null);
     DbTool dbTool = new DbTool(dbHost, user, password, dataSource);
     dbTool.initialize();
@@ -228,32 +242,38 @@ public final class DbTest {
   }
 
   //-------------------------------------------------------------------------
-  public static String getDbHost(String databaseType) {
-    String dbHostProperty = databaseType + ".jdbc.url";
+  public static DbDialect getDbType(String databaseConfigPrefix) {
+    String dbTypeProperty = databaseConfigPrefix + ".jdbc.type";
+    String dbType = TestProperties.getTestProperties().getProperty(dbTypeProperty);
+    if (dbType == null) {
+      throw new OpenGammaRuntimeException("Property " + dbTypeProperty + " not found");
+    }
+    return getSupportedDbDialect(dbType);
+  }
+
+  public static String getDbHost(String databaseConfigPrefix) {
+    String dbHostProperty = databaseConfigPrefix + ".jdbc.url";
     String dbHost = TestProperties.getTestProperties().getProperty(dbHostProperty);
     if (dbHost == null) {
-      throw new OpenGammaRuntimeException("Property " + dbHostProperty
-          + " not found");
+      throw new OpenGammaRuntimeException("Property " + dbHostProperty + " not found");
     }
     return dbHost;
   }
 
-  public static String getDbUsername(String databaseType) {
-    String userProperty = databaseType + ".jdbc.username";
+  public static String getDbUsername(String databaseConfigPrefix) {
+    String userProperty = databaseConfigPrefix + ".jdbc.username";
     String user = TestProperties.getTestProperties().getProperty(userProperty);
     if (user == null) {
-      throw new OpenGammaRuntimeException("Property " + userProperty
-          + " not found");
+      throw new OpenGammaRuntimeException("Property " + userProperty + " not found");
     }
     return user;
   }
 
-  public static String getDbPassword(String databaseType) {
-    String passwordProperty = databaseType + ".jdbc.password";
+  public static String getDbPassword(String databaseConfigPrefix) {
+    String passwordProperty = databaseConfigPrefix + ".jdbc.password";
     String password = TestProperties.getTestProperties().getProperty(passwordProperty);
     if (password == null) {
-      throw new OpenGammaRuntimeException("Property " + passwordProperty
-          + " not found");
+      throw new OpenGammaRuntimeException("Property " + passwordProperty + " not found");
     }
     return password;
   }

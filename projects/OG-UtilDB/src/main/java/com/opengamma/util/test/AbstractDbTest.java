@@ -16,7 +16,6 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
@@ -236,10 +235,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
       synchronized (this) {
         connector = s_connectors.get(key);
         if (connector == null) {
-          DbDialect dbDialect = DbTest.getSupportedDbDialects().get(getDatabaseType());
-          if (dbDialect == null) {
-            throw new OpenGammaRuntimeException("Config error - no DbDialect setup for " + getDatabaseType());
-          }
+          DbDialect dbDialect = DbTest.getSupportedDbDialect(getDatabaseType());
           DbConnectorFactoryBean factory = new DbConnectorFactoryBean();
           factory.setName("DbTest-" + dbDialect.getName() + (scope != null ? "-" + scope.getSimpleName() : ""));
           factory.setDialect(dbDialect);

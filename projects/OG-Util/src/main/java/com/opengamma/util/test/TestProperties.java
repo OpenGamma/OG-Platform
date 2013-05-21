@@ -27,7 +27,9 @@ public class TestProperties {
   /** Relative file location, deprecated (just use classpath). */
   private static final String DEFAULT_PROPS_DIR1 = "../../../Integration-Tests/src/test/resources/";
   /** Relative file location, deprecated (just use classpath). */
-  private static final String DEFAULT_PROPS_DIR2 = "../../common/"; // OG-Platform/common/
+  private static final String DEFAULT_PROPS_DIR2 = "../Integration-Tests/src/test/resources/";
+  /** Relative file location, deprecated (just use classpath). */
+  private static final String DEFAULT_PROPS_DIR3 = "../../common/"; // OG-Platform/common/
 
   private static Properties _props = null;
 
@@ -99,8 +101,13 @@ public class TestProperties {
         if (file.exists()) {
           loadFile(file);
         } else {
-          System.out.println("Unable to find test properties in known locations");
-          throw new OpenGammaRuntimeException("Unable to find test properties in known locations");
+          file = new File(DEFAULT_PROPS_DIR3, propsFileName);
+          if (file.exists()) {
+            loadFile(file);
+          } else {
+            System.out.println("Unable to find test properties in known locations");
+            throw new OpenGammaRuntimeException("Unable to find test properties in known locations");
+          }
         }
       }
     }
