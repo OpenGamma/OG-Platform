@@ -58,7 +58,7 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
   }
   /** Default constructor */
   public DiscreteDividendFunction() {
-    _dividendHorizon = 30.0;
+    _dividendHorizon = 5.0;
     _timeThatProportionalDividendsBegin = 2.0;    
   }
   private static final Logger s_logger = LoggerFactory.getLogger(DiscreteDividendFunction.class);
