@@ -34,10 +34,10 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.lambdava.tuple.DoublesPair;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.DoublesPair;
 
 public class SwaptionCashFixedIborBlackMethodTest {
   // Data
