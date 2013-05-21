@@ -140,7 +140,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 
     // Spot
-    final Double spot = (Double) inputs.getValue(getSpotRequirement(target));
+    final Double spot = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (spot == null) {
       throw new OpenGammaRuntimeException("Failed to get spot value requirement: " + target.getName());
     }
