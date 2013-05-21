@@ -258,7 +258,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final double impliedVol;
     final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
     if (intrinsic > forwardOptionPrice) {
-      s_logger.warn("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
+      s_logger.info("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
       impliedVol = 0.0;
     } else {
       impliedVol =  BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall); 
