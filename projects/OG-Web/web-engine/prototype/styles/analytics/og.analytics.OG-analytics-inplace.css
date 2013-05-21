@@ -47,6 +47,7 @@
     border-left: 1px solid #01467a;
     border-right: 1px solid #01467a;
     border-top: 1px solid #01467a;
+    overflow: hidden;
 }
 
 .OG-analytics-inplace .ui-layout-header .og-container table {
@@ -67,6 +68,7 @@
     padding: 5px;
     cursor: move;
     z-index: 2;
+    white-space: nowrap;
 }
 
 
@@ -99,8 +101,13 @@
 }
 
 .OG-analytics-inplace .ui-layout-header .og-separator span {
+    width: 16px;
+    display: block;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-separator span:after {
     background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
-    content: "";
+    content: '';
     background-position: 0 0;
     display: inline-block;
     height: 3px;
