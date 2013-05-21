@@ -40,9 +40,9 @@ public class YieldCurveSelector implements MarketDataSelector {
   }
 
   @Override
-  public boolean appliesTo(StructureIdentifier structureId,
-                           String calculationConfigurationName) {
-    return StructureIdentifier.of(_yieldCurveKey).equals(structureId);
+  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+                                                 String calculationConfigurationName) {
+    return StructureIdentifier.of(_yieldCurveKey).equals(structureId) ? this : null;
   }
 
   @Override

@@ -28,15 +28,14 @@ public interface MarketDataSelector {
   boolean containsShifts();
 
   /**
-   * Indicates if this shift specification will have any affect when applied to the
-   * specified snapshot. Only if this method is true will the {@link #apply} method be called.
-   * Note that even if an implementation is applicable to a particular snapshot, the apply
-   * method may not have an effect on the snapshot, depending on the actual data it contains.
+   * Indicates if this selector is applicable to the specified market data structure. If it is, then
+   * the underlying selector that matches is returned.
    *
-   * @param calculationConfigurationName@return true if the shift is applicable to the specified snapshot
+   * @param structureId the id of the structure to test against
+   * @param calculationConfigurationName the calculation configuration
+   * @return the underlying selector that matches the specified market data structure, null if there is no match
    */
-  boolean appliesTo(StructureIdentifier structureId, String calculationConfigurationName);
-
+  MarketDataSelector findMatchingSelector(StructureIdentifier structureId, String calculationConfigurationName);
 
   StructureType getApplicableStructureType();
 

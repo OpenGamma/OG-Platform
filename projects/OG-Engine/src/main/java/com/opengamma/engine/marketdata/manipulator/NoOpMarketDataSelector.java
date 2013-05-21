@@ -29,9 +29,9 @@ public class NoOpMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public boolean appliesTo(StructureIdentifier structureId,
-                           String calculationConfigurationName) {
-    return false;
+  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+                                                 String calculationConfigurationName) {
+    return null;
   }
 
   @Override

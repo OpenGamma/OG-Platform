@@ -54,15 +54,17 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public boolean appliesTo(StructureIdentifier structureId,
-                           String calculationConfigurationName) {
+  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+                                                 String calculationConfigurationName) {
 
     for (MarketDataSelector specification : _underlyingSpecifications) {
-      if (specification.appliesTo(structureId, calculationConfigurationName)) {
-        return true;
+
+      MarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName);
+      if (matchingSelector != null) {
+        return matchingSelector;
       }
     }
-    return false;
+    return null;
   }
 
   @Override
