@@ -343,10 +343,10 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
   //TODO theta
 
   /**
-   * Computes the spot delta (first derivative with respect to spot).
+   * Computes the forward vega (first derivative with respect to spot).
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
-   * @return The spot delta
+   * @return The forward vega
    */
   public double forwardVegaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(curves, "Curves");
