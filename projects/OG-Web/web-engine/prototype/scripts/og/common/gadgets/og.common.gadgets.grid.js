@@ -348,7 +348,7 @@ $.register_module({
             grid.selector = new og.common.grid.Selector(grid)
                 .on('select', function (selection) {grid.fire('select', selection);})
                 .on('deselect', function () {grid.fire('deselect');});
-            if (config.cellmenu) try {new og.common.grid.CellMenu(grid);}
+            if (config.cellmenu) try {grid.cellmenu = new og.common.grid.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             if (!config.child) // if this is a child gadget, rely on its parent to register with manager
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});

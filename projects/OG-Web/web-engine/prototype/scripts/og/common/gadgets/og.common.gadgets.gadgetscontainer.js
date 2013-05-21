@@ -45,6 +45,12 @@ $.register_module({
                     .off('mousedown').on('mousedown', '.og-js-icon', function () {
                         var gadget_type = $(this).attr('data-gadget_type'),
                             gadget_name = $(this).attr('data-gadget_name'), swap_config;
+                        if (gadget_type === 'dock') {
+                            og.analytics.url.add('south', gadgets[0].config);
+                            og.analytics.grid.cellmenu.destroy_frozen();
+                            og.common.gadgets.manager.clean();
+                            return;
+                        };
                         if (gadget_type === config.gadget_type) return false;
                         swap_config = {
                             gadget: 'og.common.gadgets.' + gadget_type, options: config.options,

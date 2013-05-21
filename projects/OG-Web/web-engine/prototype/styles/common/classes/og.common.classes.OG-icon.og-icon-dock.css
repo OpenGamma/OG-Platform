@@ -1,10 +1,9 @@
-.OG-icon.og-icon-download:after {
-  background-position: -30px -9px;
-  background-color: transparent;
-  height: 6px;
-  width: 6px;
-  z-index: 2;
-  position: absolute;
-  top: 8px;
-  right: -9px;
+.OG-icon.og-icon-dock:after {
+    background-position: -52px -92px;
+    background-color: transparent;
+    height: 16px;
+    width: 13px;
+    left: 1px;
+    z-index: 2;
+    position: absolute;
 }

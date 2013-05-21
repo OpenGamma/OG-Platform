@@ -86,6 +86,14 @@
     background-color: #01467a;
 }
 
+.OG-analytics-inplace .ui-layout-header .og-dock div:hover {
+    background-color: #006600;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-dock div:hover .og-icon-dock:after {
+    background-position: -52px -162px;
+}
+
 .OG-analytics-inplace .ui-layout-header .og-icon-move {
     right: 24px;
     top: 4px;
