@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Definition of a Legacy recovery lock CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009 - WIP
+ * Definition of a Legacy recovery lock CDS (also known as a recovery swap) i.e. with the features of CDS contracts prior to the Big Bang in 2009 - WIP
  */
 public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditDefaultSwapDefinition {
 
@@ -30,9 +30,13 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
 
   // TODO : Check hashCode and equals methods (fix these)
 
+  // NOTE : In a recovery lock swap there are only two cashflows which occur upon the default of the reference entity.
+  // NOTE : One counterparty pays the market realised recovery in default; the other pays the recovery specified in the contract
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables specific to the legacy recovery lock  CDS contract
+  private final double _recoveryLockRate;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -61,7 +65,8 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
       final double recoveryRate,
       final boolean includeAccruedPremium,
       final boolean protectionStart,
-      final double parSpread) {
+      final double parSpread,
+      final double recoveryLockRate) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -92,7 +97,22 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
         parSpread);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    ArgumentChecker.notNegative(recoveryLockRate, "Recovery Lock Rate");
+    ArgumentChecker.isTrue(recoveryLockRate <= 1.0, "Recovery Lock rate should be less than or equal to 100%");
+
+    _recoveryLockRate = recoveryLockRate;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public double getRecoveryLockRate() {
+    return _recoveryLockRate;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public LegacyRecoveryLockCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {
@@ -118,7 +138,8 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getRecoveryLockRate());
   }
 
   @Override
@@ -145,7 +166,8 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getRecoveryLockRate());
   }
 
   @Override
@@ -172,7 +194,8 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        parSpread);
+        parSpread,
+        getRecoveryLockRate());
   }
 
   @Override
@@ -199,12 +222,13 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getRecoveryLockRate());
   }
 
   @Override
   public CreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
+    return new LegacyRecoveryLockCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
         getProtectionSeller(),
         getReferenceEntity(),
@@ -226,12 +250,13 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getRecoveryLockRate());
   }
 
   @Override
   public CreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
+    return new LegacyRecoveryLockCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
         getProtectionSeller(),
         getReferenceEntity(),
@@ -253,7 +278,8 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends LegacyCreditD
         recoveryRate,
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getRecoveryLockRate());
   }
 
   @Override

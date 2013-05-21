@@ -33,6 +33,7 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables specific to the legacy fixed recovery CDS contract
+  private final double _fixedRecoveryRate;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -61,7 +62,8 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
       final double recoveryRate,
       final boolean includeAccruedPremium,
       final boolean protectionStart,
-      final double parSpread) {
+      final double parSpread,
+      final double fixedRecoveryRate) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -92,7 +94,22 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
         parSpread);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    ArgumentChecker.notNegative(fixedRecoveryRate, "Fixed Recovery Rate");
+    ArgumentChecker.isTrue(fixedRecoveryRate <= 1.0, "Fixed Recovery rate should be less than or equal to 100%");
+
+    _fixedRecoveryRate = fixedRecoveryRate;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public double getFixedRecoveryRate() {
+    return _fixedRecoveryRate;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public LegacyFixedRecoveryCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {
@@ -118,7 +135,8 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -145,7 +163,8 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -172,7 +191,8 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        parSpread);
+        parSpread,
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -199,7 +219,8 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -226,7 +247,8 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -253,7 +275,8 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
         recoveryRate,
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        getParSpread());
+        getParSpread(),
+        getFixedRecoveryRate());
   }
 
   @Override

@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.vanilla;
+package com.opengamma.analytics.financial.credit.sampleobligors;
 
 /**
  * 
  */
-public class CalibrateAndPriceVanillaCreditDefaultSwap {
+public class SampleGeneralClearingMembers {
 
 }

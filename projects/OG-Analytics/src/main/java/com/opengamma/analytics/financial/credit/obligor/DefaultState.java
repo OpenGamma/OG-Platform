@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.obligor;
 
 /**
  * Enumerate the state of default that an obligor is in
  */
-public enum ObligorDefaultState {
+public enum DefaultState {
   /**
    * Not defaulted
    */

@@ -122,9 +122,17 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   public CreditSupportAnnexDefinition getCreditSupportAnnex() {
     return _creditSupportAnnex;
   }
+
+  public CentralCounterpartyDefinition getCentralCounterparty() {
+    return _centralCounterparty;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public StandardCollateralizedVanillaCreditDefaultSwapDefinition withSpread(final double spread) {
