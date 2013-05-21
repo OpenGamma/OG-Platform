@@ -10,7 +10,7 @@ $.register_module({
             'Curve': 'Curve',
             'Data': 'Data',
             'Log': 'Log',
-            'Depgraph': 'Dependency Graph',
+            'Depgraph': 'Explain Value',
             'Surface': 'Surface',
             'Timeseries': 'Time Series',
             'Histogram' : 'Histogram',
