@@ -5,14 +5,22 @@
  */
 package com.opengamma.analytics.financial.credit.centralcounterparty;
 
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
+import com.opengamma.analytics.financial.credit.sampleobligors.SampleObligors;
+
 /**
  * 
  */
 public class CentralCounterpartyTest {
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   // Define two obligors A and B
+  private static final Obligor A = SampleObligors.getObligor_ABC();
+  private static final Obligor B = SampleObligors.getObligor_XYZ();
 
   // Define a reference entity C
+  private static final Obligor C = SampleObligors.getObligor_RefEnt();
 
   // Build a standard CDS that is not centrally cleared but transacted OTC; prot buyer A, seller B and ref entity C
 
@@ -23,4 +31,5 @@ public class CentralCounterpartyTest {
 
   // Build a CCP
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

@@ -7,9 +7,9 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.greeks;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.ObligorDefaultState;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.obligor.DefaultState;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -59,7 +59,7 @@ public class VoDIndexCreditDefaultSwap {
       final ISDACurve[] yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[][] marketSpreads,
-      final ObligorDefaultState[] defaultScenario) {
+      final DefaultState[] defaultScenario) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
@@ -73,7 +73,7 @@ public class VoDIndexCreditDefaultSwap {
     double runningVOD = 0.0;
 
     for (int i = 0; i < numberOfObligors; i++) {
-      if (defaultScenario.equals(ObligorDefaultState.DEFAULTED)) {
+      if (defaultScenario.equals(DefaultState.DEFAULTED)) {
         runningVOD += 0.0;
       }
     }

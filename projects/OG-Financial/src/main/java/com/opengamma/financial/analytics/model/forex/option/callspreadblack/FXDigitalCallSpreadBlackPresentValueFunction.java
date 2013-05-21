@@ -43,7 +43,7 @@ public class FXDigitalCallSpreadBlackPresentValueFunction extends FXDigitalCallS
     final MultipleCurrencyAmount result = fxDigital.accept(calculator, data);
     final CurrencyAmount ca = result.getCurrencyAmounts()[0];
     final String expectedCurrency = spec.getProperty(ValuePropertyNames.CURRENCY);
-    if (!expectedCurrency.equals(ca.getCurrency())) {
+    if (!expectedCurrency.equals(ca.getCurrency().getCode())) {
       throw new OpenGammaRuntimeException("Expected currency " + expectedCurrency + " does not equal result currency " + ca.getCurrency());
     }
     final double amount = ca.getAmount();

@@ -170,6 +170,14 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ AnalyticsView getView() {
     return _view;
   }
+  
+  /**
+   * Gets the viewClient.
+   * @return the viewClient
+   */
+  /* package */ ViewClient getViewClient() {
+    return _viewClient;
+  }
 
   /**
    * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public

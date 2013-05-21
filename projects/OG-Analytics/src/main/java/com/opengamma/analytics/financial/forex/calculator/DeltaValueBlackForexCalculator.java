@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * Calculator of the delta (second order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
 public class DeltaValueBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 

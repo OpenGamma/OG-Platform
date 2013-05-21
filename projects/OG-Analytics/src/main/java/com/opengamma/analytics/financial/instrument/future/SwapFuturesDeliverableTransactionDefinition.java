@@ -13,8 +13,8 @@ import com.opengamma.analytics.financial.ExpiredException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -92,7 +92,7 @@ public class SwapFuturesDeliverableTransactionDefinition implements InstrumentDe
   /**
    * @param lastMarginPrice The price on which the last margining was done.
    */
-  public SwapFuturesDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
+  public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final LocalDate date = dateTime.toLocalDate();
@@ -107,8 +107,8 @@ public class SwapFuturesDeliverableTransactionDefinition implements InstrumentDe
     } else { // Transaction is today
       referencePrice = _transactionPrice;
     }
-    final SwapFuturesDeliverableSecurity underlying = _underlying.toDerivative(dateTime, yieldCurveNames);
-    final SwapFuturesDeliverableTransaction future = new SwapFuturesDeliverableTransaction(underlying, referencePrice, _quantity);
+    final SwapFuturesPriceDeliverableSecurity underlying = _underlying.toDerivative(dateTime, yieldCurveNames);
+    final SwapFuturesPriceDeliverableTransaction future = new SwapFuturesPriceDeliverableTransaction(underlying, referencePrice, _quantity);
     return future;
   }
 

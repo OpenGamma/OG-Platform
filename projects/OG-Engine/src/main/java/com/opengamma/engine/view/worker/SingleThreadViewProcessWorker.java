@@ -171,7 +171,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   }
 
   private static final long NANOS_PER_MILLISECOND = 1000000;
-  private static final long MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS = 10000;
 
   private final ViewProcessWorkerContext _context;
   private final ViewExecutionOptions _executionOptions;
@@ -1420,24 +1419,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     try {
       synchronized (_pendingSubscriptions) {
         if (!_pendingSubscriptions.isEmpty()) {
-          final long finish = System.currentTimeMillis() + MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS;
-          _pendingSubscriptions.wait(MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS);
-          do {
-            int remainingCount = _pendingSubscriptions.size();
-            if (remainingCount == 0) {
-              break;
-            }
-            final long remainingWait = finish - System.currentTimeMillis();
-            if (remainingWait > 0) {
-              _pendingSubscriptions.wait(remainingWait);
-            } else {
-              s_logger.warn("Timed out after {} ms waiting for market data subscriptions to be made. The market data " +
-                  "snapshot used in the computation cycle could be incomplete. Still waiting for {} out of {} market data " +
-                  "subscriptions",
-                  new Object[] {MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, remainingCount, _marketDataSubscriptions.size() });
-              break;
-            }
-          } while (true);
+          _pendingSubscriptions.wait();
         }
       }
     } catch (final InterruptedException ex) {

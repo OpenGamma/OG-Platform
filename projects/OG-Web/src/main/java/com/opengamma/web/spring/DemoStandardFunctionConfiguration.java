@@ -80,12 +80,14 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
-    i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
+    i.setCurveConfiguration(null, "AUDFX");
     i.setCurveConfiguration("model/credit/yield", "ISDAAUDCurveConfig");
     i.setCurveConfiguration("model/forex", "AUDFX");
-    i.setCurveName(null, "Discounting");
+    i.setCurveConfiguration("model/pnl", "AUDFX");
+    i.setCurveName(null, "FX");
     i.setCurveName("model/credit/yield", "ISDA");
     i.setCurveName("model/forex/discounting", "FX");
+    i.setCurveName("model/pnl/discounting", "FX");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setCurveCalculationMethodName("model/forex/discounting", "FXImplied");

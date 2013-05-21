@@ -21,10 +21,10 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
 /* package */ class VolatilitySurfaceDataFormatter extends AbstractFormatter<VolatilitySurfaceData> {

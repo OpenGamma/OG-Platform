@@ -77,7 +77,7 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     double t1 = security.getUnderlyingFuture().getFixingPeriodStartTime();
     double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
     double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
-    double gamma = MODEL.futureConvexityFactor(parameters, t0, t1, t2);
+    double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
     double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
     double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
     if (security.isCall()) {
@@ -112,7 +112,7 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
     // forward sweep
     double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
-    double gamma = MODEL.futureConvexityFactor(parameters, t0, t1, t2);
+    double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
     double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
     double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
     // Bakcward sweep

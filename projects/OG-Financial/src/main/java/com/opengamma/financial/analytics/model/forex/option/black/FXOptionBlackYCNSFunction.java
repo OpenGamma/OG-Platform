@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
 import java.util.Collections;
@@ -80,7 +78,6 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final String callCurveCalculationConfigName = desiredValue.getConstraint(CALL_CURVE_CALC_CONFIG);
     final String curveCurrency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String resultCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     final Object curveSensitivitiesObject = inputs.getValue(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     final String resultCurveConfigName;
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
@@ -103,7 +100,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final String fullCurveName = curveName + "_" + curveCurrency;
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
-    final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(resultCurrency)).getSensitivities();
+    final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(curveCurrency)).getSensitivities();
     return getResult(inputs, calculationMethod, fullCurveName, data, curveSpec, sensitivitiesForCurrency, spec);
   }
 
@@ -119,8 +116,8 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
       s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
       return null;
     }
-    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
-    if (currencies == null || currencies.size() != 1) {
+    final Set<String> curveCurrencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
+    if (curveCurrencies == null || curveCurrencies.size() != 1) {
       s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
       return null;
     }
@@ -140,13 +137,13 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final String currency = Iterables.getOnlyElement(currencies);
+    final String curveCurrency = Iterables.getOnlyElement(curveCurrencies);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
-    if (currency.equals(putCurrency.getCode())) {
+    if (curveCurrency.equals(putCurrency.getCode())) {
       resultCurrency = putCurrency.getCode();
       resultCurveName = putCurveName;
       resultCurveConfigName = putCurveCalculationConfigName;
-    } else if (currency.equals(callCurrency.getCode())) {
+    } else if (curveCurrency.equals(callCurrency.getCode())) {
       resultCurrency = callCurrency.getCode();
       resultCurveName = callCurveName;
       resultCurveConfigName = callCurveCalculationConfigName;
@@ -162,7 +159,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     }
     final String resultCurveCalculationMethod = resultCurveCalculationConfig.getCalculationMethod();
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfigName, callCurveName, callCurveCalculationConfigName, surfaceName,
-        interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, target));
+        interpolatorName, leftExtrapolatorName, rightExtrapolatorName, curveCurrency, target));
     if (resultCurveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       s_logger.error("Cannot handle curves calculated using the FX implied method");
       return null;
@@ -175,7 +172,6 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     return requirements;
   }
 
-
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String currencyPairConfigName = null;
@@ -183,7 +179,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     String putCurveCalculationConfig = null;
     String callCurveName = null;
     String callCurveCalculationConfig = null;
-    String currency = null;
+    String curveCurrency = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification specification = entry.getKey();
       final ValueRequirement requirement = entry.getValue();
@@ -199,10 +195,12 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
       } else if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
         currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
       } else if (requirement.getValueName().equals(ValueRequirementNames.FX_CURVE_SENSITIVITIES)) {
-        currency = requirement.getConstraint(ValuePropertyNames.CURRENCY);
+        if (constraints.getProperties().contains(ValuePropertyNames.CURVE_CURRENCY)) {
+          curveCurrency = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CURRENCY));
+        }
       }
     }
-    if (putCurveName == null || callCurveName == null || currencyPairConfigName == null) {
+    if (putCurveName == null || callCurveName == null || currencyPairConfigName == null || curveCurrency == null) {
       return null;
     }
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
@@ -215,23 +213,13 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
       return null;
     }
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target,
-        putCurveName, putCurveCalculationConfig, callCurveName, callCurveCalculationConfig, baseQuotePair, currency).get());
+        putCurveName, putCurveCalculationConfig, callCurveName, callCurveCalculationConfig, curveCurrency, baseQuotePair).get());
     return Collections.singleton(resultSpec);
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .withAny(PUT_CURVE)
-        .withAny(PUT_CURVE_CALC_CONFIG)
-        .withAny(CALL_CURVE)
-        .withAny(CALL_CURVE_CALC_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .withAny(ValuePropertyNames.CURRENCY)
+    final ValueProperties.Builder properties = super.getResultProperties(target)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE);
     return properties;
@@ -244,48 +232,23 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
   }
 
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
-      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final String currency) {
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(PUT_CURVE, putCurve)
-        .with(PUT_CURVE_CALC_CONFIG, putCurveCalculationConfig)
-        .with(CALL_CURVE, callCurve)
-        .with(CALL_CURVE_CALC_CONFIG, callCurveCalculationConfig)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, currency)
+      final String callCurve, final String callCurveCalculationConfig, final String curveCurrency, final CurrencyPair baseQuotePair) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair)
+        .withoutAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURRENCY, curveCurrency)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE);
     return properties;
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
-    final String putCurveConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);
-    final String callCurveConfig = desiredValue.getConstraint(CALL_CURVE_CALC_CONFIG);
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    final String currency = desiredValue.getConstraint(CURRENCY);
-    final String curveName = desiredValue.getConstraint(CURVE);
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(PUT_CURVE, putCurveName)
-        .with(PUT_CURVE_CALC_CONFIG, putCurveConfig)
-        .with(CALL_CURVE, callCurveName)
-        .with(CALL_CURVE_CALC_CONFIG, callCurveConfig)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveCurrency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair)
+        .withoutAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURRENCY, curveCurrency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
         .with(ValuePropertyNames.CURVE, curveName);
+    return properties;
   }
 
   private static ValueRequirement getCurveSpecRequirement(final String currency, final String curveName) {
@@ -296,7 +259,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
 
   private static ValueRequirement getCurveSensitivitiesRequirement(final String putCurveName, final String putCurveCalculationConfig, final String callCurveName,
       final String callCurveCalculationConfig, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final String currency, final ComputationTarget target) {
+      final String rightExtrapolatorName, final String curveCurrency, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.builder()
         .with(PUT_CURVE, putCurveName)
         .with(CALL_CURVE, callCurveName)
@@ -307,7 +270,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, currency).withOptional(ValuePropertyNames.CURRENCY)
+        .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency).withOptional(ValuePropertyNames.CURVE_CURRENCY)
         .get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }

@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.credit.collateralmodel.CollateralRoundi
 import com.opengamma.analytics.financial.credit.collateralmodel.CollateralType;
 import com.opengamma.analytics.financial.credit.collateralmodel.CreditSupportAnnexDefinition;
 import com.opengamma.analytics.financial.credit.collateralmodel.MarginCallFrequency;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCollateralizedVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
@@ -442,6 +441,7 @@ public class PresentValueLegacyCollateralisedCreditDefaultSwapTest {
 
   // Construct a set of CDS contracts for each type of CDS contract
 
+  /*
   private static final LegacyCollateralizedVanillaCreditDefaultSwapDefinition legacyVanillaCDS = new LegacyCollateralizedVanillaCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
@@ -467,6 +467,7 @@ public class PresentValueLegacyCollateralisedCreditDefaultSwapTest {
       protectionStart,
       parSpread,
       creditSupportAnnex);
+      */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

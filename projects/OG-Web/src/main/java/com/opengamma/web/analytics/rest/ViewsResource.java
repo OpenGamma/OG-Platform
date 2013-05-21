@@ -59,7 +59,7 @@ public class ViewsResource {
    */
   @Path("{viewId}")
   public ViewResource getView(@PathParam("viewId") String viewId) {
-    return new ViewResource(_viewManager.getView(viewId), _viewManager, viewId);
+    return new ViewResource(_viewManager.getViewCient(viewId), _viewManager.getView(viewId), _viewManager, viewId);
   }
 
   @POST
