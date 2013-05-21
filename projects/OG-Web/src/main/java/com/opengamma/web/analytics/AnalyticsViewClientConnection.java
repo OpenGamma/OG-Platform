@@ -15,8 +15,8 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.manipulator.MarketDataShiftSpecification;
-import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataShiftSpecification;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -82,14 +82,14 @@ import com.opengamma.util.ArgumentChecker;
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
 
     // TODO - At this point we need to pick up a shift specification from the UI - for now we'll add the NoOp
-    MarketDataShiftSpecification marketDataShiftSpecification = NoOpMarketDataShiftSpecification.getInstance();
+    MarketDataSelector marketDataSelector = NoOpMarketDataSelector.getInstance();
 
     ViewCycleExecutionOptions defaultOptions =
         ViewCycleExecutionOptions
             .builder()
             .setValuationTime(viewRequest.getValuationTime())
             .setMarketDataSpecifications(actualMarketDataSpecs)
-            .setMarketDataShiftSpecification(marketDataShiftSpecification)
+            .setMarketDataSelector(marketDataSelector)
             .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection())
             .create();
     EnumSet<ViewExecutionFlags> flags =

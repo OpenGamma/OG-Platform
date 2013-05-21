@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.marketdata.manipulator.MarketDataShiftSpecification;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
@@ -26,13 +26,13 @@ public abstract class MergingViewCycleExecutionSequence implements ViewCycleExec
    */
   protected ViewCycleExecutionOptions merge(ViewCycleExecutionOptions base, ViewCycleExecutionOptions defaults) {
     List<MarketDataSpecification> marketDataSpecifications = base.getMarketDataSpecifications();
-    MarketDataShiftSpecification marketDataShift = base.getMarketDataShiftSpecification();
+    MarketDataSelector marketDataShift = base.getMarketDataSelector();
     Instant valuationTime = base.getValuationTime();
     if (defaults != null) {
       if (marketDataSpecifications.isEmpty()) {
         marketDataSpecifications = defaults.getMarketDataSpecifications();
       }
-      marketDataShift = defaults.getMarketDataShiftSpecification();
+      marketDataShift = defaults.getMarketDataSelector();
       if (valuationTime == null) {
         valuationTime = defaults.getValuationTime();
       }
@@ -40,7 +40,7 @@ public abstract class MergingViewCycleExecutionSequence implements ViewCycleExec
     return ViewCycleExecutionOptions.builder()
         .setValuationTime(valuationTime)
         .setMarketDataSpecifications(marketDataSpecifications)
-        .setMarketDataShiftSpecification(marketDataShift)
+        .setMarketDataSelector(marketDataShift)
         .create();
   }
 

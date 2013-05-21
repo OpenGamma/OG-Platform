@@ -15,21 +15,20 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A market data shift implementation that allows a set of individual market data shifts
  * to be bundled together.
  */
-public class CompositeMarketDataShiftSpecification implements MarketDataShiftSpecification {
+public class CompositeMarketDataSelector implements MarketDataSelector {
 
   /**
    * The underlying shift specifications.
    */
-  private final Set<MarketDataShiftSpecification> _underlyingSpecifications;
+  private final Set<MarketDataSelector> _underlyingSpecifications;
 
-  private CompositeMarketDataShiftSpecification(Set<MarketDataShiftSpecification> underlyingSpecifications) {
+  private CompositeMarketDataSelector(Set<MarketDataSelector> underlyingSpecifications) {
     ArgumentChecker.notEmpty(underlyingSpecifications, "underlyingSpecifications");
     _underlyingSpecifications = underlyingSpecifications;
   }
@@ -40,8 +39,8 @@ public class CompositeMarketDataShiftSpecification implements MarketDataShiftSpe
    * @param specifications the specifications to be combined, neither null nor empty
    * @return a specification combined all the underlying specifications, not null
    */
-  public static MarketDataShiftSpecification of(MarketDataShiftSpecification... specifications) {
-    return new CompositeMarketDataShiftSpecification(ImmutableSet.copyOf(specifications));
+  public static MarketDataSelector of(MarketDataSelector... specifications) {
+    return new CompositeMarketDataSelector(ImmutableSet.copyOf(specifications));
   }
 
   /**
@@ -50,15 +49,15 @@ public class CompositeMarketDataShiftSpecification implements MarketDataShiftSpe
    * @param specifications the specifications to be combined, neither null nor empty
    * @return a specification combined all the underlying specifications, not null
    */
-  public static MarketDataShiftSpecification of(Set<MarketDataShiftSpecification> specifications) {
-    return new CompositeMarketDataShiftSpecification(ImmutableSet.copyOf(specifications));
+  public static MarketDataSelector of(Set<MarketDataSelector> specifications) {
+    return new CompositeMarketDataSelector(ImmutableSet.copyOf(specifications));
   }
 
   @Override
   public boolean appliesTo(StructureIdentifier structureId,
                            String calculationConfigurationName) {
 
-    for (MarketDataShiftSpecification specification : _underlyingSpecifications) {
+    for (MarketDataSelector specification : _underlyingSpecifications) {
       if (specification.appliesTo(structureId, calculationConfigurationName)) {
         return true;
       }
@@ -72,14 +71,9 @@ public class CompositeMarketDataShiftSpecification implements MarketDataShiftSpe
   }
 
   @Override
-  public StructuredMarketDataSnapshot apply(StructuredMarketDataSnapshot structuredSnapshot) {
-    return null;
-  }
-
-  @Override
   public boolean containsShifts() {
 
-    for (MarketDataShiftSpecification specification : _underlyingSpecifications) {
+    for (MarketDataSelector specification : _underlyingSpecifications) {
       if (specification.containsShifts()) {
         return true;
       }
@@ -96,7 +90,7 @@ public class CompositeMarketDataShiftSpecification implements MarketDataShiftSpe
       return false;
     }
 
-    CompositeMarketDataShiftSpecification that = (CompositeMarketDataShiftSpecification) o;
+    CompositeMarketDataSelector that = (CompositeMarketDataSelector) o;
     return _underlyingSpecifications.equals(that._underlyingSpecifications);
   }
 
@@ -109,18 +103,18 @@ public class CompositeMarketDataShiftSpecification implements MarketDataShiftSpe
     final MutableFudgeMsg msg = serializer.newMessage();
 
     int count = 0;
-    for (MarketDataShiftSpecification specification : _underlyingSpecifications) {
+    for (MarketDataSelector specification : _underlyingSpecifications) {
       msg.add(count, specification);
       count++;
     }
     return msg;
   }
 
-  public static MarketDataShiftSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static MarketDataSelector fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
 
-    Set<MarketDataShiftSpecification> specs = new HashSet<>();
+    Set<MarketDataSelector> specs = new HashSet<>();
     for (FudgeField field : msg) {
-      msg.getFieldValue(MarketDataShiftSpecification.class, field);
+      msg.getFieldValue(MarketDataSelector.class, field);
     }
 
     return of(specs);

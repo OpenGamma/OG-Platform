@@ -23,17 +23,17 @@ public class MarketDataManipulator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataManipulator.class);
 
-  private final MarketDataShiftSpecification _marketDataShiftSpecification;
+  private final MarketDataSelector _marketDataSelector;
 
-  public MarketDataManipulator(MarketDataShiftSpecification marketDataShiftSpecification) {
-    _marketDataShiftSpecification = marketDataShiftSpecification;
-    ArgumentChecker.notNull(marketDataShiftSpecification, "marketDataShiftSpecifications");
+  public MarketDataManipulator(MarketDataSelector marketDataSelector) {
+    _marketDataSelector = marketDataSelector;
+    ArgumentChecker.notNull(marketDataSelector, "marketDataShiftSpecifications");
   }
 
   public void modifyDependencyGraphs(Collection<DependencyGraphExplorer> graphExplorers) {
 
     // Drop out immediately if we have no shifts specified
-    if (!_marketDataShiftSpecification.containsShifts()) {
+    if (!_marketDataSelector.containsShifts()) {
       s_logger.debug("No active market data shifts defined - nothing to do");
       return;
     }
@@ -52,7 +52,7 @@ public class MarketDataManipulator {
         DependencyNode node = entry.getValue();
 
 
-        if (_marketDataShiftSpecification.appliesTo(StructureIdentifier.of(structureId), configurationName)) {
+        if (_marketDataSelector.appliesTo(StructureIdentifier.of(structureId), configurationName)) {
 
           // Alter the dependency graph, inserting a new node to allow manipulation of the structure data
           // The extractor is responsible for checking that a manipulation node has not already been inserted

@@ -22,14 +22,14 @@ public class StructureIdentifier<T> {
   /**
    * The type of market data structure which is to be manipulated.
    */
-  private final MarketDataShiftSpecification.StructureType _structureType;
+  private final MarketDataSelector.StructureType _structureType;
 
   /**
    * The value of the key for the market data structure.
    */
   private final T _value;
 
-  private StructureIdentifier(MarketDataShiftSpecification.StructureType structureType, T value) {
+  private StructureIdentifier(MarketDataSelector.StructureType structureType, T value) {
 
     ArgumentChecker.notNull(structureType, "structureType");
     ArgumentChecker.notNull(value, "value");
@@ -44,7 +44,7 @@ public class StructureIdentifier<T> {
    * @return a structured identifier for the yield curve key
    */
   public static StructureIdentifier of(YieldCurveKey key) {
-    return new StructureIdentifier<>(MarketDataShiftSpecification.StructureType.YIELD_CURVE, key);
+    return new StructureIdentifier<>(MarketDataSelector.StructureType.YIELD_CURVE, key);
   }
 
   /**
@@ -54,7 +54,7 @@ public class StructureIdentifier<T> {
    * @return a structured identifier for the volatility surface key
    */
   public static StructureIdentifier of(VolatilitySurfaceKey key) {
-    return new StructureIdentifier<>(MarketDataShiftSpecification.StructureType.VOLATILITY_SURFACE, key);
+    return new StructureIdentifier<>(MarketDataSelector.StructureType.VOLATILITY_SURFACE, key);
   }
 
   /**
@@ -64,7 +64,7 @@ public class StructureIdentifier<T> {
    * @return a structured identifier for the volatility cube key
    */
   public static StructureIdentifier of(VolatilityCubeKey key) {
-    return new StructureIdentifier<>(MarketDataShiftSpecification.StructureType.VOLATILITY_CUBE, key);
+    return new StructureIdentifier<>(MarketDataSelector.StructureType.VOLATILITY_CUBE, key);
   }
 
   @Override

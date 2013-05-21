@@ -5,15 +5,13 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-
 /**
  * Indicates a market data structure on which a shift is to be performed within the execution of a
  * view context. A specification indicates what type and item of market data it wishes to manipulate
  * such that when the engine compiles its dependency graph it can proxy particular market data nodes.
  * The specification does not indicate the actual manipulation to be performed.
  */
-public interface MarketDataShiftSpecification {
+public interface MarketDataSelector {
 
   /**
    * The type of market data which is to take part in a manipulation.
@@ -41,15 +39,5 @@ public interface MarketDataShiftSpecification {
 
 
   StructureType getApplicableStructureType();
-
-  /**
-   * Applies the shift to the underlying snapshot returning a new snapshot. It may be that
-   * applying the shift has no effect on the data in the snapshot. If this is the case,
-   * then in general the underlying snapshot should be returned directly.
-   *
-   * @param structuredSnapshot the snapshot to apply the shift to
-   * @return a shifted version of the original snapshot
-   */
-  StructuredMarketDataSnapshot apply(StructuredMarketDataSnapshot structuredSnapshot);
 
 }

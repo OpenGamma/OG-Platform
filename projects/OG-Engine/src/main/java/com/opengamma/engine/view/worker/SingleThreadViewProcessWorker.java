@@ -51,7 +51,7 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
-import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataShiftSpecification;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -297,8 +297,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
     return new MarketDataManipulator(defaultExecutionOptions != null ?
-                                         defaultExecutionOptions.getMarketDataShiftSpecification() :
-                                         NoOpMarketDataShiftSpecification.getInstance());
+                                         defaultExecutionOptions.getMarketDataSelector() :
+                                         NoOpMarketDataSelector.getInstance());
   }
 
   private ViewProcessWorkerContext getWorkerContext() {

@@ -11,8 +11,8 @@ import org.springframework.util.ObjectUtils;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.engine.marketdata.manipulator.MarketDataShiftSpecification;
-import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataShiftSpecification;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -33,19 +33,19 @@ public class ViewCycleExecutionOptions {
 
     private List<MarketDataSpecification> _marketDataSpecifications;
 
-    private MarketDataShiftSpecification _marketDataShiftSpecification;
+    private MarketDataSelector _marketDataSelector;
 
     private VersionCorrection _resolverVersionCorrection;
 
     public Builder() {
       _marketDataSpecifications = ImmutableList.of();
-      _marketDataShiftSpecification = NoOpMarketDataShiftSpecification.getInstance();
+      _marketDataSelector = NoOpMarketDataSelector.getInstance();
     }
 
     public Builder(final ViewCycleExecutionOptions copyFrom) {
       _valuationTime = copyFrom.getValuationTime();
       _marketDataSpecifications = copyFrom.getMarketDataSpecifications();
-      _marketDataShiftSpecification = copyFrom.getMarketDataShiftSpecification();
+      _marketDataSelector = copyFrom.getMarketDataSelector();
       _resolverVersionCorrection = copyFrom.getResolverVersionCorrection();
     }
 
@@ -99,12 +99,12 @@ public class ViewCycleExecutionOptions {
      * Sets the market data shift specifications for the view cycle.
      * These can be used to flag which market data is to be manipulated as it is passed into functions.
      *
-     * @param marketDataShiftSpecification the market data shift specifications, not null and not containing null
+     * @param marketDataSelector the market data shift specifications, not null and not containing null
      * @return this instance
      */
-    public Builder setMarketDataShiftSpecification(MarketDataShiftSpecification marketDataShiftSpecification) {
-      ArgumentChecker.notNull(marketDataShiftSpecification, "marketDataShiftSpecifications");
-      _marketDataShiftSpecification = marketDataShiftSpecification;
+    public Builder setMarketDataSelector(MarketDataSelector marketDataSelector) {
+      ArgumentChecker.notNull(marketDataSelector, "marketDataShiftSpecifications");
+      _marketDataSelector = marketDataSelector;
       return this;
     }
 
@@ -122,8 +122,8 @@ public class ViewCycleExecutionOptions {
      *
      * @return the market data shift specification, not null
      */
-    public MarketDataShiftSpecification getMarketDataShiftSpecification() {
-      return _marketDataShiftSpecification;
+    public MarketDataSelector getMarketDataSelector() {
+      return _marketDataSelector;
     }
 
     /**
@@ -163,7 +163,7 @@ public class ViewCycleExecutionOptions {
 
   private final List<MarketDataSpecification> _marketDataSpecifications;
 
-  private final MarketDataShiftSpecification _marketDataShiftSpecification;
+  private final MarketDataSelector _marketDataSelector;
   
   private final VersionCorrection _resolverVersionCorrection;
 
@@ -184,7 +184,7 @@ public class ViewCycleExecutionOptions {
   protected ViewCycleExecutionOptions(final Builder builder) {
     _valuationTime = builder.getValuationTime();
     _marketDataSpecifications = builder.getMarketDataSpecifications();
-    _marketDataShiftSpecification = builder.getMarketDataShiftSpecification();
+    _marketDataSelector = builder.getMarketDataSelector();
     _resolverVersionCorrection = builder.getResolverVersionCorrection();
   }
 
@@ -224,8 +224,8 @@ public class ViewCycleExecutionOptions {
    *
    * @return the market data shift specifications, not null and not containing null but possibly empty
    */
-  public MarketDataShiftSpecification getMarketDataShiftSpecification() {
-    return _marketDataShiftSpecification;
+  public MarketDataSelector getMarketDataSelector() {
+    return _marketDataSelector;
   }
 
   /**
@@ -251,7 +251,7 @@ public class ViewCycleExecutionOptions {
         .append(getMarketDataSpecifications())
         .append(", ")
         .append("marketDataShiftSpecification=")
-        .append(getMarketDataShiftSpecification())
+        .append(getMarketDataSelector())
         .append("]");
     return sb.toString();
   }
@@ -260,7 +260,7 @@ public class ViewCycleExecutionOptions {
   public int hashCode() {
     int result = 1;
     result += (result << 4) + getMarketDataSpecifications().hashCode();
-    result += (result << 4) + getMarketDataShiftSpecification().hashCode();
+    result += (result << 4) + getMarketDataSelector().hashCode();
     result += (result << 4) + ObjectUtils.nullSafeHashCode(getValuationTime());
     result += (result << 4) + ObjectUtils.nullSafeHashCode(getResolverVersionCorrection());
     return result;
@@ -276,7 +276,7 @@ public class ViewCycleExecutionOptions {
     }
     final ViewCycleExecutionOptions other = (ViewCycleExecutionOptions) obj;
     return getMarketDataSpecifications().equals(other.getMarketDataSpecifications())
-        && getMarketDataShiftSpecification().equals(other.getMarketDataShiftSpecification())
+        && getMarketDataSelector().equals(other.getMarketDataSelector())
         && ObjectUtils.nullSafeEquals(getValuationTime(), other.getValuationTime())
         && ObjectUtils.nullSafeEquals(getResolverVersionCorrection(), other.getResolverVersionCorrection());
   }
