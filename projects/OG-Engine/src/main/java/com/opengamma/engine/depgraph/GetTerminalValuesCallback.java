@@ -136,6 +136,11 @@ import com.opengamma.util.tuple.Pair;
   private TargetDigests _targetDigests;
 
   /**
+   * The current graph building context (the callback holds the monitor for the duration of other calls, so can set it here instead of passing it on the stack).
+   */
+  private GraphBuildingContext _context;
+
+  /**
    * The target digest map which may be used to speed up selection choices instead of full back-tracking.
    */
   private final ConcurrentMap<Object, ConcurrentMap<String, Map<ValueProperties, ParameterizedFunction>>> _targetDigestInfo =
@@ -352,7 +357,8 @@ import com.opengamma.util.tuple.Pair;
           _nodeInfo._target2collapseGroup.put(_b[i], group);
         }
         _nodeInfo._collapseGroup2targets.put(group, targets);
-        scheduleCollapsers(context, _function, _nodeInfo);
+        _context = context;
+        scheduleCollapsers(_function, _nodeInfo);
       }
       return true;
     }
@@ -363,7 +369,7 @@ import com.opengamma.util.tuple.Pair;
   // Note: we're not adjusting the target digests during collapses; for the collapse to have made sense, the digests for each target should probably be the same.
   // TODO: This might be a bad assumption
 
-  private void scheduleCollapsers(final GraphBuildingContext context, final ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo) {
+  private void scheduleCollapsers(final ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo) {
     // Action anything already found asynchronously
     Pair<ComputationTargetSpecification, ComputationTargetSpecification> collapse = nodeInfo._collapse.poll();
     while (collapse != null) {
@@ -438,24 +444,24 @@ import com.opengamma.util.tuple.Pair;
           itrCollapseGroup2Targets.remove();
           final Collection<ComputationTargetSpecification> b = itrCollapseGroup2Targets.next();
           itrCollapseGroup2Targets.remove();
-          context.submit(new CollapseNodes(function, nodeInfo, a, b));
+          _context.submit(new CollapseNodes(function, nodeInfo, a, b));
         } while (itrCollapseGroup2Targets.hasNext());
       }
     }
   }
 
-  private void scheduleCollapsers(final GraphBuildingContext context) {
+  private void scheduleCollapsers() {
     if (!_collapsers.isEmpty()) {
       final Iterator<ParameterizedFunction> itrCollapsers = _collapsers.iterator();
       do {
         final ParameterizedFunction function = itrCollapsers.next();
         final PerFunctionNodeInfo nodeInfo = _func2nodeInfo.get(function);
-        scheduleCollapsers(context, function, nodeInfo);
+        scheduleCollapsers(function, nodeInfo);
       } while (itrCollapsers.hasNext());
     }
   }
 
-  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, DependencyNode node,
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, DependencyNode node,
       final boolean newNode) {
     Set<ValueSpecification> downstreamCopy = null;
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
@@ -481,7 +487,7 @@ import com.opengamma.util.tuple.Pair;
             downstreamCopy.add(resolvedValue.getValueSpecification());
             s_logger.debug("Downstream = {}", downstreamCopy);
           }
-          inputNode = getOrCreateNode(context, inputValue, downstreamCopy);
+          inputNode = getOrCreateNode(inputValue, downstreamCopy);
           if (inputNode != null) {
             node.addInputNode(inputNode);
             node.addInputValue(input);
@@ -512,7 +518,7 @@ import com.opengamma.util.tuple.Pair;
       final ValueSpecification valueSpecification = resolvedValue.getValueSpecification();
       _resolvedBuffer.remove(valueSpecification);
       if (_targetDigests != null) {
-        final Object targetDigest = _targetDigests.getDigest(context.getCompilationContext(), valueSpecification.getTargetSpecification());
+        final Object targetDigest = _targetDigests.getDigest(_context.getCompilationContext(), valueSpecification.getTargetSpecification());
         if (targetDigest != null) {
           storeResolution(targetDigest, valueSpecification, node.getFunction());
         }
@@ -521,15 +527,15 @@ import com.opengamma.util.tuple.Pair;
     return node;
   }
 
-  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode existingNode,
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode existingNode,
       final Set<DependencyNode> nodes) {
     if (existingNode != null) {
-      return getOrCreateNode(context, resolvedValue, downstream, existingNode, false);
+      return getOrCreateNode(resolvedValue, downstream, existingNode, false);
     } else {
       DependencyNode newNode = new DependencyNode(resolvedValue.getValueSpecification().getTargetSpecification());
       newNode.setFunction(resolvedValue.getFunction());
       newNode.addOutputValues(resolvedValue.getFunctionOutputs());
-      newNode = getOrCreateNode(context, resolvedValue, downstream, newNode, true);
+      newNode = getOrCreateNode(resolvedValue, downstream, newNode, true);
       if (newNode != null) {
         nodes.add(newNode);
       }
@@ -695,7 +701,7 @@ import com.opengamma.util.tuple.Pair;
     return null;
   }
 
-  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream) {
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream) {
     s_logger.debug("Resolved {}", resolvedValue.getValueSpecification());
     if (downstream.contains(resolvedValue.getValueSpecification())) {
       s_logger.debug("Already have downstream production of {} in {}", resolvedValue.getValueSpecification(), downstream);
@@ -707,7 +713,7 @@ import com.opengamma.util.tuple.Pair;
       return existingNode;
     }
     final Set<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getValueSpecification().getTargetSpecification());
-    return getOrCreateNode(context, resolvedValue, downstream, findExistingNode(nodes, resolvedValue), nodes);
+    return getOrCreateNode(resolvedValue, downstream, findExistingNode(nodes, resolvedValue), nodes);
   }
 
   /**
@@ -724,10 +730,10 @@ import com.opengamma.util.tuple.Pair;
     _resolvedQueue.add(Pair.of(valueRequirement, resolvedValue));
     while (!_resolvedQueue.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
       synchronized (this) {
-        // TODO: We've got the monitor; could store the context in the object instead of passing it around on the stack
+        _context = context;
         Pair<ValueRequirement, ResolvedValue> resolved = _resolvedQueue.poll();
         while (resolved != null) {
-          final DependencyNode node = getOrCreateNode(context, resolved.getSecond(), Collections.<ValueSpecification>emptySet());
+          final DependencyNode node = getOrCreateNode(resolved.getSecond(), Collections.<ValueSpecification>emptySet());
           if (node != null) {
             ValueSpecification outputValue = resolved.getSecond().getValueSpecification();
             if (!outputValue.getTargetSpecification().equals(node.getComputationTarget())) {
@@ -745,7 +751,7 @@ import com.opengamma.util.tuple.Pair;
           }
           resolved = _resolvedQueue.poll();
         }
-        scheduleCollapsers(context);
+        scheduleCollapsers();
       }
       _singleton.set(null);
     }
