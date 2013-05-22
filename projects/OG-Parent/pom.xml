@@ -236,10 +236,11 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>2.10</version>
         <configuration>
-          <configLocation>${basedir}/../../common/checkstyle.xml</configLocation>
-          <headerLocation>${basedir}/../../common/checkstyle-header.txt</headerLocation>
-          <suppressionsLocation>${basedir}/../../common/checkstyle-suppressions.xml</suppressionsLocation>
-          <propertiesLocation>${basedir}/../../common/checkstyle.properties</propertiesLocation>
+          <configLocation>${checkstyle.dir}/checkstyle.xml</configLocation>
+          <headerLocation>${checkstyle.dir}/checkstyle-header.txt</headerLocation>
+          <propertyExpansion>checkstyle.suppressions.file=${checkstyle.dir}/checkstyle-suppressions.xml</propertyExpansion>
+          <!--suppressionsLocation>${checkstyle.dir}/checkstyle-suppressions.xml</suppressionsLocation>
+          <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression-->
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
           <includeTestSourceDirectory>false</includeTestSourceDirectory>
@@ -1289,6 +1290,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <og.spring.version>3.0.7.RELEASE</og.spring.version>
+    <checkstyle.dir>${basedir}/../../common</checkstyle.dir>
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/test/warn-logback.xml</tests.testng.logback>
     <tests.testng.parallel>classes</tests.testng.parallel>
