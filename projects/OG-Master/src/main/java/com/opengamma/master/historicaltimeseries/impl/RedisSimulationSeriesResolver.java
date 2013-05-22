@@ -6,6 +6,8 @@
 
 package com.opengamma.master.historicaltimeseries.impl;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -21,6 +23,11 @@ import org.threeten.bp.LocalDate;
 public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesResolver.class);
+  private final HistoricalTimeSeriesSource _source;
+
+  public RedisSimulationSeriesResolver(HistoricalTimeSeriesSource source) {
+    _source = source;
+  }
 
   @Override
   public HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
@@ -30,6 +37,13 @@ public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolv
     }
     ExternalId externalId = identifierBundle.getExternalIds().iterator().next();
     final UniqueId uniqueId = UniqueId.of(externalId.getScheme().getName(), externalId.getValue());
+    //TODO: This should just be an existence check
+    if (_source.getHistoricalTimeSeries(uniqueId, null, true, null, true) == null) {
+      return null; // check timeseries actually exists
+    }
+    if (MarketDataRequirementNames.MARKET_VALUE != dataField) {
+      s_logger.warn("Redis simulation returning ts of {} for {}, this may cause this series to be used in the wrong place in calculations", dataField, externalId);
+    }
     ManageableHistoricalTimeSeriesInfo htsInfo = new ManageableHistoricalTimeSeriesInfo() {
       @Override
       public UniqueId getUniqueId() {
