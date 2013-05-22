@@ -74,12 +74,12 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
     return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
-        .withAny(ValuePropertyNames.CURRENCY).get());
+        .withAny(ValuePropertyNames.CURRENCY).withoutAny(ORIGINAL_CURRENCY).get());
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
     return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
-        ValuePropertyNames.CURRENCY, forceCurrency).withOptional(DEFAULT_CURRENCY_INJECTION).get());
+        ValuePropertyNames.CURRENCY, forceCurrency).withoutAny(ORIGINAL_CURRENCY).withOptional(DEFAULT_CURRENCY_INJECTION).get());
   }
 
   /**
