@@ -53,6 +53,12 @@ public enum ViewExecutionFlags {
    * execution at a later date.
    */
   FETCH_MARKET_DATA_ONLY,
+  
+  /**
+   * Indicates whether a cycle should be skipped when market data is expected but entirely missing. This is useful in historical runs to skip over weekends and holidays which may occur in the
+   * execution sequence. If market data is partially present then the cycle will continue as normal.
+   */
+  SKIP_CYCLE_ON_NO_MARKET_DATA,
 
   /**
    * Indicates whether changes to a view definition, portfolio, or any other data that would invalidate a compilation, should be ignored.

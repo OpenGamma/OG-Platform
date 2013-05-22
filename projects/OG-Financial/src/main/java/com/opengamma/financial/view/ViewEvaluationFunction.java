@@ -279,7 +279,7 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
   }
 
   protected EnumSet<ViewExecutionFlags> getViewExecutionFlags(Set<ValueRequirement> desiredValues) {
-    return EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE);
+    return EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE, ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA);
   }
 
   protected abstract ViewCycleExecutionOptions getDefaultCycleOptions(FunctionExecutionContext context);

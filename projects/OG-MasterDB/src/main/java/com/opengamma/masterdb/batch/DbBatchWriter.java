@@ -65,7 +65,7 @@ import com.opengamma.batch.domain.StatusEntry;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.InvocationResult;
-import com.opengamma.engine.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
@@ -901,7 +901,7 @@ public class DbBatchWriter extends AbstractDbMaster {
         boolean specFailures = false;
         for (final ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(targetSpec)) {
           ResultConverter<Object> resultConverter  = null;
-          if (!(computedValue.getValue() instanceof MissingInput)) {
+          if (!(computedValue.getValue() instanceof MissingValue)) {
             try {
               resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(computedValue.getValue());
             } catch (IllegalArgumentException e) {
@@ -1245,7 +1245,7 @@ public class DbBatchWriter extends AbstractDbMaster {
    * due to error 12, and C has failed due to errors 15 and 16, then
    * A has failed due to errors 12, 15, and 16.
    */
-  protected static class BatchResultWriterFailure implements MissingInput, Serializable {
+  protected static class BatchResultWriterFailure implements MissingValue, Serializable {
     /** Serialization version. */
     private static final long serialVersionUID = 1L;
     private Set<Long> _computeFailureIds = new HashSet<Long>();

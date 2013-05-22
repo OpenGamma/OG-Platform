@@ -96,6 +96,16 @@ public final class ExecutionFlags {
     _flags.add(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
     return this;
   }
+  
+  /**
+   * Adds {@link ViewExecutionFlags#SKIP_CYCLE_ON_NO_MARKET_DATA}
+   * 
+   * @return this
+   */
+  public ExecutionFlags skipCycleOnNoMarketData() {
+    _flags.add(ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA);
+    return this;
+  }
 
   /**
    * Adds {@link ViewExecutionFlags#WAIT_FOR_INITIAL_TRIGGER}

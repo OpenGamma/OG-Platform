@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.cache.NotCalculatedSentinel;
+import com.opengamma.engine.cache.MissingOutput;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -41,7 +41,7 @@ public final class NoOpFunction extends IntrinsicFunction {
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size());
     for (ValueRequirement desiredValue : desiredValues) {
-      result.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), NotCalculatedSentinel.SUPPRESSED));
+      result.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), MissingOutput.SUPPRESSED));
     }
     return result;
   }

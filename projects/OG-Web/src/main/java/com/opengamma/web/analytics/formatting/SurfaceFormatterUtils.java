@@ -56,7 +56,7 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     } else {
       // TODO format as matrix
       // TODO this won't work - the cell value isn't an error so this makes no difference
-      return new MissingFormatter("Unable to format surface of type " + surface.getClass().getSimpleName());
+      return new MissingValueFormatter("Unable to format surface of type " + surface.getClass().getSimpleName());
     }
   }
 
