@@ -14,11 +14,13 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -34,6 +36,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   private final Set<ComputationTargetSpecification> _computationTargets;
   private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputSpecifications;
   private final Map<ValueSpecification, Collection<ValueSpecification>> _marketDataAliases;
+  private final Map<MarketDataSelector, Set<ValueSpecification>> _marketDataSelections;
 
   /**
    * Constructs an instance
@@ -41,29 +44,58 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param name the name of the view calculation configuration, not null
    * @param computationTargets the computation targets, not null
    * @param terminalOutputSpecifications the output specifications, not null
-   * @param marketDataAliasesSpecifications the market data specifications, not null
+   * @param marketDataSpecifications the market data specifications, not null
    */
   public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
       final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
       final Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications) {
+    this(name, computationTargets, terminalOutputSpecifications, marketDataSpecifications, ImmutableMap.<MarketDataSelector, Set<ValueSpecification>>of());
+  }
+
+  /**
+   * Constructs an instance
+   *
+   * @param name the name of the view calculation configuration, not null
+   * @param computationTargets the computation targets, not null
+   * @param terminalOutputSpecifications the output specifications, not null
+   * @param marketDataSpecifications the market data specifications, not null
+   * @param marketDataSelections the market data selections that have been made to support manipulation of the structured market data
+   */
+  public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
+                                                  final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
+                                                  final Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications,
+                                                  final Map<MarketDataSelector, Set<ValueSpecification>> marketDataSelections) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");
     ArgumentChecker.notNull(marketDataSpecifications, "marketDataSpecifications");
+    ArgumentChecker.notNull(marketDataSelections, "marketDataSelections");
     _name = name;
     _computationTargets = computationTargets;
     _terminalOutputSpecifications = terminalOutputSpecifications;
     _marketDataAliases = marketDataSpecifications;
+    _marketDataSelections = marketDataSelections;
   }
 
   /**
    * Constructs an instance from a dependency graph
-   * 
+   *
    * @param dependencyGraph the dependency graph, not null
    */
   public CompiledViewCalculationConfigurationImpl(final DependencyGraph dependencyGraph) {
     this(dependencyGraph.getCalculationConfigurationName(), processComputationTargets(dependencyGraph),
-        processTerminalOutputSpecifications(dependencyGraph), processMarketDataRequirements(dependencyGraph));
+         processTerminalOutputSpecifications(dependencyGraph), processMarketDataRequirements(dependencyGraph));
+  }
+
+  /**
+   * Constructs an instance from a dependency graph with market data manipulation selections
+   *
+   * @param graph the dependency graph, not null
+   * @param marketDataSelections the market data selections that have been made to support manipulation of the structured market data, not null
+   */
+  public CompiledViewCalculationConfigurationImpl(final DependencyGraph graph, Map<MarketDataSelector, Set<ValueSpecification>> marketDataSelections) {
+    this(graph.getCalculationConfigurationName(), processComputationTargets(graph),
+         processTerminalOutputSpecifications(graph), processMarketDataRequirements(graph), marketDataSelections);
   }
 
   private static Map<ValueSpecification, Collection<ValueSpecification>> processMarketDataRequirements(final DependencyGraph dependencyGraph) {
@@ -79,7 +111,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
       for (DependencyNode aliasNode : aliasNodes) {
         if (aliasNode.getFunction().getFunction() instanceof MarketDataAliasingFunction) {
           if (aliases == null) {
-            aliases = new ArrayList<ValueSpecification>(aliasNodes.size());
+            aliases = new ArrayList<>(aliasNodes.size());
             result.put(marketData, Collections.unmodifiableCollection(aliases));
           }
           aliases.addAll(aliasNode.getOutputValues());
@@ -122,12 +154,16 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
 
   @Override
   public Set<Pair<String, ValueProperties>> getTerminalOutputValues() {
-    final Set<Pair<String, ValueProperties>> valueNames = new HashSet<Pair<String, ValueProperties>>();
+    final Set<Pair<String, ValueProperties>> valueNames = new HashSet<>();
     for (final ValueSpecification spec : getTerminalOutputSpecifications().keySet()) {
       valueNames.add(Pair.of(spec.getValueName(), spec.getProperties()));
     }
     return valueNames;
+  }
 
+  @Override
+  public Map<MarketDataSelector, Set<ValueSpecification>> getMarketDataSelections() {
+    return _marketDataSelections;
   }
 
   @Override

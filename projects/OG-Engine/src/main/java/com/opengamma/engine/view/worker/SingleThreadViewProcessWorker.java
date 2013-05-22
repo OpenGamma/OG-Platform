@@ -51,6 +51,7 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -1127,7 +1128,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         itr.remove();
       } else {
         if (s_logger.isInfoEnabled()) {
-          s_logger.info("Removed {} nodes from dependency graph for {} by {}", new Object[] {nodes.size() - filtered.getSize(), entry.getKey(), filter });
+          s_logger.info("Removed {} nodes from dependency graph for {} by {}",
+                        nodes.size() - filtered.getSize(),
+                        entry.getKey(),
+                        filter);
         }
         entry.setValue(Pair.of(filtered, missingRequirements));
       }
@@ -1247,7 +1251,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         _compilationTask = null;
       }
 
-      _marketDataManipulator.modifyDependencyGraphs(_latestCompiledViewDefinition.getDependencyGraphExplorers());
+      initialiseMarketDataManipulation();
 
     } catch (final Exception e) {
       final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
@@ -1274,6 +1278,29 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       _compilationExpiryCycleTrigger.reset();
     }
     return compiledViewDefinition;
+  }
+
+  private void initialiseMarketDataManipulation() {
+
+    if (_marketDataManipulator.hasManipulationsDefined()) {
+
+      Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
+
+      for (DependencyGraphExplorer graphExplorer : _latestCompiledViewDefinition.getDependencyGraphExplorers()) {
+
+        DependencyGraph graph = graphExplorer.getWholeGraph();
+        Map<MarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataManipulator.modifyDependencyGraph(graph);
+
+        if (!selectorMapping.isEmpty()) {
+          selectionsByGraph.put(graph, selectorMapping);
+        }
+      }
+
+      if (!selectionsByGraph.isEmpty()) {
+        cacheCompiledViewDefinition(
+            _latestCompiledViewDefinition.withMarketDataManipulationSelections(selectionsByGraph));
+      }
+    }
   }
 
   /**

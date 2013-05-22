@@ -51,7 +51,7 @@ public class YieldCurveSelector implements MarketDataSelector {
   }
 
   @Override
-  public boolean containsShifts() {
+  public boolean hasSelectionsDefined() {
     return true;
   }
 

@@ -40,7 +40,7 @@ public class NoOpMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public boolean containsShifts() {
+  public boolean hasSelectionsDefined() {
     return false;
   }
 

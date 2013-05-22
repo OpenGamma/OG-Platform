@@ -73,10 +73,10 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public boolean containsShifts() {
+  public boolean hasSelectionsDefined() {
 
     for (MarketDataSelector specification : _underlyingSpecifications) {
-      if (specification.containsShifts()) {
+      if (specification.hasSelectionsDefined()) {
         return true;
       }
     }

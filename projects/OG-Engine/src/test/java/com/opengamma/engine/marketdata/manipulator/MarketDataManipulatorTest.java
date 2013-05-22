@@ -19,8 +19,6 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyGraphExplorer;
-import com.opengamma.engine.depgraph.DependencyGraphExplorerImpl;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
@@ -39,8 +37,7 @@ public class MarketDataManipulatorTest {
   public void testInvocationWithEmptyGraphsGivesEmptyResults() {
 
     MarketDataManipulator manipulator = createNoOpManipulator();
-    Map<DependencyGraph,Map<MarketDataSelector,Set<ValueSpecification>>> result =
-        manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of());
+    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(new DependencyGraph("testGraph"));
     assertEquals(result.isEmpty(), true);
   }
 
@@ -51,8 +48,7 @@ public class MarketDataManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<DependencyGraph,Map<MarketDataSelector,Set<ValueSpecification>>> result =
-        manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of(new DependencyGraphExplorerImpl(graph)));
+    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
 
     assertEquals(result.isEmpty(), true);
     assertEquals(graph.getOutputSpecifications(), originalOutputSpecifications);
@@ -65,9 +61,7 @@ public class MarketDataManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<DependencyGraph,Map<MarketDataSelector,Set<ValueSpecification>>> result =
-        manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of(new DependencyGraphExplorerImpl(
-            graph)));
+    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
 
     checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
   }
@@ -80,22 +74,19 @@ public class MarketDataManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<DependencyGraph,Map<MarketDataSelector,Set<ValueSpecification>>> result =
-        manipulator.modifyDependencyGraphs(ImmutableSet.<DependencyGraphExplorer>of(new DependencyGraphExplorerImpl(
-            graph)));
+    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
 
     checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
 
-    Map<MarketDataSelector, Set<ValueSpecification>> selectorMap = result.get(graph);
-    assertEquals(selectorMap.size(), 1);
+    assertEquals(result.size(), 1);
 
     // Selector is the underlying, not composite
-    assertEquals(selectorMap.containsKey(yieldCurveSelector), true);
+    assertEquals(result.containsKey(yieldCurveSelector), true);
   }
 
   private void checkNodeHasBeenAddedToGraph(DependencyGraph graph,
                                             Set<ValueSpecification> originalOutputSpecifications,
-                                            Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> result) {
+                                            Map<MarketDataSelector, Set<ValueSpecification>> result) {
 
     assertEquals(result.isEmpty(), false);
     ValueSpecification originalValueSpec = Iterables.getOnlyElement(originalOutputSpecifications);
@@ -130,5 +121,4 @@ public class MarketDataManipulatorTest {
   private MarketDataManipulator createNoOpManipulator() {
     return new MarketDataManipulator(NoOpMarketDataSelector.getInstance());
   }
-
 }

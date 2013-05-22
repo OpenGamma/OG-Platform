@@ -19,13 +19,13 @@ public interface MarketDataSelector {
   public enum StructureType {YIELD_CURVE, VOLATILITY_SURFACE, VOLATILITY_CUBE, MARKET_DATA_POINT, NONE}
 
   /**
-   * Indicates if the specification contains an active shift to be applied. This allows
-   * us to avoid unecessary work applying specifications that do nothing whilst also
+   * Indicates if the specification contains an active selection to be applied. This allows
+   * us to avoid unecessary work applying selections that do nothing whilst also
    * avoiding null checks.
    *
-   * @return true if the specification contains active shifts
+   * @return true if the specification contains active selections
    */
-  boolean containsShifts();
+  boolean hasSelectionsDefined();
 
   /**
    * Indicates if this selector is applicable to the specified market data structure. If it is, then
