@@ -140,6 +140,7 @@ public class PresentValueCreditDefaultSwap {
       // Calculate the time between the current valuation date and the end of the current (offset) accrual period
       double tObsOffset = TimeCalculator.getTimeBetween(today, accrualEndDate.plusDays(obsOffset), ACT_365);
 
+      // TODO : Add this check for t
       // Compensate Java shortcoming
       if (Double.compare(tObsOffset, -0.0) == 0) {
         tObsOffset = 0;
@@ -155,6 +156,7 @@ public class PresentValueCreditDefaultSwap {
 
       double myPV = 0.0;
 
+      // TODO : Extract out this calc into a seperate routine
       // Do we want to include the accrued premium corresponding to this accrual period
       if (cds.getIncludeAccruedPremium()) {
 
@@ -206,7 +208,7 @@ public class PresentValueCreditDefaultSwap {
             t = t1 - t0;
             final double lambda = Math.log(s0 / s1) / t;
             final double fwdRate = Math.log(df0 / df1) / t;
-            final double lambdafwdRate = lambda + fwdRate + 1.0e-50;
+            final double lambdafwdRate = lambda + fwdRate + 1.0e-50;  // Note the hack here
 
             thisAccPV = lambda * accRate * s0 * df0 * ((t0 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) - (t1 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) * s1 / s0 * df1 / df0);
             myPV += thisAccPV;
@@ -264,12 +266,20 @@ public class PresentValueCreditDefaultSwap {
   private double calculateAccruedInterest(final CreditDefaultSwapDefinition cds, final ZonedDateTime[][] premiumLegSchedule, final ZonedDateTime stepinDate) {
 
     // TODO : Maybe check if stepinDate is in range [startDate, maturityDate + 1] - probably not necessary since the valuation will not allow this
-    // TODO : Check we are using the correct column of the matrix below - may be the cause of a difference
+    // TODO : Would be useful to re-write this to make it clearer
 
     // Start at the beginning of the cashflow schedule
     //ZonedDateTime rollingDate = premiumLegSchedule[0];
     ZonedDateTime rollingDate = premiumLegSchedule[0][0];
     //ZonedDateTime rollingDate = premiumLegSchedule[1][1];
+
+    // Check if the stepin date falls on any of the accrual begin dates
+    for (int i = 1; i < premiumLegSchedule.length; i++) {
+      if (stepinDate.equals(premiumLegSchedule[i][1])) {
+        // If it does, then there has been no accrued interest
+        return 0.0;
+      }
+    }
 
     int startCashflowIndex = 0;
     //int startCashflowIndex = 1;
@@ -342,6 +352,8 @@ public class PresentValueCreditDefaultSwap {
 
     final ZonedDateTime clEndDate = cds.getMaturityDate();
     final ZonedDateTime stepinDate = cds.getEffectiveDate();
+
+    // TODO : Review the following if statements
 
     if (cds.getProtectionStart()) {
       clStartDate = valuationDate.minusDays(1);
