@@ -82,7 +82,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     if (_simulationDate != null) {
       instance.setCurrentSimulationExecutionDate(_simulationDate);
     }
-    HistoricalTimeSeriesResolver resolver = new RedisSimulationSeriesResolver();
+    HistoricalTimeSeriesResolver resolver = new RedisSimulationSeriesResolver(instance);
 
     ComponentInfo infoResolver = new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier());
     infoResolver.addAttribute(ComponentInfoAttributes.LEVEL, 1);
