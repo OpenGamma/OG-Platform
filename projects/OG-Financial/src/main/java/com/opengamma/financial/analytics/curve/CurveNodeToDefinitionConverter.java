@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDef
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
@@ -77,6 +78,7 @@ public class CurveNodeToDefinitionConverter {
         final Calendar calendar;
         final boolean isEOM;
         int daysToSettle;
+        final double rate = marketValues.getDataPoint(marketDataId);
         if (convention instanceof DepositConvention) {
           final DepositConvention depositConvention = (DepositConvention) convention;
           currency = depositConvention.getCurrency();
@@ -85,6 +87,10 @@ public class CurveNodeToDefinitionConverter {
           isEOM = depositConvention.isIsEOM();
           dayCount = depositConvention.getDayCount();
           daysToSettle = depositConvention.getDaysToSettle();
+          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, cashNode.getStartTenor().getPeriod().plusDays(daysToSettle), businessDayConvention, calendar);
+          final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, cashNode.getMaturityTenor().getPeriod(), businessDayConvention, calendar, isEOM);
+          final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
+          return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
         } else if (convention instanceof IborIndexConvention) {
           final IborIndexConvention iborConvention = (IborIndexConvention) convention;
           currency = iborConvention.getCurrency();
@@ -93,17 +99,20 @@ public class CurveNodeToDefinitionConverter {
           isEOM = iborConvention.isIsEOM();
           dayCount = iborConvention.getDayCount();
           daysToSettle = iborConvention.getDaysToSettle();
+          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, cashNode.getStartTenor().getPeriod().plusDays(daysToSettle), businessDayConvention, calendar);
+          final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, cashNode.getMaturityTenor().getPeriod(), businessDayConvention, calendar, isEOM);
+          final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
+          final int spotLag = 0; //TODO
+          final boolean eom = iborConvention.isIsEOM();
+          final Period indexTenor = iborConvention.getTenor().getPeriod();
+          final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom);
+          return new DepositIborDefinition(currency, startDate, endDate, 1, rate, accrualFactor, iborIndex);
         } else {
           if (convention == null) {
             throw new OpenGammaRuntimeException("Could not get convention for " + cashNode.getConvention());
           }
           throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
         }
-        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, cashNode.getStartTenor().getPeriod().plusDays(daysToSettle), businessDayConvention, calendar);
-        final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, cashNode.getMaturityTenor().getPeriod(), businessDayConvention, calendar, isEOM);
-        final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
-        final double rate = marketValues.getDataPoint(marketDataId);
-        return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
       }
 
       @Override
