@@ -38,6 +38,7 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
   private static final String RUN_AS_FAST_AS_POSSIBLE_FIELD = "runAsFastAsPossible";
   private static final String COMPILE_ONLY_FIELD = "compileOnly";
   private static final String FETCH_MARKET_DATA_ONLY_FIELD = "fetchMarketDataOnly";
+  private static final String SKIP_CYCLE_ON_NO_MARKET_DATA_FIELD = "skipCycleOnNoMarketData";
   private static final String WAIT_FOR_INITIAL_TRIGGER_FIELD = "waitForInitialTrigger";
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String DEFAULT_EXECUTION_OPTIONS_FIELD = "defaultExecutionOptions";
@@ -50,6 +51,7 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
       Pair.of(RUN_AS_FAST_AS_POSSIBLE_FIELD, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE),
       Pair.of(COMPILE_ONLY_FIELD, ViewExecutionFlags.COMPILE_ONLY),
       Pair.of(FETCH_MARKET_DATA_ONLY_FIELD, ViewExecutionFlags.FETCH_MARKET_DATA_ONLY),
+      Pair.of(SKIP_CYCLE_ON_NO_MARKET_DATA_FIELD, ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA),
       Pair.of(WAIT_FOR_INITIAL_TRIGGER_FIELD, ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER),
       Pair.of(BATCH_FIELD, ViewExecutionFlags.BATCH));
 

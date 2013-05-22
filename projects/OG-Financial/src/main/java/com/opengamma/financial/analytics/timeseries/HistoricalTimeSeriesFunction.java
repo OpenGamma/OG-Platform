@@ -21,7 +21,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -146,7 +146,7 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction {
       Object value = executeImpl(executionContext, timeSeriesSource, targetSpec, desiredValue);
       if (value == null) {
         s_logger.error("Couldn't get time series {}", desiredValue);
-        value = MissingMarketDataSentinel.getInstance();
+        value = MissingInput.MISSING_MARKET_DATA;
       }
       return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints()), value));
     }

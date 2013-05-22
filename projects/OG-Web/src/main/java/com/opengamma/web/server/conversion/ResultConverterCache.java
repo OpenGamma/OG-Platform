@@ -25,7 +25,7 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.engine.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
@@ -70,7 +70,7 @@ public class ResultConverterCache {
     registerConverter(LabelledMatrix3D.class, new LabelledMatrix3DConverter());
     registerConverter(Tenor.class, new TenorConverter());
     registerConverter(MultipleCurrencyAmount.class, new MultipleCurrencyAmountConverter(_doubleConverter));
-    registerConverter(MissingMarketDataSentinel.class, new StaticStringConverter("Missing market data"));
+    registerConverter(MissingInput.class, new StaticStringConverter("Missing market data"));
     registerConverter(ForwardCurve.class, new ForwardCurveConverter());
     registerConverter(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneynessConverter());
     registerConverter(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessConverter());

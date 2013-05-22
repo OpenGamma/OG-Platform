@@ -180,6 +180,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final boolean _executeCycles;
   private final boolean _executeGraphs;
   private final boolean _ignoreCompilationValidity;
+  private final boolean _suppressExecutionOnNoMarketData;
 
   /**
    * The changes to the master trigger that must be made during the next cycle.
@@ -285,6 +286,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     }
     _executeCycles = !executionOptions.getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
     _executeGraphs = !executionOptions.getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
+    _suppressExecutionOnNoMarketData = executionOptions.getFlags().contains(ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA);
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
     _marketDataManipulator = createMarketDataManipulator();
@@ -583,7 +585,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       s_logger.error("Error notifying " + getWorkerContext() + " of view cycle completion", e);
     }
   }
-
+  
   private void cycleStarted(final ViewCycleMetadata cycleMetadata) {
     try {
       getWorkerContext().cycleStarted(cycleMetadata);
@@ -700,8 +702,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         deltaCycle = null;
       }
     }
-    cycleReference.get().preExecute(deltaCycle, marketDataSnapshot);
-    if (_executeGraphs) {
+    boolean continueExecution = cycleReference.get().preExecute(deltaCycle, marketDataSnapshot, _suppressExecutionOnNoMarketData);
+    if (_executeGraphs && continueExecution) {
       try {
         cycleReference.get().execute(s_executor);
       } catch (final InterruptedException e) {

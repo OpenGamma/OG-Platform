@@ -6,8 +6,10 @@
 package com.opengamma.engine.calcnode;
 
 /**
- * Marker interface
+ * A missing value in the context of a calculation.
+ * <p>
+ * See implementations for information on specific missing values.
  */
-public interface MissingInput {
+public interface MissingValue {
 
 }

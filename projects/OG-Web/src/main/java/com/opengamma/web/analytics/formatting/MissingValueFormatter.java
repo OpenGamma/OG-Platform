@@ -5,17 +5,17 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import com.opengamma.engine.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Error value returned to the client for values that can't be formatted.
  */
-/* package */ class MissingFormatter implements MissingInput {
+/*package*/ class MissingValueFormatter implements MissingValue {
 
   private final String _message;
 
-  /* package */ MissingFormatter(String message) {
+  /*package*/ MissingValueFormatter(String message) {
     ArgumentChecker.notEmpty(message, "message");
     _message = message;
   }
@@ -24,4 +24,5 @@ import com.opengamma.util.ArgumentChecker;
   public String toString() {
     return _message;
   }
+  
 }

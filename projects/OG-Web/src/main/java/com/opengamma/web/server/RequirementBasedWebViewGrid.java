@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -89,7 +89,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     if (resultModel != null) {
       for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
         for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
-          if (value.getValue() instanceof MissingInput) {
+          if (value.getValue() instanceof MissingValue) {
             // Ignore the value -- before PLAT-1765 we wouldn't have seen a result at all
             continue;
           }
