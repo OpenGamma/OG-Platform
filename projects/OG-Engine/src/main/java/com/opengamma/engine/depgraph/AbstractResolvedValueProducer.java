@@ -133,20 +133,24 @@ import com.opengamma.engine.value.ValueSpecification;
         } else {
           if (finished) {
             s_logger.debug("Finished {}", getValueRequirement());
-            context.failed(_callback, getValueRequirement(), failure);
             release(context); // the reference added by addCallback
+            context.failed(_callback, getValueRequirement(), failure);
           }
         }
+      }
+    }
+
+    private boolean notPumpedState() {
+      synchronized (AbstractResolvedValueProducer.this) {
+        // Shouldn't be in the pumped state - a caller can't call close after calling pump
+        return _pumped == null || !_pumped.remove(this);
       }
     }
 
     @Override
     public void close(final GraphBuildingContext context) {
       s_logger.debug("Closing callback {}", this);
-      synchronized (AbstractResolvedValueProducer.this) {
-        // Shouldn't be in the pumped state - a caller can't call close after calling pump
-        assert _pumped == null || !_pumped.remove(this);
-      }
+      assert notPumpedState();
       release(context); // the reference added by addCallback
     }
 
@@ -227,18 +231,20 @@ import com.opengamma.engine.value.ValueSpecification;
         s_logger.debug("Pushing single callback result {}", firstResult);
         release(context); // reference held by callback object
         context.resolved(valueCallback, getValueRequirement(), firstResult, null);
+        return null;
       } else {
         s_logger.debug("Pushing first callback result {}", firstResult);
         context.resolved(valueCallback, getValueRequirement(), firstResult, callback);
+        return callback;
       }
     } else if (finished) {
       s_logger.debug("Pushing failure");
-      context.failed(valueCallback, getValueRequirement(), failure);
       release(context); // reference held by callback object
+      context.failed(valueCallback, getValueRequirement(), failure);
+      return null;
     } else {
       return callback;
     }
-    return null;
   }
 
   private void pumpCallbacks(final GraphBuildingContext context, final Collection<Callback> pumped, final boolean lastResult) {
@@ -273,6 +279,7 @@ import com.opengamma.engine.value.ValueSpecification;
           }
         } else {
           s_logger.debug("Pushing failure to {}", callback._callback);
+          release(context); // the reference added by addCallback
           context.failed(callback._callback, getValueRequirement(), failure);
         }
       }
