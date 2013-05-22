@@ -8,23 +8,23 @@ package com.opengamma.analytics.financial.instrument.future;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
- * Description of a bond future (definition version).
+ * Description of a bond future security (definition version).
  */
-public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFuture, Double> {
+public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondFuturesSecurity> {
 
   /**
    * The last trading date.
@@ -72,23 +72,24 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
    * @param deliveryBasket The basket of deliverable bonds.
    * @param conversionFactor The conversion factor of each bond in the basket.
    */
-  public BondFutureDefinition(final ZonedDateTime tradingLastDate, final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, final double notional,
+  public BondFuturesSecurityDefinition(final ZonedDateTime tradingLastDate, final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, double notional,
       final BondFixedSecurityDefinition[] deliveryBasket, final double[] conversionFactor) {
-    ArgumentChecker.notNull(tradingLastDate, "Last trading date");
-    ArgumentChecker.notNull(noticeFirstDate, "First notice date");
-    ArgumentChecker.notNull(noticeLastDate, "Last notice date");
-    ArgumentChecker.notNull(deliveryBasket, "Delivery basket");
-    ArgumentChecker.notNull(conversionFactor, "Conversion factor");
-    ArgumentChecker.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
-    ArgumentChecker.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
-    _tradingLastDate = tradingLastDate;
-    _noticeFirstDate = noticeFirstDate;
-    _noticeLastDate = noticeLastDate;
+    super();
+    Validate.notNull(tradingLastDate, "Last trading date");
+    Validate.notNull(noticeFirstDate, "First notice date");
+    Validate.notNull(noticeLastDate, "Last notice date");
+    Validate.notNull(deliveryBasket, "Delivery basket");
+    Validate.notNull(conversionFactor, "Conversion factor");
+    Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
+    Validate.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
+    this._tradingLastDate = tradingLastDate;
+    this._noticeFirstDate = noticeFirstDate;
+    this._noticeLastDate = noticeLastDate;
     _notional = notional;
-    _deliveryBasket = deliveryBasket;
-    _conversionFactor = conversionFactor;
+    this._deliveryBasket = deliveryBasket;
+    this._conversionFactor = conversionFactor;
     _settlementDays = _deliveryBasket[0].getSettlementDays();
-    final Calendar calendar = _deliveryBasket[0].getCalendar();
+    Calendar calendar = _deliveryBasket[0].getCalendar();
     _deliveryFirstDate = ScheduleCalculator.getAdjustedDate(_noticeFirstDate, _settlementDays, calendar);
     _deliveryLastDate = ScheduleCalculator.getAdjustedDate(_noticeLastDate, _settlementDays, calendar);
   }
@@ -119,7 +120,7 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
 
   /**
    * Gets the first delivery date. It is the first notice date plus the settlement days.
-   * @return The first delivery date.
+   * @return The first delivery date. 
    */
   public ZonedDateTime getDeliveryFirstDate() {
     return _deliveryFirstDate;
@@ -165,53 +166,33 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
     return _conversionFactor;
   }
 
-  /**
-   * The future currency.
-   * @return The currency.
-   */
-  public Currency getCurrency() {
-    return _deliveryBasket[0].getCurrency();
-  }
-
   @Override
-  public BondFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + getClass().getSimpleName()
-        + " does not support the two argument method (without margin price data).");
-  }
-
-  @Override
-  public BondFuture toDerivative(final ZonedDateTime valDate, final Double referencePrice, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(valDate, "valDate must always be provided to form a Derivative from a Definition");
-    ArgumentChecker.isTrue(!valDate.isAfter(getDeliveryLastDate()), "Valuation date is after last delivery date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-
-    final double lastTradingTime = TimeCalculator.getTimeBetween(valDate, getTradingLastDate());
-    final double firstNoticeTime = TimeCalculator.getTimeBetween(valDate, getNoticeFirstDate());
-    final double lastNoticeTime = TimeCalculator.getTimeBetween(valDate, getNoticeLastDate());
-    final double firstDeliveryTime = TimeCalculator.getTimeBetween(valDate, getDeliveryFirstDate());
-    final double lastDeliveryTime = TimeCalculator.getTimeBetween(valDate, getDeliveryLastDate());
-
+  public BondFuturesSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double lastTradingTime = actAct.getDayCountFraction(date, getTradingLastDate());
+    final double firstNoticeTime = actAct.getDayCountFraction(date, getNoticeFirstDate());
+    final double lastNoticeTime = actAct.getDayCountFraction(date, getNoticeLastDate());
+    final double firstDeliveryTime = actAct.getDayCountFraction(date, getDeliveryFirstDate());
+    final double lastDeliveryTime = actAct.getDayCountFraction(date, getDeliveryLastDate());
     final BondFixedSecurity[] basket = new BondFixedSecurity[_deliveryBasket.length];
     for (int loopbasket = 0; loopbasket < _deliveryBasket.length; loopbasket++) {
-      basket[loopbasket] = _deliveryBasket[loopbasket].toDerivative(valDate, _deliveryLastDate, yieldCurveNames);
+      basket[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryLastDate, yieldCurveNames);
     }
-
-    final BondFuture futureDeriv = new BondFuture(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket,
-        _conversionFactor, referencePrice);
-    return futureDeriv;
+    return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket, _conversionFactor);
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitBondFutureDefinition(this, data);
+    return null; // visitor.visitBondFutureSecurityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitBondFutureDefinition(this);
+    return null; // visitor.visitBondFutureSecurityDefinition(this);
   }
 
   @Override
@@ -233,7 +214,7 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -243,7 +224,7 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondFutureDefinition other = (BondFutureDefinition) obj;
+    BondFuturesSecurityDefinition other = (BondFuturesSecurityDefinition) obj;
     if (!Arrays.equals(_conversionFactor, other._conversionFactor)) {
       return false;
     }

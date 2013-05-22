@@ -48,8 +48,6 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -58,6 +56,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -116,7 +116,9 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond);
 
-  RESULT_TYPE visitBondFutureSecurityDefinition(BondFutureDefinition bond, DATA_TYPE data);
+  RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bond, DATA_TYPE data);
+
+  RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bond);
 
   RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, DATA_TYPE data);
 
@@ -177,8 +179,6 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future);
-
-  RESULT_TYPE visitBondFutureSecurityDefinition(BondFutureDefinition bond);
 
   RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(SwapFuturesDeliverableSecurityDefinition futures, DATA_TYPE data);
 

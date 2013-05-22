@@ -312,7 +312,7 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitBondFutureSecurityDefinition(final BondFutureDefinition bond, final T data) {
+    public String visitBondFutureDefinition(final BondFutureDefinition bond, final T data) {
       return getValue(bond, true);
     }
 
@@ -457,7 +457,7 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
+    public String visitBondFutureDefinition(final BondFutureDefinition bond) {
       return getValue(bond, false);
     }
 

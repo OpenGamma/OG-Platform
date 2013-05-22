@@ -142,7 +142,7 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond, final DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureDefinition(final BondFutureDefinition bond, final DATA_TYPE data) {
     return visit(bond, data);
   }
 
@@ -287,7 +287,7 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
+  public RESULT_TYPE visitBondFutureDefinition(final BondFutureDefinition bond) {
     return visit(bond);
   }
 
