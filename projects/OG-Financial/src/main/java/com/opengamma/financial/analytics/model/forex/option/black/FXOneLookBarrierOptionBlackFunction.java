@@ -111,7 +111,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, desiredValue).get());
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, desiredValue, baseQuotePair).get());
     // 6. Return result
     return Collections.singleton(new ComputedValue(spec, results));
 
@@ -126,15 +126,15 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig, final String callCurve,
-      final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
-    final Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair);
+      final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    final Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair, optionalProperties);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
         .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Builder properties = super.getResultProperties(target, desiredValue);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
     final String binaryOverhead = desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE);
     final String binarySmoothing = desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
     return properties.with(ValuePropertyNames.BINARY_OVERHEDGE, binaryOverhead)

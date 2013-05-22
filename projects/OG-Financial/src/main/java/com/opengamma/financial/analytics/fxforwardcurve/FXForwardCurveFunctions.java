@@ -10,7 +10,6 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -53,12 +52,13 @@ public class FXForwardCurveFunctions extends AbstractFunctionConfigurationBean {
     
     protected void addFXForwardCurveFunctions(List<FunctionConfiguration> functions, String ccy1, String ccy2, String curveName) {
       functions.add(functionConfiguration(FXForwardCurveDefinitionFunction.class, ccy1, ccy2, curveName));
+      functions.add(functionConfiguration(FXForwardCurveSpecificationFunction.class, ccy1, ccy2, curveName));
     }
     
     @Override
     protected void addAllConfigurations(List<FunctionConfiguration> functions) {
-      final ConfigSearchRequest<YieldCurveDefinition> searchRequest = new ConfigSearchRequest<YieldCurveDefinition>();
-      searchRequest.setType(YieldCurveDefinition.class);
+      final ConfigSearchRequest<FXForwardCurveDefinition> searchRequest = new ConfigSearchRequest<FXForwardCurveDefinition>();
+      searchRequest.setType(FXForwardCurveDefinition.class);
       for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
         String documentName = configDocument.getName();
         if (!documentName.endsWith("FX_FORWARD")) {
@@ -79,7 +79,6 @@ public class FXForwardCurveFunctions extends AbstractFunctionConfigurationBean {
         addFXForwardCurveFunctions(functions, ccy1, ccy2, curveName);
       }
     }
-    
   }
 
   @Override

@@ -140,6 +140,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_PRESENT_VALUE);
+    addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_DRIFTLESS_THETA);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_BLEED);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_P);

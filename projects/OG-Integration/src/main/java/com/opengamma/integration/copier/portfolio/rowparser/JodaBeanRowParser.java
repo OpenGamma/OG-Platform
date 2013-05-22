@@ -431,7 +431,7 @@ public class JodaBeanRowParser extends RowParser {
       return builder.build();
   
     } catch (Throwable ex) {
-      s_logger.error("Could not create a " + clazz.getSimpleName() + ": " + ex.getMessage(), ex);
+      s_logger.info("Not creating a " + clazz.getSimpleName() + ": " + ex.getMessage());
       return null;
     }
   }

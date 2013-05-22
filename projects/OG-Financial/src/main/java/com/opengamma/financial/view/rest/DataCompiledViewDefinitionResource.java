@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.HashMap;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +34,7 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   public static final String PATH_MARKET_DATA_REQUIREMENTS = "marketDataRequirements";
   public static final String PATH_COMPUTATION_TARGETS = "computationTargets";
   public static final String PATH_COMPILED_CALCULATION_CONFIGURATIONS = "compiledCalculationConfigurations";
+  public static final String PATH_COMPILED_CALCULATION_CONFIGURATIONS_MAP = "compiledCalculationConfigurationsMap";
   public static final String PATH_GRAPHS = "graphs";
   //CSON: just constants
   
@@ -58,6 +60,12 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS)
   public Response getCompiledCalculationConfigurations() {
     return responseOkFudge(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations()));
+  }
+
+  @GET
+  @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS_MAP)
+  public Response getCompiledCalculationConfigurationsMap() {
+    return responseOkFudge(new HashMap<>(_compiledViewDefinition.getCompiledCalculationConfigurationsMap()));
   }
   
   @GET

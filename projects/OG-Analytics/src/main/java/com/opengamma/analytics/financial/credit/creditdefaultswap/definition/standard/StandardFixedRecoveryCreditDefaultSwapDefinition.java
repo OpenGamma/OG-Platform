@@ -35,6 +35,7 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables specific to the standard fixed recovery CDS contract
+  private final double _fixedRecoveryRate;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -67,7 +68,8 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
       final StandardCDSCoupon premiumLegCoupon,
       final double upfrontAmount,
       final ZonedDateTime cashSettlementDate,
-      final boolean adjustCashSettlementDate) {
+      final boolean adjustCashSettlementDate,
+      final double fixedRecoveryRate) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -100,7 +102,24 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
         upfrontAmount,
         cashSettlementDate,
         adjustCashSettlementDate);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    ArgumentChecker.notNegative(fixedRecoveryRate, "Fixed Recovery Rate");
+    ArgumentChecker.isTrue(fixedRecoveryRate <= 1.0, "Fixed Recovery rate should be less than or equal to 100%");
+
+    _fixedRecoveryRate = fixedRecoveryRate;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public double getFixedRecoveryRate() {
+    return _fixedRecoveryRate;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public StandardFixedRecoveryCreditDefaultSwapDefinition withSpread(final double spread) {
@@ -130,7 +149,8 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
         getPremiumLegCoupon(),
         getUpfrontAmount(),
         getCashSettlementDate(),
-        getAdjustCashSettlementDate());
+        getAdjustCashSettlementDate(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -161,7 +181,8 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
         getPremiumLegCoupon(),
         getUpfrontAmount(),
         getCashSettlementDate(),
-        getAdjustCashSettlementDate());
+        getAdjustCashSettlementDate(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -192,7 +213,8 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
         getPremiumLegCoupon(),
         getUpfrontAmount(),
         getCashSettlementDate(),
-        getAdjustCashSettlementDate());
+        getAdjustCashSettlementDate(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -223,7 +245,8 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
         getPremiumLegCoupon(),
         getUpfrontAmount(),
         getCashSettlementDate(),
-        getAdjustCashSettlementDate());
+        getAdjustCashSettlementDate(),
+        getFixedRecoveryRate());
   }
 
   @Override
@@ -254,7 +277,8 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends StandardCr
         getPremiumLegCoupon(),
         getUpfrontAmount(),
         getCashSettlementDate(),
-        getAdjustCashSettlementDate());
+        getAdjustCashSettlementDate(),
+        getFixedRecoveryRate());
   }
 
   @Override

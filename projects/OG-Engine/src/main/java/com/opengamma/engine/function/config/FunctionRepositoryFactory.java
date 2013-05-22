@@ -13,11 +13,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.NoOpFunction;
+import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.util.ReflectionUtils;
 
 /**
@@ -28,14 +31,23 @@ public class FunctionRepositoryFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionRepositoryFactory.class);
 
   /**
-   * The number of functions that are always in a constructed repository regardless of the {@link FunctionConfigurationBundle} document used. For example:
+   * The set of functions that are always in a constructed repository regardless of the
+   * {@link FunctionConfigurationBundle} document used.
+   */
+  private static final List<FunctionDefinition> INTRINSIC_FUNCTIONS = ImmutableList.<FunctionDefinition>of(
+      NoOpFunction.INSTANCE,
+      MarketDataAliasingFunction.INSTANCE,
+      StructureManipulationFunction.INSTANCE);
+
+  /**
+   * The number of functions that are always in a constructed repository regardless of the
+   * {@link FunctionConfigurationBundle} document used. For example:
    * <ul>
    * <li>The no-op function used for execution suppression ({@link NoOpFunction})</li>
    * <li>The value aliasing function ({@link MarketDataAliasingFunction})</li>
    * </ul>
-   * For exam
    */
-  public static final int INTRINSIC_FUNCTION_COUNT = 2;
+  public static final int INTRINSIC_FUNCTION_COUNT = INTRINSIC_FUNCTIONS.size();
 
   /**
    * Constructs a repository from the configuration.
@@ -44,9 +56,7 @@ public class FunctionRepositoryFactory {
    * @return the repository, not null
    */
   public static InMemoryFunctionRepository constructRepository(final FunctionConfigurationBundle configuration) {
-    final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
-    repository.addFunction(NoOpFunction.INSTANCE);
-    repository.addFunction(MarketDataAliasingFunction.INSTANCE);
+    final InMemoryFunctionRepository repository = constructRepositoryWithIntrinsicFunctions();
     if (configuration.getFunctions() != null) {
       for (final FunctionConfiguration functionConfig : configuration.getFunctions()) {
         if (functionConfig instanceof ParameterizedFunctionConfiguration) {
@@ -57,6 +67,14 @@ public class FunctionRepositoryFactory {
           s_logger.error("Unhandled function configuration {}, ignoring", functionConfig);
         }
       }
+    }
+    return repository;
+  }
+
+  private static InMemoryFunctionRepository constructRepositoryWithIntrinsicFunctions() {
+    final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
+    for (FunctionDefinition intrinsicFunction : INTRINSIC_FUNCTIONS) {
+      repository.addFunction(intrinsicFunction);
     }
     return repository;
   }

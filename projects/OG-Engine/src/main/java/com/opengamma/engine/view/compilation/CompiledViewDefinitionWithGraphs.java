@@ -7,9 +7,13 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
@@ -26,6 +30,16 @@ public interface CompiledViewDefinitionWithGraphs extends CompiledViewDefinition
    */
   @Override
   CompiledViewDefinitionWithGraphs withResolverVersionCorrection(VersionCorrection resolverVersionCorrection);
+
+
+  /**
+   * Returns a copy of this object with updated market data manipulation selections.
+   *
+   * @param selectionsByGraph the market data selections that have been identified for each graph, not null
+   * @return the copy
+   */
+  CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
+      Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph);
 
   /**
    * Gets all of the dependefncy graph explorers.

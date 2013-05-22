@@ -28,6 +28,10 @@ public class HazardRateCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Need to add a check for when there are equal nodes in the interpolator e.g. if valuationDate = the maturity of the first calibration instrument
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(ISDA_INTERPOLATOR, FLAT_EXTRAPOLATOR, ISDA_EXTRAPOLATOR);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

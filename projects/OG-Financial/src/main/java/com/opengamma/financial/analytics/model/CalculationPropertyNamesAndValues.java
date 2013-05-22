@@ -34,14 +34,22 @@ public final class CalculationPropertyNamesAndValues {
   public static final String FORWARD_POINTS = "ForwardPoints";
   /** The name of the Black call spread calculation method */
   public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
-  /** The name of the property that sets the value of the call spread */
-  public static final String PROPERTY_CALL_SPREAD_VALUE = "CallSpreadValue";
 
   //Values for PROPERTY_MODEL_TYPE
   /** Analytic */
   public static final String ANALYTIC = "Analytic";
   /** PDE */
   public static final String PDE = "PDE";
+
+  // FX option-specific properties
+  /** The name of the property that sets the value of the call spread */
+  public static final String PROPERTY_CALL_SPREAD_VALUE = "CallSpreadValue";
+  /** The name of the property that sets whether FX option greeks are in terms of the direct or indirect quote */
+  public static final String PROPERTY_DIRECT_QUOTE = "DirectQuote";
+
+  // Properties for greeks
+  /** The name of the property that sets the number of days per financial year */
+  public static final String PROPERTY_DAYS_PER_YEAR = "DaysInYear";
 
   private CalculationPropertyNamesAndValues() {
   }

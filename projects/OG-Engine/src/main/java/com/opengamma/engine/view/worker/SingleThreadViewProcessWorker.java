@@ -50,6 +50,9 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -169,7 +172,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   }
 
   private static final long NANOS_PER_MILLISECOND = 1000000;
-  private static final long MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS = 10000;
 
   private final ViewProcessWorkerContext _context;
   private final ViewExecutionOptions _executionOptions;
@@ -248,6 +250,11 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    */
   private final BorrowedThread _thread;
 
+  /**
+   * The manipulator for structured market data.
+   */
+  private final MarketDataManipulator _marketDataManipulator;
+
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -280,9 +287,18 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _executeGraphs = !executionOptions.getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
+    _marketDataManipulator = createMarketDataManipulator();
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
     s_executor.submit(_thread);
+  }
+
+  private MarketDataManipulator createMarketDataManipulator() {
+
+    ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
+    return new MarketDataManipulator(defaultExecutionOptions != null ?
+                                         defaultExecutionOptions.getMarketDataSelector() :
+                                         NoOpMarketDataSelector.getInstance());
   }
 
   private ViewProcessWorkerContext getWorkerContext() {
@@ -455,8 +471,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             marketDataSnapshot.init();
           }
           if (executionOptions.getValuationTime() == null) {
-            executionOptions = ViewCycleExecutionOptions.builder().setValuationTime(marketDataSnapshot.getSnapshotTime()).setMarketDataSpecifications(executionOptions.getMarketDataSpecifications())
-                .create();
+            executionOptions = executionOptions.copy().setValuationTime(marketDataSnapshot.getSnapshotTime()).create();
           }
         } catch (final Exception e) {
           s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
@@ -1113,7 +1128,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         itr.remove();
       } else {
         if (s_logger.isInfoEnabled()) {
-          s_logger.info("Removed {} nodes from dependency graph for {} by {}", new Object[] {nodes.size() - filtered.getSize(), entry.getKey(), filter });
+          s_logger.info("Removed {} nodes from dependency graph for {} by {}",
+                        nodes.size() - filtered.getSize(),
+                        entry.getKey(),
+                        filter);
         }
         entry.setValue(Pair.of(filtered, missingRequirements));
       }
@@ -1221,6 +1239,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         s_logger.info("Performing full graph compilation");
         _compilationTask = ViewDefinitionCompiler.fullCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
       }
+
       try {
         if (!getJob().isTerminated()) {
           compiledViewDefinition = _compilationTask.get();
@@ -1231,6 +1250,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       } finally {
         _compilationTask = null;
       }
+
+      initialiseMarketDataManipulation();
+
     } catch (final Exception e) {
       final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
@@ -1256,6 +1278,29 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       _compilationExpiryCycleTrigger.reset();
     }
     return compiledViewDefinition;
+  }
+
+  private void initialiseMarketDataManipulation() {
+
+    if (_marketDataManipulator.hasManipulationsDefined()) {
+
+      Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
+
+      for (DependencyGraphExplorer graphExplorer : _latestCompiledViewDefinition.getDependencyGraphExplorers()) {
+
+        DependencyGraph graph = graphExplorer.getWholeGraph();
+        Map<MarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataManipulator.modifyDependencyGraph(graph);
+
+        if (!selectorMapping.isEmpty()) {
+          selectionsByGraph.put(graph, selectorMapping);
+        }
+      }
+
+      if (!selectionsByGraph.isEmpty()) {
+        cacheCompiledViewDefinition(
+            _latestCompiledViewDefinition.withMarketDataManipulationSelections(selectionsByGraph));
+      }
+    }
   }
 
   /**
@@ -1401,24 +1446,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     try {
       synchronized (_pendingSubscriptions) {
         if (!_pendingSubscriptions.isEmpty()) {
-          final long finish = System.currentTimeMillis() + MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS;
-          _pendingSubscriptions.wait(MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS);
-          do {
-            int remainingCount = _pendingSubscriptions.size();
-            if (remainingCount == 0) {
-              break;
-            }
-            final long remainingWait = finish - System.currentTimeMillis();
-            if (remainingWait > 0) {
-              _pendingSubscriptions.wait(remainingWait);
-            } else {
-              s_logger.warn("Timed out after {} ms waiting for market data subscriptions to be made. The market data " +
-                  "snapshot used in the computation cycle could be incomplete. Still waiting for {} out of {} market data " +
-                  "subscriptions",
-                  new Object[] {MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, remainingCount, _marketDataSubscriptions.size() });
-              break;
-            }
-          } while (true);
+          _pendingSubscriptions.wait();
         }
       }
     } catch (final InterruptedException ex) {

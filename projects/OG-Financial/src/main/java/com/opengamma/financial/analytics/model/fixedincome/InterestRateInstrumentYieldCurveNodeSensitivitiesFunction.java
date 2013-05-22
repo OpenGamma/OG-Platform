@@ -242,4 +242,5 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
       final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target, final ValueSpecification resultSpec) {
     throw new NotImplementedException();
   }
+
 }

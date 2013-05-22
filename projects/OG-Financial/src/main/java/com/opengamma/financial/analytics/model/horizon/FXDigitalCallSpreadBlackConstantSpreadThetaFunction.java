@@ -134,7 +134,7 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
     }
     final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
@@ -168,16 +168,16 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
-      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
-    return super.getResultProperties(target)
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    return super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair, optionalProperties)
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
         .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    return super.getResultProperties(target, desiredValue)
+    return super.getResultProperties(target, desiredValue, baseQuotePair)
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
         .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
   }

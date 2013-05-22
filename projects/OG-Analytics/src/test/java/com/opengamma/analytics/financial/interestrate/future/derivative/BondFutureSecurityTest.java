@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.interestrate.future.derivative;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -34,10 +32,9 @@ import com.opengamma.util.time.DateUtils;
  */
 public class BondFutureSecurityTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
-  private static final Currency CUR = Currency.EUR;
+  private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final String ISSUER_NAME = "Issuer";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
@@ -46,16 +43,17 @@ public class BondFutureSecurityTest {
   private static final int NB_BOND = 7;
   private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5) };
   private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
-    DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31) };
+      DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31) };
   private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175 };
   private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292 };
+  private static final String US_GOVT = "US GOVT";
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
   private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
   static {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       MATURITY_DATE[loopbasket] = START_ACCRUAL_DATE[loopbasket].plus(BOND_TENOR[loopbasket]);
       BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
-          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
+          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, US_GOVT);
     }
   }
   private static final ZonedDateTime LAST_TRADING_DATE = DateUtils.getUTCDate(2011, 9, 21);
@@ -64,7 +62,6 @@ public class BondFutureSecurityTest {
   private static final ZonedDateTime FIRST_DELIVERY_DATE = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime LAST_DELIVERY_DATE = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 100000;
-  private static final double REF_PRICE = 0.0;
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 20);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -83,28 +80,28 @@ public class BondFutureSecurityTest {
     }
   }
 
-  private static final BondFuture BOND_FUTURE_SECURITY = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
-      BASKET, CONVERSION_FACTOR, REF_PRICE);
+  private static final BondFuturesSecurity BOND_FUTURE_SECURITY = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
+      BASKET, CONVERSION_FACTOR);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBasket() {
-    new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, null, CONVERSION_FACTOR, REF_PRICE);
+    new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, null, CONVERSION_FACTOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConversion() {
-    new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, null, REF_PRICE);
+    new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void zeroBasket() {
-    new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, new BondFixedSecurity[0], CONVERSION_FACTOR, REF_PRICE);
+    new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, new BondFixedSecurity[0], CONVERSION_FACTOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void sizeConversionFactor() {
     final double[] incorrectConversionFactor = new double[NB_BOND - 1];
-    new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, incorrectConversionFactor, REF_PRICE);
+    new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, incorrectConversionFactor);
   }
 
   @Test
@@ -126,30 +123,30 @@ public class BondFutureSecurityTest {
    */
   public void equalHash() {
     assertTrue(BOND_FUTURE_SECURITY.equals(BOND_FUTURE_SECURITY));
-    final BondFuture other = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR, REF_PRICE);
+    BondFuturesSecurity other = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
     assertTrue(BOND_FUTURE_SECURITY.equals(other));
     assertTrue(BOND_FUTURE_SECURITY.hashCode() == other.hashCode());
-    BondFuture modifiedFuture;
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME + 0.1, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR, REF_PRICE);
+    BondFuturesSecurity modifiedFuture;
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME + 0.1, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME + 0.1, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME + 0.1, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME + 0.1, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME + 0.1, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME + 0.1, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME + 0.1, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME + 0.1, NOTIONAL, BASKET, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME + 0.1, NOTIONAL, BASKET, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL + 100000, BASKET, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL + 100000, BASKET, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    final BondFixedSecurity[] otherBasket = new BondFixedSecurity[NB_BOND];
+    BondFixedSecurity[] otherBasket = new BondFixedSecurity[NB_BOND];
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       otherBasket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_NOTICE_DATE, CURVES_NAME);
     }
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, otherBasket, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, otherBasket, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    final double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292 };
-    modifiedFuture = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, otherConversionFactor, REF_PRICE);
+    double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292 };
+    modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, otherConversionFactor);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
     assertFalse(BOND_FUTURE_SECURITY.equals(LAST_TRADING_DATE));
     assertFalse(BOND_FUTURE_SECURITY.equals(null));

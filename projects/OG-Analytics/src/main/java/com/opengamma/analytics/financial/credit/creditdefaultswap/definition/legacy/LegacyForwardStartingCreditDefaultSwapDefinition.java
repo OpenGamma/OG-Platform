@@ -34,7 +34,6 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends LegacyCred
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables specific to the legacy forward starting CDS contract
-
   private final ZonedDateTime _forwardStartDate;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -104,9 +103,13 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends LegacyCred
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   public ZonedDateTime getForwardStartDate() {
     return _forwardStartDate;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public LegacyForwardStartingCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {

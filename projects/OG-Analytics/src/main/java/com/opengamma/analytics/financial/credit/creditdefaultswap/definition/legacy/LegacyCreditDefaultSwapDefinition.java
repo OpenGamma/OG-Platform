@@ -27,7 +27,7 @@ public abstract class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwa
 
   //----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Check hashCode and equals methods
+  // TODO : 
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -109,13 +109,18 @@ public abstract class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwa
     return _parSpread;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   //TODO there's a nasty ordering effect here - the effective date needs to be changed before the start dates is, otherwise
   // an exception is thrown in the start date is changed to be after the old effective date
+  @Override
   public abstract LegacyCreditDefaultSwapDefinition withStartDate(ZonedDateTime startDate);
 
   public abstract LegacyCreditDefaultSwapDefinition withSpread(double parSpread);
 
   public abstract LegacyCreditDefaultSwapDefinition withCouponFrequency(final PeriodFrequency couponFrequency);
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public int hashCode() {

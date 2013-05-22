@@ -94,11 +94,14 @@ public class CurveNodeToDefinitionConverter {
           dayCount = iborConvention.getDayCount();
           daysToSettle = iborConvention.getDaysToSettle();
         } else {
+          if (convention == null) {
+            throw new OpenGammaRuntimeException("Could not get convention for " + cashNode.getConvention());
+          }
           throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
         }
         final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, cashNode.getStartTenor().getPeriod().plusDays(daysToSettle), businessDayConvention, calendar);
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, cashNode.getMaturityTenor().getPeriod(), businessDayConvention, calendar, isEOM);
-        final double accrualFactor = dayCount.getDayCountFraction(now, endDate);
+        final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
         final double rate = marketValues.getDataPoint(marketDataId);
         return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
       }

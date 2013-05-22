@@ -816,6 +816,16 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return getRepository(defaults);
   }
 
+  protected void setForexDigitalDefaults(final com.opengamma.financial.analytics.model.forex.option.callspreadblack.CallSpreadBlackFunctions.Defaults defaults) {
+  }
+
+  protected FunctionConfigurationSource forexDigitalFunctions() {
+    final com.opengamma.financial.analytics.model.forex.option.callspreadblack.CallSpreadBlackFunctions.Defaults defaults = 
+        new com.opengamma.financial.analytics.model.forex.option.callspreadblack.CallSpreadBlackFunctions.Defaults();
+    setForexDigitalDefaults(defaults);
+    return getRepository(defaults);
+  }
+  
   protected void setForwardCurveDefaults(final CurrencyInfo i, final ForwardFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/curve/forward"));
     defaults.setDiscountingCurve(i.getCurveName("model/curve/forward/discounting"));
@@ -974,7 +984,6 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   protected void setPNLFunctionDefaults(final CurrencyInfo i, final PNLFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/pnl"));
     defaults.setDiscountingCurve(i.getCurveName("model/pnl/discounting"));
-    defaults.setSurfaceName(i.getSurfaceName("model/pnl"));
   }
 
   protected void setPNLFunctionDefaults(final CurrencyPairInfo i, final PNLFunctions.Defaults.CurrencyPairInfo defaults) {
@@ -1141,10 +1150,10 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
-        externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(),
-        interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(),
-        volatilitySurfaceFunctions(), xCcySwapFunctions());
+    return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), forexDigitalFunctions(), cdsFunctions(), 
+        deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), 
+        forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(), 
+        pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions(), xCcySwapFunctions());
   }
 
 }

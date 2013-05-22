@@ -7,9 +7,9 @@ package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
-import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesDeliverableSecurityHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 
@@ -42,7 +42,7 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDer
    * Pricing methods.
    */
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_STIR_FUT = InterestRateFutureSecurityHullWhiteMethod.getInstance();
-  private static final SwapFuturesDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT = SwapFuturesDeliverableSecurityHullWhiteMethod.getInstance();
+  private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT = SwapFuturesPriceDeliverableSecurityHullWhiteMethod.getInstance();
 
   //     -----     Futures     -----
 
@@ -58,7 +58,7 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDer
   }
 
   @Override
-  public Double visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
+  public Double visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
     return METHOD_SWAP_FUT.price(futures.getUnderlying(), multicurves) - futures.getReferencePrice();
   }
 

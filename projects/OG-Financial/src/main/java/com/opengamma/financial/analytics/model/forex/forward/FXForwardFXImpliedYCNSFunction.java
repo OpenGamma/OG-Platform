@@ -159,7 +159,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
       return null;
     }
     if (resultCurveCalculationConfig.getExogenousConfigData() == null) {
-      s_logger.error("Curve calculation config does not contain exogenous data");
+      s_logger.info("Curve calculation config does not contain exogenous data");
       return null;
     }
     final Map.Entry<String, String[]> underlyingCurveConfigNames = resultCurveCalculationConfig.getExogenousConfigData().entrySet().iterator().next();

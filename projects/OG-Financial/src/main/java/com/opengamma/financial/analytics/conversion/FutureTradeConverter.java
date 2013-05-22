@@ -122,7 +122,7 @@ public class FutureTradeConverter {
           }
 
           @Override
-          public InstrumentDefinitionWithData<?, Double> visitBondFutureSecurityDefinition(final BondFutureDefinition futures) {
+          public InstrumentDefinitionWithData<?, Double> visitBondFutureDefinition(final BondFutureDefinition futures) {
             return futures;
           }
 

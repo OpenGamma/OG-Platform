@@ -48,8 +48,9 @@ public abstract class FXDigitalCallSpreadBlackMultiValuedFunction extends FXOpti
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
-      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
-    final ValueProperties.Builder properties = super.getResultProperties(target)
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair,
+        optionalProperties)
         .withoutAny(CALCULATION_METHOD)
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
         .withAny(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
@@ -57,9 +58,9 @@ public abstract class FXDigitalCallSpreadBlackMultiValuedFunction extends FXOpti
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String callSpread = desiredValue.getConstraint(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
-    final ValueProperties.Builder properties = super.getResultProperties(target)
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair)
         .withoutAny(CALCULATION_METHOD)
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
         .with(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE, callSpread);
