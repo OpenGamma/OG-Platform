@@ -47,6 +47,10 @@ public final class CalculationPropertyNamesAndValues {
   /** The name of the property that sets whether FX option greeks are in terms of the direct or indirect quote */
   public static final String PROPERTY_DIRECT_QUOTE = "DirectQuote";
 
+  // Properties for greeks
+  /** The name of the property that sets the number of days per financial year */
+  public static final String PROPERTY_DAYS_PER_YEAR = "DaysInYear";
+
   private CalculationPropertyNamesAndValues() {
   }
 

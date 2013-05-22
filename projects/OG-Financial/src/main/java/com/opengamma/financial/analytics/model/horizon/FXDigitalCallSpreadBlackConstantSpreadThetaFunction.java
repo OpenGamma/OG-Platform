@@ -168,8 +168,8 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
-      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
-    return super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair)
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    return super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair, optionalProperties)
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
         .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
   }

@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertiesUtils;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -127,7 +128,7 @@ public class YieldCurveFunctionUtils {
   }
 
   public static ValueRequirement getCurveRequirementForFXOption(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
-      final boolean isPut) {
+      final boolean isPut, final ValueProperties optionalProperties) {
     final ValueProperties properties;
     if (isPut) {
       properties = ValueProperties.builder()
@@ -144,7 +145,8 @@ public class YieldCurveFunctionUtils {
           .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, curveCalculationConfigName).withOptional(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
           .get();
     }
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
+    final ValueProperties allProperties = ValuePropertiesUtils.addAllOptional(properties, optionalProperties).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, allProperties);
   }
 
 
