@@ -2,10 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <!--todo relative path?-->
-    <property name="location"><value>classpath:tests.properties</value></property>
-  </bean>
+  <bean id="propertyConfigurer" class="com.opengamma.util.test.TestProperties" factory-method="springProperties" />
 
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />

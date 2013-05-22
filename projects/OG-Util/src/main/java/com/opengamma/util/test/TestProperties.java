@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.ClassUtils;
 
@@ -126,6 +127,22 @@ public class TestProperties {
       System.out.println("Unable to read test properties: " + file);
       throw new OpenGammaRuntimeException("Unable to read test properties: " + file, ex);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a bean suitable for use in a Spring XML file to reference the test properties.
+   * 
+   * @return the Spring XML bean, not null
+   */
+  public static PropertyPlaceholderConfigurer springProperties() {
+    return new PropertyPlaceholderConfigurer() {
+      @Override
+      protected void loadProperties(Properties props) throws IOException {
+        Properties testProperties = getTestProperties();
+        props.putAll(testProperties);
+      }
+    };
   }
 
 }

@@ -3,12 +3,7 @@
 
 <beans>
 
-  <bean id="propertyConfigurer"
-    class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location">
-      <value>classpath:tests.properties</value>
-    </property>
-  </bean>
+  <bean id="propertyConfigurer" class="com.opengamma.util.test.TestProperties" factory-method="springProperties" />
 
   <!-- Bloomberg Reference Data Provider -->
   <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
