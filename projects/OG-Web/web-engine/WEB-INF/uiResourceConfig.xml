@@ -41,6 +41,7 @@
   </bundle>
   <bundle id="gadgets.css">
     <fragment>/styles/common/gadgets/og.common.gadgets.OG-histogram.css</fragment>
+    <fragment>/styles/common/gadgets/og.common.gadgets.OG-curve.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -260,6 +261,7 @@
     <fragment>/scripts/lib/jquery/flot/jquery.flot.navigate.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.threshold.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.crosshair.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.dashes.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.core.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
@@ -378,6 +380,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.histogram.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.histogram_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.log.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.text.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>

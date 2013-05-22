@@ -6,34 +6,45 @@ $.register_module({
     name: 'og.common.gadgets.Curve',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var module = this, loading_template;
+        var module = this;
         return function (config) {
-            var gadget = this, $curve, alive = og.common.id('gadget_curve');
+            var gadget = this, curve;
             gadget.dataman = new og.analytics
                 .Cells({source: config.source, single: {row: config.row, col: config.col}, format: 'EXPANDED'}, 'curve')
                 .on('data', function (data) {
                     data = data.v || data;
-                    if (!$.isArray(data)) return og.dev.warn(module.name + ': data should be an Array', data);
-                    gadget.data = [{curve: data}];
-                    $curve.update ? $curve.update(gadget.data) : gadget.resize();
+                    if (!$.isArray(data))
+                        return og.dev.warn(module.name + ': data should be an Array', data);
+                    gadget.data = temp_manipulation([{curve: data}]);
+                    if (!curve && gadget.data){
+                        curve = new og.common.gadgets.CurvePlot({selector:config.selector, data: gadget.data});
+                    }
+                    else
+                        curve.update(gadget.data);
+            });
+            var temp_manipulation = function (input) {
+                var one = input[0].curve.map(function(single, index){
+                    if (index%10 == 4) return [single[0],single[1]*.8];
+                }).filter(function(single) {
+                    return typeof single !== 'undefined';
                 });
+                var two = input[0].curve.map(function(single, index) {
+                    if (index%10 == 0)  return [single[0],single[1]*1.1];
+                }).filter(function(single) {
+                    return typeof single !== 'undefined';
+                });
+                input.push({knots:one});
+                input.push({nodes:two});
+                return input;
+            };
             gadget.alive = function () {
-                var live = !!$('.' + alive).length;
+                var live = curve && curve.alive;
                 if (!live) gadget.dataman.kill();
                 return live;
             };
             gadget.resize = function () {
-                if (!$(config.selector).length) return;
-                $curve = $(config.selector)
-                    .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: '#fff'})
-                    .ogcurve(gadget.data);
+                try {curve.resize();} catch (error) {}
             };
-            $curve = $(config.selector).addClass(alive);
-            if (loading_template) $curve.html(loading_template({text: 'loading...'}));
-            else og.api.text({module: 'og.views.gadgets.loading_tash'}).pipe(function (template) {
-                loading_template = Handlebars.compile(template);
-                $curve.html(loading_template({text: 'loading...'}));
-            });
             if (!config.child) og.common.gadgets.manager.register(gadget);
         };
     }
