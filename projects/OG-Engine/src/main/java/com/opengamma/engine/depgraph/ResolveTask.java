@@ -227,6 +227,38 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
+  /**
+   * Tests if the parent value requirements of this task are the same as a task would have if it used the given task as its parent.
+   * <p>
+   * This is part of a cheaper test for an existing task than creating a new instance and using the {@link #equals} method.
+   * 
+   * @param parent the candidate parent to test, not null
+   * @return true if the parent value requirements would match
+   */
+  public boolean hasParentValueRequirements(final ResolveTask parent) {
+    if (getParentValueRequirements() != null) {
+      if (parent != null) {
+        if (parent.getParentValueRequirements() != null) {
+          if (getParentValueRequirements().size() == parent.getParentValueRequirements().size() + 1) {
+            return getParentValueRequirements().contains(parent.getValueRequirement()) && getParentValueRequirements().containsAll(parent.getParentValueRequirements());
+          } else {
+            return false;
+          }
+        } else {
+          if (getParentValueRequirements().size() == 1) {
+            return getParentValueRequirements().contains(parent.getValueRequirement());
+          } else {
+            return false;
+          }
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return parent == null;
+    }
+  }
+
   public Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> getFunctionExclusion() {
     return _functionExclusion;
   }

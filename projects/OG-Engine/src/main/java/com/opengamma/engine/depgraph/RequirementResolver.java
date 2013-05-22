@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,8 +25,8 @@ import com.opengamma.engine.value.ValueRequirement;
 
   private final ResolveTask _parentTask;
   private final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> _functionExclusion;
-  // _tasks is just used to identify whether a fallback task matches an already used task - not ref-counted
-  private Set<ResolveTask> _tasks = new HashSet<ResolveTask>();
+  // _tasks is just used to spot the recursionDetected flag - not ref-Counted
+  private ResolveTask[] _tasks;
   private ResolveTask _fallback;
   private ResolvedValue[] _coreResults;
 
@@ -38,14 +37,12 @@ import com.opengamma.engine.value.ValueRequirement;
     _functionExclusion = functionExclusion;
   }
 
-  protected void addTask(final GraphBuildingContext context, final ResolveTask task) {
-    if (_tasks.add(task)) {
+  public void setTasks(final GraphBuildingContext context, final ResolveTask[] tasks) {
+    _tasks = tasks;
+    for (ResolveTask task : tasks) {
       addProducer(context, task);
     }
   }
-
-  // TODO: When we start we can determine if a fallback CANNOT be used (i.e. it matches one of the delegate tasks)
-  // TODO: This logic extends to NEVER use a resolver if there is an existing task that matches the proposed fallback
 
   @Override
   protected boolean isLastResult() {
@@ -84,10 +81,10 @@ import com.opengamma.engine.value.ValueRequirement;
         for (ResolveTask task : _tasks) {
           if (!task.wasRecursionDetected()) {
             useFallback = false;
-            _tasks = null;
             break;
           }
         }
+        _tasks = null;
       } else {
         // local variable takes open reference from _fallback
         _fallback = null;
@@ -95,11 +92,6 @@ import com.opengamma.engine.value.ValueRequirement;
     }
     if ((fallback == null) && useFallback) {
       fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask, _functionExclusion);
-      synchronized (this) {
-        // TODO: See notes above which eliminate the need to check for an unnecessary fallback task
-        useFallback = !_tasks.contains(fallback);
-        _tasks = null;
-      }
       if (useFallback) {
         s_logger.debug("Creating fallback task {}", fallback);
         synchronized (this) {

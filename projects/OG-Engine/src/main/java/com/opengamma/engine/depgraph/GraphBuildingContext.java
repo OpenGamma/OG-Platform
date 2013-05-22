@@ -6,6 +6,7 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,14 +179,39 @@ import com.opengamma.util.tuple.Pair;
     RequirementResolver resolver = null;
     final ResolveTask[] tasks = getTasksResolving(requirement);
     if (tasks != null) {
-      for (final ResolveTask task : tasks) {
+      int i = 0;
+      int l = tasks.length;
+      while (i < l) {
+        final ResolveTask task = tasks[i];
         if ((dependent == null) || !dependent.hasParent(task)) {
-          if (resolver == null) {
-            resolver = new RequirementResolver(requirement, dependent, functionExclusion);
+          if (ObjectUtils.equals(functionExclusion, task.getFunctionExclusion()) && task.hasParentValueRequirements(dependent)) {
+            // The task we've found would be identical to a fallback task RequirementResolver would create. Release everything else
+            // and use it.
+            for (int j = 0; j < i; j++) {
+              tasks[j].release(this);
+            }
+            for (int j = i + 1; j < l; j++) {
+              tasks[j].release(this);
+            }
+            return task;
           }
-          resolver.addTask(this, task);
+          i++;
+        } else {
+          task.release(this);
+          tasks[i] = tasks[--l];
         }
-        task.release(this);
+      }
+      // Anything left in the array is suitable for use in a RequirmentResolver
+      if (l > 0) {
+        resolver = new RequirementResolver(requirement, dependent, functionExclusion);
+        if (l != tasks.length) {
+          resolver.setTasks(this, Arrays.copyOf(tasks, l));
+        } else {
+          resolver.setTasks(this, tasks);
+        }
+        for (i = 0; i < l; i++) {
+          tasks[i].release(this);
+        }
       }
     }
     if (resolver != null) {
