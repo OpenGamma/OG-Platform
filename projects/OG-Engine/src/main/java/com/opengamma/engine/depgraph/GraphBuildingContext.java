@@ -184,9 +184,10 @@ import com.opengamma.util.tuple.Pair;
       while (i < l) {
         final ResolveTask task = tasks[i];
         if ((dependent == null) || !dependent.hasParent(task)) {
-          if (ObjectUtils.equals(functionExclusion, task.getFunctionExclusion()) && task.hasParentValueRequirements(dependent)) {
-            // The task we've found would be identical to a fallback task RequirementResolver would create. Release everything else
-            // and use it.
+          if ((task.isFinished() && !task.wasRecursionDetected()) || (ObjectUtils.equals(functionExclusion, task.getFunctionExclusion()) && task.hasParentValueRequirements(dependent))) {
+            // The task we've found has either already completed, without hitting a recursion constraint. Or
+            // the task is identical to the fallback task we'd create naturally. In either case, release everything
+            // else and use it.
             for (int j = 0; j < i; j++) {
               tasks[j].release(this);
             }
@@ -201,7 +202,7 @@ import com.opengamma.util.tuple.Pair;
           tasks[i] = tasks[--l];
         }
       }
-      // Anything left in the array is suitable for use in a RequirmentResolver
+      // Anything left in the array is suitable for use in a RequirementResolver
       if (l > 0) {
         resolver = new RequirementResolver(requirement, dependent, functionExclusion);
         if (l != tasks.length) {

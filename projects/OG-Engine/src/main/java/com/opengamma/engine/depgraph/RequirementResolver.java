@@ -92,20 +92,15 @@ import com.opengamma.engine.value.ValueRequirement;
     }
     if ((fallback == null) && useFallback) {
       fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask, _functionExclusion);
-      if (useFallback) {
-        s_logger.debug("Creating fallback task {}", fallback);
-        synchronized (this) {
-          assert _fallback == null;
-          // _fallback takes the open reference from the local variable
-          _fallback = fallback;
-          _coreResults = getResults();
-        }
-        addProducer(context, fallback);
-        return;
-      } else {
-        fallback.release(context);
-        fallback = null;
+      s_logger.debug("Creating fallback task {}", fallback);
+      synchronized (this) {
+        assert _fallback == null;
+        // _fallback takes the open reference from the local variable
+        _fallback = fallback;
+        _coreResults = getResults();
       }
+      addProducer(context, fallback);
+      return;
     }
     super.finished(context);
     if (fallback != null) {
