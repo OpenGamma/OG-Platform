@@ -18,6 +18,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.Profiler;
@@ -76,7 +77,14 @@ import com.opengamma.util.tuple.Triple;
             s_logger.debug("Function {} applied to {} produced no results", functionDef, target);
             continue;
           }
-          final ValueProperties composedConstraints = resolution.getKey().compose(constraints);
+          final ValueProperties composedConstraints;
+          if (constraints.getValues(ValuePropertyNames.FUNCTION) != null) {
+            composedConstraints = resolution.getKey().compose(constraints);
+          } else {
+            // Note: some functions on OG-Financial do stupid things with their desired value if it constrains the function identifier.
+            // it is easier to take action here rather than work through to fix them.
+            composedConstraints = resolution.getKey().withoutAny(ValuePropertyNames.FUNCTION).compose(constraints);
+          }
           ValueRequirement composedRequirement = null;
           ValueSpecification matchedResult = null;
           ValueSpecification resolvedOutput = null;
@@ -91,7 +99,7 @@ import com.opengamma.util.tuple.Triple;
                 }
                 matchedResult = context.simplifyType(result);
                 resolvedOutput = matchedResult.compose(composedRequirement);
-                if (resolvedOutput != result) {
+                if (resolvedOutput != matchedResult) {
                   resolvedOutput = context.simplifyType(resolvedOutput);
                   s_logger.debug("Composed original output of {} to {}", matchedResult, resolvedOutput);
                 }
@@ -152,6 +160,7 @@ import com.opengamma.util.tuple.Triple;
   protected void reportResult() {
     s_logger.debug("Successful digest resolution of {} via {}", getValueRequirement(), getDesiredValue());
     s_profilerSuccess.tick(_timeSpent);
+    _timeSpent = 0;
   }
 
 }

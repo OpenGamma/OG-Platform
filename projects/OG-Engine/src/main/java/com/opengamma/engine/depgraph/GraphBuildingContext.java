@@ -29,7 +29,6 @@ import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
-import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -72,10 +71,6 @@ import com.opengamma.util.tuple.Pair;
 
   public FunctionExclusionGroups getFunctionExclusionGroups() {
     return getBuilder().getFunctionExclusionGroups();
-  }
-
-  public TargetDigests getTargetDigests() {
-    return getBuilder().getTargetDigests();
   }
 
   // Operations
@@ -320,8 +315,8 @@ import com.opengamma.util.tuple.Pair;
    * @param desiredValue the value requirement name, not null
    * @return any existing resolutions, null if there are none
    */
-  public Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> getResolutions(final Object targetDigest, final String desiredValue) {
-    Map<ValueProperties, ParameterizedFunction> properties = getBuilder().getResolutions(targetDigest, desiredValue);
+  public Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> getResolutions(final ComputationTargetSpecification targetSpec, final String desiredValue) {
+    Map<ValueProperties, ParameterizedFunction> properties = getBuilder().getResolutions(targetSpec, desiredValue);
     if (properties == null) {
       return null;
     }

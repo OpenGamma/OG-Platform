@@ -131,6 +131,11 @@ import com.opengamma.util.tuple.Pair;
   private ComputationTargetCollapser _computationTargetCollapser;
 
   /**
+   * Optional logic to produce candidate matches based on previous resolutions of similar targets.
+   */
+  private TargetDigests _targetDigests;
+
+  /**
    * The target digest map which may be used to speed up selection choices instead of full back-tracking.
    */
   private final ConcurrentMap<Object, ConcurrentMap<String, Map<ValueProperties, ParameterizedFunction>>> _targetDigestInfo =
@@ -146,6 +151,10 @@ import com.opengamma.util.tuple.Pair;
 
   public void setComputationTargetCollapser(final ComputationTargetCollapser collapser) {
     _computationTargetCollapser = collapser;
+  }
+
+  public void setTargetDigests(final TargetDigests targetDigests) {
+    _targetDigests = targetDigests;
   }
 
   public ResolvedValue getProduction(final ValueSpecification specification) {
@@ -192,7 +201,7 @@ import com.opengamma.util.tuple.Pair;
         }
       } else {
         // TODO: Tune this value, or use a more logical eviction policy (perhaps a rolling window of N?)
-        if ((oldValues.size() >= 16) || oldValues.containsKey(resolvedValue.getProperties())) {
+        if ((oldValues.size() >= 4) || oldValues.containsKey(resolvedValue.getProperties())) {
           return;
         }
         newValues = Maps.newHashMapWithExpectedSize(oldValues.size() + 1);
@@ -206,7 +215,14 @@ import com.opengamma.util.tuple.Pair;
     } while (true);
   }
 
-  public Map<ValueProperties, ParameterizedFunction> getResolutions(final Object targetDigest, final String valueName) {
+  public Map<ValueProperties, ParameterizedFunction> getResolutions(final FunctionCompilationContext context, final ComputationTargetSpecification targetSpec, final String valueName) {
+    if (_targetDigests == null) {
+      return null;
+    }
+    final Object targetDigest = _targetDigests.getDigest(context, targetSpec);
+    if (targetDigest == null) {
+      return null;
+    }
     final Map<String, Map<ValueProperties, ParameterizedFunction>> info = _targetDigestInfo.get(targetDigest);
     if (info != null) {
       return info.get(valueName);
@@ -215,12 +231,8 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public void declareProduction(final ResolvedValue resolvedValue, final Object targetDigest) {
-    final ValueSpecification output = resolvedValue.getValueSpecification();
+  public void declareProduction(final ResolvedValue resolvedValue) {
     _resolvedBuffer.put(resolvedValue.getValueSpecification(), resolvedValue);
-    if (targetDigest != null) {
-      storeResolution(targetDigest, output, resolvedValue.getFunction());
-    }
   }
 
   @Override
@@ -238,7 +250,7 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public synchronized void populateState(final DependencyGraph graph, final FunctionCompilationContext context, final TargetDigests targetDigests) {
+  public synchronized void populateState(final DependencyGraph graph, final FunctionCompilationContext context) {
     final Set<DependencyNode> remove = new HashSet<DependencyNode>();
     for (final DependencyNode node : graph.getDependencyNodes()) {
       for (final DependencyNode dependent : node.getDependentNodes()) {
@@ -249,8 +261,8 @@ import com.opengamma.util.tuple.Pair;
       }
       _graphNodes.add(node);
       final Object targetDigest;
-      if (targetDigests != null) {
-        targetDigest = targetDigests.getDigest(context, node.getComputationTarget());
+      if (_targetDigests != null) {
+        targetDigest = _targetDigests.getDigest(context, node.getComputationTarget());
       } else {
         targetDigest = null;
       }
@@ -380,6 +392,7 @@ import com.opengamma.util.tuple.Pair;
           final ValueSpecification newOutput = MemoryUtils.instance(new ValueSpecification(output.getValueName(), newNode.getComputationTarget(), output.getProperties()));
           _spec2Node.put(output, newNode);
           _spec2Node.put(newOutput, newNode);
+          // TODO: Should update the target digest data
           final Collection<ValueRequirement> requirements = _resolvedValues.remove(output);
           if (requirements != null) {
             _resolvedValues.put(newOutput, requirements);
@@ -442,7 +455,7 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, DependencyNode node,
+  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, DependencyNode node,
       final boolean newNode) {
     Set<ValueSpecification> downstreamCopy = null;
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
@@ -468,7 +481,7 @@ import com.opengamma.util.tuple.Pair;
             downstreamCopy.add(resolvedValue.getValueSpecification());
             s_logger.debug("Downstream = {}", downstreamCopy);
           }
-          inputNode = getOrCreateNode(inputValue, downstreamCopy);
+          inputNode = getOrCreateNode(context, inputValue, downstreamCopy);
           if (inputNode != null) {
             node.addInputNode(inputNode);
             node.addInputValue(input);
@@ -490,6 +503,12 @@ import com.opengamma.util.tuple.Pair;
         final DependencyNode existing = _spec2Node.get(valueSpecification);
         if (existing == null) {
           _spec2Node.put(valueSpecification, node);
+          if (_targetDigests != null) {
+            final Object targetDigest = _targetDigests.getDigest(context.getCompilationContext(), valueSpecification.getTargetSpecification());
+            if (targetDigest != null) {
+              storeResolution(targetDigest, valueSpecification, node.getFunction());
+            }
+          }
         } else {
           // Simplest to keep the existing one (otherwise have to reconnect dependent nodes in the graph)
           node.removeOutputValue(valueSpecification);
@@ -501,15 +520,15 @@ import com.opengamma.util.tuple.Pair;
     return node;
   }
 
-  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode existingNode,
+  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode existingNode,
       final Set<DependencyNode> nodes) {
     if (existingNode != null) {
-      return getOrCreateNode(resolvedValue, downstream, existingNode, false);
+      return getOrCreateNode(context, resolvedValue, downstream, existingNode, false);
     } else {
       DependencyNode newNode = new DependencyNode(resolvedValue.getValueSpecification().getTargetSpecification());
       newNode.setFunction(resolvedValue.getFunction());
       newNode.addOutputValues(resolvedValue.getFunctionOutputs());
-      newNode = getOrCreateNode(resolvedValue, downstream, newNode, true);
+      newNode = getOrCreateNode(context, resolvedValue, downstream, newNode, true);
       if (newNode != null) {
         nodes.add(newNode);
       }
@@ -666,6 +685,7 @@ import com.opengamma.util.tuple.Pair;
             } else {
               _spec2Node.put(newValue, node);
             }
+            // TODO: Should update the target digest data
           }
         }
         return node;
@@ -674,7 +694,7 @@ import com.opengamma.util.tuple.Pair;
     return null;
   }
 
-  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream) {
+  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream) {
     s_logger.debug("Resolved {}", resolvedValue.getValueSpecification());
     if (downstream.contains(resolvedValue.getValueSpecification())) {
       s_logger.debug("Already have downstream production of {} in {}", resolvedValue.getValueSpecification(), downstream);
@@ -686,7 +706,7 @@ import com.opengamma.util.tuple.Pair;
       return existingNode;
     }
     final Set<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getValueSpecification().getTargetSpecification());
-    return getOrCreateNode(resolvedValue, downstream, findExistingNode(nodes, resolvedValue), nodes);
+    return getOrCreateNode(context, resolvedValue, downstream, findExistingNode(nodes, resolvedValue), nodes);
   }
 
   /**
@@ -703,9 +723,10 @@ import com.opengamma.util.tuple.Pair;
     _resolvedQueue.add(Pair.of(valueRequirement, resolvedValue));
     while (!_resolvedQueue.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
       synchronized (this) {
+        // TODO: We've got the monitor; could store the context in the object instead of passing it around on the stack
         Pair<ValueRequirement, ResolvedValue> resolved = _resolvedQueue.poll();
         while (resolved != null) {
-          final DependencyNode node = getOrCreateNode(resolved.getSecond(), Collections.<ValueSpecification>emptySet());
+          final DependencyNode node = getOrCreateNode(context, resolved.getSecond(), Collections.<ValueSpecification>emptySet());
           if (node != null) {
             ValueSpecification outputValue = resolved.getSecond().getValueSpecification();
             if (!outputValue.getTargetSpecification().equals(node.getComputationTarget())) {

@@ -24,7 +24,6 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -230,19 +229,9 @@ import com.opengamma.util.tuple.Triple;
         setTaskStateFinished(context);
       } else {
         if (target != null) {
-          final TargetDigests digests = context.getTargetDigests();
-          if (digests != null) {
-            final Object digest = digests.getDigest(context.getCompilationContext(), targetSpec);
-            if (digest != null) {
-              final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> existingResolutions = context.getResolutions(digest, requirement.getValueName());
-              if (existingResolutions != null) {
-                setRunnableTaskState(new TargetDigestStep(getTask(), existingResolutions), context);
-              } else {
-                getFunctions(target, context, this);
-              }
-            } else {
-              getFunctions(target, context, this);
-            }
+          final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> existingResolutions = context.getResolutions(targetSpec, requirement.getValueName());
+          if (existingResolutions != null) {
+            setRunnableTaskState(new TargetDigestStep(getTask(), existingResolutions), context);
           } else {
             getFunctions(target, context, this);
           }
