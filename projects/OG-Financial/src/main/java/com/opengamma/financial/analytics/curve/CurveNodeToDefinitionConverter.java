@@ -141,10 +141,11 @@ public class CurveNodeToDefinitionConverter {
         final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
         final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
         final int settlementDays = indexConvention.getDaysToSettle();
+        final int spotLag = 0; //TODO
         final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
         final DayCount dayCount = indexConvention.getDayCount();
         final boolean eom = indexConvention.isIsEOM();
-        final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom);
+        final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom);
         final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, settlementDays, regionCalendar);
         final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, regionCalendar, eom);
         final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(now, endPeriod, businessDayConvention, regionCalendar, eom);
@@ -231,7 +232,8 @@ public class CurveNodeToDefinitionConverter {
         final boolean eom = indexConvention.isIsEOM();
         final Period indexTenor = indexConvention.getTenor().getPeriod();
         final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
-        final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom);
+        final int spotLag = 0; //TODO
+        final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom);
         final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
         final int settlementDays = indexConvention.getDaysToSettle();
         final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
