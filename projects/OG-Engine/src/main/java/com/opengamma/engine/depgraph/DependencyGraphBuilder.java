@@ -861,21 +861,20 @@ public final class DependencyGraphBuilder implements Cancelable {
   protected boolean flushCachedStates() {
     // TODO: use heuristics to throw data away more sensibly (e.g. LRU)
     int removed = 0;
-    final Iterator<Map.Entry<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>> itrSpecifications = _specifications.entrySet().iterator();
     final List<ResolvedValueProducer> discards = new ArrayList<ResolvedValueProducer>();
     GraphBuildingContext context = null;
+    final Iterator<MapEx<ResolveTask, ResolvedValueProducer>> itrSpecifications = _specifications.values().iterator();
     while (itrSpecifications.hasNext()) {
-      final Map.Entry<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> entry = itrSpecifications.next();
-      final MapEx<ResolveTask, ResolvedValueProducer> producers = entry.getValue();
+      final MapEx<ResolveTask, ResolvedValueProducer> producers = itrSpecifications.next();
       synchronized (producers) {
         if (producers.containsKey(null)) {
           continue;
         }
-        final Iterator<Map.Entry<ResolveTask, ResolvedValueProducer>> itrProducer = producers.entrySet().iterator();
+        final Iterator<ResolvedValueProducer> itrProducer = producers.values().iterator();
         while (itrProducer.hasNext()) {
-          final Map.Entry<ResolveTask, ResolvedValueProducer> producer = itrProducer.next();
-          if (producer.getValue().getRefCount() == 1) {
-            discards.add(producer.getValue());
+          final ResolvedValueProducer producer = itrProducer.next();
+          if (producer.getRefCount() == 1) {
+            discards.add(producer);
             itrProducer.remove();
             removed++;
           }
@@ -890,13 +889,46 @@ public final class DependencyGraphBuilder implements Cancelable {
           context = new GraphBuildingContext(this);
         }
         for (final ResolvedValueProducer discard : discards) {
-          // Releasing the producer may transitively release the reference on the ResolveTask that owns it which may then
-          // cause a discard from _requirements
           discard.release(context);
         }
         discards.clear();
-        getContext().mergeThreadContext(context);
       }
+    }
+    // Unfinished resolveTasks will be removed from the _requirements cache when their refCount hits 1 (the cache only). Finished
+    // ones are kept, but should be released when we are low on memory.
+    final Iterator<Map<ResolveTask, ResolveTask>> itrRequirements = _requirements.values().iterator();
+    while (itrRequirements.hasNext()) {
+      final Map<ResolveTask, ResolveTask> tasks = itrRequirements.next();
+      synchronized (tasks) {
+        if (tasks.containsKey(null)) {
+          continue;
+        }
+        final Iterator<ResolveTask> itrTask = tasks.keySet().iterator();
+        while (itrTask.hasNext()) {
+          final ResolveTask task = itrTask.next();
+          if (task.getRefCount() == 1) {
+            discards.add(task);
+            itrTask.remove();
+            removed++;
+          }
+        }
+        if (tasks.isEmpty()) {
+          itrRequirements.remove();
+          tasks.put(null, null);
+        }
+      }
+      if (!discards.isEmpty()) {
+        if (context == null) {
+          context = new GraphBuildingContext(this);
+        }
+        for (final ResolvedValueProducer discard : discards) {
+          discard.release(context);
+        }
+        discards.clear();
+      }
+    }
+    if (context != null) {
+      getContext().mergeThreadContext(context);
     }
     if (s_logger.isInfoEnabled()) {
       if (removed > 0) {

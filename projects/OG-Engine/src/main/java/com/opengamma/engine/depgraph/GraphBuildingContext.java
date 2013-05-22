@@ -209,15 +209,15 @@ import com.opengamma.util.tuple.Pair;
         }
         task = tasks.get(newTask);
         if (task == null) {
-          newTask.addRef(); // Already got a reference
+          newTask.addRef(); // Already got a reference, increment for the collection
           tasks.put(newTask, newTask);
         } else {
-          task.addRef(); // Got the task lock
+          task.addRef(); // Got the task lock, increment so we can return it
         }
       }
       if (task != null) {
         s_logger.debug("Using existing task {}", task);
-        newTask.release(this);
+        newTask.release(this); // Discard local allocation
         return task;
       } else {
         run(newTask);
@@ -301,6 +301,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public void discardTask(final ResolveTask task) {
+    // TODO: Could we post "discardTask" tasks to a queue and have them done in batches by a ContextRunnable?
     do {
       final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
       if (tasks == null) {

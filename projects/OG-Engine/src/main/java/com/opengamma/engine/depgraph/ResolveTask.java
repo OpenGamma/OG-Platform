@@ -277,7 +277,10 @@ import com.opengamma.engine.value.ValueSpecification;
     int count = super.release(context);
     if (count == 1) {
       // It's possible that only the _requirements collection from the graph builder now holds a reference to us that we care about
-      context.discardTask(this);
+      if (!isFinished()) {
+        // Only discard unfinished tasks; others might be useful and worth keeping if we can afford the memory
+        context.discardTask(this);
+      }
     } else if (count == 0) {
       // Nothing holds a reference to us; discard any state remnants
       final State state = getState();
@@ -287,4 +290,5 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     return count;
   }
+
 }
