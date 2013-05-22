@@ -503,19 +503,20 @@ import com.opengamma.util.tuple.Pair;
         final DependencyNode existing = _spec2Node.get(valueSpecification);
         if (existing == null) {
           _spec2Node.put(valueSpecification, node);
-          if (_targetDigests != null) {
-            final Object targetDigest = _targetDigests.getDigest(context.getCompilationContext(), valueSpecification.getTargetSpecification());
-            if (targetDigest != null) {
-              storeResolution(targetDigest, valueSpecification, node.getFunction());
-            }
-          }
         } else {
           // Simplest to keep the existing one (otherwise have to reconnect dependent nodes in the graph)
           node.removeOutputValue(valueSpecification);
         }
       }
       _graphNodes.add(node);
-      _resolvedBuffer.remove(resolvedValue.getValueSpecification());
+      final ValueSpecification valueSpecification = resolvedValue.getValueSpecification();
+      _resolvedBuffer.remove(valueSpecification);
+      if (_targetDigests != null) {
+        final Object targetDigest = _targetDigests.getDigest(context.getCompilationContext(), valueSpecification.getTargetSpecification());
+        if (targetDigest != null) {
+          storeResolution(targetDigest, valueSpecification, node.getFunction());
+        }
+      }
     }
     return node;
   }
