@@ -167,7 +167,7 @@ public class CurveNodeToDefinitionConverter {
         final double rate = marketValues.getDataPoint(marketDataId);
         //final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
         final Convention underlyingConvention = _conventionSource.getConvention(rateFuture.getUnderlyingConvention());
-        IborIndexConvention indexConvention;
+        final IborIndexConvention indexConvention;
         final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
         if (underlyingConvention instanceof IborIndexConvention) {
           indexConvention = (IborIndexConvention) underlyingConvention;

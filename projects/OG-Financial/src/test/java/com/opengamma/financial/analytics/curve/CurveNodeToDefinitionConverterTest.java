@@ -23,6 +23,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
@@ -41,6 +43,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
@@ -49,6 +52,7 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.EquityConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
@@ -89,6 +93,8 @@ public class CurveNodeToDefinitionConverterTest {
   private static final ExternalId DEPOSIT_1M_ID = ExternalId.of(SCHEME, "USD 1m Deposit");
   private static final ExternalId LIBOR_3M_ID = ExternalId.of(SCHEME, "USD 3m Libor");
   private static final ExternalId LIBOR_6M_ID = ExternalId.of(SCHEME, "USD 6m Libor");
+  private static final ExternalId RATE_FUTURE_3M_ID = ExternalId.of(SCHEME, "USD 3m Rate Future");
+  private static final ExternalId IMM_3M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
   private static final SwapFixedLegConvention FIXED_LEG = new SwapFixedLegConvention("USD Swap Fixed Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Swap Fixed Leg")),
       Tenor.THREE_MONTHS, THIRTY_360, MODIFIED_FOLLOWING, 2, false, USD, NYLON, StubType.NONE);
   private static final DepositConvention DEPOSIT_1D = new DepositConvention("USD 1d Deposit", ExternalIdBundle.of(DEPOSIT_1D_ID),
@@ -99,6 +105,8 @@ public class CurveNodeToDefinitionConverterTest {
       THIRTY_360, MODIFIED_FOLLOWING, 2, false, USD, LocalTime.of(11, 0), US, US, "Page", Tenor.THREE_MONTHS);
   private static final IborIndexConvention LIBOR_6M = new IborIndexConvention("USD 6m Libor", ExternalIdBundle.of(LIBOR_6M_ID),
       ACT_360, MODIFIED_FOLLOWING, 2, false, USD, LocalTime.of(11, 0), US, US, "Page", Tenor.SIX_MONTHS);
+  private static final InterestRateFutureConvention RATE_FUTURE_3M = new InterestRateFutureConvention("USD 3m Rate Future", ExternalIdBundle.of(RATE_FUTURE_3M_ID),
+      IMM_3M_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final CurveNodeToDefinitionConverter CONVERTER;
 
@@ -108,7 +116,8 @@ public class CurveNodeToDefinitionConverterTest {
     CONVENTIONS.put(FIXED_LEG_ID, FIXED_LEG);
     CONVENTIONS.put(LIBOR_3M_ID, LIBOR_3M);
     CONVENTIONS.put(LIBOR_6M_ID, LIBOR_6M);
-    CONVERTER = new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, USD, "US"), new MyRegionSource("US"));
+    CONVENTIONS.put(RATE_FUTURE_3M_ID, RATE_FUTURE_3M);
+    CONVERTER = new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
@@ -208,7 +217,21 @@ public class CurveNodeToDefinitionConverterTest {
     assertEquals(expectedFRA, fra);
   }
 
-
+  @Test
+  public void testIRFuture() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "1st 3M future");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.98;
+    marketValues.setDataPoint(marketDataId, rate);
+    final RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, "Mapper");
+    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 0, THIRTY_360, MODIFIED_FOLLOWING, false);
+    final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
+    final InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(futureNode, marketDataId, now, marketValues);
+    final InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
+    final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 6, 19), index, 1,  0.25, "", CALENDAR);
+    final InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    //assertEquals(expectedFuture, future);
+  }
 
   private static class MyConventionSource implements ConventionSource {
     private final Map<ExternalId, Convention> _conventions;
@@ -276,17 +299,13 @@ public class CurveNodeToDefinitionConverterTest {
 
   private static class MyHolidaySource implements HolidaySource {
     private final Calendar _calendar;
-    private final Currency _currency;
-    private final ExternalIdBundle _regionIds;
     private final ExternalId _regionId;
     private final UniqueId _uniqueId;
     private final SimpleHoliday _holiday;
 
-    public MyHolidaySource(final Calendar calendar, final Currency currency, final String country) {
+    public MyHolidaySource(final Calendar calendar, final String country) {
       _calendar = calendar;
-      _currency = currency;
       _regionId = ExternalId.of(ExternalSchemes.ISO_COUNTRY_ALPHA2, country);
-      _regionIds = ExternalIdBundle.of(_regionId);
       _holiday = new SimpleHoliday();
       _uniqueId = UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), _regionId.getValue());
       _holiday.setUniqueId(_uniqueId);
