@@ -5,9 +5,15 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,14 +28,14 @@ public class StructureIdentifier<T> {
   /**
    * The type of market data structure which is to be manipulated.
    */
-  private final MarketDataSelector.StructureType _structureType;
+  private final StructureType _structureType;
 
   /**
    * The value of the key for the market data structure.
    */
   private final T _value;
 
-  private StructureIdentifier(MarketDataSelector.StructureType structureType, T value) {
+  private StructureIdentifier(StructureType structureType, T value) {
 
     ArgumentChecker.notNull(structureType, "structureType");
     ArgumentChecker.notNull(value, "value");
@@ -43,8 +49,8 @@ public class StructureIdentifier<T> {
    * @param key the yield curve key, not null
    * @return a structured identifier for the yield curve key
    */
-  public static StructureIdentifier of(YieldCurveKey key) {
-    return new StructureIdentifier<>(MarketDataSelector.StructureType.YIELD_CURVE, key);
+  public static StructureIdentifier<YieldCurveKey> of(YieldCurveKey key) {
+    return new StructureIdentifier<>(StructureType.YIELD_CURVE, key);
   }
 
   /**
@@ -53,8 +59,8 @@ public class StructureIdentifier<T> {
    * @param key the volatility surface key, not null
    * @return a structured identifier for the volatility surface key
    */
-  public static StructureIdentifier of(VolatilitySurfaceKey key) {
-    return new StructureIdentifier<>(MarketDataSelector.StructureType.VOLATILITY_SURFACE, key);
+  public static StructureIdentifier<VolatilitySurfaceKey> of(VolatilitySurfaceKey key) {
+    return new StructureIdentifier<>(StructureType.VOLATILITY_SURFACE, key);
   }
 
   /**
@@ -63,8 +69,18 @@ public class StructureIdentifier<T> {
    * @param key the volatility cube key, not null
    * @return a structured identifier for the volatility cube key
    */
-  public static StructureIdentifier of(VolatilityCubeKey key) {
-    return new StructureIdentifier<>(MarketDataSelector.StructureType.VOLATILITY_CUBE, key);
+  public static StructureIdentifier<VolatilityCubeKey> of(VolatilityCubeKey key) {
+    return new StructureIdentifier<>(StructureType.VOLATILITY_CUBE, key);
+  }
+
+  /**
+   * Creates a structured identifier for a market data point identified by an external id.
+   *
+   * @param key the market data point external id, not null
+   * @return a structured identifier for the market data point external id
+   */
+  public static StructureIdentifier<ExternalId> of(ExternalId key) {
+    return new StructureIdentifier<>(StructureType.MARKET_DATA_POINT, key);
   }
 
   @Override
@@ -85,5 +101,17 @@ public class StructureIdentifier<T> {
     int result = _structureType.hashCode();
     result = 31 * result + _value.hashCode();
     return result;
+  }
+
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("structureType", _structureType);
+    msg.add("value", _value);
+    return msg;
+  }
+
+  public static StructureIdentifier<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return new StructureIdentifier<>(
+        msg.getValue(StructureType.class, "structureType"), msg.getValue("value"));
   }
 }

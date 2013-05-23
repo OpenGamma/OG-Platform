@@ -5,13 +5,17 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.util.Set;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
- * A market data shift specification which performs no shift operation.
+ * A market data selector which never performs an extraction operation.
  */
 public class NoOpMarketDataSelector implements MarketDataSelector {
 
@@ -29,14 +33,14 @@ public class NoOpMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+  public MarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
                                                  String calculationConfigurationName) {
     return null;
   }
 
   @Override
-  public StructureType getApplicableStructureType() {
-    return StructureType.NONE;
+  public Set<StructureType> getApplicableStructureTypes() {
+    return ImmutableSet.of();
   }
 
   @Override

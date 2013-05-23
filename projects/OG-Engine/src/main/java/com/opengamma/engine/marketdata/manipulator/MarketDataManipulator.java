@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.StructureManipulationFunction;
@@ -38,15 +37,13 @@ public class MarketDataManipulator {
 
     String configurationName = graph.getCalculationConfigurationName();
 
-    YieldCurveStructureExtractor extractor = new YieldCurveStructureExtractor(graph);
+    DependencyGraphStructureExtractor extractor = new DependencyGraphStructureExtractor(graph, _marketDataSelector.getApplicableStructureTypes());
 
-    for (Map.Entry<YieldCurveKey, DependencyNode> entry : extractor.extractStructures().entrySet()) {
+    for (Map.Entry<StructureIdentifier<?>, DependencyNode> entry : extractor.extractStructures().entrySet()) {
 
-      YieldCurveKey structureId = entry.getKey();
       DependencyNode node = entry.getValue();
 
-      MarketDataSelector matchingSelector =
-          _marketDataSelector.findMatchingSelector(StructureIdentifier.of(structureId), configurationName);
+      MarketDataSelector matchingSelector = _marketDataSelector.findMatchingSelector(entry.getKey(), configurationName);
       if (matchingSelector != null) {
 
         // Alter the dependency graph, inserting a new node to allow manipulation of the structure data
@@ -54,14 +51,14 @@ public class MarketDataManipulator {
         // New node will satisfy the same value spec as the original node, but will take the outputs
         // from the original and transform them as required. The dependent nodes of the original node
         // will be transferred to the new node, and as far as they are concerned there will be no change.
-        DependencyNode dependencyNode = graph.appendInput(node,
+        DependencyNode proxyNode = graph.appendInput(node,
                                                           StructureManipulationFunction.INSTANCE,
                                                           ImmutableMap.of("MANIPULATION_NODE", "true"));
 
         if (matches.containsKey(matchingSelector)) {
-          matches.get(matchingSelector).addAll(dependencyNode.getOutputValues());
+          matches.get(matchingSelector).addAll(proxyNode.getOutputValues());
         } else {
-          matches.put(matchingSelector, new HashSet<>(dependencyNode.getOutputValues()));
+          matches.put(matchingSelector, new HashSet<>(proxyNode.getOutputValues()));
         }
       }
     }

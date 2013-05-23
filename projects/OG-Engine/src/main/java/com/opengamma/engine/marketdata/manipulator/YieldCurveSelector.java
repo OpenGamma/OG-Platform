@@ -5,28 +5,26 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
+import java.util.Set;
 
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A MarketDataSelector which specifies a yield curve to be shifted. Note that this
  * class is not responsible for specifying the actual manipulation to be done.
  */
-public class YieldCurveSelector implements MarketDataSelector {
-
-  /**
-   * The key indicating the yield curve that needs to be shifted.
-   */
-  private final YieldCurveKey _yieldCurveKey;
+public class YieldCurveSelector extends ExactMatchMarketDataSelector<YieldCurveKey> {
 
   private YieldCurveSelector(YieldCurveKey yieldCurveKey) {
-    ArgumentChecker.notNull(yieldCurveKey, "yieldCurveKey");
-    _yieldCurveKey = yieldCurveKey;
+    this(StructureIdentifier.of(yieldCurveKey));
+  }
+
+  private YieldCurveSelector(StructureIdentifier<YieldCurveKey> structureId) {
+    super(structureId);
   }
 
   /**
@@ -40,46 +38,12 @@ public class YieldCurveSelector implements MarketDataSelector {
   }
 
   @Override
-  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
-                                                 String calculationConfigurationName) {
-    return StructureIdentifier.of(_yieldCurveKey).equals(structureId) ? this : null;
+  public Set<StructureType> getApplicableStructureTypes() {
+    return ImmutableSet.of(StructureType.YIELD_CURVE);
   }
 
-  @Override
-  public StructureType getApplicableStructureType() {
-    return StructureType.YIELD_CURVE;
-  }
-
-  @Override
-  public boolean hasSelectionsDefined() {
-    return true;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    YieldCurveSelector that = (YieldCurveSelector) o;
-    return _yieldCurveKey.equals(that._yieldCurveKey);
-  }
-
-  @Override
-  public int hashCode() {
-    return _yieldCurveKey.hashCode();
-  }
-
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
-    final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add("yieldCurveKey", _yieldCurveKey);
-    return msg;
-  }
-
+  @SuppressWarnings("unchecked")
   public static MarketDataSelector fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return of(msg.getValue(YieldCurveKey.class, "yieldCurveKey"));
+    return new YieldCurveSelector(msg.getValue(StructureIdentifier.class, "structureId"));
   }
 }

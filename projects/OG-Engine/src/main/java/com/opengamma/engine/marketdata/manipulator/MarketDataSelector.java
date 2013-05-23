@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.util.Set;
+
 /**
  * Indicates a market data structure on which a shift is to be performed within the execution of a
  * view context. A specification indicates what type and item of market data it wishes to manipulate
@@ -12,11 +14,6 @@ package com.opengamma.engine.marketdata.manipulator;
  * The specification does not indicate the actual manipulation to be performed.
  */
 public interface MarketDataSelector {
-
-  /**
-   * The type of market data which is to take part in a manipulation.
-   */
-  public enum StructureType {YIELD_CURVE, VOLATILITY_SURFACE, VOLATILITY_CUBE, MARKET_DATA_POINT, NONE}
 
   /**
    * Indicates if the specification contains an active selection to be applied. This allows
@@ -35,8 +32,13 @@ public interface MarketDataSelector {
    * @param calculationConfigurationName the calculation configuration
    * @return the underlying selector that matches the specified market data structure, null if there is no match
    */
-  MarketDataSelector findMatchingSelector(StructureIdentifier structureId, String calculationConfigurationName);
+  MarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName);
 
-  StructureType getApplicableStructureType();
-
+  /**
+   * Gets the set of structure types that a selector matches. Most selectors will match just
+   * one, but some may be capable of selecting multiple types.
+   *
+   * @return the set of structure types that a match can be made against, not null
+   */
+  Set<StructureType> getApplicableStructureTypes();
 }

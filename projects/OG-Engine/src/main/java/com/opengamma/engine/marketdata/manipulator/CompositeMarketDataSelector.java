@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+  public MarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
                                                  String calculationConfigurationName) {
 
     for (MarketDataSelector specification : _underlyingSpecifications) {
@@ -68,8 +69,13 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public StructureType getApplicableStructureType() {
-    return StructureType.NONE;
+  public Set<StructureType> getApplicableStructureTypes() {
+
+    Set<StructureType> types = new HashSet<>();
+    for (MarketDataSelector specification : _underlyingSpecifications) {
+      types.addAll(specification.getApplicableStructureTypes());
+    }
+    return Collections.unmodifiableSet(types);
   }
 
   @Override
