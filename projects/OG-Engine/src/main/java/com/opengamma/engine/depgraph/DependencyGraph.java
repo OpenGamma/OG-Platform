@@ -352,6 +352,10 @@ public class DependencyGraph {
     // Create the new proxy node based on the original
     DependencyNode proxyNode = new DependencyNode(original.getComputationTarget());
     proxyNode.setFunction(function);
+
+    // TODO - this implementation is naive as it proxies all output specs - we should actually only proxy the spec we are interested in
+    // However, in most cases there will only be one output anyway
+
     Map<ValueSpecification, ValueSpecification> newValueSpecifications = copyValueSpecifications(original, discriminatorProperties);
     proxyNode.addOutputValues(ImmutableSet.copyOf(newValueSpecifications.values()));
 

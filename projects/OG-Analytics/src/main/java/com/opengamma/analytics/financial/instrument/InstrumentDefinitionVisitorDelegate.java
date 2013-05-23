@@ -138,8 +138,8 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond, final DATA_TYPE data) {
-    return _delegate.visitBondFutureSecurityDefinition(bond, data);
+  public RESULT_TYPE visitBondFutureDefinition(final BondFutureDefinition bond, final DATA_TYPE data) {
+    return _delegate.visitBondFutureDefinition(bond, data);
   }
 
   @Override
@@ -283,8 +283,8 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
-    return _delegate.visitBondFutureSecurityDefinition(bond);
+  public RESULT_TYPE visitBondFutureDefinition(final BondFutureDefinition bond) {
+    return _delegate.visitBondFutureDefinition(bond);
   }
 
   @Override

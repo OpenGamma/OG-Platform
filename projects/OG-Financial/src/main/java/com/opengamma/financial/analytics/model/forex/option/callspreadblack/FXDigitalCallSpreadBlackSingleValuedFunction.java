@@ -52,9 +52,9 @@ public abstract class FXDigitalCallSpreadBlackSingleValuedFunction extends FXOpt
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
-      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
     final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig,
-        baseQuotePair)
+        baseQuotePair, optionalProperties)
         .withoutAny(CALCULATION_METHOD)
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
         .withAny(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);

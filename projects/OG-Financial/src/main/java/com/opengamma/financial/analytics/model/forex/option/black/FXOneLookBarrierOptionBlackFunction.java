@@ -126,8 +126,8 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig, final String callCurve,
-      final String callCurveCalculationConfig, final CurrencyPair baseQuotePair) {
-    final Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair);
+      final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    final Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair, optionalProperties);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
         .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }

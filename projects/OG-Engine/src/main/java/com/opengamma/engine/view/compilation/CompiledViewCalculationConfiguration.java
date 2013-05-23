@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -66,5 +67,15 @@ public interface CompiledViewCalculationConfiguration {
    *         {@link #getMarketDataRequirements}.
    */
   Map<ValueSpecification, Collection<ValueSpecification>> getMarketDataAliases();
+
+  /**
+   * Gets the results of any market data selections that have been made to support manipulation of the structured market data.
+   * <p>
+   * The map contains any selector that matched a market data structure in the dependency graph which are mapped to the
+   * value specifications of the new nodes that have been added to the graph to allow manipulation.
+   *
+   * @return the mapping active market data selectors to the value specs that allow manipulation, not null
+   */
+  Map<MarketDataSelector, Set<ValueSpecification>> getMarketDataSelections();
 
 }

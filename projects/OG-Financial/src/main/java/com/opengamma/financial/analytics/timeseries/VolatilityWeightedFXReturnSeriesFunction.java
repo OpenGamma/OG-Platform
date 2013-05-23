@@ -12,7 +12,6 @@ import com.opengamma.analytics.financial.timeseries.util.TimeSeriesRelativeWeigh
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesWeightedVolatilityOperator;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -21,7 +20,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 public class VolatilityWeightedFXReturnSeriesFunction extends FXReturnSeriesFunction {
   
   private static final TimeSeriesRelativeWeightedDifferenceOperator RELATIVE_WEIGHTED_DIFFERENCE = new TimeSeriesRelativeWeightedDifferenceOperator();
-  
+    
   @Override
   protected ValueProperties getResultProperties() {
     return VolatilityWeightingFunctionUtils.addVolatilityWeightingProperties(super.getResultProperties());

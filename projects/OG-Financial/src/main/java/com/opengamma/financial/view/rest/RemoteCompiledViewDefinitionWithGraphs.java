@@ -21,7 +21,9 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -72,6 +74,11 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
   }
 
   @Override
+  public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
+  @Override
   public ViewDefinition getViewDefinition() {
     final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VIEW_DEFINITION).build();
     return _client.accessFudge(uri).get(ViewDefinition.class);
@@ -95,6 +102,13 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
   public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
     final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
     return _client.accessFudge(uri).get(List.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Map<String, CompiledViewCalculationConfiguration> getCompiledCalculationConfigurationsMap() {
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS_MAP).build();
+    return _client.accessFudge(uri).get(Map.class);
   }
 
   @SuppressWarnings("unchecked")

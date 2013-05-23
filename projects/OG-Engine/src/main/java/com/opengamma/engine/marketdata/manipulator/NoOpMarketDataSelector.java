@@ -10,30 +10,28 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-
 /**
  * A market data shift specification which performs no shift operation.
  */
-public class NoOpMarketDataShiftSpecification implements MarketDataShiftSpecification {
+public class NoOpMarketDataSelector implements MarketDataSelector {
 
-  private static final NoOpMarketDataShiftSpecification INSTANCE = new NoOpMarketDataShiftSpecification();
+  private static final NoOpMarketDataSelector INSTANCE = new NoOpMarketDataSelector();
 
-  private NoOpMarketDataShiftSpecification() {}
+  private NoOpMarketDataSelector() {}
 
   /**
    * Return the singleton instance.
    *
    * @return the singleton instance
    */
-  public static NoOpMarketDataShiftSpecification getInstance() {
+  public static NoOpMarketDataSelector getInstance() {
     return INSTANCE;
   }
 
   @Override
-  public boolean appliesTo(StructureIdentifier structureId,
-                           String calculationConfigurationName) {
-    return false;
+  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+                                                 String calculationConfigurationName) {
+    return null;
   }
 
   @Override
@@ -42,12 +40,7 @@ public class NoOpMarketDataShiftSpecification implements MarketDataShiftSpecific
   }
 
   @Override
-  public StructuredMarketDataSnapshot apply(StructuredMarketDataSnapshot structuredSnapshot) {
-    return null;
-  }
-
-  @Override
-  public boolean containsShifts() {
+  public boolean hasSelectionsDefined() {
     return false;
   }
 
@@ -55,7 +48,7 @@ public class NoOpMarketDataShiftSpecification implements MarketDataShiftSpecific
     return serializer.newMessage();
   }
 
-  public static NoOpMarketDataShiftSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static NoOpMarketDataSelector fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     return INSTANCE;
   }
 }

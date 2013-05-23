@@ -282,15 +282,28 @@ public final class ValuePropertyNames {
    */
   public static final String TRANSFORMATION_METHOD = "TransformationMethod";
   
-  /** The name of a property that provides the type of dividends, be they Continuous, Discrete or None */
+  /** 
+   * The name of a property that provides the type of dividends, be they Continuous, Discrete or None 
+   */
   public static final String DIVIDEND_TYPE = "DividendType";
   
-  /** Instance of DIVIDEND_TYPE_PROPERTY representing a continuous dividend yield */
+  /** 
+   * Instance of DIVIDEND_TYPE_PROPERTY representing a continuous dividend yield 
+   */
   public static final String DIVIDEND_TYPE_CONTINUOUS = "Continuous";
   
-  /** Instance of DIVIDEND_TYPE_PROPERTY representing discrete dividend payments. See { @link DiscreteDividendFunction} */
+  /** 
+   * Instance of DIVIDEND_TYPE_PROPERTY representing discrete dividend payments. See { @link DiscreteDividendFunction} 
+   */
   public static final String DIVIDEND_TYPE_DISCRETE = "Discrete";
   
-  /** Instance of DIVIDEND_TYPE_PROPERTY representing no dividends */
+  /** 
+   * Instance of DIVIDEND_TYPE_PROPERTY representing no dividends 
+  */
   public static final String DIVIDEND_TYPE_NONE = "None";
+  
+  /** 
+   * The name of a general property that scales results. 
+   */
+  public static final String SCALE = "Scale";
 }

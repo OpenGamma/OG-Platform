@@ -10,22 +10,21 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A MarketDataShiftSpecification which specifies a yield curve to be shifted. Note that this
+ * A MarketDataSelector which specifies a yield curve to be shifted. Note that this
  * class is not responsible for specifying the actual manipulation to be done.
  */
-public class YieldCurveShiftSpecification implements MarketDataShiftSpecification {
+public class YieldCurveSelector implements MarketDataSelector {
 
   /**
    * The key indicating the yield curve that needs to be shifted.
    */
   private final YieldCurveKey _yieldCurveKey;
 
-  private YieldCurveShiftSpecification(YieldCurveKey yieldCurveKey) {
+  private YieldCurveSelector(YieldCurveKey yieldCurveKey) {
     ArgumentChecker.notNull(yieldCurveKey, "yieldCurveKey");
     _yieldCurveKey = yieldCurveKey;
   }
@@ -34,16 +33,16 @@ public class YieldCurveShiftSpecification implements MarketDataShiftSpecificatio
    * Construct a specification for the supplied yield curve key.
    *
    * @param yieldCurveKey the key of the yield curve to be shifted, not null
-   * @return a new MarketDataShiftSpecification for the yield curve
+   * @return a new MarketDataSelector for the yield curve
    */
-  public static MarketDataShiftSpecification of(YieldCurveKey yieldCurveKey) {
-    return new YieldCurveShiftSpecification(yieldCurveKey);
+  public static MarketDataSelector of(YieldCurveKey yieldCurveKey) {
+    return new YieldCurveSelector(yieldCurveKey);
   }
 
   @Override
-  public boolean appliesTo(StructureIdentifier structureId,
-                           String calculationConfigurationName) {
-    return StructureIdentifier.of(_yieldCurveKey).equals(structureId);
+  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+                                                 String calculationConfigurationName) {
+    return StructureIdentifier.of(_yieldCurveKey).equals(structureId) ? this : null;
   }
 
   @Override
@@ -52,12 +51,7 @@ public class YieldCurveShiftSpecification implements MarketDataShiftSpecificatio
   }
 
   @Override
-  public StructuredMarketDataSnapshot apply(StructuredMarketDataSnapshot structuredSnapshot) {
-    return structuredSnapshot;
-  }
-
-  @Override
-  public boolean containsShifts() {
+  public boolean hasSelectionsDefined() {
     return true;
   }
 
@@ -70,7 +64,7 @@ public class YieldCurveShiftSpecification implements MarketDataShiftSpecificatio
       return false;
     }
 
-    YieldCurveShiftSpecification that = (YieldCurveShiftSpecification) o;
+    YieldCurveSelector that = (YieldCurveSelector) o;
     return _yieldCurveKey.equals(that._yieldCurveKey);
   }
 
@@ -85,7 +79,7 @@ public class YieldCurveShiftSpecification implements MarketDataShiftSpecificatio
     return msg;
   }
 
-  public static MarketDataShiftSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static MarketDataSelector fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     return of(msg.getValue(YieldCurveKey.class, "yieldCurveKey"));
   }
 }
