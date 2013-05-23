@@ -30,7 +30,7 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
   private static final String VALUATION_TIME_FIELD = "valuation";
   private static final String RESOLVER_VERSION_CORRECTION = "resolverVersionCorrection";
   private static final String MARKET_DATA_SPECIFICATION = "marketDataSpecification";
-  private static final String MARKET_DATA_SHIFT_SPECIFICATION = "marketDataShift";
+  private static final String MARKET_DATA_SELECTOR = "marketDataSelector";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ViewCycleExecutionOptions object) {
@@ -39,7 +39,7 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
     for (final MarketDataSpecification spec : object.getMarketDataSpecifications()) {
       serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SPECIFICATION, null, spec);
     }
-    serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SHIFT_SPECIFICATION, null, object.getMarketDataSelector());
+    serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SELECTOR, null, object.getMarketDataSelector());
     serializer.addToMessage(msg, RESOLVER_VERSION_CORRECTION, null, object.getResolverVersionCorrection());
     return msg;
   }
@@ -57,7 +57,7 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
       specs.add(deserializer.fieldValueToObject(MarketDataSpecification.class, marketDataSpecificationField));
     }
     builder.setMarketDataSpecifications(specs);
-    field = msg.getByName(MARKET_DATA_SHIFT_SPECIFICATION);
+    field = msg.getByName(MARKET_DATA_SELECTOR);
     if (field != null) {
       builder.setMarketDataSelector(deserializer.fieldValueToObject(MarketDataSelector.class, field));
     }

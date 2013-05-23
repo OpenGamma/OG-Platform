@@ -83,6 +83,13 @@ public class StructureIdentifier<T> {
     return new StructureIdentifier<>(StructureType.MARKET_DATA_POINT, key);
   }
 
+  /**
+   * @return The value of the market data structure key.
+   */
+  public T getValue() {
+    return _value;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
