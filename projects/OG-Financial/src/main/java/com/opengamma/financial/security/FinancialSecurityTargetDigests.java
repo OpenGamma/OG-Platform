@@ -68,7 +68,6 @@ import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.VarianceSwapNotional;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Extension to the basic target digests from OG-Engine that supplements the digest with the instrument's currency. This is based on the observation that many of the default constraints are configured
@@ -83,12 +82,31 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
 
   // TODO: Fix for the classes of functions that do behave differently (or suppress the logic if items are in the calculation configuration that drive those functions)
 
+  private final MapImpl<Object, Digests> _pairs = new MapImpl<Object, Digests>() {
+    @Override
+    protected Digests createValue(final Object key) {
+      return new Digests(key);
+    }
+  };
+
+  protected Object pair(final Object a, final Object b) {
+    if (b == null) {
+      return null;
+    }
+    final Digests digests = _pairs.get(a);
+    if (digests != null) {
+      return digests.get(b);
+    } else {
+      return null;
+    }
+  }
+
   // SecurityTypeTargetDigests
 
   @Override
   protected Object getSecurityDigest(final Security security) {
     if (security instanceof FinancialSecurity) {
-      return Pair.of(security.getClass(), ((FinancialSecurity) security).accept(this));
+      return ((FinancialSecurity) security).accept(this);
     } else {
       return super.getSecurityDigest(security);
     }
@@ -96,284 +114,396 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
 
   // FinancialSecurityVisitor
 
+  private final Digests _deliverableSwapFutureSecurity = new Digests("DeliverableSwapFutureSecurity");
+
   @Override
   public Object visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
-    return security.getCurrency();
+    return _deliverableSwapFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _energyForwardSecurity = new Digests("EnergyForwardSecurity");
 
   @Override
   public Object visitEnergyForwardSecurity(EnergyForwardSecurity security) {
-    return security.getCurrency();
+    return _energyForwardSecurity.get(security.getCurrency());
   }
+
+  private final Digests _agricultureForwardSecurity = new Digests("AgricultureForwardSecurity");
 
   @Override
   public Object visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
-    return security.getCurrency();
+    return _agricultureForwardSecurity.get(security.getCurrency());
   }
+
+  private final Digests _metalForwardSecurity = new Digests("MetalForwardSecurity");
 
   @Override
   public Object visitMetalForwardSecurity(MetalForwardSecurity security) {
-    return security.getCurrency();
+    return _metalForwardSecurity.get(security.getCurrency());
   }
+
+  private final Digests _cdsSecurity = new Digests("CDSSecurity");
 
   @Override
   public Object visitCDSSecurity(CDSSecurity security) {
-    return security.getCurrency();
+    return _cdsSecurity.get(security.getCurrency());
   }
+
+  private final Digests _standardVanillaCDSSecurity = new Digests("Security");
 
   @Override
   public Object visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity security) {
-    return security.getNotional().getCurrency();
+    return _standardVanillaCDSSecurity.get(security.getNotional().getCurrency());
   }
+
+  private final Digests _standardFixedRecoveryCDSSecurity = new Digests("Security");
 
   @Override
   public Object visitStandardFixedRecoveryCDSSecurity(StandardFixedRecoveryCDSSecurity security) {
-    return security.getNotional().getCurrency();
+    return _standardFixedRecoveryCDSSecurity.get(security.getNotional().getCurrency());
   }
+
+  private final Digests _standardRecoveryLockCDSSecurity = new Digests("Security");
 
   @Override
   public Object visitStandardRecoveryLockCDSSecurity(StandardRecoveryLockCDSSecurity security) {
-    return security.getNotional().getCurrency();
+    return _standardRecoveryLockCDSSecurity.get(security.getNotional().getCurrency());
   }
+
+  private final Digests _legacyVanillaCDSSecurity = new Digests("Security");
 
   @Override
   public Object visitLegacyVanillaCDSSecurity(LegacyVanillaCDSSecurity security) {
-    return security.getNotional().getCurrency();
+    return _legacyVanillaCDSSecurity.get(security.getNotional().getCurrency());
   }
+
+  private final Digests _legacyFixedRecoveryCDSSecurity = new Digests("Security");
 
   @Override
   public Object visitLegacyFixedRecoveryCDSSecurity(LegacyFixedRecoveryCDSSecurity security) {
-    return security.getNotional().getCurrency();
+    return _legacyFixedRecoveryCDSSecurity.get(security.getNotional().getCurrency());
   }
+
+  private final Digests _legacyRecoveryLockCDSSecurity = new Digests("Security");
 
   @Override
   public Object visitLegacyRecoveryLockCDSSecurity(LegacyRecoveryLockCDSSecurity security) {
-    return security.getNotional().getCurrency();
+    return _legacyRecoveryLockCDSSecurity.get(security.getNotional().getCurrency());
   }
+
+  private final Digests _creditDefaultSwapIndexDefinitionSecurity = new Digests("Security");
 
   @Override
   public Object visitCreditDefaultSwapIndexDefinitionSecurity(CreditDefaultSwapIndexDefinitionSecurity security) {
-    return security.getCurrency();
+    return _creditDefaultSwapIndexDefinitionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _creditDefaultSwapIndexSecurity = new Digests("Security");
 
   @Override
   public Object visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
-    return security.getNotional().getCurrency();
+    return _creditDefaultSwapIndexSecurity.get(security.getNotional().getCurrency());
   }
+
+  private final Digests _creditDefaultSwapOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
-    return security.getCurrency();
+    return _creditDefaultSwapOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _agricultureFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
-    return security.getCurrency();
+    return _agricultureFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _bondFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitBondFutureSecurity(BondFutureSecurity security) {
-    return security.getCurrency();
+    return _bondFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityIndexDividendFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
-    return security.getCurrency();
+    return _equityIndexDividendFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _fxFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitFXFutureSecurity(FXFutureSecurity security) {
-    return security.getCurrency();
+    return _fxFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _stockFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitStockFutureSecurity(StockFutureSecurity security) {
-    return security.getCurrency();
+    return _stockFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityFutureSecurity(EquityFutureSecurity security) {
-    return security.getCurrency();
+    return _equityFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _energyFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-    return security.getCurrency();
+    return _energyFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _indexFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitIndexFutureSecurity(IndexFutureSecurity security) {
-    return security.getCurrency();
+    return _indexFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _interestRateFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-    return security.getCurrency();
+    return _interestRateFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _metalFutureSecurity = new Digests("Security");
 
   @Override
   public Object visitMetalFutureSecurity(MetalFutureSecurity security) {
-    return security.getCurrency();
+    return _metalFutureSecurity.get(security.getCurrency());
   }
+
+  private final Digests _capFloorCMSSpreadSecurity = new Digests("Security");
 
   @Override
   public Object visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
-    return security.getCurrency();
+    return _capFloorCMSSpreadSecurity.get(security.getCurrency());
   }
+
+  private final Digests _capFloorSecurity = new Digests("Security");
 
   @Override
   public Object visitCapFloorSecurity(CapFloorSecurity security) {
-    return security.getCurrency();
+    return _capFloorSecurity.get(security.getCurrency());
   }
+
+  private final Digests _cashSecurity = new Digests("Security");
 
   @Override
   public Object visitCashSecurity(CashSecurity security) {
-    return security.getCurrency();
+    return _cashSecurity.get(security.getCurrency());
   }
+
+  private final Digests _cashFlowSecurity = new Digests("Security");
 
   @Override
   public Object visitCashFlowSecurity(CashFlowSecurity security) {
-    return security.getCurrency();
+    return _cashFlowSecurity.get(security.getCurrency());
   }
+
+  private final Digests _commodityFutureOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
-    return security.getCurrency();
+    return _commodityFutureOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _fxFutureOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
-    return security.getCurrency();
+    return _fxFutureOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _bondFutureOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
-    return security.getCurrency();
+    return _bondFutureOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _continuousZeroDepositSecurity = new Digests("Security");
 
   @Override
   public Object visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
-    return security.getCurrency();
+    return _continuousZeroDepositSecurity.get(security.getCurrency());
   }
+
+  private final Digests _corporateBondSecurity = new Digests("Security");
 
   @Override
   public Object visitCorporateBondSecurity(CorporateBondSecurity security) {
-    return security.getCurrency();
+    return _corporateBondSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityBarrierOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
-    return security.getCurrency();
+    return _equityBarrierOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityIndexDividendFutureOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security) {
-    return security.getCurrency();
+    return _equityIndexDividendFutureOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityIndexFutureOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityIndexFutureOptionSecurity(EquityIndexFutureOptionSecurity security) {
-    return security.getCurrency();
+    return _equityIndexFutureOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityIndexOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
-    return security.getCurrency();
+    return _equityIndexOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityOptionSecurity(EquityOptionSecurity security) {
-    return security.getCurrency();
+    return _equityOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _equitySecurity = new Digests("Security");
 
   @Override
   public Object visitEquitySecurity(EquitySecurity security) {
-    return security.getCurrency();
+    return _equitySecurity.get(security.getCurrency());
   }
+
+  private final Digests _equityVarianceSwapSecurity = new Digests("Security");
 
   @Override
   public Object visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
-    return security.getCurrency();
+    return _equityVarianceSwapSecurity.get(security.getCurrency());
   }
+
+  private final Digests _fraSecurity = new Digests("Security");
 
   @Override
   public Object visitFRASecurity(FRASecurity security) {
-    return security.getCurrency();
+    return _fraSecurity.get(security.getCurrency());
   }
+
+  private final Digests _fxBarrierOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-    return Pair.of(security.getPutCurrency(), security.getCallCurrency());
+    return _fxBarrierOptionSecurity.get(pair(security.getPutCurrency(), security.getCallCurrency()));
   }
+
+  private final Digests _fxDigitalSecurity = new Digests("Security");
 
   @Override
   public Object visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
-    return Pair.of(security.getPutCurrency(), security.getCallCurrency());
+    return _fxDigitalSecurity.get(pair(security.getPutCurrency(), security.getCallCurrency()));
   }
+
+  private final Digests _fxForwardSecurity = new Digests("Security");
 
   @Override
   public Object visitFXForwardSecurity(FXForwardSecurity security) {
-    return Pair.of(security.getPayCurrency(), security.getReceiveCurrency());
+    return _fxForwardSecurity.get(pair(security.getPayCurrency(), security.getReceiveCurrency()));
   }
+
+  private final Digests _fxOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitFXOptionSecurity(FXOptionSecurity security) {
-    return Pair.of(security.getPutCurrency(), security.getCallCurrency());
+    return _fxOptionSecurity.get(pair(security.getPutCurrency(), security.getCallCurrency()));
   }
+
+  private final Digests _forwardSwapSecurity = new Digests("Security");
 
   @Override
   public Object visitForwardSwapSecurity(ForwardSwapSecurity security) {
-    return Pair.of(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this));
+    return _forwardSwapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
   }
+
+  private final Digests _governmentBondSecurity = new Digests("Security");
 
   @Override
   public Object visitGovernmentBondSecurity(GovernmentBondSecurity security) {
-    return security.getCurrency();
+    return _governmentBondSecurity.get(security.getCurrency());
   }
+
+  private final Digests _irFutureOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
-    return security.getCurrency();
+    return _irFutureOptionSecurity.get(security.getCurrency());
   }
+
+  private final Digests _municipalBondSecurity = new Digests("Security");
 
   @Override
   public Object visitMunicipalBondSecurity(MunicipalBondSecurity security) {
-    return security.getCurrency();
+    return _municipalBondSecurity.get(security.getCurrency());
   }
+
+  private final Digests _nonDeliverableFXDigitalOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
-    return Pair.of(security.getPutCurrency(), security.getCallCurrency());
+    return _nonDeliverableFXDigitalOptionSecurity.get(pair(security.getPutCurrency(), security.getCallCurrency()));
   }
+
+  private final Digests _nonDeliverableFXForwardSecurity = new Digests("Security");
 
   @Override
   public Object visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
-    return Pair.of(security.getPayCurrency(), security.getReceiveCurrency());
+    return _nonDeliverableFXForwardSecurity.get(pair(security.getPayCurrency(), security.getReceiveCurrency()));
   }
+
+  private final Digests _nonDeliverableFXOptionSecurity = new Digests("Security");
 
   @Override
   public Object visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
-    return Pair.of(security.getPutCurrency(), security.getCallCurrency());
+    return _nonDeliverableFXOptionSecurity.get(pair(security.getPutCurrency(), security.getCallCurrency()));
   }
+
+  private final Digests _periodicZeroDepositSecurity = new Digests("Security");
 
   @Override
   public Object visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
-    return security.getCurrency();
+    return _periodicZeroDepositSecurity.get(security.getCurrency());
   }
+
+  private final Digests _simpleZeroDepositSecurity = new Digests("Security");
 
   @Override
   public Object visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
-    return security.getCurrency();
+    return _simpleZeroDepositSecurity.get(security.getCurrency());
   }
+
+  private final Digests _swapSecurity = new Digests("Security");
 
   @Override
   public Object visitSwapSecurity(SwapSecurity security) {
-    return Pair.of(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this));
+    return _swapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
   }
+
+  private final Digests _swaptionSecurity = new Digests("Security");
 
   @Override
   public Object visitSwaptionSecurity(SwaptionSecurity security) {
-    return security.getCurrency();
+    return _swaptionSecurity.get(security.getCurrency());
   }
 
   // NotionalVisitor
