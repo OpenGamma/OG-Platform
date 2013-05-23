@@ -96,7 +96,7 @@ public class RateFutureNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    final int m = getFutureTenor().getPeriod().getMonths(); //TODO this is not right
+    final int m = getFutureTenor().getPeriod().getMonths();
     return new Tenor(getStartTenor().getPeriod().plusMonths(m * getFutureNumber()));
   }
 
@@ -125,7 +125,7 @@ public class RateFutureNode extends CurveNode {
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1052030700:  // futureNumber
         return getFutureNumber();
@@ -144,7 +144,7 @@ public class RateFutureNode extends CurveNode {
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1052030700:  // futureNumber
         setFutureNumber((Integer) newValue);
@@ -179,12 +179,12 @@ public class RateFutureNode extends CurveNode {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      RateFutureNode other = (RateFutureNode) obj;
+      final RateFutureNode other = (RateFutureNode) obj;
       return JodaBeanUtils.equal(getFutureNumber(), other.getFutureNumber()) &&
           JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
           JodaBeanUtils.equal(getFutureTenor(), other.getFutureTenor()) &&
@@ -221,7 +221,7 @@ public class RateFutureNode extends CurveNode {
    * Sets the future number.
    * @param futureNumber  the new value of the property
    */
-  public void setFutureNumber(int futureNumber) {
+  public void setFutureNumber(final int futureNumber) {
     this._futureNumber = futureNumber;
   }
 
@@ -246,7 +246,7 @@ public class RateFutureNode extends CurveNode {
    * Sets the start tenor.
    * @param startTenor  the new value of the property, not null
    */
-  public void setStartTenor(Tenor startTenor) {
+  public void setStartTenor(final Tenor startTenor) {
     JodaBeanUtils.notNull(startTenor, "startTenor");
     this._startTenor = startTenor;
   }
@@ -272,7 +272,7 @@ public class RateFutureNode extends CurveNode {
    * Sets the future tenor.
    * @param futureTenor  the new value of the property, not null
    */
-  public void setFutureTenor(Tenor futureTenor) {
+  public void setFutureTenor(final Tenor futureTenor) {
     JodaBeanUtils.notNull(futureTenor, "futureTenor");
     this._futureTenor = futureTenor;
   }
@@ -298,7 +298,7 @@ public class RateFutureNode extends CurveNode {
    * Sets the underlying tenor.
    * @param underlyingTenor  the new value of the property, not null
    */
-  public void setUnderlyingTenor(Tenor underlyingTenor) {
+  public void setUnderlyingTenor(final Tenor underlyingTenor) {
     JodaBeanUtils.notNull(underlyingTenor, "underlyingTenor");
     this._underlyingTenor = underlyingTenor;
   }
@@ -324,7 +324,7 @@ public class RateFutureNode extends CurveNode {
    * Sets the future convention.
    * @param futureConvention  the new value of the property, not null
    */
-  public void setFutureConvention(ExternalId futureConvention) {
+  public void setFutureConvention(final ExternalId futureConvention) {
     JodaBeanUtils.notNull(futureConvention, "futureConvention");
     this._futureConvention = futureConvention;
   }
@@ -350,7 +350,7 @@ public class RateFutureNode extends CurveNode {
    * Sets the underlying convention.
    * @param underlyingConvention  the new value of the property, not null
    */
-  public void setUnderlyingConvention(ExternalId underlyingConvention) {
+  public void setUnderlyingConvention(final ExternalId underlyingConvention) {
     JodaBeanUtils.notNull(underlyingConvention, "underlyingConvention");
     this._underlyingConvention = underlyingConvention;
   }
@@ -422,7 +422,7 @@ public class RateFutureNode extends CurveNode {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 1052030700:  // futureNumber
           return _futureNumber;
