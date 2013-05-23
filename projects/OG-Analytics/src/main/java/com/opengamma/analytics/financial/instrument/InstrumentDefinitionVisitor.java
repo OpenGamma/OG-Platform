@@ -48,6 +48,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -119,6 +121,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bond, DATA_TYPE data);
 
   RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bond);
+
+  RESULT_TYPE visitBondFuturesSecurityDefinition(BondFuturesSecurityDefinition bond, DATA_TYPE data);
+
+  RESULT_TYPE visitBondFuturesSecurityDefinition(BondFuturesSecurityDefinition bond);
+
+  RESULT_TYPE visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bond, DATA_TYPE data);
+
+  RESULT_TYPE visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bond);
 
   RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, DATA_TYPE data);
 

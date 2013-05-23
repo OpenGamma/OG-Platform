@@ -69,12 +69,12 @@ public class BondFuturesTransaction implements InstrumentDerivative {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    return null; // visitor.visitBondFutureTransaction(this, data);
+    return visitor.visitBondFuturesTransaction(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    return null; // visitor.visitBondFutureTransaction(this);
+    return visitor.visitBondFuturesTransaction(this);
   }
 
   @Override

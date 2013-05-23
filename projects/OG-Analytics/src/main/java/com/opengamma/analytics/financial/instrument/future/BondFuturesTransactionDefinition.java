@@ -108,12 +108,12 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return null; // visitor.visitBondFutureTransactionDefinition(this, data);
+    return visitor.visitBondFuturesTransactionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return null; // visitor.visitBondFutureTransactionDefinition(this);
+    return visitor.visitBondFuturesTransactionDefinition(this);
   }
 
   @Override

@@ -16,7 +16,9 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurity
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -54,6 +56,7 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
   private static final BondFutureDiscountingMethod METHOD_BNDFUT_DSC = BondFutureDiscountingMethod.getInstance();
+  private static final BondFuturesTransactionDiscountingMethod METHOD_BNDFUT_TRA = BondFuturesTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -87,7 +90,13 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   //     -----     Futures     -----
 
   @Override
+  // TODO: Remove
   public MultipleCurrencyAmount visitBondFuture(final BondFuture futures, final IssuerProviderInterface issuercurves) {
     return METHOD_BNDFUT_DSC.presentValue(futures, issuercurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitBondFuturesTransaction(final BondFuturesTransaction futures, final IssuerProviderInterface issuercurves) {
+    return METHOD_BNDFUT_TRA.presentValue(futures, issuercurves);
   }
 }

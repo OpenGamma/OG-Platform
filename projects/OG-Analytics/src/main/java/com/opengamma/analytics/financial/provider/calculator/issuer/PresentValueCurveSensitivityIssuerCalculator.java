@@ -12,6 +12,8 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurity
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -47,6 +49,7 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
   private static final BillSecurityDiscountingMethod METHOD_BILL_SEC = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
+  private static final BondFuturesTransactionDiscountingMethod METHOD_BNDFUT_TRA = BondFuturesTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -65,6 +68,13 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
   @Override
   public MultipleCurrencyMulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves);
+  }
+
+  //     -----     Futures     -----
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitBondFuturesTransaction(final BondFuturesTransaction futures, final IssuerProviderInterface issuercurves) {
+    return METHOD_BNDFUT_TRA.presentValueCurveSensitivity(futures, issuercurves);
   }
 
 }
