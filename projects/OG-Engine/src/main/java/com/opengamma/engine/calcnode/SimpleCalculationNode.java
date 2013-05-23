@@ -26,7 +26,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.cache.DeferredViewComputationCache;
 import com.opengamma.engine.cache.DirectWriteViewComputationCache;
-import com.opengamma.engine.cache.NotCalculatedSentinel;
+import com.opengamma.engine.cache.MissingOutput;
 import com.opengamma.engine.cache.ViewComputationCache;
 import com.opengamma.engine.cache.ViewComputationCacheSource;
 import com.opengamma.engine.cache.WriteBehindViewComputationCache;
@@ -376,7 +376,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   }
 
-  private void postEvaluationErrors(final Set<ValueSpecification> outputs, final NotCalculatedSentinel type) {
+  private void postEvaluationErrors(final Set<ValueSpecification> outputs, final MissingOutput type) {
     final Collection<ComputedValue> results = new ArrayList<ComputedValue>(outputs.size());
     for (final ValueSpecification output : outputs) {
       results.add(new ComputedValue(output, type));
@@ -386,7 +386,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   private void invocationBlacklisted(final CalculationJobItem jobItem, final CalculationJobResultItemBuilder resultItemBuilder) {
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
-    postEvaluationErrors(outputs, NotCalculatedSentinel.SUPPRESSED);
+    postEvaluationErrors(outputs, MissingOutput.SUPPRESSED);
     resultItemBuilder.withSuppression();
   }
 
@@ -394,7 +394,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     s_logger.error("Caught exception", t);
     getFunctionBlacklistUpdate().failedJobItem(jobItem);
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
-    postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+    postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
     resultItemBuilder.withException(t);
   }
 
@@ -624,7 +624,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private void invokeResult(final FunctionInvoker invoker, final DeferredInvocationStatistics statistics,
       final Set<ValueSpecification> missing, final Set<ValueSpecification> outputs, final Collection<ComputedValue> results, final CalculationJobResultItemBuilder resultItemBuilder) {
     if (results == null) {
-      postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+      postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
       resultItemBuilder.withException(ERROR_INVOKING, "No results returned by invoker " + invoker);
       return;
     }
@@ -650,7 +650,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     if (!missing.isEmpty()) {
       for (final ValueSpecification output : missing) {
         s_logger.debug("Function {} didn't produce required result {}", invoker, output);
-        newResults.add(new ComputedValue(output, NotCalculatedSentinel.EVALUATION_ERROR));
+        newResults.add(new ComputedValue(output, MissingOutput.EVALUATION_ERROR));
       }
       resultItemBuilder.withMissingOutputs(missing);
     }
@@ -660,7 +660,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private void invokeException(final Set<ValueSpecification> outputs, final Throwable t, final CalculationJobResultItemBuilder resultItemBuilder) {
     s_logger.error("Invocation error: {}", t.getMessage());
     s_logger.warn("Caught exception", t);
-    postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+    postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
     resultItemBuilder.withException(t);
   }
 
@@ -681,7 +681,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     final FunctionInvoker invoker = getFunctions().getInvoker(functionUniqueId);
     if (invoker == null) {
-      postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+      postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
       resultItemBuilder.withException(ERROR_BAD_FUNCTION, "Unable to locate " + functionUniqueId + " in function repository");
       return;
     }
@@ -695,7 +695,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         // A missing target is just a special case of missing input
         missing.add(TargetSourcingFunction.createSpecification(jobItem.getComputationTargetSpecification()));
       } else {
-        postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+        postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
         resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
         return;
       }
@@ -705,7 +705,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     int inputSamples = 0;
     final DeferredViewComputationCache cache = getCache();
     for (final Pair<ValueSpecification, Object> input : cache.getValues(inputValueSpecs, getJob().getCacheSelectHint())) {
-      if ((input.getSecond() == null) || (input.getSecond() instanceof MissingInput)) {
+      if ((input.getSecond() == null) || (input.getSecond() instanceof MissingValue)) {
         missing.add(input.getFirst());
       } else {
         final ComputedValue value = new ComputedValue(input.getFirst(), input.getSecond());
@@ -730,12 +730,12 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
             targetFuture.get();
           } catch (final Throwable t) {
             s_logger.warn("Error resolving target", t);
-            postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+            postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
             resultItemBuilder.withException(t);
             return;
           }
         }
-        postEvaluationErrors(jobItem.getOutputs(), NotCalculatedSentinel.MISSING_INPUTS);
+        postEvaluationErrors(jobItem.getOutputs(), MissingOutput.MISSING_INPUTS);
         resultItemBuilder.withMissingInputs(missing);
         return;
       }
@@ -746,7 +746,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         target = targetFuture.get();
       } catch (final Throwable t) {
         s_logger.warn("Error resolving target", t);
-        postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+        postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
         resultItemBuilder.withException(t);
         return;
       }
@@ -756,7 +756,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
           missing.add(new ValueSpecification(ValueRequirementNames.TARGET, jobItem.getComputationTargetSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "TargetSourcingFunction")
               .get()));
         } else {
-          postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+          postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
           resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
           return;
         }

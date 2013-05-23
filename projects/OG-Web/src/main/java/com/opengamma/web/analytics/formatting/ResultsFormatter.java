@@ -8,7 +8,7 @@ package com.opengamma.web.analytics.formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ClassMap;
 import com.opengamma.web.analytics.ValueTypes;
@@ -72,8 +72,8 @@ public class ResultsFormatter {
                   new TenorLabelledLocalDateDoubleTimeSeriesMatrix1DFormatter(localDateDoubleTimeSeriesFormatter),
                   new TenorFormatter(),
                   new MultipleCurrencyAmountFormatter(doubleFormatter),
-                  new MissingMarketDataSentinelFormatter(),
-                  new NotCalculatedSentinelFormatter(),
+                  new MissingInputFormatter(),
+                  new MissingOutputFormatter(),
                   new ForwardCurveFormatter(),
                   new BlackVolatilitySurfaceMoneynessFormatter(),
                   new LocalVolatilitySurfaceMoneynessFormatter(),
@@ -151,7 +151,7 @@ public class ResultsFormatter {
   }
 
   private static boolean isError(Object value) {
-    return value instanceof MissingInput;
+    return value instanceof MissingValue;
   }
 
   /**

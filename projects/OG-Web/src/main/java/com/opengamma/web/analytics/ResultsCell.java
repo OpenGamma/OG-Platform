@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.Collection;
 
-import com.opengamma.engine.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
@@ -132,7 +132,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
    * @return true if the cell's value couldn't be calculated because of an error
    */
   /* package */ boolean isError() {
-    return _value instanceof MissingInput;
+    return _value instanceof MissingValue;
   }
 
   /* package */ AggregatedExecutionLog getExecutionLog() {

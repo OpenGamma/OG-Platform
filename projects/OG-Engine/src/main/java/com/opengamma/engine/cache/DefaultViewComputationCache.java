@@ -107,7 +107,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
 
   private Map<Class<?>, Integer> buildValueSizeByClassMap() {
     //All of these classes must be have consistent sizes
-    final ArrayList<Object> templates = Lists.newArrayList(Double.valueOf(12.0), MissingMarketDataSentinel.getInstance());
+    final ArrayList<Object> templates = Lists.<Object>newArrayList(Double.valueOf(12.0), MissingInput.MISSING_MARKET_DATA);
 
     final Map<Class<?>, Integer> valueSizeByClass = new HashMap<Class<?>, Integer>(templates.size());
     for (final Object obj : templates) {

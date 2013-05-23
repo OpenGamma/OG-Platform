@@ -16,7 +16,7 @@ import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.cache.NotCalculatedSentinel;
+import com.opengamma.engine.cache.MissingOutput;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -107,7 +107,7 @@ public class ViewportResultsJsonWriterTest {
 
   @Test
   public void errorValueNoHistory() throws JSONException {
-    List<ResultsCell> results = createResults(NotCalculatedSentinel.EVALUATION_ERROR, null, String.class);
+    List<ResultsCell> results = createResults(MissingOutput.EVALUATION_ERROR, null, String.class);
     ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(String.class), DURATION);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"Evaluation error\", \"error\":true}]}";
@@ -116,8 +116,8 @@ public class ViewportResultsJsonWriterTest {
 
   @Test
   public void errorValueWithHistory() throws JSONException {
-    ImmutableList<Object> history = ImmutableList.<Object>of(1d, 2d, NotCalculatedSentinel.EVALUATION_ERROR);
-    List<ResultsCell> results = createResults(NotCalculatedSentinel.EVALUATION_ERROR, history, Double.class);
+    ImmutableList<Object> history = ImmutableList.<Object>of(1d, 2d, MissingOutput.EVALUATION_ERROR);
+    List<ResultsCell> results = createResults(MissingOutput.EVALUATION_ERROR, history, Double.class);
     ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"Evaluation error\", \"h\":[1,2,null], \"error\":true}]}";
@@ -126,7 +126,7 @@ public class ViewportResultsJsonWriterTest {
 
   @Test
   public void errorValueInHistory() throws JSONException {
-    ImmutableList<Object> history = ImmutableList.<Object>of(1d, NotCalculatedSentinel.EVALUATION_ERROR, 3d);
+    ImmutableList<Object> history = ImmutableList.<Object>of(1d, MissingOutput.EVALUATION_ERROR, 3d);
     List<ResultsCell> results = createResults(3d, history, Double.class);
     ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION);
     String json = _writer.getJson(viewportResults);

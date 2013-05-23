@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -44,7 +44,7 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
     final Period ageLimit = HistoricalTimeSeriesFunctionUtils.UNLIMITED_AGE_LIMIT_VALUE.equals(ageLimitValue) ? null : Period.parse(ageLimitValue);
     final Object value;
     if (checkMissing(executionContext, latestDataPoint, ageLimit)) {
-      value = MissingMarketDataSentinel.getInstance();
+      value = MissingInput.MISSING_MARKET_DATA;
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
       final HistoricalTimeSeriesAdjustment htsa = HistoricalTimeSeriesAdjustment.parse(adjusterString);
