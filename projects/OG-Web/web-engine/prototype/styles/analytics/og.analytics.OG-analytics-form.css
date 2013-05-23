@@ -289,12 +289,12 @@
     margin-left: 4px;
 }
 
-.OG-analytics-form .og-status .og-icon-pause:after {
+.OG-analytics-form .og-status .og-icon-play:after {
     top: 2px;
     left: 7px;
 }
 
-.OG-analytics-form .og-status .og-icon-play:after {
+.OG-analytics-form .og-status .og-icon-pause:after {
     top: 2px;
     left: 6px;
 }

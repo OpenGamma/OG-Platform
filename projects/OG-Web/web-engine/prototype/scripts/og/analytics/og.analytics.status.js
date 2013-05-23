@@ -2,48 +2,59 @@ $.register_module({
     name: 'og.analytics.status',
     dependencies: [],
     obj: function () {
-        var module = this, status,
-            message = '.og-js-analytics-status-message', calculation = '.og-js-analytics-status-calculation';
+        var module = this, status, initialize = false,
+            message = '.og-js-analytics-status-message', calculation = '.og-js-analytics-status-calculation',
+            message_classes = 'live disconnected paused', toggle_classes = 'og-icon-play og-icon-pause og-disabled',
+            toggle = '.og-js-analytics-status-toggle';
+        var init_click_handler = function () {
+            initialize = true;
+            status.unpause();
+            $(toggle).removeClass(toggle_classes).addClass('og-icon-play og-disabled')
+                .off('click').on('click', function (event) {
+                    var rest_obj = {};
+                    if ($(this).hasClass('og-icon-pause')) status.pause(), rest_obj.state = 'pause';
+                    else status.unpause(), rest_obj.state = 'resume';
+                    og.analytics.grid.dataman.pools().forEach(function (val) {
+                        rest_obj.view_id = val;
+                        og.api.rest.views.status.pause_or_resume(rest_obj).pipe(function (result) {
+                            //console.log('result', result);
+                        });
+                    });
+                    return false;
+                });
+        }
         return status = {
             cycle: function (ms) {
                 $(message).removeClass('live disconnected paused').addClass('live').html('live');
                 $(calculation)[ms ? 'html' : 'empty']('calculated in ' + ms + 'ms');
+                $(toggle).removeClass(toggle_classes).addClass('og-icon-pause');
+                if (!initialize) init_click_handler();
             },
-            disconnected : function () {
+            disconnected: function () {
                 setTimeout(function () {
-                    $(message).removeClass('live disconnected paused').addClass('disconnected').html('connection lost');
+                    $(message).removeClass(message_classes).addClass('disconnected').html('connection lost');
+                    $(toggle).removeClass(toggle_classes).addClass('og-icon-play og-disabled');
                     $(calculation).empty();
                 }, 500);
             },
             nominal: function () {
-                $(message).removeClass('live disconnected paused').addClass('live').html('ready');
+                $(message).removeClass(message_classes).addClass('live').html('ready');
                 $(calculation).empty();
+                $(toggle).off('click').on('click', function () {return false;});
             },
             reconnected: function () {
-                $(message).removeClass('live disconnected paused').addClass('live').html('connected');
+                $(message).removeClass(message_classes).addClass('live').html('connected');
+                $(toggle).removeClass(toggle_classes).addClass('og-icon-pause');
                 $(calculation).empty();
+            },
+            pause: function () {
+                $(message).removeClass(message_classes).addClass('paused').html('paused');
+                $(toggle).removeClass(toggle_classes).addClass('og-icon-play');
+            },
+            unpause: function () {
+                $(message).removeClass(message_classes).addClass('paused').html('starting...');
+                $(toggle).removeClass(toggle_classes).addClass('og-icon-pause');
             }
-        };
-        return function (selector) {
-            var status = this, init = false;
-            $(selector + ' button').on('click', function (event) {
-                event.preventDefault();
-                if (!status.status || status.status === 'paused') return status.play();
-                if (status.status === 'playing') return status.pause();
-            });
-            status.pause = function () {
-                $(selector + ' em').html('paused').removeClass('live').addClass('paused');
-                $(selector + ' button').removeClass('og-icon-play').addClass('og-icon-pause');
-                status.status = 'paused';
-            };
-            status.play = function () {
-                if (!init) init = !!$(selector + ' button').removeClass('og-disabled');
-                $(selector + ' em').html('live').removeClass('paused').addClass('live');
-                $(selector + ' button').removeClass('og-icon-pause').addClass('og-icon-play');
-                status.status = 'playing';
-            };
-            status.status = null;
-            status.play();
         };
     }
 })

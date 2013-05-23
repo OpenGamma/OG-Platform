@@ -51,6 +51,20 @@ $.register_module({
                 method = method.concat(view_id);
                 return api.request(method, {data: {}, meta: meta});
             },
+            status: {
+                root: 'views/{{view_id}}/pauseOrResume',
+                pause_or_resume: function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), data = {state: config.state}, meta;
+                    meta = check({
+                        bundle: {method: root + '#put', config: config},
+                        required: [{all_of: ['state']}]
+                    });
+                    method[1] = config.view_id;
+                    meta.type = 'PUT';
+                    return api.request(method, {data: data, meta: meta});
+                }
+            },
             grid: {
                 depgraphs: {
                     root: 'views/{{view_id}}/{{grid_type}}/depgraphs',

@@ -20,6 +20,7 @@ $.register_module({
                 parent.refcount = [data.id];
                 return parents.push(parent), parent;
             };
+            pool.parents = parents;
             pool.remove = function (data) {
                 children = children.filter(function (child) {return child.id !== data.id;});
                 if (!data.parent) return; else if (data.parent.refcount) {
@@ -198,6 +199,7 @@ $.register_module({
             data.meta = meta = {columns: {}};
             data.source = source;
             data.pool = config.pool;
+            data.pools = function () {return ConnectionPool.parents.pluck('connection').pluck('view_id')};
             data.parent = config.parent || ConnectionPool.parent(data);
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
             data.viewport = function (new_viewport) {
