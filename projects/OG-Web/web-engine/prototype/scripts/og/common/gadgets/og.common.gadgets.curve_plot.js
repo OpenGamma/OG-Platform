@@ -8,8 +8,8 @@ $.register_module({
     obj: function () {
         return function (config) {
             var curve = this, input = config.data, $selector = $(config.selector), $reset, $init_msg, $plot, $flot,
-                data = {}, alive = og.common.id('gadget_curve_plot'), loading_template,
-                tooltip_class = og.common.id('gadget_curve_tooltip'), css = {},
+                data = {}, alive = og.common.id('gadget_curve_plot'), loading_template, $reset, $init_msg,
+                tooltip_class = og.common.id('gadget_curve_tooltip'), css = {}, html = {},
                 color_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'],
                 flot_options = {
                     zoom: {interactive: true}, selection: {mode: null},
@@ -27,7 +27,23 @@ $.register_module({
                     xaxis: {mode: 'years', tickLength: 'full', labelHeight: 14},
                     yaxis: {position: 'left', tickLength: 'full', labelWidth: 30}
                 };
-            tooltip = Handlebars.compile('<div class="og-curve-tooltip"><table><tr><td>X:&nbsp;&nbsp;</td><td>{{{x}}}</td></tr><tr><td>Y:&nbsp;&nbsp;</td><td>{{{y}}}</td></tr></table></div>');
+            tooltip = Handlebars.compile('<div class="og-curve-tooltip"><table><tr><td>X:&nbsp;&nbsp;</td>\
+                <td>{{{x}}}</td></tr><tr><td>Y:&nbsp;&nbsp;</td><td>{{{y}}}</td></tr></table></div>');
+            // reset image data url
+            css.reset_durl = 'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAPklEQVQYV2NkgAL30KT/O1fPY4Tx0Wmw' +
+                             'BEgRiMarEKYIl0kwA4g3kSQ34rIW2YM4fYnuSRQ34vMQaSYS40YAH8YmCJNUMdcAAAAASUVORK5CYII=';
+            // reset container
+            css.reset_container = {
+                background: '#fff', padding: '3px 5px', border: '1px solid #ddd',
+                boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)', zIndex: 1, position: 'absolute',
+                top: 0, left: 0
+            };
+            // reset
+            css.reset = {
+                background: 'url(data:image/png;base64,' + css.reset_durl + ') 0 5px no-repeat', padding: '0 0 0 13px',
+                textDecoration: 'underline', cursor: 'pointer'
+            };
+            html.init_msg = '<strong>Zoom</strong>: mouse scroll wheel <br /> <strong>Pan</strong>: left click drag';
             /**
             * Format data object and update flot option object
             * @param data {Array} array of objects each containing a curve array and an optional nodes array
@@ -37,15 +53,15 @@ $.register_module({
                 var obj = {options: options, data: []};
                 if ($.isArray(data)) data.forEach(function (val, i) {
                     if (val.curve) {
-                        obj.data.push({data: val.curve, color: '#42669a'/*,
-                            dashes: {show: true, dashLength: [5,5], lineWidth: 1}*/});
+                        obj.data.push({data: val.curve, color: '#42669a'
+                            /*dashes: {show: true, dashLength: [5,5], lineWidth: 1}*/});
                     }
-                    if (val.nodes) {
+                    else if (val.nodes) {
                         obj.data.push({data: val.nodes, color: '#42669a',
-                            points: {show: true, radius: 3, lineWidth: 2},
-                            dashes: {show: true, lineWidth: 1, dashLength: [2,2]}});
+                            points: {show: true, radius: 3, lineWidth: 2}
+                            /*dashes: {show: true, lineWidth: 1, dashLength: [2,2]}*/});
                     }
-                    if (val.knots) {
+                    else if (val.knots) {
                         obj.data.push({data: val.knots, color: '#42669a',
                             points: {show: true, lineWidth: 3}, lines: {show: true}});
                     }
@@ -53,7 +69,7 @@ $.register_module({
                 return obj;
             };
             curve.resize = function () {
-                var width = $selector.width(), height = $selector.height() - $options.height();
+                var width = $selector.width(), height = $selector.height();
                 $plot.css({height: height, width: width});
                 $flot = $.plot($plot, data.data, data.options);
                 $flot.zoom({amount:0.90});
@@ -67,9 +83,11 @@ $.register_module({
                     var previous_hover = null, sel = '.' + tooltip_class;
                     $selector.html((Handlebars.compile(template))({alive: alive}));
                     data = formatter(input, flot_options);
-                    $reset = $selector.find('span.og-curve-refresh').hide();
                     $plot = $selector.find('div.og-curve-plot');
-                    $options = $selector.find('div.og-curve-options');
+                    $reset = $('<div />').css(css.reset_container).html($('<div>Reset</div>').css(css.reset)).hide();
+                    $init_msg = $('<div />').css(css.reset_container).html(html.init_msg);
+                    $selector.append($reset);
+                    $selector.append($init_msg);
                     curve.resize();
                     /**
                      * Implement tooltip
@@ -87,6 +105,7 @@ $.register_module({
                     });
                     $plot.bind('plotpan plotzoom', function () {
                         $reset.show();
+                        $init_msg.hide();
                         curve.update(input);
                     });
                     $reset.on('click', function () {
