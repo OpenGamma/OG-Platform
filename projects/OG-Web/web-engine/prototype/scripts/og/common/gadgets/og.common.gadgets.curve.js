@@ -15,28 +15,13 @@ $.register_module({
                     data = data.v || data;
                     if (!$.isArray(data))
                         return og.dev.warn(module.name + ': data should be an Array', data);
-                    gadget.data = temp_manipulation([{curve: data}]);
+                    gadget.data = [{curve: data}];
                     if (!curve && gadget.data){
                         curve = new og.common.gadgets.CurvePlot({selector:config.selector, data: gadget.data});
                     }
                     else
                         curve.update(gadget.data);
             });
-            var temp_manipulation = function (input) {
-                var one = input[0].curve.map(function(single, index){
-                    if (index%10 == 4) return [single[0],single[1]*.8];
-                }).filter(function(single) {
-                    return typeof single !== 'undefined';
-                });
-                var two = input[0].curve.map(function(single, index) {
-                    if (index%10 == 0)  return [single[0],single[1]*1.1];
-                }).filter(function(single) {
-                    return typeof single !== 'undefined';
-                });
-                input.push({knots:one});
-                input.push({nodes:two});
-                return input;
-            };
             gadget.alive = function () {
                 var live = curve && curve.alive;
                 if (!live) gadget.dataman.kill();

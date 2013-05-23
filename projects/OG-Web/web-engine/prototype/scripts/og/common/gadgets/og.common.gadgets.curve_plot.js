@@ -37,16 +37,17 @@ $.register_module({
                 var obj = {options: options, data: []};
                 if ($.isArray(data)) data.forEach(function (val, i) {
                     if (val.curve) {
-                        obj.data.push({data: val.curve, color: '#ff9c00', dashes: {show: true, dashLength: [5,5], lineWidth: 1}});
-                        //obj.options.colors.push(color_arr[i]);
+                        obj.data.push({data: val.curve, color: '#42669a'/*,
+                            dashes: {show: true, dashLength: [5,5], lineWidth: 1}*/});
                     }
                     if (val.nodes) {
-                        obj.data.push({data: val.nodes, color: '#ff9c00', points: {show: true, radius: 3, lineWidth: 2}, dashes: {show: true, lineWidth: 1, dashLength: [2,2]}});
-                        //obj.options.colors.push(color_arr[i]);
+                        obj.data.push({data: val.nodes, color: '#42669a',
+                            points: {show: true, radius: 3, lineWidth: 2},
+                            dashes: {show: true, lineWidth: 1, dashLength: [2,2]}});
                     }
                     if (val.knots) {
-                        obj.data.push({data: val.knots, color: '#ff9c00', points: {show: true, lineWidth: 3}, lines: {show: true}});
-                        //obj.options.colors.push(color_arr[i]);
+                        obj.data.push({data: val.knots, color: '#42669a',
+                            points: {show: true, lineWidth: 3}, lines: {show: true}});
                     }
                 });
                 return obj;
