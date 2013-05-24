@@ -18,7 +18,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -164,7 +164,8 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+    public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
+        Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
       throw new UnsupportedOperationException("getCompiledCalculationConfigurations not implemented");
     }
 

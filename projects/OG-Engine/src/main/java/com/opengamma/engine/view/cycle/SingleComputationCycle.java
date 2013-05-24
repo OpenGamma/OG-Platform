@@ -49,11 +49,15 @@ import com.opengamma.engine.exec.DependencyNodeJobExecutionResult;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResultCache;
 import com.opengamma.engine.exec.ExecutionResult;
 import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.function.EmptyFunctionParameters;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.resource.EngineResource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -348,11 +352,47 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       return false;
     }
 
+    if (_executionOptions.getMarketDataSelector().hasSelectionsDefined()) {
+
+      for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
+        provideFunctionParameters(calcConfigurationName);
+      }
+    }
+
     if (previousCycle != null) {
       computeDelta(previousCycle);
     }
     
     return true;
+  }
+
+  private void provideFunctionParameters(String calcConfigurationName) {
+
+    s_logger.info("Building function parameters for market data manipulation in calculation configuration {}", calcConfigurationName);
+    CompiledViewCalculationConfiguration calculationConfiguration =
+        _compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigurationName);
+
+    DependencyGraph graph = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigurationName).getWholeGraph();
+
+    Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections =
+        calculationConfiguration.getMarketDataSelections();
+
+    Map<DistinctMarketDataSelector, FunctionParameters> functionParameters = _executionOptions.getFunctionParameters();
+
+    for (Map.Entry<DistinctMarketDataSelector, Set<ValueSpecification>> entry : marketDataSelections.entrySet()) {
+
+      DistinctMarketDataSelector selector = entry.getKey();
+      Set<ValueSpecification> matchingSpecifications = entry.getValue();
+
+      for (ValueSpecification valueSpecification : matchingSpecifications) {
+
+        FunctionParameters parameters = functionParameters.containsKey(selector) ?
+            functionParameters.get(selector) : new EmptyFunctionParameters();
+
+        DependencyNode node = graph.getNodeProducing(valueSpecification);
+        node.setFunction(new ParameterizedFunction(node.getFunction().getFunction(), parameters));
+      }
+    }
   }
 
   /**

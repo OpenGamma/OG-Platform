@@ -32,7 +32,7 @@ public class MarketDataPointSelector extends ExactMatchMarketDataSelector<Extern
    * @param dataPointId the external id of the market data point to be selected, not null
    * @return a new MarketDataSelector for themarket data point
    */
-  public static MarketDataSelector of(ExternalId dataPointId) {
+  public static DistinctMarketDataSelector of(ExternalId dataPointId) {
     return new MarketDataPointSelector(dataPointId);
   }
 

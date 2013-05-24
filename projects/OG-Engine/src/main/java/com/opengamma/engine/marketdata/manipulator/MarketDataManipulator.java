@@ -26,14 +26,14 @@ public class MarketDataManipulator {
     ArgumentChecker.notNull(marketDataSelector, "marketDataShiftSpecifications");
   }
 
-  public Map<MarketDataSelector, Set<ValueSpecification>> modifyDependencyGraph(DependencyGraph graph) {
+  public Map<DistinctMarketDataSelector, Set<ValueSpecification>> modifyDependencyGraph(DependencyGraph graph) {
 
-    // Drop out immediately if we have no shifts specified (caller should already have called this anyway)
+    // Drop out immediately if we have no shifts specified (caller should already have verified this but check just in case)
     if (!hasManipulationsDefined()) {
       return ImmutableMap.of();
     }
 
-    Map<MarketDataSelector, Set<ValueSpecification>> matches = new HashMap<>();
+    Map<DistinctMarketDataSelector, Set<ValueSpecification>> matches = new HashMap<>();
 
     String configurationName = graph.getCalculationConfigurationName();
 
@@ -43,7 +43,7 @@ public class MarketDataManipulator {
 
       DependencyNode node = entry.getValue();
 
-      MarketDataSelector matchingSelector = _marketDataSelector.findMatchingSelector(entry.getKey(), configurationName);
+      DistinctMarketDataSelector matchingSelector = _marketDataSelector.findMatchingSelector(entry.getKey(), configurationName);
       if (matchingSelector != null) {
 
         // Alter the dependency graph, inserting a new node to allow manipulation of the structure data

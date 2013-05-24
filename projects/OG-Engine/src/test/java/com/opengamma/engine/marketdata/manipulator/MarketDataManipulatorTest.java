@@ -37,7 +37,7 @@ public class MarketDataManipulatorTest {
   public void testInvocationWithEmptyGraphsGivesEmptyResults() {
 
     MarketDataManipulator manipulator = createNoOpManipulator();
-    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(new DependencyGraph("testGraph"));
+    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(new DependencyGraph("testGraph"));
     assertEquals(result.isEmpty(), true);
   }
 
@@ -48,7 +48,7 @@ public class MarketDataManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
+    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
 
     assertEquals(result.isEmpty(), true);
     assertEquals(graph.getOutputSpecifications(), originalOutputSpecifications);
@@ -61,7 +61,7 @@ public class MarketDataManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
+    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
 
     checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
   }
@@ -74,7 +74,7 @@ public class MarketDataManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<MarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
+    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
 
     checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
 
@@ -86,7 +86,7 @@ public class MarketDataManipulatorTest {
 
   private void checkNodeHasBeenAddedToGraph(DependencyGraph graph,
                                             Set<ValueSpecification> originalOutputSpecifications,
-                                            Map<MarketDataSelector, Set<ValueSpecification>> result) {
+                                            Map<DistinctMarketDataSelector, Set<ValueSpecification>> result) {
 
     assertEquals(result.isEmpty(), false);
     ValueSpecification originalValueSpec = Iterables.getOnlyElement(originalOutputSpecifications);

@@ -50,17 +50,17 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
    * @param specifications the specifications to be combined, neither null nor empty
    * @return a specification combined all the underlying specifications, not null
    */
-  public static MarketDataSelector of(Set<MarketDataSelector> specifications) {
+  public static MarketDataSelector of(Set<? extends MarketDataSelector> specifications) {
     return new CompositeMarketDataSelector(ImmutableSet.copyOf(specifications));
   }
 
   @Override
-  public MarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
                                                  String calculationConfigurationName) {
 
     for (MarketDataSelector specification : _underlyingSpecifications) {
 
-      MarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName);
+      DistinctMarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName);
       if (matchingSelector != null) {
         return matchingSelector;
       }

@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @param <K> the type of the identifier of the underlying data
  */
-public abstract class ExactMatchMarketDataSelector<K> implements MarketDataSelector {
+public abstract class ExactMatchMarketDataSelector<K> implements DistinctMarketDataSelector {
 
   /**
    * The external id of the data point to be selected.
@@ -38,7 +38,7 @@ public abstract class ExactMatchMarketDataSelector<K> implements MarketDataSelec
   }
 
   @Override
-  public MarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName) {
+  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName) {
     return _structureId.equals(structureId) ? this : null;
   }
 
