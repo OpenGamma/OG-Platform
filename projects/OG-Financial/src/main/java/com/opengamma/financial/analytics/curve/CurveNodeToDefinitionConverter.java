@@ -215,26 +215,27 @@ public class CurveNodeToDefinitionConverter {
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinition<?> visitSwapNode(final SwapNode swapNode) {
-        final double rate = marketValues.getDataPoint(marketDataId);
         final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
         final Convention receiveLegConvention = _conventionSource.getConvention(swapNode.getReceiveLegConvention());
         final AnnuityDefinition<? extends PaymentDefinition> payLeg;
         final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
         if (payLegConvention instanceof SwapFixedLegConvention) {
+          final double rate = marketValues.getDataPoint(marketDataId);
           payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, rate, true);
         } else if (payLegConvention instanceof VanillaIborLegConvention) {
-          payLeg = getIborLeg((VanillaIborLegConvention) payLegConvention, swapNode, false);
+          payLeg = getIborLeg((VanillaIborLegConvention) payLegConvention, swapNode, true);
         } else if (payLegConvention instanceof OISLegConvention) {
-          payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, false);
+          payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, true);
         } else {
           throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
         }
         if (receiveLegConvention instanceof SwapFixedLegConvention) {
+          final double rate = marketValues.getDataPoint(marketDataId);
           receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, rate, false);
         } else if (receiveLegConvention instanceof VanillaIborLegConvention) {
-          receiveLeg = getIborLeg((VanillaIborLegConvention) receiveLegConvention, swapNode, true);
+          receiveLeg = getIborLeg((VanillaIborLegConvention) receiveLegConvention, swapNode, false);
         } else if (receiveLegConvention instanceof OISLegConvention) {
-          receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, true);
+          receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, false);
         } else {
           throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
         }
@@ -258,7 +259,11 @@ public class CurveNodeToDefinitionConverter {
       //TODO do we actually need the settlement days for the swap, not the index?
       @SuppressWarnings("synthetic-access")
       private AnnuityCouponIborDefinition getIborLeg(final VanillaIborLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
-        final IborIndexConvention indexConvention = (IborIndexConvention) _conventionSource.getConvention(convention.getIborIndexConvention());
+        final Convention underlyingConvention = _conventionSource.getConvention(convention.getIborIndexConvention());
+        if (!(underlyingConvention instanceof IborIndexConvention)) {
+          throw new OpenGammaRuntimeException("Convention of the underlying was not an ibor index convention");
+        }
+        final IborIndexConvention indexConvention = (IborIndexConvention) underlyingConvention;
         final Currency currency = indexConvention.getCurrency();
         final DayCount dayCount = indexConvention.getDayCount();
         final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
