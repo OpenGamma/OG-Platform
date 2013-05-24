@@ -25,6 +25,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class StructureIdentifier<T> {
 
+  private static final String STRUCTURE_TYPE = "structureType";
+  private static final String VALUE = "value";
   /**
    * The type of market data structure which is to be manipulated.
    */
@@ -37,8 +39,8 @@ public class StructureIdentifier<T> {
 
   private StructureIdentifier(StructureType structureType, T value) {
 
-    ArgumentChecker.notNull(structureType, "structureType");
-    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(structureType, STRUCTURE_TYPE);
+    ArgumentChecker.notNull(value, VALUE);
     _structureType = structureType;
     _value = value;
   }
@@ -110,15 +112,16 @@ public class StructureIdentifier<T> {
     return result;
   }
 
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+  public MutableFudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add("structureType", _structureType);
-    msg.add("value", _value);
+    serializer.addToMessage(msg, STRUCTURE_TYPE, null, _structureType);
+    serializer.addToMessageWithClassHeaders(msg, VALUE, null, _value);
     return msg;
   }
 
-  public static StructureIdentifier<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return new StructureIdentifier<>(
-        msg.getValue(StructureType.class, "structureType"), msg.getValue("value"));
+  public static StructureIdentifier<?> fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
+    StructureType structureType = deserializer.fieldValueToObject(StructureType.class, msg.getByName(STRUCTURE_TYPE));
+    Object value = deserializer.fieldValueToObject(Object.class, msg.getByName(VALUE));
+    return new StructureIdentifier<>(structureType, value);
   }
 }

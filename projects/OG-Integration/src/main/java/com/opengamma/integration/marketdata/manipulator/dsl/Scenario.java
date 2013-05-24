@@ -5,12 +5,15 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Collections;
+import java.util.Map;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.google.common.collect.Maps;
+import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.function.SimpleFunctionParameters;
+import com.opengamma.engine.function.StructureManipulationFunction;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.StructureManipulator;
 
 /**
  *
@@ -19,24 +22,24 @@ public class Scenario implements ScenarioBuilder {
 
   /** Default calculation configuration name. TODO does this exist as a constant somewhere else? */
   private static final String DEFAULT = "Default";
-  private final List<Selector> _selectors = Lists.newArrayList();
 
-  public CurveSelector curve() {
-    CurveSelector selector = new CurveSelector(DEFAULT);
-    _selectors.add(selector);
-    return selector;
+  private final Map<DistinctMarketDataSelector, FunctionParameters> _manipulations = Maps.newHashMap();
+
+  public CurveSelector.Builder curve() {
+    return new CurveSelector.Builder(this, DEFAULT);
   }
 
-  @Override
-  public CalculationConfigurationSelector calculationConfig(String configName) {
-    return new CalculationConfigurationSelector(configName);
+  public ScenarioBuilder calculationConfig(String configName) {
+    return new CalculationConfigurationSelector(this, configName);
   }
 
-  public Set<MarketDataSelector> getMarketDataSelectors() {
-    Set<MarketDataSelector> marketDataSelectors = Sets.newHashSet();
-    for (Selector selector : _selectors) {
-      marketDataSelectors.add(selector.getMarketDataSelector());
-    }
-    return marketDataSelectors;
+  public Map<DistinctMarketDataSelector, FunctionParameters> getMarketDataManipulations() {
+    return Collections.unmodifiableMap(_manipulations);
+  }
+
+  /* package */ void add(DistinctMarketDataSelector selector, StructureManipulator<?> manipulator) {
+    SimpleFunctionParameters parameters = new SimpleFunctionParameters();
+    parameters.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, manipulator);
+    _manipulations.put(selector, parameters);
   }
 }

@@ -112,8 +112,8 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
-    for (MarketDataSelector specification : _underlyingSpecifications) {
-      serializer.addToMessageWithClassHeaders(msg, SELECTORS, null, specification);
+    for (MarketDataSelector selector : _underlyingSpecifications) {
+      serializer.addToMessageWithClassHeaders(msg, SELECTORS, null, selector);
     }
     return msg;
   }

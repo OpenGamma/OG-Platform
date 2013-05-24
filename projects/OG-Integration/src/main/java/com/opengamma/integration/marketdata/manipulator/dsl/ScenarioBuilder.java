@@ -10,8 +10,5 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
  */
 public interface ScenarioBuilder {
 
-  CurveSelector curve();
-
-  CalculationConfigurationSelector calculationConfig(String configName);
-
+  CurveSelector.Builder curve();
 }

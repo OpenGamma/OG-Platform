@@ -5,81 +5,64 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.engine.marketdata.manipulator.StructureType;
+import com.opengamma.util.money.Currency;
 
 /**
- *
+ * TODO should this extend PredicateSelector? not sure why it needs to exist
  */
-public class CurveSelector extends Selector {
+public class CurveSelector extends Selector<YieldCurveKey> {
 
-  private final List<Predicate<YieldCurveKey>> _predicates = Lists.newArrayList();
-  private final String _calcConfigName;
-
-  private CurveManipulator _manipulator;
-
-  public CurveSelector(String calcConfigName) {
-    ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
-    _calcConfigName = calcConfigName;
-  }
-
-  public CurveSelector named(String... names) {
-    _predicates.add(new YieldCurveNamedPredicate(names));
-    return this;
-  }
-
-  public CurveSelector nameMatches(String regex) {
-    _predicates.add(new YieldCurveNameMatchesPredicate(regex));
-    return this;
-  }
-
-  public CurveSelector currencies(String... codes) {
-    _predicates.add(new YieldCurveCurrenciesPredicate(codes));
-    return this;
-  }
-
-  public CurveManipulator apply() {
-    if (_manipulator != null) {
-      throw new IllegalStateException("apply() can only be called once on a CurveSelector");
-    }
-    _manipulator = new CurveManipulator();
-    return _manipulator;
+  /* package */ CurveSelector(String calcConfigName, Set<String> names, Set<Currency> currencies, Pattern namePattern) {
+    super(calcConfigName, names, currencies, namePattern, YieldCurveKey.class, StructureType.YIELD_CURVE);
   }
 
   @Override
-  /* package */ MarketDataSelector getMarketDataSelector() {
-    return new PredicateSelector<>(_calcConfigName, ImmutableList.copyOf(_predicates), YieldCurveKey.class);
+  boolean matches(YieldCurveKey key) {
+    return matches(key.getName(), key.getCurrency());
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    CurveSelector that = (CurveSelector) o;
 
-    if (!_calcConfigName.equals(that._calcConfigName)) {
-      return false;
-    }
-    if (!_predicates.equals(that._predicates)) {
-      return false;
-    }
-    return true;
-  }
+  public static class Builder extends Selector.Builder {
 
-  @Override
-  public int hashCode() {
-    int result = _predicates.hashCode();
-    result = 31 * result + _calcConfigName.hashCode();
-    return result;
+    /* package */ Builder(Scenario scenario, String calcConfigName) {
+      super(scenario, calcConfigName);
+    }
+
+    public CurveManipulator.Builder apply() {
+      CurveSelector selector = new CurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
+      return new CurveManipulator.Builder(selector, getScenario());
+    }
+
+    @Override
+    public Builder named(String... names) {
+      super.named(names);
+      return this;
+    }
+
+    @Override
+    public Builder currencies(String... codes) {
+      super.currencies(codes);
+      return this;
+    }
+
+    @Override
+    public Builder nameMatches(String regex) {
+      super.nameMatches(regex);
+      return this;
+    }
+
+    /**
+     * This is for testing
+     * @return A selector built from this builder's data
+     */
+    /* package */ MarketDataSelector selector() {
+      return new CurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
+    }
   }
 }

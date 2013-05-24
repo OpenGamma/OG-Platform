@@ -6,6 +6,7 @@
 package com.opengamma.engine.fudgemsg;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -16,6 +17,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Maps;
+import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -31,6 +35,8 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
   private static final String RESOLVER_VERSION_CORRECTION = "resolverVersionCorrection";
   private static final String MARKET_DATA_SPECIFICATION = "marketDataSpecification";
   private static final String MARKET_DATA_SELECTOR = "marketDataSelector";
+  private static final String FUNCTION_PARAMETERS = "functionParameters";
+  private static final String SELECTOR = "selector";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ViewCycleExecutionOptions object) {
@@ -41,6 +47,16 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
     }
     serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SELECTOR, null, object.getMarketDataSelector());
     serializer.addToMessage(msg, RESOLVER_VERSION_CORRECTION, null, object.getResolverVersionCorrection());
+    if (!object.getFunctionParameters().isEmpty()) {
+      MutableFudgeMsg parametersMsg = serializer.newMessage();
+      for (Map.Entry<DistinctMarketDataSelector, FunctionParameters> entry : object.getFunctionParameters().entrySet()) {
+        MutableFudgeMsg entryMsg = serializer.newMessage();
+        serializer.addToMessageWithClassHeaders(entryMsg, SELECTOR, null, entry.getKey());
+        serializer.addToMessageWithClassHeaders(entryMsg, FUNCTION_PARAMETERS, null, entry.getValue());
+        serializer.addToMessage(parametersMsg, FUNCTION_PARAMETERS, null, entryMsg);
+      }
+      serializer.addToMessage(msg, FUNCTION_PARAMETERS, null, parametersMsg);
+    }
     return msg;
   }
 
@@ -64,6 +80,20 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
     field = msg.getByName(RESOLVER_VERSION_CORRECTION);
     if (field != null) {
       builder.setResolverVersionCorrection(deserializer.fieldValueToObject(VersionCorrection.class, field));
+    }
+    field = msg.getByName(FUNCTION_PARAMETERS);
+    if (field != null) {
+      Map<DistinctMarketDataSelector, FunctionParameters> paramMap = Maps.newHashMap();
+      FudgeMsg paramsMsg = (FudgeMsg) field.getValue();
+      for (FudgeField paramsField : paramsMsg) {
+        FudgeMsg paramMsg = (FudgeMsg) paramsField.getValue();
+        DistinctMarketDataSelector selector = deserializer.fieldValueToObject(DistinctMarketDataSelector.class,
+                                                                              paramMsg.getByName(SELECTOR));
+        FunctionParameters params = deserializer.fieldValueToObject(FunctionParameters.class,
+                                                                    paramMsg.getByName(FUNCTION_PARAMETERS));
+        paramMap.put(selector, params);
+      }
+      builder.setFunctionParameters(paramMap);
     }
     return builder.create();
   }

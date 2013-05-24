@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.marketdata.manipulator.CompositeMarketDataSelector;
@@ -30,6 +28,7 @@ import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
@@ -60,7 +59,7 @@ public class ScenarioTool extends AbstractTool<ToolContext> {
     ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getTestUser());
     Collection<ConfigItem<ViewDefinition>> viewDefs =
         getToolContext().getConfigSource().get(ViewDefinition.class,
-                                               "AUD Swaps (3m / 6m basis) (1)", // TODO option for this?
+                                               "AUD Swaps (3m / 6m basis) (1)", // TODO option for this
                                                VersionCorrection.LATEST);
     if (viewDefs.isEmpty()) {
       throw new IllegalStateException("View definition 'AUD Swaps (3m / 6m basis) (1)' not found");
@@ -74,11 +73,12 @@ public class ScenarioTool extends AbstractTool<ToolContext> {
             .builder()
             .setValuationTime(Instant.now())
             .setMarketDataSpecifications(marketDataSpecs)
-            .setMarketDataSelector(CompositeMarketDataSelector.of(scenario.getMarketDataSelectors()))
+            .setMarketDataSelector(CompositeMarketDataSelector.of(scenario.getMarketDataManipulations().keySet()))
+            .setFunctionParameters(scenario.getMarketDataManipulations())
             .setResolverVersionCorrection(VersionCorrection.LATEST)
             .create();
-    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
-    ArbitraryViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(ImmutableList.of(defaultOptions));
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().awaitMarketData().get();
+    ViewCycleExecutionSequence sequence = ArbitraryViewCycleExecutionSequence.single(defaultOptions);
     ViewExecutionOptions executionOptions = ExecutionOptions.of(sequence, defaultOptions, flags);
     viewClient.setResultListener(new Listener());
     viewClient.attachToViewProcess(viewDef.getUniqueId(), executionOptions, true);
@@ -87,20 +87,11 @@ public class ScenarioTool extends AbstractTool<ToolContext> {
     viewClient.shutdown();
   }
 
-  // TODO extract this or allow subclasses to override it. Provider<Scenario>?
+  // TODO use ScenarioProvider
   private Scenario createScenario() {
     Scenario scenario = new Scenario();
-    //scenario.curve().named("Discounting").currencies("AUD").apply().parallelShift(0.01);
-    scenario.curve().named("ForwardBasis6M").apply().transform(new CurveTransformer());
+    scenario.curve().named("Discounting").currencies("AUD").apply().parallelShift(0.001).execute();
     return scenario;
-  }
-
-  private static class CurveTransformer implements Function<YieldAndDiscountCurve, YieldAndDiscountCurve> {
-
-    @Override
-    public YieldAndDiscountCurve apply(YieldAndDiscountCurve input) {
-      return input;
-    }
   }
 
   private static class Listener extends AbstractViewResultListener {
@@ -113,8 +104,7 @@ public class ScenarioTool extends AbstractTool<ToolContext> {
     }
 
     @Override
-    public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition,
-                                       boolean hasMarketDataPermissions) {
+    public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
       s_logger.info("view definition complied");
     }
 
