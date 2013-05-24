@@ -6,7 +6,6 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +98,8 @@ import com.opengamma.engine.value.ValueSpecification;
         if (needsOuterPump) {
           pumpImpl(context);
           boolean lastResult = false;
-          Collection<Callback> pumped = null;
+          Callback[] pumped = null;
+          int numPumped;
           synchronized (AbstractResolvedValueProducer.this) {
             switch (_pumping) {
               case 1:
@@ -107,15 +107,17 @@ import com.opengamma.engine.value.ValueSpecification;
                 break;
               case 3:
                 // Next result ready; need to notify subscribers
-                if (!_pumped.isEmpty()) {
-                  pumped = new ArrayList<Callback>(_pumped);
+                numPumped = _pumped.size();
+                if (numPumped > 0) {
+                  pumped = _pumped.toArray(new Callback[numPumped]);
                   _pumped.clear();
                 }
                 break;
               case 7:
                 // Last result ready; need to notify subscribers
-                if (!_pumped.isEmpty()) {
-                  pumped = new ArrayList<Callback>(_pumped);
+                numPumped = _pumped.size();
+                if (numPumped > 0) {
+                  pumped = _pumped.toArray(new Callback[numPumped]);
                   _pumped.clear();
                 }
                 _pumped = null;
@@ -247,7 +249,7 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  private void pumpCallbacks(final GraphBuildingContext context, final Collection<Callback> pumped, final boolean lastResult) {
+  private void pumpCallbacks(final GraphBuildingContext context, final Callback[] pumped, final boolean lastResult) {
     if (pumped != null) {
       final boolean finished;
       final ResolvedValue[] results;
@@ -305,7 +307,7 @@ import com.opengamma.engine.value.ValueSpecification;
       s_logger.debug("Rejecting {} not satisfying {}", value, this);
       return false;
     }
-    Collection<Callback> pumped = null;
+    Callback[] pumped = null;
     synchronized (this) {
       if (_results == null) {
         // Already discarded -- accept the value silently
@@ -374,8 +376,9 @@ import com.opengamma.engine.value.ValueSpecification;
         }
         return true;
       }
-      if (!_pumped.isEmpty()) {
-        pumped = new ArrayList<Callback>(_pumped);
+      final int s = _pumped.size();
+      if (s > 0) {
+        pumped = _pumped.toArray(new Callback[s]);
         _pumped.clear();
       }
       if (lastResult) {
@@ -404,7 +407,7 @@ import com.opengamma.engine.value.ValueSpecification;
   protected void finished(final GraphBuildingContext context) {
     assert !_finished;
     s_logger.debug("Finished producing results at {}", this);
-    Collection<Callback> pumped = null;
+    Callback[] pumped = null;
     synchronized (this) {
       _finished = true;
       if (_pumping > 0) {
@@ -412,8 +415,9 @@ import com.opengamma.engine.value.ValueSpecification;
         return;
       }
       if (_pumped != null) {
-        if (!_pumped.isEmpty()) {
-          pumped = new ArrayList<Callback>(_pumped);
+        final int s = _pumped.size();
+        if (s > 0) {
+          pumped = _pumped.toArray(new Callback[s]);
         }
         _pumped = null;
       }

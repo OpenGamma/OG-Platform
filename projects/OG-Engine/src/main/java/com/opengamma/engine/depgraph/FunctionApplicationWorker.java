@@ -37,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   protected void pumpImpl(final GraphBuildingContext context) {
-    Collection<ResolutionPump> pumps = null;
+    ResolutionPump[] pumps = null;
     FunctionApplicationStep.PumpingState finished = null;
     int refCount = 0;
     synchronized (this) {
@@ -53,9 +53,10 @@ import com.opengamma.engine.value.ValueSpecification;
           _taskState = null;
           refCount = getRefCount();
         } else {
-          pumps = new ArrayList<ResolutionPump>(_pumps);
+          final int s = _pumps.size();
+          pumps = _pumps.toArray(new ResolutionPump[s]);
           _pumps.clear();
-          _pendingInputs = pumps.size();
+          _pendingInputs = s;
         }
       } else {
         // If the state performs a direct pump as well as the trigger from AbstractResolvedValueProducer
