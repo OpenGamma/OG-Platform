@@ -52,58 +52,55 @@ import com.opengamma.util.tuple.Triple;
         } else {
           // Value has already been produced
           s_logger.debug("Using existing production of {}", resolvedOutput);
-          setTaskState(new ExistingProductionStep(getTask(), this, resolvedFunction, resolvedOutput));
-          if (!pushResult(context, existingValue, false)) {
-            s_logger.debug("Production not accepted - rescheduling");
-            setRunnableTaskState(this, context);
+          final ResolveTask.State state = new ExistingProductionStep(getTask(), this, resolvedFunction, resolvedOutput);
+          if (setTaskState(state)) {
+            if (!pushResult(context, existingValue, false)) {
+              s_logger.debug("Production not accepted - rescheduling");
+              state.setRunnableTaskState(this, context);
+            }
           }
         }
       } else {
         // Other tasks are working on it, or have already worked on it
         s_logger.debug("Delegating to existing producers for {}", resolvedOutput);
         final ExistingResolutionsStep state = new ExistingResolutionsStep(getTask(), this, resolvedFunction, resolvedOutput);
-        setTaskState(state);
-        ResolvedValueProducer singleTask = null;
-        AggregateResolvedValueProducer aggregate = null;
-        // Must not introduce a loop (checking parent resolve tasks isn't sufficient) so only use "finished" tasks.
-        final ResolveTask[] existingTasks = existing.getFirst();
-        final ResolvedValueProducer[] existingProducers = existing.getSecond();
-        boolean recursion = false;
-        for (int i = 0; i < existingTasks.length; i++) {
-          if (existingTasks[i].isFinished()) {
-            // Can use this task without creating a loop
-            if (singleTask == null) {
-              singleTask = existingProducers[i];
-              singleTask.addRef(); // There is already an open count from when we got the producers
-            } else {
-              if (aggregate == null) {
-                aggregate = new AggregateResolvedValueProducer(getValueRequirement());
-                aggregate.addProducer(context, singleTask);
-                singleTask.release(context);
+        if (setTaskState(state)) {
+          ResolvedValueProducer singleTask = null;
+          AggregateResolvedValueProducer aggregate = null;
+          // Must not introduce a loop (checking parent resolve tasks isn't sufficient) so only use "finished" tasks.
+          final ResolveTask[] existingTasks = existing.getFirst();
+          final ResolvedValueProducer[] existingProducers = existing.getSecond();
+          for (int i = 0; i < existingTasks.length; i++) {
+            if (existingTasks[i].isFinished()) {
+              // Can use this task without creating a loop
+              if (singleTask == null) {
+                singleTask = existingProducers[i];
+                singleTask.addRef(); // There is already an open count from when we got the producers
+              } else {
+                if (aggregate == null) {
+                  aggregate = new AggregateResolvedValueProducer(getValueRequirement());
+                  aggregate.addProducer(context, singleTask);
+                  singleTask.release(context);
+                }
+                aggregate.addProducer(context, existingProducers[i]);
               }
-              aggregate.addProducer(context, existingProducers[i]);
             }
-          } else if (!recursion && getTask().hasParent(existingTasks[i])) {
-            recursion = true;
+            // Only the producers are ref-counted
+            existingProducers[i].release(context);
           }
-          // Only the producers are ref-counted
-          existingProducers[i].release(context);
-        }
-        if (aggregate != null) {
-          aggregate.addCallback(context, state);
-          aggregate.start(context);
-          aggregate.release(context);
-        } else {
-          if (singleTask != null) {
-            singleTask.addCallback(context, state);
-            singleTask.release(context);
-          } else if (recursion) {
-            // Loop detected
-            state.failed(context, getValueRequirement(), context.recursiveRequirement(getValueRequirement()));
+          if (aggregate != null) {
+            aggregate.addCallback(context, state);
+            aggregate.start(context);
+            aggregate.release(context);
           } else {
-            // Other threads haven't progressed to completion, and a loop isn't obvious - try and produce the value ourselves
-            s_logger.debug("No suitable delegate found - creating producer");
-            setRunnableTaskState(new FunctionApplicationStep(getTask(), this, resolvedFunction, resolvedOutput), context);
+            if (singleTask != null) {
+              singleTask.addCallback(context, state);
+              singleTask.release(context);
+            } else {
+              // Other threads haven't progressed to completion - try and produce the value ourselves
+              s_logger.debug("No suitable delegate found - creating producer");
+              state.setRunnableTaskState(new FunctionApplicationStep(getTask(), this, resolvedFunction, resolvedOutput), context);
+            }
           }
         }
       }
@@ -179,7 +176,11 @@ import com.opengamma.util.tuple.Triple;
 
   @Override
   protected boolean run(final GraphBuildingContext context) {
-    return getIterationBase().run(context);
+    if (setTaskState(getIterationBase())) {
+      return getIterationBase().run(context);
+    } else {
+      return true;
+    }
   }
 
 }

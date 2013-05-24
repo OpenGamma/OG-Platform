@@ -58,14 +58,18 @@ import com.opengamma.engine.value.ValueSpecification;
       getTask().finished(context);
     }
 
-    protected void setTaskState(final State nextState) {
-      getTask().setState(nextState);
+    protected boolean setTaskState(final State nextState) {
+      return getTask().setState(this, nextState);
     }
 
-    protected void setRunnableTaskState(final State nextState, final GraphBuildingContext context) {
+    protected boolean setRunnableTaskState(final State nextState, final GraphBuildingContext context) {
       final ResolveTask task = getTask();
-      task.setState(nextState);
-      context.run(task);
+      if (task.setState(this, nextState)) {
+        context.run(task);
+        return true;
+      } else {
+        return false;
+      }
     }
 
     protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue resolvedValue, final boolean lastResult) {
@@ -169,17 +173,23 @@ import com.opengamma.engine.value.ValueSpecification;
       _functionExclusion = null;
       _hashCode = hc;
     }
-    setState(new GetFunctionsStep(this));
+    _state = new GetFunctionsStep(this);
   }
 
   private State getState() {
     return _state;
   }
 
-  private void setState(final State state) {
-    assert state != null;
-    s_logger.debug("State transition {} to {}", _state, state);
-    _state = state;
+  private synchronized boolean setState(final State previousState, final State nextState) {
+    assert nextState != null;
+    if (_state == previousState) {
+      s_logger.debug("State transition {} to {}", previousState, nextState);
+      _state = nextState;
+      return true;
+    } else {
+      System.err.println("Invalid state transition - was " + _state + ", not " + previousState + " - not advancing to " + nextState);
+      return false;
+    }
   }
 
   @Override

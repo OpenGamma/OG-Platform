@@ -93,7 +93,10 @@ import com.opengamma.util.tuple.Triple;
         }
         if (!pushResult(context, value, false)) {
           synchronized (this) {
-            assert _pump == pump;
+            if (_pump != pump) {
+              // A rogue pump occurred
+              return;
+            }
             _pump = null;
           }
           context.pump(pump);
@@ -104,6 +107,10 @@ import com.opengamma.util.tuple.Triple;
           _pump = ResolutionPump.Dummy.INSTANCE;
         }
         if (!pushResult(context, value, false)) {
+          synchronized (this) {
+            // Clear the pump so a rogue call can't also cause us to reschedule
+            _pump = null;
+          }
           context.failed(this, valueRequirement, null);
         }
       }
@@ -276,9 +283,10 @@ import com.opengamma.util.tuple.Triple;
           }
         }
       };
-      setTaskState(delegate);
-      aggregate.addCallback(context, delegate);
-      aggregate.start(context);
+      if (setTaskState(delegate)) {
+        aggregate.addCallback(context, delegate);
+        aggregate.start(context);
+      }
       aggregate.release(context);
       return true;
     }
@@ -306,8 +314,9 @@ import com.opengamma.util.tuple.Triple;
             getWorker().pumpImpl(context);
           }
         };
-        setTaskState(delegate);
-        producer.addCallback(context, delegate);
+        if (setTaskState(delegate)) {
+          producer.addCallback(context, delegate);
+        }
         producer.release(context);
         return true;
       }
@@ -381,9 +390,10 @@ import com.opengamma.util.tuple.Triple;
           context.pump(pump);
         } else {
           // Go back to the original state
-          setTaskState(PumpingState.this);
-          // Do the required action
-          failedImpl(context);
+          if (setTaskState(PumpingState.this)) {
+            // Do the required action
+            failedImpl(context);
+          }
         }
       }
 
@@ -633,30 +643,31 @@ import com.opengamma.util.tuple.Triple;
         }
       }
       final PumpingState state = new PumpingState(getTask(), getIterationBase(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
-      setTaskState(state);
-      if (inputRequirements.isEmpty()) {
-        s_logger.debug("Function {} requires no inputs", functionDefinition);
-        worker.setPumpingState(state, 0);
-        if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap(), true)) {
-          context.discardTaskProducing(getResolvedOutput(), getTask());
-          setRunnableTaskState(getIterationBase(), context);
-          worker.finished(context);
-        }
-      } else {
-        s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
-        worker.setPumpingState(state, inputRequirements.size());
-        final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion = getFunctionExclusion(context, functionDefinition);
-        for (ValueRequirement inputRequirement : inputRequirements) {
-          final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
-          if (inputProducer != null) {
-            worker.addInput(context, inputProducer);
-            inputProducer.release(context);
-          } else {
-            worker.setRecursionDetected();
-            getTask().setRecursionDetected();
+      if (setTaskState(state)) {
+        if (inputRequirements.isEmpty()) {
+          s_logger.debug("Function {} requires no inputs", functionDefinition);
+          worker.setPumpingState(state, 0);
+          if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap(), true)) {
+            context.discardTaskProducing(getResolvedOutput(), getTask());
+            state.setRunnableTaskState(getIterationBase(), context);
+            worker.finished(context);
           }
+        } else {
+          s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
+          worker.setPumpingState(state, inputRequirements.size());
+          final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion = getFunctionExclusion(context, functionDefinition);
+          for (ValueRequirement inputRequirement : inputRequirements) {
+            final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+            if (inputProducer != null) {
+              worker.addInput(context, inputProducer);
+              inputProducer.release(context);
+            } else {
+              worker.setRecursionDetected();
+              getTask().setRecursionDetected();
+            }
+          }
+          worker.start(context);
         }
-        worker.start(context);
       }
       worker.release(context);
     } else {
@@ -664,8 +675,9 @@ import com.opengamma.util.tuple.Triple;
       // Another task is working on this, so delegate to it
       s_logger.debug("Delegating production of {} to worker {}", getResolvedOutput(), producer);
       final DelegateState state = new DelegateState(getTask(), getIterationBase());
-      setTaskState(state);
-      producer.addCallback(context, state);
+      if (setTaskState(state)) {
+        producer.addCallback(context, state);
+      }
       producer.release(context);
     }
     return true;

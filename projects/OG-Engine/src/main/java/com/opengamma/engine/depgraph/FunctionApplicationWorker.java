@@ -22,9 +22,9 @@ import com.opengamma.engine.value.ValueSpecification;
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationWorker.class);
 
-  private final Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
-  private final Map<ValueRequirement, Cancelable> _inputHandles = new HashMap<ValueRequirement, Cancelable>();
-  private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
+  private Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
+  private Map<ValueRequirement, Cancelable> _inputHandles = new HashMap<ValueRequirement, Cancelable>();
+  private Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
   private int _pendingInputs;
   private int _validInputs;
   private boolean _invokingFunction;
@@ -47,7 +47,7 @@ import com.opengamma.engine.value.ValueSpecification;
         return;
       }
       if (_pendingInputs < 1) {
-        if (_pumps.isEmpty()) {
+        if ((_pumps == null) || _pumps.isEmpty()) {
           s_logger.debug("{} finished (state={})", this, _taskState);
           finished = _taskState;
           _taskState = null;
@@ -82,16 +82,34 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   protected void finished(final GraphBuildingContext context) {
     super.finished(context);
-    Collection<ResolutionPump> pumps = null;
+    Collection<Cancelable> unsubscribes = null;
+    final Collection<ResolutionPump> pumps;
     synchronized (this) {
-      if (!_pumps.isEmpty()) {
-        pumps = new ArrayList<ResolutionPump>(_pumps);
-        _pumps.clear();
+      _inputs = null;
+      if (_inputHandles != null) {
+        if (_inputHandles.isEmpty()) {
+          unsubscribes = null;
+        } else {
+          unsubscribes = _inputHandles.values();
+        }
+        _inputHandles = null;
+      }
+      if (_pumps.isEmpty()) {
+        pumps = null;
+      } else {
+        pumps = _pumps;
+      }
+      _pumps = null;
+    }
+    if (unsubscribes != null) {
+      for (Cancelable unsubscribe : unsubscribes) {
+        if (unsubscribe != null) {
+          unsubscribe.cancel(context);
+        }
       }
     }
     if (pumps != null) {
       for (ResolutionPump pump : pumps) {
-        s_logger.debug("Discarding input {} from {}", pump, this);
         context.close(pump);
       }
     }
@@ -111,6 +129,10 @@ import com.opengamma.engine.value.ValueSpecification;
     if (resolvedValues != null) {
       final boolean lastResult;
       synchronized (this) {
+        if (_pumps == null) {
+          // Already aborted/finished
+          return;
+        }
         lastResult = _pumps.isEmpty();
       }
       boolean inputsAccepted = state.inputsAvailable(context, resolvedValues, lastResult);
@@ -137,60 +159,64 @@ import com.opengamma.engine.value.ValueSpecification;
     do {
       final Collection<Cancelable> unsubscribes;
       synchronized (this) {
-        _inputHandles.remove(value);
         _pendingInputs--;
         _validInputs--;
-        if (_inputs.get(value) == null) {
-          s_logger.info("Resolution of {} failed", value);
-          if (_taskState != null) {
-            if (_taskState.canHandleMissingInputs()) {
-              state = _taskState;
-              requirementFailure = state.functionApplication(context).requirement(value, null);
-              _inputs.remove(value);
-              if (_pendingInputs == 0) {
-                // Got as full a set of inputs as we're going to get; notify the task state
+        if (_inputHandles != null) {
+          _inputHandles.remove(value);
+          if (_inputs.get(value) == null) {
+            s_logger.info("Resolution of {} failed", value);
+            if (_taskState != null) {
+              if (_taskState.canHandleMissingInputs()) {
+                state = _taskState;
+                requirementFailure = state.functionApplication(context).requirement(value, null);
+                _inputs.remove(value);
+                if (_pendingInputs == 0) {
+                  // Got as full a set of inputs as we're going to get; notify the task state
+                  resolvedValues = createResolvedValuesMap();
+                  _invokingFunction = true;
+                  s_logger.debug("Partial input set available");
+                } else {
+                  resolvedValues = null;
+                  if (s_logger.isDebugEnabled()) {
+                    s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+                  }
+                  // Fall through so that failure is logged
+                }
+                break;
+              } else {
+                requirementFailure = _taskState.functionApplication(context).requirement(value, failure);
+              }
+            }
+          } else {
+            if (_taskState != null) {
+              // Might be okay - we've already had at least one value for this requirement
+              if (_pendingInputs > 0) {
+                // Ok; still waiting on other inputs
+                if (s_logger.isDebugEnabled()) {
+                  s_logger.debug("{} other inputs still pending", _pendingInputs);
+                }
+                return;
+              }
+              if (_validInputs > 0) {
+                // Ok; we've got other new values to push up
+                state = _taskState;
                 resolvedValues = createResolvedValuesMap();
                 _invokingFunction = true;
-                s_logger.debug("Partial input set available");
-              } else {
-                resolvedValues = null;
                 if (s_logger.isDebugEnabled()) {
-                  s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+                  s_logger.debug("Partial input set available on {} new inputs", _validInputs);
                 }
-                // Fall through so that failure is logged
+                break;
               }
-              break;
-            } else {
-              requirementFailure = _taskState.functionApplication(context).requirement(value, failure);
             }
           }
+          if (_inputHandles.isEmpty()) {
+            unsubscribes = null;
+          } else {
+            unsubscribes = _inputHandles.values();
+          }
+          _inputHandles = null;
         } else {
-          if (_taskState != null) {
-            // Might be okay - we've already had at least one value for this requirement
-            if (_pendingInputs > 0) {
-              // Ok; still waiting on other inputs
-              if (s_logger.isDebugEnabled()) {
-                s_logger.debug("{} other inputs still pending", _pendingInputs);
-              }
-              return;
-            }
-            if (_validInputs > 0) {
-              // Ok; we've got other new values to push up
-              state = _taskState;
-              resolvedValues = createResolvedValuesMap();
-              _invokingFunction = true;
-              if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Partial input set available on {} new inputs", _validInputs);
-              }
-              break;
-            }
-          }
-        }
-        if (_inputHandles.isEmpty()) {
           unsubscribes = null;
-        } else {
-          unsubscribes = new ArrayList<Cancelable>(_inputHandles.values());
-          _inputHandles.clear();
         }
         state = _taskState;
         if (state != null) {
@@ -232,23 +258,27 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   protected void discard(final GraphBuildingContext context) {
-    final Collection<Cancelable> unsubscribes;
+    Collection<Cancelable> unsubscribes = null;
     final Collection<ResolutionPump> pumps;
     synchronized (this) {
-      assert getRefCount() == 0;
       _taskState = null;
-      if (_inputHandles.isEmpty()) {
-        unsubscribes = null;
-      } else {
-        unsubscribes = new ArrayList<Cancelable>(_inputHandles.values());
-        _inputHandles.clear();
+      if (_inputs == null) {
+        // Already discarded/finished
+        return;
+      }
+      _inputs = null;
+      if (_inputHandles != null) {
+        if (!_inputHandles.isEmpty()) {
+          unsubscribes = _inputHandles.values();
+        }
+        _inputHandles = null;
       }
       if (_pumps.isEmpty()) {
         pumps = null;
       } else {
-        pumps = new ArrayList<ResolutionPump>(_pumps);
-        _pumps.clear();
+        pumps = _pumps;
       }
+      _pumps = null;
     }
     if (unsubscribes != null) {
       for (Cancelable unsubscribe : unsubscribes) {
@@ -302,6 +332,10 @@ import com.opengamma.engine.value.ValueSpecification;
   protected void storeFailure(final ResolutionFailure failure) {
     final FunctionApplicationStep.PumpingState state;
     synchronized (this) {
+      if (_pumps == null) {
+        // Already discarded; don't bother storing the failure information
+        return;
+      }
       state = _taskState;
     }
     if (state != null) {
@@ -314,21 +348,32 @@ import com.opengamma.engine.value.ValueSpecification;
     final ValueRequirement valueRequirement = inputProducer.getValueRequirement();
     s_logger.debug("Adding input {} to {}", valueRequirement, this);
     synchronized (this) {
+      if ((_inputs == null) || (_inputHandles == null)) {
+        // Already aborted or something has already failed
+        _validInputs--;
+        return;
+      }
       _inputs.put(valueRequirement, null);
       _inputHandles.put(valueRequirement, null);
       _pendingInputs++;
     }
     final Cancelable handle = inputProducer.addCallback(context, this);
     synchronized (this) {
-      if (handle != null) {
-        // Only store the handle if the producer hasn't already failed
-        if (_inputHandles.containsKey(valueRequirement)) {
-          _inputHandles.put(valueRequirement, handle);
+      if (_inputHandles != null) {
+        if (handle != null) {
+          // Only store the handle if the producer hasn't already failed
+          if (_inputHandles.containsKey(valueRequirement)) {
+            _inputHandles.put(valueRequirement, handle);
+          }
+        } else {
+          // Remove the handle placeholder if the producer didn't give us a handle 
+          _inputHandles.remove(valueRequirement);
         }
-      } else {
-        // Remove the handle placeholder if the producer didn't give us a handle 
-        _inputHandles.remove(valueRequirement);
+        return;
       }
+    }
+    if (handle != null) {
+      handle.cancel(context);
     }
   }
 
