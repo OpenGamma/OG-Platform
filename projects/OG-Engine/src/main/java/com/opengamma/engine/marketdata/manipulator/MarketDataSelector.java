@@ -25,14 +25,14 @@ public interface MarketDataSelector {
   boolean hasSelectionsDefined();
 
   /**
-   * Indicates if this selector is applicable to the specified market data structure. If it is, then
-   * the underlying selector that matches is returned.
+   * Indicates the distinct underlying selector that is applicable to the specified market data
+   * structure. If one is found, then it is returned.
    *
    * @param structureId the id of the structure to test against
    * @param calculationConfigurationName the calculation configuration
    * @return the underlying selector that matches the specified market data structure, null if there is no match
    */
-  MarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName);
+  DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName);
 
   /**
    * Gets the set of structure types that a selector matches. Most selectors will match just

@@ -8,8 +8,10 @@ package com.opengamma.engine.marketdata.manipulator;
 /**
  * Interface defining the manipulation of a structured object (yield curve, vol surface etc) to be
  * undertaken.
+ *
+ * @param <T> the type of structure (yield curve, vol surface etc)
  */
-public interface StructureManipulator {
+public interface StructureManipulator<T> {
 
   /**
    * Transforms a structured object into another structured object of the same type but with the
@@ -18,8 +20,7 @@ public interface StructureManipulator {
    * For example, take a YieldCurve and shift it by 10%.
    *
    * @param structure the structured object to transform
-   * @param <T> the type of structure (yield curve, vol surface etc)
    * @return a transformed structure
    */
-  <T> T execute(T structure);
+  T execute(T structure);
 }

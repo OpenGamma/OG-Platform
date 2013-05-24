@@ -33,7 +33,7 @@ public class YieldCurveSelector extends ExactMatchMarketDataSelector<YieldCurveK
    * @param yieldCurveKey the key of the yield curve to be shifted, not null
    * @return a new MarketDataSelector for the yield curve
    */
-  public static MarketDataSelector of(YieldCurveKey yieldCurveKey) {
+  public static DistinctMarketDataSelector of(YieldCurveKey yieldCurveKey) {
     return new YieldCurveSelector(yieldCurveKey);
   }
 

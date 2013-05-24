@@ -50,8 +50,8 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -1245,6 +1245,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       try {
         if (!getJob().isTerminated()) {
           compiledViewDefinition = _compilationTask.get();
+          compiledViewDefinition = initialiseMarketDataManipulation(compiledViewDefinition);
           cacheCompiledViewDefinition(compiledViewDefinition);
         } else {
           return null;
@@ -1253,7 +1254,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         _compilationTask = null;
       }
 
-      initialiseMarketDataManipulation();
 
     } catch (final Exception e) {
       final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
@@ -1282,16 +1282,16 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return compiledViewDefinition;
   }
 
-  private void initialiseMarketDataManipulation() {
+  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition) {
 
     if (_marketDataManipulator.hasManipulationsDefined()) {
 
-      Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
 
-      for (DependencyGraphExplorer graphExplorer : _latestCompiledViewDefinition.getDependencyGraphExplorers()) {
+      for (DependencyGraphExplorer graphExplorer : compiledViewDefinition.getDependencyGraphExplorers()) {
 
         DependencyGraph graph = graphExplorer.getWholeGraph();
-        Map<MarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataManipulator.modifyDependencyGraph(graph);
+        Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataManipulator.modifyDependencyGraph(graph);
 
         if (!selectorMapping.isEmpty()) {
           selectionsByGraph.put(graph, selectorMapping);
@@ -1299,10 +1299,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       }
 
       if (!selectionsByGraph.isEmpty()) {
-        cacheCompiledViewDefinition(
-            _latestCompiledViewDefinition.withMarketDataManipulationSelections(selectionsByGraph));
+        return compiledViewDefinition.withMarketDataManipulationSelections(selectionsByGraph);
       }
     }
+    return compiledViewDefinition;
   }
 
   /**
