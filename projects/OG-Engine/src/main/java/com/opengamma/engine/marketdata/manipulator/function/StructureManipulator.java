@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata.manipulator;
+package com.opengamma.engine.marketdata.manipulator.function;
 
 /**
  * Interface defining the manipulation of a structured object (yield curve, vol surface etc) to be

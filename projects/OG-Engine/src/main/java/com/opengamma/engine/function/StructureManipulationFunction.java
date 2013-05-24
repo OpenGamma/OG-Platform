@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.marketdata.manipulator.StructureManipulator;
+import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
