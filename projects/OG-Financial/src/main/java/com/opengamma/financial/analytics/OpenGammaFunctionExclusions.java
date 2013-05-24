@@ -8,10 +8,7 @@ package com.opengamma.financial.analytics;
 /**
  * Function exclusion groups for use with the OG-Analytics package.
  */
-public final class OpenGammaFunctionExclusions {
-
-  private OpenGammaFunctionExclusions() {
-  }
+public interface OpenGammaFunctionExclusions {
 
   //CSOFF
   public static final String BLACK_VOLATILITY_SURFACE_DEFAULTS = "BLACK_VOLATILITY_SURFACE_DEFAULTS";
@@ -55,6 +52,9 @@ public final class OpenGammaFunctionExclusions {
   public static final String ISDA_COMPLIANT_CS01 = "ISDA_COMPLIANT_CS01";
   public static final String ISDA_COMPLIANT_RR01 = "ISDA_COMPLIANT_RR01";
   public static final String ISDA_COMPLIANT_PRICE = "ISDA_COMPLIANT_PRICE";
+
   //CSON
+
+  String getMutualExclusionGroup();
 
 }

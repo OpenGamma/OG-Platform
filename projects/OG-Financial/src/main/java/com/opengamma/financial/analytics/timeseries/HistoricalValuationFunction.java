@@ -217,7 +217,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
       includeStartConstraint = HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(includeStartConstraintString);
     }
     if (includeEndConstraintString != null) {
-      includeEndConstraint = HistoricalTimeSeriesFunctionUtils.NO_VALUE.equals(includeEndConstraintString);
+      includeEndConstraint = HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(includeEndConstraintString);
     }
     if (endDateConstraint == null) {
       endDateConstraint = DateConstraint.VALUATION_TIME.toString();

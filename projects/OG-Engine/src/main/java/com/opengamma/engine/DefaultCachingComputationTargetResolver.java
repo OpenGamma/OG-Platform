@@ -180,7 +180,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     final Object key = isDeep ? Pair.of(uid, versionCorrection) : uid;
     final Element e = _computationTarget.get(key);
     if (e != null) {
-      target = (UniqueIdentifiable) e.getValue();
+      target = (UniqueIdentifiable) e.getObjectValue();
       if (specification.getType().isCompatible(target)) {
         final UniqueIdentifiable existing = isDeep ? _frontObjectCacheDeep.putIfAbsent(versionCorrection, uid, target) : _frontObjectCache.putIfAbsent(uid, target);
         if (existing != null) {

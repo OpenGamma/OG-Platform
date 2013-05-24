@@ -83,6 +83,21 @@ public final class Profiler {
     }
   }
 
+  public void tick() {
+    if (!isEnabled()) {
+      return;
+    }
+    _operations.incrementAndGet();
+  }
+
+  public void tick(final long time) {
+    if (!isEnabled()) {
+      return;
+    }
+    _time.addAndGet(time);
+    _operations.incrementAndGet();
+  }
+
   private synchronized void snapshot() {
     if (!_lock.compareAndSet(0, -1)) {
       // Can't snapshot; currently locked

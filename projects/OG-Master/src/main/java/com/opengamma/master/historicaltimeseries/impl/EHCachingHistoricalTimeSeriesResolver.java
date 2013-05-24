@@ -6,10 +6,10 @@
 package com.opengamma.master.historicaltimeseries.impl;
 
 import java.text.MessageFormat;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedTransferQueue;
-import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.Cache;
@@ -41,7 +41,7 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
 
   private final class ThreadLocalWorker {
 
-    private final TransferQueue<ThreadLocalWorker> _waiting = new LinkedTransferQueue<ThreadLocalWorker>();
+    private final Queue<ThreadLocalWorker> _waiting = new ConcurrentLinkedQueue<ThreadLocalWorker>();
     private ExternalIdBundle _identifierBundle;
     private LocalDate _identifierValidityDate;
     private String _dataSource;

@@ -5,11 +5,16 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +29,7 @@ import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -79,8 +85,15 @@ import com.opengamma.util.tuple.Pair;
    * @param runnable task to execute, not null
    */
   public void run(final ResolveTask runnable) {
-    runnable.addRef();
-    submit(runnable);
+    // Run inline unless the stack is full, or the task attempts to defer execution. Only run if the task hasn't been discarded (ie
+    // no-one is going to consume its results)
+    if (runnable.addRef()) {
+      // Added a reference for the run-queue (which will be removed by tryRun)
+      if ((++_stackDepth > MAX_CALLBACK_DEPTH) || !runnable.tryRun(this)) {
+        submit(runnable);
+      }
+      _stackDepth--;
+    }
   }
 
   /**
@@ -162,21 +175,46 @@ import com.opengamma.util.tuple.Pair;
     final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
-      dependent.setRecursionDetected();
       s_logger.debug("Can't introduce a ValueRequirement loop");
-      return new NullResolvedValueProducer(requirement, recursiveRequirement(requirement));
+      return null;
     }
     RequirementResolver resolver = null;
     final ResolveTask[] tasks = getTasksResolving(requirement);
     if (tasks != null) {
-      for (final ResolveTask task : tasks) {
+      int i = 0;
+      int l = tasks.length;
+      while (i < l) {
+        final ResolveTask task = tasks[i];
         if ((dependent == null) || !dependent.hasParent(task)) {
-          if (resolver == null) {
-            resolver = new RequirementResolver(requirement, dependent, functionExclusion);
+          if ((task.isFinished() && !task.wasRecursionDetected()) || (ObjectUtils.equals(functionExclusion, task.getFunctionExclusion()) && task.hasParentValueRequirements(dependent))) {
+            // The task we've found has either already completed, without hitting a recursion constraint. Or
+            // the task is identical to the fallback task we'd create naturally. In either case, release everything
+            // else and use it.
+            for (int j = 0; j < i; j++) {
+              tasks[j].release(this);
+            }
+            for (int j = i + 1; j < l; j++) {
+              tasks[j].release(this);
+            }
+            return task;
           }
-          resolver.addTask(this, task);
+          i++;
+        } else {
+          task.release(this);
+          tasks[i] = tasks[--l];
         }
-        task.release(this);
+      }
+      // Anything left in the array is suitable for use in a RequirementResolver
+      if (l > 0) {
+        resolver = new RequirementResolver(requirement, dependent, functionExclusion);
+        if (l != tasks.length) {
+          resolver.setTasks(this, Arrays.copyOf(tasks, l));
+        } else {
+          resolver.setTasks(this, tasks);
+        }
+        for (i = 0; i < l; i++) {
+          tasks[i].release(this);
+        }
       }
     }
     if (resolver != null) {
@@ -201,19 +239,21 @@ import com.opengamma.util.tuple.Pair;
         }
         task = tasks.get(newTask);
         if (task == null) {
-          newTask.addRef();
+          newTask.addRef(); // Already got a reference, increment for the collection
           tasks.put(newTask, newTask);
         } else {
-          task.addRef();
+          task.addRef(); // Got the task lock, increment so we can return it
         }
       }
       if (task != null) {
         s_logger.debug("Using existing task {}", task);
-        newTask.release(this);
+        newTask.release(this); // Discard local allocation
         return task;
       } else {
-        run(newTask);
         getBuilder().incrementActiveResolveTasks();
+        // Don't call run; we want to fork this out to a new worker thread, never call inline
+        newTask.addRef(); // Reference held by the run queue
+        submit(newTask);
         return newTask;
       }
     } while (true);
@@ -235,7 +275,7 @@ import com.opengamma.util.tuple.Pair;
         int i = 0;
         for (final ResolveTask task : tasks.keySet()) {
           result[i++] = task;
-          task.addRef();
+          task.addRef(); // Got the task lock
         }
       }
       return result;
@@ -263,7 +303,7 @@ import com.opengamma.util.tuple.Pair;
             // Don't ref-count the tasks; they're just used for parent comparisons
             resultTasks[i] = task.getKey();
             resultProducers[i++] = task.getValue();
-            task.getValue().addRef();
+            task.getValue().addRef(); // We're holding the task lock
           }
         }
         return Pair.of(resultTasks, resultProducers);
@@ -277,7 +317,23 @@ import com.opengamma.util.tuple.Pair;
     return getBuilder().getResolvedValue(valueSpecification);
   }
 
+  /**
+   * Returns an iterator over previous resolutions (that are present in the dependency graph) on the same target digest for the same value name.
+   * 
+   * @param targetDigest the target's digest, not null
+   * @param desiredValue the value requirement name, not null
+   * @return any existing resolutions, null if there are none
+   */
+  public Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> getResolutions(final ComputationTargetSpecification targetSpec, final String desiredValue) {
+    Map<ValueProperties, ParameterizedFunction> properties = getBuilder().getResolutions(targetSpec, desiredValue);
+    if (properties == null) {
+      return null;
+    }
+    return properties.entrySet().iterator();
+  }
+
   public void discardTask(final ResolveTask task) {
+    // TODO: Could we post "discardTask" tasks to a queue and have them done in batches by a ContextRunnable?
     do {
       final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
       if (tasks == null) {
@@ -286,6 +342,17 @@ import com.opengamma.util.tuple.Pair;
       synchronized (tasks) {
         if (tasks.containsKey(null)) {
           continue;
+        }
+        final int rc = task.getRefCount();
+        if (rc == 0) {
+          // Not referenced by us by definition
+          return;
+        }
+        if (rc != 1) {
+          if (!task.isFinished()) {
+            // Can't discard this -- something might be waiting on a result from it??
+            return;
+          }
         }
         final ResolveTask removed = tasks.remove(task);
         if (removed == null) {
@@ -319,14 +386,14 @@ import com.opengamma.util.tuple.Pair;
               if (resolveTask.getKey() == task) {
                 // Replace an earlier attempt from this task with the new producer
                 discard = resolveTask.getValue();
-                producer.addRef();
+                producer.addRef(); // The caller already holds an open reference
                 resolveTask.setValue(producer);
                 result = producer;
               } else {
                 // An equivalent task is doing the work
                 result = resolveTask.getValue();
               }
-              result.addRef();
+              result.addRef(); // Either the caller holds an open reference on the producer, or we've got the task lock
             }
           }
           if (result == null) {
@@ -337,10 +404,10 @@ import com.opengamma.util.tuple.Pair;
           }
           if (result == null) {
             // No matching tasks
-            producer.addRef();
+            producer.addRef(); // Caller already holds open reference
             tasks.put(task, producer);
             result = producer;
-            result.addRef();
+            result.addRef(); // Caller already holds open reference (this is the producer)
           }
         }
         if (discard != null) {
@@ -402,6 +469,30 @@ import com.opengamma.util.tuple.Pair;
       return valueSpec;
     } else {
       return MemoryUtils.instance(new ValueSpecification(valueSpec.getValueName(), newTargetSpec, valueSpec.getProperties()));
+    }
+  }
+
+  /**
+   * Bulk form of {@link #simplifyType(ValueSpecification)}. If the values are already in their simplified form then the original collection is returned.
+   * 
+   * @param specifications the specifications to process, not null
+   * @return the possibly simplified specifications, not null
+   */
+  public Collection<ValueSpecification> simplifyTypes(final Collection<ValueSpecification> specifications) {
+    if (specifications.size() == 1) {
+      final ValueSpecification specification = specifications.iterator().next();
+      final ValueSpecification reducedSpecification = simplifyType(specification);
+      if (specification == reducedSpecification) {
+        return specifications;
+      } else {
+        return Collections.singleton(reducedSpecification);
+      }
+    } else {
+      final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(specifications.size());
+      for (ValueSpecification specification : specifications) {
+        result.add(simplifyType(specification));
+      }
+      return result;
     }
   }
 

@@ -570,7 +570,7 @@ public class DependencyGraph {
 
   @Override
   public String toString() {
-    return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",size=" + getSize() + "]";
+    return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",nodes=" + getSize() + ",terminals=" + getTerminalOutputs().size() + "]";
   }
 
   public void dumpStructureLGL(final PrintStream out) {

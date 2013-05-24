@@ -39,6 +39,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
+import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -69,10 +70,9 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * Main method to run the tool. No arguments are needed.
+   * 
+   * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
     new ExampleViewsPopulator().initAndRun(args, ToolContext.class);
@@ -105,9 +105,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE,
         new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
-          ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA,
-          ValueRequirementNames.TOTAL_RISK_ALPHA });
-    defaultCalc.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()).get());
+            ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA,
+            ValueRequirementNames.TOTAL_RISK_ALPHA, ValueRequirementNames.PNL });
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }
@@ -146,9 +145,10 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     defaultCalConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, PAR_RATE);
-    defaultCalConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE);
+    // The name "Default" has no special meaning, but means that the currency conversion function can never be used and so we get the instrument's natural currency
     defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
-        ValueProperties.with(CURRENCY, "USD").get());
+        ValueProperties.with(CurrencyConversionFunction.ORIGINAL_CURRENCY, "Default").withOptional(CurrencyConversionFunction.ORIGINAL_CURRENCY).get());
+    defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CURRENCY, "USD").get());
     for (int i = 0; i < s_swapCurrencies.length; i++) {
       final Currency ccy = s_swapCurrencies[i];
       final String ccyCode = ccy.getCode();

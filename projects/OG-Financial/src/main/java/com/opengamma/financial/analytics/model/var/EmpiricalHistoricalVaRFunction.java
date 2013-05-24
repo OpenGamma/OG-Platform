@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
-import static com.opengamma.financial.analytics.model.var.NormalHistoricalVaRFunction.PROPERTY_VAR_DISTRIBUTION;
 import static com.opengamma.financial.analytics.model.var.NormalHistoricalVaRFunction.DEFAULT_PNL_CONTRIBUTIONS;
+import static com.opengamma.financial.analytics.model.var.NormalHistoricalVaRFunction.PROPERTY_VAR_DISTRIBUTION;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRCalculator;
@@ -34,12 +34,12 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * 
  */
 public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   /**
    * The name for the empirical historical VaR calculation method.
    */
   public static final String EMPIRICAL_VAR = "Empirical";
-  
+
   private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator();
 
   @Override
@@ -109,7 +109,6 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
       return null;
     }
     String pnlContributionName = pnlContributionNames != null ? pnlContributionNames.iterator().next() : DEFAULT_PNL_CONTRIBUTIONS;
-    final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
@@ -119,9 +118,9 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
     } else {
-      final String desiredCurrency = Iterables.getOnlyElement(desiredCurrencyValues);
-      properties.with(ValuePropertyNames.CURRENCY, desiredCurrency);
+      properties.with(ValuePropertyNames.CURRENCY, desiredCurrencyValues);
     }
+    final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {
       if (aggregationStyle.isEmpty()) {
         properties.withOptional(ValuePropertyNames.AGGREGATION);
@@ -132,7 +131,7 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
         properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
       }
     }
-    return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
   }
 
   @Override
@@ -143,7 +142,7 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
       return null;
     }
     final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION), input.getProperty(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS));
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
   }
 
   private ValueProperties getResultProperties(final String currency, final String aggregationStyle, final String pnlContribution) {
