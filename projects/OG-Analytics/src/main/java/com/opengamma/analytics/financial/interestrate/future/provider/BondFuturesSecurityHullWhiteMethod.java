@@ -363,7 +363,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
       }
       listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
-    resultMap.put(futures.getDeliveryBasket()[0].getDiscountingCurveName(), listCredit);
+    resultMap.put(data.getIssuerProvider().getName(issuerCcy), listCredit);
     return MulticurveSensitivity.ofYieldDiscounting(resultMap);
   }
 

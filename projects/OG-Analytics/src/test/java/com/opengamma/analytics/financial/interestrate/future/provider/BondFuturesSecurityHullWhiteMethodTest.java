@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.SimpleParameterSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -51,11 +52,11 @@ public class BondFuturesSecurityHullWhiteMethodTest {
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
 
   // 5-Year U.S. Treasury Note Futures: FVU1
-  private static final Currency EUR = Currency.EUR;
+  private static final Currency USD = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final String GERMANY_GOVT = ISSUER_NAMES[2];
-  private static final Pair<String, Currency> ISSUER_CCY = new ObjectsPair<>(GERMANY_GOVT, EUR);
+  private static final String US_GOVT = ISSUER_NAMES[0];
+  private static final Pair<String, Currency> ISSUER_CCY = new ObjectsPair<>(US_GOVT, USD);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
@@ -72,8 +73,8 @@ public class BondFuturesSecurityHullWhiteMethodTest {
   static {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       MATURITY_DATE[loopbasket] = START_ACCRUAL_DATE[loopbasket].plus(BOND_TENOR[loopbasket]);
-      BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(EUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
-          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, GERMANY_GOVT);
+      BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(USD, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
+          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, US_GOVT);
     }
   }
   private static final ZonedDateTime LAST_TRADING_DATE = DateUtils.getUTCDate(2011, 9, 30);
@@ -116,9 +117,6 @@ public class BondFuturesSecurityHullWhiteMethodTest {
   private static final double TOLERANCE_PRICE = 1.0E-8;
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-6;
 
-  private static final double TOLERANCE_PV = 1.0E-2;
-  private static final double TOLERANCE_PV_DELTA = 1.0E-0;
-
   @Test
   public void price() {
     // TODO
@@ -146,12 +144,12 @@ public class BondFuturesSecurityHullWhiteMethodTest {
     AssertSensivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcsCalculator, pcsMethod, TOLERANCE_PRICE_DELTA);
   }
 
-  //  @Test
-  //  public void priceCurveSensitivityMethodVsCalculator() {
-  //    final SimpleParameterSensitivity pcsAD = SPS_HW_C.calculateSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, MULTICURVES_HW_ISSUER.getIssuerProvider().getAllNames());
-  //    final SimpleParameterSensitivity pcsFD = SPS_HW_FDC.calculateSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
-  //    AssertSensivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcsAD, pcsFD, TOLERANCE_PRICE_DELTA);
-  //  }
+  @Test
+  public void priceCurveSensitivityMethodVsCalculator() {
+    final SimpleParameterSensitivity pcsAD = SPS_HW_C.calculateSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, MULTICURVES_HW_ISSUER.getIssuerProvider().getAllNames());
+    final SimpleParameterSensitivity pcsFD = SPS_HW_FDC.calculateSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
+    AssertSensivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcsAD, pcsFD, TOLERANCE_PRICE_DELTA);
+  }
 
   @Test(enabled = false)
   /**
@@ -167,7 +165,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
       priceFuture = METHOD_FUT_SEC_HW.price(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " price Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms");
+    System.out.println("BondFuturesSecurityHullWhiteMethodTest: " + nbTest + " price Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms");
     // Performance note: HW price: 25-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000 futures.
 
     final int[] nbPoint = new int[] {41, 61, 81, 101, 151, 201, 501 };
@@ -180,7 +178,8 @@ public class BondFuturesSecurityHullWhiteMethodTest {
         priceRange[looprange] = METHOD_FUT_SEC_HW.price(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, nbPoint[looprange]);
       }
       endTime = System.currentTimeMillis();
-      System.out.println(nbTest + " price Bond Future Hull-White: with " + nbPoint[looprange] + " points: " + (endTime - startTime) + " ms - price: " + priceRange[looprange]);
+      System.out.println("BondFuturesSecurityHullWhiteMethodTest: " + nbTest + " price Bond Future Hull-White: with " + nbPoint[looprange] + " points: " + (endTime - startTime) + " ms - price: " +
+          priceRange[looprange]);
     }
 
     System.out.println("Bond futures - price - Hull-White one factor - delivery option: " + priceFuture);
