@@ -85,8 +85,15 @@ import com.opengamma.util.tuple.Pair;
    * @param runnable task to execute, not null
    */
   public void run(final ResolveTask runnable) {
-    runnable.addRef(); // Caller has an open reference, this is for the run queue
-    submit(runnable);
+    // Run inline unless the stack is full, or the task attempts to defer execution. Only run if the task hasn't been discarded (ie
+    // no-one is going to consume its results)
+    if (runnable.addRef()) {
+      // Added a reference for the run-queue (which will be removed by tryRun)
+      if ((++_stackDepth > MAX_CALLBACK_DEPTH) || !runnable.tryRun(this)) {
+        submit(runnable);
+      }
+      _stackDepth--;
+    }
   }
 
   /**
@@ -243,8 +250,10 @@ import com.opengamma.util.tuple.Pair;
         newTask.release(this); // Discard local allocation
         return task;
       } else {
-        run(newTask);
         getBuilder().incrementActiveResolveTasks();
+        // Don't call run; we want to fork this out to a new worker thread, never call inline
+        newTask.addRef(); // Reference held by the run queue
+        submit(newTask);
         return newTask;
       }
     } while (true);

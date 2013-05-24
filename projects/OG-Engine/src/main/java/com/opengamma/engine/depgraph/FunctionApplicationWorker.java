@@ -421,10 +421,14 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public synchronized void addRef() {
-    super.addRef();
-    if (_taskState != null) {
-      _taskState.getTask().addRef();
+  public synchronized boolean addRef() {
+    if (super.addRef()) {
+      if (_taskState != null) {
+        _taskState.getTask().addRef();
+      }
+      return true;
+    } else {
+      return false;
     }
   }
 

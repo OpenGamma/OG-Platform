@@ -40,8 +40,10 @@ import com.opengamma.engine.value.ValueRequirement;
 
   /**
    * Increment the reference count on the object.
+   * 
+   * @return true if the reference count was incremented, false if the object has already been discarded
    */
-  void addRef();
+  boolean addRef();
 
   /**
    * Decrement the reference count on the object. An implementation may perform cleanup actions on the count reaching zero.

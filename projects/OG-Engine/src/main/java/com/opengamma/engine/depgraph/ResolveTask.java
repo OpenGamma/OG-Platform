@@ -196,8 +196,10 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public boolean tryRun(final GraphBuildingContext context) {
-    if (getState().run(context)) {
-      // Release the lock that the context added before we got queued
+    final State state = getState();
+    assert state != null;
+    if (state.run(context)) {
+      // Release the lock that the context added before we got queued (or run in-line)
       release(context);
       return true;
     } else {

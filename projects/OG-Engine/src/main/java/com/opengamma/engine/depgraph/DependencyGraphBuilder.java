@@ -108,8 +108,6 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final RunQueue _runQueue;
   /** The deferred job queue for this instance of DependencyGraphBuilder */
   private final Queue<ContextRunnable> _deferredQueue = new ConcurrentLinkedQueue<ContextRunnable>();
-  /** The sync object used to reach consensus on graph build completion in this instance of DependencyGraphBuilder */
-  private final Object _buildCompleteLock = new Object();
   /** The context for building the dep graph in this instance of DependencyGraphBuilder */
   private final GraphBuildingContext _context = new GraphBuildingContext(this);
   /** The number of completed graph building steps in this instance of DependencyGraphBuilder */
@@ -396,7 +394,8 @@ public final class DependencyGraphBuilder implements Cancelable {
    * Adds resolution of the given requirement to the run queue. Resolution will start as soon as possible and be available as pending for any tasks already running that require resolution of the
    * requirement.
    * <p>
-   * This may not be called concurrently because of the way the root/global context gets used. Everything that calls it should hold the {@link #_completionLock} monitor.
+   * This may not be called concurrently because of the way the root/global context gets used. Everything that calls it should hold the {@link #getContext} monitor so nothing else can use the context
+   * - this monitor also serves as the build complete lock.
    * 
    * @param requirement the requirement to resolve
    */
@@ -431,8 +430,8 @@ public final class DependencyGraphBuilder implements Cancelable {
     // Check that the market data availability provider, the function resolver and the calc config name are non-null
     checkInjectedInputs();
 
-    // Hold the build complete lock so that housekeeping thread cannot observe a "built" state within this atomic block of work
-    synchronized (_buildCompleteLock) {
+    // Use the context as a build complete lock so that housekeeping thread cannot observe a "built" state within this atomic block of work
+    synchronized (getContext()) {
       // Add the value requirement to the graph (actually adds a suitable resolution task to the run queue)
       addTargetImpl(requirement);
     }
@@ -455,8 +454,8 @@ public final class DependencyGraphBuilder implements Cancelable {
     // Check that the market data availability provider, the function resolver and the calc config name are non-null
     checkInjectedInputs();
 
-    // Hold the build complete lock so that housekeeping thread cannot observe a "built" state within this atomic block of work
-    synchronized (_buildCompleteLock) {
+    // Use the context as a build complete lock so that housekeeping thread cannot observe a "built" state within this atomic block of work
+    synchronized (getContext()) {
       for (final ValueRequirement requirement : requirements) {
         addTargetImpl(requirement);
       }
@@ -602,7 +601,8 @@ public final class DependencyGraphBuilder implements Cancelable {
         }
       } while (!_poison && jobsLeftToRun);
 
-      synchronized (_buildCompleteLock) {
+      // Context is used as a build complete lock
+      synchronized (getContext()) {
         final boolean abortLoops;
         synchronized (_activeJobs) {
           _activeJobs.remove(this);
@@ -677,7 +677,8 @@ public final class DependencyGraphBuilder implements Cancelable {
    * @throws CancellationException if the graph build has been canceled
    */
   public boolean isGraphBuilt() {
-    synchronized (_buildCompleteLock) {
+    // Context is used as the build complete lock
+    synchronized (getContext()) {
       synchronized (_activeJobs) {
         if (_cancelled) {
           throw new CancellationException();

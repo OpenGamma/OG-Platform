@@ -559,12 +559,12 @@ import com.opengamma.util.tuple.Triple;
         }
       }
       context.discardTaskProducing(getValueSpecification(), getTask());
-      // Become runnable again; the next function will then be considered.
-      context.run(getTask());
       // Release any ref-counts held by the worker on the task
       for (int i = 0; i < refCounts; i++) {
         getTask().release(context);
       }
+      // Become runnable again; the next function will then be considered.
+      context.run(getTask());
       // Note: We're effectively pumped ourselves, a consumer of the ResolveTask may also pump us and so we'll see a rogue call to
       // pump here, or to one of the next states that this task adopts. The call to pump from there may even already be scheduled.
     }
@@ -613,8 +613,8 @@ import com.opengamma.util.tuple.Triple;
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
-        setRunnableTaskState(getIterationBase(), context);
         worker.release(context);
+        setRunnableTaskState(getIterationBase(), context);
         return true;
       }
       final Collection<ValueSpecification> resolvedOutputValues;
