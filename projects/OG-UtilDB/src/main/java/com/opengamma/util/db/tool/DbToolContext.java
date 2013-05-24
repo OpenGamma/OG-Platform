@@ -23,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
-import com.opengamma.util.db.script.DbScriptReader;
 
 /**
  * A standard context that is used to provide components to database tools.
@@ -56,11 +55,6 @@ public class DbToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private Set<String> _schemaNames;
-  /**
-   * The database script reader.
-   */
-  @PropertyDefinition
-  private DbScriptReader _scriptReader;
   
   @Override
   public void close() {
@@ -101,8 +95,6 @@ public class DbToolContext extends DirectBean implements Closeable {
         return getSchema();
       case -1026748889:  // schemaNames
         return getSchemaNames();
-      case -1635446418:  // scriptReader
-        return getScriptReader();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -126,9 +118,6 @@ public class DbToolContext extends DirectBean implements Closeable {
       case -1026748889:  // schemaNames
         setSchemaNames((Set<String>) newValue);
         return;
-      case -1635446418:  // scriptReader
-        setScriptReader((DbScriptReader) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -144,8 +133,7 @@ public class DbToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
           JodaBeanUtils.equal(getCatalog(), other.getCatalog()) &&
           JodaBeanUtils.equal(getSchema(), other.getSchema()) &&
-          JodaBeanUtils.equal(getSchemaNames(), other.getSchemaNames()) &&
-          JodaBeanUtils.equal(getScriptReader(), other.getScriptReader());
+          JodaBeanUtils.equal(getSchemaNames(), other.getSchemaNames());
     }
     return false;
   }
@@ -158,7 +146,6 @@ public class DbToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCatalog());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSchema());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNames());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScriptReader());
     return hash;
   }
 
@@ -289,31 +276,6 @@ public class DbToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the database script reader.
-   * @return the value of the property
-   */
-  public DbScriptReader getScriptReader() {
-    return _scriptReader;
-  }
-
-  /**
-   * Sets the database script reader.
-   * @param scriptReader  the new value of the property
-   */
-  public void setScriptReader(DbScriptReader scriptReader) {
-    this._scriptReader = scriptReader;
-  }
-
-  /**
-   * Gets the the {@code scriptReader} property.
-   * @return the property, not null
-   */
-  public final Property<DbScriptReader> scriptReader() {
-    return metaBean().scriptReader().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code DbToolContext}.
    */
   public static class Meta extends DirectMetaBean {
@@ -349,11 +311,6 @@ public class DbToolContext extends DirectBean implements Closeable {
     private final MetaProperty<Set<String>> _schemaNames = DirectMetaProperty.ofReadWrite(
         this, "schemaNames", DbToolContext.class, (Class) Set.class);
     /**
-     * The meta-property for the {@code scriptReader} property.
-     */
-    private final MetaProperty<DbScriptReader> _scriptReader = DirectMetaProperty.ofReadWrite(
-        this, "scriptReader", DbToolContext.class, DbScriptReader.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -362,8 +319,7 @@ public class DbToolContext extends DirectBean implements Closeable {
         "dbManagement",
         "catalog",
         "schema",
-        "schemaNames",
-        "scriptReader");
+        "schemaNames");
 
     /**
      * Restricted constructor.
@@ -384,8 +340,6 @@ public class DbToolContext extends DirectBean implements Closeable {
           return _schema;
         case -1026748889:  // schemaNames
           return _schemaNames;
-        case -1635446418:  // scriptReader
-          return _scriptReader;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -444,14 +398,6 @@ public class DbToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<Set<String>> schemaNames() {
       return _schemaNames;
-    }
-
-    /**
-     * The meta-property for the {@code scriptReader} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbScriptReader> scriptReader() {
-      return _scriptReader;
     }
 
   }
