@@ -19,6 +19,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -153,6 +154,36 @@ public class CurveNodeToDefinitionConverterTest {
     CONVERTER = new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullConventionSource() {
+    new CurveNodeToDefinitionConverter(null, new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullHolidaySource() {
+    new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), null, new MyRegionSource("US"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullRegionSource() {
+    new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, "US"), null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullNode() {
+    CONVERTER.getDefinitionForNode(null, DEPOSIT_1D_ID, DateUtils.getUTCDate(2013, 1, 1), new SnapshotDataBundle());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDate() {
+    CONVERTER.getDefinitionForNode(new ContinuouslyCompoundedRateNode("", Tenor.ONE_DAY), DEPOSIT_1D_ID, null, new SnapshotDataBundle());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSnapshot() {
+    CONVERTER.getDefinitionForNode(new ContinuouslyCompoundedRateNode("", Tenor.ONE_DAY), DEPOSIT_1D_ID, DateUtils.getUTCDate(2013, 1, 1), null);
+  }
+
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testContinuouslyCompoundedRateNode() {
     CONVERTER.getDefinitionForNode(new ContinuouslyCompoundedRateNode("name", Tenor.ONE_DAY), DEPOSIT_1D_ID, DateUtils.getUTCDate(2013, 5, 1), new SnapshotDataBundle());
@@ -166,6 +197,205 @@ public class CurveNodeToDefinitionConverterTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDiscountFactorNode() {
     CONVERTER.getDefinitionForNode(new DiscountFactorNode("name", Tenor.ONE_DAY), DEPOSIT_1D_ID, DateUtils.getUTCDate(2013, 5, 1), new SnapshotDataBundle());
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoDataForCash() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US1d");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
+    final CurveNode cashNode = new CashNode(new Tenor(Period.ZERO), Tenor.ONE_DAY, DEPOSIT_1D_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(cashNode, marketDataId, now, marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoConventionForCash() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US1d");
+    final double rate = 0.0012345;
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    marketValues.setDataPoint(marketDataId, rate);
+    final CashNode cashNode = new CashNode(Tenor.ONE_DAY, Tenor.FIVE_MONTHS, ExternalId.of(SCHEME, "Test"), "Mapper");
+    CONVERTER.getDefinitionForNode(cashNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongConventionTypeForCash() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US1d");
+    final double rate = 0.0012345;
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    marketValues.setDataPoint(marketDataId, rate);
+    final CashNode cashNode = new CashNode(Tenor.ONE_DAY, Tenor.FIVE_MONTHS, FIXED_LEG_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(cashNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoDataForFRA() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US6x9");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final FRANode fraNode = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, LIBOR_3M_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(fraNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoConventionForFRA() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US6x9");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01234;
+    marketValues.setDataPoint(marketDataId, rate);
+    final FRANode fraNode = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, ExternalId.of(SCHEME, "Test"), "Mapper");
+    CONVERTER.getDefinitionForNode(fraNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongConventionForFRA() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "US6x9");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01234;
+    marketValues.setDataPoint(marketDataId, rate);
+    final FRANode fraNode = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, FIXED_LEG_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(fraNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoDataForFuture() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "3M3M future");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(futureNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoFutureConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "3M3M future");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.98;
+    marketValues.setDataPoint(marketDataId, rate);
+    final RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, ExternalId.of(SCHEME, "Test"), LIBOR_3M_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(futureNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongFutureConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "3M3M future");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.98;
+    marketValues.setDataPoint(marketDataId, rate);
+    final RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, FIXED_LEG_ID, LIBOR_3M_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(futureNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoUnderlyingConventionForFuture() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "3M3M future");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.98;
+    marketValues.setDataPoint(marketDataId, rate);
+    final RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, ExternalId.of(SCHEME, "Test"), "Mapper");
+    CONVERTER.getDefinitionForNode(futureNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongUnderlyingConventionForFuture() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "3M3M future");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.98;
+    marketValues.setDataPoint(marketDataId, rate);
+    final RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, FIXED_LEG_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(futureNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoDataForSwapPayFixedLeg() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_3M_IBOR_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoSwapPayFixedLegConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01;
+    marketValues.setDataPoint(marketDataId, rate);
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, ExternalId.of(SCHEME, "Test"), SWAP_3M_IBOR_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongSwapPayFixedLegConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01;
+    marketValues.setDataPoint(marketDataId, rate);
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, FIXED_LEG_ID, LIBOR_3M_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoDataForReceivePayFixedLeg() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, SWAP_3M_IBOR_ID, FIXED_LEG_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoSwapReceiveFixedLegConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01;
+    marketValues.setDataPoint(marketDataId, rate);
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, SWAP_3M_IBOR_ID, ExternalId.of(SCHEME, "Test"), "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongSwapReceiveFixedLegConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01;
+    marketValues.setDataPoint(marketDataId, rate);
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, LIBOR_3M_ID, FIXED_LEG_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoSwapPayOISLegConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01;
+    marketValues.setDataPoint(marketDataId, rate);
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, ExternalId.of(SCHEME, "Test"), FIXED_LEG_ID, "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNoSwapReceiveOISLegConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01;
+    marketValues.setDataPoint(marketDataId, rate);
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, FIXED_LEG_ID, ExternalId.of(SCHEME, "Test"), "Mapper");
+    CONVERTER.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongSwapFloatLegIborConvention() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "USD Swap");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double rate = 0.01;
+    marketValues.setDataPoint(marketDataId, rate);
+    final VanillaIborLegConvention iborConvention = new VanillaIborLegConvention("Test", ExternalIdBundle.of(ExternalId.of(SCHEME, "Test")),
+        SWAP_6M_IBOR_ID, false, StubType.NONE, SCHEME);
+    final Map<ExternalId, Convention> conventions = new HashMap<>();
+    conventions.put(FIXED_LEG_ID, FIXED_LEG);
+    conventions.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
+    conventions.put(SWAP_6M_IBOR_ID, SWAP_6M_LIBOR);
+    conventions.put(ExternalId.of(SCHEME, "Test"), iborConvention);
+    final CurveNodeToDefinitionConverter converter = new CurveNodeToDefinitionConverter(new MyConventionSource(conventions), new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
+    final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, FIXED_LEG_ID, ExternalId.of(SCHEME, "Test"), "Mapper");
+    converter.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
   }
 
   @Test
@@ -360,15 +590,23 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.02;
     marketValues.setDataPoint(marketDataId, rate);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 3, 1);
+    final IborIndex index = new IborIndex(USD, Period.ofMonths(3), 0, THIRTY_360, MODIFIED_FOLLOWING, false);
     SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_3M_IBOR_ID, "Mapper");
     ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 3, 5);
     InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(swapNode, marketDataId, now, marketValues);
     assertTrue(definition instanceof SwapDefinition);
-    final IborIndex index = new IborIndex(USD, Period.ofMonths(3), 0, THIRTY_360, MODIFIED_FOLLOWING, false);
     AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(USD, settlementDate, Period.ofYears(10), Period.ofMonths(6), CALENDAR, ACT_360,
         MODIFIED_FOLLOWING, false, 1, rate, true);
     AnnuityCouponIborDefinition floatLeg = AnnuityCouponIborDefinition.from(settlementDate, Period.ofYears(10), 1, index, false, CALENDAR);
     assertEquals(new SwapDefinition(fixedLeg, floatLeg), definition);
+    swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, SWAP_3M_IBOR_ID, FIXED_LEG_ID, "Mapper");
+    settlementDate = DateUtils.getUTCDate(2013, 3, 5);
+    definition = CONVERTER.getDefinitionForNode(swapNode, marketDataId, now, marketValues);
+    assertTrue(definition instanceof SwapDefinition);
+    fixedLeg = AnnuityCouponFixedDefinition.from(USD, settlementDate, Period.ofYears(10), Period.ofMonths(6), CALENDAR, ACT_360,
+        MODIFIED_FOLLOWING, false, 1, rate, false);
+    floatLeg = AnnuityCouponIborDefinition.from(settlementDate, Period.ofYears(10), 1, index, true, CALENDAR);
+    assertEquals(new SwapDefinition(floatLeg, fixedLeg), definition);
     swapNode = new SwapNode(Tenor.FIVE_MONTHS, Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_3M_IBOR_ID, "Mapper");
     settlementDate = DateUtils.getUTCDate(2013, 8, 5);
     definition = CONVERTER.getDefinitionForNode(swapNode, marketDataId, now, marketValues);
@@ -418,6 +656,15 @@ public class CurveNodeToDefinitionConverterTest {
     AnnuityCouponOISSimplifiedDefinition floatLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, false, index, 1,
         CALENDAR, MODIFIED_FOLLOWING, Period.ofYears(1), false);
     assertEquals(new SwapDefinition(fixedLeg, floatLeg), definition);
+    settlementDate = DateUtils.getUTCDate(2013, 3, 5);
+    swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, OIS_ID, FIXED_LEG_ID, "Mapper");
+    definition = CONVERTER.getDefinitionForNode(swapNode, marketDataId, now, marketValues);
+    assertTrue(definition instanceof SwapDefinition);
+    fixedLeg = AnnuityCouponFixedDefinition.from(USD, settlementDate, Period.ofYears(10), Period.ofMonths(6), CALENDAR, ACT_360,
+        MODIFIED_FOLLOWING, false, 1, rate, false);
+    floatLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, true, index, 1,
+        CALENDAR, MODIFIED_FOLLOWING, Period.ofYears(1), false);
+    assertEquals(new SwapDefinition(floatLeg, fixedLeg), definition);
     settlementDate = DateUtils.getUTCDate(2013, 4, 3);
     swapNode = new SwapNode(Tenor.ONE_MONTH, Tenor.TEN_YEARS, FIXED_LEG_ID, OIS_ID, "Mapper");
     definition = CONVERTER.getDefinitionForNode(swapNode, marketDataId, now, marketValues);

@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExcha
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionCalculationMethodDefaultFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerExchangeDefaults;
@@ -75,6 +76,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     addEquityFutureOptionDefaults(functions);
     addEquityPureVolatilitySurfaceDefaults(functions);
     addEquityVarianceSwapDefaults(functions);
+    addEquityOptionCalculationMethodDefaults(functions);
   }
 
   @Override
@@ -526,6 +528,12 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     equityVarianceSwapDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityVarianceSwapDefaultsWithPriority.addAll(equityVarianceSwapDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));
+  }
+  
+  protected void addEquityOptionCalculationMethodDefaults(final List<FunctionConfiguration> functionConfigs) {
+    final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD,
+        CalculationPropertyNamesAndValues.BLACK_LISTED_METHOD);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionCalculationMethodDefaultFunction.class.getName(), defaults));
   }
 
 }
