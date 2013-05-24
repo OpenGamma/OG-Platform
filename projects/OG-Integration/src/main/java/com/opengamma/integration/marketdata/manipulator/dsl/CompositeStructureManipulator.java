@@ -15,7 +15,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.opengamma.engine.marketdata.manipulator.StructureManipulator;
+import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.util.ArgumentChecker;
 
 /**

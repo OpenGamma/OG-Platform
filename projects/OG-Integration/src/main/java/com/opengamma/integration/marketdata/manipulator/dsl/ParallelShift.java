@@ -11,7 +11,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.engine.marketdata.manipulator.StructureManipulator;
+import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
 /**
  *

@@ -13,7 +13,7 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.SimpleFunctionParameters;
 import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
-import com.opengamma.engine.marketdata.manipulator.StructureManipulator;
+import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
 /**
  *

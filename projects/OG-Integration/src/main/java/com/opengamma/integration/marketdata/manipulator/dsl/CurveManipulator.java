@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.engine.marketdata.manipulator.StructureManipulator;
+import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
