@@ -12,8 +12,11 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -33,115 +36,121 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class SecurityAndRegionExposureFunctionTest {
+  private static final ExposureFunction EXPOSURE_FUNCTION = new SecurityAndRegionExposureFunction(ExposureFunctionTestHelper.getSecuritySource(null));
 
   @Test
   public void testAgriculturalFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final AgricultureFutureSecurity future = ExposureFunctionTestHelper.getAgricultureFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testBondFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    final CapFloorCMSSpreadSecurity security = ExposureFunctionTestHelper.getCapFloorCMSSpreadSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCapFloorSecurity() {
+    final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testCashSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
-    final List<ExternalId> ids = cash.accept(exposureFunction);
+    final List<ExternalId> ids = cash.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "CASH_US"), ids.get(0));
   }
 
   @Test
+  public void testContinuousZeroDepositSecurity() {
+    final ContinuousZeroDepositSecurity security = ExposureFunctionTestHelper.getContinuousZeroDepositSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "CONTINUOUS_ZERO_DEPOSIT_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testCorporateBondSecurity() {
+    final CorporateBondSecurity security = ExposureFunctionTestHelper.getCorporateBondSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "BOND_US"), ids.get(0));
+  }
+
+  @Test
   public void testEnergyFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final EnergyFutureSecurity future = ExposureFunctionTestHelper.getEnergyFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testEquityFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final EquityFutureSecurity future = ExposureFunctionTestHelper.getEquityFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testEquityIndexDividendFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final EquityIndexDividendFutureSecurity future = ExposureFunctionTestHelper.getEquityIndexDividendFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testFRASecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final FRASecurity fra = ExposureFunctionTestHelper.getFRASecurity();
-    final List<ExternalId> ids = fra.accept(exposureFunction);
+    final List<ExternalId> ids = fra.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "FRA_US"), ids.get(0));
   }
 
   @Test
   public void testFXFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final FXFutureSecurity future = ExposureFunctionTestHelper.getFXFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testIndexFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final IndexFutureSecurity future = ExposureFunctionTestHelper.getIndexFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testInterestRateFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final InterestRateFutureSecurity future = ExposureFunctionTestHelper.getInterestRateFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
   @Test
   public void testMetalFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final MetalFutureSecurity future = ExposureFunctionTestHelper.getMetalFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
-
   @Test
   public void testStockFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new SecurityAndRegionExposureFunction(securitySource);
     final StockFutureSecurity future = ExposureFunctionTestHelper.getStockFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 
