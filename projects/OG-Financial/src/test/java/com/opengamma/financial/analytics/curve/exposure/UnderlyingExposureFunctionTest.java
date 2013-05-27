@@ -29,7 +29,9 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -45,6 +47,16 @@ public class UnderlyingExposureFunctionTest {
     final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
     final AgricultureFutureSecurity future = ExposureFunctionTestHelper.getAgricultureFutureSecurity();
     final List<ExternalId> ids = future.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testBondFutureOptionSecurity() {
+    final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(future);
+    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
+    final BondFutureOptionSecurity security = ExposureFunctionTestHelper.getBondFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
     assertNull(ids);
   }
 
@@ -141,6 +153,16 @@ public class UnderlyingExposureFunctionTest {
     final List<ExternalId> ids = fra.accept(exposureFunction);
     assertEquals(1, ids.size());
     assertEquals(fra.getUnderlyingId(), ids.get(0));
+  }
+
+  @Test
+  public void testFXFutureOptionSecurity() {
+    final FXFutureSecurity future = ExposureFunctionTestHelper.getFXFutureSecurity();
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(future);
+    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
+    final FxFutureOptionSecurity security = ExposureFunctionTestHelper.getFXFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertNull(ids);
   }
 
   @Test

@@ -28,7 +28,9 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -44,6 +46,15 @@ public class RegionExposureFunctionTest {
     final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
     final AgricultureFutureSecurity future = ExposureFunctionTestHelper.getAgricultureFutureSecurity();
     final List<ExternalId> ids = future.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testBondFutureOptionSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
+    final BondFutureOptionSecurity security = ExposureFunctionTestHelper.getBondFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
     assertNull(ids);
   }
 
@@ -137,6 +148,15 @@ public class RegionExposureFunctionTest {
     final List<ExternalId> ids = fra.accept(regionExposureFunction);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of("Test", "US"), ids.get(0));
+  }
+
+  @Test
+  public void testFXFutureOptionSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
+    final FxFutureOptionSecurity security = ExposureFunctionTestHelper.getFXFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertNull(ids);
   }
 
   @Test

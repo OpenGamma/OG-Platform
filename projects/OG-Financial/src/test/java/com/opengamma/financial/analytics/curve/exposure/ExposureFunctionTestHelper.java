@@ -33,7 +33,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -59,6 +61,14 @@ public class ExposureFunctionTestHelper {
   public static AgricultureFutureSecurity getAgricultureFutureSecurity() {
     final AgricultureFutureSecurity security = new AgricultureFutureSecurity(new Expiry(DateUtils.getUTCDate(2014, 1, 1)), TRADING, SETTLEMENT, EUR, 100, "Commodity");
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "12"));
+    return security;
+  }
+
+  public static BondFutureOptionSecurity getBondFutureOptionSecurity() {
+    final UniqueId underlyingId = getBondFutureSecurity().getUniqueId();
+    final BondFutureOptionSecurity security = new BondFutureOptionSecurity(SETTLEMENT, TRADING, new Expiry(DateUtils.getUTCDate(2013, 1, 1)), new AmericanExerciseType(),
+        ExternalId.of(underlyingId.getScheme(), underlyingId.getValue()), 1000, EUR, 99, OptionType.CALL);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "9357"));
     return security;
   }
 
@@ -129,6 +139,14 @@ public class ExposureFunctionTestHelper {
         ExternalSchemes.bloombergTickerSecurityId("US0003 Index"), DateUtils.getUTCDate(2013, 6, 1));
     fra.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1234"));
     return fra;
+  }
+
+  public static FxFutureOptionSecurity getFXFutureOptionSecurity() {
+    final UniqueId underlyingId = getEnergyFutureSecurity().getUniqueId();
+    final FxFutureOptionSecurity security = new FxFutureOptionSecurity(SETTLEMENT, TRADING, new Expiry(DateUtils.getUTCDate(2013, 1, 1)), new AmericanExerciseType(),
+        ExternalId.of(underlyingId.getScheme(), underlyingId.getValue()), 125, EUR, 120, OptionType.CALL);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "9357"));
+    return security;
   }
 
   public static FXFutureSecurity getFXFutureSecurity() {

@@ -27,7 +27,9 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -44,6 +46,16 @@ public class ContractCategoryExposureFunctionTest {
     final List<ExternalId> ids = future.accept(exposureFunction);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(ExposureFunction.CONTRACT_IDENTIFIER, "Commodity"), ids.get(0));
+  }
+
+  @Test
+  public void testBondFutureOptionSecurity() {
+    final BondFutureSecurity underlying = ExposureFunctionTestHelper.getBondFutureSecurity();
+    final ExposureFunction exposureFunction = new ContractCategoryExposureFunction(ExposureFunctionTestHelper.getSecuritySource(underlying));
+    final BondFutureOptionSecurity security = ExposureFunctionTestHelper.getBondFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.CONTRACT_IDENTIFIER, "Financial"), ids.get(0));
   }
 
   @Test
@@ -130,6 +142,16 @@ public class ContractCategoryExposureFunctionTest {
     final FRASecurity fra = ExposureFunctionTestHelper.getFRASecurity();
     final List<ExternalId> ids = fra.accept(exposureFunction);
     assertNull(ids);
+  }
+
+  @Test
+  public void testFXFutureOptionSecurity() {
+    final FXFutureSecurity underlying = ExposureFunctionTestHelper.getFXFutureSecurity();
+    final ExposureFunction exposureFunction = new ContractCategoryExposureFunction(ExposureFunctionTestHelper.getSecuritySource(underlying));
+    final FxFutureOptionSecurity security = ExposureFunctionTestHelper.getFXFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.CONTRACT_IDENTIFIER, "Currency"), ids.get(0));
   }
 
   @Test
