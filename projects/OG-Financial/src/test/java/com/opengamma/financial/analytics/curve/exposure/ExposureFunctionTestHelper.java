@@ -23,6 +23,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -36,10 +37,16 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.BarrierDirection;
+import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.FxFutureOptionSecurity;
+import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -136,6 +143,15 @@ public class ExposureFunctionTestHelper {
     return security;
   }
 
+  public static EquityBarrierOptionSecurity getEquityBarrierOptionSecurity() {
+    final UniqueId underlyingId = getEquitySecurity().getUniqueId();
+    final EquityBarrierOptionSecurity security = new EquityBarrierOptionSecurity(OptionType.PUT, 100, EUR, ExternalId.of(underlyingId.getScheme(), underlyingId.getValue()),
+        new EuropeanExerciseType(), new Expiry(DateUtils.getUTCDate(2013, 4, 1)), 150, SETTLEMENT, BarrierType.DOWN, BarrierDirection.KNOCK_IN, MonitoringType.CONTINUOUS,
+        SamplingFrequency.CONTINUOUS, 110);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "989"));
+    return security;
+  }
+
   public static EquityFutureSecurity getEquityFutureSecurity() {
     final EquityFutureSecurity security = new EquityFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 4, 1)), TRADING, SETTLEMENT, USD,
         1000, DateUtils.getUTCDate(2013, 4, 2), ExternalSchemes.syntheticSecurityId("ABC"), "Equity");
@@ -147,6 +163,12 @@ public class ExposureFunctionTestHelper {
     final EquityIndexDividendFutureSecurity security = new EquityIndexDividendFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 6, 1)), TRADING, SETTLEMENT, USD, 100,
         DateUtils.getUTCDate(2013, 6, 1), ExternalSchemes.syntheticSecurityId("SPX"), "Equity Index");
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "123"));
+    return security;
+  }
+
+  public static EquitySecurity getEquitySecurity() {
+    final EquitySecurity security = new EquitySecurity(SETTLEMENT, TRADING, "OG", USD);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "98797"));
     return security;
   }
 

@@ -16,6 +16,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -29,6 +30,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
@@ -129,6 +131,14 @@ public class SecurityTypeExposureFunctionTest {
   }
 
   @Test
+  public void testEquityBarrierOptionSecurity() {
+    final EquityBarrierOptionSecurity security = ExposureFunctionTestHelper.getEquityBarrierOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, security.getSecurityType()), ids.get(0));
+  }
+
+  @Test
   public void testEquityFutureSecurity() {
     final EquityFutureSecurity future = ExposureFunctionTestHelper.getEquityFutureSecurity();
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
@@ -142,6 +152,14 @@ public class SecurityTypeExposureFunctionTest {
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, future.getSecurityType()), ids.get(0));
+  }
+
+  @Test
+  public void testEquitySecurity() {
+    final EquitySecurity security = ExposureFunctionTestHelper.getEquitySecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, security.getSecurityType()), ids.get(0));
   }
 
   @Test
