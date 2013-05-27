@@ -27,6 +27,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -79,6 +80,14 @@ public class SecurityAndTradingExchangeExposureFunctionTest {
     final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
     final List<ExternalId> ids = cash.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
+  }
+
+  @Test
+  public void testEnergyFutureOptionSecurity() {
+    final CommodityFutureOptionSecurity security = ExposureFunctionTestHelper.getEnergyFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "COMMODITYFUTURE_OPTION_X"), ids.get(0));
   }
 
   @Test

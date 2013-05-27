@@ -32,6 +32,9 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -96,6 +99,14 @@ public class ExposureFunctionTestHelper {
   public static EnergyFutureSecurity getEnergyFutureSecurity() {
     final EnergyFutureSecurity security = new EnergyFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 4, 1)), TRADING, SETTLEMENT, USD, 1000, "Energy");
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "456"));
+    return security;
+  }
+
+  public static CommodityFutureOptionSecurity getEnergyFutureOptionSecurity() {
+    final UniqueId underlyingId = getEnergyFutureSecurity().getUniqueId();
+    final CommodityFutureOptionSecurity security = new CommodityFutureOptionSecurity(SETTLEMENT, TRADING, new Expiry(DateUtils.getUTCDate(2013, 1, 1)), new AmericanExerciseType(),
+        ExternalId.of(underlyingId.getScheme(), underlyingId.getValue()), 125, EUR, 120, OptionType.CALL);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "9357"));
     return security;
   }
 

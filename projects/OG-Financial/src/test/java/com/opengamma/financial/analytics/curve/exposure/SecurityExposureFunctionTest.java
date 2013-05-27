@@ -26,6 +26,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -45,8 +46,8 @@ public class SecurityExposureFunctionTest {
   }
 
   @Test
-  public void testEnergyFutureSecurity() {
-    final EnergyFutureSecurity future = ExposureFunctionTestHelper.getEnergyFutureSecurity();
+  public void testBondFutureSecurity() {
+    final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(future.getUniqueId().getScheme(), future.getUniqueId().getValue()), ids.get(0));
@@ -85,8 +86,16 @@ public class SecurityExposureFunctionTest {
   }
 
   @Test
-  public void testBondFutureSecurity() {
-    final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
+  public void testEnergyFutureOptionSecurity() {
+    final CommodityFutureOptionSecurity security = ExposureFunctionTestHelper.getEnergyFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(security.getUniqueId().getScheme(), security.getUniqueId().getValue()), ids.get(0));
+  }
+
+  @Test
+  public void testEnergyFutureSecurity() {
+    final EnergyFutureSecurity future = ExposureFunctionTestHelper.getEnergyFutureSecurity();
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(future.getUniqueId().getScheme(), future.getUniqueId().getValue()), ids.get(0));

@@ -29,6 +29,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -52,24 +53,6 @@ public class UnderlyingExposureFunctionTest {
     final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
     final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
     final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
-    assertNull(ids);
-  }
-
-  @Test
-  public void testEnergyFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
-    final EnergyFutureSecurity future = ExposureFunctionTestHelper.getEnergyFutureSecurity();
-    final List<ExternalId> ids = future.accept(exposureFunction);
-    assertNull(ids);
-  }
-
-  @Test
-  public void testEquityFutureSecurity() {
-    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
-    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
-    final EquityFutureSecurity future = ExposureFunctionTestHelper.getEquityFutureSecurity();
     final List<ExternalId> ids = future.accept(exposureFunction);
     assertNull(ids);
   }
@@ -110,6 +93,34 @@ public class UnderlyingExposureFunctionTest {
     final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
     final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
     final List<ExternalId> ids = cash.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEnergyFutureOptionSecurity() {
+    final EnergyFutureSecurity future = ExposureFunctionTestHelper.getEnergyFutureSecurity();
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(future);
+    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
+    final CommodityFutureOptionSecurity security = ExposureFunctionTestHelper.getEnergyFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEnergyFutureSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
+    final EnergyFutureSecurity future = ExposureFunctionTestHelper.getEnergyFutureSecurity();
+    final List<ExternalId> ids = future.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquityFutureSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
+    final EquityFutureSecurity future = ExposureFunctionTestHelper.getEquityFutureSecurity();
+    final List<ExternalId> ids = future.accept(exposureFunction);
     assertNull(ids);
   }
 
