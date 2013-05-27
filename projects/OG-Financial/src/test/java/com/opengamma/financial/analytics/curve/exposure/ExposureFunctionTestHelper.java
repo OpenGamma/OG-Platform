@@ -19,6 +19,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -77,6 +78,12 @@ public class ExposureFunctionTestHelper {
     final CapFloorSecurity security = new CapFloorSecurity(DateUtils.getUTCDate(2012, 2, 1), DateUtils.getUTCDate(2017, 2, 1), 10000,
         ExternalSchemes.syntheticSecurityId("USD 6m Libor"), 0.003, PeriodFrequency.ANNUAL, USD, DC, false, true, true);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "10395"));
+    return security;
+  }
+
+  public static CashFlowSecurity getCashFlowSecurity() {
+    final CashFlowSecurity security = new CashFlowSecurity(EUR, DateUtils.getUTCDate(2013, 9, 1), 10000);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "34985"));
     return security;
   }
 

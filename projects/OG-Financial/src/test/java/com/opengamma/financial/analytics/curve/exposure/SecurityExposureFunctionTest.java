@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -62,6 +63,14 @@ public class SecurityExposureFunctionTest {
   @Test
   public void testCapFloorSecurity() {
     final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(security.getUniqueId().getScheme(), security.getUniqueId().getValue()), ids.get(0));
+  }
+
+  @Test
+  public void testCashFlowSecurity() {
+    final CashFlowSecurity security = ExposureFunctionTestHelper.getCashFlowSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(security.getUniqueId().getScheme(), security.getUniqueId().getValue()), ids.get(0));

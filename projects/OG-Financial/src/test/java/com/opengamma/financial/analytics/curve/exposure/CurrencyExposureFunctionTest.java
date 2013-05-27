@@ -15,6 +15,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -76,6 +77,15 @@ public class CurrencyExposureFunctionTest {
     assertEquals(ExternalId.of(Currency.USD.getObjectId().getScheme(), "USD"), ids.get(0));
   }
 
+  @Test
+  public void testCashFlowSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
+    final CashFlowSecurity security = ExposureFunctionTestHelper.getCashFlowSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(Currency.EUR.getObjectId().getScheme(), "EUR"), ids.get(0));
+  }
 
   @Test
   public void testCashSecurity() {

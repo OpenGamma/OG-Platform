@@ -16,6 +16,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -68,6 +69,15 @@ public class RegionExposureFunctionTest {
     final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
     final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
     final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCashFlowSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
+    final CashFlowSecurity security = ExposureFunctionTestHelper.getCashFlowSecurity();
     final List<ExternalId> ids = security.accept(exposureFunction);
     assertNull(ids);
   }
