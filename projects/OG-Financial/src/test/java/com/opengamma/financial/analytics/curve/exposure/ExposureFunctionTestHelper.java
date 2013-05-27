@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.curve.exposure;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
@@ -16,6 +17,17 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -23,26 +35,96 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.Expiry;
 
 /**
  * 
  */
 public class ExposureFunctionTestHelper {
   private static final Currency USD = Currency.USD;
+  private static final Currency EUR = Currency.EUR;
   private static final ExternalId US = ExternalId.of("Test", "US");
+  private static final ExternalId DE = ExternalId.of("Test", "DE");
   private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final String SETTLEMENT = "X";
+  private static final String TRADING = "Y";
 
-  public static CashSecurity getCash() {
+  public static AgricultureFutureSecurity getAgricultureFutureSecurity() {
+    final AgricultureFutureSecurity security = new AgricultureFutureSecurity(new Expiry(DateUtils.getUTCDate(2014, 1, 1)), TRADING, SETTLEMENT, EUR, 100, "Commodity");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "12"));
+    return security;
+  }
+
+  public static BondFutureSecurity getBondFutureSecurity() {
+    final Collection<BondFutureDeliverable> basket = Collections.emptySet();
+    final BondFutureSecurity security = new BondFutureSecurity(new Expiry(DateUtils.getUTCDate(2015, 1, 1)), TRADING, SETTLEMENT, EUR, 1200, basket, DateUtils.getUTCDate(2015, 1, 1),
+        DateUtils.getUTCDate(2015, 2, 1), "Financial");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "12345"));
+    return security;
+  }
+
+  public static CashSecurity getCashSecurity() {
     final CashSecurity cash = new CashSecurity(USD, US, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2014, 1, 1), DC, 0.01, 10000);
     cash.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "123"));
     return cash;
   }
 
-  public static FRASecurity getFRA() {
+  public static EnergyFutureSecurity getEnergyFutureSecurity() {
+    final EnergyFutureSecurity security = new EnergyFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 4, 1)), TRADING, SETTLEMENT, USD, 1000, "Energy");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "456"));
+    return security;
+  }
+
+  public static EquityFutureSecurity getEquityFutureSecurity() {
+    final EquityFutureSecurity security = new EquityFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 4, 1)), TRADING, SETTLEMENT, USD,
+        1000, DateUtils.getUTCDate(2013, 4, 2), ExternalSchemes.syntheticSecurityId("ABC"), "Equity");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "345"));
+    return security;
+  }
+
+  public static EquityIndexDividendFutureSecurity getEquityIndexDividendFutureSecurity() {
+    final EquityIndexDividendFutureSecurity security = new EquityIndexDividendFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 6, 1)), TRADING, SETTLEMENT, USD, 100,
+        DateUtils.getUTCDate(2013, 6, 1), ExternalSchemes.syntheticSecurityId("SPX"), "Equity Index");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "123"));
+    return security;
+  }
+
+  public static FRASecurity getFRASecurity() {
     final FRASecurity fra = new FRASecurity(USD, US, DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), 0.02, 1000,
         ExternalSchemes.bloombergTickerSecurityId("US0003 Index"), DateUtils.getUTCDate(2013, 6, 1));
     fra.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1234"));
     return fra;
+  }
+
+  public static FXFutureSecurity getFXFutureSecurity() {
+    final FXFutureSecurity security = new FXFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 12, 1)), TRADING, SETTLEMENT, EUR, 100, USD, EUR, "Currency");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "987"));
+    return security;
+  }
+
+  public static IndexFutureSecurity getIndexFutureSecurity() {
+    final IndexFutureSecurity security = new IndexFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 12, 1)), TRADING, SETTLEMENT, EUR, 1000, "Equity Index");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "2345"));
+    return security;
+  }
+
+  public static InterestRateFutureSecurity getInterestRateFutureSecurity() {
+    final InterestRateFutureSecurity security = new InterestRateFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 9, 1)), TRADING, SETTLEMENT, USD, 12500,
+        ExternalSchemes.syntheticSecurityId("USD 3m Libor"), "Financial");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "4567"));
+    return security;
+  }
+
+  public static MetalFutureSecurity getMetalFutureSecurity() {
+    final MetalFutureSecurity security = new MetalFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 4, 1)), TRADING, SETTLEMENT, USD, 100, "Commodity");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "23456"));
+    return security;
+  }
+
+  public static StockFutureSecurity getStockFutureSecurity() {
+    final StockFutureSecurity security = new StockFutureSecurity(new Expiry(DateUtils.getUTCDate(2014, 1, 1)), TRADING, SETTLEMENT, USD, 10000, "Equity");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "234"));
+    return security;
   }
 
   public static SecuritySource getSecuritySource(final Security security) {
