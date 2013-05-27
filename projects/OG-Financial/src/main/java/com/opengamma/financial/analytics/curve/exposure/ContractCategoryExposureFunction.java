@@ -188,8 +188,7 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-    final FutureSecurity underlyingSecurity = (FutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
-    return getContractType(underlyingSecurity);
+    return null;
   }
 
   @Override
