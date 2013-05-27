@@ -15,6 +15,9 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -60,6 +63,20 @@ public class ExposureFunctionTestHelper {
     final BondFutureSecurity security = new BondFutureSecurity(new Expiry(DateUtils.getUTCDate(2015, 1, 1)), TRADING, SETTLEMENT, EUR, 1200, basket, DateUtils.getUTCDate(2015, 1, 1),
         DateUtils.getUTCDate(2015, 2, 1), "Financial");
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "12345"));
+    return security;
+  }
+
+  public static CapFloorCMSSpreadSecurity getCapFloorCMSSpreadSecurity() {
+    final CapFloorCMSSpreadSecurity security = new CapFloorCMSSpreadSecurity(DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2022, 1, 1), 100000, ExternalSchemes.syntheticSecurityId("USD 10y Swap"),
+        ExternalSchemes.syntheticSecurityId("USD 15y Swap"), 0.002, PeriodFrequency.SEMI_ANNUAL, EUR, DC, true, false);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "2643"));
+    return security;
+  }
+
+  public static CapFloorSecurity getCapFloorSecurity() {
+    final CapFloorSecurity security = new CapFloorSecurity(DateUtils.getUTCDate(2012, 2, 1), DateUtils.getUTCDate(2017, 2, 1), 10000,
+        ExternalSchemes.syntheticSecurityId("USD 6m Libor"), 0.003, PeriodFrequency.ANNUAL, USD, DC, false, true, true);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "10395"));
     return security;
   }
 

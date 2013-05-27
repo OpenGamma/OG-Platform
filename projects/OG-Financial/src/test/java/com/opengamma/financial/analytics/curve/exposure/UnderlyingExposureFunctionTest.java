@@ -14,6 +14,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -69,6 +71,27 @@ public class UnderlyingExposureFunctionTest {
     final EquityFutureSecurity future = ExposureFunctionTestHelper.getEquityFutureSecurity();
     final List<ExternalId> ids = future.accept(exposureFunction);
     assertNull(ids);
+  }
+
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
+    final CapFloorCMSSpreadSecurity security = ExposureFunctionTestHelper.getCapFloorCMSSpreadSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(2, ids.size());
+    assertEquals(ExternalSchemes.syntheticSecurityId("USD 10y Swap"), ids.get(0));
+    assertEquals(ExternalSchemes.syntheticSecurityId("USD 15y Swap"), ids.get(1));
+  }
+
+  @Test
+  public void testCapFloorSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new UnderlyingExposureFunction(securitySource);
+    final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalSchemes.syntheticSecurityId("USD 6m Libor"), ids.get(0));
   }
 
   @Test

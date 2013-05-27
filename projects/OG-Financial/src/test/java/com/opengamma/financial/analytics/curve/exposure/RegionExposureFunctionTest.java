@@ -13,6 +13,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -49,6 +51,24 @@ public class RegionExposureFunctionTest {
     final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
     final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
     final List<ExternalId> ids = future.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
+    final CapFloorCMSSpreadSecurity security = ExposureFunctionTestHelper.getCapFloorCMSSpreadSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCapFloorSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new RegionExposureFunction(securitySource);
+    final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
     assertNull(ids);
   }
 

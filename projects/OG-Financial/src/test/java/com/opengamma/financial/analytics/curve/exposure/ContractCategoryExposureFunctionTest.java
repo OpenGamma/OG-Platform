@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -49,6 +51,22 @@ public class ContractCategoryExposureFunctionTest {
     final List<ExternalId> ids = future.accept(exposureFunction);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(ExposureFunction.CONTRACT_IDENTIFIER, "Financial"), ids.get(0));
+  }
+
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    final ExposureFunction exposureFunction = new ContractCategoryExposureFunction(ExposureFunctionTestHelper.getSecuritySource(null));
+    final CapFloorCMSSpreadSecurity security = ExposureFunctionTestHelper.getCapFloorCMSSpreadSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCapFloorSecurity() {
+    final ExposureFunction exposureFunction = new ContractCategoryExposureFunction(ExposureFunctionTestHelper.getSecuritySource(null));
+    final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertNull(ids);
   }
 
   @Test

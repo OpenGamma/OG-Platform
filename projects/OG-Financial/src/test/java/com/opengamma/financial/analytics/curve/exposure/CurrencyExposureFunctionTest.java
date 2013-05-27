@@ -12,6 +12,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -20,6 +22,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
@@ -52,6 +55,27 @@ public class CurrencyExposureFunctionTest {
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(Currency.EUR.getObjectId().getScheme(), "EUR"), ids.get(0));
   }
+
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
+    final CapFloorCMSSpreadSecurity security = ExposureFunctionTestHelper.getCapFloorCMSSpreadSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(Currency.EUR.getObjectId().getScheme(), "EUR"), ids.get(0));
+  }
+
+  @Test
+  public void testCapFloorSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
+    final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(Currency.USD.getObjectId().getScheme(), "USD"), ids.get(0));
+  }
+
 
   @Test
   public void testCashSecurity() {
@@ -108,6 +132,16 @@ public class CurrencyExposureFunctionTest {
     final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
     final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
     final FXFutureSecurity future = ExposureFunctionTestHelper.getFXFutureSecurity();
+    final List<ExternalId> ids = future.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(Currency.EUR.getObjectId().getScheme(), "EUR"), ids.get(0));
+  }
+
+  @Test
+  public void testIndexFutureSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
+    final IndexFutureSecurity future = ExposureFunctionTestHelper.getIndexFutureSecurity();
     final List<ExternalId> ids = future.accept(exposureFunction);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(Currency.EUR.getObjectId().getScheme(), "EUR"), ids.get(0));

@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -47,6 +49,22 @@ public class SecurityExposureFunctionTest {
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(future.getUniqueId().getScheme(), future.getUniqueId().getValue()), ids.get(0));
+  }
+
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    final CapFloorCMSSpreadSecurity security = ExposureFunctionTestHelper.getCapFloorCMSSpreadSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(security.getUniqueId().getScheme(), security.getUniqueId().getValue()), ids.get(0));
+  }
+
+  @Test
+  public void testCapFloorSecurity() {
+    final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(security.getUniqueId().getScheme(), security.getUniqueId().getValue()), ids.get(0));
   }
 
   @Test
