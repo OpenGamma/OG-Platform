@@ -16,6 +16,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -96,6 +97,14 @@ public class ContractCategoryExposureFunctionTest {
     final ExposureFunction exposureFunction = new ContractCategoryExposureFunction(ExposureFunctionTestHelper.getSecuritySource(null));
     final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
     final List<ExternalId> ids = cash.accept(exposureFunction);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testContinuousZeroDepositSecurity() {
+    final ExposureFunction exposureFunction = new ContractCategoryExposureFunction(ExposureFunctionTestHelper.getSecuritySource(null));
+    final ContinuousZeroDepositSecurity security = ExposureFunctionTestHelper.getContinuousZeroDepositSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
     assertNull(ids);
   }
 

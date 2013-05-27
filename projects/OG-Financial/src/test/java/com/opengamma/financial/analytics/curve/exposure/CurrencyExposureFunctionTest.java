@@ -12,10 +12,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -106,6 +108,27 @@ public class CurrencyExposureFunctionTest {
     final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
     final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
     final List<ExternalId> ids = cash.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(Currency.USD.getObjectId().getScheme(), "USD"), ids.get(0));
+  }
+
+  @Test
+  public void testContinuousZeroDepositSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
+    final ContinuousZeroDepositSecurity security = ExposureFunctionTestHelper.getContinuousZeroDepositSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(Currency.EUR.getObjectId().getScheme(), "EUR"), ids.get(0));
+  }
+
+
+  @Test
+  public void testCorporateBondSecurity() {
+    final SecuritySource securitySource = ExposureFunctionTestHelper.getSecuritySource(null);
+    final ExposureFunction exposureFunction = new CurrencyExposureFunction(securitySource);
+    final CorporateBondSecurity security = ExposureFunctionTestHelper.getCorporateBondSecurity();
+    final List<ExternalId> ids = security.accept(exposureFunction);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(Currency.USD.getObjectId().getScheme(), "USD"), ids.get(0));
   }

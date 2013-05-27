@@ -169,7 +169,7 @@ public class RegionExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-    return null;
+    return Arrays.asList(security.getRegion());
   }
 
   @Override

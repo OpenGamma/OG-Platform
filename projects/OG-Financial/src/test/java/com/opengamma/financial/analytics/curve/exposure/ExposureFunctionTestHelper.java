@@ -16,10 +16,13 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -104,6 +107,19 @@ public class ExposureFunctionTestHelper {
     final CashSecurity cash = new CashSecurity(USD, US, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2014, 1, 1), DC, 0.01, 10000);
     cash.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "123"));
     return cash;
+  }
+
+  public static ContinuousZeroDepositSecurity getContinuousZeroDepositSecurity() {
+    final ContinuousZeroDepositSecurity security = new ContinuousZeroDepositSecurity(EUR, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 2, 1), 0.001, DE);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "123"));
+    return security;
+  }
+
+  public static CorporateBondSecurity getCorporateBondSecurity() {
+    final CorporateBondSecurity security = new CorporateBondSecurity("OG", "Company", "US", "US", USD, SimpleYieldConvention.TRUE, new Expiry(DateUtils.getUTCDate(2020, 1, 1)), "Coupon", 0.01, PeriodFrequency.SEMI_ANNUAL,
+        DC, DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 1, 1), 100., 300, 1, 1, 100, 1);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "94876"));
+    return security;
   }
 
   public static EnergyFutureSecurity getEnergyFutureSecurity() {
