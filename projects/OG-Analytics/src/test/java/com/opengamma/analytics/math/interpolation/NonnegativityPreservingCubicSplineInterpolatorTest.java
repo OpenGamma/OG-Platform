@@ -51,7 +51,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
 
     final int nData = xValues.length;
     for (int i = 1; i < nData - 2; ++i) {
-      final double tau = Math.signum(resultPos.getCoefMatrix().getData()[i][2]);
+      final double tau = Math.signum(resultPos.getCoefMatrix().getData()[i][3]);
       assertTrue(resultPos.getCoefMatrix().getData()[i][2] * tau >= -3. * yValues[i + 1] * tau / (xValues[i + 1] - xValues[i]));
       assertTrue(resultPos.getCoefMatrix().getData()[i][2] * tau <= 3. * yValues[i + 1] * tau / (xValues[i] - xValues[i - 1]));
     }
@@ -87,9 +87,9 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nData = xValues.length;
     for (int j = 0; j < dim; ++j) {
       for (int i = 1; i < nData - 2; ++i) {
-        final double tau = Math.signum(resultPos.getCoefMatrix().getData()[dim * i + j][2]);
-        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau >= -5. * yValues[j][i + 1] * tau / (xValues[i + 1] - xValues[i]));
-        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau <= 5. * yValues[j][i + 1] * tau / (xValues[i] - xValues[i - 1]));
+        final double tau = Math.signum(resultPos.getCoefMatrix().getData()[dim * i + j][3]);
+        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau >= -3. * yValues[j][i + 1] * tau / (xValues[i + 1] - xValues[i]));
+        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau <= 3. * yValues[j][i + 1] * tau / (xValues[i] - xValues[i - 1]));
       }
     }
   }
@@ -122,9 +122,9 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
 
     final int nData = xValues.length;
     for (int i = 1; i < nData - 2; ++i) {
-      final double tau = Math.signum(resultPos.getCoefMatrix().getData()[i][2]);
-      assertTrue(resultPos.getCoefMatrix().getData()[i][2] * tau >= -5. * yValues[i] * tau / (xValues[i + 1] - xValues[i]));
-      assertTrue(resultPos.getCoefMatrix().getData()[i][2] * tau <= 5. * yValues[i] * tau / (xValues[i] - xValues[i - 1]));
+      final double tau = Math.signum(resultPos.getCoefMatrix().getData()[i][3]);
+      assertTrue(resultPos.getCoefMatrix().getData()[i][2] * tau >= -3. * yValues[i] * tau / (xValues[i + 1] - xValues[i]));
+      assertTrue(resultPos.getCoefMatrix().getData()[i][2] * tau <= 3. * yValues[i] * tau / (xValues[i] - xValues[i - 1]));
     }
   }
 
@@ -158,9 +158,9 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nData = xValues.length;
     for (int j = 0; j < dim; ++j) {
       for (int i = 1; i < nData - 2; ++i) {
-        final double tau = Math.signum(resultPos.getCoefMatrix().getData()[dim * i + j][2]);
-        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau >= -5. * yValues[j][i] * tau / (xValues[i + 1] - xValues[i]));
-        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau <= 5. * yValues[j][i] * tau / (xValues[i] - xValues[i - 1]));
+        final double tau = Math.signum(resultPos.getCoefMatrix().getData()[dim * i + j][3]);
+        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau >= -3. * yValues[j][i] * tau / (xValues[i + 1] - xValues[i]));
+        assertTrue(resultPos.getCoefMatrix().getData()[dim * i + j][2] * tau <= 3. * yValues[j][i] * tau / (xValues[i] - xValues[i - 1]));
       }
     }
   }
@@ -193,7 +193,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     //      System.out.println(key + "\t" + function.evaluate(result, key).getData()[0] + "\t" + function.evaluate(resultPos, key).getData()[0]);
     //    }
 
-    for (int i = 0; i < xValues.length - 1; ++i) {
+    for (int i = 1; i < xValues.length - 1; ++i) {
       for (int j = 0; j < 4; ++j) {
         final double ref = result.getCoefMatrix().getData()[i][j] == 0. ? 1. : Math.abs(result.getCoefMatrix().getData()[i][j]);
         assertEquals(resultPos.getCoefMatrix().getData()[i][j], result.getCoefMatrix().getData()[i][j], ref * EPS);

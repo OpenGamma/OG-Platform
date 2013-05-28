@@ -53,7 +53,7 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -105,7 +105,7 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final YieldAndDiscountCurve putFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, putCurrency, putCurveName, putCurveConfig);
     final YieldAndDiscountCurve callFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, callCurrency, callCurveName, callCurveConfig);
     final YieldAndDiscountCurve[] curves;
-    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
+    final Map<String, Currency> curveCurrency = new HashMap<>();
     curveCurrency.put(fullPutCurveName, putCurrency);
     curveCurrency.put(fullCallCurveName, callCurrency);
     final String[] allCurveNames;
@@ -174,9 +174,9 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    final ValueProperties.Builder properties = super.getResultProperties(target)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 

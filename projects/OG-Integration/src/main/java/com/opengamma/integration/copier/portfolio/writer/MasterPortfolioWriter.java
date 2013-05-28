@@ -53,7 +53,7 @@ import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.beancompare.BeanCompare;
 import com.opengamma.util.beancompare.BeanDifference;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A class that writes securities and portfolio positions and trades to the OG masters

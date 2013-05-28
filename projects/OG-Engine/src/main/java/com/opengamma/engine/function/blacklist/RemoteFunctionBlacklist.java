@@ -30,7 +30,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides remote access to a {@link FunctionBlacklist}.

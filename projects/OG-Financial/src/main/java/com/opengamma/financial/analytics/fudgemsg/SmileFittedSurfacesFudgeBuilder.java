@@ -27,8 +27,8 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.lambdava.tuple.DoublesPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *

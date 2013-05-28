@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class to compute the quantities related to swaps (annuity, PVBP, coupon equivalent).

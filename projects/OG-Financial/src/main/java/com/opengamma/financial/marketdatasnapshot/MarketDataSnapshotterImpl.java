@@ -14,6 +14,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -24,10 +28,6 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.engine.ComputationTargetResolver;

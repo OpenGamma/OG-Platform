@@ -24,7 +24,7 @@ import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -118,6 +118,7 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, getHtsResolutionKey()));
       functions.add(functionConfiguration(MarkToMarketPnLFunction.class, getHtsResolutionKey(), getMark2MarketField(), getCostOfCarryField()));
       functions.add(functionConfiguration(HistoricalValuationPnLFunction.class));
+      functions.add(functionConfiguration(VolatilityWeightedHistoricalValuationPnLFunction.class));
     }
 
   }

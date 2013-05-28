@@ -33,7 +33,7 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price of a CMS spread cap/floor with the bi-normal approach with correlation by strike.

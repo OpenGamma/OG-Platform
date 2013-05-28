@@ -22,8 +22,8 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.ObjectsPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Sets of market data used in tests. With issuers.
@@ -46,47 +46,47 @@ public class IssuerProviderDiscountDataSets {
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
   private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
 
-  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] USD_DSC_RATE = new double[] {0.0120, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140};
+  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] USD_DSC_RATE = new double[] {0.0120, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
   private static final String USD_DSC_NAME = "USD Dsc";
   private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
 
-  private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
+  private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
   private static final String EUR_DSC_NAME = "EUR Dsc";
   private static final YieldAndDiscountCurve EUR_DSC = new YieldCurve(EUR_DSC_NAME, new InterpolatedDoublesCurve(EUR_DSC_TIME, EUR_DSC_RATE, LINEAR_FLAT, true, EUR_DSC_NAME));
-  private static final double[] EUR_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
-  private static final double[] EUR_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0175, 0.0190, 0.0200, 0.0210};
+  private static final double[] EUR_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0 };
+  private static final double[] EUR_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0175, 0.0190, 0.0200, 0.0210 };
   private static final String EUR_FWD3_NAME = "EUR EURIBOR 3M";
   private static final YieldAndDiscountCurve EUR_FWD3 = new YieldCurve(EUR_FWD3_NAME, new InterpolatedDoublesCurve(EUR_FWD3_TIME, EUR_FWD3_RATE, LINEAR_FLAT, true, EUR_FWD3_NAME));
 
-  private static final double[] GBP_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] GBP_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
+  private static final double[] GBP_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] GBP_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
   private static final String GBP_DSC_NAME = "GBP Dsc";
   private static final YieldAndDiscountCurve GBP_DSC = new YieldCurve(GBP_DSC_NAME, new InterpolatedDoublesCurve(GBP_DSC_TIME, GBP_DSC_RATE, LINEAR_FLAT, true, GBP_DSC_NAME));
 
   private static final Pair<String, Currency> US_USD = new ObjectsPair<>(US_NAME, USD);
-  private static final double[] USD_US_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] USD_US_RATE = new double[] {0.0100, 0.0100, 0.0100, 0.0120, 0.0120, 0.0120};
+  private static final double[] USD_US_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] USD_US_RATE = new double[] {0.0100, 0.0100, 0.0100, 0.0120, 0.0120, 0.0120 };
   private static final String USD_US_CURVE_NAME = "USD " + US_NAME;
   private static final YieldAndDiscountCurve US_USD_CURVE = new YieldCurve(USD_US_CURVE_NAME, new InterpolatedDoublesCurve(USD_US_TIME, USD_US_RATE, LINEAR_FLAT, true, USD_US_CURVE_NAME));
+  private static final YieldAndDiscountCurve US_USD_CURVE_6 = new YieldCurve(USD_US_CURVE_NAME, new ConstantDoublesCurve(0.06, USD_US_CURVE_NAME));
 
   private static final Pair<String, Currency> BEL_EUR = new ObjectsPair<>(BEL_NAME, EUR);
-  private static final double[] EUR_BEL_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] EUR_BEL_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250};
+  private static final double[] EUR_BEL_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] EUR_BEL_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250 };
   private static final String EUR_BEL_CURVE_NAME = "EUR " + BEL_NAME;
   private static final YieldAndDiscountCurve BEL_EUR_CURVE = new YieldCurve(EUR_BEL_CURVE_NAME, new InterpolatedDoublesCurve(EUR_BEL_TIME, EUR_BEL_RATE, LINEAR_FLAT, true, EUR_BEL_CURVE_NAME));
 
   private static final Pair<String, Currency> GER_EUR = new ObjectsPair<>(GER_NAME, EUR);
-  private static final double[] EUR_GER_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] EUR_GER_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250};
-  private static final String EUR_GER_CURVE_NAME = "EUR " + GER_NAME;
-  private static final YieldAndDiscountCurve GER_EUR_CURVE = new YieldCurve(EUR_GER_CURVE_NAME, new InterpolatedDoublesCurve(EUR_GER_TIME, EUR_GER_RATE, LINEAR_FLAT, true, EUR_GER_CURVE_NAME));
-  private static final YieldAndDiscountCurve GER_EUR_CURVE_6 = new YieldCurve(EUR_GER_CURVE_NAME, new ConstantDoublesCurve(0.06, EUR_GER_CURVE_NAME));
+  private static final double[] EUR_GER_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] EUR_GER_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250 };
+  private static final String GER_EUR_CURVE_NAME = "EUR " + GER_NAME;
+  private static final YieldAndDiscountCurve GER_EUR_CURVE = new YieldCurve(GER_EUR_CURVE_NAME, new InterpolatedDoublesCurve(EUR_GER_TIME, EUR_GER_RATE, LINEAR_FLAT, true, USD_US_CURVE_NAME));
 
   private static final Pair<String, Currency> UK_GBP = new ObjectsPair<>(UK_NAME, GBP);
-  private static final double[] UK_GBP_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] UK_GBP_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250};
+  private static final double[] UK_GBP_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] UK_GBP_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250 };
   private static final String UK_GBP_CURVE_NAME = "GBP " + UK_NAME;
   private static final YieldAndDiscountCurve UK_GBP_CURVE = new YieldCurve(UK_GBP_CURVE_NAME, new InterpolatedDoublesCurve(UK_GBP_TIME, UK_GBP_RATE, LINEAR_FLAT, true, UK_GBP_CURVE_NAME));
 
@@ -106,7 +106,7 @@ public class IssuerProviderDiscountDataSets {
   }
   private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_6 = new LinkedHashMap<>();
   static {
-    ISSUER_6.put(GER_EUR, GER_EUR_CURVE_6);
+    ISSUER_6.put(US_USD, US_USD_CURVE_6);
   }
 
   private static final IssuerProviderDiscount ISSUER_MULTICURVE = new IssuerProviderDiscount(MULTICURVE, ISSUER);
@@ -128,7 +128,7 @@ public class IssuerProviderDiscountDataSets {
   }
 
   public static String[] getIssuerNames() {
-    return new String[] {US_NAME, BEL_NAME, GER_NAME, UK_NAME};
+    return new String[] {US_NAME, BEL_NAME, GER_NAME, UK_NAME };
   }
 
 }

@@ -49,13 +49,10 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice - although MarkIt enforces N > 0)
-  // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : More detailed description of ref entity obligation will be necessary
   // TODO : Move _protectionStart and _protectionOffset variables into the PV calculator?
   // TODO : Replace rec rate range arg checkers with .isInRangeInclusive
-  // TODO : Add a CSA agreement?
-  // TODO : Should we also include a CentralCounterParty object in order to track exchange traded contracts?
+  // TODO : Need to extract out the recovery rate input from this definition (since it is actually market data)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -81,10 +78,10 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule
   private final Calendar _calendar;
 
-  // The date of the contract inception
+  // The date of the contract inception (the date at which the CDS is executed - not the valuation date)
   private final ZonedDateTime _startDate;
 
-  // The effective date for protection to begin (usually T + 1d for a legacy CDS, T - 60d or T - 90d for a standard CDS)
+  // The effective date for protection to begin (usually T + 1d for a legacy CDS, T - 60d or T - 90d for a standard CDS where T is the valuation date)
   private final ZonedDateTime _effectiveDate;
 
   // The maturity date of the contract (when premium and protection coverage ceases)
@@ -93,7 +90,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   // The type of stub (front/back and long/short)
   private final StubType _stubType;
 
-  // The frequency of coupon payments (usually quarterly for legacy and standard CDS)
+  // The frequency of coupon payments (usually quarterly or semi-annual for legacy CDS and quarterly for standard CDS)
   private final PeriodFrequency _couponFrequency;
 
   // Day-count convention (usually Act/360 for legacy and standard CDS)
@@ -102,13 +99,13 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   // Business day adjustment convention (usually following for legacy and standard CDS)
   private final BusinessDayConvention _businessdayAdjustmentConvention;
 
-  // Flag to determine if we adjust the maturity date to fall on the next IMM date
+  // Flag to determine if we adjust the maturity date to fall on the next IMM date - not currently hooked up
   private final boolean _immAdjustMaturityDate;
 
-  // Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
+  // Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS) - not currently hooked up
   private final boolean _adjustEffectiveDate;
 
-  // Flag to determine if we business day adjust the final maturity date (not a feature of legacy or standard CDS)
+  // Flag to determine if we business day adjust the final maturity date (not a feature of legacy or standard CDS) - not currently hooked up
   private final boolean _adjustMaturityDate;
 
   // The trade notional (in the trade currency), convention is that this will always be a positive amount
@@ -123,11 +120,11 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   // Flag to determine if survival probabilities are calculated at the beginning or end of the day (hard coded to TRUE in ISDA model)
   private final boolean _protectionStart;
 
-  // The credit key to uniquely identify a reference entities par spread CDS curve
-  private final String _creditKey;
-
   // If _protectionStart = true then this is the offset (one extra day of protection)
   private final double _protectionOffset = 1.0 / 365.0;
+
+  // The credit key to uniquely identify a reference entities par spread CDS curve (from a 4-tuple of Ticker-Currency-Restructuring-Seniority)
+  private final String _creditKey;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

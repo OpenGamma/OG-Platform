@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * @param <T> The type of the volatility model

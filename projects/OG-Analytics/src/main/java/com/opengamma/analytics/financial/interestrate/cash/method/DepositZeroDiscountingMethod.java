@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZer
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * The methods associated to the pricing of deposit by discounting.

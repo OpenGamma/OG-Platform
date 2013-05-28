@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * An abstract source built on top of an underlying master.

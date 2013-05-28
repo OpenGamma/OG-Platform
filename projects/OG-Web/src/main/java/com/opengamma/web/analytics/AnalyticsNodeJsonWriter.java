@@ -7,11 +7,6 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import com.opengamma.OpenGammaRuntimeException;
-
 /**
  * Writes an {@link AnalyticsNode} into very compact JSON. The nodes are represented as nested arrays. There is
  * always a single root node.
@@ -25,13 +20,8 @@ public class AnalyticsNodeJsonWriter {
    * @param node The node
    * @return Nested JSON array of the node structure
    */
-  public static String getJson(AnalyticsNode node) {
-    Object[] rootArray = createNodeArray(node);
-    try {
-      return new JSONArray(rootArray).toString();
-    } catch (JSONException e) {
-      throw new OpenGammaRuntimeException("Failed to create JSON for node " + node, e);
-    }
+  public static Object[] getJsonStructure(AnalyticsNode node) {
+    return createNodeArray(node);
   }
 
   /**

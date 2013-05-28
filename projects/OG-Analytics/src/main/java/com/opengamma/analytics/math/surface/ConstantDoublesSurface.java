@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.math.surface;
 
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Defines a constant surface (i.e. a surface with <i>z = constant</i>).

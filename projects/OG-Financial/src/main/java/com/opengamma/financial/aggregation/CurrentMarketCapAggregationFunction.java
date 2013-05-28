@@ -26,7 +26,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to classify positions by Currency.
@@ -94,9 +94,9 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
       }
       ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
       Pair<LocalDate, Double> latest = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
-      if (latest != null && latest._2() != null) {
-        _currMktCapCache.put(security.getUniqueId(), latest._2());
-        return latest._2();
+      if (latest != null && latest.getSecond() != null) {
+        _currMktCapCache.put(security.getUniqueId(), latest.getSecond());
+        return latest.getSecond();
       } else {
         _currMktCapCache.put(security.getUniqueId(), null);
         return null;

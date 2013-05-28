@@ -123,8 +123,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
    */
   public static CouponInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int monthLag, final boolean payNotional) {
-    final ZonedDateTime refInterpolatedDateStart = accrualStartDate.minusMonths(monthLag);
-    final ZonedDateTime refInterpolatedDateEnd = paymentDate.minusMonths(monthLag);
+    final ZonedDateTime refInterpolatedDateStart = accrualStartDate;
+    final ZonedDateTime refInterpolatedDateEnd = paymentDate;
 
     final double weightStart = 1.0 - (refInterpolatedDateStart.getDayOfMonth() - 1.0) / refInterpolatedDateStart.toLocalDate().lengthOfMonth();
     final double weightEnd = 1.0 - (refInterpolatedDateEnd.getDayOfMonth() - 1.0) / refInterpolatedDateEnd.toLocalDate().lengthOfMonth();
@@ -254,6 +254,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _monthLag;
+    result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + Arrays.hashCode(_referenceEndDate);
     result = prime * result + Arrays.hashCode(_referenceStartDate);
     long temp;
@@ -265,7 +267,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -275,7 +277,13 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
+    CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_payNotional != other._payNotional) {
+      return false;
+    }
     if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
       return false;
     }

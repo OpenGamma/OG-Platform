@@ -5,14 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
@@ -38,14 +35,12 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * 
  */
 public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(NormalHistoricalVaRFunction.class);
 
   /**
    * The name for the normal historical VaR calculation method
    */
   public static final String NORMAL_VAR = "Normal";
-  
+
   /**
    * The property for the VaR distribution type
    */
@@ -57,7 +52,6 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final String currency = getCurrency(inputs);
     final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
     if (pnlSeriesObj == null) {
       throw new OpenGammaRuntimeException("Could not get P&L series for " + target);
@@ -71,12 +65,10 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     // Being more restrictive would change this logic and probably not be desirable
     // but someone other than me should confirm.
     ValueProperties constraints = null;
-    ValueRequirement sampleRequirement = null;
     boolean computeVar = false;
     boolean computeStddev = false;
     for (final ValueRequirement desiredValue : desiredValues) {
       constraints = (constraints == null) ? desiredValue.getConstraints() : constraints;
-      sampleRequirement = (sampleRequirement == null) ? desiredValue : sampleRequirement;
       if (ValueRequirementNames.HISTORICAL_VAR.equals(desiredValue.getValueName())) {
         computeVar = true;
       }
@@ -94,26 +86,14 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     final VaRCalculationResult calcResult = varCalculator.evaluate(parameters, pnlSeries);
     final double var = calcResult.getVaRValue();
     final double stddev = calcResult.getStdDev();
-    final ValueProperties resultProperties = getResultProperties(currency, sampleRequirement);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
     if (computeVar) {
-      results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
+      results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), constraints), var));
     }
     if (computeStddev) {
-      results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), resultProperties), stddev));
+      results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), constraints), stddev));
     }
     return results;
-  }
-
-  private String getCurrency(final FunctionInputs inputs) {
-    String currency = null;
-    for (final ComputedValue value : inputs.getAllValues()) {
-      currency = value.getSpecification().getProperty(ValuePropertyNames.CURRENCY);
-      if (currency != null) {
-        break;
-      }
-    }
-    return currency;
   }
 
   @Override
@@ -167,7 +147,6 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
       return null;
     }
     String pnlContributionName = pnlContributionNames != null ? pnlContributionNames.iterator().next() : DEFAULT_PNL_CONTRIBUTIONS;
-    final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
@@ -177,9 +156,9 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
     } else {
-      final String desiredCurrency = Iterables.getOnlyElement(desiredCurrencyValues);
-      properties.with(ValuePropertyNames.CURRENCY, desiredCurrency);
+      properties.with(ValuePropertyNames.CURRENCY, desiredCurrencyValues);
     }
+    final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {
       if (aggregationStyle.isEmpty()) {
         properties.withOptional(ValuePropertyNames.AGGREGATION);
@@ -190,9 +169,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
       }
     }
-    final Set<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
-    s_logger.debug("For {} on {} requirements are {}", new Object[] {desiredValue, target, requirements});
-    return requirements;
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
   }
 
   @Override
@@ -221,25 +198,6 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         .withAny(ValuePropertyNames.HORIZON)
         .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, pnlContribution)
         .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR);
-    if (aggregationStyle != null) {
-      properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
-    }
-    return properties.get();
-  }
-
-  private ValueProperties getResultProperties(final String currency, final ValueRequirement desiredValue) {
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
-        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
-        .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-        .with(ValuePropertyNames.MEAN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.MEAN_CALCULATOR))
-        .with(ValuePropertyNames.STD_DEV_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.STD_DEV_CALCULATOR))
-        .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))
-        .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON))
-        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, desiredValue.getConstraint(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS))
-        .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR);
-    final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }

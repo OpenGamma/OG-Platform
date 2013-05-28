@@ -91,7 +91,7 @@ import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Utility class for constructing parameters to random (but reasonable) securities.

@@ -24,7 +24,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Wrapper around an existing {@link SecuritySource} that coalesces concurrent calls into a single call to one of the bulk operation methods on the underlying. This can improve efficiency where the

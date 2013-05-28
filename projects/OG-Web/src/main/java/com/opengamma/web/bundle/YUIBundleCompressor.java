@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.sass.SassCompiler;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 
@@ -31,22 +32,28 @@ public class YUIBundleCompressor implements BundleCompressor {
    * The compressor options.
    */
   private final YUICompressorOptions _compressorOptions;
+  /**
+   * The sass compiler.
+   */
+  private final SassCompiler _sassCompiler;
 
   /**
    * Create a compressor.
    * 
    * @param compressorOptions  the YUICompressor options, not null
+   * @param sassCompiler the sass compiler, not null
    */
-  public YUIBundleCompressor(YUICompressorOptions compressorOptions) {
+  public YUIBundleCompressor(final YUICompressorOptions compressorOptions, final SassCompiler sassCompiler) {
     ArgumentChecker.notNull(compressorOptions, "compressorOptions");
-    
+    ArgumentChecker.notNull(sassCompiler, "sassCompiler");
     _compressorOptions = compressorOptions;
+    _sassCompiler = sassCompiler;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String compressBundle(Bundle bundle) {
-    String source = BundleUtils.readBundleSource(bundle);
+    String source = BundleUtils.readBundleSource(bundle, _sassCompiler);
     return compress(source, bundle.getId());
   }
 

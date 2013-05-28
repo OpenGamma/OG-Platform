@@ -8,7 +8,7 @@ package com.opengamma.web.spring;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -21,8 +21,8 @@ public class DemoFunctionExclusionGroupsFactoryBean extends SingletonFactoryBean
     return new AbstractFunctionExclusionGroups<String>() {
       @Override
       protected String getKey(final FunctionDefinition function) {
-        if (function instanceof DefaultPropertyFunction) {
-          return ((DefaultPropertyFunction) function).getMutualExclusionGroup();
+        if (function instanceof OpenGammaFunctionExclusions) {
+          return ((OpenGammaFunctionExclusions) function).getMutualExclusionGroup();
         } else {
           return null;
         }

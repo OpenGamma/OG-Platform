@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
@@ -56,19 +58,19 @@ import com.opengamma.util.time.Tenor;
  * Calculates return series for the market instruments at the nodal points of a yield curve.
  */
 public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveNodeReturnSeriesFunction.class);
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     // NOTE jonathan 2013-04-23 -- should be ComputationTargetType.NULL
     return ComputationTargetType.CURRENCY;
   }
 
-  protected ValueProperties getResultProperties(ComputationTarget target) {
-    ValueProperties properties = createValueProperties()
+  protected ValueProperties getResultProperties(final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
@@ -82,64 +84,75 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
         .get();
     return properties;
   }
-  
+
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    ValueProperties properties = getResultProperties(target);
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = getResultProperties(target);
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_RETURN_SERIES, target.toSpecification(), properties));
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    Currency currency = (Currency) target.getValue();
-    ValueProperties constraints = desiredValue.getConstraints();
-    Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Currency currency = (Currency) target.getValue();
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
     if (curveNames == null || curveNames.size() != 1) {
       return null;
     }
-    String curveName = Iterables.getOnlyElement(curveNames);
-    Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final String curveName = Iterables.getOnlyElement(curveNames);
+    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
-    String curveCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfigNames);
-    
-    String ychtsStart = getYCHTSStart(constraints);
+    final String curveCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfigNames);
+
+    final String ychtsStart = getYCHTSStart(constraints);
     if (ychtsStart == null) {
       return null;
     }
-    DateConstraint start = DateConstraint.parse(ychtsStart);
-    String returnSeriesEnd = getReturnSeriesEnd(constraints);
+    final DateConstraint start = DateConstraint.parse(ychtsStart);
+    final String returnSeriesEnd = getReturnSeriesEnd(constraints);
     if (returnSeriesEnd == null) {
       return null;
     }
-    DateConstraint end = DateConstraint.parse(returnSeriesEnd);
+    final DateConstraint end = DateConstraint.parse(returnSeriesEnd);
     if (start == null || end == null) {
       return null;
     }
-    
-    Set<String> includeStarts = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
+
+    final Set<String> includeStarts = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
     if (includeStarts != null && includeStarts.size() != 1) {
       return null;
     }
-    boolean includeStart = includeStarts == null ? true : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeStarts));
-    Set<String> includeEnds = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
+    final boolean includeStart = includeStarts == null ? true : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeStarts));
+    final Set<String> includeEnds = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
     if (includeEnds != null && includeEnds.size() != 1) {
       return null;
     }
-    boolean includeEnd = includeEnds == null ? false : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeEnds));
-    
-    Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final boolean includeEnd = includeEnds == null ? false : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeEnds));
+    final Set<String> samplingMethod = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
+    if (samplingMethod == null || samplingMethod.size() != 1) {
+      return null;
+    }
+    final Set<String> scheduleMethod = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleMethod == null || scheduleMethod.size() != 1) {
+      return null;
+    }
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(HistoricalTimeSeriesFunctionUtils.createYCHTSRequirement(currency, curveName, MarketDataRequirementNames.MARKET_VALUE, null, start, includeStart, end, includeEnd));
-    
-    ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    if (curveCalculationConfig == null) {
+      s_logger.error("Could not get curve calculation config called " + curveCalculationConfigName);
+      return null;
+    }
     if (FXImpliedYieldCurveFunction.FX_IMPLIED.equals(curveCalculationConfig.getCalculationMethod())) {
-      Currency impliedCcy = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
-      String baseCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfig.getExogenousConfigData().entrySet()).getKey();
-      MultiCurveCalculationConfig baseCurveCalculationConfig = curveCalculationConfigSource.getConfig(baseCalculationConfigName);
-      Currency baseCcy = ComputationTargetType.CURRENCY.resolve(baseCurveCalculationConfig.getTarget().getUniqueId());
+      final Currency impliedCcy = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
+      final String baseCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfig.getExogenousConfigData().entrySet()).getKey();
+      final MultiCurveCalculationConfig baseCurveCalculationConfig = curveCalculationConfigSource.getConfig(baseCalculationConfigName);
+      final Currency baseCcy = ComputationTargetType.CURRENCY.resolve(baseCurveCalculationConfig.getTarget().getUniqueId());
       requirements.add(getFXForwardCurveDefinitionRequirement(UnorderedCurrencyPair.of(impliedCcy, baseCcy), curveName));
     } else {
       requirements.add(getCurveSpecRequirement(currency, curveName));
@@ -148,37 +161,38 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final LocalDate tsStart = DateConstraint.evaluate(executionContext, getYCHTSStart(desiredValue.getConstraints()));
     final LocalDate returnSeriesStart = DateConstraint.evaluate(executionContext, getReturnSeriesStart(desiredValue.getConstraints()));
     if (tsStart.isAfter(returnSeriesStart)) {
       throw new OpenGammaRuntimeException("Return series start date cannot be before time-series start date");
     }
-    LocalDate returnSeriesEnd = DateConstraint.evaluate(executionContext, getReturnSeriesEnd(desiredValue.getConstraints()));
-    String scheduleCalculatorName = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
-    Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
-    String samplingFunctionName = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
-    TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
-    
+    final LocalDate returnSeriesEnd = DateConstraint.evaluate(executionContext, getReturnSeriesEnd(desiredValue.getConstraints()));
+    final String scheduleCalculatorName = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
+    final String samplingFunctionName = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
+    final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
+
     //REVIEW emcleod should "fromEnd" be hard-coded?
-    LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(tsStart, returnSeriesEnd, true, false), WEEKEND_CALENDAR);
-    
+    final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(tsStart, returnSeriesEnd, true, false), WEEKEND_CALENDAR);
+
     final ComputedValue bundleValue = inputs.getComputedValue(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES);
     final HistoricalTimeSeriesBundle bundle = (HistoricalTimeSeriesBundle) bundleValue.getValue();
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(bundleValue.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
     final FXForwardCurveDefinition fxForwardCurveDefinition = (FXForwardCurveDefinition) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_DEFINITION);
-    
+
     Tenor[] tenors;
     boolean[] sensitivityToRate;
     if (curveSpec != null) {
-      Set<FixedIncomeStripWithSecurity> strips = curveSpec.getStrips();
-      int n = strips.size();
+      final Set<FixedIncomeStripWithSecurity> strips = curveSpec.getStrips();
+      final int n = strips.size();
       tenors = new Tenor[n];
       sensitivityToRate = new boolean[n];
       int i = 0;
-      for (FixedIncomeStripWithSecurity strip : strips) {
+      for (final FixedIncomeStripWithSecurity strip : strips) {
         tenors[i] = strip.getResolvedTenor();
         // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)
         sensitivityToRate[i] = strip.getInstrumentType() == StripInstrumentType.FUTURE;
@@ -191,76 +205,76 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
       throw new OpenGammaRuntimeException("Yield curve specification and FX forward curve definition both missing. Expected one.");
     }
 
-    TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeriesVector = getReturnSeriesVector(bundle, tenors,
+    final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeriesVector = getReturnSeriesVector(bundle, tenors,
         sensitivityToRate, schedule, samplingFunction, returnSeriesStart, includeStart, desiredValue);
-    ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_RETURN_SERIES, target.toSpecification(), desiredValue.getConstraints());
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_RETURN_SERIES, target.toSpecification(), desiredValue.getConstraints());
     return ImmutableSet.of(new ComputedValue(resultSpec, returnSeriesVector));
   }
 
-  protected String getYCHTSStart(ValueProperties constraints) {
+  protected String getYCHTSStart(final ValueProperties constraints) {
     return getReturnSeriesStart(constraints);
   }
-  
-  protected String getReturnSeriesStart(ValueProperties constraints) {
-    Set<String> startDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+
+  protected String getReturnSeriesStart(final ValueProperties constraints) {
+    final Set<String> startDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
     if (startDates == null || startDates.size() != 1) {
       return null;
     }
     return Iterables.getOnlyElement(startDates);
   }
-  
-  protected String getReturnSeriesEnd(ValueProperties constraints) {
-    Set<String> endDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
+
+  protected String getReturnSeriesEnd(final ValueProperties constraints) {
+    final Set<String> endDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
     if (endDates == null || endDates.size() != 1) {
       return null;
     }
     return Iterables.getOnlyElement(endDates);
   }
-  
-  protected LocalDateDoubleTimeSeries getReturnSeries(LocalDateDoubleTimeSeries ts, ValueRequirement desiredValue) {
+
+  protected LocalDateDoubleTimeSeries getReturnSeries(final LocalDateDoubleTimeSeries ts, final ValueRequirement desiredValue) {
     return (LocalDateDoubleTimeSeries) DIFFERENCE.evaluate(ts);
   }
-  
-  private TenorLabelledLocalDateDoubleTimeSeriesMatrix1D getReturnSeriesVector(HistoricalTimeSeriesBundle timeSeriesBundle,
-      Tenor[] tenors, boolean[] sensitivityToRates, LocalDate[] schedule, TimeSeriesSamplingFunction samplingFunction,
-      LocalDate startDate, boolean includeStart, ValueRequirement desiredValue) {
-    LocalDateDoubleTimeSeries[] returnSeriesArray = new LocalDateDoubleTimeSeries[tenors.length];
+
+  private TenorLabelledLocalDateDoubleTimeSeriesMatrix1D getReturnSeriesVector(final HistoricalTimeSeriesBundle timeSeriesBundle,
+      final Tenor[] tenors, final boolean[] sensitivityToRates, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction,
+      final LocalDate startDate, final boolean includeStart, final ValueRequirement desiredValue) {
+    final LocalDateDoubleTimeSeries[] returnSeriesArray = new LocalDateDoubleTimeSeries[tenors.length];
     if (tenors.length != timeSeriesBundle.size(MarketDataRequirementNames.MARKET_VALUE)) {
       throw new OpenGammaRuntimeException("Expected " + tenors.length + " nodal market data time-series but have " + timeSeriesBundle.size(MarketDataRequirementNames.MARKET_VALUE));
     }
-    Iterator<HistoricalTimeSeries> tsIterator = timeSeriesBundle.iterator(MarketDataRequirementNames.MARKET_VALUE);
+    final Iterator<HistoricalTimeSeries> tsIterator = timeSeriesBundle.iterator(MarketDataRequirementNames.MARKET_VALUE);
     if (tsIterator == null) {
       throw new OpenGammaRuntimeException("No nodal market data time-series available");
     }
     for (int t = 0; t < tenors.length; t++) {
-      Tenor tenor = tenors[t];
-      HistoricalTimeSeries dbNodeTimeSeries = tsIterator.next();
-      boolean sensitivityToRate = sensitivityToRates[t];
+      final Tenor tenor = tenors[t];
+      final HistoricalTimeSeries dbNodeTimeSeries = tsIterator.next();
+      final boolean sensitivityToRate = sensitivityToRates[t];
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("No time-series for strip with tenor " + tenor);
       }
-      LocalDateDoubleTimeSeries nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      final LocalDateDoubleTimeSeries nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       LocalDateDoubleTimeSeries returnSeries = getReturnSeries(nodeTimeSeries, desiredValue);
       if (sensitivityToRate) {
         returnSeries = returnSeries.multiply(-1);
       }
-      
+
       // Clip the time-series to the range originally asked for
       returnSeries = returnSeries.subSeries(startDate, includeStart, returnSeries.getLatestTime(), true);
-      
+
       returnSeriesArray[t] = returnSeries;
     }
     return new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(tenors, returnSeriesArray);
   }
-  
+
   //-------------------------------------------------------------------------
-  private ValueRequirement getCurveSpecRequirement(Currency currency, String yieldCurveName) {
+  private ValueRequirement getCurveSpecRequirement(final Currency currency, final String yieldCurveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, yieldCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.CURRENCY.specification(currency), properties);
   }
-  
-  private ValueRequirement getFXForwardCurveDefinitionRequirement(UnorderedCurrencyPair currencies, String curveName) {
+
+  private ValueRequirement getFXForwardCurveDefinitionRequirement(final UnorderedCurrencyPair currencies, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_DEFINITION, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencies), properties);

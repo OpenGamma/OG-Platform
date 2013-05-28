@@ -28,6 +28,8 @@
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
   </bean>  
   <bean id="mainFunctionExclusionGroups" class="com.opengamma.web.spring.DemoFunctionExclusionGroupsFactoryBean" />
+  <!-- <bean id="mainTargetDigests" class="com.opengamma.financial.security.FinancialSecurityTargetDigests" /> -->
+  <bean id="mainTargetDigests" class="com.opengamma.engine.target.digest.NoTargetDigests" />
   <bean id="mainAvailableOutputsProvider" class="com.opengamma.engine.view.helper.DefaultAvailableOutputsProvider">
     <constructor-arg ref="mainCompiledFunctionService" />
     <constructor-arg ref="mainFunctionExclusionGroups" />
@@ -134,6 +136,7 @@
         </property>
         <property name="computationTargetCollapser" ref="mainComputationTargetCollapser" />
         <property name="functionExclusionGroups" ref="mainFunctionExclusionGroups" />
+        <property name="targetDigests" ref="mainTargetDigests" />
       </bean>
     </property>
     <property name="dependencyGraphExecutorFactory" ref="graphExecutor" />

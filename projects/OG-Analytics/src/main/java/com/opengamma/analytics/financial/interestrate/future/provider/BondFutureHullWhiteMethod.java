@@ -31,8 +31,8 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Method to compute the price of bond future using the Hull-White one factor model to estimate the delivery option.
@@ -130,7 +130,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
         df[loopbnd][loopcf] = issuer.getDiscountFactor(issuerCcy, cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(parameters, 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
-        beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
+        beta[loopbnd][loopcf] = MODEL.futuresConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];
         for (int looppt = 0; looppt < nbPoint; looppt++) {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
@@ -283,7 +283,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
         df[loopbnd][loopcf] = issuer.getDiscountFactor(issuerCcy, cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(parameters, 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
-        beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
+        beta[loopbnd][loopcf] = MODEL.futuresConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];
         for (int looppt = 0; looppt < nbPoint; looppt++) {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);

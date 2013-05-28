@@ -19,7 +19,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Produces {@link ViewDeltaResultModel} instances by comparing two {@link ViewComputationResultModel}.

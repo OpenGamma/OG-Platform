@@ -17,7 +17,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A wrapper around an existing {@link ViewComputationCache} implementation that will attempt to buffer data in memory to speed up writes rapidly followed by a read.

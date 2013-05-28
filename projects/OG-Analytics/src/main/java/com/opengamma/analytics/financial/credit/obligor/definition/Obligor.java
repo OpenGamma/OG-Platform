@@ -22,9 +22,8 @@ public class Obligor {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Sort out the hashCode and equals methods
   // TODO : Need to be able to allow the user to add user-defined fields to the definition of an obligor on an ad-hoc basis (each user will have different ways of representing an obligor)
-  // TODO : Should we include the recovery rate model as part of the obligors composition (private final RecoveryRateModel _recoveryRateModel;)?
+  // TODO : Continue development of Obligor concept
 
   // NOTE : There should be no market data within this objects definition (should only have the obligor characteristics)
 

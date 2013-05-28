@@ -15,24 +15,29 @@ import java.util.Map;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeSize;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.WriteReplaceHelper;
-import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * An implementation of {@link ViewComputationCache} which backs value storage on a pair of {@link IdentifierMap} and {@link FudgeMessageStore}.
  */
 public class DefaultViewComputationCache implements ViewComputationCache,
     Iterable<Pair<ValueSpecification, FudgeMsg>> {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultViewComputationCache.class);
 
   /**
    * Callback to locate missing data.
@@ -102,7 +107,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
 
   private Map<Class<?>, Integer> buildValueSizeByClassMap() {
     //All of these classes must be have consistent sizes
-    final ArrayList<Object> templates = Lists.newArrayList(Double.valueOf(12.0), MissingMarketDataSentinel.getInstance());
+    final ArrayList<Object> templates = Lists.<Object>newArrayList(Double.valueOf(12.0), MissingInput.MISSING_MARKET_DATA);
 
     final Map<Class<?>, Integer> valueSizeByClass = new HashMap<Class<?>, Integer>(templates.size());
     for (final Object obj : templates) {
@@ -404,7 +409,12 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     }
     serializer.reset();
     final MutableFudgeMsg message = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(message, null, NATIVE_FIELD_INDEX, WriteReplaceHelper.writeReplace(value));
+    try {
+      serializer.addToMessageWithClassHeaders(message, null, NATIVE_FIELD_INDEX, WriteReplaceHelper.writeReplace(value));
+    } catch (FudgeRuntimeException e) {
+      s_logger.error("Can't encode value {}", value);
+      s_logger.warn("Caught exception", e);
+    }
     // Optimize the "value encoded as sub-message" case to reduce space requirement
     final Object svalue = message.getValue(NATIVE_FIELD_INDEX);
     if (svalue instanceof FudgeMsg) {

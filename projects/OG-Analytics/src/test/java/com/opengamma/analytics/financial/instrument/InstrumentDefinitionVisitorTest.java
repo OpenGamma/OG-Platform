@@ -60,8 +60,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -70,6 +70,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -312,7 +314,7 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitBondFutureSecurityDefinition(final BondFutureDefinition bond, final T data) {
+    public String visitBondFutureDefinition(final BondFutureDefinition bond, final T data) {
       return getValue(bond, true);
     }
 
@@ -457,7 +459,7 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
+    public String visitBondFutureDefinition(final BondFutureDefinition bond) {
       return getValue(bond, false);
     }
 
@@ -1208,6 +1210,26 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesSecurityDefinition(BondFuturesSecurityDefinition bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesSecurityDefinition(BondFuturesSecurityDefinition bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bond) {
       return null;
     }
 

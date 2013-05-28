@@ -19,7 +19,7 @@ import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides ExternalIds for equity future options used to build a volatility surface

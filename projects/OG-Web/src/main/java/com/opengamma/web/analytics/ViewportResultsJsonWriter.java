@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
@@ -107,7 +107,7 @@ public class ViewportResultsJsonWriter {
   }
 
   private static boolean isError(Object value) {
-    return value instanceof MissingInput;
+    return value instanceof MissingValue;
   }
 
   private static LogLevel maxLogLevel(AggregatedExecutionLog log) {

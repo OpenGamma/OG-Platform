@@ -8,18 +8,19 @@ package com.opengamma.financial.analytics.timeseries;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.analytics.financial.timeseries.util.TimeSeriesRelativeWeightedDifferenceOperator;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesWeightedVolatilityOperator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
-import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class VolatilityWeightedYieldCurveNodeReturnSeriesFunction extends YieldCurveNodeReturnSeriesFunction {
+  
+  private static final TimeSeriesRelativeWeightedDifferenceOperator RELATIVE_WEIGHTED_DIFFERENCE = new TimeSeriesRelativeWeightedDifferenceOperator();
   
   @Override
   protected ValueProperties getResultProperties(ComputationTarget target) {
@@ -46,18 +47,10 @@ public class VolatilityWeightedYieldCurveNodeReturnSeriesFunction extends YieldC
   
   @Override
   protected LocalDateDoubleTimeSeries getReturnSeries(LocalDateDoubleTimeSeries ts, ValueRequirement desiredValue) {
-    LocalDateDoubleTimeSeries differenceSeries = super.getReturnSeries(ts, desiredValue);
     double lambda = Double.parseDouble(desiredValue.getConstraint(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_LAMBDA_PROPERTY));
-    TimeSeriesWeightedVolatilityOperator weightedVol = new TimeSeriesWeightedVolatilityOperator(lambda);
-    LocalDateDoubleTimeSeries weightedVolSeries = (LocalDateDoubleTimeSeries) weightedVol.evaluate(ts);
-    int n = weightedVolSeries.size();
-    double endDateWeightedVol = weightedVolSeries.getLatestValueFast();
-    double[] volWeightedDifferences = new double[n];
-    for (int i = 0; i < n; i++) {
-      volWeightedDifferences[i] = differenceSeries.getValueAtIndexFast(i) * endDateWeightedVol / weightedVolSeries.getValueAtIndexFast(i); 
-    }
-    LocalDateDoubleTimeSeries volWeightedDifferenceSeries = ImmutableLocalDateDoubleTimeSeries.of(weightedVolSeries.timesArrayFast(), volWeightedDifferences);
-    return volWeightedDifferenceSeries;
+    TimeSeriesWeightedVolatilityOperator weightedVolOp = new TimeSeriesWeightedVolatilityOperator(lambda);
+    LocalDateDoubleTimeSeries weightedVolSeries = (LocalDateDoubleTimeSeries) weightedVolOp.evaluate(ts);
+    return (LocalDateDoubleTimeSeries) RELATIVE_WEIGHTED_DIFFERENCE.evaluate(ts, weightedVolSeries);
   }
   
 }

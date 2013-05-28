@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the change in par rate of an instrument (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) due to a parallel move of each yield curve

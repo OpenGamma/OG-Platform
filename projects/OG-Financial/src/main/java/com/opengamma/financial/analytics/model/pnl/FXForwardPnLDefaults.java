@@ -28,7 +28,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -55,7 +55,7 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
-    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
       _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
@@ -76,7 +76,7 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (String requirementName : new String[] {ValueRequirementNames.PNL_SERIES, ValueRequirementNames.YIELD_CURVE_PNL_SERIES}) {
+    for (final String requirementName : new String[] {ValueRequirementNames.PNL_SERIES, ValueRequirementNames.YIELD_CURVE_PNL_SERIES, ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES}) {
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.PAY_CURVE);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.RECEIVE_CURVE);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
@@ -84,7 +84,7 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(requirementName, HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
       defaults.addValuePropertyName(requirementName, HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.SCHEDULE_CALCULATOR);
-      defaults.addValuePropertyName(requirementName, ValuePropertyNames.SAMPLING_FUNCTION);      
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.SAMPLING_FUNCTION);
     }
   }
 
@@ -95,7 +95,7 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
     }
     if (HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY.equals(propertyName)) {
       return Collections.singleton(_end);
-    } 
+    }
     if (ValuePropertyNames.SCHEDULE_CALCULATOR.equals(propertyName)) {
       return Collections.singleton(_scheduleCalculator);
     }

@@ -5,14 +5,20 @@
  */
 package com.opengamma.web.bundle;
 
+import java.util.List;
+
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
+import com.opengamma.web.sass.WebJRubySassCompiler;
 
 /**
  * Abstract base class for RESTful bundle resources.
@@ -74,6 +80,12 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     BundleManager bundleManager = _data.getBundleManagerFactory().get(servletContext);
     data().setBundleManager(bundleManager);
     data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
+    data().setSassCompiler(WebJRubySassCompiler.of(servletContext));
+  }
+  
+  @Context
+  public void setHttpHeaders(HttpHeaders httpHeaders) {
+    data().setHttpHeaders(httpHeaders);
   }
 
   //-------------------------------------------------------------------------
@@ -86,6 +98,16 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     FlexiBean out = getFreemarker().createRootData();
     out.put("ogStyle", new StyleTag(data()));
     out.put("ogScript", new ScriptTag(data()));
+    HttpHeaders httpHeaders = data().getHttpHeaders();
+    String openfin = StringUtils.EMPTY;
+    if (httpHeaders != null) {
+      out.put("httpHeaders", data().getHttpHeaders());
+      List<String> openfinHeader = httpHeaders.getRequestHeader("x-powered-by");
+      if (openfinHeader != null) {
+        openfin = Iterables.getFirst(openfinHeader, StringUtils.EMPTY);
+      }
+    }
+    out.put("openfin", openfin.toLowerCase());
     return out;
   }
 

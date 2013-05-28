@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceVisitor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.integration.Integrator1D;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.ArgumentChecker;
 
 /**

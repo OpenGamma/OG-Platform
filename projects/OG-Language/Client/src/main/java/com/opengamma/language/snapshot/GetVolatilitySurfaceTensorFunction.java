@@ -26,7 +26,7 @@ import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Fetches the data from a volatility surface as a 2D matrix tensor.

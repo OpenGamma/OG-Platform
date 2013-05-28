@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**

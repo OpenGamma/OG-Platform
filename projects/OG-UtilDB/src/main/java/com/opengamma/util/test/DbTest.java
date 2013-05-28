@@ -137,7 +137,7 @@ public abstract class DbTest implements TableCreationCallback {
   protected static Object[][] getParametersForSeparateMasters(int prevVersionCount) {
     String testDatabaseType = System.getProperty("test.database.type");
     Collection<String> databaseTypes;
-    if (testDatabaseType == null) {
+    if (testDatabaseType == null || testDatabaseType.trim().equalsIgnoreCase("all")) {
       databaseTypes = new ArrayList<>(s_dbDialects.keySet());
     } else {
       if (s_dbDialects.containsKey(testDatabaseType) == false) {

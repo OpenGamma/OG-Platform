@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

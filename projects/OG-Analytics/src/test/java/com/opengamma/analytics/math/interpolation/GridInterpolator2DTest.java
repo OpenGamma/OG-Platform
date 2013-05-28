@@ -19,8 +19,8 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.lambdava.tuple.DoublesPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -102,9 +102,9 @@ public class GridInterpolator2DTest {
     assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA_BUNDLE, Pair.of(2.5, 5.4)), 0., EPS);
     final Map<DoublesPair, Double> nonTrivial = new HashMap<DoublesPair, Double>();
     for (final DoublesPair pair : FLAT_DATA.keySet()) {
-      nonTrivial.put(pair, F.evaluate(pair._1(), pair._2()));
+      nonTrivial.put(pair, F.evaluate(pair.getFirst(), pair.getSecond()));
     }
     final DoublesPair pair = Pair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
-    assertEquals(INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(nonTrivial), pair), F.evaluate(pair._1(), pair._2()), EPS);
+    assertEquals(INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(nonTrivial), pair), F.evaluate(pair.getFirst(), pair.getSecond()), EPS);
   }
 }

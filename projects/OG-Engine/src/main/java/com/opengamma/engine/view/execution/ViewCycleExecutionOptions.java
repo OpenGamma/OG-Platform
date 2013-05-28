@@ -5,13 +5,18 @@
  */
 package com.opengamma.engine.view.execution;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.util.ObjectUtils;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -32,16 +37,24 @@ public class ViewCycleExecutionOptions {
 
     private List<MarketDataSpecification> _marketDataSpecifications;
 
+    private MarketDataSelector _marketDataSelector;
+
     private VersionCorrection _resolverVersionCorrection;
 
+    private Map<DistinctMarketDataSelector, FunctionParameters> _functionParameters;
+
     public Builder() {
-      _marketDataSpecifications = Collections.<MarketDataSpecification>emptyList();
+      _marketDataSpecifications = ImmutableList.of();
+      _marketDataSelector = NoOpMarketDataSelector.getInstance();
+      _functionParameters = ImmutableMap.of();
     }
 
     public Builder(final ViewCycleExecutionOptions copyFrom) {
       _valuationTime = copyFrom.getValuationTime();
       _marketDataSpecifications = copyFrom.getMarketDataSpecifications();
+      _marketDataSelector = copyFrom.getMarketDataSelector();
       _resolverVersionCorrection = copyFrom.getResolverVersionCorrection();
+      _functionParameters = copyFrom.getFunctionParameters();
     }
 
     /**
@@ -72,7 +85,7 @@ public class ViewCycleExecutionOptions {
      */
     public Builder setMarketDataSpecification(final MarketDataSpecification marketDataSpecification) {
       ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
-      _marketDataSpecifications = Collections.singletonList(marketDataSpecification);
+      _marketDataSpecifications = ImmutableList.of(marketDataSpecification);
       return this;
     }
 
@@ -91,12 +104,34 @@ public class ViewCycleExecutionOptions {
     }
 
     /**
+     * Sets the market data selectors for the view cycle.
+     * These can be used to flag which market data is to be manipulated as it is passed into functions.
+     *
+     * @param marketDataSelector the market data selector, not null
+     * @return this instance
+     */
+    public Builder setMarketDataSelector(MarketDataSelector marketDataSelector) {
+      ArgumentChecker.notNull(marketDataSelector, "marketDataSelector");
+      _marketDataSelector = marketDataSelector;
+      return this;
+    }
+
+    /**
      * Returns the market data specifications for the view cycle.
      * 
      * @return the market data specifications, not null
      */
     public List<MarketDataSpecification> getMarketDataSpecifications() {
       return _marketDataSpecifications;
+    }
+
+    /**
+     * Returns the market data shift specification for the view cycle.
+     *
+     * @return the market data shift specification, not null
+     */
+    public MarketDataSelector getMarketDataSelector() {
+      return _marketDataSelector;
     }
 
     /**
@@ -122,21 +157,44 @@ public class ViewCycleExecutionOptions {
     }
 
     /**
+     * Sets the function parameters to be used for the current view cycle.
+     *
+     * @param functionParameters the function parameters, not null
+     * @return this instance
+     */
+    public Builder setFunctionParameters(final Map<DistinctMarketDataSelector, FunctionParameters> functionParameters) {
+      _functionParameters = functionParameters;
+      return this;
+    }
+
+    /**
+     * Returns the function parameters to be used for the current view cycle. If not set the default cycle options will be used.
+     *
+     * @return the function parameters to be used in the current cycle, not null
+     */
+    public Map<DistinctMarketDataSelector, FunctionParameters> getFunctionParameters() {
+      return _functionParameters;
+    }
+
+    /**
      * Creates a {@link ViewCycleExecutionOptions} instance containing the values from this builder.
-     * 
+     *
      * @return the new instance
      */
     public ViewCycleExecutionOptions create() {
       return new ViewCycleExecutionOptions(this);
     }
-
   }
 
   private final Instant _valuationTime;
 
   private final List<MarketDataSpecification> _marketDataSpecifications;
+
+  private final MarketDataSelector _marketDataSelector;
   
   private final VersionCorrection _resolverVersionCorrection;
+
+  private final Map<DistinctMarketDataSelector, FunctionParameters> _functionParameters;
 
   // TODO [PLAT-1153] view correction time - probably want either valuation time or some fixed correction time
 
@@ -146,16 +204,18 @@ public class ViewCycleExecutionOptions {
   public ViewCycleExecutionOptions() {
     this(new Builder());
   }
-  
+
   /**
    * Creates an instance with the values from the supplied builder.
-   * 
+   *
    * @param builder the values to populate the instance from
    */
   protected ViewCycleExecutionOptions(final Builder builder) {
     _valuationTime = builder.getValuationTime();
     _marketDataSpecifications = builder.getMarketDataSpecifications();
+    _marketDataSelector = builder.getMarketDataSelector();
     _resolverVersionCorrection = builder.getResolverVersionCorrection();
+    _functionParameters = builder.getFunctionParameters();
   }
 
   /**
@@ -190,6 +250,15 @@ public class ViewCycleExecutionOptions {
   }
 
   /**
+   * Returns the market data shift specifications.
+   *
+   * @return the market data shift specifications, not null and not containing null but possibly empty
+   */
+  public MarketDataSelector getMarketDataSelector() {
+    return _marketDataSelector;
+  }
+
+  /**
    * Returns the version/correction to use when resolving references (for example the portfolio, positions, securities, time-series and so on). If not set the default cycle options will be used. If
    * these are the default cycle options then a value of null will imply {@link VersionCorrection#LATEST}.
    * 
@@ -197,6 +266,15 @@ public class ViewCycleExecutionOptions {
    */
   public VersionCorrection getResolverVersionCorrection() {
     return _resolverVersionCorrection;
+  }
+
+  /**
+   * Returns the function parameters to be used for the current view cycle.
+   *
+   * @return the function parameters to be used in the current cycle
+   */
+  public Map<DistinctMarketDataSelector, FunctionParameters> getFunctionParameters() {
+    return _functionParameters;
   }
 
   @Override
@@ -208,14 +286,22 @@ public class ViewCycleExecutionOptions {
     if (getResolverVersionCorrection() != null) {
       sb.append("portfolioVersionCorrection=").append(getResolverVersionCorrection()).append(", ");
     }
-    sb.append("marketDataSpecifications=").append(getMarketDataSpecifications());
-    return sb.append("]").toString();
+    sb.append("marketDataSpecifications=")
+        .append(getMarketDataSpecifications())
+        .append(", marketDataShiftSpecification=")
+        .append(getMarketDataSelector())
+        .append(", functionParameters=")
+        .append(getFunctionParameters())
+        .append("]");
+    return sb.toString();
   }
 
   @Override
   public int hashCode() {
     int result = 1;
     result += (result << 4) + getMarketDataSpecifications().hashCode();
+    result += (result << 4) + getMarketDataSelector().hashCode();
+    result += (result << 4) + getFunctionParameters().hashCode();
     result += (result << 4) + ObjectUtils.nullSafeHashCode(getValuationTime());
     result += (result << 4) + ObjectUtils.nullSafeHashCode(getResolverVersionCorrection());
     return result;
@@ -231,8 +317,9 @@ public class ViewCycleExecutionOptions {
     }
     final ViewCycleExecutionOptions other = (ViewCycleExecutionOptions) obj;
     return getMarketDataSpecifications().equals(other.getMarketDataSpecifications())
+        && getMarketDataSelector().equals(other.getMarketDataSelector())
+        && getFunctionParameters().equals(other.getFunctionParameters())
         && ObjectUtils.nullSafeEquals(getValuationTime(), other.getValuationTime())
         && ObjectUtils.nullSafeEquals(getResolverVersionCorrection(), other.getResolverVersionCorrection());
   }
-  
 }

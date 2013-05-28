@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to source the latest time series data point from a {@link HistoricalTimeSeriesSource} attached to the execution context.
@@ -44,11 +44,11 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
     final Period ageLimit = HistoricalTimeSeriesFunctionUtils.UNLIMITED_AGE_LIMIT_VALUE.equals(ageLimitValue) ? null : Period.parse(ageLimitValue);
     final Object value;
     if (checkMissing(executionContext, latestDataPoint, ageLimit)) {
-      value = MissingMarketDataSentinel.getInstance();
+      value = MissingInput.MISSING_MARKET_DATA;
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
       final HistoricalTimeSeriesAdjustment htsa = HistoricalTimeSeriesAdjustment.parse(adjusterString);
-      value = htsa.adjust(latestDataPoint._2());
+      value = htsa.adjust(latestDataPoint.getSecond());
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), value));
   }

@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.special.GammaFunction;
 import com.opengamma.analytics.math.function.special.JacobiPolynomialFunction;
 import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Class that generates weights and abscissas for Gauss-Jacobi quadrature. The

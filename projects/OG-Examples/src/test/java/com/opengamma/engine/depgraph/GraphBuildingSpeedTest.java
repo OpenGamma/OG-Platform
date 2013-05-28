@@ -6,11 +6,14 @@
 package com.opengamma.engine.depgraph;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -88,16 +91,23 @@ public class GraphBuildingSpeedTest {
     }
   }
 
+  protected void configureDependencyGraphBuilder(final DependencyGraphBuilderFactory dependencyGraphBuilder) {
+    dependencyGraphBuilder.setEnableFailureReporting(false);
+    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getOrdered());
+    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentLinkedQueue());
+    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentStack());
+    //dependencyGraphBuilder.setTargetDigests(new NoTargetDigests());
+    //dependencyGraphBuilder.setTargetDigests(new SecurityTypeTargetDigests());
+    //dependencyGraphBuilder.setTargetDigests(new FinancialSecurityTargetDigests());
+  }
+
   private ViewCompilationServices createViewCompilationServices() {
     final CompiledFunctionService cfs = _repo.getInstance(CompiledFunctionService.class, "main");
     final FunctionResolver functionResolver = _repo.getInstance(FunctionResolver.class, "main");
     final FunctionExclusionGroups functionExclusionGroups = _repo.getInstance(FunctionExclusionGroups.class, "main");
     final DependencyGraphBuilderFactory dependencyGraphBuilder = new DependencyGraphBuilderFactory();
     dependencyGraphBuilder.setFunctionExclusionGroups(functionExclusionGroups);
-    dependencyGraphBuilder.setEnableFailureReporting(false);
-    dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getOrdered());
-    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentLinkedQueue());
-    //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentStack());
+    configureDependencyGraphBuilder(dependencyGraphBuilder);
     final MarketDataAvailabilityProvider mdap = new OptimisticMarketDataAvailabilityFilter().withProvider(new DefaultMarketDataAvailabilityProvider());
     return new ViewCompilationServices(mdap, functionResolver, cfs.getFunctionCompilationContext(), cfs.getExecutorService(), dependencyGraphBuilder);
   }
@@ -137,13 +147,43 @@ public class GraphBuildingSpeedTest {
               final Set<ValueSpecification> missing = Sets.difference(terminalOutputs.get(graph.getCalculationConfigurationName()), graph.getTerminalOutputSpecifications());
               final Set<ValueSpecification> extra = Sets.difference(graph.getTerminalOutputSpecifications(), terminalOutputs.get(graph.getCalculationConfigurationName()));
               if (!missing.isEmpty()) {
-                s_logger.info("Missing = {}", missing);
+                if (missing.size() < 8) {
+                  s_logger.info("Missing = {}", missing);
+                } else {
+                  for (ValueSpecification vs : missing) {
+                    s_logger.info("Missing = {}", vs);
+                  }
+                }
               }
               if (!extra.isEmpty()) {
-                s_logger.info("Extra = {}", extra);
+                if (extra.size() < 8) {
+                  s_logger.info("Extra = {}", extra);
+                } else {
+                  for (ValueSpecification vs : extra) {
+                    s_logger.info("Extra = {}", vs);
+                  }
+                }
               }
-              assertEquals(missing, Collections.emptySet());
-              assertEquals(extra, Collections.emptySet());
+              assertEquals(graph.getTerminalOutputSpecifications().size(), terminalOutputs.get(graph.getCalculationConfigurationName()).size());
+              assertEquals(missing.size(), extra.size());
+              final Collection<ValueSpecification> extraCopy = new LinkedList<ValueSpecification>(extra);
+              for (ValueSpecification vs1 : missing) {
+                final Iterator<ValueSpecification> itr = extraCopy.iterator();
+                while (itr.hasNext()) {
+                  final ValueSpecification vs2 = itr.next();
+                  if (vs1.getValueName() == vs2.getValueName()) {
+                    if (vs1.getTargetSpecification().equals(vs2.getTargetSpecification())) {
+                      s_logger.info("Paired {} with {}", vs1, vs2);
+                      itr.remove();
+                      break;
+                    }
+                  }
+                }
+              }
+              for (ValueSpecification vs : extraCopy) {
+                s_logger.warn("Unpaired extra = {}", vs);
+              }
+              assertTrue(extraCopy.isEmpty());
             }
           }
         }
@@ -159,6 +199,12 @@ public class GraphBuildingSpeedTest {
     for (final ConfigItem<ViewDefinition> item : items) {
       viewDefinitions[i++][0] = item.getValue();
     }
+    Arrays.sort(viewDefinitions, new Comparator<Object[]>() {
+      @Override
+      public int compare(Object[] o1, Object[] o2) {
+        return ((ViewDefinition) o1[0]).getName().compareTo(((ViewDefinition) o2[0]).getName());
+      }
+    });
     return viewDefinitions;
   }
 

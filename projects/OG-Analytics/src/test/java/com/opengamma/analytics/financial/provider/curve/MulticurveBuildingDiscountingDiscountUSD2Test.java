@@ -63,7 +63,7 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
@@ -117,10 +117,10 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
+      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
-    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+      Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < DSC_USD_TENOR.length; loopins++) {
@@ -132,10 +132,10 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
   private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, GENERATOR_FRA, GENERATOR_FRA, USD6MLIBOR3M,
-    USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
+      USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5),
-    Period.ofYears(7), Period.ofYears(10) };
+      Period.ofYears(7), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] FWD3_USD_ATTR = new GeneratorAttributeIR[FWD3_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR.length; loopins++) {
@@ -149,7 +149,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
   private static final InstrumentDefinition<?>[] DEFINITIONS_FWD3_USD;
 
   /** Units of curves */
-  private static final int[] NB_UNITS = new int[] {2, 1 };
+  private static final int[] NB_UNITS = new int[] {2, 1, 1 };
   private static final int NB_BLOCKS = NB_UNITS.length;
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
@@ -170,13 +170,16 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
     DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD, DEFINITIONS_FWD3_USD };
+    DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR);
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genIntLin, genIntLin };
+    GENERATORS_UNITS[2][0] = new GeneratorYDCurve[] {genIntLin };
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD };
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD, CURVE_NAME_FWD3_USD };
+    NAMES_UNITS[2][0] = new String[] {CURVE_NAME_DSC_USD };
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_USD, new IborIndex[] {USDLIBOR3M });
@@ -185,6 +188,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -273,7 +277,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " curve construction / 2 units: " + (endTime - startTime) + " ms");
-    // Performance note: Curve construction 2 units: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 270 (no Jac)/430 ms for 100 sets.
+    // Performance note: Curve construction 2 units: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 430 ms for 100 sets.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -281,7 +285,39 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " curve construction / 1 unit: " + (endTime - startTime) + " ms");
-    // Performance note: Curve construction 1 unit: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 315 (no Jac)/440 ms for 10 sets.
+    // Performance note: Curve construction 1 unit: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 440 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / 1 curve: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 1 curve: 20-May-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 125 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / 2 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 420 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / 1 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 1 unit: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 402 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / 1 curve: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 1 curve: 20-May-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 125 ms for 100 sets.
 
   }
 

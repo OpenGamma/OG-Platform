@@ -23,7 +23,7 @@ import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 import net.sf.ehcache.CacheManager;
 

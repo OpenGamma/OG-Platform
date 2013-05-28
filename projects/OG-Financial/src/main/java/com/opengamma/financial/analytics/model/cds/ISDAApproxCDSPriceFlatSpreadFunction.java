@@ -27,7 +27,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.ISDACDSSecurityConverter;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Price CDS contracts according to the ISDA model using a flat spread

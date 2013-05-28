@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *

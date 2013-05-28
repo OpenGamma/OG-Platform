@@ -16,7 +16,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
@@ -33,14 +32,15 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Able to scale values produced by the rest of the OG-Financial package.
+ * Sums the values of the trades that make up a position to produce the position's value.
  */
 public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
+
+  // NOTE: The name is for legacy reasons; this does no scaling and should really be called PositionTradeSummingFunction or similar.
+  // All scaling is done by PositionOrTradeScaling function which will work nicely for positions with just one trade.
 
   private final String _requirementName;
 
@@ -61,7 +61,10 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return !target.getPosition().getTrades().isEmpty();
+    // Only apply when there are multiple trades; otherwise the PositionOrTradeScaling function on its own will work. Allowing this
+    // into the graph creates an ambiguity otherwise as either PositionTradeScaling(POSITION) <- PositionOrTradeScaling(TRADE) <- F(SECURITY)
+    // or PositionOrTradeScaling(POSITION) <- F(SECURITY) may be possible for some value requirements
+    return target.getPosition().getTrades().size() > 1;
   }
 
   @Override
@@ -99,43 +102,24 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    Object scaledValue = null;
-    ValueProperties common = null;
-    // TODO: What if there are multiple trades? The original function requested them all as inputs and chose an arbitrary one here. We process them all as the
-    // intersection of properties is required for the result
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    Object summedValue = null;
     for (final ComputedValue input : inputs.getAllValues()) {
       final Object value = input.getValue();
-//      if (value == null) {
-//        throw new OpenGammaRuntimeException("null value summed");
-//      }
-      if (value instanceof Double) {
-        Double doubleValue = (Double) value;
-        scaledValue = SumUtils.addValue(scaledValue, doubleValue, _requirementName);
-      } else if (value instanceof YieldCurveNodeSensitivityDataBundle) {
+      if (value == null) {
+        continue;
+      }
+      if (value instanceof YieldCurveNodeSensitivityDataBundle) {
         final YieldCurveNodeSensitivityDataBundle nodeSensitivities = (YieldCurveNodeSensitivityDataBundle) value;
         final Currency ccy = nodeSensitivities.getCurrency();
         final String name = nodeSensitivities.getYieldCurveName();
         final DoubleLabelledMatrix1D m = nodeSensitivities.getLabelledMatrix();
-        YieldCurveNodeSensitivityDataBundle dataBundle = (YieldCurveNodeSensitivityDataBundle) scaledValue;
+        YieldCurveNodeSensitivityDataBundle dataBundle = (YieldCurveNodeSensitivityDataBundle) summedValue;
         if (ccy.equals(dataBundle.getCurrency()) && name.equals(dataBundle.getYieldCurveName())) {
-          scaledValue = new YieldCurveNodeSensitivityDataBundle(ccy, (DoubleLabelledMatrix1D) SumUtils.addValue(dataBundle.getLabelledMatrix(), m, _requirementName), name);
+          summedValue = new YieldCurveNodeSensitivityDataBundle(ccy, (DoubleLabelledMatrix1D) SumUtils.addValue(dataBundle.getLabelledMatrix(), m, _requirementName), name);
+        } else {
+          // TODO: Throwing the value away like this looks bad!
         }
-      } else if (value instanceof DoubleLabelledMatrix1D) {
-        final DoubleLabelledMatrix1D m = (DoubleLabelledMatrix1D) value;
-        scaledValue = SumUtils.addValue(scaledValue, m, _requirementName);
-      } else if (value instanceof LocalDateLabelledMatrix1D) {
-        final LocalDateLabelledMatrix1D m = (LocalDateLabelledMatrix1D) value;
-        scaledValue = SumUtils.addValue(scaledValue, m, _requirementName);
-      } else if (value instanceof ZonedDateTimeLabelledMatrix1D) {
-        final ZonedDateTimeLabelledMatrix1D m = (ZonedDateTimeLabelledMatrix1D) value;
-        scaledValue = SumUtils.addValue(scaledValue, m, _requirementName);
-      } else if (value instanceof CurrencyLabelledMatrix1D) {
-        final CurrencyLabelledMatrix1D m = (CurrencyLabelledMatrix1D) value;
-        scaledValue = SumUtils.addValue(scaledValue, m, _requirementName);
-      } else if (value instanceof MultipleCurrencyAmount) {
-        final MultipleCurrencyAmount m = (MultipleCurrencyAmount) value;
-        final double quantity = target.getPosition().getQuantity().doubleValue();
-        scaledValue = m.multipliedBy(quantity);
       } else if (_requirementName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
         // THIS IS ALMOST CERATINLY WRONG
         @SuppressWarnings("unchecked")
@@ -148,39 +132,17 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
           }
           scaled.put(entry.getKey(), scaledList);
         }
-        scaledValue = scaled;
-      } else if (value instanceof DoubleLabelledMatrix2D) {
-        final DoubleLabelledMatrix2D matrix = (DoubleLabelledMatrix2D) value;
-        scaledValue = SumUtils.addValue(scaledValue, matrix, _requirementName);
-      } else if (value instanceof DoubleLabelledMatrix3D) {
-        final DoubleLabelledMatrix3D matrix = (DoubleLabelledMatrix3D) value;
-        scaledValue = SumUtils.addValue(scaledValue, matrix, _requirementName);
-      } else if (value instanceof CurrencyAmount) {
-        final CurrencyAmount ccyAmount = (CurrencyAmount) value;
-        scaledValue = SumUtils.addValue(scaledValue, ccyAmount, _requirementName);
+        // TODO: THIS IS MOST DEFINATELY WRONG - We should be adding, not scaling in this function. Should we add or does that make no sense and this is from when we used to scale in this function? 
+        summedValue = scaled;
       } else {
-        //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
-        // TODO case 2012.10.26 CurrencyAmount ends up here :(
-        // REVIEW jim 16-Apr-2013 - added in CurrencyAmount support.
-        scaledValue = value;
+        summedValue = SumUtils.addValue(summedValue, value, _requirementName);
       }
-      common = SumUtils.addProperties(common, input.getSpecification().getProperties());
     }
-    common = common.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
-    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), common);
-    if (scaledValue == null) {
+    if (summedValue == null) {
       return null;
     }
-    return Collections.singleton(new ComputedValue(specification, scaledValue));
-  }
-
-  private double[] getScaledMatrix(final double[] values, final double quantity) {
-    final int n = values.length;
-    final double[] scaled = new double[n];
-    for (int i = 0; i < n; i++) {
-      scaled[i] = values[i] * quantity;
-    }
-    return scaled;
+    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), desiredValue.getConstraints());
+    return Collections.singleton(new ComputedValue(specification, summedValue));
   }
 
 }

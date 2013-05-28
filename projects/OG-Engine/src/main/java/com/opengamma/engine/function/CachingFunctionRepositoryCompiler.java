@@ -22,7 +22,7 @@ import org.threeten.bp.Instant;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.PoolExecutor.CompletionListener;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Implements a {@link FunctionRepositoryCompiler} that caches the results of previous compilations so that a minimal compilation is performed each time.

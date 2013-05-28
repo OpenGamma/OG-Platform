@@ -21,7 +21,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *

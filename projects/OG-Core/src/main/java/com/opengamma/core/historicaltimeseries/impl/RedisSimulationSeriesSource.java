@@ -20,14 +20,9 @@ import com.codahale.metrics.Timer;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesInfo;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -35,7 +30,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.metric.MetricProducer;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * An extremely minimal and lightweight {@code HistoricalTimeSeriesSource} that pulls data
@@ -72,7 +67,7 @@ import com.opengamma.lambdava.tuple.Pair;
  * See <a href="http://jira.opengamma.com/browse/PLAT-3385">PLAT-3385</a> for the original
  * requirement.
  */
-public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, HistoricalTimeSeriesResolver, MetricProducer {
+public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSource.class);
   private final JedisPool _jedisPool;
   private final String _redisPrefix;
@@ -94,7 +89,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
    * Gets the jedisPool.
    * @return the jedisPool
    */
-  protected JedisPool getJedisPool() {
+  public JedisPool getJedisPool() {
     return _jedisPool;
   }
   
@@ -102,7 +97,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
    * Gets the redisPrefix.
    * @return the redisPrefix
    */
-  protected String getRedisPrefix() {
+  public String getRedisPrefix() {
     return _redisPrefix;
   }
 
@@ -265,65 +260,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
   // UTILITY METHODS:
   // ------------------------------------------------------------------------
   
-  @Override
-  public HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
-      String resolutionKey) {
-    if (identifierBundle.size() > 1) {
-      s_logger.warn("Attempted to call RedisSimulationSeriesSource with bundle {}. Calls with more than 1 entry in ID bundle are probably misuse of this class.", identifierBundle);
-    }
-    ExternalId externalId = identifierBundle.getExternalIds().iterator().next();
-    final UniqueId uniqueId = UniqueId.of(externalId);
-    HistoricalTimeSeriesInfo htsInfo = new HistoricalTimeSeriesInfo() {
-      @Override
-      public UniqueId getUniqueId() {
-        return uniqueId;
-      }
-
-      @Override
-      public ExternalIdBundleWithDates getExternalIdBundle() {
-        throw new UnsupportedOperationException("Unsupported operation.");
-      }
-
-      @Override
-      public String getName() {
-        throw new UnsupportedOperationException("Unsupported operation.");
-      }
-
-      @Override
-      public String getDataField() {
-        throw new UnsupportedOperationException("Unsupported operation.");
-      }
-
-      @Override
-      public String getDataSource() {
-        throw new UnsupportedOperationException("Unsupported operation.");
-      }
-
-      @Override
-      public String getDataProvider() {
-        throw new UnsupportedOperationException("Unsupported operation.");
-      }
-
-      @Override
-      public String getObservationTime() {
-        throw new UnsupportedOperationException("Unsupported operation.");
-      }
-
-      @Override
-      public ObjectId getTimeSeriesObjectId() {
-        throw new UnsupportedOperationException("Unsupported operation.");
-      }
-      
-    };
-    HistoricalTimeSeriesResolutionResult result = new HistoricalTimeSeriesResolutionResult(htsInfo);
-    return result;
-  }
-
-  // ------------------------------------------------------------------------
-  // UTILITY METHODS:
-  // ------------------------------------------------------------------------
-  
-  private String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
+  public String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
     StringBuilder sb = new StringBuilder();
     
     sb.append(_redisPrefix);
@@ -479,7 +416,7 @@ public class RedisSimulationSeriesSource implements HistoricalTimeSeriesSource, 
 
   @Override
   public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    return ExternalId.of(uniqueId.getScheme(), uniqueId.getValue()).toBundle();
   }
 
 }

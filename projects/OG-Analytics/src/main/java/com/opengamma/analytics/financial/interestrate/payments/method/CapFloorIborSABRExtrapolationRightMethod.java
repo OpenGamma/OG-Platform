@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.S
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price and sensitivity of a Ibor cap/floor with SABR model and extrapolation for high strikes. 

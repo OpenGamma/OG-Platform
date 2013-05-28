@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing the SABR parameter surfaces used in interest rate modeling.

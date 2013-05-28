@@ -67,6 +67,8 @@ public class CreditDefaultSwapDefinitionDataSets {
 
   private static final double NOTIONAL = 10000000.0;
   private static final double RECOVERY_RATE = 0.40;
+  private static final double FIXED_RECOVERY_RATE = 0.20;
+  private static final double RECOVERY_LOCK_RATE = 0.75;
   private static final boolean INCLUDE_ACCRUED_PREMIUM = true;
   private static final boolean PROTECTION_START = true;
 
@@ -83,7 +85,7 @@ public class CreditDefaultSwapDefinitionDataSets {
     return new LegacyFixedRecoveryCreditDefaultSwapDefinition(BUY_SELL_PROTECTION, getObligor1(), getObligor2(), getObligor3(), CURRENCY,
         DEBT_SENIORITY, RESTRUCTURING_CLAUSE, CALENDAR, START_DATE, EFFECTIVE_DATE, MATURITY_DATE, STUB_TYPE,
         COUPON_FREQUENCY, DAY_COUNT, BUSINESS_DAY, IMM_ADJUST_MATURITY_DATE, ADJUST_EFFECTIVE_DATE, ADJUST_MATURITY_DATE,
-        NOTIONAL, RECOVERY_RATE, INCLUDE_ACCRUED_PREMIUM, PROTECTION_START, PAR_SPREAD);
+        NOTIONAL, RECOVERY_RATE, INCLUDE_ACCRUED_PREMIUM, PROTECTION_START, PAR_SPREAD, FIXED_RECOVERY_RATE);
   }
 
   public static LegacyForwardStartingCreditDefaultSwapDefinition getLegacyForwardStartingDefinition() {
@@ -111,7 +113,7 @@ public class CreditDefaultSwapDefinitionDataSets {
     return new LegacyRecoveryLockCreditDefaultSwapDefinition(BUY_SELL_PROTECTION, getObligor1(), getObligor2(), getObligor3(), CURRENCY,
         DEBT_SENIORITY, RESTRUCTURING_CLAUSE, CALENDAR, START_DATE, EFFECTIVE_DATE, MATURITY_DATE, STUB_TYPE,
         COUPON_FREQUENCY, DAY_COUNT, BUSINESS_DAY, IMM_ADJUST_MATURITY_DATE, ADJUST_EFFECTIVE_DATE, ADJUST_MATURITY_DATE,
-        NOTIONAL, RECOVERY_RATE, INCLUDE_ACCRUED_PREMIUM, PROTECTION_START, PAR_SPREAD);
+        NOTIONAL, RECOVERY_RATE, INCLUDE_ACCRUED_PREMIUM, PROTECTION_START, PAR_SPREAD, RECOVERY_LOCK_RATE);
   }
 
   public static LegacySovereignCreditDefaultSwapDefinition getLegacySovereignDefinition() {
@@ -134,7 +136,7 @@ public class CreditDefaultSwapDefinitionDataSets {
         DEBT_SENIORITY, RESTRUCTURING_CLAUSE, CALENDAR, START_DATE, EFFECTIVE_DATE, MATURITY_DATE, STUB_TYPE,
         COUPON_FREQUENCY, DAY_COUNT, BUSINESS_DAY, IMM_ADJUST_MATURITY_DATE, ADJUST_EFFECTIVE_DATE, ADJUST_MATURITY_DATE,
         NOTIONAL, RECOVERY_RATE, INCLUDE_ACCRUED_PREMIUM, PROTECTION_START, PAR_SPREAD, StandardCDSCoupon._1000bps,
-        100, EFFECTIVE_DATE, false);
+        100, EFFECTIVE_DATE, false, FIXED_RECOVERY_RATE);
   }
 
   public static StandardForwardStartingCreditDefaultSwapDefinition getStandardForwardStartingDefinition() {

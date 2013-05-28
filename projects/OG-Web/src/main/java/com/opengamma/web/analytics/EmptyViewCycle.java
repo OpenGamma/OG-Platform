@@ -18,6 +18,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -35,7 +36,7 @@ import com.opengamma.engine.view.cycle.ViewCycleState;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * {@link ViewCycle} implementation that acts as a placeholder when a calculation cycle hasn't completed and there isn't a cycle available. This is cleaner than using a null cycle reference and being
@@ -159,6 +160,17 @@ import com.opengamma.lambdava.tuple.Pair;
 
     @Override
     public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
+      throw new UnsupportedOperationException("getCompiledCalculationConfigurations not implemented");
+    }
+
+    @Override
+    public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
+        Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+      throw new UnsupportedOperationException("getCompiledCalculationConfigurations not implemented");
+    }
+
+    @Override
+    public Map<String, CompiledViewCalculationConfiguration> getCompiledCalculationConfigurationsMap() {
       throw new UnsupportedOperationException("getCompiledCalculationConfigurations not implemented");
     }
 

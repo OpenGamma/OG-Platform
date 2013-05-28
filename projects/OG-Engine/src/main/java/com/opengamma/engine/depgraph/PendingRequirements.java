@@ -63,6 +63,11 @@ import com.opengamma.engine.value.ValueRequirement;
     _valueRequirements.remove(value);
   }
 
+  @Override
+  public void recursionDetected() {
+    // No-op
+  }
+
   private void tick() {
     if ((++_tick % REPORT_PERIOD) == 0) {
       if (s_logger.isDebugEnabled()) {

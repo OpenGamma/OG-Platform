@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRa
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test.

@@ -23,7 +23,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- *
+ * Dividend payments (per share) at discrete times $\tau_i$ of the form $\alpha_i + \beta_iS_{\tau_{i^-}}$  where $S_{\tau_{i^-}}$ is the stock price immediately before the
+ * dividend payment.<p>
+ * 
+ * This is a toy model. It takes static values..
+ * From these, we construct a model which pays fixed amounts for the first year, and amounts proportional to the share price thereafter  
  */
 public class AffineDividendFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double[] TAU = new double[] {0.25, 0.5, 0.75, 1, 2, 3, 4};
@@ -54,6 +58,4 @@ public class AffineDividendFunction extends AbstractFunction.NonCompiledInvoker 
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     return Collections.emptySet();
   }
-
-
 }

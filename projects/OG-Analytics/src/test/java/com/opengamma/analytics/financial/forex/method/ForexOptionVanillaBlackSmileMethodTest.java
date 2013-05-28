@@ -54,9 +54,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.lambdava.tuple.DoublesPair;
-import com.opengamma.lambdava.tuple.ObjectsPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -1008,12 +1008,12 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double volatility = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
     final double thetaUnit = BlackFormulaRepository.driftlessTheta(forward, strike, timeToExpiry, volatility);
     final double thetaExpected = thetaUnit * notional;
-    final CurrencyAmount thetaCallComputed = METHOD_OPTION.thetaTheoretical(call, SMILE_BUNDLE);
+    final CurrencyAmount thetaCallComputed = METHOD_OPTION.theta(call, SMILE_BUNDLE);
     assertEquals("Theta theoretical: forex option", thetaExpected, thetaCallComputed.getAmount(), TOLERANCE_PV);
     assertEquals("Theta theoretical: forex option", USD, thetaCallComputed.getCurrency());
     final ForexOptionVanillaDefinition putDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, !isCall, isLong);
     final ForexOptionVanilla put = putDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final CurrencyAmount thetaPutComputed = METHOD_OPTION.thetaTheoretical(put, SMILE_BUNDLE);
+    final CurrencyAmount thetaPutComputed = METHOD_OPTION.theta(put, SMILE_BUNDLE);
     assertEquals("Theta theoretical: forex option", thetaCallComputed.getAmount(), thetaPutComputed.getAmount(), TOLERANCE_PV);
   }
 

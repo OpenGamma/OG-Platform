@@ -12,8 +12,6 @@ import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
-import com.opengamma.lambdava.tuple.Pair;
-
 /**
  * A standard immutable triple implementation consisting of three elements.
  * <p>

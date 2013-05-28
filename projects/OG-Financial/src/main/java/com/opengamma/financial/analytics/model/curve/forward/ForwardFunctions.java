@@ -16,7 +16,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function repository configuration source for the functions contained in this package.

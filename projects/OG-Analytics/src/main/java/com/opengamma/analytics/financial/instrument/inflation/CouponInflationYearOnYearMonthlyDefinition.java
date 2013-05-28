@@ -186,13 +186,15 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _monthLag;
+    result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
     result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -202,7 +204,13 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponInflationYearOnYearMonthlyDefinition other = (CouponInflationYearOnYearMonthlyDefinition) obj;
+    CouponInflationYearOnYearMonthlyDefinition other = (CouponInflationYearOnYearMonthlyDefinition) obj;
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_payNotional != other._payNotional) {
+      return false;
+    }
     if (_referenceEndDate == null) {
       if (other._referenceEndDate != null) {
         return false;

@@ -15,14 +15,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-import com.opengamma.lambdava.tuple.DoublesPair;
-import com.opengamma.lambdava.tuple.IntDoublePair;
-import com.opengamma.lambdava.tuple.IntObjectPair;
-import com.opengamma.lambdava.tuple.LongDoublePair;
-import com.opengamma.lambdava.tuple.LongObjectPair;
-import com.opengamma.lambdava.tuple.ObjectsPair;
-import com.opengamma.lambdava.tuple.Pair;
-
 /**
  * Fudge builder for {@code DoublesPair}.
  */

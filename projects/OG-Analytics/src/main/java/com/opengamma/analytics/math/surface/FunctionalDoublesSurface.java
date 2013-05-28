@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A surface that is defined by a function <i>z = f(x, y)</i>.

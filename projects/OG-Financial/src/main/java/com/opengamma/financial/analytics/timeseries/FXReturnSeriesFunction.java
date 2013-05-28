@@ -94,6 +94,14 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
       return null;
     }
     boolean includeEnd = includeEnds == null ? false : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeEnds));
+    final Set<String> samplingMethod = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
+    if (samplingMethod == null || samplingMethod.size() != 1) {
+      return null;
+    }
+    final Set<String> scheduleMethod = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleMethod == null || scheduleMethod.size() != 1) {
+      return null;
+    }
     
     return ImmutableSet.of(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement((UnorderedCurrencyPair) target.getValue(), start, includeStart, end, includeEnd));
   }

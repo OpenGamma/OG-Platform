@@ -46,6 +46,9 @@
     <dependency org="com.codahale.metrics" name="metrics-core" rev="3.0.0-BETA2" />
     <dependency org="com.codahale.metrics" name="metrics-ganglia" rev="3.0.0-BETA2" />
     <dependency org="redis" name="jedis" rev="2.1.0"/>
+    
+    <dependency org="org.jruby" name="jruby-complete" rev="1.7.3"/>
+    
     <exclude org="org.junit"/>
   </dependencies>
 </ivy-module>

@@ -17,9 +17,9 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.lambdava.tuple.DoublesPair;
-import com.opengamma.lambdava.tuple.ObjectsPair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The methods associated to the pricing of cash deposit by discounting.

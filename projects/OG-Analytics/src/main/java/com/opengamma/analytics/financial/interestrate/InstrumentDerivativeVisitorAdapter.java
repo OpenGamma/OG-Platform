@@ -51,8 +51,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -61,6 +61,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -592,6 +594,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
+  public RESULT_TYPE visitBondFuturesSecurity(final BondFuturesSecurity bondFutures, final DATA_TYPE data) {
+    return getException(bondFutures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesSecurity(final BondFuturesSecurity bondFutures) {
+    return getException(bondFutures);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesTransaction(final BondFuturesTransaction bondFutures, final DATA_TYPE data) {
+    return getException(bondFutures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesTransaction(final BondFuturesTransaction bondFutures) {
+    return getException(bondFutures);
+  }
+
+  @Override
   public RESULT_TYPE visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final DATA_TYPE data) {
     return getException(future, data);
   }
@@ -632,22 +654,22 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final DATA_TYPE data) {
     return getException(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
+  public RESULT_TYPE visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures) {
     return getException(futures);
   }
 
   @Override
-  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures, final DATA_TYPE data) {
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final DATA_TYPE data) {
     return getException(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesDeliverableTransaction futures) {
+  public RESULT_TYPE visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures) {
     return getException(futures);
   }
 

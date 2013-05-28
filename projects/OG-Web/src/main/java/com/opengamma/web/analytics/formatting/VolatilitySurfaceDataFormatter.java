@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
@@ -19,8 +20,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
 /* package */ class VolatilitySurfaceDataFormatter extends AbstractFormatter<VolatilitySurfaceData> {
@@ -48,7 +52,22 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     // the x and y values won't necessarily be unique and won't necessarily map to a rectangular grid
     // this projects them onto a grid and inserts nulls where there's no data available
     Set<X> xVals = surface.getUniqueXValues();
-    Set<Y> yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
+    Y[] yValues = surface.getYs();
+    Set<Y> yVals;
+    if (yValues.length > 0 && yValues[0] instanceof Pair) {
+      //TODO emcleod This nastiness is here because ObjectsPair is now (2013/5/13) no longer Comparable
+      Pair<Object, Object> pair = (Pair) yValues[0];
+      if (pair.getFirst() instanceof Integer && pair.getSecond() instanceof FXVolQuoteType) {
+        FirstThenSecondPairComparator<Integer, FXVolQuoteType> comparator = new FirstThenSecondPairComparator<>();
+        Set sortedSet = new TreeSet(comparator);
+        sortedSet.addAll(Arrays.asList(surface.getYs()));
+        yVals = (Set<Y>) sortedSet;
+      } else {
+        throw new UnsupportedOperationException("Cannot handle pairs of type " + pair);
+      }
+    } else {
+      yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
+    }
     Map<String, Object> results = Maps.newHashMap();
     results.put(SurfaceFormatterUtils.X_LABELS, getAxisLabels(xVals));
     results.put(SurfaceFormatterUtils.Y_LABELS, getAxisLabels(yVals));

@@ -24,6 +24,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAdesiWhaleyModel;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -50,8 +51,8 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
-import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -283,11 +284,13 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
     }
     // exercise type
-    final boolean isAmerican = true; // !!! THIS IS JUST TEST CODE !!! (specification.getExerciseType()).getName().startsWith("A");
-    BaroneAdesiWhaleyModel americanModel = null;
+    final boolean isAmerican = (specification.getExerciseType()).getName().startsWith("A");
+//    BaroneAdesiWhaleyModel americanModel = null;
+    BjerksundStenslandModel americanModel = null;
     final double spot = forwardCurve.getSpot();
     if (isAmerican) {
-      americanModel = new BaroneAdesiWhaleyModel();
+//      americanModel = new BaroneAdesiWhaleyModel();
+      americanModel = new BjerksundStenslandModel();
     }
     // Main loop: Remove empties, convert expiries from number to years, and imply vols
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
@@ -308,7 +311,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
             }
             final double vol;
             if (isAmerican) {
-              vol = americanModel.impliedVolatility(price, spot, strike, -Math.log(zerobond) / t, Math.log(forward / spot) / t, t, optionIsCall); 
+              vol = americanModel.impliedVolatility(price, spot, strike, -Math.log(zerobond) / t, Math.log(forward / spot) / t, t, optionIsCall);
             } else {
               final double fwdPrice = price / zerobond;
               vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, optionIsCall);
@@ -317,8 +320,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
             kList.add(strike);
             volValues.put(Pair.of(t, strike), vol);
           } catch (Exception e) {
-//            s_logger.info("Liquidity problem: input price, forward and zero bond imply negative volatility at strike, {}, and expiry, {}", 
-//                strike, FutureOptionExpiries.EQUITY.getFutureOptionExpiry(nthExpiry.intValue(), valDate));
+            s_logger.info("Liquidity problem: input price, forward and zero bond imply negative volatility at strike, {}, and expiry, {}", 
+                strike, FutureOptionExpiries.EQUITY.getFutureOptionExpiry(nthExpiry.intValue(), valDate));
           }
         }
       }

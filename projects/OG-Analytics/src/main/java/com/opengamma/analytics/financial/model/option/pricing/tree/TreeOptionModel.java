@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.model.option.definition.StandardOptionD
 import com.opengamma.analytics.financial.model.option.pricing.OptionModel;
 import com.opengamma.analytics.financial.model.tree.RecombiningTree;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 

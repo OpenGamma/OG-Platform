@@ -11,7 +11,7 @@ import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 

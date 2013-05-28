@@ -24,7 +24,7 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Default properties for FX options priced using the Black functions.
@@ -35,6 +35,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VALUE_GAMMA_P,
@@ -48,7 +49,13 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VALUE_RHO,
     ValueRequirementNames.VALUE_PHI,
     ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA
+    ValueRequirementNames.VALUE_VANNA,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.FORWARD_DRIFTLESS_THETA
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 

@@ -41,7 +41,7 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** Map from ticker to curve configuration, curve name and currency */
-  private final Map<String, Triple<String, String, String>> _perEquityConfig;
+  private final Map<String, String[]> _perEquityConfig;
 
   /**
    * @param priority The priority, not null
@@ -52,11 +52,11 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perEquityConfig, "per equity config");
     final int nPairs = perEquityConfig.length;
-    ArgumentChecker.isTrue(nPairs % 4 == 0, "Must have one curve config, discounting curve name and currency per equity");
+    ArgumentChecker.isTrue(nPairs % 5 == 0, "Must have one curve config, discounting curve name and currency per equity");
     _priority = PriorityClass.valueOf(priority);
     _perEquityConfig = new HashMap<>();
-    for (int i = 0; i < perEquityConfig.length; i += 4) {
-      final Triple<String, String, String> config = new Triple<>(perEquityConfig[i + 1], perEquityConfig[i + 2], perEquityConfig[i + 3]);
+    for (int i = 0; i < perEquityConfig.length; i += 5) {
+      final String[] config = new String[] {perEquityConfig[i + 1], perEquityConfig[i + 2], perEquityConfig[i + 3], perEquityConfig[i + 4]};
       _perEquityConfig.put(perEquityConfig[i].toUpperCase(), config);
     }
   }
@@ -80,6 +80,7 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CURRENCY);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.DIVIDEND_TYPE);
     }
   }
 
@@ -91,15 +92,19 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
       s_logger.error("Could not get config for equity " + equityId + "; should never happen");
       return null;
     }
-    final Triple<String, String, String> config = _perEquityConfig.get(equityId);
+    final String[] config = _perEquityConfig.get(equityId);
+    if (ValuePropertyNames.CURVE_CURRENCY.equals(propertyName)) {
+      return Collections.singleton(config[0]);
+    }
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(config.getFirst());
+      return Collections.singleton(config[1]);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(config.getSecond());
+      return Collections.singleton(config[2]);
     }
-    if (ValuePropertyNames.CURVE_CURRENCY.equals(propertyName)) {
-      return Collections.singleton(config.getThird());
+
+    if (ValuePropertyNames.DIVIDEND_TYPE.equals(propertyName)) {
+      return Collections.singleton(config[3]);
     }
     return null;
   }

@@ -20,7 +20,7 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A {@link ViewComputationCacheSource} implementation based on {@link DefaultViewComputationCache} with
@@ -101,7 +101,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     final InMemoryIdentifierMap identifierMap = new InMemoryIdentifierMap();
     final FudgeMessageStore dataStore = new DefaultFudgeMessageStore(new InMemoryBinaryDataStore(), getFudgeContext());
     for (Pair<ValueSpecification, FudgeMsg> value : cache) {
-      dataStore.put(identifierMap.getIdentifier(value._1()), value._2());
+      dataStore.put(identifierMap.getIdentifier(value.getFirst()), value.getSecond());
     }
     return new DefaultViewComputationCache(identifierMap, dataStore, dataStore, getFudgeContext());
   }

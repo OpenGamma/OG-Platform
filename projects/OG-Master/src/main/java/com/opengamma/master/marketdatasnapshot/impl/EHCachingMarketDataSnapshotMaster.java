@@ -25,7 +25,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 import net.sf.ehcache.CacheManager;
 

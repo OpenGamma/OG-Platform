@@ -17,7 +17,7 @@ import com.opengamma.util.WeakInstanceCache;
 import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides locks that correspond to the view execution cache keys.

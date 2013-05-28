@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefinition<SwapFuturesDeliverableSecurity> {
+public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefinition<SwapFuturesPriceDeliverableSecurity> {
 
   /**
    * The futures last trading date. The date for which the delivery date is the spot date.
@@ -108,11 +108,11 @@ public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefin
   }
 
   @Override
-  public SwapFuturesDeliverableSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
     final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
     final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return new SwapFuturesDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
+    return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
   }
 
   @Override

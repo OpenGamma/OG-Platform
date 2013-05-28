@@ -18,13 +18,11 @@ import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
-import com.opengamma.financial.convention.ForwardTickerConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
-import com.opengamma.financial.convention.SpotTickerConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -65,7 +63,7 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
   public void testDepositConvention() {
     final DepositConvention convention = new DepositConvention("EUR Deposit", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Deposit")),
         DayCountFactory.INSTANCE.getDayCount("Act/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), 2, true,
-        Currency.EUR, ExternalId.of("Test", "EU"));
+        Currency.EUR, ExternalId.of("Test", "EU"), Tenor.ONE_DAY);
     convention.setUniqueId(UniqueId.of("Test", "1234"));
     assertEquals(convention, cycleObject(DepositConvention.class, convention));
   }
@@ -90,7 +88,7 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
   public void testIborIndexConvention() {
     final IborIndexConvention convention = new IborIndexConvention("EUR Deposit", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Deposit")),
         DayCountFactory.INSTANCE.getDayCount("Act/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), 2, true,
-        Currency.EUR, LocalTime.of(11, 0), ExternalId.of("Test", "EU"), ExternalId.of("Test", "EU"), "Page");
+        Currency.EUR, LocalTime.of(11, 0), ExternalId.of("Test", "EU"), ExternalId.of("Test", "EU"), "Page", Tenor.THREE_MONTHS);
     convention.setUniqueId(UniqueId.of("Test", "1234567"));
     assertEquals(convention, cycleObject(IborIndexConvention.class, convention));
   }
@@ -106,7 +104,7 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
   @Test
   public void testOISLegConvention() {
     final OISLegConvention convention = new OISLegConvention("EUR OIS", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR OIS")),
-        ExternalId.of("Test", "EONIA"), Tenor.SIX_MONTHS, 0);
+        ExternalId.of("Test", "EONIA"), Tenor.SIX_MONTHS, 0, 1, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
     convention.setUniqueId(UniqueId.of("Test", "123"));
     assertEquals(convention, cycleObject(OISLegConvention.class, convention));
   }
@@ -152,19 +150,4 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
     assertEquals(convention, cycleObject(VanillaIborLegConvention.class, convention));
   }
 
-  @Test
-  public void testSpotTickerConvention() {
-    final SpotTickerConvention convention = new SpotTickerConvention("3m Libor ticker", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("3m Libor ticker")),
-        ExternalId.of("Test", "3m Libor"), Tenor.THREE_MONTHS);
-    convention.setUniqueId(UniqueId.of("Test", "1234"));
-    assertEquals(convention, cycleObject(SpotTickerConvention.class, convention));
-  }
-
-  @Test
-  public void testForwardTickerConvention() {
-    final ForwardTickerConvention convention = new ForwardTickerConvention("3mx6m swap ticker", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("3mx6m swap ticker")),
-        ExternalId.of("Test", "USD Swap"), Tenor.THREE_MONTHS, Tenor.SIX_MONTHS);
-    convention.setUniqueId(UniqueId.of("Test", "1234"));
-    assertEquals(convention, cycleObject(ForwardTickerConvention.class, convention));
-  }
 }

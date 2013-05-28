@@ -34,7 +34,7 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A cache decorating a {@code HistoricalTimeSeriesMaster}, mainly intended to reduce the frequency and repetition of queries to

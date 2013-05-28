@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.ResultCallback;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A {@link ViewComputationCache} that supports an asynchronous write behind update of the underlying cache.

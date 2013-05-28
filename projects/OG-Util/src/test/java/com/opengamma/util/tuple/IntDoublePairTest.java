@@ -11,8 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.lambdava.tuple.IntDoublePair;
-import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.tuple.IntDoublePair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.test.TestGroup;
 
 /**

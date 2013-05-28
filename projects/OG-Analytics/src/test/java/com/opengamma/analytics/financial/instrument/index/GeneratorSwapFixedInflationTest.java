@@ -65,9 +65,11 @@ public class GeneratorSwapFixedInflationTest {
 
   public static final GeneratorAttributeIR ATTRIBUTE = new GeneratorAttributeIR(COUPON_TENOR);
 
-  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_SWAP_INFLATION_LINEAR = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_SWAP_INFLATION_LINEAR = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY,
+      CALENDAR, EOM, MONTH_LAG,
       SPOT_LAG, IS_LINEAR);
-  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_SWAP_INFLATION_PIECEWISE = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_SWAP_INFLATION_PIECEWISE = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY,
+      CALENDAR, EOM, MONTH_LAG,
       SPOT_LAG, IS_NOT_LINEAR);
 
   @Test
@@ -175,7 +177,7 @@ public class GeneratorSwapFixedInflationTest {
    */
   public void swapFixedInflationZeroCouponInterpolationConstructor() {
     final double zeroCpnRate = 0.02;
-    final CouponInflationZeroCouponInterpolationDefinition inflationCpn = new CouponInflationZeroCouponInterpolationDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL,
+    final CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL,
         PRICE_INDEX_EUR,
         MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
     CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, -NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);

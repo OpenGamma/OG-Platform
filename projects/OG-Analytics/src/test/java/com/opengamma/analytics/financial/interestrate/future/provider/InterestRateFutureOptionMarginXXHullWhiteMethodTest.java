@@ -154,7 +154,7 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
     final double t2 = ERH3.getFixingPeriodEndTime();
     final double expiry = OPT_ERH3_CALL_9900.getExpirationTime();
     final double alphaOpt = MODEL_HW.alpha(HW_PARAMETERS, 0.0, expiry, t1, t2);
-    final double gammaFut = MODEL_HW.futureConvexityFactor(HW_PARAMETERS, t0, t1, t2);
+    final double gammaFut = MODEL_HW.futuresConvexityFactor(HW_PARAMETERS, t0, t1, t2);
     final double ktilde = 1 - STRIKE_1;
     final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t1, t2, delta);
     final double exerciseBoundary = -1.0 / alphaOpt * (Math.log((1.0 + delta * ktilde) / (1 + delta * forward) / gammaFut) + alphaOpt * alphaOpt / 2.0);
