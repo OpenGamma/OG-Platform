@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
@@ -39,8 +40,10 @@ public class HolidayQueryTool extends AbstractTool<ToolContext> {
     ToolContext toolContext = getToolContext();
     CommandLine commandLine = getCommandLine();
     boolean verbose = commandLine.hasOption("verbose");
-    if (commandLine.hasOption("today") && commandLine.hasOption("yesterday")) {
-      System.err.println("Can only return today OR yesterday, not both!");
+    if ((commandLine.hasOption("today") && commandLine.hasOption("yesterday")) || 
+        (commandLine.hasOption("date") && commandLine.hasOption("today")) ||
+        (commandLine.hasOption("date") && commandLine.hasOption("yesterday"))) {
+      System.err.println("Can only return today OR yesterday OR date!");
       System.exit(2);
     }
     String ccyStr = commandLine.getOptionValue("ccy");
@@ -51,6 +54,13 @@ public class HolidayQueryTool extends AbstractTool<ToolContext> {
         date = LocalDate.now().minusDays(1);
       } else if (commandLine.hasOption("today")) {
         date = LocalDate.now();
+      } else if (commandLine.hasOption("date")) {
+        try {
+          date = (LocalDate) DateTimeFormatter.BASIC_ISO_DATE.parse(commandLine.getOptionValue("date"));
+        } catch (Exception e) {
+          System.err.println("Could not parse date, should be YYYYMMDD format");
+          System.exit(2);
+        }
       } else {
         System.err.println("Must specify either today or yesterday option");
         System.exit(2);
@@ -80,6 +90,7 @@ public class HolidayQueryTool extends AbstractTool<ToolContext> {
     options.addOption(createCurrencyOption());
     options.addOption(createTodayOption());
     options.addOption(createYesterdayOption());
+    options.addOption(createDateOption());
     options.addOption(createVerboseOption());
     return options;
   }
@@ -107,6 +118,16 @@ public class HolidayQueryTool extends AbstractTool<ToolContext> {
     return OptionBuilder.isRequired(false)
                         .hasArg(false)
                         .withDescription("Return if yesterday is a holiday")
+                        .withLongOpt("yesterday")
+                        .create("y");
+  }
+  
+  @SuppressWarnings("static-access")
+  private Option createDateOption() {
+    return OptionBuilder.isRequired(false)
+                        .hasArg(true)
+                        .withArgName("date")
+                        .withDescription("Return if date (YYYYMMDD) is a holiday")
                         .withLongOpt("yesterday")
                         .create("y");
   }
