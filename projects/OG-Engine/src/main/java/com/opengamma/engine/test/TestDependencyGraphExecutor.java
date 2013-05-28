@@ -19,14 +19,14 @@ import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 /**
  * 
  */
-public class TestDependencyGraphExecutor implements DependencyGraphExecutor<CalculationJobResult> {
-  
+public class TestDependencyGraphExecutor implements DependencyGraphExecutor {
+
   private final CalculationJobResult _result;
-  
+
   public TestDependencyGraphExecutor(CalculationJobResult result) {
     _result = result;
   }
-  
+
   @Override
   public Future<CalculationJobResult> execute(final DependencyGraph graph, final Queue<ExecutionResult> calcJobResultQueue,
       final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {

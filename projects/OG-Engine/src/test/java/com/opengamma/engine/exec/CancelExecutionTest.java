@@ -132,7 +132,7 @@ public class CancelExecutionTest {
     }
   };
 
-  private Future<?> executeTestJob(final DependencyGraphExecutorFactory<?> factory) {
+  private Future<?> executeTestJob(final DependencyGraphExecutorFactory factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
@@ -198,7 +198,7 @@ public class CancelExecutionTest {
    * Allow the job to finish, then call {@link Future#cancel}.
    */
   @Test(dataProvider = "executors")
-  public void testJobFinish(final DependencyGraphExecutorFactory<?> factory) throws Exception {
+  public void testJobFinish(final DependencyGraphExecutorFactory factory) throws Exception {
     s_logger.info("testJobFinish");
     final Future<?> job = executeTestJob(factory);
     assertNotNull(job);
@@ -219,7 +219,7 @@ public class CancelExecutionTest {
    * Call {@link Future#cancel} before the job finishes, with interrupt enabled.
    */
   @Test(dataProvider = "executors")
-  public void testJobCancelWithInterrupt(final DependencyGraphExecutorFactory<?> factory) {
+  public void testJobCancelWithInterrupt(final DependencyGraphExecutorFactory factory) {
     s_logger.info("testJobCancelWithInterrupt");
     final Future<?> job = executeTestJob(factory);
     assertNotNull(job);
@@ -240,7 +240,7 @@ public class CancelExecutionTest {
    * Call {@link Future#cancel} before the job finishes, with no interrupt.
    */
   @Test(dataProvider = "executors")
-  public void testJobCancelWithoutInterrupt(final DependencyGraphExecutorFactory<?> factory) {
+  public void testJobCancelWithoutInterrupt(final DependencyGraphExecutorFactory factory) {
     s_logger.info("testJobCancelWithoutInterrupt");
     final Future<?> job = executeTestJob(factory);
     assertNotNull(job);

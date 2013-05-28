@@ -44,7 +44,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * This DependencyGraphExecutor executes the given dependency graph as a number of dependent jobs suitable for a number of calculation nodes to exploit parallelism from the dependency graph.
  */
-public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyGraph> {
+public class MultipleNodeExecutor implements DependencyGraphExecutor {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MultipleNodeExecutor.class);
 
@@ -190,10 +190,10 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   /**
    * Partitions the graph and starts it executing. The future returned corresponds to the whole graph. Once an execution plan is built it is cached for future use.
    * 
-   * @param graph  the graph to execute, not null
-   * @param executionResultQueue  a queue to feed intermediate job result notifications to, not null
-   * @param statistics  the statistics reporter, not null
-   * @param logModeSource  the execution log mode source, not null
+   * @param graph the graph to execute, not null
+   * @param executionResultQueue a queue to feed intermediate job result notifications to, not null
+   * @param statistics the statistics reporter, not null
+   * @param logModeSource the execution log mode source, not null
    * @return a future that indicates complete execution of the graph
    */
   protected Future<DependencyGraph> executeImpl(final DependencyGraph graph,

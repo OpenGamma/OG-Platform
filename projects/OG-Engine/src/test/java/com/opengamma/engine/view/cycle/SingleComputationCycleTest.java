@@ -71,7 +71,7 @@ public class SingleComputationCycleTest {
     assertTrue(executor.wasInterrupted());
   }
 
-  private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory<ExecutionResult> {
+  private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory {
 
     private final BlockingDependencyGraphExecutor _instance;
 
@@ -80,7 +80,7 @@ public class SingleComputationCycleTest {
     }
 
     @Override
-    public DependencyGraphExecutor<ExecutionResult> createExecutor(SingleComputationCycle cycle) {
+    public DependencyGraphExecutor createExecutor(SingleComputationCycle cycle) {
       return _instance;
     }
 
@@ -90,7 +90,7 @@ public class SingleComputationCycleTest {
 
   }
 
-  private class BlockingDependencyGraphExecutor implements DependencyGraphExecutor<ExecutionResult> {
+  private class BlockingDependencyGraphExecutor implements DependencyGraphExecutor {
 
     private final long _timeout;
     private final CountDownLatch _firstRunLatch = new CountDownLatch(1);

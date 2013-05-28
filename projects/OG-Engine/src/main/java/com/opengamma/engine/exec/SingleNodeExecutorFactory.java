@@ -5,16 +5,15 @@
  */
 package com.opengamma.engine.exec;
 
-import com.opengamma.engine.view.cycle.SingleComputationCycle;
+import com.opengamma.engine.exec.plan.SingleNodeExecutionPlanner;
 
 /**
  * 
  */
-public class SingleNodeExecutorFactory implements DependencyGraphExecutorFactory<ExecutionResult> {
-  
-  @Override
-  public SingleNodeExecutor createExecutor(SingleComputationCycle cycle) {
-    return new SingleNodeExecutor(cycle);
+public class SingleNodeExecutorFactory extends PlanBasedGraphExecutorFactory {
+
+  public SingleNodeExecutorFactory() {
+    super(new SingleNodeExecutionPlanner());
   }
 
   @Override

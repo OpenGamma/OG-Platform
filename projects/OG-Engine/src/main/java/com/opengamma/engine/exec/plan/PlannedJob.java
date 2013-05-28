@@ -17,7 +17,7 @@ import com.opengamma.id.VersionCorrection;
 /**
  * A component from the execution plan which will result in an executable job.
  */
-/* package */class PlannedJob implements Serializable {
+public class PlannedJob implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -88,15 +88,15 @@ import com.opengamma.id.VersionCorrection;
    * The job created does not include any of the tails.
    * 
    * @param jobSpec the specification for the new job, not null
-   * @param functionInitialisationId
+   * @param functionInitializationId the function initialization id
    * @param resolverVersionCorrection the resolver version/correction time stamp, not null
    * @param requiredJobIds the identifiers of any precedent jobs (applicable only if this is a tail job), null if not applicable
    * @return the job that's been created, not null
    */
-  public CalculationJob createCalculationJob(final CalculationJobSpecification jobSpec, final long functionInitialisationId, final VersionCorrection resolverVersionCorrection,
-      final long[] requiredJobIds) {
+  public CalculationJob createCalculationJob(final CalculationJobSpecification jobSpec, final long functionInitializationId,
+      final VersionCorrection resolverVersionCorrection, final long[] requiredJobIds) {
     assert getInputJobCount() == ((requiredJobIds != null) ? requiredJobIds.length : 0);
-    return new CalculationJob(jobSpec, functionInitialisationId, resolverVersionCorrection, requiredJobIds, getItems(), getCacheSelectHint());
+    return new CalculationJob(jobSpec, functionInitializationId, resolverVersionCorrection, requiredJobIds, getItems(), getCacheSelectHint());
   }
 
 }

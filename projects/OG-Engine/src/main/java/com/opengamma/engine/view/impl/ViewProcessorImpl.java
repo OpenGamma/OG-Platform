@@ -96,7 +96,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
-  private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
+  private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutionStatistics;
   private final ViewPermissionProvider _viewPermissionProvider;
   private final OverrideOperationCompiler _overrideOperationCompiler;
@@ -133,7 +133,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final ViewComputationCacheSource computationCacheSource,
       final JobDispatcher jobDispatcher,
       final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
-      final DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
+      final DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
       final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
       final ViewPermissionProvider viewPermissionProvider,
       final OverrideOperationCompiler overrideOperationCompiler,
@@ -407,7 +407,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
               .setMarketDataSpecifications(specifications)
               .create();
           return new ExecutionOptions(executionOptions.getExecutionSequence(), executionOptions.getFlags(),
-                                                  executionOptions.getMaxSuccessiveDeltaCycles(), defaultOptions);
+              executionOptions.getMaxSuccessiveDeltaCycles(), defaultOptions);
         }
       }
     }
@@ -611,8 +611,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _overrideOperationCompiler,
         _cycleManager,
         cycleIds,
-        _executionCache
-    );
+        _executionCache);
   }
 
   private String generateIdValue(final AtomicLong source) {

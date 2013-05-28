@@ -47,16 +47,16 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * 3. PORTFOLIO nodes are evaluated in a single batch, on a single machine.
  */
-public class BatchExecutor implements DependencyGraphExecutor<Object> {
+public class BatchExecutor implements DependencyGraphExecutor {
 
   // [PLAT-2286] - Has probably broken this totally
   // [PLAT-2381] - Is already broken
 
   private static final Logger s_logger = LoggerFactory.getLogger(BatchExecutor.class);
 
-  private final DependencyGraphExecutor<?> _delegate;
+  private final DependencyGraphExecutor _delegate;
 
-  public BatchExecutor(final DependencyGraphExecutor<?> delegate) {
+  public BatchExecutor(final DependencyGraphExecutor delegate) {
     ArgumentChecker.notNull(delegate, "Delegate executor");
     _delegate = delegate;
   }
@@ -74,12 +74,12 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
         for (final DependencyNode input : node.getInputNodes()) {
           if (input.getComputationTarget().getType() != ComputationTargetType.PRIMITIVE) {
             throw new IllegalStateException("A primitive node can only depend on another primitive node. " +
-                  node + " depended on " + node.getInputNodes());
+                node + " depended on " + node.getInputNodes());
           }
         }
         primitiveNodes.add(node);
       } else if (node.getComputationTarget().getType().isTargetType(ComputationTargetType.SECURITY)
-              || node.getComputationTarget().getType().isTargetType(ComputationTargetType.POSITION)) {
+          || node.getComputationTarget().getType().isTargetType(ComputationTargetType.POSITION)) {
         final int passNumber = determinePassNumber(node);
         if (passNumber > passNumber2Target2SecurityAndPositionNodes.size() - 1) {
           for (int i = passNumber2Target2SecurityAndPositionNodes.size(); i <= passNumber; i++) {
@@ -189,7 +189,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
           }
         } else {
           throw new IllegalArgumentException("A SECURITY node should only depend on " +
-                  "PRIMITIVE and SECURITY nodes");
+              "PRIMITIVE and SECURITY nodes");
         }
         maxPass = Math.max(maxPass, pass);
       }

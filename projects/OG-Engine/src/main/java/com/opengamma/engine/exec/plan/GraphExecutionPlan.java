@@ -11,6 +11,7 @@ import java.util.Collection;
 
 import org.threeten.bp.Instant;
 
+import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -28,6 +29,10 @@ public class GraphExecutionPlan implements Serializable {
   private final String _calculationConfiguration;
   private final long _functionInitializationId;
   private final Collection<PlannedJob> _leafJobs;
+  private final int _totalJobs;
+  private final double _meanJobSize;
+  private final double _meanJobCycleCost;
+  private final double _meanJobIOCost;
 
   /**
    * Creates a new execution plan.
@@ -35,14 +40,23 @@ public class GraphExecutionPlan implements Serializable {
    * @param calculationConfiguration the configuration name, not null - this will be used for constructing job specifications
    * @param functionInitializationId [PLAT-2241] this will go soon
    * @param leafJobs the jobs that will execute first, not null and not containing null - these will refer to other jobs that form part of the full plan
+   * @param totalJobs the total number of jobs in the plan
+   * @param meanJobSize the mean job size
+   * @param meanJobCycleCost the mean of each job's CPU cost
+   * @param meanJobIOCost the mean of each job's I/O cost
    */
-  public GraphExecutionPlan(final String calculationConfiguration, final long functionInitializationId, final Collection<PlannedJob> leafJobs) {
+  public GraphExecutionPlan(final String calculationConfiguration, final long functionInitializationId, final Collection<PlannedJob> leafJobs, final int totalJobs, final double meanJobSize,
+      final double meanJobCycleCost, final double meanJobIOCost) {
     ArgumentChecker.notNull(calculationConfiguration, "calculationConfiguration");
     ArgumentChecker.notNull(leafJobs, "leafJobs");
     assert !leafJobs.contains(null);
     _calculationConfiguration = calculationConfiguration;
     _functionInitializationId = functionInitializationId;
     _leafJobs = new ArrayList<PlannedJob>(leafJobs);
+    _totalJobs = totalJobs;
+    _meanJobSize = meanJobSize;
+    _meanJobCycleCost = meanJobCycleCost;
+    _meanJobIOCost = meanJobIOCost;
   }
 
   /**
@@ -54,12 +68,28 @@ public class GraphExecutionPlan implements Serializable {
     return _calculationConfiguration;
   }
 
-  /* package */long getFunctionInitializationId() {
+  protected long getFunctionInitializationId() {
     return _functionInitializationId;
   }
 
-  /* package */Collection<PlannedJob> getLeafJobs() {
+  protected Collection<PlannedJob> getLeafJobs() {
     return _leafJobs;
+  }
+
+  protected int getTotalJobs() {
+    return _totalJobs;
+  }
+
+  protected double getMeanJobSize() {
+    return _meanJobSize;
+  }
+
+  protected double getMeanJobCycleCost() {
+    return _meanJobCycleCost;
+  }
+
+  protected double getMeanJobIOCost() {
+    return _meanJobIOCost;
   }
 
   /**
@@ -72,6 +102,10 @@ public class GraphExecutionPlan implements Serializable {
    */
   public ExecutingGraph createExecution(final UniqueId cycleId, final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
     return new ExecutingGraph(this, cycleId, valuationTime, resolverVersionCorrection);
+  }
+
+  public void reportStatistics(final GraphExecutorStatisticsGatherer statistics) {
+    statistics.graphProcessed(getCalculationConfiguration(), getTotalJobs(), getMeanJobSize(), getMeanJobCycleCost(), getMeanJobIOCost());
   }
 
 }

@@ -6,7 +6,9 @@
 package com.opengamma.engine.exec.plan;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.threeten.bp.Instant;
 
@@ -22,11 +24,63 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ExecutingGraph {
 
+  /**
+   * Temporary information used to construct tail execution chains.
+   */
+  private static final class TailJobInfo {
+
+    private final long[] _requiredJobIds;
+    private int _requiredJobIndex;
+
+    public TailJobInfo(final int blockCount) {
+      _requiredJobIds = new long[blockCount];
+    }
+
+    public long[] getRequiredJobIds() {
+      assert _requiredJobIndex == _requiredJobIds.length;
+      return _requiredJobIds;
+    }
+
+    public boolean addRequiredJobId(final long id) {
+      _requiredJobIds[_requiredJobIndex++] = id;
+      return _requiredJobIndex == _requiredJobIds.length;
+    }
+
+  }
+
+  /**
+   * Information about planned jobs that are currently blocked on one or more executing jobs.
+   * <p>
+   * Tail jobs are not represented here - the blocking information is held in TailJobInfo - as the calculation node they are dispatched to is responsible for executing them in the correct sequence.
+   */
+  private static final class BlockedJobInfo {
+
+    private final PlannedJob _job;
+    private int _waitingFor;
+
+    public BlockedJobInfo(final PlannedJob job) {
+      _job = job;
+      _waitingFor = job.getInputJobCount();
+    }
+
+    public PlannedJob getJob() {
+      assert _waitingFor == 0;
+      return _job;
+    }
+
+    public boolean unblock() {
+      return --_waitingFor == 0;
+    }
+
+  }
+
   private final GraphExecutionPlan _plan;
   private final UniqueId _cycleId;
   private final Instant _valuationTime;
   private final VersionCorrection _resolverVersionCorrection;
   private final List<PlannedJob> _executable;
+  private final Map<PlannedJob, BlockedJobInfo> _blocked;
+  private final Map<CalculationJobSpecification, BlockedJobInfo[]> _executing;
 
   /**
    * Creates a new execution state.
@@ -36,7 +90,7 @@ public class ExecutingGraph {
    * @param valuationTime the valuation time for job specifications, not null
    * @param resolverVersionCorrection the resolution time stamp, not null
    */
-  /* package */ExecutingGraph(final GraphExecutionPlan plan, final UniqueId cycleId, final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
+  protected ExecutingGraph(final GraphExecutionPlan plan, final UniqueId cycleId, final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
     ArgumentChecker.notNull(plan, "plan");
     ArgumentChecker.notNull(cycleId, "cycleId");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -46,7 +100,8 @@ public class ExecutingGraph {
     _valuationTime = valuationTime;
     _resolverVersionCorrection = resolverVersionCorrection;
     _executable = new ArrayList<PlannedJob>(plan.getLeafJobs());
-    // TODO: Create the "blocked job" set from the possible executions
+    _blocked = new HashMap<PlannedJob, BlockedJobInfo>();
+    _executing = new HashMap<CalculationJobSpecification, BlockedJobInfo[]>();
   }
 
   protected GraphExecutionPlan getPlan() {
@@ -85,6 +140,69 @@ public class ExecutingGraph {
   }
 
   /**
+   * Creates an actual calculation job from a planned job that is destined for "tail" execution.
+   * <p>
+   * The caller must already hold the synchronisation lock.
+   * 
+   * @param planned the planned job, not null
+   * @param jobInfo the map containing information about the tail job set
+   * @return the actual job
+   */
+  protected CalculationJob createTailCalculationJob(final PlannedJob planned, final Map<PlannedJob, TailJobInfo> jobInfo) {
+    final long[] requiredJobIds = jobInfo.get(planned).getRequiredJobIds();
+    final CalculationJob actual = planned.createCalculationJob(createJobSpecification(), getFunctionInitializationId(), getResolverVersionCorrection(), requiredJobIds);
+    addDependentCalculationJobs(actual, planned);
+    addTailCalculationJobs(actual, planned, jobInfo);
+    return actual;
+  }
+
+  /**
+   * Updates the state of any dependent fragments of the execution plan so that they may become executable when the job being created here completes.
+   * 
+   * @param actual the job being created, not null
+   * @param planned the execution plan information, not null
+   */
+  protected void addDependentCalculationJobs(final CalculationJob actual, final PlannedJob planned) {
+    final PlannedJob[] dependents = planned.getDependents();
+    if (dependents != null) {
+      final BlockedJobInfo[] dependentsInfo = new BlockedJobInfo[dependents.length];
+      for (int i = 0; i < dependents.length; i++) {
+        PlannedJob dependent = dependents[i];
+        BlockedJobInfo dependentInfo = _blocked.get(dependent);
+        if (dependentInfo == null) {
+          dependentInfo = new BlockedJobInfo(dependent);
+          _blocked.put(dependent, dependentInfo);
+        }
+        dependentsInfo[i] = dependentInfo;
+      }
+      _executing.put(actual.getSpecification(), dependentsInfo);
+    }
+  }
+
+  /**
+   * Adds the tail executing jobs to the job being created from the execution plan.
+   * 
+   * @param actual the job being created, not null
+   * @param planned the execution plan information, not null
+   * @param jobInfo a map to use for temporary storage, not null
+   */
+  protected void addTailCalculationJobs(final CalculationJob actual, final PlannedJob planned, final Map<PlannedJob, TailJobInfo> jobInfo) {
+    if (planned.getTails() != null) {
+      final long jobId = actual.getSpecification().getJobId();
+      for (PlannedJob tail : planned.getTails()) {
+        TailJobInfo tailInfo = jobInfo.get(tail);
+        if (tailInfo == null) {
+          tailInfo = new TailJobInfo(tail.getInputJobCount());
+          jobInfo.put(tail, tailInfo);
+        }
+        if (tailInfo.addRequiredJobId(jobId)) {
+          actual.addTail(createTailCalculationJob(planned, jobInfo));
+        }
+      }
+    }
+  }
+
+  /**
    * Creates an actual calculation job from a planned job.
    * <p>
    * The caller must already hold the synchronisation lock.
@@ -93,20 +211,10 @@ public class ExecutingGraph {
    * @return the actual calculation job, not null
    */
   protected CalculationJob createCalculationJob(final PlannedJob planned) {
-    // TODO: If this is a tail job then we need to lookup the required job identifiers
-    final long[] requiredJobIds = new long[0]; // TODO - do this properly
-    final CalculationJob actual = planned.createCalculationJob(createJobSpecification(), getFunctionInitializationId(), getResolverVersionCorrection(), requiredJobIds);
-    if (planned.getDependents() != null) {
-      for (PlannedJob dependent : planned.getDependents()) {
-        // TODO: If this job is not already in the blocked set, create an entry for it
-        // TODO: Notify the dependent job of our identifier
-      }
-    }
+    final CalculationJob actual = planned.createCalculationJob(createJobSpecification(), getFunctionInitializationId(), getResolverVersionCorrection(), null);
+    addDependentCalculationJobs(actual, planned);
     if (planned.getTails() != null) {
-      for (PlannedJob tail : planned.getTails()) {
-        // TODO: This is wrong; we can only create the tail job when all references to it have been identified
-        actual.addTail(createCalculationJob(tail));
-      }
+      addTailCalculationJobs(actual, planned, new HashMap<PlannedJob, TailJobInfo>());
     }
     return actual;
   }
@@ -133,12 +241,7 @@ public class ExecutingGraph {
    * @return true if graph execution has finished - there are no more executable jobs and all that were previously returned have been signaled as complete
    */
   public synchronized boolean isFinished() {
-    if (!_executable.isEmpty()) {
-      // At least one executable job that has not been dispatched yet
-      return false;
-    }
-    // TODO: is there anything currently blocked
-    throw new UnsupportedOperationException("TODO");
+    return _executable.isEmpty() && _blocked.isEmpty();
   }
 
   /**
@@ -147,10 +250,20 @@ public class ExecutingGraph {
    * Any jobs that were not yet executable because they require one or more results from this job may now become executable.
    * 
    * @param jobSpec the job that has completed, not null
+   * @return true if the notification was accepted, false if the notification has already been seen
    */
-  public synchronized void jobCompleted(CalculationJobSpecification jobSpec) {
-    // TODO: update the blocked job states
-    throw new UnsupportedOperationException("TODO");
+  public synchronized boolean jobCompleted(CalculationJobSpecification jobSpec) {
+    final BlockedJobInfo[] blockedJobs = _executing.remove(jobSpec);
+    if (blockedJobs != null) {
+      for (BlockedJobInfo blockedJob : blockedJobs) {
+        if (blockedJob.unblock()) {
+          _executable.add(blockedJob.getJob());
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 
 }

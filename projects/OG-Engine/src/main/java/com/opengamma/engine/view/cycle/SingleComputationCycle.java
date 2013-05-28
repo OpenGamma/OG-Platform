@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -35,10 +37,15 @@ import org.threeten.bp.Instant;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.engine.cache.MissingOutput;
 import com.opengamma.engine.cache.ViewComputationCache;
+import com.opengamma.engine.calcnode.CalculationJob;
+import com.opengamma.engine.calcnode.CalculationJobItem;
+import com.opengamma.engine.calcnode.CalculationJobResult;
 import com.opengamma.engine.calcnode.CalculationJobResultItem;
+import com.opengamma.engine.calcnode.MutableExecutionLog;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -63,6 +70,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -81,6 +89,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogLevel;
+import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -120,7 +129,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final VersionCorrection _versionCorrection;
 
   private final ComputationResultListener _cycleFragmentResultListener;
-  private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
+  private final DependencyGraphExecutor _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
 
   private volatile ViewCycleState _state = ViewCycleState.AWAITING_EXECUTION;
@@ -208,7 +217,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return getCompiledViewDefinition().getViewDefinition();
   }
 
-  public DependencyGraphExecutor<?> getDependencyGraphExecutor() {
+  public DependencyGraphExecutor getDependencyGraphExecutor() {
     return _dependencyGraphExecutor;
   }
 
@@ -333,9 +342,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   /**
    * Prepares the cycle for execution, organising the caches and copying any values salvaged from a previous cycle.
    * 
-   * @param previousCycle  the previous cycle from which a delta cycle should be performed, or null to perform a full cycle
-   * @param marketDataSnapshot  the market data snapshot with which to execute the cycle, not null
-   * @param suppressExecutionOnNoMarketData  true if execution is to be suppressed when input data is entirely missing, false otherwise
+   * @param previousCycle the previous cycle from which a delta cycle should be performed, or null to perform a full cycle
+   * @param marketDataSnapshot the market data snapshot with which to execute the cycle, not null
+   * @param suppressExecutionOnNoMarketData true if execution is to be suppressed when input data is entirely missing, false otherwise
    * @return true if execution should continue, false if execution should be suppressed
    */
   public boolean preExecute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot,
@@ -362,7 +371,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     if (previousCycle != null) {
       computeDelta(previousCycle);
     }
-    
+
     return true;
   }
 
@@ -464,7 +473,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       Thread.currentThread().interrupt();
     }
   }
-  
+
   /**
    * Adds suppressed output markers to the result model for all terminal outputs.
    */
@@ -519,8 +528,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   /**
    * Populates the value cache with the required input data.
    * 
-   * @param snapshot  the market data snapshot from which to source the input data, not null
-   * @param suppressExecutionOnNoMarketData  true if execution is to be suppressed when input data is entirely missing, false otherwise
+   * @param snapshot the market data snapshot from which to source the input data, not null
+   * @param suppressExecutionOnNoMarketData true if execution is to be suppressed when input data is entirely missing, false otherwise
    * @return true if execution should continue, false if execution should be suppressed
    */
   private boolean prepareInputs(final MarketDataSnapshot snapshot, boolean suppressExecutionOnNoMarketData) {
@@ -794,16 +803,147 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _nodeStates.put(node, state);
   }
 
+  /**
+   * @param node the node that was executed, not null
+   * @deprecated - should be private and the cycle's jobCompleted logic used; otherwise the execution components are too tightly coupled to how the cycle works with the dependency graph
+   */
+  @Deprecated
   public void markExecuted(final DependencyNode node) {
     setNodeState(node, NodeStateFlag.EXECUTED);
   }
 
+  /**
+   * @param node the node that failed, not null
+   * @deprecated - should be private and the cycle's jobCompleted logic used; otherwise the execution components are too tightly coupled to how the cycle works with the dependency graph
+   */
+  @Deprecated
   public void markFailed(final DependencyNode node) {
     setNodeState(node, NodeStateFlag.FAILED);
   }
 
   private void markSuppressed(final DependencyNode node) {
     setNodeState(node, NodeStateFlag.SUPPRESSED);
+  }
+
+  private String toString(final String prefix, final Collection<?> values) {
+    final StringBuilder sb = new StringBuilder(prefix);
+    if (values.size() > 1) {
+      sb.append("s - { ");
+      int count = 0;
+      for (Object value : values) {
+        count++;
+        if (count > 1) {
+          sb.append(", ");
+          if (count > 10) {
+            sb.append("...");
+            break;
+          }
+        }
+        sb.append(value.toString());
+      }
+      sb.append(" }");
+    } else {
+      sb.append(" - ").append(values.iterator().next().toString());
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Receives a job result fragment. These will be streamed in by the execution framework. Only one notification per job will be received (for example the execution framework might have
+   * repeated/duplicated jobs to handle node failures).
+   * 
+   * @param job the job that was executed, not null
+   * @param jobResult the job result, not null
+   */
+  public void jobCompleted(final CalculationJob job, final CalculationJobResult jobResult) {
+    final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
+    final InMemoryViewComputationResultModel fullResultModel = getResultModel();
+    final String calculationConfiguration = jobResult.getSpecification().getCalcConfigName();
+    final DependencyGraph graph = getDependencyGraph(calculationConfiguration);
+    final Iterator<CalculationJobItem> jobItemItr = job.getJobItems().iterator();
+    final Iterator<CalculationJobResultItem> jobResultItr = jobResult.getResultItems().iterator();
+    final Set<ValueSpecification> terminalOutputs = new HashSet<ValueSpecification>();
+    final ExecutionLogModeSource logModes = getLogModeSource();
+    final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calculationConfiguration);
+    final ViewComputationCache cache = getComputationCache(calculationConfiguration);
+    final String computeNodeId = jobResult.getComputeNodeId();
+    while (jobItemItr.hasNext()) {
+      assert jobResultItr.hasNext();
+      final CalculationJobItem jobItem = jobItemItr.next();
+      final CalculationJobResultItem jobResultItem = jobResultItr.next();
+      // Mark the node that corresponds to this item
+      final DependencyNode node = graph.getNodeProducing(jobItem.getOutputs().iterator().next());
+      if (jobResultItem.isFailed()) {
+        markFailed(node);
+      } else {
+        markExecuted(node);
+      }
+      // Process the streamed result fragment
+      final ExecutionLogMode executionLogMode = logModes.getLogMode(node);
+      final AggregatedExecutionLog aggregatedExecutionLog;
+      if (executionLogMode == ExecutionLogMode.FULL) {
+        final ExecutionLog log = jobResultItem.getExecutionLog();
+        MutableExecutionLog logCopy = null;
+        final Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
+        Set<ValueSpecification> missing = jobResultItem.getMissingInputs();
+        if (!missing.isEmpty()) {
+          if (logCopy == null) {
+            logCopy = new MutableExecutionLog(log);
+          }
+          logCopy.add(new SimpleLogEvent(log.hasException() ? LogLevel.WARN : LogLevel.INFO, toString("Missing input", missing)));
+        }
+        missing = jobResultItem.getMissingOutputs();
+        if (!missing.isEmpty()) {
+          if (logCopy == null) {
+            logCopy = new MutableExecutionLog(log);
+          }
+          logCopy.add(new SimpleLogEvent(LogLevel.WARN, toString("Failed to produce output", missing)));
+        }
+        for (final ValueSpecification inputValueSpec : node.getInputValues()) {
+          final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
+          if (nodeResult == null) {
+            // Market data
+            continue;
+          }
+          inputLogs.add(nodeResult.getAggregatedExecutionLog());
+        }
+        aggregatedExecutionLog = DefaultAggregatedExecutionLog.fullLogMode(node, (logCopy != null) ? logCopy : log, inputLogs);
+      } else {
+        EnumSet<LogLevel> logs = jobResultItem.getExecutionLog().getLogLevels();
+        boolean copied = false;
+        for (final ValueSpecification inputValueSpec : node.getInputValues()) {
+          final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
+          if (nodeResult == null) {
+            // Market data
+            continue;
+          }
+          if (logs.containsAll(nodeResult.getAggregatedExecutionLog().getLogLevels())) {
+            continue;
+          }
+          if (!copied) {
+            copied = true;
+            logs = EnumSet.copyOf(logs);
+          }
+          logs.addAll(nodeResult.getAggregatedExecutionLog().getLogLevels());
+        }
+        aggregatedExecutionLog = DefaultAggregatedExecutionLog.indicatorLogMode(logs);
+      }
+      final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
+      node.gatherTerminalOutputValues(terminalOutputs);
+      for (ValueSpecification output : node.getOutputValues()) {
+        jobExecutionResultCache.put(output, jobExecutionResult);
+      }
+      for (Pair<ValueSpecification, Object> value : cache.getValues(terminalOutputs, CacheSelectHint.allShared())) {
+        final ValueSpecification valueSpec = value.getFirst();
+        final Object calculatedValue = value.getSecond();
+        if (calculatedValue != null) {
+          final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResult);
+          fragmentResultModel.addValue(calculationConfiguration, computedValueResult);
+          fullResultModel.addValue(calculationConfiguration, computedValueResult);
+        }
+      }
+    }
+    notifyFragmentCompleted(fragmentResultModel);
   }
 
   protected DependencyNodeJobExecutionResultCache getJobExecutionResultCache(final String calcConfigName) {
