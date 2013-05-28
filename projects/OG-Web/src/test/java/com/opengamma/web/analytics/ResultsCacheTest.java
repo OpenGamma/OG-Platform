@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -25,6 +26,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
@@ -50,6 +52,7 @@ public class ResultsCacheTest {
     final String spec2value1 = "spec2value1";
 
     final InMemoryViewComputationResultModel results1 = new InMemoryViewComputationResultModel();
+    results1.setViewCycleExecutionOptions(ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).create());
     results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value1, AggregatedExecutionLog.EMPTY));
     results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec2, spec2value1, AggregatedExecutionLog.EMPTY));
 
@@ -67,6 +70,7 @@ public class ResultsCacheTest {
 
     final String spec1value2 = "spec1value2";
     final InMemoryViewComputationResultModel results2 = new InMemoryViewComputationResultModel();
+    results2.setViewCycleExecutionOptions(ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).create());
     results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value2, AggregatedExecutionLog.EMPTY));
     cache.put(results2);
 
@@ -83,6 +87,7 @@ public class ResultsCacheTest {
   @Test
   public void putResultsWithHistory() {
     final InMemoryViewComputationResultModel results1 = new InMemoryViewComputationResultModel();
+    results1.setViewCycleExecutionOptions(ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).create());
     results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, AggregatedExecutionLog.EMPTY));
     final ResultsCache cache = new ResultsCache();
     cache.put(results1);
@@ -93,6 +98,7 @@ public class ResultsCacheTest {
     assertEquals(1d, result1.getHistory().iterator().next());
 
     final InMemoryViewComputationResultModel results2 = new InMemoryViewComputationResultModel();
+    results2.setViewCycleExecutionOptions(ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).create());
     results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 2d, AggregatedExecutionLog.EMPTY));
     cache.put(results2);
 
@@ -107,6 +113,7 @@ public class ResultsCacheTest {
   @Test
   public void errorValues() {
     final InMemoryViewComputationResultModel resultsModel1 = new InMemoryViewComputationResultModel();
+    resultsModel1.setViewCycleExecutionOptions(ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).create());
     resultsModel1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, MissingOutput.EVALUATION_ERROR, AggregatedExecutionLog.EMPTY));
     final ResultsCache cache = new ResultsCache();
     cache.put(resultsModel1);
@@ -116,10 +123,12 @@ public class ResultsCacheTest {
     assertNull(result1.getHistory());
 
     final InMemoryViewComputationResultModel resultsModel2 = new InMemoryViewComputationResultModel();
+    resultsModel2.setViewCycleExecutionOptions(ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).create());
     resultsModel2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, AggregatedExecutionLog.EMPTY));
     cache.put(resultsModel2);
 
     final InMemoryViewComputationResultModel resultsModel3 = new InMemoryViewComputationResultModel();
+    resultsModel3.setViewCycleExecutionOptions(ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).create());
     resultsModel3.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, MissingOutput.EVALUATION_ERROR, AggregatedExecutionLog.EMPTY));
     cache.put(resultsModel3);
 
