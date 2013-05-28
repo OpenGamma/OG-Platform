@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 
 /**
  * {@link AnalyticsView} that decorates another view and logs the time taken to execute every method call. Intended
@@ -194,4 +196,23 @@ import com.opengamma.util.ArgumentChecker;
     s_logger.trace("portfolioChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
+
+  @Override
+  public ViewportResults getAllGridData(GridType gridType, Format format) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getAllGridData");
+    ViewportResults retVal = _delegate.getAllGridData(gridType, format);
+    s_logger.trace("getAllGridData completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public UniqueId getViewDefinitionId() {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getViewDefinitionId");
+    UniqueId retVal = _delegate.getViewDefinitionId();
+    s_logger.trace("getViewDefinitionId completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+  
 }
