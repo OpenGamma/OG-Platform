@@ -84,7 +84,7 @@ import com.opengamma.engine.value.ValueSpecification;
   protected void finished(final GraphBuildingContext context) {
     super.finished(context);
     Collection<Cancelable> unsubscribes = null;
-    final Collection<ResolutionPump> pumps;
+    Collection<ResolutionPump> pumps = null;
     synchronized (this) {
       _inputs = null;
       if (_inputHandles != null) {
@@ -95,12 +95,14 @@ import com.opengamma.engine.value.ValueSpecification;
         }
         _inputHandles = null;
       }
-      if (_pumps.isEmpty()) {
-        pumps = null;
-      } else {
-        pumps = _pumps;
+      if (_pumps != null) {
+        if (_pumps.isEmpty()) {
+          pumps = null;
+        } else {
+          pumps = _pumps;
+        }
+        _pumps = null;
       }
-      _pumps = null;
     }
     if (unsubscribes != null) {
       for (Cancelable unsubscribe : unsubscribes) {
