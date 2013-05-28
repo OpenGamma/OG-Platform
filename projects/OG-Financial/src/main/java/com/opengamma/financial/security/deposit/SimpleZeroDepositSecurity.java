@@ -58,7 +58,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
   }
 
-  SimpleZeroDepositSecurity(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime maturityDate, final double rate, final ExternalId region) {
+  public SimpleZeroDepositSecurity(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime maturityDate, final double rate, final ExternalId region) {
     super(SECURITY_TYPE);
     setCurrency(currency);
     setStartDate(startDate);
@@ -91,7 +91,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 575402001:  // currency
         return getCurrency();
@@ -108,7 +108,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 575402001:  // currency
         setCurrency((Currency) newValue);
@@ -139,12 +139,12 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleZeroDepositSecurity other = (SimpleZeroDepositSecurity) obj;
+      final SimpleZeroDepositSecurity other = (SimpleZeroDepositSecurity) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
@@ -179,7 +179,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the currency.
    * @param currency  the new value of the property, not null
    */
-  public void setCurrency(Currency currency) {
+  public void setCurrency(final Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
@@ -205,7 +205,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the start date.
    * @param startDate  the new value of the property, not null
    */
-  public void setStartDate(ZonedDateTime startDate) {
+  public void setStartDate(final ZonedDateTime startDate) {
     JodaBeanUtils.notNull(startDate, "startDate");
     this._startDate = startDate;
   }
@@ -231,7 +231,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the maturity date.
    * @param maturityDate  the new value of the property, not null
    */
-  public void setMaturityDate(ZonedDateTime maturityDate) {
+  public void setMaturityDate(final ZonedDateTime maturityDate) {
     JodaBeanUtils.notNull(maturityDate, "maturityDate");
     this._maturityDate = maturityDate;
   }
@@ -257,7 +257,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the rate.
    * @param rate  the new value of the property
    */
-  public void setRate(double rate) {
+  public void setRate(final double rate) {
     this._rate = rate;
   }
 
@@ -282,7 +282,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the region.
    * @param region  the new value of the property, not null
    */
-  public void setRegion(ExternalId region) {
+  public void setRegion(final ExternalId region) {
     JodaBeanUtils.notNull(region, "region");
     this._region = region;
   }
@@ -348,7 +348,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return _currency;
