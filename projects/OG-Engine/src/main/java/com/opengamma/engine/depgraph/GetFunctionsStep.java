@@ -8,7 +8,6 @@ package com.opengamma.engine.depgraph;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -229,7 +228,7 @@ import com.opengamma.util.tuple.Triple;
         setTaskStateFinished(context);
       } else {
         if (target != null) {
-          final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> existingResolutions = context.getResolutions(targetSpec, requirement.getValueName());
+          final GraphBuildingContext.ResolutionIterator existingResolutions = context.getResolutions(targetSpec, requirement.getValueName());
           if (existingResolutions != null) {
             setRunnableTaskState(new TargetDigestStep(getTask(), existingResolutions), context);
           } else {

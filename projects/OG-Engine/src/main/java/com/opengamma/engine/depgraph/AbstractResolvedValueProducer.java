@@ -288,6 +288,12 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
+  private static boolean equals(final ValueSpecification a, final ValueSpecification b) {
+    // The ValueSpecifications put into ResolvedValue objects are normalized
+    assert (a == b) == a.equals(b);
+    return a == b;
+  }
+
   /**
    * Stores the result in the producer, publishing to any active subscribers that are currently waiting for a value.
    * 
@@ -319,27 +325,31 @@ import com.opengamma.engine.value.ValueSpecification;
           return false;
         }
       } else {
+        final ValueSpecification valueSpec;
         switch (_results.length) {
           case 0:
             // No results yet
             break;
           case 1:
-            if (value.getValueSpecification().equals(_results[0].getValueSpecification())) {
+            valueSpec = value.getValueSpecification();
+            if (equals(valueSpec, _results[0].getValueSpecification())) {
               s_logger.debug("Rejecting {} already available from {}", value, this);
               return false;
             }
             break;
           case 2:
-            if (value.getValueSpecification().equals(_results[0].getValueSpecification())
-                || value.getValueSpecification().equals(_results[1].getValueSpecification())) {
+            valueSpec = value.getValueSpecification();
+            if (equals(valueSpec, _results[0].getValueSpecification())
+                || equals(valueSpec, _results[1].getValueSpecification())) {
               s_logger.debug("Rejecting {} already available from {}", value, this);
               return false;
             }
             break;
           case 3:
-            if (value.getValueSpecification().equals(_results[0].getValueSpecification())
-                || value.getValueSpecification().equals(_results[1].getValueSpecification())
-                || value.getValueSpecification().equals(_results[2].getValueSpecification())) {
+            valueSpec = value.getValueSpecification();
+            if (equals(valueSpec, _results[0].getValueSpecification())
+                || equals(valueSpec, _results[1].getValueSpecification())
+                || equals(valueSpec, _results[2].getValueSpecification())) {
               s_logger.debug("Rejecting {} already available from {}", value, this);
               return false;
             }
@@ -347,7 +357,7 @@ import com.opengamma.engine.value.ValueSpecification;
             _resolvedValues.add(_results[0].getValueSpecification());
             _resolvedValues.add(_results[1].getValueSpecification());
             _resolvedValues.add(_results[2].getValueSpecification());
-            _resolvedValues.add(value.getValueSpecification());
+            _resolvedValues.add(valueSpec);
             break;
           default:
             throw new IllegalStateException();
