@@ -335,8 +335,8 @@ $.register_module({
                         accept: function (draggable) {return $(draggable)
                             .is('.ui-layout-header [class*=og-tab-], .OG-tab-overflow-panel [class*=og-tab-]');},
                         tolerance: 'pointer',
-                        over: function () {setTimeout(toggle_dropbox);}, // can't guarantee over and out fire in correct
-                        out: function () {setTimeout(toggle_dropbox);},  // order, toggle function seems to solve issue
+                        over: function(e, ui) {setTimeout(toggle_dropbox);},//can't be sure over and out fire in correct
+                        out: function(e, ui) {setTimeout(toggle_dropbox);},//order, toggle function seems to solve issue
                         drop: function (e, ui) {
                             var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
                                 pane_class = class_prefix + pane,
