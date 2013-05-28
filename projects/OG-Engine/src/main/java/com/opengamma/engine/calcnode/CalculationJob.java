@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * The definition of a particular job that must be performed by a calculation node.
  */
 public class CalculationJob implements IdentifierEncodedValueSpecifications {
-  
+
   private final CalculationJobSpecification _specification;
   private final long _functionInitializationIdentifier;
   private final VersionCorrection _resolverVersionCorrection;
@@ -35,8 +35,7 @@ public class CalculationJob implements IdentifierEncodedValueSpecifications {
   private final CacheSelectHint _cacheSelect;
 
   /**
-   * The tail is a set of jobs that must execute at the same location. It is not however part of the job so is not
-   * serialized.
+   * The tail is a set of jobs that must execute at the same location. It is not however part of the job so is not serialized.
    */
   private Collection<CalculationJob> _tail;
 
