@@ -16,11 +16,9 @@ $.register_module({
                     if (!$.isArray(data))
                         return og.dev.warn(module.name + ': data should be an Array', data);
                     gadget.data = [{curve: data}];
-                    if (!curve && gadget.data){
+                    if (!curve && gadget.data)
                         curve = new og.common.gadgets.CurvePlot({selector:config.selector, data: gadget.data});
-                    }
-                    else
-                        curve.update(gadget.data);
+                    else curve.update(gadget.data);
             });
             gadget.alive = function () {
                 var live = curve && curve.alive;
