@@ -20,6 +20,17 @@
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Integration</url>
   </scm>
 
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <directory>config</directory>
+      </testResource>
+    </testResources>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>com.opengamma</groupId>
