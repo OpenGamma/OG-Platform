@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -317,6 +316,46 @@ import com.opengamma.util.tuple.Pair;
     return getBuilder().getResolvedValue(valueSpecification);
   }
 
+  public static final class ResolutionIterator {
+
+    private final Object _properties;
+    private final Object _functions;
+    private final int _length;
+    private int _index;
+
+    private ResolutionIterator(final Pair<?, ?> values) {
+      _properties = values.getFirst();
+      _functions = values.getSecond();
+      if (_properties instanceof ValueProperties) {
+        _length = 1;
+      } else {
+        _length = ((ValueProperties[]) _properties).length;
+      }
+      _index = 0;
+    }
+
+    public boolean hasNext() {
+      return ++_index < _length;
+    }
+
+    public ValueProperties getValueProperties() {
+      if (_length == 1) {
+        return (ValueProperties) _properties;
+      } else {
+        return ((ValueProperties[]) _properties)[_index];
+      }
+    }
+
+    public ParameterizedFunction getFunction() {
+      if (_length == 1) {
+        return (ParameterizedFunction) _functions;
+      } else {
+        return ((ParameterizedFunction[]) _functions)[_index];
+      }
+    }
+
+  }
+
   /**
    * Returns an iterator over previous resolutions (that are present in the dependency graph) on the same target digest for the same value name.
    * 
@@ -324,12 +363,12 @@ import com.opengamma.util.tuple.Pair;
    * @param desiredValue the value requirement name, not null
    * @return any existing resolutions, null if there are none
    */
-  public Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> getResolutions(final ComputationTargetSpecification targetSpec, final String desiredValue) {
-    Map<ValueProperties, ParameterizedFunction> properties = getBuilder().getResolutions(targetSpec, desiredValue);
+  public ResolutionIterator getResolutions(final ComputationTargetSpecification targetSpec, final String desiredValue) {
+    Pair<?, ?> properties = getBuilder().getResolutions(targetSpec, desiredValue);
     if (properties == null) {
       return null;
     }
-    return properties.entrySet().iterator();
+    return new ResolutionIterator(properties);
   }
 
   public void discardTask(final ResolveTask task) {
@@ -466,7 +505,7 @@ import com.opengamma.util.tuple.Pair;
     final ComputationTargetSpecification oldTargetSpec = valueSpec.getTargetSpecification();
     final ComputationTargetSpecification newTargetSpec = ComputationTargetResolverUtils.simplifyType(oldTargetSpec, getCompilationContext().getComputationTargetResolver());
     if (newTargetSpec == oldTargetSpec) {
-      return valueSpec;
+      return MemoryUtils.instance(valueSpec);
     } else {
       return MemoryUtils.instance(new ValueSpecification(valueSpec.getValueName(), newTargetSpec, valueSpec.getProperties()));
     }
