@@ -34,7 +34,7 @@ public class UrlSuffixFilter implements ContainerRequestFilter {
    */
   private static final Map<String, String> SUFFIXES = Maps.newHashMap();
   static {
-    SUFFIXES.put(".csv", "text/csv");
+    SUFFIXES.put(".csv", RestUtils.TEXT_CSV);
     SUFFIXES.put(".json", MediaType.APPLICATION_JSON);
     SUFFIXES.put(".xml", MediaType.APPLICATION_XML);
     SUFFIXES.put(".fudge", FudgeRest.MEDIA);
