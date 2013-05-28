@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import static com.opengamma.web.analytics.formatting.DataType.UNKNOWN;
 
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +17,10 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -33,9 +37,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 import com.opengamma.web.server.conversion.DoubleValueOptionalDecimalPlaceFormatter;
 
 /**
- * Creates a JSON object from an instance of {@link ViewportResults}.
+ * Creates a JSON/CSV object from an instance of {@link ViewportResults}.
  */
-public class ViewportResultsJsonWriter {
+public class ViewportResultsJsonCsvWriter {
 
   private static final String VERSION = "version";
   private static final String VALUE = "v";
@@ -58,8 +62,56 @@ public class ViewportResultsJsonWriter {
   private final ResultsFormatter _formatter;
   private final DoubleValueOptionalDecimalPlaceFormatter _durationFormatter = new DoubleValueOptionalDecimalPlaceFormatter();
 
-  public ViewportResultsJsonWriter(ResultsFormatter formatter) {
+  public ViewportResultsJsonCsvWriter(ResultsFormatter formatter) {
     _formatter = formatter;
+  }
+  
+  public String getCsv(ViewportResults viewportResults) {
+    GridColumnGroups columnGroups = viewportResults.getColumns();
+    String[] header1 = new String[columnGroups.getGroups().size()];
+    String[] header2 = new String[columnGroups.getColumnCount()];
+    
+    int index = 0;
+    for (GridColumnGroup gridColumnGroup : columnGroups.getGroups()) {
+      header1[index++] = gridColumnGroup.getName();
+    }
+    
+    List<GridColumn> columns = columnGroups.getColumns();
+    index = 0;
+    for (GridColumn gridColumn : columns) {
+      header2[index++] = gridColumn.getHeader();
+    }
+    
+    StringWriter stringWriter = new StringWriter();
+    @SuppressWarnings("resource")
+    CSVWriter csvWriter = new CSVWriter(stringWriter);
+    
+    csvWriter.writeNext(header1);
+    csvWriter.writeNext(header2);
+    
+    List<ResultsCell> viewportCells = viewportResults.getResults();
+    Iterable<List<ResultsCell>> results = Iterables.partition(viewportCells, columnGroups.getColumnCount());
+    for (List<ResultsCell> row : results) {
+      String[] rowArray = new String[row.size()];
+      int col = 0;
+      for (ResultsCell cell : row) {
+        Object cellValue = cell.getValue();
+        if (cellValue instanceof RowTarget) {
+          rowArray[col++] = ((RowTarget) cellValue).getName();
+          continue;
+        }
+        
+        ValueSpecification cellValueSpec = cell.getValueSpecification();
+        Object formattedValue = _formatter.format(cellValue, cellValueSpec, cell.getFormat(), cell.getInlineKey());
+        if (formattedValue instanceof String) {
+          rowArray[col++] = (String) formattedValue;
+        } else {
+          rowArray[col++] = formattedValue.toString();
+        }
+      }
+      csvWriter.writeNext(rowArray);
+    }
+    return stringWriter.toString();
   }
 
   // TODO use a Freemarker template - will that perform well enough?
