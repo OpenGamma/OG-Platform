@@ -21,22 +21,30 @@
   </scm>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <directory>config</directory>
+      </testResource>
+    </testResources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
+            <id>resources-jar</id>
             <phase>package</phase>
-            <configuration>
-              <target>
-                <jar basedir="config" destfile="${project.build.directory}/og-component-resources.jar" />
-                <attachartifact file="${project.build.directory}/og-component-resources.jar" classifier="resources" type="jar" />
-              </target>
-            </configuration>
             <goals>
-              <goal>run</goal>
+              <goal>single</goal>
             </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-config.xml</descriptor>
+              </descriptors>
+            </configuration>
           </execution>
         </executions>
       </plugin>

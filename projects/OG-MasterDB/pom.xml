@@ -44,7 +44,7 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
          <descriptors>
-           <descriptor>src/main/assembly/sql.xml</descriptor>
+           <descriptor>src/main/assembly/assembly-sql.xml</descriptor>
          </descriptors>
         </configuration>
         <executions>

@@ -39,6 +39,13 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>
+      <artifactId>og-component</artifactId>
+      <classifier>resources</classifier>
+      <type>jar</type>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
       <artifactId>og-bloomberg</artifactId>
       <version>${project.version}</version>
     </dependency>
