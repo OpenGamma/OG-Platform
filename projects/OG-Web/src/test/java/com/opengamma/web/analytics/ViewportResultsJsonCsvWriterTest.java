@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -31,9 +32,11 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class ViewportResultsJsonWriterTest {
+public class ViewportResultsJsonCsvWriterTest {
 
   private static final Duration DURATION = Duration.ofMillis(1234);
+  
+  private static final Instant CALC_TIME = Instant.now();
 
   private final ViewportDefinition _viewportDefinition = ViewportDefinition.create(0,
                                                                                    ImmutableList.of(0),
@@ -48,7 +51,7 @@ public class ViewportResultsJsonWriterTest {
   private final ValueSpecification _valueSpec =
       new ValueSpecification(_valueReq.getValueName(), _target,
                              ValueProperties.builder().with(ValuePropertyNames.FUNCTION, "fnName").get());
-  private final ViewportResultsJsonWriter _writer = new ViewportResultsJsonWriter(new ResultsFormatter());
+  private final ViewportResultsJsonCsvWriter _writer = new ViewportResultsJsonCsvWriter(new ResultsFormatter());
 
   private static GridColumnGroups createColumns(Class<?> type) {
     GridColumn.CellRenderer renderer = new TestCellRenderer();
@@ -63,7 +66,7 @@ public class ViewportResultsJsonWriterTest {
   @Test
   public void valueWithNoHistory() throws JSONException {
     List<ResultsCell> results = createResults("val", null, String.class);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(String.class), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(String.class), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"val\"}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
@@ -72,7 +75,7 @@ public class ViewportResultsJsonWriterTest {
   @Test
   public void valueWithHistory() throws JSONException {
     List<ResultsCell> results = createResults(3d, ImmutableList.<Object>of(1d, 2d, 3d), Double.class);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"3.0\",\"h\":[1,2,3]}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
@@ -81,7 +84,7 @@ public class ViewportResultsJsonWriterTest {
   @Test
   public void valueWithUnknownType() throws JSONException {
     List<ResultsCell> results = createResults(3d, null, null);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"3.0\",\"t\":\"DOUBLE\"}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
@@ -90,7 +93,7 @@ public class ViewportResultsJsonWriterTest {
   @Test
   public void nullValueWithUnknownType() throws JSONException {
     List<ResultsCell> results = createResults(null, null, null);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"\",\"t\":\"STRING\"}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
@@ -99,7 +102,7 @@ public class ViewportResultsJsonWriterTest {
   @Test
   public void valueWithUnknownTypeAndHistory() throws JSONException {
     List<ResultsCell> results = createResults(3d, ImmutableList.<Object>of(1d, 2d, 3d), null);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"3.0\",\"t\":\"DOUBLE\",\"h\":[1,2,3]}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
@@ -108,7 +111,7 @@ public class ViewportResultsJsonWriterTest {
   @Test
   public void errorValueNoHistory() throws JSONException {
     List<ResultsCell> results = createResults(MissingOutput.EVALUATION_ERROR, null, String.class);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(String.class), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(String.class), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"Evaluation error\", \"error\":true}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
@@ -118,7 +121,7 @@ public class ViewportResultsJsonWriterTest {
   public void errorValueWithHistory() throws JSONException {
     ImmutableList<Object> history = ImmutableList.<Object>of(1d, 2d, MissingOutput.EVALUATION_ERROR);
     List<ResultsCell> results = createResults(MissingOutput.EVALUATION_ERROR, history, Double.class);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"Evaluation error\", \"h\":[1,2,null], \"error\":true}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
@@ -128,7 +131,7 @@ public class ViewportResultsJsonWriterTest {
   public void errorValueInHistory() throws JSONException {
     ImmutableList<Object> history = ImmutableList.<Object>of(1d, MissingOutput.EVALUATION_ERROR, 3d);
     List<ResultsCell> results = createResults(3d, history, Double.class);
-    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(Double.class), DURATION, CALC_TIME);
     String json = _writer.getJson(viewportResults);
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"3.0\",\"h\":[1,null,3]}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));

@@ -125,7 +125,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     ViewportResults newResults = new ViewportResults(results,
                                                      viewportDefinition,
                                                      _columnGroups,
-                                                     cache.getLastCalculationDuration());
+                                                     cache.getLastCalculationDuration(), cache.getValuationTime());
     Viewport.State state;
     if (previousResults != null && results.equals(previousResults.getResults())) {
       state = Viewport.State.STALE_DATA;

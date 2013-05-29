@@ -6,8 +6,6 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -37,90 +35,93 @@ import com.opengamma.util.tuple.Triple;
   private static final Profiler s_profilerSuccess = Profiler.create(TargetDigestStep.class, "success");
   private static final Profiler s_profilerWaste = Profiler.create(TargetDigestStep.class, "waste");
 
-  private final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> _resolutions;
+  private GraphBuildingContext.ResolutionIterator _resolutions;
   private long _timeSpent;
   private ValueRequirement _desiredValue;
 
-  public TargetDigestStep(final ResolveTask task, final Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> resolutions) {
+  public TargetDigestStep(final ResolveTask task, final GraphBuildingContext.ResolutionIterator resolutions) {
     super(task);
     _resolutions = resolutions;
-  }
-
-  private Iterator<Map.Entry<ValueProperties, ParameterizedFunction>> getResolutions() {
-    return _resolutions;
   }
 
   @Override
   protected boolean run(final GraphBuildingContext context) {
     final ValueRequirement requirement = getValueRequirement();
     final ComputationTarget target = getComputationTarget(context);
-    final long startTime = System.nanoTime();
-    try {
-      final ValueProperties constraints = requirement.getConstraints();
-      while (getResolutions().hasNext()) {
-        final Map.Entry<ValueProperties, ParameterizedFunction> resolution = getResolutions().next();
-        if (constraints.isSatisfiedBy(resolution.getKey())) {
-          s_logger.debug("Trying digest resolution {} for {}", resolution, requirement);
-          final ParameterizedFunction function = resolution.getValue();
-          final CompiledFunctionDefinition functionDef = function.getFunction();
-          if (!functionDef.getTargetType().isCompatible(target.getType())) {
-            s_logger.debug("Function {} type is not compatible with {}", functionDef, target);
-            continue;
-          }
-          final ComputationTarget adjustedTarget = ResolutionRule.adjustTarget(functionDef.getTargetType(), target);
-          if (!functionDef.canApplyTo(context.getCompilationContext(), adjustedTarget)) {
-            s_logger.debug("Function {} cannot be applied to {}", functionDef, target);
-            continue;
-          }
-          Collection<ValueSpecification> results = functionDef.getResults(context.getCompilationContext(), adjustedTarget);
-          if ((results == null) || results.isEmpty()) {
-            s_logger.debug("Function {} applied to {} produced no results", functionDef, target);
-            continue;
-          }
-          final ValueProperties composedConstraints;
-          if (constraints.getValues(ValuePropertyNames.FUNCTION) != null) {
-            composedConstraints = resolution.getKey().compose(constraints);
-          } else {
-            // Note: some functions on OG-Financial do stupid things with their desired value if it constrains the function identifier.
-            // it is easier to take action here rather than work through to fix them.
-            composedConstraints = resolution.getKey().withoutAny(ValuePropertyNames.FUNCTION).compose(constraints);
-          }
-          ValueRequirement composedRequirement = null;
-          ValueSpecification matchedResult = null;
-          ValueSpecification resolvedOutput = null;
-          for (ValueSpecification result : results) {
-            // value names are interned
-            if (requirement.getValueName() == result.getValueName()) {
-              if (composedConstraints.isSatisfiedBy(result.getProperties())) {
-                if (composedConstraints == constraints) {
-                  composedRequirement = requirement;
-                } else {
-                  composedRequirement = new ValueRequirement(requirement.getValueName(), requirement.getTargetReference(), composedConstraints);
+    if (_resolutions != null) {
+      final long startTime = System.nanoTime();
+      try {
+        final ValueProperties constraints = requirement.getConstraints();
+        do {
+          final ValueProperties properties = _resolutions.getValueProperties();
+          if (constraints.isSatisfiedBy(properties)) {
+            s_logger.info("Trying digest resolution {} for {}", properties, requirement);
+            final ParameterizedFunction function = _resolutions.getFunction();
+            final CompiledFunctionDefinition functionDef = function.getFunction();
+            if (!functionDef.getTargetType().isCompatible(target.getType())) {
+              s_logger.debug("Function {} type is not compatible with {}", functionDef, target);
+              continue;
+            }
+            final ComputationTarget adjustedTarget = ResolutionRule.adjustTarget(functionDef.getTargetType(), target);
+            if (!functionDef.canApplyTo(context.getCompilationContext(), adjustedTarget)) {
+              s_logger.debug("Function {} cannot be applied to {}", functionDef, target);
+              continue;
+            }
+            Collection<ValueSpecification> results = functionDef.getResults(context.getCompilationContext(), adjustedTarget);
+            if ((results == null) || results.isEmpty()) {
+              s_logger.debug("Function {} applied to {} produced no results", functionDef, target);
+              continue;
+            }
+            final ValueProperties composedConstraints;
+            if (constraints.getValues(ValuePropertyNames.FUNCTION) != null) {
+              composedConstraints = properties.compose(constraints);
+            } else {
+              // Note: some functions on OG-Financial do stupid things with their desired value if it constrains the function identifier.
+              // it is easier to take action here rather than work through to fix them.
+              composedConstraints = properties.withoutAny(ValuePropertyNames.FUNCTION).compose(constraints);
+            }
+            ValueRequirement composedRequirement = null;
+            ValueSpecification matchedResult = null;
+            ValueSpecification resolvedOutput = null;
+            for (ValueSpecification result : results) {
+              // value names are interned
+              if (requirement.getValueName() == result.getValueName()) {
+                if (composedConstraints.isSatisfiedBy(result.getProperties())) {
+                  if (composedConstraints == constraints) {
+                    composedRequirement = requirement;
+                  } else {
+                    composedRequirement = new ValueRequirement(requirement.getValueName(), requirement.getTargetReference(), composedConstraints);
+                  }
+                  matchedResult = context.simplifyType(result);
+                  resolvedOutput = matchedResult.compose(composedRequirement);
+                  if (resolvedOutput != matchedResult) {
+                    resolvedOutput = context.simplifyType(resolvedOutput);
+                    s_logger.debug("Composed original output of {} to {}", matchedResult, resolvedOutput);
+                  }
+                  break;
                 }
-                matchedResult = context.simplifyType(result);
-                resolvedOutput = matchedResult.compose(composedRequirement);
-                if (resolvedOutput != matchedResult) {
-                  resolvedOutput = context.simplifyType(resolvedOutput);
-                  s_logger.debug("Composed original output of {} to {}", matchedResult, resolvedOutput);
-                }
-                break;
               }
             }
+            if (resolvedOutput == null) {
+              s_logger.debug("Requirement {} not satisfied by results {}", requirement, results);
+              continue;
+            }
+            s_logger.info("Inferred requirement {} for {}", composedRequirement, requirement);
+            _desiredValue = composedRequirement;
+            if (!_resolutions.hasNext()) {
+              _resolutions = null;
+            }
+            functionApplication(context, resolvedOutput, Triple.of(function, matchedResult, context.simplifyTypes(results)));
+            return true;
+          } else {
+            s_logger.debug("Ignoring digest resolution {} for {}", properties, requirement);
           }
-          if (resolvedOutput == null) {
-            s_logger.debug("Requirement {} not satisfied by results {}", requirement, results);
-            continue;
-          }
-          s_logger.info("Inferred requirement {} for {}", composedRequirement, requirement);
-          _desiredValue = composedRequirement;
-          functionApplication(context, resolvedOutput, Triple.of(function, matchedResult, context.simplifyTypes(results)));
-          return true;
-        }
+        } while (_resolutions.hasNext());
+      } finally {
+        _timeSpent += System.nanoTime() - startTime;
       }
-    } finally {
-      _timeSpent += System.nanoTime() - startTime;
+      s_profilerWaste.tick(_timeSpent);
     }
-    s_profilerWaste.tick(_timeSpent);
     if (s_logger.isDebugEnabled()) {
       s_logger.debug("No more digest resolutions for {} ({}us wasted)", requirement, (double) _timeSpent / 1e3);
     }

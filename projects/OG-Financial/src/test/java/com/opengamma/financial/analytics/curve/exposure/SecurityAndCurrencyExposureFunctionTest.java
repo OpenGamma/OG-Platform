@@ -42,7 +42,7 @@ public class SecurityAndCurrencyExposureFunctionTest {
     final AgricultureFutureSecurity future = ExposureFunctionTestHelper.getAgricultureFutureSecurity();
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
-    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "FUTURE_EUR"), ids.get(0));
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "FUTURE_USD"), ids.get(0));
   }
 
   @Test

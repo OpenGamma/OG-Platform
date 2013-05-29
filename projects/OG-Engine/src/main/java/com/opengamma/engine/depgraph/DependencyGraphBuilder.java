@@ -36,18 +36,17 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolvedValueProducer.Chain;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.digest.TargetDigests;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.Profiler;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given set of value requirements. Although a graph builder may itself use additional threads to complete the
@@ -368,7 +367,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     _getTerminalValuesCallback.declareProduction(value);
   }
 
-  protected Map<ValueProperties, ParameterizedFunction> getResolutions(final ComputationTargetSpecification targetSpec, final String valueName) {
+  protected Pair<?, ?> getResolutions(final ComputationTargetSpecification targetSpec, final String valueName) {
     return _getTerminalValuesCallback.getResolutions(getCompilationContext(), targetSpec, valueName);
   }
 

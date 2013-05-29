@@ -299,8 +299,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
     return new MarketDataManipulator(defaultExecutionOptions != null ?
-                                         defaultExecutionOptions.getMarketDataSelector() :
-                                         NoOpMarketDataSelector.getInstance());
+        defaultExecutionOptions.getMarketDataSelector() :
+        NoOpMarketDataSelector.getInstance());
   }
 
   private ViewProcessWorkerContext getWorkerContext() {
@@ -462,7 +462,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
           return;
         }
-
+        // [PLAT-1174] This is necessary to support global injections by ValueRequirement. The use of a process-context level variable will be bad
+        // if there are multiple worker threads that initialise snapshots concurrently.
+        getProcessContext().getLiveDataOverrideInjector().setComputationTargetResolver(
+            getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(versionCorrection));
         setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
         try {
           if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
@@ -585,7 +588,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       s_logger.error("Error notifying " + getWorkerContext() + " of view cycle completion", e);
     }
   }
-  
+
   private void cycleStarted(final ViewCycleMetadata cycleMetadata) {
     try {
       getWorkerContext().cycleStarted(cycleMetadata);
@@ -1131,9 +1134,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       } else {
         if (s_logger.isInfoEnabled()) {
           s_logger.info("Removed {} nodes from dependency graph for {} by {}",
-                        nodes.size() - filtered.getSize(),
-                        entry.getKey(),
-                        filter);
+              nodes.size() - filtered.getSize(),
+              entry.getKey(),
+              filter);
         }
         entry.setValue(Pair.of(filtered, missingRequirements));
       }
@@ -1253,7 +1256,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       } finally {
         _compilationTask = null;
       }
-
 
     } catch (final Exception e) {
       final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
