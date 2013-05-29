@@ -8,6 +8,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -40,16 +43,18 @@ public class PresentValueCreditDefaultSwapTest {
     YIELD_CURVE = new ISDADateCurve("ISDA", YIELD_TENORS, YIELD_TIMES, YIELDS, OFFSET);
   }
 
-  /*
-  @Test(enabled = false)
+  
+  @Test//(enabled = false)
   public void testAccruedInterest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final double accruedInterest = CALCULATOR.calculateAccruedInterest(VALUATION_DATE, cds);
+  //  final double accruedInterest = CALCULATOR.calculateAccruedInterest(VALUATION_DATE, cds);
     final double cleanPrice = CALCULATOR.calibrateAndGetPresentValue(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE, PriceType.CLEAN);
     final double dirtyPrice = CALCULATOR.calibrateAndGetPresentValue(VALUATION_DATE, cds, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE, PriceType.DIRTY);
+    
+    System.out.println(cleanPrice +" "+dirtyPrice);
     //assertEquals(cleanPrice, dirtyPrice + accruedInterest, EPS);
   }
-  */
+  
 
   @Test(enabled = false)
   public void testRecoveryRateEqualsOne() {
