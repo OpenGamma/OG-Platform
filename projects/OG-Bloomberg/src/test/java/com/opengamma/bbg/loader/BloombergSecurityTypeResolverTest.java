@@ -12,14 +12,14 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
+import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -32,23 +32,22 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.INTEGRATION)
 public class BloombergSecurityTypeResolverTest {
 
-  private ConfigurableApplicationContext _context;
+  private BloombergReferenceDataProvider _bbgProvider;
   private SecurityTypeResolver _securityTypeResolver;
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/loader/refDataProvider-context.xml");
-    context.start();
-    _context = context;
-    ReferenceDataProvider refDataProvider = _context.getBean("cachingRefProvider", ReferenceDataProvider.class);
-    _securityTypeResolver = new BloombergSecurityTypeResolver(refDataProvider);
+  @BeforeClass
+  public void setUpClass() throws Exception {
+    _bbgProvider = BloombergTestUtils.getBloombergReferenceDataProvider();
+    _bbgProvider.start();
+    ReferenceDataProvider cachingProvider = BloombergTestUtils.getMongoCachingReferenceDataProvider(_bbgProvider);
+    _securityTypeResolver = new BloombergSecurityTypeResolver(cachingProvider);
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    if (_context != null) {
-      _context.stop();
-      _context = null;
+  @AfterClass
+  public void tearDownClass() throws Exception {
+    if (_bbgProvider != null) {
+      _bbgProvider.stop();
+      _bbgProvider = null;
     }
     _securityTypeResolver = null;
   }

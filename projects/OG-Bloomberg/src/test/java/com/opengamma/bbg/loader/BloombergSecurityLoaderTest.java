@@ -29,11 +29,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
+import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -80,14 +82,19 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
+import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.provider.security.SecurityProvider;
+import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
+import com.opengamma.util.db.DbConnectorFactoryBean;
+import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -95,13 +102,13 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups = TestGroup.INTEGRATION, singleThreaded = true, enabled = false)
+@Test(groups = TestGroup.INTEGRATION, singleThreaded = true)
 public class BloombergSecurityLoaderTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityLoaderTest.class);
 
-  private ConfigurableApplicationContext _context;
-  private SecurityMaster _securityMaster;
+  private BloombergReferenceDataProvider _bbgProvider;
+  private DbSecurityMaster _securityMaster;
   private DefaultSecurityLoader _securityLoader;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
@@ -112,20 +119,33 @@ public class BloombergSecurityLoaderTest extends AbstractDbTest {
 
   //-------------------------------------------------------------------------
   @Override
-  protected void doSetUp() {
-    ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/loader/bloomberg-security-loader-test-context.xml");
-    context.start();
-    _context = context;
-    SecurityProvider secProvider = _context.getBean("bloombergSecurityProvider", SecurityProvider.class);
-    _securityMaster = _context.getBean(getDatabaseType() + "DbSecurityMaster", SecurityMaster.class);
+  protected Class<?> dbConnectorScope() {
+    return BloombergSecurityLoaderTest.class;
+  }
+
+  @Override
+  protected void initDbConnectorFactory(DbConnectorFactoryBean factory) {
+    factory.setHibernateMappingFiles(new HibernateMappingFiles[] {new HibernateSecurityMasterFiles() });
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUpClass() {
+    _bbgProvider = BloombergTestUtils.getBloombergReferenceDataProvider();
+    _bbgProvider.start();
+    ReferenceDataProvider cachingProvider = BloombergTestUtils.getMongoCachingReferenceDataProvider(_bbgProvider);
+    ExchangeDataProvider exchangeProvider = DefaultExchangeDataProvider.getInstance();
+    BloombergSecurityProvider secProvider = new BloombergSecurityProvider(cachingProvider, exchangeProvider );
+    _securityMaster = new DbSecurityMaster(getDbConnector());
+    _securityMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
     _securityLoader = new DefaultSecurityLoader(_securityMaster, secProvider);
   }
 
   @Override
-  protected void doTearDown() {
-    if (_context != null) {
-      _context.stop();
-      _context = null;
+  protected void doTearDownClass() {
+    if (_bbgProvider != null) {
+      _bbgProvider.stop();
+      _bbgProvider = null;
     }
     _securityMaster = null;
   }
