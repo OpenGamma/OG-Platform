@@ -50,32 +50,32 @@ public abstract class AbstractTestResultListener {
       throw new AssertionError("Error while waiting to ensure no further calls: " + e.getMessage()); 
     }
     if (result != null) {
-      throw new AssertionError("Call received after " + (System.currentTimeMillis () - tNow) + "ms, during " + timeoutMillis + "ms wait: " + result);
+      throw new AssertionError("Call received after " + (System.currentTimeMillis() - tNow) + "ms, during " + timeoutMillis + "ms wait: " + result);
     }
   }
 
   //-------------------------------------------------------------------------
-  public synchronized long getShortestDelay () {
+  public synchronized long getShortestDelay() {
     return _shortestDelay;
   }
-  
+
   public void resetShortestDelay() {
     _shortestDelay = Long.MAX_VALUE;
   }
-  
+
   public int getQueueSize() {
     return _callsReceived.size();
   }
-  
+
   public void clear() {
     _callsReceived.clear();
   }
-  
+
   //-------------------------------------------------------------------------
   protected void callReceived(Object call) {
     callReceived(call, false);
   }
-  
+
   protected void callReceived(Object call, boolean recordTime) {
     _callsReceived.add(call);
     long now = System.currentTimeMillis();
@@ -85,6 +85,5 @@ public abstract class AbstractTestResultListener {
       _shortestDelay = delay;
     }
   }
-
 
 }

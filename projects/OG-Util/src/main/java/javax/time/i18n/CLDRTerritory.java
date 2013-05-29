@@ -1,3 +1,4 @@
+//CSOFF
 /*
  *  Copyright 2006 Stephen Colebourne
  *
@@ -26,7 +27,6 @@ import java.io.ObjectInputStream;
 
 import org.threeten.bp.ZoneId;
 
-//CSOFF
 /**
  * Provides time data for a specific territory, typically a country.
  * <p>

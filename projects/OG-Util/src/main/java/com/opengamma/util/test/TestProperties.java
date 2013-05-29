@@ -31,8 +31,8 @@ public class TestProperties {
   private static final String DEFAULT_PROPS_DIR2 = "../Integration-Tests/src/test/resources/";
   /** Relative file location, deprecated (just use classpath). */
   private static final String DEFAULT_PROPS_DIR3 = "../../common/"; // OG-Platform/common/
-
-  private static Properties _props = null;
+  /** The properties. */
+  private static volatile Properties s_props;
 
   /**
    * Gets the testing properties.
@@ -40,8 +40,8 @@ public class TestProperties {
    * @return the properties, not null
    */
   public static synchronized Properties getTestProperties() {
-    if (_props == null) {
-      _props = new Properties();
+    if (s_props == null) {
+      s_props = new Properties();
       
       // file name
       String overridePropsFileName = System.getProperty("test.properties"); // from command line
@@ -55,7 +55,7 @@ public class TestProperties {
         loadFile(propsFileName);
       }
     }
-    return _props;
+    return s_props;
   }
 
   //-------------------------------------------------------------------------
@@ -80,7 +80,7 @@ public class TestProperties {
     }
     System.out.println("Loading test properties from classpath: " + url);
     try (InputStream fis = res.getInputStream()) {
-      _props.load(fis);
+      s_props.load(fis);
     } catch (IOException ex) {
       System.out.println("Unable to read test properties: " + url);
       throw new OpenGammaRuntimeException("Unable to read test properties: " + url, ex);
@@ -122,7 +122,7 @@ public class TestProperties {
       throw new OpenGammaRuntimeException("Unable to get canonical path: " + file, ex);
     }
     try (InputStream fis = new FileInputStream(file)) {
-      _props.load(fis);
+      s_props.load(fis);
     } catch (IOException ex) {
       System.out.println("Unable to read test properties: " + file);
       throw new OpenGammaRuntimeException("Unable to read test properties: " + file, ex);

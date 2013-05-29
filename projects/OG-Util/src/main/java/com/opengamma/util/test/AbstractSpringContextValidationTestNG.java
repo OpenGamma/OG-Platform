@@ -36,7 +36,7 @@ public abstract class AbstractSpringContextValidationTestNG {
   private ThreadLocal<GenericApplicationContext> _springContext = new ThreadLocal<GenericApplicationContext>();
 
   @DataProvider(name = "runModes")
-  public static Object[][] data_runMode() {
+  public static Object[][] data_runMode() {  // CSIGNORE
     return new Object[][] {
       {"shareddev"},
       {"standalone"},
@@ -55,12 +55,14 @@ public abstract class AbstractSpringContextValidationTestNG {
 
   //-------------------------------------------------------------------------
   /**
-   * This should be called by the subclass to initialise the test.
+   * This should be called by the subclass to initialize the test.
+   * 
+   * @param configXml  the Spring XML file, not null
    */
-  protected void loadClassPathResource(final String name) {
+  protected void loadClassPathResource(final String configXml) {
     GenericApplicationContext springContext = createSpringContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(springContext);
-    xmlReader.loadBeanDefinitions(new ClassPathResource(name));
+    xmlReader.loadBeanDefinitions(new ClassPathResource(configXml));
     springContext.refresh();
   }
 
@@ -92,8 +94,11 @@ public abstract class AbstractSpringContextValidationTestNG {
   }
 
   /**
-   * Populates the Spring context from multiple XML configuration files.  The file paths must have a prefix to
-   * indicate what kind of resource they are, e.g. {@code file:} or {@code classpath:}.
+   * Populates the Spring context from multiple XML configuration files.
+   * The file paths must have a prefix to indicate what kind of resource
+   * they are, e.g. {@code file:} or {@code classpath:}.
+   * 
+   * @param filePaths  the file paths, not null
    */
   protected void loadResources(final String... filePaths) {
     GenericApplicationContext springContext = createSpringContext();
@@ -127,6 +132,11 @@ public abstract class AbstractSpringContextValidationTestNG {
 
   /**
    * This tests that a specific bean was loaded.
+   * 
+   * @param <T> the bean type
+   * @param clazz  the bean class, not null
+   * @param name  the bean name, not null
+   * @return the bean, not null
    */
   @SuppressWarnings("unchecked")
   protected <T> T assertBeanExists(final Class<T> clazz, final String name) {
