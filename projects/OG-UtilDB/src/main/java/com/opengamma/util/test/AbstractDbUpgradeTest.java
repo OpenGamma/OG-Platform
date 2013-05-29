@@ -45,6 +45,11 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
 
   /**
    * Creates an instance.
+   * 
+   * @param databaseType  the database type, not null
+   * @param tableSet  the subset of tables 
+   * @param targetVersion  the target version
+   * @param createVersion  the create version
    */
   protected AbstractDbUpgradeTest(String databaseType, String tableSet, final String targetVersion, final String createVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
@@ -89,7 +94,7 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
       synchronized (this) {
         dbTool = _dbTool;
         if (dbTool == null) {
-          _dbTool = dbTool = DbTest.createDbTool(_databaseType, null);
+          _dbTool = dbTool = DbTest.createDbTool(_databaseType, null);  // CSIGNORE
         }
       }
     }

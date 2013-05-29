@@ -86,7 +86,7 @@ public final class DbTest {
   /**
    * Gets the known dialects.
    *
-   * @param return the known database dialects keyed by type, not null
+   * @return the known database dialects keyed by type, not null
    */
   public static Map<String, DbDialect> getSupportedDbDialects() {
     return new HashMap<>(s_dbDialects);
@@ -118,7 +118,7 @@ public final class DbTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "localDatabase")
-  public static Object[][] data_localDatabase() {
+  public static Object[][] data_localDatabase() {  // CSIGNORE
     Object[][] data = getParametersForDatabase("hsqldb");
     if (data.length == 0) {
       throw new IllegalStateException("No databases available");
@@ -127,7 +127,7 @@ public final class DbTest {
   }
 
   @DataProvider(name = "databases")
-  public static Object[][] data_databases() {
+  public static Object[][] data_databases() {  // CSIGNORE
     Object[][] data = getParameters();
     if (data.length == 0) {
       throw new IllegalStateException("No databases available");
@@ -136,7 +136,7 @@ public final class DbTest {
   }
 
   @DataProvider(name = "databasesVersionsForSeparateMasters")
-  public static Object[][] data_databasesVersionsForSeparateMasters() {
+  public static Object[][] data_databasesVersionsForSeparateMasters() {  // CSIGNORE
     Object[][] data = getParametersForSeparateMasters(3);
     if (data.length == 0) {
       throw new IllegalStateException("No databases available");

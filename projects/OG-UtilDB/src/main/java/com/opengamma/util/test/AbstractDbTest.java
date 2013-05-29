@@ -48,7 +48,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
   /**
    * Creates an instance.
    * 
-   * @param databaseType  the database type
+   * @param databaseType  the database type, not null
    * @param targetVersion  the target version
    */
   protected AbstractDbTest(String databaseType, String targetVersion) {
@@ -124,7 +124,6 @@ public abstract class AbstractDbTest implements TableCreationCallback {
    * Subclasses should override this where necessary and NOT declare @AfterMethod.
    * This handles TestNG behavior better.
    * 
-   * @return true to clear any data in the database
    * @throws Exception if an error occurs
    */
   protected void doTearDown() throws Exception {
@@ -220,7 +219,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
         dbTool = _dbTool;
         if (dbTool == null) {
           DbConnector connector = s_connectors.get(Pair.<String, Class<?>>of(_databaseType, dbConnectorScope()));
-          _dbTool = dbTool = DbTest.createDbTool(_databaseType, connector);
+          _dbTool = dbTool = DbTest.createDbTool(_databaseType, connector);  // CSIGNORE
         }
       }
     }
@@ -253,8 +252,12 @@ public abstract class AbstractDbTest implements TableCreationCallback {
 
   //-------------------------------------------------------------------------
   /**
-   * Override this if you wish to do something with the database while it is in its "upgrading" state - e.g. populate with test data
-   * at a particular version to test the data transformations on the next version upgrades.
+   * Override this if you wish to do something with the database while it is
+   * in its "upgrading" state - e.g. populate with test data at a particular
+   * version to test the data transformations on the next version upgrades.
+   * 
+   * @param version  the version, not null
+   * @param prefix  the prefix, not null
    */
   public void tablesCreatedOrUpgraded(final String version, final String prefix) {
     // No action 
