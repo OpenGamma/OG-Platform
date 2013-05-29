@@ -8,8 +8,8 @@
   <!-- Bloomberg Reference Data Provider -->
   <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
     <property name="name" value="Test" />
-    <property name="host" value="${bloomberg.host}" />
-    <property name="port" value="${bloomberg.port}" />
+    <property name="host" value="${bbgServer.host}" />
+    <property name="port" value="${bbgServer.port}" />
   </bean>
 
   <bean id="refDataProvider" class="com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider">
