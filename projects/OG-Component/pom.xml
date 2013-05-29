@@ -25,9 +25,6 @@
       <testResource>
         <directory>src/test/resources</directory>
       </testResource>
-      <testResource>
-        <directory>config</directory>
-      </testResource>
     </testResources>
     <plugins>
       <plugin>
@@ -35,7 +32,7 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
-            <id>resources-jar</id>
+            <id>resources</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
