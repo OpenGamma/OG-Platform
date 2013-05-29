@@ -283,8 +283,10 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * Gets the path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist.
+   * If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @return the value of the property
@@ -294,8 +296,10 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   /**
-   * Sets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * Sets the path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist.
+   * If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @param path  the new value of the property

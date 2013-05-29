@@ -129,11 +129,11 @@ public abstract class AbstractToolWithoutContext {
     return init(logbackResource) && run();
   }
 
-
   /**
-    * Runs the tool, calling {@code doRun}.
-    */
-  @SuppressWarnings("unchecked")
+   * Runs the tool, calling {@code doRun}.
+   * 
+   * @return true if successful
+   */
   public final boolean run() {
     try {
       s_logger.info("Running " + getClass().getSimpleName());

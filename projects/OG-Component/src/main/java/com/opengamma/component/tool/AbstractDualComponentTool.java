@@ -53,6 +53,7 @@ public abstract class AbstractDualComponentTool {
    * The remote destination component factory.
    */
   private RemoteComponentFactory _destRemoteComponentFactory;
+
   /**
    * Initializes the tool statically.
    * 
@@ -126,7 +127,8 @@ public abstract class AbstractDualComponentTool {
    * <p>
    * This starts the tool context and calls {@link #run(ToolContext)}. This will catch exceptions and print a stack trace.
    * 
-   * @param componentServerUri the config resource location, not null
+   * @param srcComponentServerUri  the config resource location, not null
+   * @param destComponentServerUri  the config resource location, not null
    * @return true if successful
    */
   public final boolean run(String srcComponentServerUri, String destComponentServerUri) {
@@ -147,13 +149,14 @@ public abstract class AbstractDualComponentTool {
       return false;
     }
   }
-  
+
   /**
    * Runs the tool, calling {@code doRun}.
    * <p>
    * This will catch unhandled exceptions, and will convert checked exceptions to unchecked.
    * 
-   * @param remoteComponentFactory  the remote component factory, not null
+   * @param srcRemoteComponentFactory  the remote component factory, not null
+   * @param destRemoteComponentFactory  the remote component factory, not null
    * @throws RuntimeException if an error occurs
    */
   public final void run(RemoteComponentFactory srcRemoteComponentFactory, RemoteComponentFactory destRemoteComponentFactory) {
@@ -192,7 +195,7 @@ public abstract class AbstractDualComponentTool {
    * @return the destination remote component factory, not null during {@code doRun}
    */
   protected RemoteComponentFactory getDestinationRemoteComponentFactory() {
-    return _srcRemoteComponentFactory;
+    return _destRemoteComponentFactory;
   }
 
   /**
