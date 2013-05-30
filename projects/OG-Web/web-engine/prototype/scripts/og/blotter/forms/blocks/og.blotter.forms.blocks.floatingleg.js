@@ -60,7 +60,8 @@ $.register_module({
                 },
                 generator: function (handler, tmpl, data) {
                     handler(tmpl(data));
-                    security_block.create_autocomplete();
+                    //dom does not exist for form load so need to called again after
+                    security_block.create_autocomplete(); 
                 }
             });
         };
