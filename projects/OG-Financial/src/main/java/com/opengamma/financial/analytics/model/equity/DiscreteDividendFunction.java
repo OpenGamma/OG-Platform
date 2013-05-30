@@ -58,7 +58,7 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
   }
   /** Default constructor */
   public DiscreteDividendFunction() {
-    _dividendHorizon = 30.0;
+    _dividendHorizon = 2.0;
     _timeThatProportionalDividendsBegin = 2.0;    
   }
   private static final Logger s_logger = LoggerFactory.getLogger(DiscreteDividendFunction.class);
@@ -75,7 +75,7 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
       s_logger.warn("Unrecognized dividend frequency. Trivial to add handling for this. Defaulting to 4 / year.");
     }
     final double dividendInterval = 1.0 / nDividendsPerYear;
-    final int nDividends = (int) Math.ceil(getDividendHorizon()) * nDividendsPerYear;
+    final int nDividends = (int) Math.ceil(getDividendHorizon() * nDividendsPerYear);
     
     // The next dividend date anchors the vector of dividend times
     final double firstDivTime;

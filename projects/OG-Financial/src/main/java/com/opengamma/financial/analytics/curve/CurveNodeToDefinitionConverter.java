@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -15,6 +17,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDef
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
@@ -39,7 +42,10 @@ import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculatorFactory;
 import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -48,6 +54,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -59,51 +66,62 @@ public class CurveNodeToDefinitionConverter {
   private final RegionSource _regionSource;
 
   public CurveNodeToDefinitionConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource) {
+    ArgumentChecker.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(regionSource, "region source");
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
   }
 
   public InstrumentDefinition<?> getDefinitionForNode(final CurveNode node, final ExternalId marketDataId, final ZonedDateTime now, final SnapshotDataBundle marketValues) {
+    ArgumentChecker.notNull(node, "node");
+    ArgumentChecker.notNull(now, "now");
+    ArgumentChecker.notNull(marketValues, "market values");
     final CurveNodeVisitor<InstrumentDefinition<?>> nodeVisitor = new CurveNodeVisitor<InstrumentDefinition<?>>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinition<?> visitCashNode(final CashNode cashNode) {
         final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
-        final Currency currency;
-        final BusinessDayConvention businessDayConvention;
-        final DayCount dayCount;
-        final Calendar calendar;
-        final boolean isEOM;
-        int daysToSettle;
+        final Double rate = marketValues.getDataPoint(marketDataId);
+        if (rate == null) {
+          throw new OpenGammaRuntimeException("Could not get market data for " + marketDataId);
+        }
         if (convention instanceof DepositConvention) {
           final DepositConvention depositConvention = (DepositConvention) convention;
-          currency = depositConvention.getCurrency();
-          calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, depositConvention.getRegionCalendar());
-          businessDayConvention = depositConvention.getBusinessDayConvention();
-          isEOM = depositConvention.isIsEOM();
-          dayCount = depositConvention.getDayCount();
-          daysToSettle = depositConvention.getDaysToSettle();
+          final Currency currency = depositConvention.getCurrency();
+          final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, depositConvention.getRegionCalendar());
+          final BusinessDayConvention businessDayConvention = depositConvention.getBusinessDayConvention();
+          final boolean isEOM = depositConvention.isIsEOM();
+          final DayCount dayCount = depositConvention.getDayCount();
+          final int daysToSettle = depositConvention.getDaysToSettle();
+          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, cashNode.getStartTenor().getPeriod().plusDays(daysToSettle), businessDayConvention, calendar);
+          final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, cashNode.getMaturityTenor().getPeriod(), businessDayConvention, calendar, isEOM);
+          final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
+          return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
         } else if (convention instanceof IborIndexConvention) {
           final IborIndexConvention iborConvention = (IborIndexConvention) convention;
-          currency = iborConvention.getCurrency();
-          calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, iborConvention.getRegionCalendar());
-          businessDayConvention = iborConvention.getBusinessDayConvention();
-          isEOM = iborConvention.isIsEOM();
-          dayCount = iborConvention.getDayCount();
-          daysToSettle = iborConvention.getDaysToSettle();
+          final Currency currency = iborConvention.getCurrency();
+          final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, iborConvention.getRegionCalendar());
+          final BusinessDayConvention businessDayConvention = iborConvention.getBusinessDayConvention();
+          final boolean isEOM = iborConvention.isIsEOM();
+          final DayCount dayCount = iborConvention.getDayCount();
+          final int daysToSettle = iborConvention.getDaysToSettle();
+          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, cashNode.getStartTenor().getPeriod().plusDays(daysToSettle), businessDayConvention, calendar);
+          final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, cashNode.getMaturityTenor().getPeriod(), businessDayConvention, calendar, isEOM);
+          final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
+          final int spotLag = 0; //TODO
+          final boolean eom = iborConvention.isIsEOM();
+          final Period indexTenor = iborConvention.getTenor().getPeriod();
+          final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom);
+          return new DepositIborDefinition(currency, startDate, endDate, 1, rate, accrualFactor, iborIndex);
         } else {
           if (convention == null) {
             throw new OpenGammaRuntimeException("Could not get convention for " + cashNode.getConvention());
           }
           throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
         }
-        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, cashNode.getStartTenor().getPeriod().plusDays(daysToSettle), businessDayConvention, calendar);
-        final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, cashNode.getMaturityTenor().getPeriod(), businessDayConvention, calendar, isEOM);
-        final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
-        final double rate = marketValues.getDataPoint(marketDataId);
-        return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
       }
 
       @Override
@@ -125,16 +143,22 @@ public class CurveNodeToDefinitionConverter {
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinition<?> visitFRANode(final FRANode fraNode) {
-        final double rate = marketValues.getDataPoint(marketDataId);
+        final Double rate = marketValues.getDataPoint(marketDataId);
+        if (rate == null) {
+          throw new OpenGammaRuntimeException("Could not get market data for " + marketDataId);
+        }
         final Convention convention = _conventionSource.getConvention(fraNode.getConvention());
         final Period startPeriod = fraNode.getFixingStart().getPeriod();
         final Period endPeriod = fraNode.getFixingEnd().getPeriod();
         final Period indexTenor;
-        IborIndexConvention indexConvention;
+        final IborIndexConvention indexConvention;
         if (convention instanceof IborIndexConvention) {
           indexConvention = (IborIndexConvention) convention;
           indexTenor = ((IborIndexConvention) convention).getTenor().getPeriod();
         } else {
+          if (convention == null) {
+            throw new OpenGammaRuntimeException("Convention was null");
+          }
           throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
         }
         final Currency currency = indexConvention.getCurrency();
@@ -155,26 +179,45 @@ public class CurveNodeToDefinitionConverter {
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinition<?> visitRateFutureNode(final RateFutureNode rateFuture) {
-        final double rate = marketValues.getDataPoint(marketDataId);
-        //final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
+        final Double rate = marketValues.getDataPoint(marketDataId);
+        if (rate == null) {
+          throw new OpenGammaRuntimeException("Could not get market data for " + marketDataId);
+        }
+        final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
+        final String expiryCalculatorName;
+        if (futureConvention instanceof InterestRateFutureConvention) {
+          expiryCalculatorName = ((InterestRateFutureConvention) futureConvention).getExpiryConvention().getValue();
+        } else {
+          if (futureConvention == null) {
+            throw new OpenGammaRuntimeException("Future convention was null");
+          }
+          throw new OpenGammaRuntimeException("Could not handle future convention of type " + futureConvention.getClass());
+        }
         final Convention underlyingConvention = _conventionSource.getConvention(rateFuture.getUnderlyingConvention());
-        IborIndexConvention indexConvention;
+        final IborIndexConvention indexConvention;
         final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
         if (underlyingConvention instanceof IborIndexConvention) {
           indexConvention = (IborIndexConvention) underlyingConvention;
         } else {
-          throw new OpenGammaRuntimeException("Could not handle convention of type " + underlyingConvention.getClass());
+          if (underlyingConvention == null) {
+            throw new OpenGammaRuntimeException("Underlying convention was null");
+          }
+          throw new OpenGammaRuntimeException("Could not handle underlying convention of type " + underlyingConvention.getClass());
         }
         final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
         final Currency currency = indexConvention.getCurrency();
-        //final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
+        final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
         final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
         final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
         final DayCount dayCount = indexConvention.getDayCount();
         final boolean eom = indexConvention.isIsEOM();
         final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom);
-        final ZonedDateTime lastTradeDate = now.plus(rateFuture.getResolvedMaturity().getPeriod());
-        final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, 1, paymentAccrualFactor, "", regionCalendar);
+        final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
+        final ZonedDateTime startDate = now.plus(rateFuture.getStartTenor().getPeriod());
+        final LocalTime time = startDate.toLocalTime();
+        final ZoneId timeZone = startDate.getZone();
+        final ZonedDateTime lastTradeDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), regionCalendar), time, timeZone);
+        final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, 1, paymentAccrualFactor, "", fixingCalendar);
         final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1);
         return transactionDefinition.withNewNotionalAndTransactionPrice(1, rate);
       }
@@ -182,27 +225,40 @@ public class CurveNodeToDefinitionConverter {
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinition<?> visitSwapNode(final SwapNode swapNode) {
-        final double rate = marketValues.getDataPoint(marketDataId);
         final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
         final Convention receiveLegConvention = _conventionSource.getConvention(swapNode.getReceiveLegConvention());
         final AnnuityDefinition<? extends PaymentDefinition> payLeg;
         final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
         if (payLegConvention instanceof SwapFixedLegConvention) {
+          final Double rate = marketValues.getDataPoint(marketDataId);
+          if (rate == null) {
+            throw new OpenGammaRuntimeException("Could not get fixed rate for swap");
+          }
           payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, rate, true);
         } else if (payLegConvention instanceof VanillaIborLegConvention) {
-          payLeg = getIborLeg((VanillaIborLegConvention) payLegConvention, swapNode, false);
+          payLeg = getIborLeg((VanillaIborLegConvention) payLegConvention, swapNode, true);
         } else if (payLegConvention instanceof OISLegConvention) {
-          payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, false);
+          payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, true);
         } else {
+          if (payLegConvention == null) {
+            throw new OpenGammaRuntimeException("Pay leg convention was null");
+          }
           throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
         }
         if (receiveLegConvention instanceof SwapFixedLegConvention) {
+          final Double rate = marketValues.getDataPoint(marketDataId);
+          if (rate == null) {
+            throw new OpenGammaRuntimeException("Could not get fixed rate for swap");
+          }
           receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, rate, false);
         } else if (receiveLegConvention instanceof VanillaIborLegConvention) {
-          receiveLeg = getIborLeg((VanillaIborLegConvention) receiveLegConvention, swapNode, true);
+          receiveLeg = getIborLeg((VanillaIborLegConvention) receiveLegConvention, swapNode, false);
         } else if (receiveLegConvention instanceof OISLegConvention) {
-          receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, true);
+          receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, false);
         } else {
+          if (receiveLegConvention == null) {
+            throw new OpenGammaRuntimeException("Receive leg convention was null");
+          }
           throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
         }
         return new SwapDefinition(payLeg, receiveLeg);
@@ -225,7 +281,11 @@ public class CurveNodeToDefinitionConverter {
       //TODO do we actually need the settlement days for the swap, not the index?
       @SuppressWarnings("synthetic-access")
       private AnnuityCouponIborDefinition getIborLeg(final VanillaIborLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
-        final IborIndexConvention indexConvention = (IborIndexConvention) _conventionSource.getConvention(convention.getIborIndexConvention());
+        final Convention underlyingConvention = _conventionSource.getConvention(convention.getIborIndexConvention());
+        if (!(underlyingConvention instanceof IborIndexConvention)) {
+          throw new OpenGammaRuntimeException("Convention of the underlying was not an ibor index convention");
+        }
+        final IborIndexConvention indexConvention = (IborIndexConvention) underlyingConvention;
         final Currency currency = indexConvention.getCurrency();
         final DayCount dayCount = indexConvention.getDayCount();
         final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();

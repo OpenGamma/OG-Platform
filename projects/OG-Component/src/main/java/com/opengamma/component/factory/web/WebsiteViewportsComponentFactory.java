@@ -53,7 +53,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.GridColumnsJsonWriter;
-import com.opengamma.web.analytics.ViewportResultsJsonWriter;
+import com.opengamma.web.analytics.ViewportResultsJsonCsvWriter;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 import com.opengamma.web.analytics.blotter.BlotterResource;
 import com.opengamma.web.analytics.blotter.DefaultBlotterColumnMappings;
@@ -221,7 +221,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getPositionMaster());
     ResultsFormatter resultsFormatter = new ResultsFormatter();
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
-    ViewportResultsJsonWriter viewportResultsWriter = new ViewportResultsJsonWriter(resultsFormatter);
+    ViewportResultsJsonCsvWriter viewportResultsWriter = new ViewportResultsJsonCsvWriter(resultsFormatter);
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);

@@ -398,9 +398,6 @@ public class DependencyNode {
    */
   public void setFunction(final ParameterizedFunction function) {
     ArgumentChecker.notNull(function, "Function");
-    if (_function != null) {
-      throw new IllegalStateException("The function was already set");
-    }
     // [PLAT-2286] We used to check the function's target was right for the target specification. This would require knowledge of
     // the resolution strategy to do properly. The function type has to be compatible with something that is a sub-type of the target.
     _function = function;

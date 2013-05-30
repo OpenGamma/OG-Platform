@@ -416,6 +416,7 @@
     <fragment>/scripts/og/blotter/og.blotter.util.js</fragment>
     <fragment>/scripts/og/blotter/og.blotter.contextmenu.js</fragment>
     <!--Reusable Blocks-->
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.regions.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.security.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.floatingleg.js</fragment>

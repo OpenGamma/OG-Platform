@@ -36,7 +36,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final String DEFAULT_CURRENCY_INJECTION = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
+  private static final String DEFAULT_CURRENCY_INJECTION = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + ValuePropertyNames.CURRENCY;
+
+  /**
+   * The property this function will put on an output indicating the currency of the original value.
+   */
+  public static final String ORIGINAL_CURRENCY = "Original" + ValuePropertyNames.CURRENCY;
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 
@@ -69,12 +74,12 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
     return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
-        .withAny(ValuePropertyNames.CURRENCY).get());
+        .withAny(ValuePropertyNames.CURRENCY).withoutAny(ORIGINAL_CURRENCY).get());
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
     return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
-        ValuePropertyNames.CURRENCY, forceCurrency).withOptional(DEFAULT_CURRENCY_INJECTION).get());
+        ValuePropertyNames.CURRENCY, forceCurrency).withoutAny(ORIGINAL_CURRENCY).withOptional(DEFAULT_CURRENCY_INJECTION).get());
   }
 
   /**
@@ -200,10 +205,17 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Map.Entry<ValueSpecification, ValueRequirement> input = inputs.entrySet().iterator().next();
     if (input.getValue().getConstraints().getValues(DEFAULT_CURRENCY_INJECTION) == null) {
-      // Resolved output is the input with the currency wild-carded, and the function ID the same (this is so that after composition the node might
-      // be removed from the graph)
+      // Resolved output is the input with the currency wild-carded, and the function ID the same
       final ValueSpecification value = input.getKey();
-      return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), value.getProperties().copy().withAny(ValuePropertyNames.CURRENCY).get()));
+      final Set<String> currencies = value.getProperties().getValues(ValuePropertyNames.CURRENCY);
+      if (currencies.size() != 1) {
+        // This will fail at the getAdditionalRequirements
+        return null;
+      }
+      final ValueProperties.Builder properties = value.getProperties().copy();
+      properties.withAny(ValuePropertyNames.CURRENCY);
+      properties.withoutAny(ORIGINAL_CURRENCY).with(ORIGINAL_CURRENCY, currencies);
+      return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), properties.get()));
     }
     // The input was requested with the converted currency, so return the same specification to remove this node from the graph
     return Collections.singleton(input.getKey());
@@ -235,7 +247,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       return null;
     }
     if (inputCurrency.equals(outputCurrency)) {
-      return Collections.emptySet();
+      // If the input and output currencies are the same then we shouldn't have this node in the graph
+      return null;
     }
     return Collections.singleton(getCurrencyConversion(inputCurrency, outputCurrency));
   }

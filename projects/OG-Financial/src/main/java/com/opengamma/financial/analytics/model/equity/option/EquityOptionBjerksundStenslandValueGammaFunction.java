@@ -27,27 +27,27 @@ import com.opengamma.engine.value.ValueSpecification;
  * Calculates the value gamma of an equity index or equity option using the Bjerksund Stensland gamma.
  */
 public class EquityOptionBjerksundStenslandValueGammaFunction extends EquityOptionBjerksundStenslandFunction {
-  /** Value delta calculator */
+  /** Value gamma calculator */
   private static final ValueGreekCalculator CALCULATOR = ValueGammaCalculator.getInstance();
 
   /**
    * Default constructor
    */
   public EquityOptionBjerksundStenslandValueGammaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+    super(ValueRequirementNames.VALUE_GAMMA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final Object deltaObject = inputs.getValue(ValueRequirementNames.DELTA);
-    if (deltaObject == null) {
-      throw new OpenGammaRuntimeException("Could not get delta");
+    final Object gammaObject = inputs.getValue(ValueRequirementNames.GAMMA);
+    if (gammaObject == null) {
+      throw new OpenGammaRuntimeException("Could not get gamma");
     }
-    final double delta = (Double) deltaObject;
-    final double valueDelta = CALCULATOR.valueGreek(derivative, market, delta);
-    return Collections.singleton(new ComputedValue(resultSpec, valueDelta));
+    final double gamma = (Double) gammaObject;
+    final double valueGamma = CALCULATOR.valueGreek(derivative, market, gamma);
+    return Collections.singleton(new ComputedValue(resultSpec, valueGamma));
   }
 
   @Override
@@ -56,7 +56,7 @@ public class EquityOptionBjerksundStenslandValueGammaFunction extends EquityOpti
     if (requirements == null) {
       return null;
     }
-    requirements.add(new ValueRequirement(ValueRequirementNames.DELTA, target.toSpecification(), desiredValue.getConstraints()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.GAMMA, target.toSpecification(), desiredValue.getConstraints()));
     return requirements;
   }
 

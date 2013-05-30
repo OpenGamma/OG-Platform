@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +18,18 @@ import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
-/* package */final class FunctionApplicationWorker extends AbstractResolvedValueProducer implements ResolvedValueCallback {
+/* package */final class FunctionApplicationWorker extends DirectResolvedValueProducer implements ResolvedValueCallback {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationWorker.class);
 
-  private final Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
-  private final Map<ValueRequirement, Cancelable> _inputHandles = new HashMap<ValueRequirement, Cancelable>();
-  private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
+  private Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
+  private Map<ValueRequirement, Cancelable> _inputHandles = new HashMap<ValueRequirement, Cancelable>();
+  private Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
   private int _pendingInputs;
   private int _validInputs;
   private boolean _invokingFunction;
   private boolean _deferredPump;
   private FunctionApplicationStep.PumpingState _taskState;
-  private volatile boolean _closed;
 
   public FunctionApplicationWorker(final ValueRequirement valueRequirement) {
     super(valueRequirement);
@@ -39,8 +37,9 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   protected void pumpImpl(final GraphBuildingContext context) {
-    Collection<ResolutionPump> pumps = null;
+    ResolutionPump[] pumps = null;
     FunctionApplicationStep.PumpingState finished = null;
+    int refCount = 0;
     synchronized (this) {
       if (_invokingFunction) {
         s_logger.debug("Deferring pump until after function invocation");
@@ -48,14 +47,16 @@ import com.opengamma.engine.value.ValueSpecification;
         return;
       }
       if (_pendingInputs < 1) {
-        if (_pumps.isEmpty()) {
+        if ((_pumps == null) || _pumps.isEmpty()) {
           s_logger.debug("{} finished (state={})", this, _taskState);
           finished = _taskState;
           _taskState = null;
+          refCount = getRefCount();
         } else {
-          pumps = new ArrayList<ResolutionPump>(_pumps);
+          final int s = _pumps.size();
+          pumps = _pumps.toArray(new ResolutionPump[s]);
           _pumps.clear();
-          _pendingInputs = pumps.size();
+          _pendingInputs = s;
         }
       } else {
         // If the state performs a direct pump as well as the trigger from AbstractResolvedValueProducer
@@ -75,23 +76,43 @@ import com.opengamma.engine.value.ValueSpecification;
         finished(context);
       }
       s_logger.debug("Calling finished on {} from {}", finished, this);
-      finished.finished(context);
+      finished.finished(context, refCount);
     }
   }
 
   @Override
   protected void finished(final GraphBuildingContext context) {
     super.finished(context);
+    Collection<Cancelable> unsubscribes = null;
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
-      if (!_pumps.isEmpty()) {
-        pumps = new ArrayList<ResolutionPump>(_pumps);
-        _pumps.clear();
+      _inputs = null;
+      if (_inputHandles != null) {
+        if (_inputHandles.isEmpty()) {
+          unsubscribes = null;
+        } else {
+          unsubscribes = _inputHandles.values();
+        }
+        _inputHandles = null;
+      }
+      if (_pumps != null) {
+        if (_pumps.isEmpty()) {
+          pumps = null;
+        } else {
+          pumps = _pumps;
+        }
+        _pumps = null;
+      }
+    }
+    if (unsubscribes != null) {
+      for (Cancelable unsubscribe : unsubscribes) {
+        if (unsubscribe != null) {
+          unsubscribe.cancel(context);
+        }
       }
     }
     if (pumps != null) {
       for (ResolutionPump pump : pumps) {
-        s_logger.debug("Discarding input {} from {}", pump, this);
         context.close(pump);
       }
     }
@@ -111,6 +132,10 @@ import com.opengamma.engine.value.ValueSpecification;
     if (resolvedValues != null) {
       final boolean lastResult;
       synchronized (this) {
+        if (_pumps == null) {
+          // Already aborted/finished
+          return;
+        }
         lastResult = _pumps.isEmpty();
       }
       boolean inputsAccepted = state.inputsAvailable(context, resolvedValues, lastResult);
@@ -131,68 +156,76 @@ import com.opengamma.engine.value.ValueSpecification;
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.debug("Resolution of {} failed at {}", value, this);
     FunctionApplicationStep.PumpingState state = null;
+    int refCount = 0;
     ResolutionFailure requirementFailure = null;
     final Map<ValueSpecification, ValueRequirement> resolvedValues;
     do {
       final Collection<Cancelable> unsubscribes;
       synchronized (this) {
-        _inputHandles.remove(value);
         _pendingInputs--;
         _validInputs--;
-        if (_inputs.get(value) == null) {
-          s_logger.info("Resolution of {} failed", value);
-          if (_taskState != null) {
-            if (_taskState.canHandleMissingInputs()) {
-              requirementFailure = _taskState.functionApplication(context).requirement(value, null);
-              _inputs.remove(value);
-              state = _taskState;
-              if (_pendingInputs == 0) {
-                // Got as full a set of inputs as we're going to get; notify the task state
+        if (_inputHandles != null) {
+          _inputHandles.remove(value);
+          if (_inputs.get(value) == null) {
+            s_logger.info("Resolution of {} failed", value);
+            if (_taskState != null) {
+              if (_taskState.canHandleMissingInputs()) {
+                state = _taskState;
+                requirementFailure = state.functionApplication(context).requirement(value, null);
+                _inputs.remove(value);
+                if (_pendingInputs == 0) {
+                  // Got as full a set of inputs as we're going to get; notify the task state
+                  resolvedValues = createResolvedValuesMap();
+                  _invokingFunction = true;
+                  s_logger.debug("Partial input set available");
+                } else {
+                  resolvedValues = null;
+                  if (s_logger.isDebugEnabled()) {
+                    s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+                  }
+                  // Fall through so that failure is logged
+                }
+                break;
+              } else {
+                requirementFailure = _taskState.functionApplication(context).requirement(value, failure);
+              }
+            }
+          } else {
+            if (_taskState != null) {
+              // Might be okay - we've already had at least one value for this requirement
+              if (_pendingInputs > 0) {
+                // Ok; still waiting on other inputs
+                if (s_logger.isDebugEnabled()) {
+                  s_logger.debug("{} other inputs still pending", _pendingInputs);
+                }
+                return;
+              }
+              if (_validInputs > 0) {
+                // Ok; we've got other new values to push up
+                state = _taskState;
                 resolvedValues = createResolvedValuesMap();
                 _invokingFunction = true;
-                s_logger.debug("Partial input set available");
-              } else {
-                resolvedValues = null;
                 if (s_logger.isDebugEnabled()) {
-                  s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+                  s_logger.debug("Partial input set available on {} new inputs", _validInputs);
                 }
-                // Fall through so that failure is logged
+                break;
               }
-              break;
-            } else {
-              requirementFailure = _taskState.functionApplication(context).requirement(value, failure);
             }
           }
+          if (_inputHandles.isEmpty()) {
+            unsubscribes = null;
+          } else {
+            unsubscribes = _inputHandles.values();
+          }
+          _inputHandles = null;
         } else {
-          if (_taskState != null) {
-            // Might be okay - we've already had at least one value for this requirement
-            if (_pendingInputs > 0) {
-              // Ok; still waiting on other inputs
-              if (s_logger.isDebugEnabled()) {
-                s_logger.debug("{} other inputs still pending", _pendingInputs);
-              }
-              return;
-            }
-            if (_validInputs > 0) {
-              // Ok; we've got other new values to push up
-              state = _taskState;
-              resolvedValues = createResolvedValuesMap();
-              _invokingFunction = true;
-              if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Partial input set available on {} new inputs", _validInputs);
-              }
-              break;
-            }
-          }
-        }
-        if (_inputHandles.isEmpty()) {
           unsubscribes = null;
-        } else {
-          unsubscribes = new ArrayList<Cancelable>(_inputHandles.values());
-          // TODO: should we clear out the inputHandles here? Not doing so will mean multiple calls to "cancel" if there are other failures??
         }
         state = _taskState;
-        _taskState = null;
+        if (state != null) {
+          _taskState = null;
+          refCount = getRefCount();
+        }
       }
       // Not ok; we either couldn't satisfy anything or the pumped enumeration is complete
       s_logger.info("{} complete", this);
@@ -215,7 +248,7 @@ import com.opengamma.engine.value.ValueSpecification;
       if (state != null) {
         finished(context);
         s_logger.debug("Calling finished on {}", state);
-        state.finished(context);
+        state.finished(context, refCount);
       }
       return;
     } while (false);
@@ -227,20 +260,40 @@ import com.opengamma.engine.value.ValueSpecification;
     inputsAvailable(context, state, resolvedValues);
   }
 
-  protected void abort(final GraphBuildingContext context) {
-    final FunctionApplicationStep.PumpingState state;
+  protected void discard(final GraphBuildingContext context) {
+    Collection<Cancelable> unsubscribes = null;
+    final Collection<ResolutionPump> pumps;
     synchronized (this) {
-      state = _taskState;
       _taskState = null;
-    }
-    if (state != null) {
-      s_logger.debug("Aborting worker {}", this);
-      // If last result has already been pushed then finished will have already been called
-      if (!isFinished()) {
-        finished(context);
+      if (_inputs == null) {
+        // Already discarded/finished
+        return;
       }
-    } else {
-      s_logger.debug("Ignoring abort call {}", this);
+      _inputs = null;
+      if (_inputHandles != null) {
+        if (!_inputHandles.isEmpty()) {
+          unsubscribes = _inputHandles.values();
+        }
+        _inputHandles = null;
+      }
+      if (_pumps.isEmpty()) {
+        pumps = null;
+      } else {
+        pumps = _pumps;
+      }
+      _pumps = null;
+    }
+    if (unsubscribes != null) {
+      for (Cancelable unsubscribe : unsubscribes) {
+        if (unsubscribe != null) {
+          unsubscribe.cancel(context);
+        }
+      }
+    }
+    if (pumps != null) {
+      for (ResolutionPump pump : pumps) {
+        context.close(pump);
+      }
     }
   }
 
@@ -282,6 +335,10 @@ import com.opengamma.engine.value.ValueSpecification;
   protected void storeFailure(final ResolutionFailure failure) {
     final FunctionApplicationStep.PumpingState state;
     synchronized (this) {
+      if (_pumps == null) {
+        // Already discarded; don't bother storing the failure information
+        return;
+      }
       state = _taskState;
     }
     if (state != null) {
@@ -294,21 +351,45 @@ import com.opengamma.engine.value.ValueSpecification;
     final ValueRequirement valueRequirement = inputProducer.getValueRequirement();
     s_logger.debug("Adding input {} to {}", valueRequirement, this);
     synchronized (this) {
+      if ((_inputs == null) || (_inputHandles == null)) {
+        // Already aborted or something has already failed
+        _validInputs--;
+        return;
+      }
       _inputs.put(valueRequirement, null);
       _inputHandles.put(valueRequirement, null);
       _pendingInputs++;
     }
     final Cancelable handle = inputProducer.addCallback(context, this);
     synchronized (this) {
-      if (handle != null) {
-        // Only store the handle if the producer hasn't already failed
-        if (_inputHandles.containsKey(valueRequirement)) {
-          _inputHandles.put(valueRequirement, handle);
+      if (_inputHandles != null) {
+        if (handle != null) {
+          // Only store the handle if the producer hasn't already failed
+          if (_inputHandles.containsKey(valueRequirement)) {
+            _inputHandles.put(valueRequirement, handle);
+          }
+        } else {
+          // Remove the handle placeholder if the producer didn't give us a handle 
+          _inputHandles.remove(valueRequirement);
         }
-      } else {
-        // Remove the handle placeholder if the producer didn't give us a handle 
-        _inputHandles.remove(valueRequirement);
+        return;
       }
+    }
+    if (handle != null) {
+      handle.cancel(context);
+    }
+  }
+
+  @Override
+  public void recursionDetected() {
+    // No-op
+  }
+
+  @Override
+  protected void setRecursionDetected() {
+    super.setRecursionDetected();
+    synchronized (this) {
+      _validInputs--;
     }
   }
 
@@ -317,6 +398,10 @@ import com.opengamma.engine.value.ValueSpecification;
       _taskState = state;
       _validInputs = validInputs;
       _pendingInputs = (validInputs > 0) ? 1 : 0;
+      final int rc = getRefCount();
+      for (int i = 0; i < rc; i++) {
+        state.getTask().addRef();
+      }
     }
   }
 
@@ -325,6 +410,7 @@ import com.opengamma.engine.value.ValueSpecification;
     FunctionApplicationStep.PumpingState state = null;
     Map<ValueSpecification, ValueRequirement> resolvedValues = null;
     FunctionApplicationStep.PumpingState finished = null;
+    int refCount = 0;
     boolean lastResult = false;
     synchronized (this) {
       if (_taskState != null) {
@@ -350,6 +436,7 @@ import com.opengamma.engine.value.ValueSpecification;
               s_logger.debug("No input set available, finished at {}", this);
               finished = _taskState;
               _taskState = null;
+              refCount = getRefCount();
             }
           }
         }
@@ -370,9 +457,9 @@ import com.opengamma.engine.value.ValueSpecification;
         pumpImpl(context);
       }
     } else if (finished != null) {
-      // TODO: should we call "finished" here ?
       s_logger.debug("Calling finished on {} from {}", finished, this);
-      finished.finished(context);
+      finished(context);
+      finished.finished(context, refCount);
     }
   }
 
@@ -382,31 +469,57 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
+  public synchronized boolean addRef() {
+    if (super.addRef()) {
+      if (_taskState != null) {
+        _taskState.getTask().addRef();
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
   public int release(final GraphBuildingContext context) {
-    final int count = super.release(context);
-    if (count == 1) {
-      // Last reference left will be from the state object
-      _closed = true;
+    final int count;
+    FunctionApplicationStep.PumpingState state;
+    // If setPumpingState is scheduled here, the task will include the caller's open-reference in its refCount. We'll see the
+    // non-null state and issue a net release.
+    synchronized (this) {
+      state = _taskState;
+      if (state != null) {
+        // Hold an open reference 
+        state.getTask().addRef();
+      }
+      count = super.release(context);
+    }
+    // If setPumpingState is scheduled here, the task will not include the caller's open-reference in its refCount. We'll see
+    // the null state however and take no action.
+    if (state != null) {
+      state.getTask().release(context);
+      synchronized (this) {
+        state = _taskState;
+      }
+      // If the finished state was entered (state == null), the task will have seen a full set of releases from there plus the
+      // explicit one above. The explicit one will balance against the reference we added before starting. If the finished state
+      // was not entered then we need to clear the reference we added above.
+      if (state != null) {
+        state.getTask().release(context);
+      }
     }
     return count;
   }
 
-  /**
-   * {@see ResolveTask.State#isActive}
-   */
-  protected boolean isActive() {
-    return !_closed;
-  }
-
   @Override
-  public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
+  public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
     FunctionApplicationStep.PumpingState state;
     synchronized (this) {
       state = _taskState;
     }
     int result = super.cancelLoopMembers(context, visited);
     if (state != null) {
-      result += state.cancelLoopMembers(context, visited);
+      result += state.cancelLoopMembersImpl(context, visited);
     }
     return result;
   }

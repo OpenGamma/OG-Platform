@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.isdayieldcurve;
@@ -12,6 +12,7 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.I
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
@@ -27,11 +28,18 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ *The underlying curve is the zero default rate to time t, H(t), defined as H(t) = -ln[Q(0,t)]/t, where Q(0,t) is the survival probably from now (time 0)
+ *to time t. This currently extends YieldAndDiscountCurve and thus uses the nomenclature of the rates world. The links are
+ *<ul>
+ *<li>Discount factor P(0,t) <==> survival probability Q(0,t) </li>
+ *<li>Zero rate (or yield) R(t) = -ln[P(0,t)]/t <==> Zero default rate H(t) = -ln[Q(0,t)]/t</li>
+ *</ul>
+ *The underlying curve is a linear interpolation of the quantity t*H(t) = -ln[Q(0,t)], which is the ISDA model standard 
  */
 public class ISDADateCurve extends YieldAndDiscountCurve {
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  @SuppressWarnings("unused")
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
 
   // ------------------------------------------------------------------------------------------------------------------------------------
@@ -40,36 +48,48 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
 
   private final String _name;
 
+  //TODO what is this?
   private final double _offset;
-
   private final ZonedDateTime[] _curveDates;
-
   private final DoublesCurve _curve;
-
   private final double[] _shiftedTimePoints;
-
   private final double _zeroDiscountFactor;
-
   private final int _n;
 
   // ------------------------------------------------------------------------------------------------------------------------------------
 
-  // Overloaded ctor to take in the output from the native ISDA yield curve construction model
+  /**
+   * A ISDA model zero default curve with ACT/365 day-count convention. This can take in the output from the native ISDA yield curve construction model  
+   * @param name The curve name
+   * @param baseDate base date to convert other (future) dates into year fractions using the day-count convention  
+   * @param curveDates The dates of points on the curve 
+   * @param rates The zero default rates at points on the curve   
+   * @param offset TODO find out what this does 
+   */
   public ISDADateCurve(final String name, final ZonedDateTime baseDate, final ZonedDateTime[] curveDates, final double[] rates, final double offset) {
     this(name, baseDate, curveDates, rates, offset, ACT_365);
   }
 
-  public ISDADateCurve(final String name, final ZonedDateTime baseDate, final ZonedDateTime[] curveDates, final double[] rates, final double offset,
-      final DayCount dayCount) {
+  /**
+   * A ISDA model zero default curve 
+   * @param name The curve name
+   * @param baseDate base date to convert other (future) dates into year fractions using the day-count convention  
+   * @param curveDates The dates of points on the curve 
+   * @param rates The zero default rates at points on the curve   
+   * @param offset TODO find out what this does 
+   * @param dayCount The day-count convention 
+   */
+  public ISDADateCurve(final String name, final ZonedDateTime baseDate, final ZonedDateTime[] curveDates, final double[] rates, final double offset, final DayCount dayCount) {
     super(name);
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(baseDate, "base date");
-    ArgumentChecker.notNull(curveDates, "curve dates");
-    ArgumentChecker.notNull(rates, "rates");
+    ArgumentChecker.noNulls(curveDates, "curve dates");
+    ArgumentChecker.notEmpty(rates, "rates");
     ArgumentChecker.notNull(dayCount, "day count");
     _n = curveDates.length;
     ArgumentChecker.isTrue(_n != 0, "Data arrays were empty");
-    //ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
+    // TODO why is this test commented out?
+    // ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
 
     _name = name;
     _offset = offset;
@@ -89,38 +109,45 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
       _shiftedTimePoints[i] = dayCountFraction + _offset;
     }
 
-    // Choose interpolation/extrapolation to match the behaviour of curves in the ISDA CDS reference code
+    // Choose interpolation/extrapolation to match the behavior of curves in the ISDA CDS reference code
     if (_n > 1) {
       _curve = InterpolatedDoublesCurve.fromSorted(times, continuousRates, INTERPOLATOR);
     } else {
-      _curve = ConstantDoublesCurve.from(continuousRates[0]);  // Unless the curve is flat, in which case use a constant curve
+      _curve = ConstantDoublesCurve.from(continuousRates[0]); // Unless the curve is flat, in which case use a constant curve
     }
     _zeroDiscountFactor = Math.exp(_offset * getInterestRate(0.0));
   }
 
-  // ------------------------------------------------------------------------------------------------------------------------------------
-
+  /**
+   * A ISDA model zero default curve 
+   * @param name The curve name
+   * @param curveDates The dates of points on the curve 
+   * @param times Time in years to points on the curve (these should have been calculated from a base date using some day-count convention)
+   * @param rates The zero default rates at points on the curve   
+   * @param offset TODO find out what this does 
+   */
   public ISDADateCurve(final String name, final ZonedDateTime[] curveDates, final double[] times, final double[] rates, final double offset) {
     super(name);
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(curveDates, "curve dates");
-    ArgumentChecker.notNull(times, "times");
-    ArgumentChecker.notNull(rates, "rates");
+    ArgumentChecker.noNulls(curveDates, "curve dates");
+    ArgumentChecker.notEmpty(times, "times");
+    ArgumentChecker.notEmpty(rates, "rates");
     _n = curveDates.length;
     ArgumentChecker.isTrue(_n != 0, "Data arrays were empty");
-    //    ArgumentChecker.isTrue(_n == times.length, "Have {} times for {} dates", times.length, _n);
-    //    ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
+    //TODO why commented out?
+    // ArgumentChecker.isTrue(_n == times.length, "Have {} times for {} dates", times.length, _n);
+    // ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
 
     _name = name;
     _offset = offset;
     _curveDates = new ZonedDateTime[_n];
     System.arraycopy(curveDates, 0, _curveDates, 0, _n);
 
-    // Choose interpolation/extrapolation to match the behaviour of curves in the ISDA CDS reference code
+    // Choose interpolation/extrapolation to match the behavior of curves in the ISDA CDS reference code
     if (_n > 1) {
       _curve = InterpolatedDoublesCurve.fromSorted(times, rates, INTERPOLATOR);
     } else {
-      _curve = ConstantDoublesCurve.from(rates[0]);  // Unless the curve is flat, in which case use a constant curve
+      _curve = ConstantDoublesCurve.from(rates[0]); // Unless the curve is flat, in which case use a constant curve
     }
 
     _shiftedTimePoints = new double[times.length];
@@ -132,6 +159,10 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
 
   // ------------------------------------------------------------------------------------------------------------------------------------
 
+  /**
+   * 
+   * @return The dates of points on the curve 
+   */
   public ZonedDateTime[] getCurveDates() {
     return _curveDates;
   }
@@ -141,40 +172,80 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
     return _name;
   }
 
+  /**
+   * The zero default rate to time t
+   * @param t time in years
+   * @return The zero default rate as a fraction
+   */
   @Override
   public double getInterestRate(final Double t) {
     return _curve.getYValue(t - _offset);
   }
 
+  /**
+   * Get the time (in years) of point m on the curve (indexed from zero)
+   * @param m the index 
+   * @return the time (in years)
+   */
   public double getTimenode(final int m) {
     return _curve.getXData()[m];
   }
 
+  /**
+   * Get the zero default rate of point m on the curve (indexed from zero)
+   * @param m the index 
+   * @return The zero default rate
+   */
   public double getInterestRate(final int m) {
     return _curve.getYData()[m];
   }
 
+  /**
+   * The survival probability
+   * @param t time in years
+   * @return The survival probability to time t
+   */
   @Override
   public double getDiscountFactor(final double t) {
     return Math.exp((_offset - t) * getInterestRate(t)) / _zeroDiscountFactor;
   }
 
+  /**
+   * get the shifted time points 
+   * @return The shifted time points 
+   */
   public double[] getTimePoints() {
     return _shiftedTimePoints;
   }
 
+  /**
+   * 
+   * @return The underlying curve 
+   */
   public DoublesCurve getCurve() {
     return _curve;
   }
 
+  /**
+   * 
+   * @return The offset
+   */
   public double getOffset() {
     return _offset;
   }
 
+  /**
+   * This is 1.0 unless an offset is used, in which case it is Math.exp(offset * H(-offset))
+   * @return Zero Discount Factor
+   */
   public double getZeroDiscountFactor() {
     return _zeroDiscountFactor;
   }
 
+  /**
+   * 
+   * @return Number of points on curve 
+   */
   public int getNumberOfCurvePoints() {
     return _n;
   }
@@ -236,17 +307,17 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
 
   @Override
   public double[] getInterestRateParameterSensitivity(final double time) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public int getNumberOfParameters() {
-    return 0;
+    throw new NotImplementedException();
   }
 
   @Override
   public List<String> getUnderlyingCurvesNames() {
-    return null;
+    throw new NotImplementedException();
   }
 
 }

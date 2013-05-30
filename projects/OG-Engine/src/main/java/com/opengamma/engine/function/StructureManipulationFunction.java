@@ -10,8 +10,9 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.marketdata.manipulator.StructureManipulator;
+import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -75,11 +76,15 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
       // Only one requirement is actually expected
       for (ValueRequirement requirement : desiredValues) {
 
+        ValueProperties constraints = requirement.getConstraints().withoutAny("MANIPULATION_NODE");
+        ValueRequirement stripped = new ValueRequirement(requirement.getValueName(), requirement.getTargetReference(), constraints);
+
         // As the inputs and outputs should have matching requirements and specs, we can get the
         // appropriate input using the required output
-        Object structure = inputs.getValue(requirement);
+        Object structure = inputs.getValue(stripped);
 
         // TODO - this should be made more type-aware
+        @SuppressWarnings("unchecked")
         Object result = structureManipulator.execute(structure);
         builder.add(createComputedValue(target, requirement, result));
       }

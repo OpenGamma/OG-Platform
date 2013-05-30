@@ -120,11 +120,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     DoubleTimeSeries<?> result = null;
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
-    HistoricalTimeSeries fxSeries = null;
+    DoubleTimeSeries<?> fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currencyString)) {
       if (inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES) != null) {
-        final Map<UnorderedCurrencyPair, HistoricalTimeSeries> allFXSeries = (Map<UnorderedCurrencyPair, HistoricalTimeSeries>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+        final Map<UnorderedCurrencyPair, DoubleTimeSeries<?>> allFXSeries = (Map<UnorderedCurrencyPair, DoubleTimeSeries<?>>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
         final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
         if (desiredCurrency.equals(currencyPairs.getCurrencyPair(Currency.of(desiredCurrency), currency).getCounter().getCode())) {
           isInverse = false;
@@ -132,7 +132,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         if (allFXSeries.size() != 1) {
           throw new OpenGammaRuntimeException("Have more than one FX series; should not happen");
         }
-        final Map.Entry<UnorderedCurrencyPair, HistoricalTimeSeries> entry = Iterables.getOnlyElement(allFXSeries.entrySet());
+        final Map.Entry<UnorderedCurrencyPair, DoubleTimeSeries<?>> entry = Iterables.getOnlyElement(allFXSeries.entrySet());
         if (!UnorderedCurrencyPair.of(Currency.of(desiredCurrency), currency).equals(entry.getKey())) {
           throw new OpenGammaRuntimeException("Could not get FX series for currency pair " + desiredCurrency + ", " + currencyString);
         }
@@ -351,7 +351,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
 
   private DoubleTimeSeries<?> getPnLSeries(final InterpolatedYieldCurveSpecificationWithSecurities spec, final DoubleLabelledMatrix1D curveSensitivities,
       final HistoricalTimeSeriesBundle timeSeriesBundle, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction,
-      final HistoricalTimeSeries fxSeries, final boolean isInverse) {
+      final DoubleTimeSeries<?> fxSeries, final boolean isInverse) {
     DoubleTimeSeries<?> pnlSeries = null;
     final int n = curveSensitivities.size();
     final double[] values = curveSensitivities.getValues();
@@ -383,9 +383,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       if (fxSeries != null) {
         if (isInverse) {
-          nodeTimeSeries = nodeTimeSeries.divide(fxSeries.getTimeSeries());
+          nodeTimeSeries = nodeTimeSeries.divide(fxSeries);
         } else {
-          nodeTimeSeries = nodeTimeSeries.multiply(fxSeries.getTimeSeries());
+          nodeTimeSeries = nodeTimeSeries.multiply(fxSeries);
         }
       }
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);

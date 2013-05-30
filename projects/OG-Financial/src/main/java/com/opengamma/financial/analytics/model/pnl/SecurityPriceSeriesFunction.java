@@ -52,6 +52,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
+  private static final ComputationTargetType TYPE = FinancialSecurityTypes.FINANCIAL_SECURITY.or(FinancialSecurityTypes.RAW_SECURITY);
   private final String _resolutionKey;
   private final String _fieldName;
 
@@ -132,7 +133,8 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FINANCIAL_SECURITY.or(FinancialSecurityTypes.RAW_SECURITY);
+    // REVIEW 2013-05-14 Andrew -- Instead of relying on "canApplyTo", putting only the classes for which "getCurrency" will return a happy value would be faster
+    return TYPE;
   }
 
   private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {

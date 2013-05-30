@@ -9,7 +9,7 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var Fixedleg = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form, leg = config.leg,
-                ui = og.common.util.ui, leg_path = (leg.slice(0,leg.length-1)).split('.'),
+                ui = og.common.util.ui, leg_path = (leg.slice(0,leg.length-1)).split('.'), regions_block,
                 data = leg_path.reduce(function (acc, val) {return acc[val];},config.data) || {notional:{}};  
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
@@ -18,10 +18,8 @@ $.register_module({
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: leg + "notional.currency"}
                     }),
-                    new ui.Dropdown({
-                        form: form, resource: 'blotter.regions', index:  leg + 'regionId',
-                        value: data.regionId, placeholder: 'Select Region ID'
-                    }),
+                    regions_block = new og.blotter.forms.blocks.Regions({name: leg + 'regionId', 
+                        value: data.regionId, form: form}),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', 
                         index: leg + 'dayCount',
@@ -42,6 +40,11 @@ $.register_module({
                 processor: function (data) {
                     leg_path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
                         og.blotter.util.get_checkbox(leg + 'eom');
+                },
+                generator: function (handler, tmpl, data) {
+                    handler(tmpl(data));
+                    //dom does not exist for form load so need to called again after
+                    regions_block.create_autocomplete(); 
                 }
             });
         };

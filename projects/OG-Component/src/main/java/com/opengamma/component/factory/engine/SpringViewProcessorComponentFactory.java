@@ -36,6 +36,7 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -94,6 +95,14 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   @PropertyDefinition
   private MarketDataProviderResolver _marketDataProviderResolver;
+  /**
+   * Whether to stripe portfolio requirements during a graph build.
+   * 
+   * @deprecated this is a temporary measure until enabling/disabling the striping logic can be implemented using suitable heuristics
+   */
+  @Deprecated
+  @PropertyDefinition
+  private boolean _compileViewsWithRequirementStriping;
 
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
@@ -107,6 +116,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     initFunctions(repo, appContext);
     initForDebugging(repo, appContext);
     registerSpringLifecycleStop(repo, appContext);
+    ViewDefinitionCompiler.setStripedPortfolioRequirements(isCompileViewsWithRequirementStriping());
   }
 
   /**
@@ -259,6 +269,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         return getVolatilityCubeDefinitionSource();
       case 56203069:  // marketDataProviderResolver
         return getMarketDataProviderResolver();
+      case -620124660:  // compileViewsWithRequirementStriping
+        return isCompileViewsWithRequirementStriping();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -290,6 +302,9 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
       case 56203069:  // marketDataProviderResolver
         setMarketDataProviderResolver((MarketDataProviderResolver) newValue);
         return;
+      case -620124660:  // compileViewsWithRequirementStriping
+        setCompileViewsWithRequirementStriping((Boolean) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -318,6 +333,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
           JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
+          JodaBeanUtils.equal(isCompileViewsWithRequirementStriping(), other.isCompileViewsWithRequirementStriping()) &&
           super.equals(obj);
     }
     return false;
@@ -334,6 +350,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCompileViewsWithRequirementStriping());
     return hash ^ super.hashCode();
   }
 
@@ -543,6 +560,31 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the compileViewsWithRequirementStriping.
+   * @return the value of the property
+   */
+  public boolean isCompileViewsWithRequirementStriping() {
+    return _compileViewsWithRequirementStriping;
+  }
+
+  /**
+   * Sets the compileViewsWithRequirementStriping.
+   * @param compileViewsWithRequirementStriping  the new value of the property
+   */
+  public void setCompileViewsWithRequirementStriping(boolean compileViewsWithRequirementStriping) {
+    this._compileViewsWithRequirementStriping = compileViewsWithRequirementStriping;
+  }
+
+  /**
+   * Gets the the {@code compileViewsWithRequirementStriping} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> compileViewsWithRequirementStriping() {
+    return metaBean().compileViewsWithRequirementStriping().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SpringViewProcessorComponentFactory}.
    */
   public static class Meta extends AbstractSpringComponentFactory.Meta {
@@ -592,6 +634,11 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     private final MetaProperty<MarketDataProviderResolver> _marketDataProviderResolver = DirectMetaProperty.ofReadWrite(
         this, "marketDataProviderResolver", SpringViewProcessorComponentFactory.class, MarketDataProviderResolver.class);
     /**
+     * The meta-property for the {@code compileViewsWithRequirementStriping} property.
+     */
+    private final MetaProperty<Boolean> _compileViewsWithRequirementStriping = DirectMetaProperty.ofReadWrite(
+        this, "compileViewsWithRequirementStriping", SpringViewProcessorComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -603,7 +650,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         "jmsBrokerUri",
         "scheduler",
         "volatilityCubeDefinitionSource",
-        "marketDataProviderResolver");
+        "marketDataProviderResolver",
+        "compileViewsWithRequirementStriping");
 
     /**
      * Restricted constructor.
@@ -630,6 +678,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           return _volatilityCubeDefinitionSource;
         case 56203069:  // marketDataProviderResolver
           return _marketDataProviderResolver;
+        case -620124660:  // compileViewsWithRequirementStriping
+          return _compileViewsWithRequirementStriping;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -712,6 +762,14 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
      */
     public final MetaProperty<MarketDataProviderResolver> marketDataProviderResolver() {
       return _marketDataProviderResolver;
+    }
+
+    /**
+     * The meta-property for the {@code compileViewsWithRequirementStriping} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> compileViewsWithRequirementStriping() {
+      return _compileViewsWithRequirementStriping;
     }
 
   }

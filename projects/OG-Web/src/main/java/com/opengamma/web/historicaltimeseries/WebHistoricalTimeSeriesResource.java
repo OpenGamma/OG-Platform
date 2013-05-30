@@ -27,6 +27,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.rest.RestUtils;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -60,7 +61,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   }
 
   @GET
-  @Produces("text/csv")
+  @Produces(RestUtils.TEXT_CSV)
   public String getCSV() {
     StringWriter stringWriter  = new StringWriter();
     @SuppressWarnings("resource")

@@ -7,7 +7,9 @@ package com.opengamma.web.analytics;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -32,7 +34,9 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.GUIDGenerator;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Default implementation of {@link AnalyticsView}. This class isn't meant to be thread safe. A thread calling any
@@ -53,13 +57,15 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   private final VersionCorrection _versionCorrection;
   private final Supplier<Portfolio> _portfolioSupplier;
   private final PortfolioEntityExtractor _portfolioEntityExtractor;
+  private final UniqueId _viewDefinitionId;
 
   private PortfolioAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
+  
 
   /**
-   * @param viewId ID of the view
+   * @param viewId client ID of the view
    * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
    * This class makes no assumptions about its value
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
@@ -70,7 +76,8 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
    * @param portfolioSupplier Supplies an up to date version of the portfolio
    * @param showBlotterColumns Whether the blotter columns should be shown in the portfolio analytics grid
    */
-  /* package */ SimpleAnalyticsView(boolean primitivesOnly,
+  /* package */ SimpleAnalyticsView(UniqueId viewDefinitionId, 
+                                    boolean primitivesOnly,
                                     VersionCorrection versionCorrection,
                                     String viewId,
                                     String portoflioCallbackId,
@@ -81,6 +88,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                     Supplier<Portfolio> portfolioSupplier,
                                     PortfolioEntityExtractor portfolioEntityExtractor,
                                     boolean showBlotterColumns) {
+    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
@@ -90,6 +98,8 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ArgumentChecker.notNull(portfolioSupplier, "portfolioSupplier");
     ArgumentChecker.notNull(portfolioEntityExtractor, "portfolioEntityExtractor");
+    
+    _viewDefinitionId = viewDefinitionId;
     _versionCorrection = versionCorrection;
     _viewId = viewId;
     _targetResolver = targetResolver;
@@ -190,7 +200,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                    _viewId, viewportId, gridType, viewportDefinition);
     return hasData;
   }
-
+  
   @Override
   public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport {} for {} grid to {}", _viewId, viewportId, gridType, viewportDefinition);
@@ -351,5 +361,29 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     }
     return true;
   }
+
+  @Override
+  public ViewportResults getAllGridData(GridType gridType, TypeFormatter.Format format) {
+    GridStructure gridStructure = getGrid(gridType).getGridStructure();
+    List<Integer> rows = Lists.newArrayList();
+    for (int i = 0; i < gridStructure.getRowCount(); i++) {
+      rows.add(i);
+    }
+    List<Integer> cols = Lists.newArrayList();
+    for (int i = 0; i < gridStructure.getColumnCount(); i++) {
+      cols.add(i);
+    }
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(Integer.MIN_VALUE, rows, cols, Lists.<GridCell>newArrayList(), format, false);
+    
+    String callbackId = GUIDGenerator.generate().toString();
+    MainGridViewport viewport = getGrid(gridType).createViewport(viewportDefinition, callbackId, _cache);
+    return viewport.getData();
+  }
+
+  @Override
+  public UniqueId getViewDefinitionId() {
+    return _viewDefinitionId;
+  }
+  
 }
 

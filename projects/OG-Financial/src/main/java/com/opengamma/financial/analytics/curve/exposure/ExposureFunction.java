@@ -18,5 +18,7 @@ public interface ExposureFunction extends FinancialSecurityVisitor<List<External
   String SEPARATOR = "_";
   /** Security identifier */
   String SECURITY_IDENTIFIER = "SecurityType";
+  /** Contract identifier */
+  String CONTRACT_IDENTIFIER = "ContractType";
 
 }

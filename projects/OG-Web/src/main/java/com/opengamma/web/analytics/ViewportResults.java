@@ -7,7 +7,11 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,6 +28,8 @@ public class ViewportResults {
   private final ViewportDefinition _viewportDefinition;
   /** Duration of the last calculation cycle. */
   private final Duration _calculationDuration;
+  /** The time at which these results became available. */
+  private final Instant _valuationTime;
 
   /**
    * @param allResults Cells in the viewport containing the data, history and the value specification. The outer
@@ -34,15 +40,17 @@ public class ViewportResults {
   /* package */ ViewportResults(List<ResultsCell> allResults,
                                 ViewportDefinition viewportDefinition,
                                 GridColumnGroups columns,
-                                Duration calculationDuration) {
+                                Duration calculationDuration, Instant valuationTime) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(calculationDuration, "calculationDuration");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
     _calculationDuration = calculationDuration;
+    _valuationTime = valuationTime;
   }
 
   /**
@@ -67,47 +75,39 @@ public class ViewportResults {
   /* package */ Duration getCalculationDuration() {
     return _calculationDuration;
   }
-
+  
+  /**
+   * Gets the calculationTime.
+   * @return the calculationTime
+   */
+  public Instant getValuationTime() {
+    return _valuationTime;
+  }
+  
   /* package */ ViewportDefinition getViewportDefinition() {
     return _viewportDefinition;
   }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ViewportResults that = (ViewportResults) o;
-
-    if (!_columns.equals(that._columns)) {
-      return false;
-    }
-    if (!_viewportDefinition.equals(that._viewportDefinition)) {
-      return false;
-    }
-    if (!_allResults.equals(that._allResults)) {
-      return false;
-    }
-    return true;
+  
+  /**
+   * Gets the columns.
+   * @return the columns
+   */
+  public GridColumnGroups getColumns() {
+    return _columns;
   }
 
   @Override
   public int hashCode() {
-    int result = _allResults.hashCode();
-    result = 31 * result + _columns.hashCode();
-    result = 31 * result + _viewportDefinition.hashCode();
-    return result;
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
+  public boolean equals(Object obj) {
+    return EqualsBuilder.reflectionEquals(this, obj);
+  }
+  
+  @Override
   public String toString() {
-    return "ViewportResults [" +
-        "_allResults=" + _allResults +
-        ", _columns=" + _columns +
-        ", _viewportDefinition=" + _viewportDefinition +
-        "]";
+    return ToStringBuilder.reflectionToString(this);
   }
 }

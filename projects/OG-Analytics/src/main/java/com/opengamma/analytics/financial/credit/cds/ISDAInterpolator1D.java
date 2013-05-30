@@ -13,7 +13,8 @@ import com.opengamma.analytics.math.interpolation.data.InterpolationBoundedValue
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * Curve interpolation as defined by ISDA
+ * Curve interpolation as defined by ISDA. This is nothing more that linear interpolation of the quantity x*y, which is  
+ * the (negative) log of the survival rate.
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  */
@@ -29,6 +30,8 @@ public class ISDAInterpolator1D extends Interpolator1D {
       final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
 
       // Avoid divide by zero errors (offset factors out of the final result if it is used)
+      //R White where does this come from? The economically relevant quantity is x*y which is the (negative) log of the survival rate,
+      //which is 0 for x (i.e. time t) equal 0. What this does is return y(1) for x = 0.0, which is arbitrary.  
       final double offset = value == 0.0 ? 1.0 : 0.0;
 
       final double x1 = boundedValues.getLowerBoundKey();

@@ -96,7 +96,7 @@ public class RateFutureNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    final int m = getFutureTenor().getPeriod().getMonths(); //TODO this is not right
+    final int m = getFutureTenor().getPeriod().getMonths();
     return new Tenor(getStartTenor().getPeriod().plusMonths(m * getFutureNumber()));
   }
 

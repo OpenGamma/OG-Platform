@@ -334,7 +334,6 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     temp = Double.doubleToLongBits(_fixingPeriodAccrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _index.hashCode();
-    result = prime * result + _calendar.hashCode();
     return result;
   }
 
@@ -360,9 +359,6 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
       return false;
     }
     if (!ObjectUtils.equals(_index, other._index)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

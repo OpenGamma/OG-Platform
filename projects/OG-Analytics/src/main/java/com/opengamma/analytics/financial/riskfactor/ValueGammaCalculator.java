@@ -38,10 +38,10 @@ public final class ValueGammaCalculator implements ValueGreekCalculator {
   }
 
   @Override
-  public double valueGreek(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final double delta) {
+  public double valueGreek(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final double gamma) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(market, "market");
-    return delta * derivative.accept(s_multiplierCalculator, market);
+    return gamma * derivative.accept(s_multiplierCalculator, market);
   }
 
   /**

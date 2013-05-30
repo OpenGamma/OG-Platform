@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,6 +25,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CompositeMarketDataSelector implements MarketDataSelector {
 
+  /** Field name for Fudge message */
+  private static final String SELECTORS = "selectors";
   /**
    * The underlying shift specifications.
    */
@@ -49,17 +53,17 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
    * @param specifications the specifications to be combined, neither null nor empty
    * @return a specification combined all the underlying specifications, not null
    */
-  public static MarketDataSelector of(Set<MarketDataSelector> specifications) {
+  public static MarketDataSelector of(Set<? extends MarketDataSelector> specifications) {
     return new CompositeMarketDataSelector(ImmutableSet.copyOf(specifications));
   }
 
   @Override
-  public MarketDataSelector findMatchingSelector(StructureIdentifier structureId,
+  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
                                                  String calculationConfigurationName) {
 
     for (MarketDataSelector specification : _underlyingSpecifications) {
 
-      MarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName);
+      DistinctMarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName);
       if (matchingSelector != null) {
         return matchingSelector;
       }
@@ -68,8 +72,13 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public StructureType getApplicableStructureType() {
-    return StructureType.NONE;
+  public Set<StructureType> getApplicableStructureTypes() {
+
+    Set<StructureType> types = new HashSet<>();
+    for (MarketDataSelector specification : _underlyingSpecifications) {
+      types.addAll(specification.getApplicableStructureTypes());
+    }
+    return Collections.unmodifiableSet(types);
   }
 
   @Override
@@ -102,23 +111,19 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
-    final MutableFudgeMsg msg = serializer.newMessage();
-
-    int count = 0;
-    for (MarketDataSelector specification : _underlyingSpecifications) {
-      msg.add(count, specification);
-      count++;
+    MutableFudgeMsg msg = serializer.newMessage();
+    for (MarketDataSelector selector : _underlyingSpecifications) {
+      serializer.addToMessageWithClassHeaders(msg, SELECTORS, null, selector);
     }
     return msg;
   }
 
   public static MarketDataSelector fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-
-    Set<MarketDataSelector> specs = new HashSet<>();
-    for (FudgeField field : msg) {
-      msg.getFieldValue(MarketDataSelector.class, field);
+    Set<MarketDataSelector> selectors = Sets.newHashSet();
+    for (FudgeField field : msg.getAllByName(SELECTORS)) {
+      MarketDataSelector selector = deserializer.fieldValueToObject(MarketDataSelector.class, field);
+      selectors.add(selector);
     }
-
-    return of(specs);
+    return of(selectors);
   }
 }

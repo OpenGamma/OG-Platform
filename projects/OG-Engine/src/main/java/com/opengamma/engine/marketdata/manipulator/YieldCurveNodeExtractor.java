@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -17,23 +16,23 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
 
 /**
- * Responsible for identifying yield curves within a dependency graph.
+ * Extracts the structure id for a yield curve from a value specification.
  */
-public class YieldCurveStructureExtractor extends AbstractDependencyGraphStructureExtractor<YieldCurveKey> {
+public class YieldCurveNodeExtractor extends NodeExtractor<YieldCurveKey> {
+
 
   /**
-   * Creates an extractor for the specified graph.
-   * @param graph graph to examine for yield curves
+   * Constructs a yield curve extractor.
    */
-  public YieldCurveStructureExtractor(DependencyGraph graph) {
-    super(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, graph);
+  public YieldCurveNodeExtractor() {
+    super(ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
   }
 
   @Override
-  public YieldCurveKey getStructuredKey(ValueSpecification spec) {
+  public StructureIdentifier<YieldCurveKey> getStructuredIdentifier(ValueSpecification spec) {
     Currency currency = Currency.of(spec.getTargetSpecification().getUniqueId().getValue());
     String curve = getSingleProperty(spec, ValuePropertyNames.CURVE);
-    return new YieldCurveKey(currency, curve);
+    return StructureIdentifier.of(new YieldCurveKey(currency, curve));
   }
 
   private String getSingleProperty(final ValueSpecification spec, final String propertyName) {

@@ -50,8 +50,8 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -299,8 +299,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
     return new MarketDataManipulator(defaultExecutionOptions != null ?
-                                         defaultExecutionOptions.getMarketDataSelector() :
-                                         NoOpMarketDataSelector.getInstance());
+        defaultExecutionOptions.getMarketDataSelector() :
+        NoOpMarketDataSelector.getInstance());
   }
 
   private ViewProcessWorkerContext getWorkerContext() {
@@ -462,14 +462,20 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
           return;
         }
-
-        setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
+        // [PLAT-1174] This is necessary to support global injections by ValueRequirement. The use of a process-context level variable will be bad
+        // if there are multiple worker threads that initialise snapshots concurrently.
+        getProcessContext().getLiveDataOverrideInjector().setComputationTargetResolver(
+            getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(versionCorrection));
+        boolean marketDataSubscribed = false;
         try {
           if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
             // REVIEW jonathan/andrew -- 2013-03-28 -- if the user wants to wait for market data, then assume they mean
             // it and wait as long as it takes. There are mechanisms for cancelling the job.
+            setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
+            marketDataSubscribed = true;
             marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements(), Long.MAX_VALUE, TimeUnit.MILLISECONDS);
           } else {
+            marketDataSubscribed = false;
             marketDataSnapshot.init();
           }
           if (executionOptions.getValuationTime() == null) {
@@ -514,6 +520,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             if (isTerminated()) {
               cycleReference.release();
               return;
+            }
+            if (!marketDataSubscribed) {
+              setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
             }
             executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
           } catch (final InterruptedException e) {
@@ -585,7 +594,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       s_logger.error("Error notifying " + getWorkerContext() + " of view cycle completion", e);
     }
   }
-  
+
   private void cycleStarted(final ViewCycleMetadata cycleMetadata) {
     try {
       getWorkerContext().cycleStarted(cycleMetadata);
@@ -1131,9 +1140,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       } else {
         if (s_logger.isInfoEnabled()) {
           s_logger.info("Removed {} nodes from dependency graph for {} by {}",
-                        nodes.size() - filtered.getSize(),
-                        entry.getKey(),
-                        filter);
+              nodes.size() - filtered.getSize(),
+              entry.getKey(),
+              filter);
         }
         entry.setValue(Pair.of(filtered, missingRequirements));
       }
@@ -1245,6 +1254,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       try {
         if (!getJob().isTerminated()) {
           compiledViewDefinition = _compilationTask.get();
+          compiledViewDefinition = initialiseMarketDataManipulation(compiledViewDefinition);
           cacheCompiledViewDefinition(compiledViewDefinition);
         } else {
           return null;
@@ -1252,8 +1262,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       } finally {
         _compilationTask = null;
       }
-
-      initialiseMarketDataManipulation();
 
     } catch (final Exception e) {
       final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
@@ -1282,16 +1290,16 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return compiledViewDefinition;
   }
 
-  private void initialiseMarketDataManipulation() {
+  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition) {
 
     if (_marketDataManipulator.hasManipulationsDefined()) {
 
-      Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
 
-      for (DependencyGraphExplorer graphExplorer : _latestCompiledViewDefinition.getDependencyGraphExplorers()) {
+      for (DependencyGraphExplorer graphExplorer : compiledViewDefinition.getDependencyGraphExplorers()) {
 
         DependencyGraph graph = graphExplorer.getWholeGraph();
-        Map<MarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataManipulator.modifyDependencyGraph(graph);
+        Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataManipulator.modifyDependencyGraph(graph);
 
         if (!selectorMapping.isEmpty()) {
           selectionsByGraph.put(graph, selectorMapping);
@@ -1299,10 +1307,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       }
 
       if (!selectionsByGraph.isEmpty()) {
-        cacheCompiledViewDefinition(
-            _latestCompiledViewDefinition.withMarketDataManipulationSelections(selectionsByGraph));
+        return compiledViewDefinition.withMarketDataManipulationSelections(selectionsByGraph);
       }
     }
+    return compiledViewDefinition;
   }
 
   /**
@@ -1429,12 +1437,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     final Set<ValueSpecification> currentSubscriptions = _marketDataSubscriptions;
     final Set<ValueSpecification> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions);
     if (!unusedMarketData.isEmpty()) {
-      s_logger.debug("{} unused market data subscriptions: {}", unusedMarketData.size(), unusedMarketData);
+      s_logger.debug("{} unused market data subscriptions", unusedMarketData.size());
       removeMarketDataSubscriptions(new ArrayList<ValueSpecification>(unusedMarketData));
     }
     final Set<ValueSpecification> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions);
     if (!newMarketData.isEmpty()) {
-      s_logger.debug("{} new market data requirements: {}", newMarketData.size(), newMarketData);
+      s_logger.debug("{} new market data requirements", newMarketData.size());
       addMarketDataSubscriptions(new HashSet<ValueSpecification>(newMarketData));
     }
   }

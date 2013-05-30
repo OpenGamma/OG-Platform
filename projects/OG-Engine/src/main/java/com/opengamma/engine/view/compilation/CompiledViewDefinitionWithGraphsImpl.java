@@ -21,6 +21,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyGraphExplorerImpl;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
@@ -78,7 +79,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
   }
 
   private CompiledViewDefinitionWithGraphsImpl(final CompiledViewDefinitionWithGraphsImpl copyFrom,
-                                              final Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+                                              final Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
     super(copyFrom.getResolverVersionCorrection(), copyFrom.getCompilationIdentifier(), copyFrom.getViewDefinition(), copyFrom.getPortfolio(),
           processCompiledCalculationConfigurations(copyFrom.getCompiledCalculationConfigurationsMap(), copyFrom._graphsByConfiguration, selectionsByGraph),
           copyFrom.getValidFrom(), copyFrom.getValidTo());
@@ -94,7 +95,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   @Override
   public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
-      Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
     return new CompiledViewDefinitionWithGraphsImpl(this, selectionsByGraph);
   }
 
@@ -172,7 +173,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
                                                                                                            Map<String, DependencyGraphExplorer> graphsByConfiguration,
-                                                                                                           Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+                                                                                                           Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
     ArgumentChecker.notNull(selectionsByGraph, "selectionsByGraph");
 
@@ -191,7 +192,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   private static CompiledViewCalculationConfiguration createCalculationConfiguration(String configName,
                                                                                      DependencyGraph graph,
-                                                                                     Map<DependencyGraph, Map<MarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+                                                                                     Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
                                                                                      Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations) {
 
     if (selectionsByGraph.containsKey(graph)) {

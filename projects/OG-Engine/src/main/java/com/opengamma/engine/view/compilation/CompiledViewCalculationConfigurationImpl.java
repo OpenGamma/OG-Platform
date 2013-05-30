@@ -20,7 +20,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -36,7 +36,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   private final Set<ComputationTargetSpecification> _computationTargets;
   private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputSpecifications;
   private final Map<ValueSpecification, Collection<ValueSpecification>> _marketDataAliases;
-  private final Map<MarketDataSelector, Set<ValueSpecification>> _marketDataSelections;
+  private final Map<DistinctMarketDataSelector, Set<ValueSpecification>> _marketDataSelections;
 
   /**
    * Constructs an instance
@@ -49,7 +49,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
       final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
       final Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications) {
-    this(name, computationTargets, terminalOutputSpecifications, marketDataSpecifications, ImmutableMap.<MarketDataSelector, Set<ValueSpecification>>of());
+    this(name, computationTargets, terminalOutputSpecifications, marketDataSpecifications, ImmutableMap.<DistinctMarketDataSelector, Set<ValueSpecification>>of());
   }
 
   /**
@@ -64,7 +64,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
                                                   final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
                                                   final Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications,
-                                                  final Map<MarketDataSelector, Set<ValueSpecification>> marketDataSelections) {
+                                                  final Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");
@@ -93,7 +93,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param graph the dependency graph, not null
    * @param marketDataSelections the market data selections that have been made to support manipulation of the structured market data, not null
    */
-  public CompiledViewCalculationConfigurationImpl(final DependencyGraph graph, Map<MarketDataSelector, Set<ValueSpecification>> marketDataSelections) {
+  public CompiledViewCalculationConfigurationImpl(final DependencyGraph graph, Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections) {
     this(graph.getCalculationConfigurationName(), processComputationTargets(graph),
          processTerminalOutputSpecifications(graph), processMarketDataRequirements(graph), marketDataSelections);
   }
@@ -162,7 +162,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   }
 
   @Override
-  public Map<MarketDataSelector, Set<ValueSpecification>> getMarketDataSelections() {
+  public Map<DistinctMarketDataSelector, Set<ValueSpecification>> getMarketDataSelections() {
     return _marketDataSelections;
   }
 

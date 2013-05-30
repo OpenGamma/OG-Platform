@@ -187,12 +187,12 @@ public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondF
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return null; // visitor.visitBondFutureSecurityDefinition(this, data);
+    return visitor.visitBondFuturesSecurityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return null; // visitor.visitBondFutureSecurityDefinition(this);
+    return visitor.visitBondFuturesSecurityDefinition(this);
   }
 
   @Override

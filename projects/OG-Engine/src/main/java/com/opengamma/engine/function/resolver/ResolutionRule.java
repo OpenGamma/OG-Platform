@@ -340,7 +340,7 @@ public class ResolutionRule {
    * @param target the target to reduce, not null
    * @return the reduced target, or null if the reduction is not possible
    */
-  private static ComputationTarget adjustTarget(final ComputationTargetType type, final ComputationTarget target) {
+  public static ComputationTarget adjustTarget(final ComputationTargetType type, final ComputationTarget target) {
     final ComputationTargetType adjusted = type.accept(s_getAdjustedTargetType, target);
     if (adjusted == null) {
       // Not compatible

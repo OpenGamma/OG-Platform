@@ -124,21 +124,6 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
     return _transactionPrice;
   }
 
-  //  /**
-  //   * Constructor for Yield Curve fitting. Notional scaling for Jacobian conditioning; pricing to get spot traded trade to value to 0.
-  //   * @param notional Face value of the security. This doesn't include accrual factor.
-  //   * @param txnPrice Not scaled, eg 0.9875
-  //   * @return New InterestRate Future
-  //   */
-  //  public InterestRateFutureTransactionDefinition withNewNotionalAndTransactionPrice(final double notional, final double txnPrice) {
-  //    return new InterestRateFutureTransactionDefinition(getTransactionDate(), txnPrice, getLastTradingDate(), getIborIndex(), notional, getPaymentAccrualFactor(), getQuantity(), getName());
-  //  }
-
-  //  /** Scales notional to 1.0 in curve fitting to provide better conditioning of the Jacobian */
-  //  public void setUnitNotional() {
-  //    _notional = 1.0;
-  //  }
-
   /**
    * Gets the future last trading date.
    * @return The last trading date.

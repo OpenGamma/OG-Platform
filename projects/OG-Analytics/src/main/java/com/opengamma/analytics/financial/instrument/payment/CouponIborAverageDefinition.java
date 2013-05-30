@@ -166,6 +166,8 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param index2 The second coupon Ibor index.
    * @param weight1 The weight of the first index.
    * @param weight2 The weight of the second index.
+   * @param iborCalendar1 The calendar associated to the first index.
+   * @param iborCalendar2 The calendar associated to the second index.
    * @return The Ibor coupon.
    */
   public static CouponIborAverageDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
@@ -186,6 +188,8 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param index2 The second coupon Ibor index.
    * @param weight1 The weight of the first index.
    * @param weight2 The weight of the second index.
+   * @param iborCalendar1 The calendar associated to the first index.
+   * @param iborCalendar2 The calendar associated to the second index.
    * @return The Ibor coupon.
    */
   public static CouponIborAverageDefinition from(final CouponDefinition coupon, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2,

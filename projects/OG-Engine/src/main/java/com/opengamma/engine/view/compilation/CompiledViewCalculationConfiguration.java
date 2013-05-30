@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -76,6 +76,6 @@ public interface CompiledViewCalculationConfiguration {
    *
    * @return the mapping active market data selectors to the value specs that allow manipulation, not null
    */
-  Map<MarketDataSelector, Set<ValueSpecification>> getMarketDataSelections();
+  Map<DistinctMarketDataSelector, Set<ValueSpecification>> getMarketDataSelections();
 
 }
