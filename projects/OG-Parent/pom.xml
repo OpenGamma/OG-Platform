@@ -782,12 +782,12 @@
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-asm</artifactId>
+        <artifactId>spring-aop</artifactId>
         <version>${og.spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
+        <artifactId>spring-expression</artifactId>
         <version>${og.spring.version}</version>
       </dependency>
       <dependency>
@@ -818,7 +818,7 @@
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
-        <version>2.0.7.RELEASE</version>
+        <version>3.1.4.RELEASE</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -996,6 +996,14 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -1011,6 +1019,14 @@
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1290,7 +1306,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <og.spring.version>3.0.7.RELEASE</og.spring.version>
+    <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/test/warn-logback.xml</tests.testng.logback>
     <tests.testng.parallel>classes</tests.testng.parallel>

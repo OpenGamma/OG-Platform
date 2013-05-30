@@ -14,9 +14,9 @@ import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * A user of the OpenGamma system.
@@ -138,12 +138,12 @@ public class User implements UserDetails {
   }
 
   @Override
-  public GrantedAuthority[] getAuthorities() {
+  public Collection<? extends GrantedAuthority> getAuthorities() {
     Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
     for (Authority authority : getAuthoritySet()) {
-      authorities.add(new GrantedAuthorityImpl(authority.getRegex()));
+      authorities.add(new SimpleGrantedAuthority(authority.getRegex()));
     }
-    return authorities.toArray(new GrantedAuthority[0]);
+    return authorities;
   }
 
   @Override
