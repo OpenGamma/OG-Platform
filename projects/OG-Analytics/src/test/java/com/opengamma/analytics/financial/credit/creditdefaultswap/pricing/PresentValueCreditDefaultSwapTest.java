@@ -44,7 +44,7 @@ public class PresentValueCreditDefaultSwapTest {
   }
 
   
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testAccruedInterest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
   //  final double accruedInterest = CALCULATOR.calculateAccruedInterest(VALUATION_DATE, cds);
