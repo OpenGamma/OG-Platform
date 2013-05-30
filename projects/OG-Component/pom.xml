@@ -20,19 +20,15 @@
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Component</url>
   </scm>
 
+  <!-- ==================================================================== -->
   <build>
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
-            <id>resources</id>
+            <id>config</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
@@ -48,6 +44,7 @@
     </plugins>
   </build>
 
+  <!-- ==================================================================== -->
   <dependencies>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
@@ -61,6 +58,29 @@
     </dependency>
   </dependencies>
 
+  <!-- ==================================================================== -->
+  <profiles>
+    <!-- Hack to add extra config directory to classpath in m2e -->
+    <!-- m2e cannot handle adding classifier based jar files to classpath -->
+    <profile>
+      <id>m2e</id>
+      <activation>
+        <property><name>m2e.version</name></property>
+      </activation>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>config</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
   <properties>
   </properties>
 

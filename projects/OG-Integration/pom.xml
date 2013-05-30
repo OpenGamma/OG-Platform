@@ -40,9 +40,9 @@
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-component</artifactId>
-      <classifier>resources</classifier>
-      <type>jar</type>
+      <classifier>config</classifier>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
