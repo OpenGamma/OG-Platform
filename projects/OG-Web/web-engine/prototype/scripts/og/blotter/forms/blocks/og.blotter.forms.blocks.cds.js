@@ -26,8 +26,8 @@ $.register_module({
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: prefix + '.notional.currency'}
                     }),
-                    regions_block = new og.blotter.forms.blocks.Regions({name: leg + 'regionId', 
-                        value: data.regionId, form: form}),
+                    regions_block = new og.blotter.forms.blocks.Regions({name: prefix + '.regionId', 
+                        value: data[prefix].regionId, form: form}),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', index: prefix + '.dayCount',
                         value: data[prefix].dayCount, placeholder: 'Select Day Count'
