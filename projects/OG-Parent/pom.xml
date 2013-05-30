@@ -1299,7 +1299,7 @@
     <tests.testng.excludedgroups>integration,unitdb,unitslow</tests.testng.excludedgroups>
     <joda.beans.indent>2</joda.beans.indent>
     <joda.beans.prefix>_</joda.beans.prefix>
-    <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java;..{RELATIVE}../projects/OG-Language/Client/src/main/java</fudge.proto.searchDir>
+    <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java</fudge.proto.searchDir>
     <fudge.proto.verbose>false</fudge.proto.verbose>
     <fudge.proto.listFiles>false</fudge.proto.listFiles>
     <fudge.proto.rebuildAll>true</fudge.proto.rebuildAll>
