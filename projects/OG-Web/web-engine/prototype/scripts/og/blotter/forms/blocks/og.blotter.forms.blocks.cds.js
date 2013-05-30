@@ -9,7 +9,7 @@ $.register_module({
         var Block = og.common.util.ui.Block;
         var CDS = function (config) {
             var block = this, form = config.form, data = config.data, ui = og.common.util.ui, buy, sell, ref,
-                prefix = config.prefix ? config.prefix : 'security', util = og.blotter.util,
+                prefix = config.prefix ? config.prefix : 'security', util = og.blotter.util, regions_block,
                 children = [
                     buy = new og.blotter.forms.blocks.Security({
                         form: form, label: 'Protection Buyer', security: data[prefix].protectionBuyer,
@@ -26,10 +26,8 @@ $.register_module({
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: prefix + '.notional.currency'}
                     }),
-                    new ui.Dropdown({
-                        form: form, resource: 'blotter.regions', index: prefix + '.regionId',
-                        value: data[prefix].regionId, placeholder: 'Select Region ID'
-                    }),
+                    regions_block = new og.blotter.forms.blocks.Regions({name: leg + 'regionId', 
+                        value: data.regionId, form: form}),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', index: prefix + '.dayCount',
                         value: data[prefix].dayCount, placeholder: 'Select Day Count'
@@ -94,7 +92,8 @@ $.register_module({
                     if (config.prefix) {
                         buy.create_autocomplete();
                         sell.create_autocomplete();
-                        ref.create_autocomplete();   
+                        ref.create_autocomplete(); 
+                        regions_block.create_autocomplete();  
                     }          
                 }
             });

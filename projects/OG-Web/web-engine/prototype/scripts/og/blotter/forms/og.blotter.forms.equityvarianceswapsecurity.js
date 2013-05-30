@@ -40,10 +40,8 @@ $.register_module({
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: "security.currency"}}),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.regions', index: 'security.regionId',
-                                value: data.security.regionId, placeholder: 'Select Region ID'
-                            }),
+                            new og.blotter.forms.blocks.Regions({name: leg + 'regionId', 
+                                value: data.regionId, form: form}),
                             new og.blotter.forms.blocks.Security({
                                 form: form, label: "Spot Underlying ID", security: data.security.spotUnderlyingId,
                                 index: "security.spotUnderlyingId"
