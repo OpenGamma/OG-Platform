@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
@@ -40,6 +42,7 @@ import com.opengamma.engine.depgraph.Housekeeper;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ResultModelDefinition;
@@ -62,6 +65,7 @@ public final class ViewDefinitionCompiler {
   private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
   private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
   private static final boolean OUTPUT_FAILURE_REPORTS = false;
+  private static boolean s_striped;
 
   private static final Supplier<String> s_uniqueIdentifiers = new Supplier<String>() {
 
@@ -434,6 +438,39 @@ public final class ViewDefinitionCompiler {
     }
   }
 
+  private static Set<Pair<String, ValueProperties>> getStripes(final Map<String, Set<Pair<String, ValueProperties>>> portfolioRequirementsBySecurityType) {
+    final Set<Pair<String, ValueProperties>> stripes = new HashSet<Pair<String, ValueProperties>>();
+    for (Set<Pair<String, ValueProperties>> stripe : portfolioRequirementsBySecurityType.values()) {
+      stripes.addAll(stripe);
+    }
+    return stripes;
+  }
+
+  /**
+   * Indicates whether portfolio requirements should be added in batches or together. All together may use more memory but may be quicker. In batches may use less memory but may be slower.
+   * <p>
+   * Views with many column definitions on large portfolios can benefit significantly from this as the memory required to process them all concurrently may be prohibitive.
+   * 
+   * @return true to stripe the portfolio requirements in batches to the graph builder, false to do them all at once
+   * @deprecated this is a temporary measure; enabling/disabling the striping should be performed programaticaly based on view/portfolio heuristics
+   */
+  @Deprecated
+  public static boolean isStripedPortfolioRequirements() {
+    return s_striped;
+  }
+
+  /**
+   * Sets whether to batch portfolio requirements during graph builds.
+   * 
+   * @param useStripes true to stripe the portfolio requirements in batches to the graph builder, false to do them all at once
+   * @deprecated this is a temporary measure; enabling/disabling the striping should be performed programaticaly based on view/portfolio heuristics
+   * @see {@link #isStripedPortfolioRequirements}.
+   */
+  @Deprecated
+  public static void setStripedPortfolioRequirements(final boolean useStripes) {
+    s_striped = useStripes;
+  }
+
   private static void addPortfolioRequirements(final DependencyGraphBuilder builder, final ViewCompilationContext context, final ViewCalculationConfiguration calcConfig,
       final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
     if (calcConfig.getAllPortfolioRequirements().size() == 0) {
@@ -443,7 +480,34 @@ public final class ViewDefinitionCompiler {
     // Add portfolio requirements to the dependency graph
     final Portfolio portfolio = builder.getCompilationContext().getPortfolio();
     final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions, includeEvents, excludeEvents);
-    PortfolioNodeTraverser.parallel(traversalCallback, context.getServices().getExecutorService()).traverse(portfolio.getRootNode());
+    final PortfolioNodeTraverser traverser = PortfolioNodeTraverser.parallel(traversalCallback, context.getServices().getExecutorService());
+    if (isStripedPortfolioRequirements()) {
+      final Map<String, Set<Pair<String, ValueProperties>>> requirementsBySecurityType = traversalCallback.getPortfolioRequirementsBySecurityType();
+      Map<String, Set<Pair<String, ValueProperties>>> requirementSubSet = Maps.newHashMapWithExpectedSize(requirementsBySecurityType.size());
+      traversalCallback.setPortfolioRequirementsBySecurityType(requirementSubSet);
+      for (Pair<String, ValueProperties> stripe : getStripes(requirementsBySecurityType)) {
+        s_logger.debug("Adding {} portfolio requirement stripe", stripe);
+        final Set<Pair<String, ValueProperties>> stripeRequirements = Collections.singleton(stripe);
+        for (Map.Entry<String, Set<Pair<String, ValueProperties>>> securityTypeRequirement : requirementsBySecurityType.entrySet()) {
+          if (securityTypeRequirement.getValue().contains(stripe)) {
+            requirementSubSet.put(securityTypeRequirement.getKey(), stripeRequirements);
+          } else {
+            requirementSubSet.remove(securityTypeRequirement.getKey());
+          }
+        }
+        traversalCallback.reset();
+        traverser.traverse(portfolio.getRootNode());
+        try {
+          s_logger.debug("Waiting for stripe {} to complete", stripe);
+          builder.waitForDependencyGraphBuild();
+        } catch (InterruptedException e) {
+          throw new OpenGammaRuntimeException("Interrupted during striped compilation", e);
+        }
+      }
+    } else {
+      s_logger.debug("Adding all portfolio requirements directly");
+      traverser.traverse(portfolio.getRootNode());
+    }
   }
 
   private static void outputDependencyGraphs(final Collection<DependencyGraph> graphs) {
