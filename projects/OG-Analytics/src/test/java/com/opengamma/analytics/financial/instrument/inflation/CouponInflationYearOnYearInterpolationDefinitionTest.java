@@ -55,8 +55,7 @@ public class CouponInflationYearOnYearInterpolationDefinitionTest {
   private static final double WEIGHT_START = 0.2;
   private static final double WEIGHT_END = 0.8;
   private static final CouponInflationYearOnYearInterpolationDefinition YoY_COUPON_DEFINITION = new CouponInflationYearOnYearInterpolationDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-      ACCRUAL_END_DATE, 1.0,
-      NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
+      ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String PRICE_INDEX_CURVE_NAME = "Price index";
   private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME };
@@ -128,15 +127,12 @@ public class CouponInflationYearOnYearInterpolationDefinitionTest {
   public void equalHash() {
     assertEquals(YoY_COUPON_DEFINITION, YoY_COUPON_DEFINITION);
     CouponInflationYearOnYearInterpolationDefinition couponDuplicate = new CouponInflationYearOnYearInterpolationDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL,
-        PRICE_INDEX,
-        MONTH_LAG,
-        REFERENCE_START_DATE, REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
+        PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
     assertEquals(YoY_COUPON_DEFINITION, couponDuplicate);
     assertEquals(YoY_COUPON_DEFINITION.hashCode(), couponDuplicate.hashCode());
     CouponInflationYearOnYearInterpolationDefinition modified;
     modified = new CouponInflationYearOnYearInterpolationDefinition(CUR, ACCRUAL_END_DATE.minusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG,
-        REFERENCE_START_DATE,
-        REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
+        REFERENCE_START_DATE, REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
     assertFalse(YoY_COUPON_DEFINITION.equals(modified));
     modified = new CouponInflationYearOnYearInterpolationDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE.minusDays(1), ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE,
         REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
@@ -176,8 +172,7 @@ public class CouponInflationYearOnYearInterpolationDefinitionTest {
    */
   public void from2() {
     CouponInflationYearOnYearInterpolationDefinition constructor = new CouponInflationYearOnYearInterpolationDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, PAYMENT_DATE, 1.0, NOTIONAL,
-        PRICE_INDEX, MONTH_LAG,
-        REFERENCE_START_DATE, REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
+        PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, false, WEIGHT_START, WEIGHT_END);
     CouponInflationYearOnYearInterpolationDefinition from = CouponInflationYearOnYearInterpolationDefinition.from(ACCRUAL_START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX, MONTH_LAG, false,
         WEIGHT_START, WEIGHT_END);
     assertEquals("Inflation zero-coupon : from", constructor, from);

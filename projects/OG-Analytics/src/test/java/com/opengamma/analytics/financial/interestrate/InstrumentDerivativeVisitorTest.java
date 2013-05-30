@@ -60,8 +60,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -70,6 +70,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -658,12 +660,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures, final T data) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final T data) {
       return getValue(futures, true);
     }
 
     @Override
-    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesDeliverableSecurity futures) {
+    public String visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures) {
       return getValue(futures, false);
     }
 
@@ -1113,12 +1115,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures, T data) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures, T data) {
       return null;
     }
 
     @Override
-    public String visitSwapFuturesDeliverableTransaction(SwapFuturesDeliverableTransaction futures) {
+    public String visitSwapFuturesDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures) {
       return null;
     }
 
@@ -1179,6 +1181,26 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public String visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesSecurity(BondFuturesSecurity bondFutures, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesSecurity(BondFuturesSecurity bondFutures) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesTransaction(BondFuturesTransaction bondFutures, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesTransaction(BondFuturesTransaction bondFutures) {
       return null;
     }
   }

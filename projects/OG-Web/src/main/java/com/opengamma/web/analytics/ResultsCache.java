@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -61,6 +62,8 @@ import com.opengamma.util.money.CurrencyAmount;
 
   /** Duration of the last calculation cycle. */
   private Duration _lastCalculationDuration = Duration.ZERO;
+  /** Last valution time */
+  private Instant _valuationTime = Instant.MIN;
 
   /**
    * Puts a set of main grid results into the cache.
@@ -70,6 +73,7 @@ import com.opengamma.util.money.CurrencyAmount;
     ArgumentChecker.notNull(results, "results");
     _lastUpdateId++;
     _lastCalculationDuration = results.getCalculationDuration();
+    _valuationTime = results.getViewCycleExecutionOptions().getValuationTime();
     List<ViewResultEntry> allResults = results.getAllResults();
     Set<ResultKey> updatedKeys = Sets.newHashSet();
     for (ViewResultEntry result : allResults) {
@@ -188,6 +192,14 @@ import com.opengamma.util.money.CurrencyAmount;
    */
   /* package */ Duration getLastCalculationDuration() {
     return _lastCalculationDuration;
+  }
+  
+  /**
+   * Gets the lastCalculationTime.
+   * @return the lastCalculationTime
+   */
+  /* package */ Instant getValuationTime() {
+    return _valuationTime;
   }
 
   /**

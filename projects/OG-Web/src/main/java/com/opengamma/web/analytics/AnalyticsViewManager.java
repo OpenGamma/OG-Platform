@@ -148,7 +148,8 @@ public class AnalyticsViewManager {
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
     boolean primitivesOnly = portfolioId == null;
-    AnalyticsView view = new SimpleAnalyticsView(primitivesOnly,
+    AnalyticsView view = new SimpleAnalyticsView(aggregatedViewDef.getUniqueId(),
+                                                 primitivesOnly,
                                                  versionCorrection,
                                                  viewId,
                                                  portfolioGridId,
@@ -209,6 +210,22 @@ public class AnalyticsViewManager {
       throw new DataNotFoundException("No view found with ID " + viewId);
     }
     return connection.getView();
+  }
+  
+  /**
+   * Returns a view client given its view ID.
+   * 
+   * @param viewId ID of the view
+   * @return the view client.
+   * @throws DataNotFoundException If there's no view with the specified ID
+   */
+  public ViewClient getViewCient(String viewId) {
+    AnalyticsViewClientConnection connection = _viewConnections.get(viewId);
+    if (connection == null) {
+      s_logger.debug("Received request for unknown view ID {}", viewId);
+      throw new DataNotFoundException("No view found with ID " + viewId);
+    }
+    return connection.getViewClient();
   }
 
   /**

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import static com.opengamma.lambdava.streams.Lambdava.merge;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,8 +23,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-
-import static com.opengamma.lambdava.streams.Lambdava.merge;
 
 /**
  * Default implementation of {@link CompiledViewDefinition}.
@@ -44,7 +44,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     _identifier = identifier;
     _viewDefinition = viewDefinition;
     _portfolio = portfolio;
-    _compiledCalculationConfigurations = new HashMap<String, CompiledViewCalculationConfiguration>();
+    _compiledCalculationConfigurations = new HashMap<>();
     for (final CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
       _compiledCalculationConfigurations.put(compiledCalculationConfiguration.getName(), compiledCalculationConfiguration);
     }
@@ -99,9 +99,14 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   }
 
   @Override
+  public Map<String, CompiledViewCalculationConfiguration> getCompiledCalculationConfigurationsMap() {
+    return Collections.unmodifiableMap(_compiledCalculationConfigurations);
+  }
+
+  @Override
   public Set<ValueSpecification> getMarketDataRequirements() {
     if (_marketDataRequirements == null) {
-      final Set<ValueSpecification> allRequirements = new HashSet<ValueSpecification>();
+      final Set<ValueSpecification> allRequirements = new HashSet<>();
       for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
         allRequirements.addAll(compiledCalcConfig.getMarketDataRequirements());
       }
@@ -112,7 +117,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   @Override
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
-    final Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+    final Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<>();
     for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       merge(allRequirements, compiledCalcConfig.getTerminalOutputSpecifications());
     }
@@ -121,7 +126,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   @Override
   public Set<ComputationTargetSpecification> getComputationTargets() {
-    final Set<ComputationTargetSpecification> allTargets = new HashSet<ComputationTargetSpecification>();
+    final Set<ComputationTargetSpecification> allTargets = new HashSet<>();
     for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       allTargets.addAll(compiledCalcConfig.getComputationTargets());
     }
@@ -138,11 +143,10 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     return _latestValidity;
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Checks whether the compilation results encapsulated in an instance are valid for a specific cycle. Note that this does not ensure that the view definition used for compilation is still
    * up-to-date.
-   * 
+   *
    * @param viewDefinition the compiled view definition instance, not null
    * @param valuationTime the valuation time, not null
    * @return true if the compilation results are valid for the valuation time
@@ -173,5 +177,4 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
       return "valid from " + _earliestValidity.toString() + " to " + _latestValidity.toString();
     }
   }
-
 }

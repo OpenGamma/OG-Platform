@@ -5,11 +5,8 @@
  */
 package com.opengamma.financial.temptarget;
 
-import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -25,6 +22,7 @@ import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AbstractHousekeeper;
 
 /**
  * Implementation of {@link TempTargetRepository} based on rolling storage that support read/search, append and delete-all operations only.
@@ -32,10 +30,6 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class RollingTempTargetRepository implements TempTargetRepository {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RollingTempTargetRepository.class);
-
-  private static final long TTL_PERIOD = 3600000L; // 1 Hour
-
-  private static final long HOUSEKEEP_PERIOD = TTL_PERIOD / 3;
 
   // Note that the temp targets can be a bottleneck during graph construction if used heavily. If there are multiple nodes involved
   // in graph construction (e.g. multiple view processors) then it might make sense to have a repository on each one which gets used
@@ -46,6 +40,10 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
   // and graphs currently being executed. These are structures that only exist in memory at the moment. If serialized or persisted somewhere
   // then it makes little sense to write out the temporary reference - better at that point to resolve the reference into a real object,
   // store it somewhere more persistent such as the config database, and then hold a reference to that.
+
+  // TODO: The TTL won't be long enough now we can cache dependency graphs; Support a "permanent" generation that we can post identifiers
+  // to when a graph has been readied for execution. An interim solution is to set the TTL to very high to make everything permanent until
+  // we can do that.
 
   /**
    * Default scheme name.
@@ -64,7 +62,9 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
 
   private final ChangeManager _changeManager = new BasicChangeManager();
 
-  private final Timer _cleaner = new Timer();
+  private final HousekeepTask _housekeep;
+
+  private long _ttlPeriod = 3600000000000L; // 1 Hour (nanos)
 
   protected RollingTempTargetRepository() {
     this(SCHEME);
@@ -76,28 +76,39 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     final ReadWriteLock rw = new ReentrantReadWriteLock();
     _shared = rw.readLock();
     _exclusive = rw.writeLock();
-    _cleaner.schedule(new HousekeepTask(this), TTL_PERIOD, HOUSEKEEP_PERIOD);
+    _housekeep = new HousekeepTask(this);
   }
 
-  private static final class HousekeepTask extends TimerTask {
-
-    private final WeakReference<RollingTempTargetRepository> _owner;
+  private static final class HousekeepTask extends AbstractHousekeeper<RollingTempTargetRepository> {
 
     public HousekeepTask(final RollingTempTargetRepository owner) {
-      _owner = new WeakReference<RollingTempTargetRepository>(owner);
+      super(owner);
     }
 
     @Override
-    public void run() {
-      final RollingTempTargetRepository owner = _owner.get();
-      if (owner != null) {
-        s_logger.info("Calling housekeep operation on {}", owner);
-        owner.housekeep();
+    protected boolean housekeep(final RollingTempTargetRepository target) {
+      target.housekeep();
+      return true;
+    }
+
+    @Override
+    protected int getPeriodSeconds() {
+      final RollingTempTargetRepository target = getTarget();
+      if (target != null) {
+        return target.getTTLPeriodSeconds() / 3;
       } else {
-        s_logger.debug("Owner repository has been garbage collected");
+        return 0;
       }
     }
 
+  }
+
+  public void setTTLPeriodSeconds(final int period) {
+    _ttlPeriod = (long) period * 1000000000L;
+  }
+
+  public int getTTLPeriodSeconds() {
+    return (int) (_ttlPeriod / 1000000000L);
   }
 
   /**
@@ -170,7 +181,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     _shared.lock();
     try {
       s_logger.info("Copying live objects to new generation");
-      if (!copyOldToNewGeneration(System.nanoTime() - TTL_PERIOD * 1000000L, deletes)) {
+      if (!copyOldToNewGeneration(System.nanoTime() - _ttlPeriod, deletes)) {
         s_logger.info("Skipping housekeep operation");
         assert deletes.isEmpty();
         return;
@@ -192,6 +203,14 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     for (final Long deleted : deletes) {
       _changeManager.entityChanged(ChangeType.REMOVED, ObjectId.of(_scheme, deleted.toString()), now, null, now);
     }
+  }
+
+  protected void startHousekeep() {
+    _housekeep.start();
+  }
+
+  protected void stopHousekeep() {
+    _housekeep.stop();
   }
 
   protected UniqueId locateOrStoreImpl(final TempTarget target) {

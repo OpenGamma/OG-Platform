@@ -111,7 +111,7 @@ import com.opengamma.util.tuple.Pair;
     ViewportResults viewportResults = new ViewportResults(results,
                                                           viewportDefinition,
                                                           _columnGroups,
-                                                          cache.getLastCalculationDuration());
+                                                          cache.getLastCalculationDuration(), cache.getValuationTime());
     return Pair.of(viewportResults, state);
   }
 

@@ -18,6 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -37,6 +42,8 @@ import com.opengamma.util.tuple.Pair;
 /* package */class GetTerminalValuesCallback implements ResolvedValueCallback {
 
   private static final Logger s_logger = LoggerFactory.getLogger(GetTerminalValuesCallback.class);
+
+  private static final int MAX_DATA_PER_DIGEST = 4;
 
   private static class PerFunctionNodeInfo {
 
@@ -128,8 +135,31 @@ import com.opengamma.util.tuple.Pair;
    */
   private ComputationTargetCollapser _computationTargetCollapser;
 
+  /**
+   * Optional logic to produce candidate matches based on previous resolutions of similar targets.
+   */
+  private TargetDigests _targetDigests;
+
+  /**
+   * The current graph building context (the callback holds the write lock for the duration of other calls, so can set it here instead of passing it on the stack).
+   */
+  private GraphBuildingContext _context;
+
+  private final Lock _readLock;
+  private final Lock _writeLock;
+
+  /**
+   * The target digest map which may be used to speed up selection choices instead of full back-tracking.
+   * <p>
+   * The pair elements either contains the values, or arrays of the values. The first is either ValueProperties (or an array of them). The second is either ParameterizedFunction (or an array of them).
+   */
+  private final ConcurrentMap<Object, ConcurrentMap<String, Pair<?, ?>>> _targetDigestInfo = new ConcurrentHashMap<Object, ConcurrentMap<String, Pair<?, ?>>>();
+
   public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor) {
     _failureVisitor = failureVisitor;
+    final ReadWriteLock rwl = new ReentrantReadWriteLock();
+    _readLock = rwl.readLock();
+    _writeLock = rwl.writeLock();
   }
 
   public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
@@ -138,6 +168,10 @@ import com.opengamma.util.tuple.Pair;
 
   public void setComputationTargetCollapser(final ComputationTargetCollapser collapser) {
     _computationTargetCollapser = collapser;
+  }
+
+  public void setTargetDigests(final TargetDigests targetDigests) {
+    _targetDigests = targetDigests;
   }
 
   public ResolvedValue getProduction(final ValueSpecification specification) {
@@ -152,14 +186,102 @@ import com.opengamma.util.tuple.Pair;
     // Can only use the specification if it is consumed by another node; i.e. it has been fully resolved
     // and is not just an advisory used to merge tentative results to give a single node producing multiple
     // outputs.
-    synchronized (this) {
+    _readLock.lock();
+    try {
       for (final DependencyNode dependent : node.getDependentNodes()) {
         if (dependent.hasInputValue(specification)) {
           return new ResolvedValue(specification, node.getFunction(), node.getInputValuesCopy(), node.getOutputValuesCopy());
         }
       }
+    } finally {
+      _readLock.unlock();
     }
     return null;
+  }
+
+  private void storeResolution(final Object targetDigest, final ValueSpecification resolvedValue, final ParameterizedFunction function) {
+    ConcurrentMap<String, Pair<?, ?>> info = _targetDigestInfo.get(targetDigest);
+    if (info == null) {
+      info = new ConcurrentHashMap<String, Pair<?, ?>>();
+      info.put(resolvedValue.getValueName(), Pair.of(resolvedValue.getProperties(), function));
+      final ConcurrentMap<String, Pair<?, ?>> existing = _targetDigestInfo.putIfAbsent(targetDigest, info);
+      if (existing == null) {
+        return;
+      }
+      info = existing;
+    }
+    final ValueProperties resolvedProperties = resolvedValue.getProperties();
+    Pair<?, ?> oldValues = info.get(resolvedValue.getValueName());
+    Pair<?, ?> newValues;
+    do {
+      if (oldValues == null) {
+        newValues = Pair.of(resolvedProperties, function);
+        oldValues = info.putIfAbsent(resolvedValue.getValueName(), newValues);
+        if (oldValues == null) {
+          return;
+        }
+      } else {
+        final Object propertiesObj = oldValues.getFirst();
+        final ParameterizedFunction[] newFunctions;
+        final ValueProperties[] newProperties;
+        if (propertiesObj instanceof ValueProperties) {
+          if (resolvedProperties.equals(propertiesObj)) {
+            return;
+          }
+          newProperties = new ValueProperties[2];
+          newProperties[0] = resolvedProperties;
+          newProperties[1] = (ValueProperties) propertiesObj;
+          newFunctions = new ParameterizedFunction[2];
+          newFunctions[0] = function;
+          newFunctions[1] = (ParameterizedFunction) oldValues.getSecond();
+        } else {
+          // For small lengths, this is cheaper than set operations
+          final ValueProperties[] oldProperties = (ValueProperties[]) propertiesObj;
+          for (ValueProperties properties : oldProperties) {
+            // ValueProperties that are part of the ValueSpecifications that go into ResolvedValue are in a normalized form so we can do a cheap comparison
+            if (resolvedProperties == properties) {
+              return;
+            }
+            assert !properties.equals(resolvedProperties);
+          }
+          if (oldProperties.length >= MAX_DATA_PER_DIGEST) {
+            newProperties = new ValueProperties[MAX_DATA_PER_DIGEST];
+            newProperties[0] = resolvedProperties;
+            System.arraycopy(oldProperties, 0, newProperties, 1, MAX_DATA_PER_DIGEST - 1);
+            newFunctions = new ParameterizedFunction[MAX_DATA_PER_DIGEST];
+            newFunctions[0] = function;
+            System.arraycopy(oldValues.getSecond(), 0, newFunctions, 1, MAX_DATA_PER_DIGEST - 1);
+          } else {
+            newProperties = new ValueProperties[oldProperties.length + 1];
+            newProperties[0] = resolvedProperties;
+            System.arraycopy(oldProperties, 0, newProperties, 1, oldProperties.length);
+            newFunctions = new ParameterizedFunction[oldProperties.length + 1];
+            newFunctions[0] = function;
+            System.arraycopy(oldValues.getSecond(), 0, newFunctions, 1, oldProperties.length);
+          }
+        }
+        if (info.replace(resolvedValue.getValueName(), oldValues, Pair.of(newProperties, newFunctions))) {
+          return;
+        }
+        oldValues = info.get(resolvedValue.getValueName());
+      }
+    } while (true);
+  }
+
+  public Pair<?, ?> getResolutions(final FunctionCompilationContext context, final ComputationTargetSpecification targetSpec, final String valueName) {
+    if (_targetDigests == null) {
+      return null;
+    }
+    final Object targetDigest = _targetDigests.getDigest(context, targetSpec);
+    if (targetDigest == null) {
+      return null;
+    }
+    final Map<String, Pair<?, ?>> info = _targetDigestInfo.get(targetDigest);
+    if (info != null) {
+      return info.get(valueName);
+    } else {
+      return null;
+    }
   }
 
   public void declareProduction(final ResolvedValue resolvedValue) {
@@ -181,26 +303,40 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public synchronized void populateState(final DependencyGraph graph) {
-    final Set<DependencyNode> remove = new HashSet<DependencyNode>();
-    for (final DependencyNode node : graph.getDependencyNodes()) {
-      for (final DependencyNode dependent : node.getDependentNodes()) {
-        if (!graph.containsNode(dependent)) {
-          // Need to remove "dependent" from the node. We can leave the output values there; they might be used, or will get discarded by discardUnusedOutputs afterwards
-          remove.add(dependent);
+  public void populateState(final DependencyGraph graph, final FunctionCompilationContext context) {
+    _writeLock.lock();
+    try {
+      final Set<DependencyNode> remove = new HashSet<DependencyNode>();
+      for (final DependencyNode node : graph.getDependencyNodes()) {
+        for (final DependencyNode dependent : node.getDependentNodes()) {
+          if (!graph.containsNode(dependent)) {
+            // Need to remove "dependent" from the node. We can leave the output values there; they might be used, or will get discarded by discardUnusedOutputs afterwards
+            remove.add(dependent);
+          }
         }
+        _graphNodes.add(node);
+        final Object targetDigest;
+        if (_targetDigests != null) {
+          targetDigest = _targetDigests.getDigest(context, node.getComputationTarget());
+        } else {
+          targetDigest = null;
+        }
+        for (final ValueSpecification output : node.getOutputValues()) {
+          _spec2Node.put(output, node);
+          if (targetDigest != null) {
+            storeResolution(targetDigest, output, node.getFunction());
+          }
+        }
+        getOrCreateNodes(node.getFunction(), node.getComputationTarget()).add(node);
       }
-      _graphNodes.add(node);
-      for (final ValueSpecification output : node.getOutputValues()) {
-        _spec2Node.put(output, node);
+      for (final DependencyNode node : remove) {
+        node.clearInputs();
       }
-      getOrCreateNodes(node.getFunction(), node.getComputationTarget()).add(node);
-    }
-    for (final DependencyNode node : remove) {
-      node.clearInputs();
-    }
-    for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : graph.getTerminalOutputs().entrySet()) {
-      _resolvedValues.put(terminal.getKey(), new ArrayList<ValueRequirement>(terminal.getValue()));
+      for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : graph.getTerminalOutputs().entrySet()) {
+        _resolvedValues.put(terminal.getKey(), new ArrayList<ValueRequirement>(terminal.getValue()));
+      }
+    } finally {
+      _writeLock.unlock();
     }
   }
 
@@ -266,7 +402,8 @@ import com.opengamma.util.tuple.Pair;
       }
       final Object group = new Object();
       // TODO: Waiting for the lock could be costly; we could post this to a queue like the resolved values do
-      synchronized (GetTerminalValuesCallback.this) {
+      _writeLock.lock();
+      try {
         for (int i = 0; i < aLength; i++) {
           _nodeInfo._target2collapseGroup.put(_a[i], group);
         }
@@ -274,7 +411,10 @@ import com.opengamma.util.tuple.Pair;
           _nodeInfo._target2collapseGroup.put(_b[i], group);
         }
         _nodeInfo._collapseGroup2targets.put(group, targets);
-        scheduleCollapsers(context, _function, _nodeInfo);
+        _context = context;
+        scheduleCollapsers(_function, _nodeInfo);
+      } finally {
+        _writeLock.unlock();
       }
       return true;
     }
@@ -282,7 +422,10 @@ import com.opengamma.util.tuple.Pair;
 
   // TODO: Multiple nodes for a single collapse applicable target should be collapsed, probably with a "collapse(function, a, a)" sanity check first
 
-  private void scheduleCollapsers(final GraphBuildingContext context, final ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo) {
+  // Note: we're not adjusting the target digests during collapses; for the collapse to have made sense, the digests for each target should probably be the same.
+  // TODO: This might be a bad assumption
+
+  private void scheduleCollapsers(final ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo) {
     // Action anything already found asynchronously
     Pair<ComputationTargetSpecification, ComputationTargetSpecification> collapse = nodeInfo._collapse.poll();
     while (collapse != null) {
@@ -311,6 +454,7 @@ import com.opengamma.util.tuple.Pair;
           final ValueSpecification newOutput = MemoryUtils.instance(new ValueSpecification(output.getValueName(), newNode.getComputationTarget(), output.getProperties()));
           _spec2Node.put(output, newNode);
           _spec2Node.put(newOutput, newNode);
+          // TODO: Should update the target digest data
           final Collection<ValueRequirement> requirements = _resolvedValues.remove(output);
           if (requirements != null) {
             _resolvedValues.put(newOutput, requirements);
@@ -356,19 +500,19 @@ import com.opengamma.util.tuple.Pair;
           itrCollapseGroup2Targets.remove();
           final Collection<ComputationTargetSpecification> b = itrCollapseGroup2Targets.next();
           itrCollapseGroup2Targets.remove();
-          context.submit(new CollapseNodes(function, nodeInfo, a, b));
+          _context.submit(new CollapseNodes(function, nodeInfo, a, b));
         } while (itrCollapseGroup2Targets.hasNext());
       }
     }
   }
 
-  private void scheduleCollapsers(final GraphBuildingContext context) {
+  private void scheduleCollapsers() {
     if (!_collapsers.isEmpty()) {
       final Iterator<ParameterizedFunction> itrCollapsers = _collapsers.iterator();
       do {
         final ParameterizedFunction function = itrCollapsers.next();
         final PerFunctionNodeInfo nodeInfo = _func2nodeInfo.get(function);
-        scheduleCollapsers(context, function, nodeInfo);
+        scheduleCollapsers(function, nodeInfo);
       } while (itrCollapsers.hasNext());
     }
   }
@@ -427,7 +571,14 @@ import com.opengamma.util.tuple.Pair;
         }
       }
       _graphNodes.add(node);
-      _resolvedBuffer.remove(resolvedValue.getValueSpecification());
+      final ValueSpecification valueSpecification = resolvedValue.getValueSpecification();
+      _resolvedBuffer.remove(valueSpecification);
+      if (_targetDigests != null) {
+        final Object targetDigest = _targetDigests.getDigest(_context.getCompilationContext(), valueSpecification.getTargetSpecification());
+        if (targetDigest != null) {
+          storeResolution(targetDigest, valueSpecification, node.getFunction());
+        }
+      }
     }
     return node;
   }
@@ -581,13 +732,13 @@ import com.opengamma.util.tuple.Pair;
                   if (newConsumers <= existingConsumers) {
                     // Adjust the consumers of the reduced value to use the existing one
                     for (final DependencyNode child : node.getDependentNodes()) {
-                      child.replaceInput(newValue, node, n);
+                      child.replaceInput(oldValue, newValue, node, n);
                     }
                     node.removeOutputValue(newValue);
                   } else {
                     // Adjust the consumers of the existing value to use the new one
                     for (final DependencyNode child : n.getDependentNodes()) {
-                      child.replaceInput(newValue, n, node);
+                      child.replaceInput(oldValue, newValue, n, node);
                     }
                     n.removeOutputValue(newValue);
                     _spec2Node.put(newValue, node);
@@ -597,6 +748,7 @@ import com.opengamma.util.tuple.Pair;
             } else {
               _spec2Node.put(newValue, node);
             }
+            // TODO: Should update the target digest data
           }
         }
         return node;
@@ -633,7 +785,9 @@ import com.opengamma.util.tuple.Pair;
     }
     _resolvedQueue.add(Pair.of(valueRequirement, resolvedValue));
     while (!_resolvedQueue.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
-      synchronized (this) {
+      _writeLock.lock();
+      try {
+        _context = context;
         Pair<ValueRequirement, ResolvedValue> resolved = _resolvedQueue.poll();
         while (resolved != null) {
           final DependencyNode node = getOrCreateNode(resolved.getSecond(), Collections.<ValueSpecification>emptySet());
@@ -654,10 +808,17 @@ import com.opengamma.util.tuple.Pair;
           }
           resolved = _resolvedQueue.poll();
         }
-        scheduleCollapsers(context);
+        scheduleCollapsers();
+      } finally {
+        _writeLock.unlock();
       }
       _singleton.set(null);
     }
+  }
+
+  @Override
+  public void recursionDetected() {
+    // No-op
   }
 
   @Override
@@ -671,8 +832,13 @@ import com.opengamma.util.tuple.Pair;
    * 
    * @return the dependency graph nodes, not null
    */
-  public synchronized Collection<DependencyNode> getGraphNodes() {
-    return new ArrayList<DependencyNode>(_graphNodes);
+  public Collection<DependencyNode> getGraphNodes() {
+    _readLock.lock();
+    try {
+      return new ArrayList<DependencyNode>(_graphNodes);
+    } finally {
+      _readLock.unlock();
+    }
   }
 
   /**
@@ -682,14 +848,19 @@ import com.opengamma.util.tuple.Pair;
    * 
    * @return the map of resolutions, not null
    */
-  public synchronized Map<ValueRequirement, ValueSpecification> getTerminalValues() {
-    final Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues.size());
-    for (final Map.Entry<ValueSpecification, Collection<ValueRequirement>> resolvedValues : _resolvedValues.entrySet()) {
-      for (final ValueRequirement requirement : resolvedValues.getValue()) {
-        result.put(requirement, resolvedValues.getKey());
+  public Map<ValueRequirement, ValueSpecification> getTerminalValues() {
+    _readLock.lock();
+    try {
+      final Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues.size());
+      for (final Map.Entry<ValueSpecification, Collection<ValueRequirement>> resolvedValues : _resolvedValues.entrySet()) {
+        for (final ValueRequirement requirement : resolvedValues.getValue()) {
+          result.put(requirement, resolvedValues.getKey());
+        }
       }
+      return result;
+    } finally {
+      _readLock.unlock();
     }
-    return result;
   }
 
   public void reportStateSize() {

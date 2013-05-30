@@ -38,7 +38,6 @@ import com.opengamma.engine.value.ValueRequirement;
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.debug("Failed on {} for {}", value, this);
-    storeFailure(failure);
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
       if (_pendingTasks == Integer.MIN_VALUE) {
@@ -60,6 +59,7 @@ import com.opengamma.engine.value.ValueRequirement;
         }
       }
     }
+    storeFailure(failure);
     pumpImpl(context, pumps);
   }
 
@@ -144,6 +144,11 @@ import com.opengamma.engine.value.ValueRequirement;
     if (pump != null) {
       context.close(pump);
     }
+  }
+
+  @Override
+  public void recursionDetected() {
+    // No-op by default
   }
 
   @Override

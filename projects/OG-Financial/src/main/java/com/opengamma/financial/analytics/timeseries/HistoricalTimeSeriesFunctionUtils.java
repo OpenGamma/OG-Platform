@@ -148,6 +148,19 @@ public final class HistoricalTimeSeriesFunctionUtils {
         .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
+  public static ValueRequirement createFXForwardCurveHTSRequirement(final UnorderedCurrencyPair currencyPair, final String curveName, final String dataField, final String resolutionKey,
+      final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
+    return new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair),
+        ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+  }
+
   public static ValueRequirement createVolatilitySurfaceHTSRequirement(final UnorderedCurrencyPair currencies, final String surfaceName, final String instrumentType, final String dataField,
       final String resolutionKey, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencies),

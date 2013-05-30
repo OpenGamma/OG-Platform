@@ -21,9 +21,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -42,26 +45,26 @@ public class DependencyGraph {
   /**
    * All nodes in the graph, including the root nodes.
    */
-  private final Set<DependencyNode> _dependencyNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _dependencyNodes = new HashSet<>();
 
   /**
    * The root nodes in the graph.
    */
-  private final Set<DependencyNode> _rootNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _rootNodes = new HashSet<>();
 
   /**
    * A cache of terminal output values from this graph's nodes. Each output may be associated with one or more original value requirements that triggered the outputs inclusion in the graph.
    */
-  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs = new HashMap<>();
 
   /**
    * A cache of output values from this graph's nodes. Each output is associated with the node that produces it.
    */
-  private final Map<ValueSpecification, DependencyNode> _outputValues = new HashMap<ValueSpecification, DependencyNode>();
+  private final Map<ValueSpecification, DependencyNode> _outputValues = new HashMap<>();
 
-  private final Set<ValueSpecification> _allRequiredMarketData = new HashSet<ValueSpecification>();
+  private final Set<ValueSpecification> _allRequiredMarketData = new HashSet<>();
 
-  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
+  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<>();
 
   /**
    * Creates a new, initially empty, dependency graph for the named configuration.
@@ -166,7 +169,7 @@ public class DependencyGraph {
    */
   public Set<ValueSpecification> getOutputSpecifications(final ComputationTargetType type) {
     // REVIEW 2012-05-24 aiwg -- Do we really need this? It's only used by some of the unit tests.
-    final Set<ValueSpecification> outputValues = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> outputValues = new HashSet<>();
     for (final ValueSpecification spec : _outputValues.keySet()) {
       if (spec.getTargetSpecification().getType() == type) {
         outputValues.add(spec);
@@ -323,6 +326,80 @@ public class DependencyGraph {
   }
 
   /**
+   * Creates a new node with the same definition as the specified node, which is automatically placed in the
+   * dependency graph such that it effectively proxies the original node. It will takes its inputs from the
+   * outputs of the original node and it will expose the same output specifications along with the same set
+   * of dependents. Meanwhile the original node will be adjusted such that its only dependent is the new node.
+   *
+   * As each node must produce a unique ValueSpecification, additional properties are added to the value spec
+   * produced by the new node to maintain this uniqueness.
+   *
+   * @param original the node to be proxied, not equal and not this node
+   * @param function the function for the new node, not null
+   * @param discriminatorProperties properties added to the value spec of the original node, such that the new
+   * node produces a unique value spec, not null
+   * @return the newly created proxy node, not null
+   */
+  public DependencyNode appendInput(final DependencyNode original,
+                                    final CompiledFunctionDefinition function,
+                                    final Map<String, String> discriminatorProperties) {
+
+    ArgumentChecker.notNull(original, "node");
+    ArgumentChecker.isFalse(equals(original), "Proxy node must be different to the proxied node");
+    ArgumentChecker.notNull(function, "function");
+    ArgumentChecker.notEmpty(discriminatorProperties, "discriminatorProperties");
+
+    // Create the new proxy node based on the original
+    DependencyNode proxyNode = new DependencyNode(original.getComputationTarget());
+    proxyNode.setFunction(function);
+
+    // TODO - this implementation is naive as it proxies all output specs - we should actually only proxy the spec we are interested in
+    // However, in most cases there will only be one output anyway
+
+    Map<ValueSpecification, ValueSpecification> newValueSpecifications = copyValueSpecifications(original, discriminatorProperties);
+    proxyNode.addOutputValues(ImmutableSet.copyOf(newValueSpecifications.values()));
+
+    // Note the dependents of the original
+    Set<DependencyNode> originalDependents = new HashSet<>(original.getDependentNodes());
+
+    // Now switch the inputs for each of the dependents
+    for (DependencyNode dependent : originalDependents) {
+      for (Map.Entry<ValueSpecification, ValueSpecification> entry : newValueSpecifications.entrySet()) {
+        dependent.replaceInput(entry.getKey(), entry.getValue(), original, proxyNode);
+      }
+    }
+
+    // Now the input values
+    proxyNode.addInputNode(original);
+    for (ValueSpecification specification : original.getOutputValues()) {
+      proxyNode.addInputValue(specification);
+    }
+
+    addDependencyNode(proxyNode);
+
+    return proxyNode;
+  }
+
+  private Map<ValueSpecification, ValueSpecification> copyValueSpecifications(final DependencyNode node,
+                                                          final Map<String, String> discriminatorProperties) {
+
+    Map<ValueSpecification, ValueSpecification> converted = new HashMap<>();
+
+    for (ValueSpecification original : node.getOutputValues()) {
+
+      ValueProperties.Builder builder = original.getProperties().copy();
+
+      for (Map.Entry<String, String> entry : discriminatorProperties.entrySet()) {
+        builder = builder.with(entry.getKey(), entry.getValue());
+      }
+
+      converted.put(original,
+                    new ValueSpecification(original.getValueName(), original.getTargetSpecification(), builder.get()));
+    }
+    return converted;
+  }
+
+  /**
    * Marks an output as terminal, meaning that it cannot be pruned.
    * 
    * @param requirement the output requirement to mark as terminal
@@ -338,7 +415,7 @@ public class DependencyGraph {
     // Maintain a cache of all terminal outputs at the graph level
     Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
     if (requirements == null) {
-      requirements = new HashSet<ValueRequirement>();
+      requirements = new HashSet<>();
       _terminalOutputs.put(specification, requirements);
     }
     requirements.add(requirement);
@@ -360,7 +437,7 @@ public class DependencyGraph {
       // Maintain a cache of all terminal outputs at the graph level
       Set<ValueRequirement> requirements = _terminalOutputs.get(specification.getKey());
       if (requirements == null) {
-        requirements = new HashSet<ValueRequirement>();
+        requirements = new HashSet<>();
         _terminalOutputs.put(specification.getKey(), requirements);
       }
       requirements.addAll(specification.getValue());
@@ -398,7 +475,7 @@ public class DependencyGraph {
    * When a backtracking algorithm is used for graph building nodes may remain which generate no terminal output. These nodes are also removed.
    */
   public void removeUnnecessaryValues() {
-    final List<DependencyNode> unnecessaryNodes = new LinkedList<DependencyNode>();
+    final List<DependencyNode> unnecessaryNodes = new LinkedList<>();
     do {
       for (final DependencyNode node : _dependencyNodes) {
         final Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
@@ -438,8 +515,8 @@ public class DependencyGraph {
    * @return Nodes in an executable order. E.g., if there are two nodes, A and B, and A depends on B, then list [B, A] is returned (and not [A, B]).
    */
   public List<DependencyNode> getExecutionOrder() {
-    final ArrayList<DependencyNode> executionOrder = new ArrayList<DependencyNode>();
-    final HashSet<DependencyNode> alreadyEvaluated = new HashSet<DependencyNode>();
+    final ArrayList<DependencyNode> executionOrder = new ArrayList<>();
+    final HashSet<DependencyNode> alreadyEvaluated = new HashSet<>();
     for (final DependencyNode root : getRootNodes()) {
       getExecutionOrder(root, executionOrder, alreadyEvaluated);
     }
@@ -493,11 +570,11 @@ public class DependencyGraph {
 
   @Override
   public String toString() {
-    return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",size=" + getSize() + "]";
+    return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",nodes=" + getSize() + ",terminals=" + getTerminalOutputs().size() + "]";
   }
 
   public void dumpStructureLGL(final PrintStream out) {
-    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    final Map<DependencyNode, Integer> uid = new HashMap<>();
     int nextId = 1;
     for (final DependencyNode node : getDependencyNodes()) {
       uid.put(node, nextId++);
@@ -529,12 +606,12 @@ public class DependencyGraph {
   }
 
   public void dumpStructureASCII(final PrintStream out) {
-    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    final Map<DependencyNode, Integer> uid = new HashMap<>();
     int nextId = 1;
     for (final DependencyNode node : getDependencyNodes()) {
       uid.put(node, nextId++);
     }
-    final Set<DependencyNode> visited = new HashSet<DependencyNode>();
+    final Set<DependencyNode> visited = new HashSet<>();
     for (final DependencyNode root : _rootNodes) {
       dumpNodeASCII(out, "", root, uid, visited);
     }

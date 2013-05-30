@@ -7,11 +7,9 @@ package com.opengamma.financial.analytics.timeseries;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
-import com.opengamma.lambdava.functions.Function3;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -22,6 +20,7 @@ import com.google.common.collect.Iterators;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.lambdava.functions.Function3;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -35,7 +34,8 @@ public final class HistoricalTimeSeriesBundle {
 
   private static final class Entry implements Iterable<HistoricalTimeSeries> {
 
-    private final SortedMap<ExternalIdBundle, HistoricalTimeSeries> _timeSeries = new TreeMap<ExternalIdBundle, HistoricalTimeSeries>();
+    // Maintain insertion order, so that the bundle can be ordered e.g. by tenor
+    private final Map<ExternalIdBundle, HistoricalTimeSeries> _timeSeries = new LinkedHashMap<ExternalIdBundle, HistoricalTimeSeries>();
     private Map<ExternalId, HistoricalTimeSeries> _lookup;
 
     private HistoricalTimeSeries getImpl(final ExternalId id) {

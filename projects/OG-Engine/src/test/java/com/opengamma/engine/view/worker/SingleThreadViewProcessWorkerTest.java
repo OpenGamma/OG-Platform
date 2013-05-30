@@ -18,7 +18,8 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingInput;
+import com.opengamma.engine.cache.MissingOutput;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
@@ -158,6 +159,77 @@ public class SingleThreadViewProcessWorkerTest {
 
     assertThreadReachesState(recalcThread, Thread.State.TERMINATED);
   }
+  
+  @Test
+  public void testSkipCycleOnNoMarketData() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    final InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
+    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
+    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
+    final MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
+    env.setMarketDataProvider(marketDataProvider);
+    env.init();
+
+    final ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    final TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().skipCycleOnNoMarketData().get();
+    final ViewExecutionOptions executionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    final ViewProcessWorker currentWorker = env.getCurrentWorker(viewProcess);
+    final BorrowedThread recalcThread = ((SingleThreadViewProcessWorker) currentWorker).getThread();
+    assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
+
+    // Cycle 1
+    currentWorker.triggerCycle();
+    resultListener.assertCycleCompleted(TIMEOUT);
+
+    ViewComputationResultModel result = client.getLatestResult();
+    Map<String, Object> resultValues = extractResults(result);
+    assertEquals(123d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+    assertEquals(456d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+    
+    // Cycle 2
+    underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive1());
+    underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive2());
+    currentWorker.triggerCycle();
+    resultListener.assertCycleCompleted(TIMEOUT);
+    
+    result = client.getLatestResult();
+    resultValues = extractResults(result);
+    assertEquals(MissingOutput.SUPPRESSED, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+    assertEquals(MissingOutput.SUPPRESSED, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+
+    // Cycle 3
+    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 789d);
+    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 543d);
+    currentWorker.triggerCycle();
+    resultListener.assertCycleCompleted(TIMEOUT);
+
+    result = client.getLatestResult();
+    resultValues = extractResults(result);
+    assertEquals(789d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+    assertEquals(543d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+    
+    // Cycle 4
+    underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive1());
+    currentWorker.triggerCycle();
+    resultListener.assertCycleCompleted(TIMEOUT);
+
+    result = client.getLatestResult();
+    resultValues = extractResults(result);
+    assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+    assertEquals(543d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+    
+    client.shutdown();
+  }
 
   @Test
   public void testDoNotWaitForMarketData() throws InterruptedException {
@@ -188,8 +260,8 @@ public class SingleThreadViewProcessWorkerTest {
     for (final ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
       resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
     }
-    assertEquals(MissingMarketDataSentinel.getInstance(), resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
-    assertEquals(MissingMarketDataSentinel.getInstance(), resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+    assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+    assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
   }
 
   @Test
@@ -287,6 +359,15 @@ public class SingleThreadViewProcessWorkerTest {
         throw new OpenGammaRuntimeException("Waited longer than " + TIMEOUT + " ms for the recalc thread to reach state " + state);
       }
     }
+  }
+  
+  private Map<String, Object> extractResults(ViewComputationResultModel result) {
+    Map<String, Object> resultValues = new HashMap<String, Object>();
+    ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
+    for (final ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
+      resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
+    }
+    return resultValues;
   }
 
   private static class TestLiveMarketDataProvider implements LiveMarketDataProvider {

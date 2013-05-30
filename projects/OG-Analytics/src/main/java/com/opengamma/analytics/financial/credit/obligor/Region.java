@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit.obligor;
 
 /**
- * Enumerate the geographical region of the reference entity
+ * Enumerate the geographical region of the reference entity (doesn't have to be the same as the legal domicile)
  */
 public enum Region {
   /**

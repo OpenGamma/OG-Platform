@@ -14,6 +14,8 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -56,7 +58,14 @@ public class PositionOrTradeScalingFunction extends AbstractFunction.NonCompiled
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getPositionOrTrade().getSecurity() != null;
+    final Object value = target.getValue();
+    if (value instanceof Position) {
+      if (((Position) value).getTrades().size() > 1) {
+        // Can't scale the security when there are multiple trades; PositionTradeScalingFunction must be used instead
+        return false;
+      }
+    }
+    return ((PositionOrTrade) value).getSecurity() != null;
   }
 
   @Override

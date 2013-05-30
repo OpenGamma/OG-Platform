@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.collateralmodel;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class to define the characteristics of a collateral agreement between two counterparties
+ * Class to define the characteristics of a collateral agreement between two counterparties (e.g. between a CCP and a GCM)
  */
 public class CollateralDefinition {
 
@@ -17,7 +17,7 @@ public class CollateralDefinition {
   // TODO : Work - in - Progress
 
   // TODO : Add hashcode and equals methods
-  // TODO : Will probably require a builder method to dynamically set the collateral amount (equal to the MtM of the instrument it collateralises)
+  // TODO : Will probably require a builder method to dynamically set the collateral amount
 
   // NOTE : We enforce the collateral amount called to be greater than zero. Therefore the calling code must have
   // NOTE : logic to ensure that the collateral 'flows' in the correct direction between counterparties
@@ -36,13 +36,17 @@ public class CollateralDefinition {
   // The exposure threshold that must be breached before collateral is called for
   private final double _collateralTriggerThreshold;
 
+  // The minimum frequency with which a counterparty can call for collateral (e.g. can't be any more frequent than daily due to operational limitations)
+  private final MarginCallFrequency _minimumMarginCallGrequency;
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public CollateralDefinition(
       final double collateralAmount,
       final double independentAmount,
       final double minimumTransferAmount,
-      final double collateralTriggerThreshold) {
+      final double collateralTriggerThreshold,
+      final MarginCallFrequency minimumMarginCallGrequency) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -53,6 +57,8 @@ public class CollateralDefinition {
     ArgumentChecker.notNegative(minimumTransferAmount, "Minimum transfer amount");
     ArgumentChecker.notNegative(collateralTriggerThreshold, "Collateral trigger threshold");
 
+    ArgumentChecker.notNull(minimumMarginCallGrequency, "Minimum margin call frequency");
+
     // Verify that the collateral called is greater than the minimum transfer amount
     ArgumentChecker.notNegative(collateralAmount - minimumTransferAmount, "Minimum transfer amount");
 
@@ -62,6 +68,8 @@ public class CollateralDefinition {
     _independentAmount = independentAmount;
     _minimumTransferAmount = minimumTransferAmount;
     _collateralTriggerThreshold = collateralTriggerThreshold;
+
+    _minimumMarginCallGrequency = minimumMarginCallGrequency;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
@@ -82,6 +90,10 @@ public class CollateralDefinition {
 
   public double getCollateralTriggerThreshold() {
     return _collateralTriggerThreshold;
+  }
+
+  public MarginCallFrequency getMinimumMarginCallFrequency() {
+    return _minimumMarginCallGrequency;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

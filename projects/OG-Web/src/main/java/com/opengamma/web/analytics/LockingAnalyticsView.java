@@ -12,7 +12,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 
 /**
  * Wraps another {@link AnalyticsView} and protects it from concurrent access. The methods that can mutate the state of
@@ -191,4 +193,27 @@ import com.opengamma.util.ArgumentChecker;
       _lock.writeLock().unlock();
     }
   }
+
+  @Override
+  public ViewportResults getAllGridData(GridType gridType, Format format) {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getAllGridData(gridType, format);
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public UniqueId getViewDefinitionId() {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getViewDefinitionId();
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+  
+  
+  
 }

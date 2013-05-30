@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -86,6 +88,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
       final int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final double weightStart, final double weightEnd,
       final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
+    ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
     _lastKnownFixingDate = lastKnownFixingDate;
@@ -262,8 +265,16 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + (_isCap ? 1231 : 1237);
+    result = prime * result + ((_lastKnownFixingDate == null) ? 0 : _lastKnownFixingDate.hashCode());
+    result = prime * result + _monthLag;
+    result = prime * result + Arrays.hashCode(_referenceEndDate);
+    result = prime * result + Arrays.hashCode(_referenceStartDate);
     long temp;
     temp = Double.doubleToLongBits(_strike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightStart);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -283,7 +294,29 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     if (_isCap != other._isCap) {
       return false;
     }
+    if (_lastKnownFixingDate == null) {
+      if (other._lastKnownFixingDate != null) {
+        return false;
+      }
+    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate)) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
+      return false;
+    }
+    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
       return false;
     }
     return true;

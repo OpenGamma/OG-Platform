@@ -202,15 +202,23 @@ public class DependencyNode {
 
   /**
    * Replaces the dependency node that an input value is sourced from. If this was the only input value sourced from the previous input node then it is removed from the input node set.
-   * 
-   * @param inputValue the input value to replace, not null
+   *
+   * @param previousInputValue the input value to replace, not null
+   * @param newInputValue the new input value to replace, not null
    * @param previousInputNode the node the data was being produced by, not null
    * @param newInputNode the new input node, not null
    */
-  public void replaceInput(final ValueSpecification inputValue, final DependencyNode previousInputNode, final DependencyNode newInputNode) {
+  public void replaceInput(final ValueSpecification previousInputValue,
+                           final ValueSpecification newInputValue,
+                           final DependencyNode previousInputNode,
+                           final DependencyNode newInputNode) {
+
     addInputNode(newInputNode);
+    _inputValues.remove(previousInputValue);
+    _inputValues.add(newInputValue);
+
     for (final ValueSpecification input : _inputValues) {
-      if (!inputValue.equals(input)) {
+      if (!newInputValue.equals(input)) {
         if (previousInputNode._outputValues.containsKey(input)) {
           // Previous input still produces other values we consume
           return;
@@ -390,9 +398,6 @@ public class DependencyNode {
    */
   public void setFunction(final ParameterizedFunction function) {
     ArgumentChecker.notNull(function, "Function");
-    if (_function != null) {
-      throw new IllegalStateException("The function was already set");
-    }
     // [PLAT-2286] We used to check the function's target was right for the target specification. This would require knowledge of
     // the resolution strategy to do properly. The function type has to be compatible with something that is a sub-type of the target.
     _function = function;

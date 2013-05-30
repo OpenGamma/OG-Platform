@@ -36,6 +36,7 @@ public class EquityFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(AffineDividendFunction.class));
+    functions.add(functionConfiguration(DiscreteDividendFunction.class));
     functions.add(functionConfiguration(EquityForwardCurveFunction.class));
     functions.add(functionConfiguration(EquityForwardCurveFromFutureCurveFunction.class));
     functions.add(functionConfiguration(SecurityMarketPriceFunction.class));

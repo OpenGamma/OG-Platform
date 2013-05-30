@@ -95,8 +95,8 @@ public final class CapFloorCMSHullWhiteApproximationMethod {
     final double alphaPayment = MODEL.alpha(parameters, 0.0, expiryTime, expiryTime, cms.getPaymentTime());
     final double x0 = -alphaPayment;
     final double a0 = MODEL.swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor) - cms.getStrike();
-    final double a1 = MODEL.swapRateD1(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
-    final double a2 = MODEL.swapRateD2(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
+    final double a1 = MODEL.swapRateDx1(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
+    final double a2 = MODEL.swapRateDx2(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
 
     //    AnnuityPaymentFixed cfe = CFEC.visit(swap.withCoupon(cms.getStrike()), hwData);
     //    double[] alpha = new double[cfe.getNumberOfPayments()];

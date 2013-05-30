@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExcha
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionCalculationMethodDefaultFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerExchangeDefaults;
@@ -75,17 +76,23 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     addEquityFutureOptionDefaults(functions);
     addEquityPureVolatilitySurfaceDefaults(functions);
     addEquityVarianceSwapDefaults(functions);
+    addEquityOptionCalculationMethodDefaults(functions);
   }
 
   @Override
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
-    i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
+    i.setCurveConfiguration(null, "AUDFX");
     i.setCurveConfiguration("model/credit/yield", "ISDAAUDCurveConfig");
-    i.setCurveName(null, "Discounting");
+    i.setCurveConfiguration("model/forex", "AUDFX");
+    i.setCurveConfiguration("model/pnl", "AUDFX");
+    i.setCurveName(null, "FX");
     i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveName("model/forex/discounting", "FX");
+    i.setCurveName("model/pnl/discounting", "FX");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
+    i.setCurveCalculationMethodName("model/forex/discounting", "FXImplied");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -168,8 +175,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAJPYCurveConfig");
+    i.setCurveConfiguration("model/forex", "JPYFX");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveName("model/forex/discounting", "FX");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     return i;
@@ -179,7 +188,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo krwCurrencyInfo() {
     final CurrencyInfo i = super.krwCurrencyInfo();
     i.setCurveConfiguration(null, "SingleCurveKRWConfig");
+    i.setCurveConfiguration("model/forex", "KRWFX");
     i.setCurveName(null, "Forward");
+    i.setCurveName("model/forex/discounting", "FX");
+    i.setCurveCalculationMethodName("model/forex/discounting", "FXImplied");
     return i;
   }
 
@@ -213,8 +225,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
     i.setCurveConfiguration("model/credit/yield", "ISDAUSDCurveConfig");
     i.setCurveConfiguration("model/xccyswap", "DefaultTwoCurveUSDConfig");
+    i.setCurveConfiguration("model/forex", "DefaultTwoCurveUSDConfig");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveName("model/forex/discounting", "Discounting");
     i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
     i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setSurfaceName("model/bondfutureoption", "BBG");
@@ -232,6 +246,13 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     return i;
   }
 
+  @Override
+  protected CurrencyPairInfo audKrwCurrencyPairInfo() {
+    CurrencyPairInfo i = super.audKrwCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+  
   @Override
   protected CurrencyPairInfo eurChfCurrencyPairInfo() {
     final CurrencyPairInfo i = super.eurChfCurrencyPairInfo();
@@ -256,7 +277,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyPairInfo usdAudCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdAudCurrencyPairInfo();
-    i.setSurfaceName(null, "TULLETT");
+    i.setSurfaceName(null, "DEFAULT");
     return i;
   }
 
@@ -507,6 +528,12 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     equityVarianceSwapDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityVarianceSwapDefaultsWithPriority.addAll(equityVarianceSwapDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));
+  }
+  
+  protected void addEquityOptionCalculationMethodDefaults(final List<FunctionConfiguration> functionConfigs) {
+    final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD,
+        CalculationPropertyNamesAndValues.BLACK_LISTED_METHOD);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionCalculationMethodDefaultFunction.class.getName(), defaults));
   }
 
 }

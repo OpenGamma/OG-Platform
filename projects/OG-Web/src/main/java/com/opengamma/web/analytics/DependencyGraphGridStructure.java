@@ -44,9 +44,9 @@ public class DependencyGraphGridStructure implements GridStructure {
   private static final int FUNCTION_NAME_COL = 4;
   /** Index of the value properties column */
   private static final int PROPERTIES_COL = 5;
-
   /** Map of target types to displayable names. */
   private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
+
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs;
   /** Function names for all rows in the grid in row index order. */
@@ -59,16 +59,26 @@ public class DependencyGraphGridStructure implements GridStructure {
   private final String _calcConfigName;
   /** The columns in the grid. */
   private final GridColumnGroups _columnGroups;
+  /** Row name of the root cell of the dependency graph in the parent grid. */
+  private final String _rootRowName;
+  /** Column name of the root cell of the dependency graph in the parent grid */
+  private final String _rootColumnName;
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
                                              List<ValueSpecification> valueSpecs,
                                              List<String> fnNames,
-                                             ComputationTargetResolver targetResolver) {
+                                             ComputationTargetResolver targetResolver,
+                                             String rootRowName,
+                                             String rootColumnName) {
     ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(valueSpecs, "valueSpecs");
     ArgumentChecker.notNull(fnNames, "fnNames");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(rootRowName, "rootRowName");
+    ArgumentChecker.notNull(rootColumnName, "rootColumnName");
+    _rootColumnName = rootColumnName;
+    _rootRowName = rootRowName;
     _root = root;
     _calcConfigName = calcConfigName;
     _valueSpecs = Collections.unmodifiableList(valueSpecs);
@@ -115,7 +125,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     ViewportResults newResults = new ViewportResults(results,
                                                      viewportDefinition,
                                                      _columnGroups,
-                                                     cache.getLastCalculationDuration());
+                                                     cache.getLastCalculationDuration(), cache.getValuationTime());
     Viewport.State state;
     if (previousResults != null && results.equals(previousResults.getResults())) {
       state = Viewport.State.STALE_DATA;
@@ -178,8 +188,22 @@ public class DependencyGraphGridStructure implements GridStructure {
   /**
    * @return The root of the node structure representing the dependency graph
    */
-  public AnalyticsNode getRoot() {
+  public AnalyticsNode getRootNode() {
     return _root;
+  }
+
+  /**
+   * @return Row name of the root of the dependency graph in the parent grid.
+   */
+  public String getRootRowName() {
+    return _rootRowName;
+  }
+
+  /**
+   * @return Column name of the root of the dependency graph in the parent grid
+   */
+  public String getRootColumnName() {
+    return _rootColumnName;
   }
 
   private static ComputationTargetTypeMap<String> createTargetTypeNames() {

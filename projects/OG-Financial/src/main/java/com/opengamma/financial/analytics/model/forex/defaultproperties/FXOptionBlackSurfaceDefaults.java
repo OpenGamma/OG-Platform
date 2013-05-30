@@ -36,6 +36,7 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VALUE_GAMMA_P,
@@ -49,7 +50,13 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VALUE_RHO,
     ValueRequirementNames.VALUE_PHI,
     ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA
+    ValueRequirementNames.VALUE_VANNA,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.FORWARD_DRIFTLESS_THETA
   };
   private final String _interpolatorName;
   private final String _leftExtrapolatorName;

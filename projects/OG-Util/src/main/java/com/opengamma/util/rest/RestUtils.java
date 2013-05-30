@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -28,6 +29,16 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * This is a thread-safe static utility class.
  */
 public final class RestUtils {
+  
+  /**
+   * text/csv
+   */
+  public static final String TEXT_CSV = "text/csv";
+  
+  /**
+   * text/csv type
+   */
+  public static final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
 
   /**
    * Restricted constructor.

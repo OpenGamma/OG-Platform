@@ -59,7 +59,8 @@ public final class InterestRateFutureSecurityHullWhiteMethod { // extends Intere
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     double forward = hwMulticurves.getMulticurveProvider().getForwardRate(future.getIborIndex(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(),
         future.getFixingPeriodAccrualFactor());
-    double futureConvexityFactor = MODEL.futureConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
+    double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(),
+        future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
     double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
     return price;
   }
@@ -73,7 +74,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod { // extends Intere
   public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
-    double futureConvexityFactor = MODEL.futureConvexityFactor(hwMulticurves.getHullWhiteParameters(), futures.getLastTradingTime(), futures.getFixingPeriodStartTime(),
+    double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), futures.getLastTradingTime(), futures.getFixingPeriodStartTime(),
         futures.getFixingPeriodEndTime());
     // Backward sweep
     double priceBar = 1.0;

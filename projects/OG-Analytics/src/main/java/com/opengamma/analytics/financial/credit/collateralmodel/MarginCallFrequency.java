@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit.collateralmodel;
 
 /**
- * Enumerate the frequency with which collateral calls can be made 
+ * Enumerate the frequency with which collateral (margin) calls can be made 
  */
 public enum MarginCallFrequency {
   /**

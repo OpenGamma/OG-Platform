@@ -21,7 +21,7 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -227,7 +227,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
     for (final ViewResultEntry viewResult : results.getAllResults()) {
       final ComputedValue computedValue = viewResult.getComputedValue();
       final Object value = computedValue.getValue();
-      if ((value != null) && !(value instanceof MissingInput)) {
+      if ((value != null) && !(value instanceof MissingValue)) {
         final ConfigurationResults configResults = _results.get(viewResult.getCalculationConfiguration());
         configResults.store(date, computedValue.getSpecification(), value);
       }
@@ -235,7 +235,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
     if (_marketData != null) {
       for (final ComputedValue computedValue : results.getAllMarketData()) {
         final Object value = computedValue.getValue();
-        if ((value != null) && !(value instanceof MissingInput)) {
+        if ((value != null) && !(value instanceof MissingValue)) {
           _marketData.store(date, computedValue.getSpecification(), value);
         }
       }

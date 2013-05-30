@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -71,6 +72,13 @@ public class IssuerProviderDiscount extends IssuerProvider {
     getMulticurveProvider().setAll(other.getMulticurveProvider());
     getIssuerCurves().putAll(other.getIssuerCurves());
     init();
+  }
+
+  @Override
+  public IssuerProviderDiscount withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
+    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(getIssuerCurves());
+    newIssuerCurves.put(ic, replacement);
+    return new IssuerProviderDiscount(getMulticurveProvider(), newIssuerCurves);
   }
 
 }

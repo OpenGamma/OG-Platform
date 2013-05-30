@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
+import com.opengamma.engine.target.digest.TargetDigests;
 
 /**
  * Constructs {@link DependencyGraphBuider} instances with common parameters. All dependency graph builders created by a single factory will share the same additional thread allowance.
@@ -50,6 +51,7 @@ public class DependencyGraphBuilderFactory {
   private boolean _enableFailureReporting = System.getProperty("DependencyGraphBuilderFactory.enableFailureReporting", "FALSE").equalsIgnoreCase("TRUE");
   private RunQueueFactory _runQueue = DependencyGraphBuilder.getDefaultRunQueueFactory();
   private FunctionExclusionGroups _functionExclusionGroups;
+  private TargetDigests _targetDigests;
   private ComputationTargetCollapser _computationTargetCollapser;
   private final Executor _executor = createExecutor();
 
@@ -103,6 +105,14 @@ public class DependencyGraphBuilderFactory {
     return _functionExclusionGroups;
   }
 
+  public void setTargetDigests(final TargetDigests targetDigests) {
+    _targetDigests = targetDigests;
+  }
+
+  public TargetDigests getTargetDigests() {
+    return _targetDigests;
+  }
+
   public void setComputationTargetCollapser(final ComputationTargetCollapser computationTargetCollapser) {
     _computationTargetCollapser = computationTargetCollapser;
   }
@@ -121,6 +131,7 @@ public class DependencyGraphBuilderFactory {
     builder.setMaxAdditionalThreads(getMaxAdditionalThreadsPerBuilder());
     builder.setDisableFailureReporting(!isEnableFailureReporting());
     builder.setFunctionExclusionGroups(getFunctionExclusionGroups());
+    builder.setTargetDigests(getTargetDigests());
     builder.setComputationTargetCollapser(getComputationTargetCollapser());
   }
 

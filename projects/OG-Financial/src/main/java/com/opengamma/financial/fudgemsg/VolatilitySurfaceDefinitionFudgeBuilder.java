@@ -72,18 +72,18 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
     }
     final String name = message.getString(NAME_FIELD);
     final List<FudgeField> xsFields = message.getAllByName(XS_FIELD);
-    final List<Object> xs = new ArrayList<Object>();
+    final List<Object> xs = new ArrayList<>();
     for (final FudgeField xField : xsFields) {
       final Object x = deserializer.fieldValueToObject(xField);
       xs.add(x);
     }
     final List<FudgeField> ysFields = message.getAllByName(YS_FIELD);
-    final List<Object> ys = new ArrayList<Object>();
+    final List<Object> ys = new ArrayList<>();
     for (final FudgeField yField : ysFields) {
       final Object y = deserializer.fieldValueToObject(yField);
       ys.add(y);
     }
-    return new VolatilitySurfaceDefinition<Object, Object>(name, target, xs.toArray(), ys.toArray());
+    return new VolatilitySurfaceDefinition<>(name, target, xs.toArray(), ys.toArray());
   }
 
 }

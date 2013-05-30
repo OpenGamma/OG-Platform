@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla;
@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.Ca
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACompliantPremiumLegCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
@@ -31,8 +32,8 @@ public class PresentValueCreditDefaultSwap {
 
   private static final int cashSettlementDays = 3;
 
-  //private static final boolean businessDayAdjustCashSettlementDate = true;
-  //private static final BusinessDayConvention cashSettlementDateBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
+  // private static final boolean businessDayAdjustCashSettlementDate = true;
+  // private static final BusinessDayConvention cashSettlementDateBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
@@ -48,7 +49,7 @@ public class PresentValueCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Lots of ongoing work to do in this class - Work In Progress
-  // TODO : The code in this class is a complete mess at the moment - will be completely rewritten and modularised 
+  // TODO : The code in this class is a complete mess at the moment - will be completely rewritten and modularised
 
   // TODO : Will need to revisit to look at how we can optimise the calculations (e.g. not repeating schedule generation calculations)
   // TODO : Need to add the PROT_PAY_MAT option as well
@@ -67,12 +68,18 @@ public class PresentValueCreditDefaultSwap {
 
   // Method to calculate the value of the premium leg of a CDS (replicates the calculation in the ISDA model)
 
+  /**
+   * 
+   * @param valuationDate The date that all cash-flows are PVed back to
+   * @param cds Description of the CDS 
+   * @param yieldCurve The discount curve
+   * @param hazardRateCurve The survival curve 
+   * @param priceType Clean or dirty 
+   * @return The PV of the premium leg
+   * @deprecated Use ISDACompliantPremiumLegCalculator.calculateLeg
+   */
   @Deprecated
-  public double calculatePremiumLeg(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
+  public double calculatePremiumLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -98,7 +105,7 @@ public class PresentValueCreditDefaultSwap {
 
     // TODO : Add the extra logic for this calculation (safe for the moment since 'protectionStart' is TRUE always)
     // TODO : ISDA uses accEndDates - check this
-    //final ZonedDateTime matDate = cds.getMaturityDate();
+    // final ZonedDateTime matDate = cds.getMaturityDate();
     final ZonedDateTime matDate = premiumLegSchedule[premiumLegSchedule.length - 1][2].minusDays(1);
 
     // TODO : Check valueDate >= today and stepinDate >= today
@@ -140,6 +147,7 @@ public class PresentValueCreditDefaultSwap {
       // Calculate the time between the current valuation date and the end of the current (offset) accrual period
       double tObsOffset = TimeCalculator.getTimeBetween(today, accrualEndDate.plusDays(obsOffset), ACT_365);
 
+      // TODO : Add this check for t
       // Compensate Java shortcoming
       if (Double.compare(tObsOffset, -0.0) == 0) {
         tObsOffset = 0;
@@ -155,6 +163,7 @@ public class PresentValueCreditDefaultSwap {
 
       double myPV = 0.0;
 
+      // TODO : Extract out this calc into a seperate routine
       // Do we want to include the accrued premium corresponding to this accrual period
       if (cds.getIncludeAccruedPremium()) {
 
@@ -206,7 +215,7 @@ public class PresentValueCreditDefaultSwap {
             t = t1 - t0;
             final double lambda = Math.log(s0 / s1) / t;
             final double fwdRate = Math.log(df0 / df1) / t;
-            final double lambdafwdRate = lambda + fwdRate + 1.0e-50;
+            final double lambdafwdRate = lambda + fwdRate + 1.0e-50; // Note the hack here
 
             thisAccPV = lambda * accRate * s0 * df0 * ((t0 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) - (t1 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) * s1 / s0 * df1 / df0);
             myPV += thisAccPV;
@@ -228,7 +237,7 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, /*cashSettlementDateBusinessDayConvention,*/yieldCurve);
+    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, /* cashSettlementDateBusinessDayConvention, */yieldCurve);
 
     presentValuePremiumLeg /= valueDatePV;
 
@@ -264,28 +273,36 @@ public class PresentValueCreditDefaultSwap {
   private double calculateAccruedInterest(final CreditDefaultSwapDefinition cds, final ZonedDateTime[][] premiumLegSchedule, final ZonedDateTime stepinDate) {
 
     // TODO : Maybe check if stepinDate is in range [startDate, maturityDate + 1] - probably not necessary since the valuation will not allow this
-    // TODO : Check we are using the correct column of the matrix below - may be the cause of a difference
+    // TODO : Would be useful to re-write this to make it clearer
 
     // Start at the beginning of the cashflow schedule
-    //ZonedDateTime rollingDate = premiumLegSchedule[0];
+    // ZonedDateTime rollingDate = premiumLegSchedule[0];
     ZonedDateTime rollingDate = premiumLegSchedule[0][0];
-    //ZonedDateTime rollingDate = premiumLegSchedule[1][1];
+    // ZonedDateTime rollingDate = premiumLegSchedule[1][1];
+
+    // Check if the stepin date falls on any of the accrual begin dates
+    for (int i = 1; i < premiumLegSchedule.length; i++) {
+      if (stepinDate.equals(premiumLegSchedule[i][1])) {
+        // If it does, then there has been no accrued interest
+        return 0.0;
+      }
+    }
 
     int startCashflowIndex = 0;
-    //int startCashflowIndex = 1;
+    // int startCashflowIndex = 1;
 
     // step through the cashflow schedule until we get to the step in date
     while (rollingDate.isBefore(stepinDate)) {
       startCashflowIndex++;
-      //rollingDate = premiumLegSchedule[startCashflowIndex];
+      // rollingDate = premiumLegSchedule[startCashflowIndex];
       rollingDate = premiumLegSchedule[startCashflowIndex][0];
-      //rollingDate = premiumLegSchedule[startCashflowIndex][1];
+      // rollingDate = premiumLegSchedule[startCashflowIndex][1];
     }
 
     // Get the date of the last coupon before the current valuation date
-    //final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1];
+    // final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1];
     final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1][0];
-    //final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1][1];
+    // final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1][1];
 
     final double ai = cds.getDayCountFractionConvention().getDayCountFraction(previousPeriod, stepinDate);
 
@@ -296,12 +313,9 @@ public class PresentValueCreditDefaultSwap {
 
   // Method to compute the discount factor for discounting the upfront payment made at the cash settlement date back to the valuation date
 
-  private double calculateCashSettlementDiscountFactor(
-      final CreditDefaultSwapDefinition cds,
-      final ZonedDateTime spotDate,
-      final int spotDays,
-      /*final BusinessDayConvention cashSettlementDateBusinessDayConvention,*/
-      final ISDADateCurve yieldCurve) {
+  private double calculateCashSettlementDiscountFactor(final CreditDefaultSwapDefinition cds, final ZonedDateTime spotDate, final int spotDays,
+  /* final BusinessDayConvention cashSettlementDateBusinessDayConvention, */
+  final ISDADateCurve yieldCurve) {
 
     // From the spotDate, determine the next working day spotDays in the future
     ZonedDateTime bdaCashSettlementDate = ScheduleUtils.calculateWorkday(cds, spotDate, spotDays);
@@ -320,11 +334,7 @@ public class PresentValueCreditDefaultSwap {
   // Method to calculate the contingent leg (replicates the calculation in the ISDA model)
 
   @Deprecated
-  public double calculateContingentLeg(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+  public double calculateContingentLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -343,6 +353,8 @@ public class PresentValueCreditDefaultSwap {
     final ZonedDateTime clEndDate = cds.getMaturityDate();
     final ZonedDateTime stepinDate = cds.getEffectiveDate();
 
+    // TODO : Review the following if statements
+
     if (cds.getProtectionStart()) {
       clStartDate = valuationDate.minusDays(1);
     }
@@ -354,7 +366,7 @@ public class PresentValueCreditDefaultSwap {
     }
 
     if (startDate.isAfter(valuationDate.minusDays(1))) {
-      //startDate = startDate;
+      // startDate = startDate;
     } else {
       startDate = valuationDate.minusDays(1);
     }
@@ -368,13 +380,8 @@ public class PresentValueCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Build the integration schedule for the calculation of the contingent leg (this is not a cashflow schedule per se, but a set of time nodes for evaluating the contingent leg integral)
-    final double[] contingentLegIntegrationSchedule = contingentLegScheduleBuilder.constructCreditDefaultSwapContingentLegIntegrationSchedule(
-        valuationDate,
-        startDate,
-        clEndDate,
-        cds,
-        yieldCurve,
+    // Build the integration schedule for the calculation of the contingent leg (this is not a cashflow schedule per se, but a set of timenodes for evaluating the contingent leg integral)
+    final double[] contingentLegIntegrationSchedule = contingentLegScheduleBuilder.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, startDate, clEndDate, cds, yieldCurve,
         hazardRateCurve);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -393,7 +400,7 @@ public class PresentValueCreditDefaultSwap {
     // Loop over each of the points in the integration schedule
     for (int i = 1; i < contingentLegIntegrationSchedule.length; ++i) {
 
-      // Calculate the time between adjacent points in the integration schedule
+      // Calculate the time between adjacent points in the integration schedule (note this can be zero which causes problems later)
       final double deltat = contingentLegIntegrationSchedule[i] - contingentLegIntegrationSchedule[i - 1];
 
       // Set the probability of survival up to the previous point in the integration schedule
@@ -414,15 +421,17 @@ public class PresentValueCreditDefaultSwap {
       // Calculate the forward interest rate over the interval deltat (assumes the interest rate is constant over this period)
       final double interestRate = Math.log(discountFactorPrevious / discountFactor) / deltat;
 
-      // Calculate the contribution of the interval deltat to the overall contingent leg integral
-      presentValueContingentLeg += lossGivenDefault * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious *
-          discountFactorPrevious;
+      // Calculate the contribution of the interval deltat to the overall contingent leg integral (if deltat is v.small the log's above can return zero, therefore have to check for this)
+      if (Double.compare(hazardRate, 0.0) != 0) {
+        presentValueContingentLeg += lossGivenDefault * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious
+            * discountFactorPrevious;
+      }
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, /*cashSettlementDateBusinessDayConvention,*/yieldCurve);
+    final double valueDatePV = calculateCashSettlementDiscountFactor(cds, valuationDate, cashSettlementDays, /* cashSettlementDateBusinessDayConvention, */yieldCurve);
 
     return cds.getNotional() * presentValueContingentLeg / valueDatePV;
   }
@@ -432,13 +441,8 @@ public class PresentValueCreditDefaultSwap {
   // Method to calibrate a CDS to supplied market data, and then calculate the PV
 
   @Deprecated
-  public double calibrateAndGetPresentValue(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final ISDADateCurve yieldCurve,
-      final PriceType priceType) {
+  public double calibrateAndGetPresentValue(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors, final double[] marketSpreads,
+      final ISDADateCurve yieldCurve, final PriceType priceType) {
 
     // Create a CDS for valuation
     final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;

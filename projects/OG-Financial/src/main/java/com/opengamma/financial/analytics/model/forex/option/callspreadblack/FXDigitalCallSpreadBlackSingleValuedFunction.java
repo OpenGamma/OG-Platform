@@ -5,13 +5,19 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
+
+import java.util.Set;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackSingleValuedFunction;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
@@ -19,35 +25,54 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 /**
  *
  */
-public abstract class FXDigitalCallSpreadBlackSingleValuedFunction extends FXDigitalCallSpreadBlackFunction {
+public abstract class FXDigitalCallSpreadBlackSingleValuedFunction extends FXOptionBlackSingleValuedFunction {
 
   public FXDigitalCallSpreadBlackSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CALL_SPREAD_BLACK_METHOD)
-        .withAny(FXOptionBlackFunction.PUT_CURVE)
-        .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
-        .withAny(FXOptionBlackFunction.CALL_CURVE)
-        .withAny(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target))
-        .withAny(PROPERTY_CALL_SPREAD_VALUE);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> spreads = constraints.getValues(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
+    if (spreads == null || spreads.size() != 1) {
+      return null;
+    }
+    return super.getRequirements(context, target, desiredValue);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return desiredValue.getConstraints().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId());
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    final ValueProperties.Builder properties = super.getResultProperties(target)
+        .withoutAny(CALCULATION_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
+        .withAny(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
+    return properties;
   }
 
-  protected static String getResultCurrency(final ComputationTarget target) {
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig,
+        baseQuotePair, optionalProperties)
+        .withoutAny(CALCULATION_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
+        .withAny(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
+    return properties;
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final String callSpread = desiredValue.getConstraint(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair)
+        .withoutAny(CALCULATION_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.CALL_SPREAD_BLACK_METHOD)
+        .with(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE, callSpread);
+    return properties;
+  }
+
+  @Override
+  protected String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     if (security instanceof FXDigitalOptionSecurity) {
       return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();

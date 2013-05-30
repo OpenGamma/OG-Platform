@@ -5,13 +5,15 @@
  */
 package com.opengamma.engine.marketdata.live;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -48,7 +50,87 @@ import com.opengamma.util.ArgumentChecker;
 public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvider implements LiveMarketDataProvider, LiveDataListener {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(LiveMarketDataProvider.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVLiveMarketDataProvider.class);
+
+  private static final class Subscription {
+
+    /**
+     * The value specifications subscribed to this item (mapped to the open subscription count).
+     */
+    private Map<ValueSpecification, Integer> _values = new HashMap<ValueSpecification, Integer>();
+
+    /**
+     * The requested live data specification (inferred from a value specification), or NULL if the subscription has failed.
+     */
+    private volatile LiveDataSpecification _requestedLiveData;
+
+    /**
+     * The fully qualified live data (as returned by the data provider), or NULL if the subscription has not completed yet.
+     */
+    private LiveDataSpecification _fullyQualifiedLiveData;
+
+    public Subscription(final ValueSpecification valueSpecification, final LiveDataSpecification liveDataSpecification) {
+      _values.put(valueSpecification, 1);
+      _requestedLiveData = liveDataSpecification;
+    }
+
+    public LiveDataSpecification getRequestedLiveData() {
+      return _requestedLiveData;
+    }
+
+    public void setRequestedLiveData(final LiveDataSpecification liveData) {
+      _requestedLiveData = liveData;
+    }
+
+    public LiveDataSpecification getFullyQualifiedLiveData() {
+      return _fullyQualifiedLiveData;
+    }
+
+    public void setFullyQualifiedLiveData(final LiveDataSpecification liveData) {
+      if (_requestedLiveData.equals(liveData)) {
+        _fullyQualifiedLiveData = _requestedLiveData;
+      } else {
+        _fullyQualifiedLiveData = liveData;
+      }
+    }
+
+    public void retry(final LiveDataSpecification liveData) {
+      _requestedLiveData = liveData;
+    }
+
+    public void incrementCount(final ValueSpecification valueSpecification) {
+      Integer count = _values.get(valueSpecification);
+      if (count == null) {
+        _values.put(valueSpecification, 1);
+      } else {
+        _values.put(valueSpecification, count + 1);
+      }
+    }
+
+    public boolean decrementCount(final ValueSpecification valueSpecification) {
+      Integer count = _values.get(valueSpecification);
+      if (count == null) {
+        return true;
+      } else {
+        if (count.intValue() == 1) {
+          _values.remove(valueSpecification);
+          return true;
+        } else {
+          _values.put(valueSpecification, count - 1);
+          return false;
+        }
+      }
+    }
+
+    public boolean isUnsubscribed() {
+      return _values.isEmpty();
+    }
+
+    public Collection<ValueSpecification> getValueSpecifications() {
+      return _values.keySet();
+    }
+
+  }
 
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
@@ -57,8 +139,8 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   // Runtime State:
   private final InMemoryLKVMarketDataProvider _underlyingProvider;
   private final MarketDataPermissionProvider _permissionProvider;
-  private final ConcurrentMap<LiveDataSpecification, Set<ValueSpecification>> _liveDataSpec2Subscriptions = new ConcurrentHashMap<LiveDataSpecification, Set<ValueSpecification>>();
-  private volatile Set<ValueSpecification> _failedSubscriptions = new HashSet<ValueSpecification>();
+  private final ConcurrentMap<ValueSpecification, Subscription> _allSubscriptions = new ConcurrentHashMap<ValueSpecification, Subscription>();
+  private final ConcurrentMap<LiveDataSpecification, Subscription> _activeSubscriptions = new ConcurrentHashMap<LiveDataSpecification, Subscription>();
   private final UserPrincipal _marketDataUser;
 
   public InMemoryLKVLiveMarketDataProvider(final LiveDataClient liveDataClient,
@@ -90,29 +172,46 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   @Override
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
-    final Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
-    synchronized (_liveDataSpec2Subscriptions) {
-      final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
-      failedSubscriptions.removeAll(valueSpecifications); //Put these back to a waiting state so that we can try again
-      _failedSubscriptions = failedSubscriptions;
-      for (final ValueSpecification valueSpecification : valueSpecifications) {
-        final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
-        Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
-        if (subscriptions == null) {
-          subscriptions = new CopyOnWriteArraySet<ValueSpecification>();
-          subscriptions.add(valueSpecification);
-          _liveDataSpec2Subscriptions.put(liveDataSpec, subscriptions);
-          liveDataSpecs.add(liveDataSpec);
-        } else {
-          if (subscriptions.isEmpty()) {
-            liveDataSpecs.add(liveDataSpec);
+    final Collection<LiveDataSpecification> toSubscribe = new ArrayList<LiveDataSpecification>(valueSpecifications.size());
+    final Collection<ValueSpecification> alreadySubscribed = new ArrayList<ValueSpecification>(valueSpecifications.size());
+    // Serialize all subscribes/unsubscribes
+    synchronized (_liveDataClient) {
+      synchronized (_activeSubscriptions) {
+        for (final ValueSpecification valueSpecification : valueSpecifications) {
+          Subscription subscription = _allSubscriptions.get(valueSpecification);
+          if (subscription == null) {
+            final LiveDataSpecification liveDataSpecification = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
+            subscription = _activeSubscriptions.get(liveDataSpecification);
+            if (subscription == null) {
+              // Start a new subscription
+              subscription = new Subscription(valueSpecification, liveDataSpecification);
+              _allSubscriptions.put(valueSpecification, subscription);
+              _activeSubscriptions.put(liveDataSpecification, subscription);
+              toSubscribe.add(liveDataSpecification);
+              continue;
+            }
+            _allSubscriptions.put(valueSpecification, subscription);
           }
-          subscriptions.add(valueSpecification);
+          // Increment the count on an open subscription
+          subscription.incrementCount(valueSpecification);
+          // If the subscription previously failed, try again -- is this the behavior we want; or should we be a bit less eager to retry?
+          if (subscription.getRequestedLiveData() == null) {
+            final LiveDataSpecification liveDataSpecification = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
+            subscription.retry(liveDataSpecification);
+            toSubscribe.add(liveDataSpecification);
+          } else {
+            alreadySubscribed.add(valueSpecification);
+          }
         }
       }
-    }
-    if (!liveDataSpecs.isEmpty()) {
-      _liveDataClient.subscribe(_marketDataUser, liveDataSpecs, this);
+      if (!toSubscribe.isEmpty()) {
+        s_logger.info("Subscribing {} to {} live data specifications", _marketDataUser, toSubscribe.size());
+        _liveDataClient.subscribe(_marketDataUser, toSubscribe, this);
+      }
+      if (!alreadySubscribed.isEmpty()) {
+        s_logger.info("Already subscribed {} to {} live data specifications", _marketDataUser, alreadySubscribed.size());
+        subscriptionsSucceeded(alreadySubscribed);
+      }
     }
   }
 
@@ -124,24 +223,35 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   @Override
   public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
     final Set<LiveDataSpecification> liveDataSpecs = Sets.newHashSetWithExpectedSize(valueSpecifications.size());
-    synchronized (_liveDataSpec2Subscriptions) {
-      final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
-      failedSubscriptions.removeAll(valueSpecifications); //Put these back to a waiting state so that we can try again
-      _failedSubscriptions = failedSubscriptions;
-      for (final ValueSpecification valueSpecification : valueSpecifications) {
-        final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
-        final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
-        if (subscriptions != null) {
-          subscriptions.remove(valueSpecification);
-          if (subscriptions.isEmpty()) {
-            // This was the last subscription
-            liveDataSpecs.add(liveDataSpec);
+    // Serialize all subscribes/unsubscribes 
+    synchronized (_liveDataClient) {
+      synchronized (_activeSubscriptions) {
+        for (final ValueSpecification valueSpecification : valueSpecifications) {
+          Subscription subscription = _allSubscriptions.get(valueSpecification);
+          if (subscription != null) {
+            if (subscription.decrementCount(valueSpecification)) {
+              _allSubscriptions.remove(valueSpecification);
+              if (subscription.isUnsubscribed()) {
+                final LiveDataSpecification requestedLiveData = subscription.getRequestedLiveData();
+                if (requestedLiveData != null) {
+                  _activeSubscriptions.remove(requestedLiveData);
+                  final LiveDataSpecification actualLiveData = subscription.getFullyQualifiedLiveData();
+                  if (actualLiveData != null) {
+                    if (actualLiveData != requestedLiveData) {
+                      _activeSubscriptions.remove(actualLiveData);
+                    }
+                    liveDataSpecs.add(actualLiveData);
+                  }
+                }
+              }
+            }
           }
         }
       }
-    }
-    if (liveDataSpecs.isEmpty()) {
-      _liveDataClient.unsubscribe(_marketDataUser, liveDataSpecs, this);
+      if (!liveDataSpecs.isEmpty()) {
+        s_logger.info("Unsubscribing {} from {} live data specifications", _marketDataUser, liveDataSpecs.size());
+        _liveDataClient.unsubscribe(_marketDataUser, liveDataSpecs, this);
+      }
     }
   }
 
@@ -171,68 +281,36 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   //-------------------------------------------------------------------------
   @Override
   public void subscriptionResultReceived(final LiveDataSubscriptionResponse subscriptionResult) {
-    final Set<ValueSpecification> subscriptions;
-    synchronized (_liveDataSpec2Subscriptions) {
-      subscriptions = _liveDataSpec2Subscriptions.remove(subscriptionResult.getRequestedSpecification());
-      if (subscriptions == null) {
-        s_logger.warn("Received subscription result for which no subscription was requested: {}", subscriptionResult);
-        s_logger.debug("Current subscriptions: {}", _liveDataSpec2Subscriptions);
-        return;
-      }
-      if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-        final Set<ValueSpecification> existingSubscriptions = _liveDataSpec2Subscriptions.get(subscriptionResult.getFullyQualifiedSpecification());
-        if (existingSubscriptions != null) {
-          existingSubscriptions.addAll(subscriptions);
-        } else {
-          _liveDataSpec2Subscriptions.put(subscriptionResult.getFullyQualifiedSpecification(), subscriptions);
-        }
-        final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
-        failedSubscriptions.removeAll(subscriptions); // We expect a valueUpdate call for this later
-        _failedSubscriptions = failedSubscriptions;
-        s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
-      } else {
-        final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
-        failedSubscriptions.addAll(subscriptions);
-        _failedSubscriptions = failedSubscriptions;
-        // TODO: could be more precise here, only those which weren't in _failedSpecifications
-        valuesChanged(subscriptions); // PLAT-1429: wake up the init call
-        if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
-          s_logger.warn("Subscription to {} failed because user is not authorised: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
-        } else {
-          s_logger.debug("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
-        }
-      }
-    }
-    if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-      subscriptionsSucceeded(subscriptions);
-    } else {
-      subscriptionFailed(subscriptions, subscriptionResult.getUserMessage());
-    }
+    subscriptionResultsReceived(Collections.singleton(subscriptionResult));
   }
 
   @Override
   public void subscriptionResultsReceived(final Collection<LiveDataSubscriptionResponse> subscriptionResults) {
     final Set<ValueSpecification> successfulSubscriptions = new HashSet<ValueSpecification>();
     final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>();
-    synchronized (_liveDataSpec2Subscriptions) {
+    synchronized (_activeSubscriptions) {
       for (LiveDataSubscriptionResponse subscriptionResult : subscriptionResults) {
-        final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.remove(subscriptionResult.getRequestedSpecification());
-        if (subscriptions == null) {
-          s_logger.warn("Received subscription result for which no subscription was requested: {}", subscriptionResult);
-          s_logger.debug("Current subscriptions: {}", _liveDataSpec2Subscriptions);
-          return;
+        final Subscription subscription = _activeSubscriptions.get(subscriptionResult.getRequestedSpecification());
+        if (subscription == null) {
+          s_logger.warn("Received subscription result for which there are no open subscriptions: {}", subscriptionResult);
+          continue;
+        }
+        if (subscription.getRequestedLiveData() == null) {
+          s_logger.warn("Received subscription result for already failed subscription: {}", subscriptionResult);
+          continue;
+        }
+        if (subscription.getFullyQualifiedLiveData() != null) {
+          s_logger.warn("Received duplicate subscription result: {}", subscriptionResult);
+          _activeSubscriptions.remove(subscription.getFullyQualifiedLiveData());
         }
         if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-          final Set<ValueSpecification> existingSubscriptions = _liveDataSpec2Subscriptions.get(subscriptionResult.getFullyQualifiedSpecification());
-          if (existingSubscriptions != null) {
-            existingSubscriptions.addAll(subscriptions);
-          } else {
-            _liveDataSpec2Subscriptions.put(subscriptionResult.getFullyQualifiedSpecification(), subscriptions);
-          }
-          successfulSubscriptions.addAll(subscriptions);
+          subscription.setFullyQualifiedLiveData(subscriptionResult.getFullyQualifiedSpecification());
+          _activeSubscriptions.put(subscription.getFullyQualifiedLiveData(), subscription);
+          successfulSubscriptions.addAll(subscription.getValueSpecifications());
           s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
         } else {
-          failedSubscriptions.addAll(subscriptions);
+          subscription.setRequestedLiveData(null);
+          failedSubscriptions.addAll(subscription.getValueSpecifications());
           if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
             s_logger.warn("Subscription to {} failed because user is not authorised: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
           } else {
@@ -240,14 +318,9 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
           }
         }
       }
-      final Set<ValueSpecification> newFailedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
-      newFailedSubscriptions.removeAll(successfulSubscriptions); // We expect a valueUpdate call for this later
-      newFailedSubscriptions.addAll(failedSubscriptions);
-      _failedSubscriptions = newFailedSubscriptions;
     }
-    s_logger.error("{} success, {} failures", successfulSubscriptions.size(), failedSubscriptions.size()); //info
+    s_logger.info("Subscription results - {} success, {} failures", successfulSubscriptions.size(), failedSubscriptions.size());
     if (!failedSubscriptions.isEmpty()) {
-      // TODO: could be more precise here, only those which weren't in _failedSpecifications
       valuesChanged(failedSubscriptions); // PLAT-1429: wake up the init call
       subscriptionFailed(failedSubscriptions, "TODO: get/concat message(s) from " + failedSubscriptions.size() + " failures"/*subscriptionResult.getUserMessage()*/);
     }
@@ -258,29 +331,34 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   @Override
   public boolean isFailed(final ValueSpecification specification) {
-    return _failedSubscriptions.contains(specification);
+    final Subscription subscription = _allSubscriptions.get(specification);
+    if (subscription == null) {
+      // No subscription - treat as a failure
+      return true;
+    }
+    return subscription.getRequestedLiveData() == null;
   }
 
   @Override
   public void subscriptionStopped(final LiveDataSpecification fullyQualifiedSpecification) {
-    // This shouldn't really happen because there's no removeSubscription() method on this class...
-    s_logger.warn("Subscription stopped " + fullyQualifiedSpecification);
+    // Ignore. We've already done our housekeeping before calling out to the liveData client.
   }
 
   @Override
   public void valueUpdate(final LiveDataValueUpdate valueUpdate) {
     s_logger.debug("Update received {}", valueUpdate);
-    final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(valueUpdate.getSpecification());
-    if (subscriptions == null) {
+    final Subscription subscriptionInfo = _activeSubscriptions.get(valueUpdate.getSpecification());
+    if (subscriptionInfo == null) {
       s_logger.warn("Received value update for which no subscriptions were found: {}", valueUpdate.getSpecification());
       return;
     }
+    final Collection<ValueSpecification> subscriptions = subscriptionInfo.getValueSpecifications();
     s_logger.debug("Subscribed values are {}", subscriptions);
     final FudgeMsg msg = valueUpdate.getFields();
     for (final ValueSpecification subscription : subscriptions) {
       final FudgeField field = msg.getByName(subscription.getValueName());
       if (field == null) {
-        s_logger.info("{} subscription was null, {}", subscription.getValueName(), subscription.getTargetSpecification());
+        s_logger.debug("{} subscription was null, {}", subscription.getValueName(), subscription.getTargetSpecification());
       } else {
         Object value;
         switch (field.getType().getTypeId()) {
@@ -306,7 +384,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
             s_logger.warn("Unexpected market data type {}", field);
             continue;
         }
-        _underlyingProvider.addValue(subscription, value);  
+        _underlyingProvider.addValue(subscription, value);
       }
     }
     valuesChanged(subscriptions);

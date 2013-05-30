@@ -10,14 +10,20 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -88,6 +94,51 @@ public class ModelForwardCurveTest extends AnalyticsTestBase {
     assertTrue(curve2.getDriftCurve() instanceof InterpolatedDoublesCurve);
     assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
     assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
+  }
+  
+  protected static Curve<Double, Double> getForwardCurve() {
+    final Function1D<Double, Double> f = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double x) {
+        return x * x;
+      }
+    }; 
+    return new FunctionalDoublesCurve(f) {
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ModelForwardCurveTest.class, "getForwardCurve");
+      }
+    };
+  }
+  
+  @Test
+  public void testCurve6() {
+    final ForwardCurve curve1 = new ForwardCurve(getForwardCurve());
+    final ForwardCurve curve2 = cycleObject(ForwardCurve.class, curve1);
+    assertEquals(curve1.getSpot(), curve2.getSpot(), EPS);
+    assertTrue(curve2.getForwardCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(curve2.getDriftCurve() instanceof FunctionalDoublesCurve);
+    assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
+    assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
+  }
+  @Test
+  public void testForwardCurveAffineDividends() {
+    final double spot = 100.0;
+    final YieldAndDiscountCurve riskFreeCurve = YieldCurve.from(ConstantDoublesCurve.from(0.0));
+    final double[] tau = new double[] {0.25, 0.5, 0.75, 1, 2, 3, 4};
+    final double[] alpha = new double[] {0.23, 0.24, 0.25, 0.26, 0, 0, 0};
+    final double[] beta = new double[] {0, 0, 0, 0, 0.15, 0.2, 0.3};
+    final AffineDividends dividends = new AffineDividends(tau, alpha, beta);
+    final ForwardCurveAffineDividends curve1 = new ForwardCurveAffineDividends(spot, riskFreeCurve, dividends);
+    final ForwardCurveAffineDividends curve2 = cycleObject(ForwardCurveAffineDividends.class, curve1);
+    assertEquals(curve1.getSpot(), curve2.getSpot(), EPS);
+    assertTrue(curve2.getForwardCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(curve2.getDriftCurve() instanceof FunctionalDoublesCurve);
+    assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
+    assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
+    assertTrue(curve1.equals(curve2));
+    assertTrue(curve1.getRiskFreeCurve().equals(curve2.getRiskFreeCurve()));
+    assertTrue(curve1.getDividends().equals(curve2.getDividends()));
+    
   }
 
   private void assertCurveEquals(final Curve<Double, Double> c1, final Curve<Double, Double> c2) {

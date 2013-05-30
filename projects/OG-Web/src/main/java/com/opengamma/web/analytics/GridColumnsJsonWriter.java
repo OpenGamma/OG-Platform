@@ -42,6 +42,18 @@ public class GridColumnsJsonWriter {
    * @return groups as JSON
    */
   public String getJson(List<GridColumnGroup> groups) {
+    String json = new JSONArray(getJsonStructure(groups)).toString();
+    s_logger.debug("Returning JSON for columns {}", json);
+    return json;
+  }
+
+  /**
+   * Returns the underlying data structure used to create the JSON in {@link #getJson}. This allows the JSON to be
+   * embedded in another JSON object without
+   * @param groups Column groups to render to JSON.
+   * @return The groups as a data structure that can easily be converted to JSON
+   */
+  public List<Map<String, Object>> getJsonStructure(List<GridColumnGroup> groups) {
     List<Map<String, Object>> groupList = Lists.newArrayList();
     for (GridColumnGroup group : groups) {
       Map<String, Object> groupMap = Maps.newHashMap();
@@ -64,8 +76,6 @@ public class GridColumnsJsonWriter {
       groupMap.put("columns", columnList);
       groupList.add(groupMap);
     }
-    String json = new JSONArray(groupList).toString();
-    s_logger.debug("Returning JSON for columns {}", json);
-    return json;
+    return groupList;
   }
 }

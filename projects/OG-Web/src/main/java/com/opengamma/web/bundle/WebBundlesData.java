@@ -7,6 +7,7 @@ package com.opengamma.web.bundle;
 
 import java.util.Map;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.BeanBuilder;
@@ -75,7 +76,11 @@ public class WebBundlesData extends DirectBean {
    */
   @PropertyDefinition
   private SassCompiler _sassCompiler;
-
+  /**
+   * HttpHeaders information.
+   */
+  @PropertyDefinition
+  private HttpHeaders _httpHeaders;
   /**
    * Creates an instance.
    */
@@ -121,6 +126,8 @@ public class WebBundlesData extends DirectBean {
         return getUriInfo();
       case 391054317:  // sassCompiler
         return getSassCompiler();
+      case 1649792478:  // httpHeaders
+        return getHttpHeaders();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -155,6 +162,9 @@ public class WebBundlesData extends DirectBean {
       case 391054317:  // sassCompiler
         setSassCompiler((SassCompiler) newValue);
         return;
+      case 1649792478:  // httpHeaders
+        setHttpHeaders((HttpHeaders) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -174,7 +184,8 @@ public class WebBundlesData extends DirectBean {
           JodaBeanUtils.equal(getStyleTag(), other.getStyleTag()) &&
           JodaBeanUtils.equal(getScriptTag(), other.getScriptTag()) &&
           JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getSassCompiler(), other.getSassCompiler());
+          JodaBeanUtils.equal(getSassCompiler(), other.getSassCompiler()) &&
+          JodaBeanUtils.equal(getHttpHeaders(), other.getHttpHeaders());
     }
     return false;
   }
@@ -191,6 +202,7 @@ public class WebBundlesData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getScriptTag());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSassCompiler());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHttpHeaders());
     return hash;
   }
 
@@ -424,6 +436,31 @@ public class WebBundlesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets httpHeaders information.
+   * @return the value of the property
+   */
+  public HttpHeaders getHttpHeaders() {
+    return _httpHeaders;
+  }
+
+  /**
+   * Sets httpHeaders information.
+   * @param httpHeaders  the new value of the property
+   */
+  public void setHttpHeaders(HttpHeaders httpHeaders) {
+    this._httpHeaders = httpHeaders;
+  }
+
+  /**
+   * Gets the the {@code httpHeaders} property.
+   * @return the property, not null
+   */
+  public final Property<HttpHeaders> httpHeaders() {
+    return metaBean().httpHeaders().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code WebBundlesData}.
    */
   public static class Meta extends DirectMetaBean {
@@ -478,6 +515,11 @@ public class WebBundlesData extends DirectBean {
     private final MetaProperty<SassCompiler> _sassCompiler = DirectMetaProperty.ofReadWrite(
         this, "sassCompiler", WebBundlesData.class, SassCompiler.class);
     /**
+     * The meta-property for the {@code httpHeaders} property.
+     */
+    private final MetaProperty<HttpHeaders> _httpHeaders = DirectMetaProperty.ofReadWrite(
+        this, "httpHeaders", WebBundlesData.class, HttpHeaders.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -490,7 +532,8 @@ public class WebBundlesData extends DirectBean {
         "styleTag",
         "scriptTag",
         "uriInfo",
-        "sassCompiler");
+        "sassCompiler",
+        "httpHeaders");
 
     /**
      * Restricted constructor.
@@ -519,6 +562,8 @@ public class WebBundlesData extends DirectBean {
           return _uriInfo;
         case 391054317:  // sassCompiler
           return _sassCompiler;
+        case 1649792478:  // httpHeaders
+          return _httpHeaders;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -609,6 +654,14 @@ public class WebBundlesData extends DirectBean {
      */
     public final MetaProperty<SassCompiler> sassCompiler() {
       return _sassCompiler;
+    }
+
+    /**
+     * The meta-property for the {@code httpHeaders} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HttpHeaders> httpHeaders() {
+      return _httpHeaders;
     }
 
   }

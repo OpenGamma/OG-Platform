@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValueRequirement;
 /**
  * Base class of dependency graph building algorithm tests.
  */
-/* package */ class AbstractDependencyGraphBuilderTest {
+/* package */class AbstractDependencyGraphBuilderTest {
 
   protected DepGraphTestHelper helper() {
     return new DepGraphTestHelper();
@@ -52,6 +52,11 @@ import com.opengamma.engine.value.ValueRequirement;
         if (pump != null) {
           context.close(pump);
         }
+      }
+
+      @Override
+      public void recursionDetected() {
+        // No-op
       }
 
     });

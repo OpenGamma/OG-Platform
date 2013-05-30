@@ -18,21 +18,23 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.RestUtils;
 import com.opengamma.web.analytics.ViewportResults;
-import com.opengamma.web.analytics.ViewportResultsJsonWriter;
+import com.opengamma.web.analytics.ViewportResultsJsonCsvWriter;
+
 
 /**
- * Writes an instance of {@link ViewportResults} to an HTTP response as JSON.
+ * Writes an instance of {@link ViewportResults} to an HTTP response as JSON and CSV.
  */
 @Provider
-@Produces(MediaType.APPLICATION_JSON)
+@Produces(value = { MediaType.APPLICATION_JSON, RestUtils.TEXT_CSV })
 public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<ViewportResults> {
 
-  private final ViewportResultsJsonWriter _jsonWriter;
-
-  public ViewportResultsMessageBodyWriter(ViewportResultsJsonWriter jsonWriter) {
-    ArgumentChecker.notNull(jsonWriter, "jsonWriter");
-    _jsonWriter = jsonWriter;
+  private final ViewportResultsJsonCsvWriter _resultWriter;
+  
+  public ViewportResultsMessageBodyWriter(ViewportResultsJsonCsvWriter resultWriter) {
+    ArgumentChecker.notNull(resultWriter, "resultWriter");
+    _resultWriter = resultWriter;
   }
 
   @Override
@@ -57,6 +59,13 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    entityStream.write(_jsonWriter.getJson(results).getBytes());
+    if (mediaType.getType().equals(MediaType.APPLICATION_JSON_TYPE.getType()) && 
+        mediaType.getSubtype().equalsIgnoreCase(MediaType.APPLICATION_JSON_TYPE.getSubtype())) {
+      entityStream.write(_resultWriter.getJson(results).getBytes());
+    }
+    if (mediaType.getType().equals(RestUtils.TEXT_CSV_TYPE.getType()) && 
+        mediaType.getSubtype().equalsIgnoreCase(RestUtils.TEXT_CSV_TYPE.getSubtype())) {
+      entityStream.write(_resultWriter.getCsv(results).getBytes());
+    }
   }
 }
