@@ -19,6 +19,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.HeartbeatSender;
+import com.opengamma.livedata.client.Heartbeater;
 import com.opengamma.livedata.client.ValueDistributor;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
@@ -55,7 +56,7 @@ public class ExpirationManagerTest {
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
     ValueDistributor valueDistributor = new ValueDistributor();
     Timer t = new Timer("HeartbeatConduitTest");
-    new HeartbeatSender(conduit, valueDistributor, OpenGammaFudgeContext.getInstance(), t, 100);
+    new Heartbeater(valueDistributor, new HeartbeatSender(conduit, OpenGammaFudgeContext.getInstance()), t, 100);
 
     // subscribe on the client side - starts sending heartbeats
     LiveDataSpecification subscription = new LiveDataSpecification(

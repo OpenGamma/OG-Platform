@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.client.HeartbeatSender;
+import com.opengamma.livedata.client.Heartbeater;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.async.AbstractHousekeeper;
 
@@ -21,11 +21,11 @@ public class ExpirationManager extends AbstractHousekeeper<StandardLiveDataServe
   /**
    * How long market data should live, by default. Milliseconds
    */
-  public static final long DEFAULT_TIMEOUT_EXTENSION = 3 * HeartbeatSender.DEFAULT_PERIOD;
+  public static final long DEFAULT_TIMEOUT_EXTENSION = 3 * Heartbeater.DEFAULT_PERIOD;
   /**
    * How often expiry task should run. Milliseconds
    */
-  public static final long DEFAULT_CHECK_PERIOD = HeartbeatSender.DEFAULT_PERIOD / 2;
+  public static final long DEFAULT_CHECK_PERIOD = Heartbeater.DEFAULT_PERIOD / 2;
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExpirationManager.class);
