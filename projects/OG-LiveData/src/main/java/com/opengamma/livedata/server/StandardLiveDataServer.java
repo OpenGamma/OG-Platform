@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -350,9 +351,17 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
       Set<String> securities = _securityUniqueId2Subscription.keySet();
       try {
         Map<String, Object> subscriptions = doSubscribe(securities);
-        for (Entry<String, Object> entry : subscriptions.entrySet()) {
-          Subscription subscription = _securityUniqueId2Subscription.get(entry.getKey());
-          subscription.setHandle(entry.getValue());
+        final Iterator<Map.Entry<String, Subscription>> itrEntry = _securityUniqueId2Subscription.entrySet().iterator();
+        while (itrEntry.hasNext()) {
+          final Map.Entry<String, Subscription> entry = itrEntry.next();
+          final Object handle = subscriptions.get(entry.getKey());
+          if (handle != null) {
+            s_logger.debug("Reconnected to {}", entry.getKey());
+            entry.getValue().setHandle(handle);
+          } else {
+            s_logger.debug("Couldn't reconnect to {}", entry.getKey());
+            itrEntry.remove();
+          }
         }
       } catch (RuntimeException e) {
         s_logger.error("Could not reestablish subscription to {}", new Object[] {securities }, e);
@@ -954,7 +963,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     int expired = 0;
     _subscriptionLock.lock();
     try {
-      for (MarketDataDistributor distributor : _fullyQualifiedSpec2Distributor.values()) {
+      for (MarketDataDistributor distributor : new ArrayList<MarketDataDistributor>(_fullyQualifiedSpec2Distributor.values())) {
         if (distributor.hasExpired()) {
           if (stopDistributor(distributor)) {
             expired++;
