@@ -28,9 +28,7 @@ import com.opengamma.id.ExternalScheme;
 /**
  * 
  */
-//@Test(groups = TestGroup.INTEGRATION)
-//@Test(enabled=false)
-@Test
+@Test(enabled=false)
 public class NonVersionedRedisConfigSourceTest {
 
   private JedisPool _jedisPool;
