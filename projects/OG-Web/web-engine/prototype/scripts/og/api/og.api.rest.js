@@ -97,12 +97,13 @@ $.register_module({
             /** @ignore */
             var send = function () {
                 // GETs are being POSTed with method=GET so they do not cache. TODO: change this
+
                 outstanding_requests[promise.id].ajax = $.ajax({
                     url: url,
                     type: is_get ? 'POST' : config.meta.type,
                     data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
                     headers: config.meta.headers || {'Accept': 'application/json', 'Cache-Control': 'no-cache'},
-                    dataType: 'json',
+                    dataType: config.meta.datatype || 'json',
                     timeout: config.meta.timeout || (is_get ? TIMEOUTSOON : TIMEOUTFOREVER),
                     beforeSend: function (xhr, req) {
                         var aborted = !(promise.id in outstanding_requests),

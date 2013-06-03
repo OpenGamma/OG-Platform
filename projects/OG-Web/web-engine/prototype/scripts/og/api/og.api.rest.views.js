@@ -65,22 +65,8 @@ $.register_module({
                     return api.request(method, {data: data, meta: meta});
                 }
             },
-            csv: {
-                root: 'views/{{view_id}}/{{grid_type}}/data',
-                download: function (config) {
-                    config = config || {};
-                    var root = this.root, method = root.split('/'), view_id = config.view_id,
-                        grid_type = config.grid_type, meta;
-                    meta = check({
-                        bundle: {method: root + '#get', config: config},
-                        required: [{all_of: ['grid_type', 'view_id']}]
-                    });
-                    method[1] = config.view_id;
-                    method[2] = config.grid_type;
-                    meta.type = 'GET';
-                    meta.headers = {'Accept': 'text/csv', 'Cache-Control': 'no-cache'};
-                    return api.request(method, {data: {}, meta: meta});
-                }
+            csv: function (config) {
+                    window.open('/jax/views/' + config.view_id + '/' + config.grid_type + '/data', '_blank');
             },
             grid: {
                 depgraphs: {
