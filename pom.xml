@@ -4,47 +4,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.opengamma.platform</groupId>
+  
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-parent</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+    <relativePath>projects/OG-Parent</relativePath>
+  </parent>  
   <artifactId>og-platform</artifactId>
   <packaging>pom</packaging>
   <name>OG-Platform</name>
-  <version>2.0.0-SNAPSHOT</version>
   <description>OpenGamma maven aggregator project</description>
-  <url>http://developers.opengamma.com/</url>
-
-  <repositories>
-    <repository>
-      <id>og-public</id>
-      <name>OG Public</name>
-      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
-    </repository>
-  </repositories>
-
-  <!-- ==================================================================== -->
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.7</version>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.joda</groupId>
-        <artifactId>maven-joda-beans-plugin</artifactId>
-        <version>0.7</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.joda</groupId>
-            <artifactId>joda-beans</artifactId>
-            <version>0.7</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
-  </build>
 
   <!-- ==================================================================== -->
   <modules>
@@ -74,13 +44,13 @@
   </modules>
 
   <!-- ==================================================================== -->
-  <!-- standard set of reports -->
+  <!-- build aggregate website -->
   <reporting>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.5.1</version>
+        <version>2.7</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -88,7 +58,7 @@
               <report>dependency-management</report>
               <report>dependencies</report>
               <report>dependency-convergence</report>
-              <report>modules</report>
+              <report>scm</report>
               <report>summary</report>
             </reports>
           </reportSet>
@@ -96,11 +66,38 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9</version>
+        <inherited>false</inherited>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.10</version>
+        <inherited>false</inherited>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>checkstyle-aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.13</version>
+        <version>2.14.1</version>
+        <inherited>false</inherited>
         <configuration>
           <aggregate>true</aggregate>
-          <linkXRef>true</linkXRef>
+          <alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
           <showSuccess>true</showSuccess>
         </configuration>
       </plugin>
@@ -108,6 +105,14 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
         <version>2.3</version>
+        <inherited>false</inherited>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
     </plugins>
   </reporting>
@@ -126,6 +131,7 @@
     </profile>
   </profiles>
 
+  <!-- ==================================================================== -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
