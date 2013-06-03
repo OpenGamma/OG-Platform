@@ -23,7 +23,8 @@ import com.google.common.collect.ImmutableMap;
  */
 public final class DbScriptUtils {
 
-  private static final String METADATA_RESOURCE_PATH = "ogdb-metadata.properties";
+  private static final String METADATA_FILE = "ogdb-metadata.properties";
+  private static final String METADATA_RESOURCE_PATH = "db/" + METADATA_FILE;
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbScriptUtils.class);
   
@@ -44,15 +45,14 @@ public final class DbScriptUtils {
             for (Map.Entry<Object, Object> metadata : properties.entrySet()) {
               String schemaGroupName = (String) metadata.getKey();
               int currentVersion = Integer.parseInt((String) metadata.getValue());
-              builder.put(schemaGroupName, new DbSchemaGroupMetadata(schemaGroupName, metadataResourceUrl.getPath(), currentVersion));
+              builder.put(schemaGroupName, new DbSchemaGroupMetadata(schemaGroupName, metadataResourceUrl.toURI(), currentVersion));
             }
           } catch (Exception e) {
             s_logger.error("Error reading database metadata resource at " + metadataResourceUrl, e);
           } finally {
             in.close();
           }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
           s_logger.error("Error opening database metadata resource at " + metadataResourceUrl, e);
         }
       }

@@ -6,35 +6,32 @@
 package com.opengamma.util.db.script;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Wraps a database script that is accessible on the classpath.
  */
 public class ClasspathDbScript implements DbScript {
 
-  private final String _scriptResource;
+  private final URI _scriptResource;
   
-  public ClasspathDbScript(String scriptResource) {
+  public ClasspathDbScript(URI scriptResource) {
+    ArgumentChecker.notNull(scriptResource, "scriptResource");
     _scriptResource = scriptResource;
   }
   
   @Override
   public String getName() {
-    return _scriptResource;
+    return _scriptResource.getPath();
   }
 
   @Override
   public String getScript() throws IOException {
-    URL scriptResource = getClass().getClassLoader().getResource(_scriptResource);
-    if (scriptResource == null) {
-      throw new OpenGammaRuntimeException("Could not find database script resource at " + _scriptResource);
-    }
-    return IOUtils.toString(scriptResource);
+    return IOUtils.toString(_scriptResource);
   }
 
 }

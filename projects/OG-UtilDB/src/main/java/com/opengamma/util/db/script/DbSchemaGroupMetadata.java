@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.db.script;
 
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,12 +19,12 @@ public class DbSchemaGroupMetadata {
   private static final String MIGRATE_TYPE = "migrate";
 
   private final String _schemaGroupName;
-  private final String _baseResourcePath;
+  private final URI _metadataUri;
   private final int _currentVersion;
   
-  public DbSchemaGroupMetadata(String schemaGroupName, String baseResourcePath, int currentVersion) {
+  public DbSchemaGroupMetadata(String schemaGroupName, URI metadataUri, int currentVersion) {
     _schemaGroupName = schemaGroupName;
-    _baseResourcePath = baseResourcePath;
+    _metadataUri = metadataUri;
     _currentVersion = currentVersion;
   }
 
@@ -87,17 +88,17 @@ public class DbSchemaGroupMetadata {
 
   //-------------------------------------------------------------------------
   private DbScript getScript(String dbVendorName, String scriptType, int version) {
-    String sqlResourcePath = getSqlScriptPath(dbVendorName, scriptType, version);
-    return new ClasspathDbScript(sqlResourcePath);
+    URI sqlResource = getSqlScript(dbVendorName, scriptType, version);
+    return new ClasspathDbScript(sqlResource);
   }
   
-  private String getBaseResourcePath() {
-    return _baseResourcePath;
+  private URI getMetadataUri() {
+    return _metadataUri;
   }
   
-  private String getSqlScriptPath(String dbVendor, String scriptType, int version) {
+  private URI getSqlScript(String dbVendor, String scriptType, int version) {
     String fileName = "V_" + version + "__" + scriptType + "_" + getSchemaGroupName() + ".sql";
-    return getBaseResourcePath() + "/" + scriptType + "/" + dbVendor + "/" + getSchemaGroupName() + "/" + fileName;
+    return getMetadataUri().resolve(scriptType + "/" + dbVendor + "/" + getSchemaGroupName() + "/" + fileName);
   }
   
 }

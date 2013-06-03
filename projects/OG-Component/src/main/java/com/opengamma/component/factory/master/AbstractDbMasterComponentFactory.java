@@ -105,8 +105,7 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     
     Integer expectedSchemaVersion = DbScriptUtils.getCurrentVersion(schemaName);
     if (expectedSchemaVersion == null) {
-      s_logger.warn("Unable to find schema version information for {}. Database objects cannot be managed.", schemaName);
-      return;
+      throw new OpenGammaRuntimeException("Unable to find schema version information for " + schemaName + ". Database objects cannot be managed.");
     }
     // DbToolContext should not be closed as DbConnector needs to remain started
     DbToolContext dbToolContext = new DbToolContext();

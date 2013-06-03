@@ -20,29 +20,6 @@
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Security</url>
   </scm>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-         <descriptors>
-           <descriptor>src/main/assembly/assembly-sql.xml</descriptor>
-         </descriptors>
-        </configuration>
-        <executions>
-          <execution>
-            <id>sql</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
   <dependencies>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
