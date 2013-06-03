@@ -101,7 +101,7 @@ $.register_module({
                     url: url,
                     type: is_get ? 'POST' : config.meta.type,
                     data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
-                    headers: {'Accept': 'application/json', 'Cache-Control': 'no-cache'},
+                    headers: config.meta.headers || {'Accept': 'application/json', 'Cache-Control': 'no-cache'},
                     dataType: 'json',
                     timeout: config.meta.timeout || (is_get ? TIMEOUTSOON : TIMEOUTFOREVER),
                     beforeSend: function (xhr, req) {

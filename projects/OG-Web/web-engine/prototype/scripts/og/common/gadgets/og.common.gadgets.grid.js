@@ -276,6 +276,11 @@ $.register_module({
                     grid.resize(); // re-write styles
                     return false;
                 })
+                .on('click', '.OG-g-h-set-name .og-csv', function (event) {
+                    console.log(grid);
+                    og.api.rest.views.csv.download({view_id: grid.dataman.connection.view_id, grid_type: grid.source.type});
+                    return false;
+                })
                 .on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();
