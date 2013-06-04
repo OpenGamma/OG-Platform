@@ -465,11 +465,11 @@ public class DbTool extends Task {
       if (migrateScript == null) {
         throw new OpenGammaRuntimeException("The " + v + " migrate script is missing for " + dbVendorName + " and schema group " + schemaGroupMetadata.getSchemaGroupName());
       }
-      s_logger.debug("Migrating DB from version {} to {}", (v - 1), v);
+      s_logger.debug("Migrating DB from version {} to {}", v, v + 1);
       s_logger.debug("Executing migrate script {}", migrateScript.getName());
       executeSQLScript(catalog, schema, migrateScript);
       if (callback != null) {
-        callback.tablesCreatedOrUpgraded(v, schemaGroupMetadata);
+        callback.tablesCreatedOrUpgraded(v + 1, schemaGroupMetadata);
       }
     }
   }

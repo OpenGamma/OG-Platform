@@ -155,7 +155,7 @@ public final class DbTest {
           min--;
         }
         for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
-          parameters.add(new Object[]{databaseType, schemaGroupMetadata.getSchemaGroupName(), "" + max /*target_version*/, "" + v /*migrate_from_version*/});
+          parameters.add(new Object[]{databaseType, schemaGroupMetadata.getSchemaGroupName(), max /*target_version*/, v /*migrate_from_version*/});
         }
       }      
     }
