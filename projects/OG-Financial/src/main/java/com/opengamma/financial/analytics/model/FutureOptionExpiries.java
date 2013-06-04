@@ -11,10 +11,10 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
-
-//FIXME: Take account of holidays
 
 /**
  *  Utility Class for computing Expiries of Future Options from ordinals (i.e. nth future after valuationDate)
@@ -23,7 +23,7 @@ import com.opengamma.util.time.Tenor;
  */
 //TODO there is far too much hard-coding of assumptions (e.g. when to switch from serial to quarterly in this class.
 // Add information to the surface instrument provider, not in here
-public final class FutureOptionExpiries {
+public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpiryCalculator {
 
   /** Instance of {@code FutureOptionExpiries} used for Interest Rate Future Options. (Expiries on 3rd Wednesdays) */
   public static final FutureOptionExpiries IR = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY));
@@ -229,6 +229,29 @@ public final class FutureOptionExpiries {
       expiry = (expiry.plusDays(7)).with(_nextExpiryAdjuster);
     }
     return expiry;
+  }
+
+  @Override
+  public LocalDate getExpiryDate(int n, LocalDate today, Calendar holidayCalendar) {
+    ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
+    ArgumentChecker.notNull(today, "today");
+    ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
+
+    LocalDate expiry = getExpiryMonth(n, today);
+    while (!holidayCalendar.isWorkingDay(expiry)) {
+      expiry = expiry.minusDays(1);
+    }
+    return expiry;
+  }
+
+  @Override
+  public LocalDate getExpiryMonth(int n, LocalDate today) {
+    return getMonthlyExpiry(n, today);
+  }
+
+  @Override
+  public String getName() {
+    return "FutureOptionExpiries with " + _nextExpiryAdjuster.toString();
   }
 }
 
