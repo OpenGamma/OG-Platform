@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -32,12 +33,14 @@ public final class DbScriptUtils {
   private static final Map<String, DbSchemaGroupMetadata> s_dbSchemaGroupMetadata;
   
   static {
-    ImmutableMap.Builder<String, DbSchemaGroupMetadata> builder = ImmutableMap.builder();
+    Map<String, DbSchemaGroupMetadata> schemaGroupMetadata = new HashMap<String, DbSchemaGroupMetadata>();
     ClassLoader classLoader = DbScriptUtils.class.getClassLoader();
     try {
       Enumeration<URL> metadataResourceUrls = classLoader.getResources(METADATA_RESOURCE_PATH);
       while (metadataResourceUrls.hasMoreElements()) {
         URL metadataResourceUrl = metadataResourceUrls.nextElement();
+        String metadataResourceUrlString = metadataResourceUrl.toExternalForm();
+        String baseResourceUrlString = metadataResourceUrlString.substring(0, metadataResourceUrlString.length() - METADATA_FILE.length() - 1);
         try {
           InputStream in = metadataResourceUrl.openStream();
           try {
@@ -45,8 +48,11 @@ public final class DbScriptUtils {
             properties.load(in);
             for (Map.Entry<Object, Object> metadata : properties.entrySet()) {
               String schemaGroupName = (String) metadata.getKey();
+              if (schemaGroupMetadata.containsKey(schemaGroupName)) {
+                continue;
+              }
               int currentVersion = Integer.parseInt((String) metadata.getValue());
-              builder.put(schemaGroupName, new DbSchemaGroupMetadata(schemaGroupName, metadataResourceUrl.toURI(), currentVersion));
+              schemaGroupMetadata.put(schemaGroupName, new DbSchemaGroupMetadata(schemaGroupName, baseResourceUrlString, currentVersion));
             }
           } catch (Exception e) {
             s_logger.error("Error reading database metadata resource at " + metadataResourceUrl, e);
@@ -61,7 +67,7 @@ public final class DbScriptUtils {
       s_logger.error("Error looking for database metadata resources", e);
     }
 
-    s_dbSchemaGroupMetadata = builder.build();
+    s_dbSchemaGroupMetadata = ImmutableMap.copyOf(schemaGroupMetadata);
   }
   
   private DbScriptUtils() {
