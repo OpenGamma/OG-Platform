@@ -19,6 +19,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.script.DbSchemaGroupMetadata;
+import com.opengamma.util.db.script.DbScriptUtils;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
@@ -32,10 +34,10 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
 
   private final List<Triple<String, String, String>> _comparisons = Lists.newLinkedList();
 
-  private final String _tableSet;
+  private final String _schemaGroupName;
   private final String _databaseType;
-  private final String _targetVersion;
-  private final String _createVersion;
+  private final int _targetVersion;
+  private final int _createVersion;
   private volatile DbTool _dbTool;
 
   static {
@@ -47,13 +49,14 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
    * Creates an instance.
    * 
    * @param databaseType  the database type, not null
-   * @param tableSet  the subset of tables 
+   * @param schemaGroupName  the schema group name, not null
    * @param targetVersion  the target version
    * @param createVersion  the create version
    */
-  protected AbstractDbUpgradeTest(String databaseType, String tableSet, final String targetVersion, final String createVersion) {
+  protected AbstractDbUpgradeTest(String databaseType, String schemaGroupName, final int targetVersion, final int createVersion) {
+    ArgumentChecker.notNull(schemaGroupName, "schameGroupName");
     ArgumentChecker.notNull(databaseType, "databaseType");
-    _tableSet = tableSet;
+    _schemaGroupName = schemaGroupName;
     _databaseType = databaseType;
     _targetVersion = targetVersion;
     _createVersion = createVersion;
@@ -67,7 +70,7 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
     dbTool.setCreateVersion(_createVersion);
     dbTool.dropTestSchema();
     dbTool.createTestSchema();
-    dbTool.createTables(_tableSet, dbTool.getTestCatalog(), dbTool.getTestSchema(), Integer.parseInt(_targetVersion), Integer.parseInt(_createVersion), this);
+    dbTool.createTables(DbScriptUtils.getDbSchemaGroupMetadata(_schemaGroupName), dbTool.getTestCatalog(), dbTool.getTestSchema(), _targetVersion, _createVersion, this);
     dbTool.clearTestTables();
   }
 
@@ -134,20 +137,21 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
   }
 
   @Override
-  public void tablesCreatedOrUpgraded(final String version, final String prefix) {
+  public void tablesCreatedOrUpgraded(final int version, final DbSchemaGroupMetadata schemaGroupMetadata) {
     final Map<String, String> versionSchemas = getVersionSchemas();
-    if (versionSchemas.containsKey(prefix + "_" + version)) {
+    String key = schemaGroupMetadata.getSchemaGroupName() + "_" + version;
+    if (versionSchemas.containsKey(key)) {
       // if we've already done the full schema, then we want to test that this upgrade has given us the same (but defer the comparison)
-      _comparisons.add(new Triple<String, String, String>(prefix + "_" + version, versionSchemas.get(prefix + "_" + version), _dbTool.describeDatabase(prefix)));
+      _comparisons.add(new Triple<String, String, String>(key, versionSchemas.get(key), _dbTool.describeDatabase(schemaGroupMetadata.getSchemaGroupName())));
     } else {
       // tests are run with most recent full schema first, so we can store that as a reference
-      versionSchemas.put(prefix + "_" + version, _dbTool.describeDatabase(prefix));
+      versionSchemas.put(key, _dbTool.describeDatabase(schemaGroupMetadata.getSchemaGroupName()));
     }
   }
 
   @Override
   public String toString() {
-    return _databaseType + "/" + _tableSet + ":" + _createVersion + " >>> " + _targetVersion;
+    return _databaseType + "/" + _schemaGroupName + ":" + _createVersion + " >>> " + _targetVersion;
   }
 
 }

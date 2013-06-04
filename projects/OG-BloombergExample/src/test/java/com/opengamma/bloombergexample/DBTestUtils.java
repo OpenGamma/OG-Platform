@@ -1,8 +1,6 @@
 package com.opengamma.bloombergexample;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -10,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentManager;
-import com.opengamma.util.test.DbScripts;
 import com.opengamma.util.test.DbTool;
 
 public final class DBTestUtils {
@@ -24,7 +21,6 @@ public final class DBTestUtils {
   }
 
   public static void createHsqlDB(String configResourceLocation) throws IOException {
-    Collection<File> scriptDirs = DbScripts.getSqlScriptDir();
     Properties props = loadProperties(configResourceLocation);
     
     DbTool dbTool = new DbTool();
@@ -35,7 +31,6 @@ public final class DBTestUtils {
     dbTool.setCreate(true);
     dbTool.setDrop(true);
     dbTool.setCreateTables(true);
-    dbTool.addDbScriptDirectories(scriptDirs);
     dbTool.execute();
   }
 
@@ -61,18 +56,12 @@ public final class DBTestUtils {
     
     return props;
   }
-
-  private static void cleanScriptDir() {
-    DbScripts.deleteSqlScriptDir();
-  }
-
+  
   public static void cleanUp(String configResourceLocation) throws IOException {
     dropDatabase(configResourceLocation);
-    cleanScriptDir();
   }
 
   private static void dropDatabase(String configResourceLocation) throws IOException {
-    Collection<File> scriptDirs = DbScripts.getSqlScriptDir();
     Properties props = loadProperties(configResourceLocation);
     DbTool dbTool = new DbTool();
     dbTool.setCatalog("og-financial");
@@ -80,7 +69,6 @@ public final class DBTestUtils {
     dbTool.setUser(props.getProperty(DB_USERNAME_KEY, ""));
     dbTool.setPassword(props.getProperty(DB_PASSWORD_KEY, ""));
     dbTool.setDrop(true);
-    dbTool.addDbScriptDirectories(scriptDirs);
     dbTool.execute();
   }
 

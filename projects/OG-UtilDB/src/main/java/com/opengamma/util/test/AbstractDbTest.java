@@ -22,6 +22,7 @@ import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.DbDialect;
+import com.opengamma.util.db.script.DbSchemaGroupMetadata;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 
@@ -163,7 +164,6 @@ public abstract class AbstractDbTest implements TableCreationCallback {
     for (DbConnector connector : s_connectors.values()) {
       ReflectionUtils.close(connector);
     }
-    DbScripts.deleteSqlScriptDir();
   }
 
   //-------------------------------------------------------------------------
@@ -256,10 +256,10 @@ public abstract class AbstractDbTest implements TableCreationCallback {
    * in its "upgrading" state - e.g. populate with test data at a particular
    * version to test the data transformations on the next version upgrades.
    * 
-   * @param version  the version, not null
-   * @param prefix  the prefix, not null
+   * @param version  the version
+   * @param prefix  the database schema group metadata, not null
    */
-  public void tablesCreatedOrUpgraded(final String version, final String prefix) {
+  public void tablesCreatedOrUpgraded(final int version, final DbSchemaGroupMetadata schemaGroupMetadata) {
     // No action 
   }
 

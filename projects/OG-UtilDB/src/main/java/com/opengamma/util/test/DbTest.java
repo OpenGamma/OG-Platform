@@ -7,13 +7,10 @@ package com.opengamma.util.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
@@ -28,6 +25,8 @@ import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.HSQLDbDialect;
 import com.opengamma.util.db.PostgresDbDialect;
 import com.opengamma.util.db.SqlServer2008DbDialect;
+import com.opengamma.util.db.script.DbSchemaGroupMetadata;
+import com.opengamma.util.db.script.DbScriptUtils;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -148,17 +147,17 @@ public final class DbTest {
   private static Object[][] getParametersForSeparateMasters(int prevVersionCount) {
     Collection<String> databaseTypes = getAvailableDatabaseTypes(System.getProperty("test.database.type"));
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String databaseType : databaseTypes) {
-      DbScripts scripts = DbScripts.of(DbScripts.getSqlScriptDir(), databaseType);
-      Map<String, SortedMap<Integer, DbScriptPair>> scriptPairs = scripts.getScriptPairs();
-      for (String schema : scriptPairs.keySet()) {
-        Set<Integer> versions = scriptPairs.get(schema).keySet();
-        int max = Collections.max(versions);
-        int min = Collections.min(versions);
-        for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
-          parameters.add(new Object[]{databaseType, schema, "" + max /*target_version*/, "" + v /*migrate_from_version*/});
+    for (DbSchemaGroupMetadata schemaGroupMetadata : DbScriptUtils.getAllSchemaGroupMetadata()) {
+      for (String databaseType : databaseTypes) {
+        int max = schemaGroupMetadata.getCurrentVersion();
+        int min = max;
+        while (schemaGroupMetadata.getCreateScript(databaseType, min - 1) != null) {
+          min--;
         }
-      }
+        for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
+          parameters.add(new Object[]{databaseType, schemaGroupMetadata.getSchemaGroupName(), "" + max /*target_version*/, "" + v /*migrate_from_version*/});
+        }
+      }      
     }
     Object[][] array = new Object[parameters.size()][];
     parameters.toArray(array);
@@ -237,7 +236,6 @@ public final class DbTest {
     DbTool dbTool = new DbTool(dbHost, user, password, dataSource);
     dbTool.initialize();
     dbTool.setJdbcUrl(dbTool.getTestDatabaseUrl());
-    dbTool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
     return dbTool;
   }
 

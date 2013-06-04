@@ -19,7 +19,7 @@ import com.opengamma.util.test.TestGroup;
 public class MasterDbDatabaseUpgradeTest extends AbstractDbUpgradeTest {
 
   @Factory(dataProvider = "databasesVersionsForSeparateMasters", dataProviderClass = DbTest.class)  
-  public MasterDbDatabaseUpgradeTest(final String databaseType, final String masterDB, final String target_version, final String migrate_from_version) {
+  public MasterDbDatabaseUpgradeTest(final String databaseType, final String masterDB, final int target_version, final int migrate_from_version) {
     super(databaseType, masterDB, target_version, migrate_from_version);
   }
 

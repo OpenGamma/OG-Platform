@@ -8,6 +8,7 @@ package com.opengamma.util.db.script;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -76,6 +77,10 @@ public final class DbScriptUtils {
   
   public static Set<String> getAllSchemaNames() {
     return s_dbSchemaGroupMetadata.keySet();
+  }
+  
+  public static Collection<DbSchemaGroupMetadata> getAllSchemaGroupMetadata() {
+    return s_dbSchemaGroupMetadata.values();
   }
   
   public static DbSchemaGroupMetadata getDbSchemaGroupMetadata(String schemaGroupName) {
