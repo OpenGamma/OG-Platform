@@ -13,50 +13,21 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.BitSet;
 import java.util.Collection;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.redis.AbstractRedisTestCase;
 
 /**
  * 
  */
 @Test(enabled=false)
-public class NonVersionedRedisConfigSourceTest {
-
-  private JedisPool _jedisPool;
-  private String _redisPrefix;
-  
-  @BeforeClass
-  public void launchJedisPool() {
-    _jedisPool = new JedisPool("localhost");
-    _redisPrefix = System.getProperty("user.name") + "_" + System.currentTimeMillis();
-  }
-  
-  @AfterClass
-  public void clearJedisPool() {
-    if (_jedisPool == null) {
-      return;
-    }
-    _jedisPool.destroy();
-  }
-  
-  @BeforeMethod
-  public void clearRedisDb() {
-    Jedis jedis = _jedisPool.getResource();
-    jedis.flushDB();
-    _jedisPool.returnResource(jedis);
-  }
+public class NonVersionedRedisConfigSourceTest extends AbstractRedisTestCase {
   
   public void putDeleteGetAll() {
-    NonVersionedRedisConfigSource configSource = new NonVersionedRedisConfigSource(_jedisPool, _redisPrefix);
+    NonVersionedRedisConfigSource configSource = new NonVersionedRedisConfigSource(getJedisPool(), getRedisPrefix());
     
     ExternalIdBundle bundle1 = constructIdBundle("Test", "1");
     ExternalIdBundle bundle2 = constructIdBundle("Test", "2");
@@ -105,7 +76,7 @@ public class NonVersionedRedisConfigSourceTest {
   }
   
   public void putGet() {
-    NonVersionedRedisConfigSource configSource = new NonVersionedRedisConfigSource(_jedisPool, _redisPrefix);
+    NonVersionedRedisConfigSource configSource = new NonVersionedRedisConfigSource(getJedisPool(), getRedisPrefix());
     
     ExternalIdBundle bundle1 = constructIdBundle("Test", "1");
     ExternalIdBundle bundle2 = constructIdBundle("Test", "2");
