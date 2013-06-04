@@ -451,7 +451,7 @@ public class DbTool extends Task {
     String dbVendorName = _dialect.getDatabaseName();
     DbScript createScript = schemaGroupMetadata.getCreateScript(dbVendorName, migrateFromVersion);
     if (createScript == null) {
-      throw new OpenGammaRuntimeException("The " + migrateFromVersion + " create script is missing for " + dbVendorName + " and schema group " + schemaGroupMetadata.getSchemaGroupName());
+      throw new OpenGammaRuntimeException("Missing create script for V" + migrateFromVersion + ", database " + dbVendorName + ", schema group " + schemaGroupMetadata.getSchemaGroupName());
     }
     s_logger.debug("Creating {} DB version {}", schemaGroupMetadata.getSchemaGroupName(), migrateFromVersion);
     s_logger.debug("Executing create script {}", createScript.getName());
