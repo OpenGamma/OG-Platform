@@ -23,9 +23,17 @@
   <build>
     <sourceDirectory>Client/src/main/java</sourceDirectory>
     <testSourceDirectory>Client/src/test/java</testSourceDirectory>
+    <resources>
+      <resource>
+        <directory>Client/src/main/java</directory>
+      </resource>
+      <resource>
+        <directory>Client/src/main/resources</directory>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
-        <directory>${project.basedir}Client/src/test/resources</directory>
+        <directory>Client/src/test/resources</directory>
       </testResource>
     </testResources>
   </build>
