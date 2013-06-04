@@ -5,9 +5,12 @@
  */
 package com.opengamma.util.db.script;
 
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 
 /**
@@ -19,12 +22,12 @@ public class DbSchemaGroupMetadata {
   private static final String MIGRATE_TYPE = "migrate";
 
   private final String _schemaGroupName;
-  private final URI _metadataUri;
+  private final String _baseResourceUrl;
   private final int _currentVersion;
   
-  public DbSchemaGroupMetadata(String schemaGroupName, URI metadataUri, int currentVersion) {
+  public DbSchemaGroupMetadata(String schemaGroupName, String baseResourceUrl, int currentVersion) {
     _schemaGroupName = schemaGroupName;
-    _metadataUri = metadataUri;
+    _baseResourceUrl = baseResourceUrl;
     _currentVersion = currentVersion;
   }
 
@@ -88,18 +91,22 @@ public class DbSchemaGroupMetadata {
 
   //-------------------------------------------------------------------------
   private DbScript getScript(String dbVendorName, String scriptType, int version) {
-    URI sqlResource = getSqlScript(dbVendorName, scriptType, version);
-    ClasspathDbScript script = new ClasspathDbScript(sqlResource);
+    URL sqlScriptUrl = getSqlScriptUrl(dbVendorName, scriptType, version);
+    ClasspathDbScript script = new ClasspathDbScript(sqlScriptUrl);
     return script.exists() ? script : null;
   }
   
-  private URI getMetadataUri() {
-    return _metadataUri;
+  private String getBaseResourceUrl() {
+    return _baseResourceUrl;
   }
   
-  private URI getSqlScript(String dbVendor, String scriptType, int version) {
+  private URL getSqlScriptUrl(String dbVendor, String scriptType, int version) {
     String fileName = "V_" + version + "__" + scriptType + "_" + getSchemaGroupName() + ".sql";
-    return getMetadataUri().resolve(scriptType + "/" + dbVendor + "/" + getSchemaGroupName() + "/" + fileName);
+    try {
+      return new URL(getBaseResourceUrl() + "/" + scriptType + "/" + dbVendor + "/" + getSchemaGroupName() + "/" + fileName);
+    } catch (MalformedURLException e) {
+      throw new OpenGammaRuntimeException("Unable to construct SQL script URL", e);
+    }
   }
   
 }

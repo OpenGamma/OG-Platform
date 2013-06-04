@@ -7,10 +7,11 @@ package com.opengamma.util.db.script;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,9 +19,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ClasspathDbScript implements DbScript {
 
-  private final URI _scriptResource;
+  private final URL _scriptResource;
   
-  public ClasspathDbScript(URI scriptResource) {
+  public ClasspathDbScript(URL scriptResource) {
     ArgumentChecker.notNull(scriptResource, "scriptResource");
     _scriptResource = scriptResource;
   }
@@ -33,8 +34,12 @@ public class ClasspathDbScript implements DbScript {
   @Override
   public boolean exists() {
     try {
-      InputStream in = _scriptResource.toURL().openStream();
-      in.close();
+      try {
+        InputStream in = _scriptResource.openStream();
+        in.close();
+      } catch (IllegalArgumentException e) {
+        throw new OpenGammaRuntimeException(_scriptResource + " caused exception", e);
+      }
       return true;
     } catch (IOException e) {
       return false;
