@@ -15,6 +15,7 @@ import org.threeten.bp.LocalDate;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import com.codahale.metrics.Timer;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -109,6 +110,10 @@ public abstract class AbstractRedisHistoricalTimeSeriesSource implements Histori
     return ts;
   }
 
+  protected String toRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, null);
+  }
+  
   protected String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
     StringBuilder sb = new StringBuilder();
     
@@ -123,10 +128,42 @@ public abstract class AbstractRedisHistoricalTimeSeriesSource implements Histori
     return sb.toString();
   }
   
+  protected Map<String, String> loadValuesFromRedis(UniqueId uniqueId) {
+    String redisKey = toRedisKey(uniqueId);
+    Map<String, String> valuesFromRedis = null;
+    Jedis jedis = getJedisPool().getResource();
+    try {
+      valuesFromRedis = jedis.hgetAll(redisKey);
+      getJedisPool().returnResource(jedis);
+    } catch (Exception e) {
+      s_logger.error("Unable to load points from redis for " + uniqueId, e);
+      getJedisPool().returnBrokenResource(jedis);
+      throw new OpenGammaRuntimeException("Unable to load points from redis for " + uniqueId, e);
+    }
+    return valuesFromRedis;
+  }
+  
   // ------------------------------------------------------------------------
   // SUPPORTED HISTORICAL TIME SERIES SOURCE OPERATIONS:
   // ------------------------------------------------------------------------
-  protected abstract LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(UniqueId uniqueId);
+  
+  protected abstract Timer getSeriesLoadTimer();
+  
+  protected LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(UniqueId uniqueId) {
+    // This is the only method that needs implementation.
+    
+    try (Timer.Context context = getSeriesLoadTimer().time()) {
+      Map<String, String> valuesFromRedis = loadValuesFromRedis(uniqueId);
+      
+      if ((valuesFromRedis == null) || valuesFromRedis.isEmpty()) {
+        return null;
+      }
+      
+      LocalDateDoubleTimeSeries ts = composeFromRedisValues(valuesFromRedis);
+      return ts;
+    }
+    
+  }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(uniqueId);

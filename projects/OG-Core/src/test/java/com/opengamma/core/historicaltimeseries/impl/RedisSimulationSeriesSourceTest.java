@@ -25,7 +25,7 @@ import com.opengamma.util.redis.AbstractRedisTestCase;
 /**
  * 
  */
-@Test(enabled=true)
+@Test(enabled=false)
 public class RedisSimulationSeriesSourceTest extends AbstractRedisTestCase {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSourceTest.class);
   

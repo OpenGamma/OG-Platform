@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -18,10 +17,8 @@ import redis.clients.jedis.JedisPool;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.MetricProducer;
 
@@ -47,7 +44,7 @@ import com.opengamma.util.metric.MetricProducer;
  * <ul>
  *   <li>Historical lookups are not required. Because they are not supported.</li>
  *   <li>Version corrections are not required. Because they are not supported.</li>
- *   <li>Each time series has a <b>single</b> {@link ExternalId} when then acts
+ *   <li>Each time series has a <b>single</b> {@link ExternalId} which then acts
  *       as the {@link UniqueId} internally.</li>
  *   <li>Each external ID has a single time series (thus there is not the capacity to store
  *       different Data Source, Data Provider, Observation Time, Data Field series).</li>
@@ -127,32 +124,15 @@ public class RedisSimulationSeriesSource extends AbstractRedisHistoricalTimeSeri
       throw new OpenGammaRuntimeException("Unable to clear execution date " + simulationExecutionDate, e);
     }
   }
-  
-  protected LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(UniqueId uniqueId) {
-    // This is the only method that needs implementation.
-    
-    try (Timer.Context context = _getSeriesTimer.time()) {
-      // We ignore all parameters except for the UniqueId.
-      String redisKey = toRedisKey(uniqueId, getCurrentSimulationExecutionDate());
-      Map<String, String> valuesFromRedis = null;
-      Jedis jedis = getJedisPool().getResource();
-      try {
-        valuesFromRedis = jedis.hgetAll(redisKey);
-        getJedisPool().returnResource(jedis);
-      } catch (Exception e) {
-        s_logger.error("Unable to load points from redis for " + uniqueId, e);
-        getJedisPool().returnBrokenResource(jedis);
-        throw new OpenGammaRuntimeException("Unable to load points from redis for " + uniqueId, e);
-      }
-      
-      if ((valuesFromRedis == null) || valuesFromRedis.isEmpty()) {
-        return null;
-      }
-      
-      LocalDateDoubleTimeSeries ts = composeFromRedisValues(valuesFromRedis);
-      return ts;
-    }
-    
+
+  @Override
+  protected String toRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, getCurrentSimulationExecutionDate());
   }
 
+  @Override
+  protected Timer getSeriesLoadTimer() {
+    return _getSeriesTimer;
+  }
+  
 }
