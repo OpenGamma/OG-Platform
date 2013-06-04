@@ -89,7 +89,8 @@ public class DbSchemaGroupMetadata {
   //-------------------------------------------------------------------------
   private DbScript getScript(String dbVendorName, String scriptType, int version) {
     URI sqlResource = getSqlScript(dbVendorName, scriptType, version);
-    return new ClasspathDbScript(sqlResource);
+    ClasspathDbScript script = new ClasspathDbScript(sqlResource);
+    return script.exists() ? script : null;
   }
   
   private URI getMetadataUri() {
