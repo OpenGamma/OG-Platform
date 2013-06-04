@@ -17,8 +17,8 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
  */
 public class MixedBivariateLogNormalModelVolatilityTest {
 
-  final private static double EPS = 1.e-15;
-  final private static double INF = 1. / 0.;
+  private static final double EPS = 1.e-15;
+  private static final double INF = 1. / 0.;
 
   /**
    * 
