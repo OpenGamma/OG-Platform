@@ -39,7 +39,6 @@ $.register_module({
         return status = {
             resume: function (){
             if ($(toggle).hasClass('og-icon-pause')) return;
-            console.log('resume');
             action('resume');
             initialize = false;
             },
@@ -74,4 +73,4 @@ $.register_module({
             }
         };
     }
-})
+});

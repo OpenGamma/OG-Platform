@@ -27,6 +27,7 @@ $.register_module({
             var cellmenu = this, depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
                 parent = grid.elements.parent, inplace_config, timer;
             cellmenu.frozen = false;
+            cellmenu.setdrag(false);
             cellmenu.grid = grid;
             cellmenu.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
@@ -46,7 +47,10 @@ $.register_module({
                 })
                 .on('scrollstart', function () {
                     cellmenu.busy(true);
-                    if (cellmenu.frozen) cellmenu.destroy_frozen(); else cellmenu.hide();
+                    if (cellmenu.frozen ) {
+                        if(!cellmenu.getdrag()) cellmenu.destroy_frozen();
+                    }
+                    else cellmenu.hide();
                 })
                 .on('scrollend', function () {cellmenu.busy(false);});
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
@@ -107,6 +111,12 @@ $.register_module({
         constructor.prototype.hide = function () {
             var cellmenu = this;
             if (cellmenu.menu && cellmenu.menu.length && !cellmenu.frozen) cellmenu.menu.hide();
+        };
+        constructor.prototype.setdrag = function (state) {
+            constructor.prototype.drag = state;
+        };
+        constructor.prototype.getdrag = function () {
+            return constructor.prototype.drag;
         };
         constructor.prototype.show = function (coordinates) {
             var cellmenu = this, current = this.current, width = coordinates.right - coordinates.left,

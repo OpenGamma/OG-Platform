@@ -467,12 +467,14 @@ $.register_module({
                         prefix = fixed && col === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
                             state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
-                        cells.push({
-                            column: column, value: prefix + value, type: data[index].t || type,
-                            highlight: highlight && highlight.row === data_row && highlight.col === data_col
-                                && highlight.event_type,
-                            logging: data[index] && data[index][logging], error: data[index] && data[index].error
-                        });
+                        if(data[index] !== undefined) { //catch any histogram and timeseries resize lags
+                            cells.push({
+                                column: column, value: prefix + value, type: data[index].t || type,
+                                highlight: highlight && highlight.row === data_row && highlight.col === data_col
+                                    && highlight.event_type,
+                                logging: data[index] && data[index][logging], error: data[index] && data[index].error
+                            });
+                        }
                     }
                 }
                 return result;

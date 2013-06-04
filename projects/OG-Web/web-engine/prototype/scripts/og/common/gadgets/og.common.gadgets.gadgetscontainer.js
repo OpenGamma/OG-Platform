@@ -16,13 +16,16 @@ $.register_module({
                 overflow = {},   // document offset of overflow panel
                 $overflow_panel; // panel that houses non visible tabs
             var draggable = function ($elm) {
+                window.elm = $elm;
                 $elm.each(function (i) {
                     $(this).draggable({
                         cursor: 'move', zIndex: 5, cursorAt: {top: 25, left: 25}, scroll: false,
                         iframeFix: true, appendTo: 'body', distance: 20,
                         revert: new_window.partial(i),
+                        start: function () {og.analytics.grid.cellmenu.setdrag(true);},
                         stop: function () {$(this).draggable('option', 'revert', new_window.partial(i));},
                         helper: function () {return dropbox_template({label: $(this).text().trim()});}
+
                     }).data({
                         gadget: function () {return gadgets[i];},
                         handler: function () {container.del(gadgets[i]);},
@@ -47,7 +50,6 @@ $.register_module({
                             gadget_name = $(this).attr('data-gadget_name'), swap_config;
                         if (gadget_type === 'dock') {
                             og.analytics.url.add('south', gadgets[0].config);
-                            og.analytics.grid.cellmenu.destroy_frozen();
                             og.common.gadgets.manager.clean();
                             return;
                         };
@@ -274,7 +276,9 @@ $.register_module({
                 if (!silent && id) gadgets[extract_index(id)].gadget.resize();
                 if (!silent) container.fire('del', index);
             };
-            container.gadgets = function () {return gadgets;};
+            container.gadgets = function () {
+                return gadgets;
+            };
             /**
              * Add og-focus class to last clicked container tab and remove from all other gadget container instances
              */

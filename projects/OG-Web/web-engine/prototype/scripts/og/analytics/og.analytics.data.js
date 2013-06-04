@@ -212,14 +212,6 @@ $.register_module({
             data.source = source;
             data.pool = config.pool;
             data.pools = function () {
-                //var con, view, par;
-                //par = ConnectionPool.parents();
-                //console.log(par);
-                //con = par.pluck('connection');
-                //console.log(con);
-                //view = con.pluck('view_id');
-                //console.log(view);
-                //return view;
                 return ConnectionPool.parents().pluck('connection').pluck('view_id');
             };
             data.parent = config.parent || ConnectionPool.parent(data);
