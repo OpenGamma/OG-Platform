@@ -86,7 +86,7 @@
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
-      <classifier>resources</classifier>
+      <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
