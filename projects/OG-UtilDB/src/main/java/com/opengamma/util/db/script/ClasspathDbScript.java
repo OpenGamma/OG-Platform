@@ -6,6 +6,7 @@
 package com.opengamma.util.db.script;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
@@ -27,6 +28,17 @@ public class ClasspathDbScript implements DbScript {
   @Override
   public String getName() {
     return _scriptResource.getPath();
+  }
+
+  @Override
+  public boolean exists() {
+    try {
+      InputStream in = _scriptResource.toURL().openStream();
+      in.close();
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   @Override

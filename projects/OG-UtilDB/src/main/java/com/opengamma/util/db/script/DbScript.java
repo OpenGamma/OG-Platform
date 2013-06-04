@@ -20,6 +20,13 @@ public interface DbScript {
   String getName();
   
   /**
+   * Gets whether the script exists.
+   * 
+   * @return true if the script exists, false otherwise
+   */
+  boolean exists();
+  
+  /**
    * Gets the contents of the script.
    * 
    * @return the contents of the script, not null
