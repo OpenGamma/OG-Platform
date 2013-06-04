@@ -35,7 +35,6 @@ public class EHCachingSearchCacheTest {
         EHCachingSearchCache searchCache = getCleanSearchCache();
         for (int requestStartPos = 0; requestStartPos * requestStartStepSize < TOTAL_SIZE * 4; requestStartPos++) {
           PagingRequest pagingRequest = PagingRequest.ofIndex((requestStartPos * requestStartStepSize) % TOTAL_SIZE, requestSize);
-          System.out.println(pagingRequest);
           assertEquals(searchCache.search(new SecuritySearchRequest(), pagingRequest, false).getSecond(),
                        buildResultIDs(
                          PagingRequest.ofIndex(
