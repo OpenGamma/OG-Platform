@@ -921,8 +921,8 @@ public class RemoteComponentFactory {
   }
 
   //-------------------------------------------------------------------------
-  public RemoteAvailableOutputsProvider getRemoteAvailableOutputs() {
-    URI uri = getComponentServer().getComponentInfo(AvailableOutputsProvider.class, "main").getUri();
+  public AvailableOutputsProvider getAvailableOutputs(final String name) {
+    URI uri = getComponentServer().getComponentInfo(AvailableOutputsProvider.class, name).getUri();
     return new RemoteAvailableOutputsProvider(uri);
   }
   
