@@ -148,7 +148,13 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
 
   @Override
   public void onMessage(Message message) {
-    _messageDispatcher.onMessage(message);
+    try {
+      _messageDispatcher.onMessage(message);
+    } catch (Exception e) {
+      // NOTE jonathan 2013-06-05 -- it's an error to throw an exception in onMessage and may cause messages to back up
+      // in the JMS broker which could affect its stability. Drop the message.
+      s_logger.error("Error processing JMS message", e);
+    }
   }
 
   @Override
