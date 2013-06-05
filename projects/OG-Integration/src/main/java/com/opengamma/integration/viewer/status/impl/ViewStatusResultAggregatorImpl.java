@@ -262,11 +262,11 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
    */
   private static class ImmutableViewStatusKey implements ViewStatusKey  {
     
-    private String _securityType;
+    private final String _securityType;
     
-    private String _valueName;
+    private final String _valueName;
     
-    private Currency _currency;
+    private final Currency _currency;
     
     public ImmutableViewStatusKey(String securityType, String valueName, Currency currency) {
       ArgumentChecker.notNull(securityType, "securityType");
