@@ -90,7 +90,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
     // SurfaceInstrumentProvider just used to get expiry calculator - find a better way as this is quite ugly.
     final String surfacePrefix = surfaceName.split("\\_")[1];
     final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(surfacePrefix, "Comdty", "", 0., "")
-        .getExpiryCalculator();
+        .getExpiryRuleCalculator();
     for (final Number nthExpiry : rawSurface.getXs()) {
       final Double t = TimeCalculator.getTimeBetween(valDate, expiryCalculator.getExpiryDate(nthExpiry.intValue(), valDate, calendar));
 

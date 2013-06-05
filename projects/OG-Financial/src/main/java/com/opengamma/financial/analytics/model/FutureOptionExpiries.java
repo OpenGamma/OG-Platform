@@ -253,6 +253,34 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
   public String getName() {
     return "FutureOptionExpiries with " + _nextExpiryAdjuster.toString();
   }
+  
+  /**
+   * Produced n'th expiry date after today of monthly or quarterly tenor.<p>
+   * Assumes a previous business day convention
+   * @param n n'th expiry
+   * @param today valuation date
+   * @param tenor accepts ONE_MONTH or THREE_MONTHS
+   * @param holidayCalendar Calendar
+   * @return n'th expiry date
+   */
+  public LocalDate getExpiryDate(int n, LocalDate today, Tenor tenor, Calendar holidayCalendar) {
+    ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
+    ArgumentChecker.notNull(today, "today");
+    ArgumentChecker.notNull(tenor, "tenor");
+    ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
+    LocalDate expiry;
+    if (tenor.equals(Tenor.ONE_MONTH)) {
+      expiry = getMonthlyExpiry(n, today);
+    } else if (tenor.equals(Tenor.THREE_MONTHS)) {
+      expiry = getQuarterlyExpiry(n, today);
+    } else {
+      throw new IllegalArgumentException("Could not handle frequency type " + tenor);
+    }
+    while (!holidayCalendar.isWorkingDay(expiry)) {
+      expiry = expiry.minusDays(1);
+    }
+    return expiry;
+  }
 }
 
 

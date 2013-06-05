@@ -51,7 +51,7 @@ public final class IMMFutureAndFutureOptionMonthlyExpiryCalculator implements Ex
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
     if (today.isAfter(today.with(THIRD_MONDAY_ADJUSTER))) {
-      return today.plusMonths(1);
+      return today.plusMonths(n);
     }
     return today.plusMonths(n - 1);
   }
