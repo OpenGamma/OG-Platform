@@ -57,7 +57,7 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
   private final FudgeContext _fudgeContext;
   private final String _redisPrefix;
   
-  private static final byte[] DATA_NAME_AS_BYTES = Charsets.UTF_8.encode("DATA").array();
+  private static final byte[] DATA_NAME_AS_BYTES = "DATA".getBytes(Charsets.UTF_8);
   
   public NonVersionedRedisConfigSource(JedisPool jedisPool) {
     this(jedisPool, "");
