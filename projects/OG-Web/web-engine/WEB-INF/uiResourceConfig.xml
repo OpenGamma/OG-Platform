@@ -526,8 +526,8 @@
     <bundle idref="blotter.js" />
     <fragment>/scripts/og/views/og.views.blotter.js</fragment>
   </bundle>
-  <bundle id="og_analytics.js">
-      <fragment>/scripts/og/views/og.views.analytics.js</fragment>
+  <bundle id="og_analytics_legacy.js">
+      <fragment>/scripts/og/views/og.views.analytics_legacy.js</fragment>
   </bundle>
   <bundle id="og_analytics2.js">
       <bundle idref="common_analytics.js" />

@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.views.analytics',
+    name: 'og.views.analytics_legacy',
     dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.common.routes'],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, view,

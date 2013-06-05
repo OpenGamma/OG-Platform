@@ -39,7 +39,7 @@ $.register_module({
                     }
                 })
             };},
-            analytics: function () {return {
+            analytics_legacy: function () {return {
                 main: $('.OG-layout-admin-container').layout({
                     defaults: {enableCursorHotkey: false},
                     north: {spacing_open: 0, paneClass: 'OG-layout-masthead', size: 25},
