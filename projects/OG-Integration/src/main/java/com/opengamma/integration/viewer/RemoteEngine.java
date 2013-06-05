@@ -7,6 +7,9 @@ package com.opengamma.integration.viewer;
 
 import java.net.URI;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import net.sf.ehcache.util.NamedThreadFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.lang.StringUtils;
@@ -68,6 +71,7 @@ public class RemoteEngine {
   private JmsConnector _jmsConnector;
   private URI _configurationURI;
   private FudgeMsg _configuration;
+  private final ScheduledExecutorService _scheduler = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("rvp"));
  
   public RemoteEngine(String baseUrl) {
     ArgumentChecker.notNull(StringUtils.trimToNull(baseUrl), "baseUrl");
@@ -75,6 +79,11 @@ public class RemoteEngine {
   }
   
   private void init(String baseUrl) {
+    baseUrl = StringUtils.stripEnd(baseUrl, "/");
+    if (baseUrl.endsWith("/jax") == false) {
+      baseUrl += "/jax";
+    }
+    
     _fudgeContext = OpenGammaFudgeContext.getInstance();
     final URI componentsUri = URI.create(baseUrl);
     final RemoteComponentServer remote = new RemoteComponentServer(componentsUri);
@@ -115,7 +124,7 @@ public class RemoteEngine {
 
   public RemoteViewProcessor getViewProcessor(final String name) {
     final URI uri = _components.getComponentInfo(ViewProcessor.class, name).getUri();
-    return new RemoteViewProcessor(uri, _jmsConnector, Executors.newSingleThreadScheduledExecutor());
+    return new RemoteViewProcessor(uri, _jmsConnector, _scheduler);
   }
 
   public RemoteConfigMaster getConfigMaster(final String name) {
@@ -202,6 +211,15 @@ public class RemoteEngine {
   public RemoteClient getUserClient(final String finUserManagerComponentName, final String username, final String clientId) {
     final URI uri = _components.getComponentInfo(FinancialUserManager.class, finUserManagerComponentName).getUri();
     return RemoteClient.forClient(_fudgeContext, uri, username, clientId);
+  }
+  
+  public void shutDown() {
+    if (_scheduler != null) {
+      _scheduler.shutdownNow();
+    }
+    if (_jmsConnector != null) {
+      _jmsConnector.close();
+    }
   }
 
 }
