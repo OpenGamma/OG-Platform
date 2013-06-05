@@ -145,7 +145,7 @@
     .OG-gadget-tabs li > div:first-child {
         padding: 3px 5px 0 5px;
     }
-
+login.ftl
     .OG-gadget-tabs li:last-child {
         float: none;
     }
@@ -165,8 +165,8 @@
         height: 10px;
         width: 11px;
         position: absolute;
-        right: -5px;
-        top: -5px;
+        right: -6px;
+        top: 6px;
         z-index: 4;
     }
 
