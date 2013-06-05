@@ -14,7 +14,7 @@
   <artifactId>og-platform</artifactId>
   <packaging>pom</packaging>
   <name>OG-Platform</name>
-  <description>OpenGamma maven platform aggregator project</description>
+  <description>OpenGamma platform aggregator project</description>
 
   <!-- ==================================================================== -->
   <modules>
@@ -47,23 +47,6 @@
   <!-- build aggregate website -->
   <reporting>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>${maven-project-info-reports-plugin.version}</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>index</report>
-              <report>dependency-management</report>
-              <report>dependencies</report>
-              <report>dependency-convergence</report>
-              <report>scm</report>
-              <report>summary</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>

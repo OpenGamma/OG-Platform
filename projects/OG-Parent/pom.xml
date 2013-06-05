@@ -16,7 +16,7 @@
   <version>2.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <description>OpenGamma maven platform parent project</description>
+  <description>OpenGamma platform parent project</description>
 
   <!-- ==================================================================== -->
   <issueManagement>
@@ -89,15 +89,6 @@
             </configuration>
           </execution>
         </executions>
-        <configuration>
-          <!-- add standard entries to jar manifest -->
-          <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-            </manifest>
-          </archive>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -184,7 +175,7 @@
         <executions>
           <execution>
             <id>fudge-proto-generate</id>
-            <phase>generate-sources</phase>
+            <phase>process-sources</phase>
             <goals>
               <goal>generate</goal>
             </goals>
@@ -907,25 +898,6 @@
   </dependencies>
 
   <!-- ==================================================================== -->
-  <!-- avoid building main website for children of platform -->
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>${maven-project-info-reports-plugin.version}</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>index</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <!-- ==================================================================== -->
   <profiles>
     <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
     <profile>
@@ -958,29 +930,12 @@
 
   <!-- ==================================================================== -->
   <properties>
-    <!-- Properties for maven-compiler-plugin -->
-    <maven.compiler.compilerVersion>1.7</maven.compiler.compilerVersion>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <maven.compiler.fork>true</maven.compiler.fork>
-    <maven.compiler.verbose>true</maven.compiler.verbose>
-    <maven.compiler.verbose>true</maven.compiler.verbose>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Platform API</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Platform API</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
     <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
     <excludePackageNames>javax.time.i18n;org.jodah.typetools</excludePackageNames>
-    <!-- Properties for maven-surefire-report-plugin -->
-    <alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
-    <!-- Properties for maven-checkstyle-plugin -->
-    <checkstyle.config.location>checkstyle/checkstyle.xml</checkstyle.config.location>
-    <checkstyle.enable.rss>false</checkstyle.enable.rss>
-    <!-- Properties for maven-joda-bean-plugin -->
-    <joda.beans.indent>2</joda.beans.indent>
-    <joda.beans.prefix>_</joda.beans.prefix>
-    <joda.beans.stopOnError>false</joda.beans.stopOnError>
-    <joda.beans.action>validate</joda.beans.action>
     <!-- Other properties -->
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <tests.testng.maxheap>2G</tests.testng.maxheap>
@@ -997,6 +952,7 @@
     <fudge.proto.fileHeader>///CLOVER:OFF - CSOFF</fudge.proto.fileHeader>
     <fudge.proto.fileFooter>///CLOVER:ON - CSON</fudge.proto.fileFooter>
     <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
+    <joda.beans.action>validate</joda.beans.action>
   </properties>
 
 </project>
