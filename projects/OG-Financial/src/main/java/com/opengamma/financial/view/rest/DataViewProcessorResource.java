@@ -25,6 +25,7 @@ import javax.ws.rs.core.UriInfo;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.config.impl.DataConfigSourceResource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcess;
@@ -109,6 +110,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * The view clients.
    */
   private final ConcurrentMap<UniqueId, DataViewClientResource> _createdViewClients = new ConcurrentHashMap<UniqueId, DataViewClientResource>();
+  /**
+   * The hts source
+   */
+  private final HistoricalTimeSeriesSource _htsSource;
 
   /**
    * Creates an instance.
@@ -119,11 +124,13 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * @param jmsConnector the JMS connector, not null
    * @param fudgeContext the Fudge context, not null
    * @param scheduler the scheduler, not null
+   * @param htsSource the hts source, may be null
    */
   public DataViewProcessorResource(final ViewProcessor viewProcessor, final ComputationTargetResolver targetResolver, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
       final JmsConnector jmsConnector,
-      final FudgeContext fudgeContext, final ScheduledExecutorService scheduler) {
+      final FudgeContext fudgeContext, final ScheduledExecutorService scheduler, final HistoricalTimeSeriesSource htsSource) {
     _viewProcessor = viewProcessor;
+    _htsSource = htsSource;
     _targetResolver = targetResolver;
     _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
     _jmsConnector = jmsConnector;
@@ -169,7 +176,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   @Path(PATH_SNAPSHOTTER)
   public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource);
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource, _htsSource);
     return new DataMarketDataSnapshotterResource(getViewProcessor(), snp);
   }
 
