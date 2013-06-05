@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
@@ -48,17 +48,6 @@
   <!-- standard build setup -->
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <verbose>true</verbose>
-          <fork>true</fork>
-          <compilerVersion>1.7</compilerVersion>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -137,18 +126,8 @@
         </dependencies>
         <configuration>
           <consoleOutput>true</consoleOutput>
-          <configLocation>checkstyle/checkstyle.xml</configLocation>
           <failsOnError>true</failsOnError>
         </configuration>
-        <executions>
-          <execution>
-            <id>validate</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <!-- use enforcer to apply build rules -->
       <plugin>
@@ -181,8 +160,6 @@
                   <version>[1.7,)</version>
                 </requireJavaVersion>
                 <requirePluginVersions>
-                  <banLatest>true</banLatest>
-                  <banRelease>true</banRelease>
                 </requirePluginVersions>
               </rules>
               <fail>true</fail>
@@ -195,16 +172,9 @@
         <artifactId>maven-joda-beans-plugin</artifactId>
         <executions>
           <execution>
-            <id>joda-beans</id>
-            <phase>${joda.beans.phase}</phase>
             <goals>
               <goal>${joda.beans.action}</goal>
             </goals>
-            <configuration>
-              <indent>${joda.beans.indent}</indent>
-              <prefix>${joda.beans.prefix}</prefix>
-              <stopOnError>${joda.beans.stopOnError}</stopOnError>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -957,34 +927,6 @@
 
   <!-- ==================================================================== -->
   <profiles>
-    <!-- if "joda-beans-generate" property not set on command line then validate beans -->
-    <profile>
-      <id>joda-beans-validate</id>
-      <activation>
-        <property>
-          <name>!joda-beans-generate</name>
-        </property>
-      </activation>
-      <properties>
-        <joda.beans.phase>validate</joda.beans.phase>
-        <joda.beans.action>validate</joda.beans.action>
-        <joda.beans.stopOnError>false</joda.beans.stopOnError>
-      </properties>
-    </profile>
-    <!-- if "joda-beans-generate" property is set on command line then generate beans -->
-    <profile>
-      <id>joda-beans-generate</id>
-      <activation>
-        <property>
-          <name>joda-beans-generate</name>
-        </property>
-      </activation>
-      <properties>
-        <joda.beans.phase>generate-sources</joda.beans.phase>
-        <joda.beans.action>generate</joda.beans.action>
-        <joda.beans.stopOnError>true</joda.beans.stopOnError>
-      </properties>
-    </profile>
     <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
     <profile>
       <id>javadoc-jar</id>
@@ -1016,11 +958,30 @@
 
   <!-- ==================================================================== -->
   <properties>
-    <!-- Properties named by plugins -->
+    <!-- Properties for maven-compiler-plugin -->
+    <maven.compiler.compilerVersion>1.7</maven.compiler.compilerVersion>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.fork>true</maven.compiler.fork>
+    <maven.compiler.verbose>true</maven.compiler.verbose>
+    <maven.compiler.verbose>true</maven.compiler.verbose>
+    <!-- Properties for maven-javadoc-plugin -->
+    <windowtitle>OpenGamma Platform API</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Platform API</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
     <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
     <excludePackageNames>javax.time.i18n;org.jodah.typetools</excludePackageNames>
-    <!-- Properties defined by OpenGamma poms -->
+    <!-- Properties for maven-surefire-report-plugin -->
+    <alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
+    <!-- Properties for maven-checkstyle-plugin -->
+    <checkstyle.config.location>checkstyle/checkstyle.xml</checkstyle.config.location>
+    <checkstyle.enable.rss>false</checkstyle.enable.rss>
+    <!-- Properties for maven-joda-bean-plugin -->
+    <joda.beans.indent>2</joda.beans.indent>
+    <joda.beans.prefix>_</joda.beans.prefix>
+    <joda.beans.stopOnError>false</joda.beans.stopOnError>
+    <joda.beans.action>validate</joda.beans.action>
+    <!-- Other properties -->
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/test/warn-logback.xml</tests.testng.logback>
@@ -1028,8 +989,6 @@
     <tests.testng.threads>4</tests.testng.threads>
     <tests.testng.includedgroups>unit</tests.testng.includedgroups>
     <tests.testng.excludedgroups>integration,unitdb,unitslow</tests.testng.excludedgroups>
-    <joda.beans.indent>2</joda.beans.indent>
-    <joda.beans.prefix>_</joda.beans.prefix>
     <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java</fudge.proto.searchDir>
     <fudge.proto.verbose>false</fudge.proto.verbose>
     <fudge.proto.listFiles>false</fudge.proto.listFiles>
