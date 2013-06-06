@@ -529,9 +529,9 @@
   <bundle id="og_analytics_legacy.js">
       <fragment>/scripts/og/views/og.views.analytics_legacy.js</fragment>
   </bundle>
-  <bundle id="og_analytics2.js">
+  <bundle id="og_analytics.js">
       <bundle idref="common_analytics.js" />
-      <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
+      <fragment>/scripts/og/views/og.views.analytics.js</fragment>
   </bundle>
   <bundle id="og_gadget.js">
       <bundle idref="common_analytics.js" />

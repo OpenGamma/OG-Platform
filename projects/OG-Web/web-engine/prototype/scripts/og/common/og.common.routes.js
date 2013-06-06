@@ -65,7 +65,7 @@ $.register_module({
                         .css({'visibility': 'visible'});
                     common.layout = (({
                         'analytics_legacy.ftl': common.layout.analytics_legacy,
-                        'analytics2.ftl': common.layout.analytics2,
+                        'analytics.ftl': common.layout.analytics,
                         'blotter.ftl': common.layout.blotter,
                         'gadget.ftl': common.layout.gadget,
                         'admin.ftl': common.layout.admin

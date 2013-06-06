@@ -12,7 +12,7 @@ $.register_module({
         var go = function (params) {
             og.api.rest.compressor.put({content: params || last, dependencies: ['data']}).pipe(function (result) {
                 var current = routes.current(), hash = routes
-                    .hash(og.views[og.analytics.blotter ? 'blotter' : 'analytics2']
+                    .hash(og.views[og.analytics.blotter ? 'blotter' : 'analytics']
                         .rules.load_item, {data: result.data.data});
                 if (current.hash === hash) return url.process(current.args);
                 routes.go(hash, 'loading title...');

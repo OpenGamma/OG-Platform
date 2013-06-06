@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.views.analytics2',
+    name: 'og.views.analytics',
     dependencies: [],
     obj: function () {
         var routes = og.common.routes, module = this, view,
