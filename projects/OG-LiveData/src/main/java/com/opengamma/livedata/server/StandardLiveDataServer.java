@@ -20,8 +20,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import net.sf.ehcache.CacheManager;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +46,8 @@ import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PerformanceCounter;
 import com.opengamma.util.PublicAPI;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * The base class from which most OpenGamma Live Data feed servers should extend. Handles most common cases for distributed contract management.
@@ -351,16 +351,21 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
       Set<String> securities = _securityUniqueId2Subscription.keySet();
       try {
         Map<String, Object> subscriptions = doSubscribe(securities);
-        final Iterator<Map.Entry<String, Subscription>> itrEntry = _securityUniqueId2Subscription.entrySet().iterator();
-        while (itrEntry.hasNext()) {
-          final Map.Entry<String, Subscription> entry = itrEntry.next();
+        if (securities.size() != subscriptions.size()) {
+          s_logger.warn("Attempting to re-establish security subscriptions - have {} securities " +
+                            "but only managed to establish subscriptions to {}",
+                        securities.size(), subscriptions.size());
+        }
+
+        for (Iterator<Map.Entry<String, Subscription>> it = _securityUniqueId2Subscription.entrySet().iterator(); it.hasNext();) {
+          final Map.Entry<String, Subscription> entry = it.next();
           final Object handle = subscriptions.get(entry.getKey());
           if (handle != null) {
             s_logger.debug("Reconnected to {}", entry.getKey());
             entry.getValue().setHandle(handle);
           } else {
-            s_logger.debug("Couldn't reconnect to {}", entry.getKey());
-            itrEntry.remove();
+            s_logger.warn("Couldn't reconnect to {} - removing from list of active subscriptions", entry.getKey());
+            it.remove();
           }
         }
       } catch (RuntimeException e) {
