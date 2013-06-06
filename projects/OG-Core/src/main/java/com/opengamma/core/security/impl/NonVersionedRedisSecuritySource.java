@@ -50,7 +50,7 @@ import com.opengamma.util.metric.MetricProducer;
  */
 
 /**
- * A lightweight {@link SecuirtySource} that cannot handle any versioning, and
+ * A lightweight {@link SecuritySource} that cannot handle any versioning, and
  * which stores all Security documents as a Fudge-encoded BLOB in Redis as a
  * backing store.
  */
