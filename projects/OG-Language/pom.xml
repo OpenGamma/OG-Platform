@@ -25,6 +25,9 @@
     <testSourceDirectory>Client/src/test/java</testSourceDirectory>
     <resources>
       <resource>
+        <directory>Client/src/main/java</directory>
+      </resource>
+      <resource>
         <directory>Client/src/main/resources</directory>
       </resource>
     </resources>
