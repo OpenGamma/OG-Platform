@@ -7,19 +7,39 @@ package com.opengamma.financial.analytics.curve.exposure;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -28,6 +48,26 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.ForwardSwapSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -37,6 +77,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class SecurityAndRegionExposureFunctionTest {
   private static final ExposureFunction EXPOSURE_FUNCTION = new SecurityAndRegionExposureFunction(ExposureFunctionTestHelper.getSecuritySource(null));
+  private static final String SCHEME = ExposureFunction.SECURITY_IDENTIFIER;
 
   @Test
   public void testAgriculturalFutureSecurity() {
@@ -50,6 +91,14 @@ public class SecurityAndRegionExposureFunctionTest {
     final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
+  }
+
+  @Test
+  public void testCashSecurity() {
+    final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
+    final List<ExternalId> ids = cash.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "CASH_US"), ids.get(0));
   }
 
   @Test
@@ -67,19 +116,11 @@ public class SecurityAndRegionExposureFunctionTest {
   }
 
   @Test
-  public void testCashSecurity() {
-    final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
-    final List<ExternalId> ids = cash.accept(EXPOSURE_FUNCTION);
-    assertEquals(1, ids.size());
-    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "CASH_US"), ids.get(0));
-  }
-
-  @Test
   public void testContinuousZeroDepositSecurity() {
     final ContinuousZeroDepositSecurity security = ExposureFunctionTestHelper.getContinuousZeroDepositSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
-    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "CONTINUOUS_ZERO_DEPOSIT_DE"), ids.get(0));
+    assertEquals(ExternalId.of(SCHEME, "CONTINUOUS_ZERO_DEPOSIT_DE"), ids.get(0));
   }
 
   @Test
@@ -87,7 +128,7 @@ public class SecurityAndRegionExposureFunctionTest {
     final CorporateBondSecurity security = ExposureFunctionTestHelper.getCorporateBondSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
-    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "BOND_US"), ids.get(0));
+    assertEquals(ExternalId.of(SCHEME, "BOND_US"), ids.get(0));
   }
 
   @Test
@@ -116,7 +157,7 @@ public class SecurityAndRegionExposureFunctionTest {
     final FRASecurity fra = ExposureFunctionTestHelper.getFRASecurity();
     final List<ExternalId> ids = fra.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
-    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "FRA_US"), ids.get(0));
+    assertEquals(ExternalId.of(SCHEME, "FRA_US"), ids.get(0));
   }
 
   @Test
@@ -152,6 +193,327 @@ public class SecurityAndRegionExposureFunctionTest {
     final StockFutureSecurity future = ExposureFunctionTestHelper.getStockFutureSecurity();
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
+  }
+
+  @Test
+  public void testAgricultureFutureSecurity() {
+    final AgricultureFutureSecurity future = ExposureFunctionTestHelper.getAgricultureFutureSecurity();
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testBondFutureOptionSecurity() {
+    final BondFutureOptionSecurity security = ExposureFunctionTestHelper.getBondFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCashFlowSecurity() {
+    final CashFlowSecurity security = ExposureFunctionTestHelper.getCashFlowSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEnergyFutureOptionSecurity() {
+    final CommodityFutureOptionSecurity security = ExposureFunctionTestHelper.getEnergyFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquityBarrierOptionSecurity() {
+    final EquityBarrierOptionSecurity security = ExposureFunctionTestHelper.getEquityBarrierOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquitySecurity() {
+    final EquitySecurity security = ExposureFunctionTestHelper.getEquitySecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testAgricultureForwardSecurity() {
+    final AgricultureForwardSecurity security = ExposureFunctionTestHelper.getAgricultureForwardSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCreditDefaultSwapIndexSecurity() {
+    final CreditDefaultSwapIndexSecurity security = ExposureFunctionTestHelper.getCreditDefaultSwapIndexSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testCreditDefaultSwapOptionSecurity() {
+    final CreditDefaultSwapOptionSecurity security = ExposureFunctionTestHelper.getCreditDefaultSwapOptionSecurity();
+    final StandardVanillaCDSSecurity underlying = ExposureFunctionTestHelper.getStandardVanillaCDSSecurity();
+    final List<ExternalId> ids = security.accept(new SecurityAndRegionExposureFunction(ExposureFunctionTestHelper.getSecuritySource(underlying)));
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "CREDIT_DEFAULT_SWAP_OPTION_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testDeliverableSwapSecurity() {
+    final DeliverableSwapFutureSecurity security = ExposureFunctionTestHelper.getDeliverableSwapFutureSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEnergyForwardSecurity() {
+    final EnergyForwardSecurity security = ExposureFunctionTestHelper.getEnergyForwardSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquityIndexDividendFutureOptionSecurity() {
+    final EquityIndexDividendFutureOptionSecurity security = ExposureFunctionTestHelper.getEquityIndexDividendFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquityIndexFutureOptionSecurity() {
+    final EquityIndexFutureOptionSecurity security = ExposureFunctionTestHelper.getEquityIndexFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquityIndexOptionSecurity() {
+    final EquityIndexOptionSecurity security = ExposureFunctionTestHelper.getEquityIndexOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquityOptionSecurity() {
+    final EquityOptionSecurity security = ExposureFunctionTestHelper.getEquityOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testEquityVarianceSwapSecurity() {
+    final EquityVarianceSwapSecurity security = ExposureFunctionTestHelper.getEquityVarianceSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "EQUITY VARIANCE SWAP_US"), ids.get(0));
+  }
+
+  @Test
+  public void testFixedFloatSwapSecurity() {
+    final SwapSecurity security = ExposureFunctionTestHelper.getFixedFloatSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "SWAP_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testFloatFloatSwapSecurity() {
+    final SwapSecurity security = ExposureFunctionTestHelper.getFloatFloatSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "SWAP_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testForwardFixedFloatSwapSecurity() {
+    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardFixedFloatSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertTrue(ids.containsAll(Arrays.asList(ExternalId.of(SCHEME, "SWAP_DE"))));
+  }
+
+  @Test
+  public void testForwardFloatFloatSwapSecurity() {
+    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardFloatFloatSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "SWAP_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testForwardXCcySwapSecurity() {
+    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardXCcySwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(2, ids.size());
+    assertTrue(ids.containsAll(Arrays.asList(ExternalId.of(SCHEME, "SWAP_US"), ExternalId.of(SCHEME, "SWAP_DE"))));
+  }
+
+  @Test
+  public void testFXBarrierOptionSecurity() {
+    final FXBarrierOptionSecurity security = ExposureFunctionTestHelper.getFXBarrierOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testFXDigitalOptionSecurity() {
+    final FXDigitalOptionSecurity security = ExposureFunctionTestHelper.getFXDigitalOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testFXForwardSecurity() {
+    final FXForwardSecurity security = ExposureFunctionTestHelper.getFXForwardSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testFXFutureOptionSecurity() {
+    final FxFutureOptionSecurity security = ExposureFunctionTestHelper.getFXFutureOptionSecurity();
+    final FXFutureSecurity underlying = ExposureFunctionTestHelper.getFXFutureSecurity();
+    final List<ExternalId> ids = security.accept(new SecurityAndCurrencyExposureFunction(ExposureFunctionTestHelper.getSecuritySource(underlying)));
+    assertEquals(2, ids.size());
+    assertTrue(ids.containsAll(Arrays.asList(ExternalId.of(SCHEME, "FXFUTURE_OPTION_USD"), ExternalId.of(SCHEME, "FXFUTURE_OPTION_EUR"))));
+  }
+
+  @Test
+  public void testFXOptionSecurity() {
+    final FXOptionSecurity security = ExposureFunctionTestHelper.getFXOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testGovernmentBondSecurity() {
+    final GovernmentBondSecurity security = ExposureFunctionTestHelper.getGovernmentBondSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "BOND_US"), ids.get(0));
+  }
+
+  @Test
+  public void testInterestRateFutureOptionSecurity() {
+    final IRFutureOptionSecurity security = ExposureFunctionTestHelper.getInterestRateFutureOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testLegacyFixedRecoveryCDSSecurity() {
+    final LegacyFixedRecoveryCDSSecurity security = ExposureFunctionTestHelper.getLegacyFixedRecoveryCDSSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "LEGACY_FIXED_RECOVERY_CDS_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testLegacyRecoveryLockCDSSecurity() {
+    final LegacyRecoveryLockCDSSecurity security = ExposureFunctionTestHelper.getLegacyRecoveryLockCDSSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "LEGACY_RECOVERY_LOCK_CDS_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testLegacyVanillaCDSSecurity() {
+    final LegacyVanillaCDSSecurity security = ExposureFunctionTestHelper.getLegacyVanillaCDSSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "LEGACY_VANILLA_CDS_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testMetalForwardSecurity() {
+    final MetalForwardSecurity security = ExposureFunctionTestHelper.getMetalForwardSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testMunicipalBondSecurity() {
+    final MunicipalBondSecurity security = ExposureFunctionTestHelper.getMunicipalBondSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testNonDeliverableFXDigitalOptionSecurity() {
+    final NonDeliverableFXDigitalOptionSecurity security = ExposureFunctionTestHelper.getNonDeliverableFXDigitalOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testNonDeliverableFXForwardSecurity() {
+    final NonDeliverableFXForwardSecurity security = ExposureFunctionTestHelper.getNonDeliverableFXForwardSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testNonDeliverableFXOptionSecurity() {
+    final NonDeliverableFXOptionSecurity security = ExposureFunctionTestHelper.getNonDeliverableFXOptionSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testPeriodicZeroDepositSecurity() {
+    final PeriodicZeroDepositSecurity security = ExposureFunctionTestHelper.getPeriodicZeroDepositSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testSimpleZeroDepositSecurity() {
+    final SimpleZeroDepositSecurity security = ExposureFunctionTestHelper.getSimpleZeroDepositSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
+  public void testStandardFixedRecoveryCDSSecurity() {
+    final StandardFixedRecoveryCDSSecurity security = ExposureFunctionTestHelper.getStandardFixedRecoveryCDSSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "STANDARD_FIXED_RECOVERY_CDS_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testStandardRecoveryLockCDSSecurity() {
+    final StandardRecoveryLockCDSSecurity security = ExposureFunctionTestHelper.getStandardRecoveryLockCDSSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "STANDARD_RECOVERY_LOCK_CDS_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testStandardVanillaCDSSecurity() {
+    final StandardVanillaCDSSecurity security = ExposureFunctionTestHelper.getStandardVanillaCDSSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "STANDARD_VANILLA_CDS_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testSwaptionSecurity() {
+    final SwaptionSecurity security = ExposureFunctionTestHelper.getSwaptionSecurity();
+    final SwapSecurity underlying = ExposureFunctionTestHelper.getFixedFloatSwapSecurity();
+    final List<ExternalId> ids = security.accept(new SecurityAndRegionExposureFunction(ExposureFunctionTestHelper.getSecuritySource(underlying)));
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "SWAPTION_DE"), ids.get(0));
+  }
+
+  @Test
+  public void testXCcySwapSecurity() {
+    final SwapSecurity security = ExposureFunctionTestHelper.getXCcySwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(2, ids.size());
+    assertTrue(ids.containsAll(Arrays.asList(ExternalId.of(SCHEME, "SWAP_US"), ExternalId.of(SCHEME, "SWAP_DE"))));
   }
 
 }
