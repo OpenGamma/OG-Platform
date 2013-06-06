@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.curve.exposure;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -69,6 +70,7 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -90,7 +92,7 @@ public class CurrencyExposureFunction implements ExposureFunction {
     }
     final List<ExternalId> result = new ArrayList<>();
     for (final Currency currency : currencies) {
-      result.add(ExternalId.of(currency.getObjectId().getScheme(), currency.getCode()));
+      result.add(ExternalId.of(Currency.OBJECT_SCHEME, currency.getCode()));
     }
     return result;
   }
@@ -112,7 +114,8 @@ public class CurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitFXFutureSecurity(final FXFutureSecurity security) {
-    return getExternalIds(security);
+    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, security.getDenominator().getCode()),
+        ExternalId.of(Currency.OBJECT_SCHEME, security.getNumerator().getCode()));
   }
 
   @Override
@@ -172,7 +175,9 @@ public class CurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
-    return getExternalIds(security);
+    final FXFutureSecurity fxFuture = (FXFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getDenominator().getCode()),
+        ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getNumerator().getCode()));
   }
 
   @Override
