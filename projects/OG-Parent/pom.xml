@@ -30,7 +30,6 @@
       <archive>http://forums.opengamma.com/forum/discussions</archive>
     </mailingList>
   </mailingLists>
-
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -39,7 +38,7 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/OpenGamma/OG-Platform.git</connection>
+    <connection>scm:git:https://github.com/OpenGamma/OG-Platform.git</connection>
     <developerConnection>scm:git:https://github.com/OpenGamma/OG-Platform.git</developerConnection>
     <url>https://github.com/OpenGamma/OG-Platform</url>
   </scm>
@@ -48,6 +47,7 @@
   <!-- standard build setup -->
   <build>
     <plugins>
+      <!-- setup testing -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -66,6 +66,7 @@
           <excludedGroups>${tests.testng.excludedgroups}</excludedGroups>
         </configuration>
       </plugin>
+      <!-- create and publish test jar files -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -90,11 +91,11 @@
           </execution>
         </executions>
       </plugin>
+      <!-- generate source jar file when packaging -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
-          <!-- generate source jar file when packaging -->
           <execution>
             <id>attach-sources</id>
             <phase>package</phase>
@@ -158,6 +159,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- setup Joda-Beans to validate or generate (based on 'joda.beans.action') -->
       <plugin>
         <groupId>org.joda</groupId>
         <artifactId>maven-joda-beans-plugin</artifactId>
@@ -169,6 +171,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- setup Fudge-Proto to generate -->
       <plugin>
         <groupId>org.fudgemsg</groupId>
         <artifactId>maven-fudge-proto-plugin</artifactId>
