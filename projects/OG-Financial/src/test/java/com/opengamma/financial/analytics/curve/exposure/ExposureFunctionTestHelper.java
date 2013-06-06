@@ -350,7 +350,7 @@ public class ExposureFunctionTestHelper {
   }
 
   public static ForwardSwapSecurity getForwardXCcySwapSecurity() {
-    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("USD 3m Swap"), FloatingRateType.IBOR);
     final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(EUR, 100000), false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
     final ForwardSwapSecurity security = new ForwardSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg, DateUtils.getUTCDate(2014, 1, 1));
@@ -539,7 +539,7 @@ public class ExposureFunctionTestHelper {
   }
 
   public static SwapSecurity getXCcySwapSecurity() {
-    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("USD 3m Swap"), FloatingRateType.IBOR);
     final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(EUR, 100000), false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
     final SwapSecurity security = new SwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg);
