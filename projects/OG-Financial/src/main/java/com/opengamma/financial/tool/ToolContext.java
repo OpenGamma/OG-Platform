@@ -31,6 +31,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -197,6 +198,12 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private ViewProcessor _viewProcessor;
+  
+  /**
+   * The available outputs provider.
+   */
+  @PropertyDefinition
+  private AvailableOutputsProvider _avaliableOutputsProvider;
 
   /**
    * Creates an instance.
@@ -306,6 +313,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getHistoricalTimeSeriesLoader();
       case -1697555603:  // viewProcessor
         return getViewProcessor();
+      case -1252442368:  // avaliableOutputsProvider
+        return getAvaliableOutputsProvider();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -394,6 +403,9 @@ public class ToolContext extends DirectBean implements Closeable {
       case -1697555603:  // viewProcessor
         setViewProcessor((ViewProcessor) newValue);
         return;
+      case -1252442368:  // avaliableOutputsProvider
+        setAvaliableOutputsProvider((AvailableOutputsProvider) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -431,7 +443,8 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor());
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getAvaliableOutputsProvider(), other.getAvaliableOutputsProvider());
     }
     return false;
   }
@@ -466,6 +479,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAvaliableOutputsProvider());
     return hash;
   }
 
@@ -1140,6 +1154,31 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the available outputs provider.
+   * @return the value of the property
+   */
+  public AvailableOutputsProvider getAvaliableOutputsProvider() {
+    return _avaliableOutputsProvider;
+  }
+
+  /**
+   * Sets the available outputs provider.
+   * @param avaliableOutputsProvider  the new value of the property
+   */
+  public void setAvaliableOutputsProvider(AvailableOutputsProvider avaliableOutputsProvider) {
+    this._avaliableOutputsProvider = avaliableOutputsProvider;
+  }
+
+  /**
+   * Gets the the {@code avaliableOutputsProvider} property.
+   * @return the property, not null
+   */
+  public final Property<AvailableOutputsProvider> avaliableOutputsProvider() {
+    return metaBean().avaliableOutputsProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ToolContext}.
    */
   public static class Meta extends DirectMetaBean {
@@ -1284,6 +1323,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(
         this, "viewProcessor", ToolContext.class, ViewProcessor.class);
     /**
+     * The meta-property for the {@code avaliableOutputsProvider} property.
+     */
+    private final MetaProperty<AvailableOutputsProvider> _avaliableOutputsProvider = DirectMetaProperty.ofReadWrite(
+        this, "avaliableOutputsProvider", ToolContext.class, AvailableOutputsProvider.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -1314,7 +1358,8 @@ public class ToolContext extends DirectBean implements Closeable {
         "securityLoader",
         "historicalTimeSeriesProvider",
         "historicalTimeSeriesLoader",
-        "viewProcessor");
+        "viewProcessor",
+        "avaliableOutputsProvider");
 
     /**
      * Restricted constructor.
@@ -1379,6 +1424,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _historicalTimeSeriesLoader;
         case -1697555603:  // viewProcessor
           return _viewProcessor;
+        case -1252442368:  // avaliableOutputsProvider
+          return _avaliableOutputsProvider;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1613,6 +1660,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<ViewProcessor> viewProcessor() {
       return _viewProcessor;
+    }
+
+    /**
+     * The meta-property for the {@code avaliableOutputsProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<AvailableOutputsProvider> avaliableOutputsProvider() {
+      return _avaliableOutputsProvider;
     }
 
   }

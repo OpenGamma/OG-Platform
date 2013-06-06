@@ -5,8 +5,6 @@
  */
 package com.opengamma.core.security.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +12,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.mapping.FudgeObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,7 +211,9 @@ public class RedisCachingSecuritySource extends AbstractSecuritySource implement
         
         Security security = null;
         try {
-          security = convertFromFudge(data);
+          // REVIEW kirk 2013-06-05 -- This will definitely fail, but this class is a work in progress
+          // and likely to never work in its current form.
+          security = SecurityFudgeUtil.convertFromFudge(getFudgeContext(), null, data);
         } catch (Exception e) {
           s_logger.error("Unserializable data in Redis for uniqueId " + uniqueId + ". Clearing redis.", e);
           try {
@@ -232,17 +231,6 @@ public class RedisCachingSecuritySource extends AbstractSecuritySource implement
     } finally {
       getJedisPool().returnResource(jedis);
     }
-  }
-
-  /**
-   * @param data
-   * @return
-   */
-  private Security convertFromFudge(byte[] data) {
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    FudgeObjectReader objectReader = getFudgeContext().createObjectReader(bais);
-    Security security = objectReader.read(Security.class);
-    return security;
   }
 
   protected void processResults(Collection<Security> securities) {
@@ -280,7 +268,7 @@ public class RedisCachingSecuritySource extends AbstractSecuritySource implement
         
         s_logger.warn("Storing security type {} id {} bundle {} to Redis",
             new Object[] {security.getSecurityType(), security.getUniqueId(), security.getExternalIdBundle()});
-        byte[] fudgeData = convertToFudge(security);
+        byte[] fudgeData = SecurityFudgeUtil.convertToFudge(getFudgeContext(), security);
         _lock.writeLock().lock();
         try {
           jedis.set(redisKey, fudgeData);
@@ -313,18 +301,6 @@ public class RedisCachingSecuritySource extends AbstractSecuritySource implement
     }
   }
   
-  /**
-   * @param security
-   * @return
-   */
-  private byte[] convertToFudge(Security security) {
-    ArgumentChecker.notNull(security, "security");
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    getFudgeContext().writeObject(security, baos);
-    byte[] bytes = baos.toByteArray();
-    return bytes;
-  }
-
   private byte[] toRedisKey(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     String key = getRedisPrefix() + "U-" + uniqueId.toString();

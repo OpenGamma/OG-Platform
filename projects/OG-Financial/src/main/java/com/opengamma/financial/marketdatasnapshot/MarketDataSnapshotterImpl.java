@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -48,6 +49,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -59,6 +61,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotterImpl.class);
 
   private final ComputationTargetResolver _resolver;
+  private final HistoricalTimeSeriesSource _htsSource;
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   private final CurveSnapper _curveSnapper = new CurveSnapper();
@@ -70,10 +73,12 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   /**
    * @param resolver the target resolver, not null
    * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
+   * @param htsSource Must be specified if market data is inputted via HTS, may be null
    */
-  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource) {
+  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource, final HistoricalTimeSeriesSource htsSource) {
     ArgumentChecker.notNull(resolver, "resolver");
     _resolver = resolver;
+    _htsSource = htsSource;
     _cubeDefinitionSource = cubeDefinitionSource;
     _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
     _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _curveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
@@ -127,7 +132,12 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
           final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
           if ((nodeProducing != null) && isTerminalUnstructuredOutput(nodeProducing, graph)) {
             itrData.remove();
-            final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(computedValue.getSpecification().getTargetSpecification());
+            ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(computedValue.getSpecification().getTargetSpecification());
+            // if reading live data from hts, we need to lookup the externalIdBundle via the hts unique id
+            if (identifiers == null && _htsSource != null && computedValue.getSpecification().getTargetSpecification().getUniqueId() != null) {
+              // try a lookup in hts
+              identifiers = _htsSource.getExternalIdBundle(computedValue.getSpecification().getTargetSpecification().getUniqueId());
+            }
             if (identifiers != null) {
               snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), new ValueSnapshot((Double) computedValue.getValue()));
             }
