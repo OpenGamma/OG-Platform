@@ -46,6 +46,7 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceConte
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
 import com.opengamma.financial.view.rest.DataViewProcessorResource;
+import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
@@ -155,6 +156,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   protected void initAvailableOutputs(final ComponentRepository repo, final GenericApplicationContext appContext) {
     final AvailableOutputsProvider availableOutputs = appContext.getBean(AvailableOutputsProvider.class);
     final ComponentInfo info = new ComponentInfo(AvailableOutputsProvider.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteAvailableOutputsProvider.class);
     repo.registerComponent(info, availableOutputs);
 
     if (isPublishRest()) {
