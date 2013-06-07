@@ -18,7 +18,7 @@ CREATE TABLE cfg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '47');
+INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '48');
 
 CREATE TABLE cfg_config (
     id BIGINT NOT NULL,
