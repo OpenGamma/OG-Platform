@@ -119,7 +119,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
     assertEquals("Inflation Zero Coupon cap: getter", PRICE_INDEX, ZERO_COUPON_CAP_DEFINITION.getPriceIndex());
     assertEquals("Inflation Zero Coupon cap: getter", INDEX_START_VALUE, ZERO_COUPON_CAP_DEFINITION.getIndexStartValue());
     assertEquals("Inflation Zero Coupon cap: getter", REFERENCE_END_DATE, ZERO_COUPON_CAP_DEFINITION.getReferenceEndDate());
-    assertEquals("Inflation Zero Coupon cap: getter", MONTH_LAG, ZERO_COUPON_CAP_DEFINITION.getMonthLag());
+    assertEquals("Inflation Zero Coupon cap: getter", MONTH_LAG, ZERO_COUPON_CAP_DEFINITION.getConventionalMonthLag());
     assertEquals("Inflation Zero Coupon cap: getter", IS_CAP, ZERO_COUPON_CAP_DEFINITION.isCap());
     assertEquals("Inflation Zero Coupon cap: getter", 1.0, ZERO_COUPON_CAP_DEFINITION.getPaymentYearFraction());
     assertEquals("Inflation Zero Coupon cap: getter", STRIKE, ZERO_COUPON_CAP_DEFINITION.getStrike());
@@ -202,7 +202,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
 
     CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        INDEX_START_VALUE, referenceEndTime, MATURITY, STRIKE, IS_CAP);
+        INDEX_START_VALUE, referenceEndTime, MONTH_LAG, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -220,7 +220,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
 
     CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        INDEX_START_VALUE, referenceEndTime, MATURITY, STRIKE, IS_CAP);
+        INDEX_START_VALUE, referenceEndTime, MONTH_LAG, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

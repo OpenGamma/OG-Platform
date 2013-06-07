@@ -190,7 +190,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false);
+    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false, MONTH_LAG);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -203,7 +203,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false);
+    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false, MONTH_LAG);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

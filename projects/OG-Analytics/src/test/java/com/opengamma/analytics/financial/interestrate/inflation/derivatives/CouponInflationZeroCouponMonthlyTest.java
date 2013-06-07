@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivatives;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -46,11 +45,11 @@ public class CouponInflationZeroCouponMonthlyTest {
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
   private static final double REFERENCE_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE);
   private static final CouponInflationZeroCouponMonthly ZERO_COUPON = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME,
-      false);
+      false, MONTH_LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, false);
+    new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, false, MONTH_LAG);
   }
 
   @Test
@@ -70,13 +69,13 @@ public class CouponInflationZeroCouponMonthlyTest {
   public void equalHash() {
     assertEquals(ZERO_COUPON, ZERO_COUPON);
     CouponInflationZeroCouponMonthly couponDuplicate = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME,
-        false);
+        false, MONTH_LAG);
     assertEquals(ZERO_COUPON, couponDuplicate);
     assertEquals(ZERO_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationZeroCouponMonthly modified;
-    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, false);
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, false, MONTH_LAG);
     assertFalse(ZERO_COUPON.equals(modified));
-    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME + 0.1, false);
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME + 0.1, false, MONTH_LAG);
     assertFalse(ZERO_COUPON.equals(modified));
   }
 

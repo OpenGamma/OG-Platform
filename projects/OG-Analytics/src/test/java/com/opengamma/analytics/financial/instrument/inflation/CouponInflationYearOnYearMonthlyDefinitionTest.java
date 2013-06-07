@@ -109,7 +109,7 @@ public class CouponInflationYearOnYearMonthlyDefinitionTest {
     assertEquals("Inflation Year on Year coupon: getter", PRICE_INDEX, YoY_COUPON_DEFINITION.getPriceIndex());
     assertEquals("Inflation Year on Year coupon: getter", REFERENCE_START_DATE, YoY_COUPON_DEFINITION.getReferenceStartDate());
     assertEquals("Inflation Year on Year coupon: getter", REFERENCE_END_DATE, YoY_COUPON_DEFINITION.getReferenceEndDate());
-    assertEquals("Inflation Year on Year coupon: getter", MONTH_LAG, YoY_COUPON_DEFINITION.getMonthLag());
+    assertEquals("Inflation Year on Year coupon: getter", MONTH_LAG, YoY_COUPON_DEFINITION.getConventionalMonthLag());
   }
 
   @Test
@@ -164,7 +164,7 @@ public class CouponInflationYearOnYearMonthlyDefinitionTest {
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceStartTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_START_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationYearOnYearMonthly zeroCoupon = new CouponInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, referenceStartTime, referenceEndTime, false);
+    CouponInflationYearOnYearMonthly zeroCoupon = new CouponInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, referenceStartTime, referenceEndTime, false, MONTH_LAG);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -179,7 +179,7 @@ public class CouponInflationYearOnYearMonthlyDefinitionTest {
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceStartTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_START_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationYearOnYearMonthly zeroCoupon = new CouponInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, referenceStartTime, referenceEndTime, false);
+    CouponInflationYearOnYearMonthly zeroCoupon = new CouponInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, referenceStartTime, referenceEndTime, false, MONTH_LAG);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

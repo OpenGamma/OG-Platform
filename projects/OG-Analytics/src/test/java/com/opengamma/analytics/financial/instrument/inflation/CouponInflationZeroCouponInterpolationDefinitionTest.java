@@ -220,7 +220,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
     referenceEndTime[0] = TimeCalculator.getTimeBetween(pricingDate, REFERENCE_END_DATE[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(pricingDate, REFERENCE_END_DATE[1]);
     CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
-        ZERO_COUPON_DEFINITION.getWeight(), false);
+        ZERO_COUPON_DEFINITION.getWeight(), false, MONTH_LAG);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -253,7 +253,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
     referenceEndTime[0] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[0], pricingDate);
     referenceEndTime[1] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[1], pricingDate);
     CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
-        ZERO_COUPON_DEFINITION.getWeight(), false);
+        ZERO_COUPON_DEFINITION.getWeight(), false, MONTH_LAG);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 
@@ -271,7 +271,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
     referenceEndTime[0] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[0], pricingDate);
     referenceEndTime[1] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[1], pricingDate);
     CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
-        ZERO_COUPON_DEFINITION.getWeight(), false);
+        ZERO_COUPON_DEFINITION.getWeight(), false, MONTH_LAG);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

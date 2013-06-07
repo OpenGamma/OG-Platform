@@ -36,6 +36,11 @@ public class CouponInflationYearOnYearMonthly extends CouponInflation {
   private final boolean _payNotional;
 
   /**
+   * The lag in month between the index validity and the coupon dates for the standard product (the one in exchange market, this lag is in most cases 3 month).
+   */
+  private final int _conventionalMonthLag;
+
+  /**
    * Inflation year on year coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
@@ -45,15 +50,15 @@ public class CouponInflationYearOnYearMonthly extends CouponInflation {
    * @param referenceStartTime The reference time for the index at the coupon start.
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
    */
   public CouponInflationYearOnYearMonthly(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double referenceStartTime, final double referenceEndTime,
-      final boolean payNotional) {
+      final double referenceStartTime, final double referenceEndTime, final boolean payNotional, final int conventionalMonthLag) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._referenceStartTime = referenceStartTime;
     this._referenceEndTime = referenceEndTime;
     _payNotional = payNotional;
-
+    _conventionalMonthLag = conventionalMonthLag;
   }
 
   /**
@@ -80,9 +85,18 @@ public class CouponInflationYearOnYearMonthly extends CouponInflation {
     return _payNotional;
   }
 
+  /**
+   * Gets the lag in month between the index validity and the coupon dates for the standard product.
+   * @return The lag.
+   */
+  public int getConventionalMonthLag() {
+    return _conventionalMonthLag;
+  }
+
   @Override
   public CouponInflationYearOnYearMonthly withNotional(final double notional) {
-    return new CouponInflationYearOnYearMonthly(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _referenceStartTime, _referenceEndTime, _payNotional);
+    return new CouponInflationYearOnYearMonthly(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _referenceStartTime, _referenceEndTime, _payNotional,
+        _conventionalMonthLag);
   }
 
   @Override
@@ -106,6 +120,7 @@ public class CouponInflationYearOnYearMonthly extends CouponInflation {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _conventionalMonthLag;
     result = prime * result + (_payNotional ? 1231 : 1237);
     long temp;
     temp = Double.doubleToLongBits(_referenceEndTime);
@@ -127,6 +142,9 @@ public class CouponInflationYearOnYearMonthly extends CouponInflation {
       return false;
     }
     CouponInflationYearOnYearMonthly other = (CouponInflationYearOnYearMonthly) obj;
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
+      return false;
+    }
     if (_payNotional != other._payNotional) {
       return false;
     }

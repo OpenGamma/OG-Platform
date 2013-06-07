@@ -218,7 +218,7 @@ public class CapFloorInflationZeroCouponInterpolationDefinitiontest {
     referenceEndTime[0] = referenceEndTime0;
     referenceEndTime[1] = referenceEndTime1;
     CapFloorInflationZeroCouponInterpolation zeroCoupon = new CapFloorInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        INDEX_START_VALUE, referenceEndTime, MATURITY, WEIGHT, STRIKE, IS_CAP);
+        INDEX_START_VALUE, referenceEndTime, MONTH_LAG, MATURITY, WEIGHT, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -238,7 +238,7 @@ public class CapFloorInflationZeroCouponInterpolationDefinitiontest {
     referenceEndTime[0] = referenceEndTime0;
     referenceEndTime[1] = referenceEndTime1;
     CapFloorInflationZeroCouponInterpolation zeroCoupon = new CapFloorInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        INDEX_START_VALUE, referenceEndTime, MATURITY, WEIGHT, STRIKE, IS_CAP);
+        INDEX_START_VALUE, referenceEndTime, MONTH_LAG, MATURITY, WEIGHT, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

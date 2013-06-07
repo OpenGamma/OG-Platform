@@ -47,6 +47,10 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
    * Flag indicating if the notional is paid (true) or not (false) at the end of the period.
    */
   private final boolean _payNotional;
+  /**
+   * The lag in month between the index validity and the coupon dates.
+   */
+  private final int _monthLag;
 
   /**
    * Inflation year on year coupon constructor.
@@ -58,18 +62,19 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
    * @param referenceStartTime The reference time for the index at the coupon start.
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
+   * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param weightStart The weight on the first month index in the interpolation of the index at the coupon start.
    * @param weightEnd The weight on the first month index in the interpolation of the index at the coupon end.
    */
   public CouponInflationYearOnYearInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double[] referenceStartTime, final double[] referenceEndTime,
-      final boolean payNotional, final double weightStart, final double weightEnd) {
+      final double[] referenceStartTime, final double[] referenceEndTime, final boolean payNotional, final int monthLag, final double weightStart, final double weightEnd) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._referenceStartTime = referenceStartTime;
     this._referenceEndTime = referenceEndTime;
     _weightStart = weightStart;
     _weightEnd = weightEnd;
     _payNotional = payNotional;
+    _monthLag = monthLag;
 
   }
 
@@ -113,11 +118,18 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
     return _payNotional;
   }
 
+  /**
+   * Gets the lag in month between the index validity and the coupon dates.
+   * @return The lag.
+   */
+  public int getMonthLag() {
+    return _monthLag;
+  }
+
   @Override
   public CouponInflationYearOnYearInterpolation withNotional(final double notional) {
     return new CouponInflationYearOnYearInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _referenceStartTime, _referenceEndTime,
-        _payNotional,
-        _weightStart, _weightEnd);
+        _payNotional, _monthLag, _weightStart, _weightEnd);
   }
 
   @Override
@@ -141,8 +153,15 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _monthLag;
+    result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + Arrays.hashCode(_referenceEndTime);
     result = prime * result + Arrays.hashCode(_referenceStartTime);
+    long temp;
+    temp = Double.doubleToLongBits(_weightEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -158,10 +177,22 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
       return false;
     }
     CouponInflationYearOnYearInterpolation other = (CouponInflationYearOnYearInterpolation) obj;
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_payNotional != other._payNotional) {
+      return false;
+    }
     if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
       return false;
     }
     if (!Arrays.equals(_referenceStartTime, other._referenceStartTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
       return false;
     }
     return true;

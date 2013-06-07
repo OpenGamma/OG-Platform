@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.CapFloor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -33,6 +35,10 @@ public class CapFloorInflationYearOnYearInterpolation extends CouponInflation im
    */
   private final double[] _referenceEndTime;
   /**
+   * The lag in month between the index validity and the coupon dates for the standard product (the one in exchange market, this lag is in most cases 3 month).
+   */
+  private final int _conventionalMonthLag;
+  /**
    * The weight on the first month index in the interpolation of the index at the coupon start.
    */
   private final double _weightStart;
@@ -58,6 +64,7 @@ public class CapFloorInflationYearOnYearInterpolation extends CouponInflation im
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    * @param lastKnownFixingTime The fixing time of the last known fixing.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
    * @param referenceStartTime The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param weightStart The weight on the first month index in the interpolation of the index at the coupon start.
@@ -66,9 +73,11 @@ public class CapFloorInflationYearOnYearInterpolation extends CouponInflation im
    * @param isCap The cap/floor flag.
    */
   public CapFloorInflationYearOnYearInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double lastKnownFixingTime, final double[] referenceStartTime, final double[] referenceEndTime, final double weightStart, final double weightEnd, double strike, boolean isCap) {
+      final double lastKnownFixingTime, final int conventionalMonthLag, final double[] referenceStartTime, final double[] referenceEndTime, final double weightStart, final double weightEnd,
+      double strike, boolean isCap) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     _lastKnownFixingTime = lastKnownFixingTime;
+    _conventionalMonthLag = conventionalMonthLag;
     _referenceStartTime = referenceStartTime;
     _referenceEndTime = referenceEndTime;
     _weightStart = weightStart;
@@ -84,11 +93,23 @@ public class CapFloorInflationYearOnYearInterpolation extends CouponInflation im
    */
   public CapFloorInflationYearOnYearInterpolation withStrike(final double strike) {
     return new CapFloorInflationYearOnYearInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        _lastKnownFixingTime, _referenceStartTime, _referenceEndTime, _weightStart, _weightEnd, strike, _isCap);
+        _lastKnownFixingTime, _conventionalMonthLag, _referenceStartTime, _referenceEndTime, _weightStart, _weightEnd, strike, _isCap);
   }
 
+  /**
+   * Gets the fixing time of the last known fixing..
+   * @return the last known fixing time.
+   */
   public double getLastKnownFixingTime() {
     return _lastKnownFixingTime;
+  }
+
+  /**
+   * Gets the lag in month between the index validity and the coupon dates for the standard product.
+   * @return The lag.
+   */
+  public int getConventionalMonthLag() {
+    return _conventionalMonthLag;
   }
 
   public double[] getReferenceStartTime() {
@@ -120,7 +141,7 @@ public class CapFloorInflationYearOnYearInterpolation extends CouponInflation im
   @Override
   public Coupon withNotional(double notional) {
     return new CapFloorInflationYearOnYearInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _lastKnownFixingTime,
-        _referenceStartTime, _referenceEndTime, _weightStart, _weightEnd, _strike, _isCap);
+        _conventionalMonthLag, _referenceStartTime, _referenceEndTime, _weightStart, _weightEnd, _strike, _isCap);
   }
 
   @Override
@@ -137,6 +158,65 @@ public class CapFloorInflationYearOnYearInterpolation extends CouponInflation im
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCapFloorInflationYearOnYearInterpolation(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _conventionalMonthLag;
+    result = prime * result + (_isCap ? 1231 : 1237);
+    long temp;
+    temp = Double.doubleToLongBits(_lastKnownFixingTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_referenceEndTime);
+    result = prime * result + Arrays.hashCode(_referenceStartTime);
+    temp = Double.doubleToLongBits(_strike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CapFloorInflationYearOnYearInterpolation other = (CapFloorInflationYearOnYearInterpolation) obj;
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
+      return false;
+    }
+    if (_isCap != other._isCap) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime)) {
+      return false;
+    }
+    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
+      return false;
+    }
+    if (!Arrays.equals(_referenceStartTime, other._referenceStartTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
+      return false;
+    }
+    return true;
   }
 
 }

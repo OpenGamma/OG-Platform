@@ -131,7 +131,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinitionTest {
     assertEquals("Inflation Year on Year cap: getter", PRICE_INDEX, YoY_CAP_DEFINITION.getPriceIndex());
     assertEquals("Inflation Year on Year cap: getter", REFERENCE_START_DATE, YoY_CAP_DEFINITION.getReferenceStartDate());
     assertEquals("Inflation Year on Year cap: getter", REFERENCE_END_DATE, YoY_CAP_DEFINITION.getReferenceEndDate());
-    assertEquals("Inflation Year on Year cap: getter", MONTH_LAG, YoY_CAP_DEFINITION.getMonthLag());
+    assertEquals("Inflation Year on Year cap: getter", MONTH_LAG, YoY_CAP_DEFINITION.getConventionalMonthLag());
     assertEquals("Inflation Year on Year cap: getter", WEIGHT_START, YoY_CAP_DEFINITION.getWeightStart());
     assertEquals("Inflation Year on Year cap: getter", WEIGHT_END, YoY_CAP_DEFINITION.getWeightEnd());
     assertEquals("Inflation Year on Year cap: getter", IS_CAP, YoY_CAP_DEFINITION.isCap());
@@ -234,7 +234,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinitionTest {
     referenceEndTime[0] = referenceEndTime0;
     referenceEndTime[1] = referenceEndTime1;
     CapFloorInflationYearOnYearInterpolation zeroCoupon = new CapFloorInflationYearOnYearInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        referenceStartTime, referenceEndTime, WEIGHT_START, WEIGHT_END, STRIKE, IS_CAP);
+        MONTH_LAG, referenceStartTime, referenceEndTime, WEIGHT_START, WEIGHT_END, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -260,7 +260,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinitionTest {
     referenceEndTime[0] = referenceEndTime0;
     referenceEndTime[1] = referenceEndTime1;
     CapFloorInflationYearOnYearInterpolation zeroCoupon = new CapFloorInflationYearOnYearInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        referenceStartTime, referenceEndTime, WEIGHT_START, WEIGHT_END, STRIKE, IS_CAP);
+        MONTH_LAG, referenceStartTime, referenceEndTime, WEIGHT_START, WEIGHT_END, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

@@ -39,6 +39,11 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
   private final boolean _payNotional;
 
   /**
+   * The lag in month between the index validity and the coupon dates for the standard product (the one in exchange market, this lag is in most cases 3 month).
+   */
+  private final int _conventionalMonthLag;
+
+  /**
    * Inflation zero-coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
@@ -49,14 +54,16 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param weight The weight on the first month index in the interpolation.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates.
    */
   public CouponInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double indexStartValue, final double[] referenceEndTime, final double weight, final boolean payNotional) {
+      final double indexStartValue, final double[] referenceEndTime, final double weight, final boolean payNotional, final int conventionalMonthLag) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     _weight = weight;
     _payNotional = payNotional;
+    _conventionalMonthLag = conventionalMonthLag;
   }
 
   /**
@@ -91,10 +98,18 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
     return _payNotional;
   }
 
+  /**
+   * Gets the lag in month between the index validity and the coupon dates.
+   * @return The lag.
+   */
+  public int getConventionalMonthLag() {
+    return _conventionalMonthLag;
+  }
+
   @Override
   public CouponInflationZeroCouponInterpolation withNotional(final double notional) {
     return new CouponInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime, _weight,
-        _payNotional);
+        _payNotional, _conventionalMonthLag);
   }
 
   @Override
@@ -118,15 +133,19 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _conventionalMonthLag;
     long temp;
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + Arrays.hashCode(_referenceEndTime);
+    temp = Double.doubleToLongBits(_weight);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -136,12 +155,20 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponInflationZeroCouponInterpolation other = (CouponInflationZeroCouponInterpolation) obj;
-
+    CouponInflationZeroCouponInterpolation other = (CouponInflationZeroCouponInterpolation) obj;
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
+      return false;
+    }
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
     }
+    if (_payNotional != other._payNotional) {
+      return false;
+    }
     if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight)) {
       return false;
     }
     return true;

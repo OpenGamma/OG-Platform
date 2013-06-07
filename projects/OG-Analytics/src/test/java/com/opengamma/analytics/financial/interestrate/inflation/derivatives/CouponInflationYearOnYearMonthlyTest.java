@@ -43,11 +43,11 @@ public class CouponInflationYearOnYearMonthlyTest {
   private static final double REFERENCE_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_START_DATE);
   private static final double REFERENCE_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE);
   private static final CouponInflationYearOnYearMonthly YoY_COUPON = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME,
-      false);
+      false, MONTH_LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, REFERENCE_START_TIME, REFERENCE_END_TIME, false);
+    new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, REFERENCE_START_TIME, REFERENCE_END_TIME, false, MONTH_LAG);
   }
 
   @Test
@@ -68,15 +68,15 @@ public class CouponInflationYearOnYearMonthlyTest {
     assertEquals(YoY_COUPON, YoY_COUPON);
 
     CouponInflationYearOnYearMonthly couponDuplicate = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME,
-        false);
+        false, MONTH_LAG);
     assertEquals(YoY_COUPON, couponDuplicate);
     assertEquals(YoY_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationYearOnYearMonthly modified;
     modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME + 0.1, REFERENCE_END_TIME,
-        false);
+        false, MONTH_LAG);
     assertFalse(YoY_COUPON.equals(modified));
     modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME + 0.1,
-        false);
+        false, MONTH_LAG);
     assertFalse(YoY_COUPON.equals(modified));
   }
 }

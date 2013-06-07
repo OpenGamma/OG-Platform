@@ -43,7 +43,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   /**
    * The lag in month between the index validity and the coupon dates.
    */
-  private final int _monthLag;
+  private final int _conventionalMonthLag;
 
   /**
    * Constructor for Year on Year inflation coupon.
@@ -68,7 +68,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     this._referenceStartDate = referenceStartDate;
     this._referenceEndDate = referenceEndDate;
     _payNotional = payNotional;
-    _monthLag = monthLag;
+    _conventionalMonthLag = monthLag;
   }
 
   /**
@@ -120,16 +120,16 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    * Gets the lag in month between the index validity and the coupon dates.
    * @return The lag.
    */
-  public int getMonthLag() {
-    return _monthLag;
+  public int getConventionalMonthLag() {
+    return _conventionalMonthLag;
   }
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_monthLag);
+    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
     final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationYearOnYearMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _monthLag, getReferenceStartDate(), referenceEndDate, payNotional());
+        getPriceIndex(), _conventionalMonthLag, getReferenceStartDate(), referenceEndDate, payNotional());
   }
 
   @Override
@@ -142,7 +142,8 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
     final double referenceStartTime = TimeCalculator.getTimeBetween(date, getReferenceStartDate());
-    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _payNotional);
+    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _payNotional,
+        _conventionalMonthLag);
   }
 
   @Override
@@ -167,7 +168,8 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     double referenceStartTime = 0.0;
     referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
     referenceStartTime = TimeCalculator.getTimeBetween(date, _referenceStartDate);
-    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _payNotional);
+    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime,
+        _payNotional, _conventionalMonthLag);
   }
 
   @Override
@@ -186,7 +188,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _monthLag;
+    result = prime * result + _conventionalMonthLag;
     result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
     result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
@@ -205,7 +207,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
       return false;
     }
     CouponInflationYearOnYearMonthlyDefinition other = (CouponInflationYearOnYearMonthlyDefinition) obj;
-    if (_monthLag != other._monthLag) {
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
       return false;
     }
     if (_payNotional != other._payNotional) {

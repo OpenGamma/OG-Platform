@@ -117,7 +117,7 @@ public class CouponInflationYearOnYearInterpolationDefinitionTest {
     assertEquals("Inflation Year on Year coupon: getter", PRICE_INDEX, YoY_COUPON_DEFINITION.getPriceIndex());
     assertEquals("Inflation Year on Year coupon: getter", REFERENCE_START_DATE, YoY_COUPON_DEFINITION.getReferenceStartDate());
     assertEquals("Inflation Year on Year coupon: getter", REFERENCE_END_DATE, YoY_COUPON_DEFINITION.getReferenceEndDate());
-    assertEquals("Inflation Year on Year coupon: getter", MONTH_LAG, YoY_COUPON_DEFINITION.getMonthLag());
+    assertEquals("Inflation Year on Year coupon: getter", MONTH_LAG, YoY_COUPON_DEFINITION.getConventionalMonthLag());
   }
 
   @Test
@@ -194,7 +194,7 @@ public class CouponInflationYearOnYearInterpolationDefinitionTest {
     referenceEndTime[0] = referenceEndTime0;
     referenceEndTime[1] = referenceEndTime1;
     CouponInflationYearOnYearInterpolation zeroCoupon = new CouponInflationYearOnYearInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, referenceStartTime, referenceEndTime, false,
-        WEIGHT_START, WEIGHT_END);
+        MONTH_LAG, WEIGHT_START, WEIGHT_END);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -218,7 +218,7 @@ public class CouponInflationYearOnYearInterpolationDefinitionTest {
     referenceEndTime[0] = referenceEndTime0;
     referenceEndTime[1] = referenceEndTime1;
     CouponInflationYearOnYearInterpolation zeroCoupon = new CouponInflationYearOnYearInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, referenceStartTime, referenceEndTime, false,
-        WEIGHT_START, WEIGHT_END);
+        MONTH_LAG, WEIGHT_START, WEIGHT_END);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

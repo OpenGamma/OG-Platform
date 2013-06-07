@@ -39,23 +39,29 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
   private final double _factor;
 
   /**
+   * The lag in month between the index validity and the coupon dates for the standard product (the one in exchange market, this lag is in most cases 3 month).
+   */
+  private final int _conventionalMonthLag;
+
+  /**
    * Inflation zero-coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    */
   public CouponInflationZeroCouponMonthlyGearing(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double indexStartValue,
-      final double referenceEndTime, final boolean payNotional, final double factor) {
+      final int conventionalMonthLag, final double indexStartValue, final double referenceEndTime, final boolean payNotional, final double factor) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
-    this._indexStartValue = indexStartValue;
-    this._referenceEndTime = referenceEndTime;
+    _conventionalMonthLag = conventionalMonthLag;
+    _indexStartValue = indexStartValue;
+    _referenceEndTime = referenceEndTime;
     _payNotional = payNotional;
     _factor = factor;
   }
@@ -66,6 +72,14 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
    */
   public double getIndexStartValue() {
     return _indexStartValue;
+  }
+
+  /**
+   * Gets the lag in month between the index validity and the coupon dates for the standard product.
+   * @return The lag.
+   */
+  public int getConventionalMonthLag() {
+    return _conventionalMonthLag;
   }
 
   /**
@@ -86,8 +100,8 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
 
   @Override
   public CouponInflationZeroCouponMonthlyGearing withNotional(final double notional) {
-    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
-        _payNotional, _factor);
+    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _conventionalMonthLag, _indexStartValue,
+        _referenceEndTime, _payNotional, _factor);
   }
 
   @Override
@@ -116,7 +130,10 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _conventionalMonthLag;
     long temp;
+    temp = Double.doubleToLongBits(_factor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + (_payNotional ? 1231 : 1237);
@@ -127,25 +144,23 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (!super.equals(obj)) {
+    if (!super.equals(obj))
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     CouponInflationZeroCouponMonthlyGearing other = (CouponInflationZeroCouponMonthlyGearing) obj;
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+    if (_conventionalMonthLag != other._conventionalMonthLag)
       return false;
-    }
-    if (_payNotional != other._payNotional) {
+    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor))
       return false;
-    }
-    if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime)) {
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue))
       return false;
-    }
+    if (_payNotional != other._payNotional)
+      return false;
+    if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime))
+      return false;
     return true;
   }
 
