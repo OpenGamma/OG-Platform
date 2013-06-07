@@ -23,6 +23,7 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_INDEX_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_INTEREST_RATE_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_PHYSICAL_INDEX_FUTURE_TYPE;
 import static com.opengamma.bbg.loader.SecurityType.AGRICULTURE_FUTURE;
 import static com.opengamma.bbg.loader.SecurityType.BASIS_SWAP;
@@ -156,6 +157,7 @@ public class BloombergSecurityTypeDefinitionLoader {
     definition.addSecurityType("FWD SWAP", SWAP);
     definition.addSecurityType("NDF SWAP", SWAP);
     definition.addSecurityType("ONSHORE SWAP", SWAP);
+    definition.addSecurityType(BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE, SWAP);
 
     definition.addSecurityType("BASIS SWAP", BASIS_SWAP);
 
@@ -197,14 +199,12 @@ public class BloombergSecurityTypeDefinitionLoader {
     definition.addSecurityType("CROSS", SPOT_RATE);
     definition.addSecurityType("CD", SPOT_RATE);
 
-
     definition.addSecurityType("OPTION VOLATILITY", VOLATILITY_QUOTE);
     definition.addSecurityType("SWAPTION VOLATILITY", VOLATILITY_QUOTE);
 
     definition.addSecurityType("FORWARD", FX_FORWARD);
     definition.addSecurityType("ONSHORE FORWARD", FX_FORWARD);
     definition.addSecurityType("NON-DELIVERABLE FORWARD", FX_FORWARD);
-
 
     definition.addSecurityType("CREDIT DEFAULT SWAP", CREDIT_DEFAULT_SWAP);
 
