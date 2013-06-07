@@ -307,7 +307,7 @@ public class RegionExposureFunctionTest {
 
   @Test
   public void testFixedFloatSwapSecurity() {
-    final SwapSecurity security = ExposureFunctionTestHelper.getFixedFloatSwapSecurity();
+    final SwapSecurity security = ExposureFunctionTestHelper.getPayFixedFloatSwapSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "DE"), ids.get(0));
@@ -323,7 +323,7 @@ public class RegionExposureFunctionTest {
 
   @Test
   public void testForwardFixedFloatSwapSecurity() {
-    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardFixedFloatSwapSecurity();
+    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getPayForwardFixedFloatSwapSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "DE"), ids.get(0));
@@ -493,8 +493,8 @@ public class RegionExposureFunctionTest {
 
   @Test
   public void testSwaptionSecurity() {
-    final SwaptionSecurity security = ExposureFunctionTestHelper.getSwaptionSecurity();
-    final SwapSecurity underlying = ExposureFunctionTestHelper.getFixedFloatSwapSecurity();
+    final SwaptionSecurity security = ExposureFunctionTestHelper.getPaySwaptionSecurity();
+    final SwapSecurity underlying = ExposureFunctionTestHelper.getPayFixedFloatSwapSecurity();
     final List<ExternalId> ids = security.accept(new RegionExposureFunction(ExposureFunctionTestHelper.getSecuritySource(underlying)));
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "DE"), ids.get(0));

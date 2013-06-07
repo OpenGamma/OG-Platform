@@ -210,7 +210,7 @@ public class ExposureFunctionTestHelper {
   }
 
   public static DeliverableSwapFutureSecurity getDeliverableSwapFutureSecurity() {
-    final UniqueId underlyingId = getFixedFloatSwapSecurity().getUniqueId();
+    final UniqueId underlyingId = getPayFixedFloatSwapSecurity().getUniqueId();
     final DeliverableSwapFutureSecurity security = new DeliverableSwapFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 1, 1)), TRADING, SETTLEMENT, EUR, 100, "Swap",
         ExternalId.of(underlyingId.getScheme(), underlyingId.getValue()), 10000);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1441"));
@@ -302,10 +302,20 @@ public class ExposureFunctionTestHelper {
     return security;
   }
 
-  public static SwapSecurity getFixedFloatSwapSecurity() {
+  public static SwapSecurity getPayFixedFloatSwapSecurity() {
     final InterestRateNotional notional = new InterestRateNotional(EUR, 1000000);
     final SwapLeg payLeg = new FixedInterestRateLeg(DC, PeriodFrequency.SEMI_ANNUAL, DE, BDC, notional, false, 0.04);
-    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("3m Euribor"), FloatingRateType.IBOR);
+    final SwapSecurity security = new SwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
+        payLeg, receiveLeg);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "65456"));
+    return security;
+  }
+
+  public static SwapSecurity getReceiveFixedFloatSwapSecurity() {
+    final InterestRateNotional notional = new InterestRateNotional(EUR, 1000000);
+    final SwapLeg receiveLeg = new FixedInterestRateLeg(DC, PeriodFrequency.SEMI_ANNUAL, DE, BDC, notional, false, 0.04);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("3m Euribor"), FloatingRateType.IBOR);
     final SwapSecurity security = new SwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "65456"));
@@ -314,8 +324,8 @@ public class ExposureFunctionTestHelper {
 
   public static SwapSecurity getFloatFloatSwapSecurity() {
     final InterestRateNotional notional = new InterestRateNotional(EUR, 1000000);
-    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("EUR 6m Swap"), FloatingRateType.IBOR);
-    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("6m Euribor"), FloatingRateType.IBOR);
+    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("3m Euribor"), FloatingRateType.IBOR);
     final SwapSecurity security = new SwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "874"));
@@ -329,10 +339,20 @@ public class ExposureFunctionTestHelper {
     return security;
   }
 
-  public static ForwardSwapSecurity getForwardFixedFloatSwapSecurity() {
+  public static ForwardSwapSecurity getPayForwardFixedFloatSwapSecurity() {
     final InterestRateNotional notional = new InterestRateNotional(EUR, 1000000);
     final SwapLeg payLeg = new FixedInterestRateLeg(DC, PeriodFrequency.SEMI_ANNUAL, DE, BDC, notional, false, 0.04);
-    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("3m Euribor"), FloatingRateType.IBOR);
+    final ForwardSwapSecurity security = new ForwardSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
+        payLeg, receiveLeg, DateUtils.getUTCDate(2014, 1, 1));
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "23498"));
+    return security;
+  }
+
+  public static ForwardSwapSecurity getReceiveForwardFixedFloatSwapSecurity() {
+    final InterestRateNotional notional = new InterestRateNotional(EUR, 1000000);
+    final SwapLeg receiveLeg = new FixedInterestRateLeg(DC, PeriodFrequency.SEMI_ANNUAL, DE, BDC, notional, false, 0.04);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("3m Euribor"), FloatingRateType.IBOR);
     final ForwardSwapSecurity security = new ForwardSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg, DateUtils.getUTCDate(2014, 1, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "23498"));
@@ -341,8 +361,8 @@ public class ExposureFunctionTestHelper {
 
   public static ForwardSwapSecurity getForwardFloatFloatSwapSecurity() {
     final InterestRateNotional notional = new InterestRateNotional(EUR, 1000000);
-    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("EUR 6m Swap"), FloatingRateType.IBOR);
-    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("6m Euribor"), FloatingRateType.IBOR);
+    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, notional, false, ExternalSchemes.syntheticSecurityId("3m Euribor"), FloatingRateType.IBOR);
     final ForwardSwapSecurity security = new ForwardSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg, DateUtils.getUTCDate(2014, 1, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "23498"));
@@ -350,8 +370,8 @@ public class ExposureFunctionTestHelper {
   }
 
   public static ForwardSwapSecurity getForwardXCcySwapSecurity() {
-    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("USD 3m Swap"), FloatingRateType.IBOR);
-    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(EUR, 100000), false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("3m USD Libor"), FloatingRateType.IBOR);
+    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(EUR, 100000), false, ExternalSchemes.syntheticSecurityId("6m Euribor"), FloatingRateType.IBOR);
     final ForwardSwapSecurity security = new ForwardSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg, DateUtils.getUTCDate(2014, 1, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "23498"));
@@ -531,16 +551,23 @@ public class ExposureFunctionTestHelper {
     return security;
   }
 
-  public static SwaptionSecurity getSwaptionSecurity() {
-    final UniqueId underlying = getFloatFloatSwapSecurity().getUniqueId();
+  public static SwaptionSecurity getPaySwaptionSecurity() {
+    final UniqueId underlying = getPayFixedFloatSwapSecurity().getUniqueId();
+    final SwaptionSecurity security = new SwaptionSecurity(false, ExternalId.of(underlying.getScheme(), underlying.getValue()), true, new Expiry(DateUtils.getUTCDate(2012, 1, 1)), false, EUR);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "5417"));
+    return security;
+  }
+
+  public static SwaptionSecurity getReceiveSwaptionSecurity() {
+    final UniqueId underlying = getReceiveFixedFloatSwapSecurity().getUniqueId();
     final SwaptionSecurity security = new SwaptionSecurity(false, ExternalId.of(underlying.getScheme(), underlying.getValue()), true, new Expiry(DateUtils.getUTCDate(2012, 1, 1)), false, EUR);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "5417"));
     return security;
   }
 
   public static SwapSecurity getXCcySwapSecurity() {
-    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("USD 3m Swap"), FloatingRateType.IBOR);
-    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(EUR, 100000), false, ExternalSchemes.syntheticSecurityId("EUR 3m Swap"), FloatingRateType.IBOR);
+    final SwapLeg payLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("3m USD Libor"), FloatingRateType.IBOR);
+    final SwapLeg receiveLeg = new FloatingInterestRateLeg(DC, PeriodFrequency.QUARTERLY, DE, BDC, new InterestRateNotional(EUR, 100000), false, ExternalSchemes.syntheticSecurityId("3m Euribor"), FloatingRateType.IBOR);
     final SwapSecurity security = new SwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "311"));
