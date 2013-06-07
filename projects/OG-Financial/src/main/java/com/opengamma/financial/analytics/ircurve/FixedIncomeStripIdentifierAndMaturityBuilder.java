@@ -755,7 +755,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       throw new OpenGammaRuntimeException("No market data for " + swapIdentifier);
     }
     final int months = resetTenor.getPeriod().getMonths();
-    final ConventionBundle fixedLegConvention = getFixedLegConvention(spec, swapIdentifier);
+    final ConventionBundle fixedLegConvention = getFixedLegConvention(spec, strip, swapIdentifier);
     final ZonedDateTime curveDate = spec.getCurveDate().atStartOfDay(ZoneOffset.UTC);
     final String counterparty = "";
     Calendar calendar;
@@ -881,8 +881,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
         convention.getBasisSwapPayFloatingLegFrequency(), convention.getBasisSwapPayFloatingLegRegion(), convention.getBasisSwapPayFloatingLegBusinessDayConvention(), new InterestRateNotional(
             spec.getCurrency(), 1), false, payLegFloatRateBloombergTicker, FloatingRateType.IBOR), new FloatingSpreadIRLeg(convention.getBasisSwapReceiveFloatingLegDayCount(),
-        convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
-        new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
+                convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+                new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -974,17 +974,36 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     return ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, fixingRateName);
   }
 
-  private ConventionBundle getFixedLegConvention(final InterpolatedYieldCurveSpecification spec, final ExternalId swapIdentifier) {
-    ConventionBundle fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
-        spec.getCurrency().getCode() + "_SWAP"));
-    if (fixedLegConvention == null) {
-      fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
-          spec.getCurrency().getCode() + "_SWAP"));
-      if (fixedLegConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get fixed leg convention for " + swapIdentifier);
-      }
+  private ConventionBundle getFixedLegConvention(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
+      final ExternalId swapIdentifier) {
+    ConventionBundle fixedLegConvention;
+    switch (strip.getStrip().getInstrumentType()) {
+      case SWAP_3M:
+        fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+            spec.getCurrency().getCode() + "_3M_SWAP"));
+        if (fixedLegConvention != null) {
+          return fixedLegConvention;
+        }
+      case SWAP_6M:
+        fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+            spec.getCurrency().getCode() + "_6M_SWAP"));
+        if (fixedLegConvention != null) {
+          return fixedLegConvention;
+        }
+      case SWAP_12M:
+        fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+            spec.getCurrency().getCode() + "_12M_SWAP"));
+        if (fixedLegConvention != null) {
+          return fixedLegConvention;
+        }
+      default:
+        fixedLegConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+            spec.getCurrency().getCode() + "_SWAP"));
+        if (fixedLegConvention != null) {
+          return fixedLegConvention;
+        }
     }
-    return fixedLegConvention;
+    throw new OpenGammaRuntimeException("Could not get fixed leg convention for " + swapIdentifier);
   }
 
 }
