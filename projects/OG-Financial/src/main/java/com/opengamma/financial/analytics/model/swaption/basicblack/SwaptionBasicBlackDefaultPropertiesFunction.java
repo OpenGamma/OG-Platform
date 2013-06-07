@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.basicblack;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,13 +24,12 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
-public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackDefaultPropertiesFunction.class);
+public class SwaptionBasicBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackDefaultPropertiesFunction.class);
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
@@ -38,17 +37,16 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
   };
-  private final Map<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
+  private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public SwaptionBlackDefaultPropertiesFunction(final String... currencyCurveConfigAndSurfaceNames) {
+  public SwaptionBasicBlackDefaultPropertiesFunction(final String... currencyAndCurveConfigNames) {
     super(FinancialSecurityTypes.SWAPTION_SECURITY, true);
-    ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
-    final int nPairs = currencyCurveConfigAndSurfaceNames.length;
-    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
-    _currencyCurveConfigAndSurfaceNames = new HashMap<>();
-    for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
-      _currencyCurveConfigAndSurfaceNames.put(currencyCurveConfigAndSurfaceNames[i], pair);
+    ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
+    final int nPairs = currencyAndCurveConfigNames.length;
+    ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
+    _currencyAndCurveConfigNames = new HashMap<>();
+    for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
+      _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
     }
   }
 
@@ -56,37 +54,31 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final SwaptionSecurity swaption = (SwaptionSecurity) target.getSecurity();
     final String currencyName = FinancialSecurityUtils.getCurrency(swaption).getCode();
-    return _currencyCurveConfigAndSurfaceNames.containsKey(currencyName);
+    return _currencyAndCurveConfigNames.containsKey(currencyName);
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : s_valueRequirements) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    if (!_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
+    if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
       s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
       return null;
     }
-    final Pair<String, String> pair = _currencyCurveConfigAndSurfaceNames.get(currencyName);
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(pair.getFirst());
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(pair.getSecond());
+      return Collections.singleton(_currencyAndCurveConfigNames.get(currencyName));
     }
     return null;
   }
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.SWAPTION_BLACK_DEFAULTS;
+    return OpenGammaFunctionExclusions.SWAPTION_BASIC_BLACK_DEFAULTS;
   }
 }

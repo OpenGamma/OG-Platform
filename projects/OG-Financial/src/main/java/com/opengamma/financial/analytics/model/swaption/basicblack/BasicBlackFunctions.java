@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.basicblack;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,13 +14,12 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class BlackFunctions extends AbstractFunctionConfigurationBean {
+public class BasicBlackFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
@@ -28,7 +27,7 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
    * @return the configuration source exposing functions from this package
    */
   public static FunctionConfigurationSource instance() {
-    return new BlackFunctions().getObjectCreating();
+    return new BasicBlackFunctions().getObjectCreating();
   }
 
   /**
@@ -42,7 +41,6 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
     public static class CurrencyInfo implements InitializingBean {
 
       private String _curveConfig;
-      private String _surfaceName;
 
       public void setCurveConfig(final String curveConfig) {
         _curveConfig = curveConfig;
@@ -52,18 +50,9 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
         return _curveConfig;
       }
 
-      public void setSurfaceName(final String surfaceName) {
-        _surfaceName = surfaceName;
-      }
-
-      public String getSurfaceName() {
-        return _surfaceName;
-      }
-
       @Override
       public void afterPropertiesSet() {
         ArgumentChecker.notNullInjected(getCurveConfig(), "curveConfig");
-        ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
       }
 
     }
@@ -97,33 +86,19 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
     }
 
     protected void addSwaptionBlackDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[getPerCurrencyInfo().size() * 3];
+      final String[] args = new String[getPerCurrencyInfo().size() * 2];
       int i = 0;
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
         args[i++] = e.getKey();
         args[i++] = e.getValue().getCurveConfig();
-        args[i++] = e.getValue().getSurfaceName();
       }
-      functions.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, args));
-    }
-
-    protected void addSwaptionBlackThetaDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[1 + getPerCurrencyInfo().size() * 3];
-      int i = 0;
-      args[i++] = Integer.toString(getNumberOfDays());
-      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
-        args[i++] = e.getKey();
-        args[i++] = e.getValue().getCurveConfig();
-        args[i++] = e.getValue().getSurfaceName();
-      }
-      functions.add(functionConfiguration(SwaptionBlackThetaDefaults.class, args));
+      functions.add(functionConfiguration(SwaptionBasicBlackDefaultPropertiesFunction.class, args));
     }
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
         addSwaptionBlackDefaults(functions);
-        addSwaptionBlackThetaDefaults(functions);
       }
     }
 
@@ -131,11 +106,11 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
-    functions.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
-    functions.add(functionConfiguration(SwaptionBlackPV01Function.class));
-    functions.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
-    functions.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
+    functions.add(functionConfiguration(SwaptionBasicBlackPresentValueFunction.class));
+    functions.add(functionConfiguration(SwaptionBasicBlackVolatilitySensitivityFunction.class));
+    functions.add(functionConfiguration(SwaptionBasicBlackPV01Function.class));
+    functions.add(functionConfiguration(SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction.class));
+    functions.add(functionConfiguration(SwaptionBasicBlackImpliedVolatilityFunction.class));
   }
 
 }

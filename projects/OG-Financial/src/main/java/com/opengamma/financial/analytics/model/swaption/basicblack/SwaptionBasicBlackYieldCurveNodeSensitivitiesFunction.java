@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.basicblack;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -26,9 +27,11 @@ import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwapti
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -47,7 +50,6 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.FunctionUtils;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
@@ -62,12 +64,12 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBlackCurveSpecificFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class);
+public class SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBasicBlackCurveSpecificFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction.class);
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivityBlackCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
 
-  public SwaptionBlackYieldCurveNodeSensitivitiesFunction() {
+  public SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
@@ -81,12 +83,12 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String fullCurveName = curveName + "_" + currency.getCode();
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
-    if (volatilitySurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get volatility surface");
+    final Object volatilityObject = inputs.getValue(MarketDataRequirementNames.IMPLIED_VOLATILITY);
+    if (volatilityObject == null) {
+      throw new OpenGammaRuntimeException("Could not get volatility");
     }
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) volatilitySurfaceObject;
+    final double volatility = (Double) volatilityObject;
+    final VolatilitySurface volatilitySurface = new VolatilitySurface(ConstantDoublesSurface.from(volatility));
     if (!(volatilitySurface.getSurface() instanceof InterpolatedDoublesSurface)) {
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
@@ -117,7 +119,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
       throw new OpenGammaRuntimeException("Could not get " + curveSpecRequirement);
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-    final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName, curveName);
+    final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, curveName);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
     final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
@@ -162,11 +164,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
       s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
       return null;
     }
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      return null;
-    }
-    final String curveName = curveNames.iterator().next();
+    final String curveName = Iterables.getOnlyElement(curveNames);
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
@@ -189,7 +187,6 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
       s_logger.error("Curve named {} is not available in curve calculation configuration called {}", curveName, curveCalculationConfigName);
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next();
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
@@ -200,15 +197,12 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
-    requirements.add(getVolatilityRequirement(surfaceName, currency));
+    requirements.add(getVolatilityRequirement(ComputationTargetSpecification.of(target.getSecurity())));
     return requirements;
   }
 
-  private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, surface)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
-    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
+  private ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
+    return new ValueRequirement(MarketDataRequirementNames.IMPLIED_VOLATILITY, target, ValueProperties.builder().get());
   }
 
   private ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod) {

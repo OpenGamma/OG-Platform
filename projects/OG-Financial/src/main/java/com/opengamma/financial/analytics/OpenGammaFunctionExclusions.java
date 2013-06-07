@@ -39,6 +39,7 @@ public interface OpenGammaFunctionExclusions {
   public static final String FX_OPTION_THETA_DEFAULTS = "FX_OPTION_THETA_DEFAULTS";
   public static final String NORMAL_HISTORICAL_VAR = "NORMAL_HISTORICAL_VAR";
   public static final String EMPIRICAL_HISTORICAL_VAR = "EMPIRICAL_HISTORICAL_VAR";
+  public static final String SWAPTION_BASIC_BLACK_DEFAULTS = "SWAPTION_BASIC_BLACK_DEFAULTS";
   public static final String SWAPTION_BLACK_DEFAULTS = "SWAPTION_BLACK_DEFAULTS";
   public static final String INTEREST_RATE_FUTURE = "INTEREST_RATE_FUTURE";
   public static final String FUTURE_OPTION_BLACK = "FUTURE_OPTION_BLACK";
