@@ -44,6 +44,21 @@
   </modules>
 
   <!-- ==================================================================== -->
+  <!-- build -->
+  <build>
+    <plugins>
+      <!-- allows -Dmaven.site.skip=true to build aggregated without children -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <skip>false</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- ==================================================================== -->
   <!-- build aggregate website -->
   <reporting>
     <plugins>
@@ -116,6 +131,9 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Properties for maven-deploy-plugin -->
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <maven.site.skip>false</maven.site.skip>
   </properties>
 
 </project>
