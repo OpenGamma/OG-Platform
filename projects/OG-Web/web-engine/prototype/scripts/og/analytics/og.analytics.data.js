@@ -16,16 +16,14 @@ $.register_module({
             return pool = {
                 add : function (data) {children.push(data);},
                 parent : function (data) {
-                    //console.log(data);
                     var parent, source = Object.clone(data.source);
                     if (data.pool) return null;
-                    ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]}); // normalize sources
+                    ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]});// normalize sources
                     parent = parents.filter(function (parent) {return Object.equals(parent.source, source);});
                     if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
                     parent = new og.analytics.Data(source, {pool: true, label: 'pool'});
                     parent.refcount = [data.id];
                     parents.push(parent);
-                    //console.log(parents);
                     return parent;
                 },
                 parents : function () {
@@ -103,7 +101,6 @@ $.register_module({
                 }
             })();
             var initialize = function () {
-                //console.log('init');
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
                 if (!!source.blotter) put_options.blotter = true;
@@ -137,7 +134,6 @@ $.register_module({
                 meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
                 meta.columns.scroll = result.data[SETS].slice(1);
                 data.connection = {grid_type: grid_type, view_id: view_id, graph_id: graph_id, structure: result};
-                //console.log(data.connection.view_id);
                 if (config.pool) ['grid_type', 'structure'].forEach(function (key) {delete data.connection[key];});
                 fire('meta', meta, data.connection);
                 if (!subscribed) return data_setup();

@@ -17,12 +17,11 @@ $.register_module({
                 });
         };
         var action = function (state) {
+            if(!og.analytics.grid) return;//resume is called on form load (og.analytics.form2)
             if (state === 'pause') markup_pause();
             else markup_resume();
             og.analytics.grid.dataman.pools().forEach(function (val) {
-                og.api.rest.views.status.pause_or_resume({view_id: val, state: state}).pipe(function (result) {
-                    //console.log('result', result);
-                });
+                og.api.rest.views.status.pause_or_resume({view_id: val, state: state});
             });
         };
         //pause css and markup
@@ -38,9 +37,9 @@ $.register_module({
         };
         return status = {
             resume: function (){
-            if ($(toggle).hasClass('og-icon-pause')) return;
-            action('resume');
-            initialize = false;
+                if ($(toggle).hasClass('og-icon-pause')) return;
+                action('resume');
+                initialize = false;
             },
             //update on every cycle
             cycle: function (ms) {

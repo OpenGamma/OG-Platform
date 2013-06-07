@@ -67,7 +67,7 @@ $.register_module({
                 portfolio: data.portfolio,
                 temporal: data.temporal
             };
-            //og.analytics.status.resume();
+            og.analytics.status.resume();
             callback(query);
             dom.load_btn.focus(0);
         };
