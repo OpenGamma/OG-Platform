@@ -29,7 +29,6 @@
     <module>projects/OG-Examples</module>
     <module>projects/OG-Financial</module>
     <module>projects/OG-Integration</module>
-    <module>projects/OG-Language</module>
     <module>projects/OG-LiveData</module>
     <module>projects/OG-Master</module>
     <module>projects/OG-MasterDB</module>
@@ -114,20 +113,6 @@
       </plugin>
     </plugins>
   </reporting>
-
-  <!-- ==================================================================== -->
-  <profiles>
-    <profile>
-      <activation>
-        <file>
-          <exists>projects/OG-RStats/pom.xml</exists>
-        </file>
-      </activation>
-      <modules>
-        <module>projects/OG-RStats</module>
-      </modules>
-    </profile>
-  </profiles>
 
   <!-- ==================================================================== -->
   <properties>
