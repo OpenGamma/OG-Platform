@@ -35,6 +35,7 @@ public class FunctionInvocationStatisticsSenderTest {
   
   private FunctionCosts _cost = new FunctionCosts ();
   
+  @Test(timeOut = 3_000L)
   public void testBasicBehaviour () {
     final AtomicInteger messages = new AtomicInteger ();
     final FunctionInvocationStatisticsSender sender = new FunctionInvocationStatisticsSender ();
