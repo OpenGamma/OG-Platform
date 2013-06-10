@@ -14,7 +14,8 @@ $.register_module({
                 del: common.not_available_del,
                 trades: {root: 'blotter/trades'},
                 securities: {root: 'blotter/securities'},
-                positions: {root: 'blotter/positions'}
+                positions: {root: 'blotter/positions'},
+                nodes: {positions: {root: 'blotter/nodes'}}
             };
         [ // blotter/lookup/* endpoints
             'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
@@ -69,12 +70,35 @@ $.register_module({
             if (id) method.push(id);
             return api.request(method, {data: data, meta: meta});
         };
-        blotter.trades.del = function (config) {
+        blotter.positions.del = function (config) {
             config = config || {};
             var root = this.root, method = root.split('/'), meta;
             meta = check({bundle: {method: root + '#del', config: config}, required: [{all_of: ['id']}]});
             meta.type = 'DELETE';
             return api.request(method.concat(config.id), {data: {}, meta: meta});
+        };
+        blotter.trades.del = function (config) {
+            config = config || {};
+            var root = this.root, method = root.split('/'), meta, id = str(config.id);
+            meta = check({
+                bundle: {method: root + '#del', config: config},
+                required: [{all_of: ['id']}]
+            });
+            meta.type = 'DELETE';
+            method.push(id);
+            return api.request(method, {data: {}, meta: meta});
+        };
+        blotter.nodes.positions.del = function (config) {
+            config = config || {};
+            var root = this.root, method = root.split('/'), meta, id = str(config.id), position = str(config.position);
+            meta = check({
+                bundle: {method: root + '#del', config: config},
+                required: [{all_of: ['id']}]
+            });
+            meta.type = 'DELETE';
+            method.push(id);
+            if (position) method.push('positions', position);
+            return api.request(method, {data: {}, meta: meta});
         };
         return blotter;
     }

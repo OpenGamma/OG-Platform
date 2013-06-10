@@ -15,7 +15,7 @@
 
 body {
   color: #475562;
-  font: normal 12px/160% arial, helvetica, sans-serif;
+  font: normal 12px/160% 'Open Sans', arial, serif;
 }
 
 h1,
@@ -27,14 +27,12 @@ h3 {
 
 h1 {
   display: inline-block;
-  font-family: 'Open Sans', arial, serif;
   font-size: 30px;
   line-height: 35px;
   margin-bottom: 15px;
 }
 
 h2 {
-  font-family: 'Open Sans', arial, serif;
   font-size: 20px;
   line-height: 20px;
   margin-bottom: 0;

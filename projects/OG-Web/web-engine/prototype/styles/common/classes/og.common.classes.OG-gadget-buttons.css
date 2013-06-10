@@ -1,0 +1,56 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ *
+ * background-position-y not supported in FF!
+ *
+ */
+
+.OG-gadget-buttons.og-active {
+    background-color: #01467a;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Depgraph:after,
+.OG-gadget-buttons:hover .og-icon-Depgraph:after {
+    background-position: -66px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Curve:after,
+.OG-gadget-buttons:hover .og-icon-Curve:after {
+    background-position: -116px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Data:after,
+.OG-gadget-buttons:hover .og-icon-Data:after {
+    background-position: -82px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Histogram:after,
+.OG-gadget-buttons:hover .og-icon-Histogram:after {
+    background-position: -132px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Log:after,
+.OG-gadget-buttons:hover .og-icon-Log:after {
+    background-position: -99px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-ExpandedPositions:after,
+.OG-gadget-buttons:hover .og-icon-ExpandedPositions:after {
+    background-position: -181px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Surface:after,
+.OG-gadget-buttons:hover .og-icon-Surface:after {
+    background-position: -165px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Text:after,
+.OG-gadget-buttons:hover .og-icon-Text:after {
+    background-position: -198px -162px;
+}
+
+.OG-gadget-buttons.og-active .og-icon-Timeseries:after,
+.OG-gadget-buttons:hover .og-icon-Timeseries:after {
+    background-position: -148px -162px;
+}

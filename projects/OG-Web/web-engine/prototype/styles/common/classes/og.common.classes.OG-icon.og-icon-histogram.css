@@ -4,10 +4,10 @@
  */
 .OG-icon.og-icon-Histogram:after {
   display: inline-block;
-  background-position: -128px -80px;
+  background-position: -132px -92px;
   background-color: transparent;
-  height: 11px;
-  width: 14px;
+  height: 16px;
+  width: 16px;
   z-index: 2;
   position: absolute;
 }

@@ -107,7 +107,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
-      throw new UnsupportedOperationException("Cannot handle FX implied curves at the moment");
+      throw new UnsupportedOperationException("Cannot handle FX implied curves");
     }
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
     final InstrumentDerivative swaption = definition.toDerivative(now, fullCurveNames); //TODO
@@ -191,7 +191,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     }
     final String surfaceName = surfaceNames.iterator().next();
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(currency, curveName));

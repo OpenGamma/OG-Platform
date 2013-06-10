@@ -41,6 +41,7 @@
   </bundle>
   <bundle id="gadgets.css">
     <fragment>/styles/common/gadgets/og.common.gadgets.OG-histogram.css</fragment>
+    <fragment>/styles/common/gadgets/og.common.gadgets.OG-curve.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -88,10 +89,12 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-minimize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-dock.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window-2.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-ellipsis.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sparkline.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-csv.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-dependency-graph.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-position.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-data.css</fragment>
@@ -108,6 +111,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-loader.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-gadget-buttons.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
@@ -218,6 +222,7 @@
     <fragment>/scripts/lib/js.ext.array.prototype.pluck.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.trim.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.clone.js</fragment>
     <fragment>/scripts/lib/js.ext.object.create.js</fragment>
     <fragment>/scripts/lib/js.ext.object.equals.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
@@ -257,11 +262,11 @@
     <fragment>/scripts/lib/jquery/flot/jquery.flot.navigate.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.threshold.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.crosshair.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.dashes.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.core.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
     <fragment>/scripts/lib/routemap.js</fragment>
-    <fragment>/scripts/lib/og.standalone.curve.js</fragment>
     <fragment>/scripts/lib/og.standalone.data.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
@@ -362,17 +367,20 @@
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
     <fragment>/scripts/og/common/og.common.tooltip.js</fragment>
+    <fragment>/scripts/og/common/og.common.timeseries_menu.js</fragment>
+    <fragment>/scripts/og/common/og.common.timeseries_data.js</fragment>
+    <fragment>/scripts/og/common/og.common.timeseries.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.expanded_positions.js</fragment>
-    <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.histogram.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.histogram_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.log.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.text.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
@@ -391,7 +399,7 @@
   <bundle id="common_analytics.js">
     <fragment>/scripts/og/analytics/og.analytics.url.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.cells.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.portfolios.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.viewdefinitions.js</fragment>
@@ -409,6 +417,7 @@
     <fragment>/scripts/og/blotter/og.blotter.util.js</fragment>
     <fragment>/scripts/og/blotter/og.blotter.contextmenu.js</fragment>
     <!--Reusable Blocks-->
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.regions.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.security.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.floatingleg.js</fragment>
@@ -517,12 +526,12 @@
     <bundle idref="blotter.js" />
     <fragment>/scripts/og/views/og.views.blotter.js</fragment>
   </bundle>
-  <bundle id="og_analytics.js">
-      <fragment>/scripts/og/views/og.views.analytics.js</fragment>
+  <bundle id="og_analytics_legacy.js">
+      <fragment>/scripts/og/views/og.views.analytics_legacy.js</fragment>
   </bundle>
-  <bundle id="og_analytics2.js">
+  <bundle id="og_analytics.js">
       <bundle idref="common_analytics.js" />
-      <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
+      <fragment>/scripts/og/views/og.views.analytics.js</fragment>
   </bundle>
   <bundle id="og_gadget.js">
       <bundle idref="common_analytics.js" />

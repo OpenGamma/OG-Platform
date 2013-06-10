@@ -60,9 +60,12 @@ public class CombiningBloombergLiveDataServerTest {
   public void setUpClass() {
     _underlying = BloombergLiveDataServerUtils.getUnderlyingProvider();
     _unitTestingProvider = new UnitTestingReferenceDataProvider(_underlying);
-    BySchemeFakeSubscriptionSelector selector1 = new BySchemeFakeSubscriptionSelector(ExternalSchemes.BLOOMBERG_BUID_WEAK, ExternalSchemes.BLOOMBERG_TICKER_WEAK);
-    UnionFakeSubscriptionSelector selector = new UnionFakeSubscriptionSelector(selector1, new ByTypeFakeSubscriptionSelector("SWAPTION VOLATILITY"));
-    _server = BloombergLiveDataServerUtils.startTestServer(CombiningBloombergLiveDataServerTest.class, selector, _unitTestingProvider);
+    _server = BloombergLiveDataServerUtils.startTestServer(
+      CombiningBloombergLiveDataServerTest.class,
+      new UnionFakeSubscriptionSelector(
+        new BySchemeFakeSubscriptionSelector(ExternalSchemes.BLOOMBERG_BUID_WEAK, ExternalSchemes.BLOOMBERG_TICKER_WEAK),
+        new ByTypeFakeSubscriptionSelector("SWAPTION VOLATILITY")),
+      _unitTestingProvider);
     _liveDataClient = LiveDataClientTestUtils.getJmsClient(_server);
     _unitTestingProvider.reset();
   }
@@ -210,7 +213,11 @@ public class CombiningBloombergLiveDataServerTest {
   @Test
   public void testExpiration() throws Exception {
     int period = 15000;
-    ExpirationManager expirationManager = new ExpirationManager(_server, period, period);
+    ExpirationManager expirationManager = _server.getExpirationManager();
+    expirationManager.stop();
+    expirationManager.setCheckPeriod(15000);
+    expirationManager.setTimeoutExtension(15000);
+    expirationManager.start();
     
     final AtomicInteger combinedSubs = countSubscriptions(_server);
     final AtomicInteger fakeSubs = countSubscriptions(_server.getFakeServer());

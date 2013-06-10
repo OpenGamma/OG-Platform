@@ -166,11 +166,10 @@ $.register_module({
                             view.layout.inner.close('north');
                             $('.OG-layout-admin-details-north').empty();
                         }
-                        if (json.template_data.hts_id || args.timeseries) new common.gadgets.TimeseriesPlot({
-                            selector: '.OG-timeseries-container',
-                            id: json.template_data.hts_id || args.timeseries,
-                            height: "450"
-                        });
+                        if (json.template_data.hts_id || args.timeseries) new og.common.gadgets.Timeseries({
+                            rest_options: {id: json.template_data.hts_id || args.timeseries},
+                            selector: '.OG-timeseries-container'
+                        })
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
                     };

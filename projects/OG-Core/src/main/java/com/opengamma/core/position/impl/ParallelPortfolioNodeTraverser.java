@@ -24,7 +24,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ParallelPortfolioNodeTraverser.class);
 
-  private final PoolExecutor.Service<?> _executorService;
+  private final PoolExecutor _pool;
 
   /**
    * Creates a traverser.
@@ -35,14 +35,22 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
   public ParallelPortfolioNodeTraverser(final PortfolioNodeTraversalCallback callback, final PoolExecutor executorService) {
     super(callback);
     ArgumentChecker.notNull(executorService, "executorService");
-    _executorService = executorService.createService(null);
+    _pool = executorService;
   }
 
-  protected PoolExecutor.Service<?> getExecutorService() {
-    return _executorService;
+  protected PoolExecutor.Service<?> createExecutorService() {
+    return _pool.createService(null);
   }
 
-  private final class Context {
+  private static final class Context {
+
+    private final PoolExecutor.Service<?> _executorService;
+    private final PortfolioNodeTraversalCallback _callback;
+
+    public Context(PoolExecutor.Service<?> executorService, PortfolioNodeTraversalCallback callback) {
+      _executorService = executorService;
+      _callback = callback;
+    }
 
     private final class NodeTraverser implements Runnable {
 
@@ -58,7 +66,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
       @Override
       public void run() {
-        getCallback().preOrderOperation(_node);
+        _callback.preOrderOperation(_node);
         final List<PortfolioNode> childNodes = _node.getChildNodes();
         final List<Position> positions = _node.getPositions();
         _count.addAndGet(childNodes.size() + positions.size());
@@ -67,7 +75,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             @Override
             public void run() {
               try {
-                getCallback().preOrderOperation(_node, position);
+                _callback.preOrderOperation(_node, position);
               } finally {
                 childDone();
               }
@@ -83,7 +91,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
         if (_count.decrementAndGet() == 0) {
           if (_secondPass) {
             try {
-              getCallback().postOrderOperation(_node);
+              _callback.postOrderOperation(_node);
             } finally {
               if (_parent != null) {
                 _parent.childDone();
@@ -94,7 +102,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             final List<Position> positions = _node.getPositions();
             if (positions.isEmpty()) {
               try {
-                getCallback().postOrderOperation(_node);
+                _callback.postOrderOperation(_node);
               } finally {
                 if (_parent != null) {
                   _parent.childDone();
@@ -107,7 +115,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
                   @Override
                   public void run() {
                     try {
-                      getCallback().postOrderOperation(_node, position);
+                      _callback.postOrderOperation(_node, position);
                     } finally {
                       childDone();
                     }
@@ -122,12 +130,12 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
     }
 
     private void submit(final Runnable runnable) {
-      getExecutorService().execute(runnable);
+      _executorService.execute(runnable);
     }
 
     public void waitForCompletion() {
       try {
-        getExecutorService().join();
+        _executorService.join();
       } catch (InterruptedException e) {
         s_logger.info("Interrupted waiting for completion");
         throw new OpenGammaRuntimeException("interrupted", e);
@@ -146,7 +154,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
     if (portfolioNode == null) {
       return;
     }
-    final Context context = new Context();
+    final Context context = new Context(createExecutorService(), getCallback());
     context.submit(context.new NodeTraverser(portfolioNode, null));
     context.waitForCompletion();
   }

@@ -99,7 +99,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     if (curveNames.length == 1) {
       curveNames = new String[] {curveNames[0], curveNames[0] };
     }
-    String[] fullCurveNames = new String[curveNames.length];
+    final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {
       fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
     }
@@ -158,7 +158,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
     return requirements;

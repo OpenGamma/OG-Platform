@@ -33,6 +33,10 @@ $.register_module({
                 delete data.underlying.name;
                 delete data.underlying.externalIdBundle;
             },
+            get_unique_id : function (input) {
+                var arr = input.split('~');
+                return arr[0] + '~' + arr[1]
+            },
             check_radio : function (name, value) {
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
             },

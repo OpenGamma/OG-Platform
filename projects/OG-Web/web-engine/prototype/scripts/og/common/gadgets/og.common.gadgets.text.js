@@ -10,14 +10,14 @@ $.register_module({
         return function (config) {
             var gadget = this, alive = og.common.id('gadget_text'), $selector = $(config.selector),
                 instantiated, tash, $msg, sbar_size = og.common.util.scrollbar_size + 'px',
-                cell_options = {source: config.source, col: config.col, row: config.row, format: 'CELL'},
+                cell_options = {source: config.source, single: {row: config.row, col: config.col}, format: 'CELL'},
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0};
             gadget.alive = function () {
                 return $(config.selector).length ? true : (gadget.die(), false);
             };
             gadget.load = function () {
                 $selector.addClass(alive).css(css_position).html(loading_template({text: 'loading...'}));
-                gadget.dataman = new og.analytics.Cell(cell_options, 'text').on('data', function (cell) {
+                gadget.dataman = new og.analytics.Cells(cell_options, 'text').on('data', function (cell) {
                     if (gadget.data = cell.v || cell) {
                         if (!instantiated)
                             $.when(og.api.text({module: 'og.analytics.text_tash'})).then(function (tmpl) {

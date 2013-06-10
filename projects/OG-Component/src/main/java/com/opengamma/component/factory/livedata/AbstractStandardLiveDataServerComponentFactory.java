@@ -22,7 +22,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.livedata.entitlement.EntitlementServer;
-import com.opengamma.livedata.server.ExpirationManager;
 import com.opengamma.livedata.server.HeartbeatReceiver;
 import com.opengamma.livedata.server.LiveDataServer;
 import com.opengamma.livedata.server.ReconnectManager;
@@ -88,10 +87,10 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     StandardLiveDataServer server = initServer(repo);
     final ComponentInfo info = new ComponentInfo(LiveDataServer.class, getClassifier());
     repo.registerComponent(info, server);
-    
+
     ReconnectManager reconnectManager = new ReconnectManager(server);
-    repo.registerLifecycle(reconnectManager);  // after registering component, for lifecycle ordering
-    
+    repo.registerLifecycle(reconnectManager); // after registering component, for lifecycle ordering
+
     if (isPublishJms()) {
       publishJms(repo, server);
     }
@@ -103,10 +102,9 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Creates the server, without registering it.
    * <p>
-   * The calling code will register it, setup the {@link ReconnectManager}
-   * and publish via JMS and REST.
+   * The calling code will register it, setup the {@link ReconnectManager} and publish via JMS and REST.
    * 
-   * @param repo  the repository, not null
+   * @param repo the repository, not null
    * @return the server, not null
    */
   protected abstract StandardLiveDataServer initServer(ComponentRepository repo);
@@ -114,8 +112,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Publishes the server by JMS.
    * 
-   * @param repo  the repository, not null
-   * @param server  the server, not null
+   * @param repo the repository, not null
+   * @param server the server, not null
    */
   protected void publishJms(ComponentRepository repo, StandardLiveDataServer server) {
     publishJmsSubscription(repo, server);
@@ -126,8 +124,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Publishes the JMS subscription topic.
    * 
-   * @param repo  the repository, not null
-   * @param server  the server, not null
+   * @param repo the repository, not null
+   * @param server the server, not null
    */
   protected void publishJmsSubscription(ComponentRepository repo, StandardLiveDataServer server) {
     SubscriptionRequestReceiver receiver = new SubscriptionRequestReceiver(server);
@@ -140,8 +138,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Publishes the JMS entitlement topic.
    * 
-   * @param repo  the repository, not null
-   * @param server  the server, not null
+   * @param repo the repository, not null
+   * @param server the server, not null
    */
   protected void publishJmsEntitlement(ComponentRepository repo, StandardLiveDataServer server) {
     EntitlementServer entitlementServer = new EntitlementServer(server.getEntitlementChecker());
@@ -154,12 +152,11 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Publishes the JMS heartbeat topic.
    * 
-   * @param repo  the repository, not null
-   * @param server  the server, not null
+   * @param repo the repository, not null
+   * @param server the server, not null
    */
   protected void publishJmsHeartbeat(ComponentRepository repo, StandardLiveDataServer server) {
-    ExpirationManager expirationManager = new ExpirationManager(server);
-    HeartbeatReceiver receiver = new HeartbeatReceiver(expirationManager);
+    HeartbeatReceiver receiver = new HeartbeatReceiver(server.getExpirationManager());
     JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(receiver);
     JmsTopicContainer jmsContainer = getJmsConnector().getTopicContainerFactory().create(getJmsHeartbeatTopic(), jmsDispatcher);
     repo.registerLifecycle(jmsContainer);
@@ -168,8 +165,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Publishes the component over REST by publishing a meta-data provider.
    * 
-   * @param repo  the repository, not null
-   * @param server  the server being produced, not null
+   * @param repo the repository, not null
+   * @param server the server being produced, not null
    */
   protected void publishRest(ComponentRepository repo, StandardLiveDataServer server) {
     final LiveDataMetaData metaData = createMetaData(repo);
@@ -188,7 +185,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Creates the shell meta-data for REST that will have JMS details attached.
    * 
-   * @param repo  the repository, not null
+   * @param repo the repository, not null
    * @return the meta-data, not null
    */
   protected abstract LiveDataMetaData createMetaData(ComponentRepository repo);
@@ -197,11 +194,13 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractStandardLiveDataServerComponentFactory}.
+   * 
    * @return the meta-bean, not null
    */
   public static AbstractStandardLiveDataServerComponentFactory.Meta meta() {
     return AbstractStandardLiveDataServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractStandardLiveDataServerComponentFactory.Meta.INSTANCE);
   }
@@ -214,19 +213,19 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         return getClassifier();
-      case -614707837:  // publishRest
+      case -614707837: // publishRest
         return isPublishRest();
-      case 1919825921:  // publishJms
+      case 1919825921: // publishJms
         return isPublishJms();
-      case -1495762275:  // jmsConnector
+      case -1495762275: // jmsConnector
         return getJmsConnector();
-      case -102439838:  // jmsSubscriptionTopic
+      case -102439838: // jmsSubscriptionTopic
         return getJmsSubscriptionTopic();
-      case -59808846:  // jmsEntitlementTopic
+      case -59808846: // jmsEntitlementTopic
         return getJmsEntitlementTopic();
-      case -326199997:  // jmsHeartbeatTopic
+      case -326199997: // jmsHeartbeatTopic
         return getJmsHeartbeatTopic();
     }
     return super.propertyGet(propertyName, quiet);
@@ -235,25 +234,25 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         setClassifier((String) newValue);
         return;
-      case -614707837:  // publishRest
+      case -614707837: // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case 1919825921:  // publishJms
+      case 1919825921: // publishJms
         setPublishJms((Boolean) newValue);
         return;
-      case -1495762275:  // jmsConnector
+      case -1495762275: // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
-      case -102439838:  // jmsSubscriptionTopic
+      case -102439838: // jmsSubscriptionTopic
         setJmsSubscriptionTopic((String) newValue);
         return;
-      case -59808846:  // jmsEntitlementTopic
+      case -59808846: // jmsEntitlementTopic
         setJmsEntitlementTopic((String) newValue);
         return;
-      case -326199997:  // jmsHeartbeatTopic
+      case -326199997: // jmsHeartbeatTopic
         setJmsHeartbeatTopic((String) newValue);
         return;
     }
@@ -302,6 +301,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
+   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -310,7 +310,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
+   * 
+   * @param classifier the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -319,6 +320,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code classifier} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -328,6 +330,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the flag determining whether the component should be published by REST (default true).
+   * 
    * @return the value of the property
    */
   public boolean isPublishRest() {
@@ -336,7 +339,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the flag determining whether the component should be published by REST (default true).
-   * @param publishRest  the new value of the property
+   * 
+   * @param publishRest the new value of the property
    */
   public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
@@ -344,6 +348,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code publishRest} property.
+   * 
    * @return the property, not null
    */
   public final Property<Boolean> publishRest() {
@@ -353,6 +358,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the flag determining whether the component should be published by JMS (default true).
+   * 
    * @return the value of the property
    */
   public boolean isPublishJms() {
@@ -361,7 +367,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the flag determining whether the component should be published by JMS (default true).
-   * @param publishJms  the new value of the property
+   * 
+   * @param publishJms the new value of the property
    */
   public void setPublishJms(boolean publishJms) {
     this._publishJms = publishJms;
@@ -369,6 +376,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code publishJms} property.
+   * 
    * @return the property, not null
    */
   public final Property<Boolean> publishJms() {
@@ -378,6 +386,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the JMS connector.
+   * 
    * @return the value of the property, not null
    */
   public JmsConnector getJmsConnector() {
@@ -386,7 +395,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the JMS connector.
-   * @param jmsConnector  the new value of the property, not null
+   * 
+   * @param jmsConnector the new value of the property, not null
    */
   public void setJmsConnector(JmsConnector jmsConnector) {
     JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
@@ -395,6 +405,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code jmsConnector} property.
+   * 
    * @return the property, not null
    */
   public final Property<JmsConnector> jmsConnector() {
@@ -404,6 +415,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the subscription topic, null if not used.
+   * 
    * @return the value of the property
    */
   public String getJmsSubscriptionTopic() {
@@ -412,7 +424,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the name of the subscription topic, null if not used.
-   * @param jmsSubscriptionTopic  the new value of the property
+   * 
+   * @param jmsSubscriptionTopic the new value of the property
    */
   public void setJmsSubscriptionTopic(String jmsSubscriptionTopic) {
     this._jmsSubscriptionTopic = jmsSubscriptionTopic;
@@ -420,6 +433,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code jmsSubscriptionTopic} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> jmsSubscriptionTopic() {
@@ -429,6 +443,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the entitlement topic, null if not used.
+   * 
    * @return the value of the property
    */
   public String getJmsEntitlementTopic() {
@@ -437,7 +452,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the name of the entitlement topic, null if not used.
-   * @param jmsEntitlementTopic  the new value of the property
+   * 
+   * @param jmsEntitlementTopic the new value of the property
    */
   public void setJmsEntitlementTopic(String jmsEntitlementTopic) {
     this._jmsEntitlementTopic = jmsEntitlementTopic;
@@ -445,6 +461,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code jmsEntitlementTopic} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> jmsEntitlementTopic() {
@@ -454,6 +471,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the heartbeat topic, null if not used.
+   * 
    * @return the value of the property
    */
   public String getJmsHeartbeatTopic() {
@@ -462,7 +480,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the name of the heartbeat topic, null if not used.
-   * @param jmsHeartbeatTopic  the new value of the property
+   * 
+   * @param jmsHeartbeatTopic the new value of the property
    */
   public void setJmsHeartbeatTopic(String jmsHeartbeatTopic) {
     this._jmsHeartbeatTopic = jmsHeartbeatTopic;
@@ -470,6 +489,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code jmsHeartbeatTopic} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> jmsHeartbeatTopic() {
@@ -543,19 +563,19 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           return _classifier;
-        case -614707837:  // publishRest
+        case -614707837: // publishRest
           return _publishRest;
-        case 1919825921:  // publishJms
+        case 1919825921: // publishJms
           return _publishJms;
-        case -1495762275:  // jmsConnector
+        case -1495762275: // jmsConnector
           return _jmsConnector;
-        case -102439838:  // jmsSubscriptionTopic
+        case -102439838: // jmsSubscriptionTopic
           return _jmsSubscriptionTopic;
-        case -59808846:  // jmsEntitlementTopic
+        case -59808846: // jmsEntitlementTopic
           return _jmsEntitlementTopic;
-        case -326199997:  // jmsHeartbeatTopic
+        case -326199997: // jmsHeartbeatTopic
           return _jmsHeartbeatTopic;
       }
       return super.metaPropertyGet(propertyName);
@@ -579,6 +599,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -587,6 +608,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
     /**
      * The meta-property for the {@code publishRest} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> publishRest() {
@@ -595,6 +617,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
     /**
      * The meta-property for the {@code publishJms} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> publishJms() {
@@ -603,6 +626,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
     /**
      * The meta-property for the {@code jmsConnector} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
@@ -611,6 +635,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
     /**
      * The meta-property for the {@code jmsSubscriptionTopic} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> jmsSubscriptionTopic() {
@@ -619,6 +644,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
     /**
      * The meta-property for the {@code jmsEntitlementTopic} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> jmsEntitlementTopic() {
@@ -627,6 +653,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
     /**
      * The meta-property for the {@code jmsHeartbeatTopic} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> jmsHeartbeatTopic() {

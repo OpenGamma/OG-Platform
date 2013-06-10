@@ -22,10 +22,8 @@ $.register_module({
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: leg + "notional.currency"}
                     }),
-                    new ui.Dropdown({
-                        form: form, resource: 'blotter.regions', index:  leg + 'regionId',
-                        value: data.regionId, placeholder: 'Select Region ID'
-                    }),
+                    regions_block = new og.blotter.forms.blocks.Regions({name: leg + 'regionId', 
+                        value: data.regionId, form: form}),
                     security_block = new og.blotter.forms.blocks.Security({
                         form: form, label: "Short Underlying ID", security: data.floatingReferenceRateId,
                         index: leg + "floatingReferenceRateId"
@@ -60,7 +58,9 @@ $.register_module({
                 },
                 generator: function (handler, tmpl, data) {
                     handler(tmpl(data));
-                    security_block.create_autocomplete();
+                    //dom does not exist for form load so need to called again after
+                    security_block.create_autocomplete(); 
+                    regions_block.create_autocomplete();
                 }
             });
         };

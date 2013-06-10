@@ -126,21 +126,21 @@ public class MixedBivariateLogNormalFitterTest {
 
     for (int i = 0; i < nNorms; ++i) {
 
-      assertEquals(weights[i], inWeights[i], Math.abs((inWeights[0] + inWeights[1]) / 2.) * 1e-11);
+      assertEquals(weights[i], inWeights[i], Math.abs((inWeights[0] + inWeights[1]) / 2.) * 1e-9);
     }
     for (int i = 0; i < nNorms; ++i) {
 
-      assertEquals(sigmasX[i], inSigmasX[i], Math.abs((inSigmasX[0] + inSigmasX[1]) / 2.) * 1e-11);
+      assertEquals(sigmasX[i], inSigmasX[i], Math.abs((inSigmasX[0] + inSigmasX[1]) / 2.) * 1e-9);
     }
     for (int i = 0; i < nNorms; ++i) {
 
-      assertEquals(sigmasY[i], inSigmasY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-11);
+      assertEquals(sigmasY[i], inSigmasY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-9);
     }
     for (int i = 0; i < nNorms; ++i) {
       assertEquals(relativePartialForwardsX[i], inRelativePartialForwardsX[i], Math.abs((inRelativePartialForwardsX[0] + inRelativePartialForwardsX[1]) / 2.) * 1e-11);
     }
     for (int i = 0; i < nNorms; ++i) {
-      assertEquals(relativePartialForwardsY[i], inRelativePartialForwardsY[i], Math.abs((inRelativePartialForwardsY[0] + inRelativePartialForwardsY[1]) / 2.) * 1e-11);
+      assertEquals(relativePartialForwardsY[i], inRelativePartialForwardsY[i], Math.abs((inRelativePartialForwardsY[0] + inRelativePartialForwardsY[1]) / 2.) * 1e-9);
     }
 
     final double[] ansVolsX = new double[100];
@@ -162,8 +162,8 @@ public class MixedBivariateLogNormalFitterTest {
     }
 
     for (int i = 0; i < 100; i++) {
-      assertEquals(ansVolsX[i], trueVolsX[i], Math.abs((inSigmasX[0] + inSigmasX[1]) / 2.) * 1e-9);
-      assertEquals(ansVolsY[i], trueVolsY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-9);
+      assertEquals(ansVolsX[i], trueVolsX[i], Math.abs((inSigmasX[0] + inSigmasX[1]) / 2.) * 1e-8);
+      assertEquals(ansVolsY[i], trueVolsY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-8);
     }
 
     final double[] ansDensityX = new double[100];
@@ -175,7 +175,7 @@ public class MixedBivariateLogNormalFitterTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansDensityX[i] = getDualGamma(option, fwdX, objAns1X);
       trueDensityX[i] = getDualGamma(option, fwdX, inObjX);
-      assertEquals(ansDensityX[i], trueDensityX[i], 1e-10);
+      assertEquals(ansDensityX[i], trueDensityX[i], 1e-9);
     }
 
     for (int i = 0; i < 100; i++) {
@@ -183,7 +183,7 @@ public class MixedBivariateLogNormalFitterTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansDensityY[i] = getDualGamma(option, fwdY, objAns1Y);
       trueDensityY[i] = getDualGamma(option, fwdY, inObjY);
-      assertEquals(ansDensityY[i], trueDensityY[i], 1e-10);
+      assertEquals(ansDensityY[i], trueDensityY[i], 1e-9);
     }
 
     for (int i = 0; i < 100; i++) {
@@ -692,8 +692,8 @@ public class MixedBivariateLogNormalFitterTest {
    * Tests below are for debugging or application to forex cross
    */
   @Test
-  (enabled = false)
-  public void fittingTestManyDataPts() {
+      (enabled = false)
+      public void fittingTestManyDataPts() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -807,8 +807,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-  (enabled = false)
-  public void testDerivingZ1() {
+      (enabled = false)
+      public void testDerivingZ1() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1134,8 +1134,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-  (enabled = false)
-  public void testError() {
+      (enabled = false)
+      public void testError() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1507,8 +1507,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-  (enabled = false)
-  public void testAccuracy2() {
+      (enabled = false)
+      public void testAccuracy2() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1738,8 +1738,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-  (enabled = false)
-  public void testNoise() {
+      (enabled = false)
+      public void testNoise() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1961,8 +1961,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-  (enabled = false)
-  public void testMarketData() {
+      (enabled = false)
+      public void testMarketData() {
 
     final double[] deltas = new double[] {0.15, 0.25 };
     final double[] expiries = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5 };
@@ -2563,8 +2563,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-  (enabled = false)
-  public void checkingModelParams() {
+      (enabled = false)
+      public void checkingModelParams() {
 
     final int nNorms = 2;
     final int nDataPts = 14;

@@ -7,9 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -62,6 +60,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   private PortfolioAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
+  private CompiledViewDefinition _pendingStructureChange;
   
 
   /**
@@ -129,6 +128,17 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   @Override
   public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+    if (_compiledViewDefinition != null) {
+      // If we are between cycles then hold back the structure change until there's a set of results which use it,
+      // allowing the user to continue browsing the current set of results in the meantime.
+      _pendingStructureChange = compiledViewDefinition;
+      return Collections.emptyList();
+    }
+    doUpdateStructure(compiledViewDefinition);
+    return getGridIds();
+  }
+
+  private void doUpdateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     Portfolio portfolio = _compiledViewDefinition.getPortfolio();
     if (portfolio != null) {
@@ -141,7 +151,6 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
                                                   _viewportListener);
-    return getGridIds();
   }
 
   private List<String> getGridIds() {
@@ -155,19 +164,31 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   @Override
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
-    _cache.put(results);
     List<String> updatedIds = Lists.newArrayList();
-    PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedStructure(_cache);
-    if (updatedPortfolioGrid == _portfolioGrid) {
-      // no change to the grid structure, notify the data has changed
-      updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
+    boolean structureUpdated;
+    if (_pendingStructureChange != null) {
+      doUpdateStructure(_pendingStructureChange);
+      structureUpdated = true;
+      _pendingStructureChange = null;
+      updatedIds.addAll(getGridIds());
     } else {
-      _portfolioGrid = updatedPortfolioGrid;
-      // grid structure has changed due to the results, notify the grids need to be rebuilt
-      updatedIds.add(_portfolioGrid.getCallbackId());
-      updatedIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());
+      structureUpdated = false;
     }
-    updatedIds.addAll(_primitivesGrid.updateResults(_cache, viewCycle));
+    _cache.put(results);    
+    if (!structureUpdated) {
+      // Individual cell updates
+      PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedStructure(_cache);
+      if (updatedPortfolioGrid == _portfolioGrid) {
+        // no change to the grid structure, notify the data has changed
+        updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
+      } else {
+        _portfolioGrid = updatedPortfolioGrid;
+        // grid structure has changed due to the results, notify the grids need to be rebuilt
+        updatedIds.add(_portfolioGrid.getCallbackId());
+        updatedIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());
+      }
+      updatedIds.addAll(_primitivesGrid.updateResults(_cache, viewCycle));
+    }
     return updatedIds;
   }
 
@@ -292,7 +313,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     if (isChangeRelevant(event)) {
       if (event.getType() == ChangeType.REMOVED) {
         // TODO clean up trades from cache if this is a position that has been removed
-        _cache.remove(notification.getEntity().getUniqueId().getObjectId());
+        _cache.remove(event.getObjectId());
         _portfolioGrid = _portfolioGrid.withUpdatedRows(_portfolioSupplier.get());
         // return the IDs of all grids because the portfolio structure has changed
         // TODO if we had separate IDs for rows and columns it would save the client rebuilding the column metadata

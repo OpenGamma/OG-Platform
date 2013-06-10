@@ -254,8 +254,11 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     final String securityType = security.getSecurityType();
-    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + payLeg.getRegionId()));
-    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + receiveLeg.getRegionId()));
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    }
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + receiveLeg.getRegionId().getValue()));
     return result;
   }
 
@@ -307,8 +310,11 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     final String securityType = security.getSecurityType();
-    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + payLeg.getRegionId()));
-    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + receiveLeg.getRegionId()));
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    }
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + receiveLeg.getRegionId().getValue()));
     return result;
   }
 
@@ -319,8 +325,11 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     final SwapLeg payLeg = underlyingSwap.getPayLeg();
     final SwapLeg receiveLeg = underlyingSwap.getReceiveLeg();
     final String securityType = security.getSecurityType();
-    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + payLeg.getRegionId()));
-    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + receiveLeg.getRegionId()));
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + payLeg.getRegionId().getValue()));
+    }
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + payLeg.getRegionId().getValue()));
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + "_" + receiveLeg.getRegionId().getValue()));
     return result;
   }
 

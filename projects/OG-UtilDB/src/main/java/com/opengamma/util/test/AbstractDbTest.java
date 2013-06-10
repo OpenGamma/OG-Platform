@@ -257,7 +257,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
    * version to test the data transformations on the next version upgrades.
    * 
    * @param version  the version
-   * @param prefix  the database schema group metadata, not null
+   * @param schemaGroupMetadata  the database schema group metadata, not null
    */
   public void tablesCreatedOrUpgraded(final int version, final DbSchemaGroupMetadata schemaGroupMetadata) {
     // No action 

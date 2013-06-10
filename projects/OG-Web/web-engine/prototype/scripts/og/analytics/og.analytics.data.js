@@ -8,32 +8,37 @@ $.register_module({
     obj: function () {
         var module = this;
         var ConnectionPool = new function () {
-            var pool = this, children = [], parents = [];
-            pool.add = function (data) {children.push(data);};
-            pool.parent = function (data) {
-                var parent, source;
-                if (data.pool) return null;
-                source = JSON.parse(JSON.stringify(data.source)); // make a copy
-                ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]}); // normalize sources
-                parent = parents.filter(function (parent) {return Object.equals(parent.source, source);});
-                if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
-                parent = new Data(source, {pool: true, label: 'pool'});
-                parent.refcount = [data.id];
-                return parents.push(parent), parent;
-            };
-            pool.remove = function (data) {
-                children = children.filter(function (child) {return child.id !== data.id;});
-                if (!data.parent) return; else if (data.parent.refcount) {
-                    data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
-                    if (data.parent.refcount.length) return;
-                }
-                data.parent.kill();
-                parents = parents.filter(function (parent) {return parent.id !== data.parent.id;});
-            };
+            var pool, children = [], parents = [];
             $(window).on('beforeunload', function () {
-                children.forEach(function (child) {try {child.kill();} catch (error) {}});  // should be no parents left
-                parents.forEach(function (parent) {try {parent.kill();} catch (error) {}}); // but just in case
+                children.forEach(function (child){try {child.kill();} catch (error) {}});//should be no parents left
+                parents.forEach(function (parent){try {parent.kill();} catch (error) {}});//but just in case
             });
+            return pool = {
+                add : function (data) {children.push(data);},
+                parent : function (data) {
+                    var parent, source = Object.clone(data.source);
+                    if (data.pool) return null;
+                    ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]});// normalize sources
+                    parent = parents.filter(function (parent) {return Object.equals(parent.source, source);});
+                    if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
+                    parent = new og.analytics.Data(source, {pool: true, label: 'pool'});
+                    parent.refcount = [data.id];
+                    parents.push(parent);
+                    return parent;
+                },
+                parents : function () {
+                    return parents
+                },
+                remove : function (data) {
+                    children = children.filter(function (child) {return child.id !== data.id;});
+                    if (!data.parent) return; else if (data.parent.refcount) {
+                        data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
+                        if (data.parent.refcount.length) return;
+                    }
+                    data.parent.kill();
+                    parents = parents.filter(function (parent) {return parent.id !== data.parent.id;});
+                }
+            };
         };
         var Data = function (source, config) {
             var data = this, api = og.api.rest.views, meta, label = config.label ? config.label + '-' : '',
@@ -70,8 +75,11 @@ $.register_module({
                         format: viewport.format, log: viewport.log
                     })).pipe(function (result) {
                         loading_viewport_id = false;
-                        if (result.error) return (data.prefix = module.name + ' (' + label + view_id + '-dead):\n'),
-                            (data.connection = view_id = graph_id = viewport_id = subscribed = null), result;
+                        if (result.error) {
+                            data.prefix = module.name + ' (' + label + view_id + '-dead):\n';
+                            data.connection = view_id = graph_id = viewport_id = subscribed = null;
+                            return result;
+                        }
                         viewport_id = result.meta.id; viewport_version = promise.id;
                         return viewports.get({
                             view_id: view_id, grid_type: grid_type, graph_id: graph_id, dry: true,
@@ -94,7 +102,8 @@ $.register_module({
             })();
             var initialize = function () {
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
-                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {blotter: !!source.blotter});
+                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
+                if (!!source.blotter) put_options.blotter = true;
                 if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup
                 if (view_id && grid_type && data.parent.connection.structure) // if parent connection supplies structure
                     return structure_handler(data.parent.connection.structure);
@@ -198,6 +207,9 @@ $.register_module({
             data.meta = meta = {columns: {}};
             data.source = source;
             data.pool = config.pool;
+            data.pools = function () {
+                return ConnectionPool.parents().pluck('connection').pluck('view_id');
+            };
             data.parent = config.parent || ConnectionPool.parent(data);
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
             data.viewport = function (new_viewport) {
@@ -212,7 +224,7 @@ $.register_module({
                 if (nonsensical_viewport(new_viewport))
                     return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
                 if (Object.equals(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
-                viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
+                viewport_cache = Object.clone(data.meta.viewport = viewport = new_viewport);
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 try { // viewport definitions come from outside, so try/catch
                     (promise = viewports.put({

@@ -2,48 +2,74 @@ $.register_module({
     name: 'og.analytics.status',
     dependencies: [],
     obj: function () {
-        var module = this, status,
-            message = '.og-js-analytics-status-message', calculation = '.og-js-analytics-status-calculation';
+        var module = this, status, initialize = false,
+            message = '.og-js-analytics-status-message', calculation = '.og-js-analytics-status-calculation',
+            message_classes = 'live disconnected paused', toggle_classes = 'og-icon-play og-icon-pause og-disabled',
+            toggle = '.og-js-analytics-status-toggle', resuming = false;
+        var init_click_handler = function () {
+            initialize = true;
+            $(message).removeClass('live disconnected paused').addClass('live').html('live');
+            $(toggle).removeClass(toggle_classes).addClass('og-icon-pause').off('click')
+                .on('click', function (event) {
+                    if ($(this).hasClass('og-icon-pause')) action('pause');
+                    else action('resume');
+                    return false;
+                });
+        };
+        var action = function (state) {
+            if(!og.analytics.grid) return;//resume is called on form load (og.analytics.form2)
+            if (state === 'pause') markup_pause();
+            else markup_resume();
+            og.analytics.grid.dataman.pools().forEach(function (val) {
+                og.api.rest.views.status.pause_or_resume({view_id: val, state: state});
+            });
+        };
+        //pause css and markup
+        var markup_pause = function () {
+            $(message).removeClass(message_classes).addClass('paused').html('paused');
+            $(toggle).removeClass(toggle_classes).addClass('og-icon-play');
+        };
+        //resume css and markup
+        var markup_resume = function () {
+            $(message).removeClass(message_classes).addClass('paused').html('starting...');
+            $(toggle).removeClass(toggle_classes).addClass('og-icon-pause');
+            resuming = true;
+        };
         return status = {
-            cycle: function (ms) {
-                $(message).removeClass('live disconnected paused').addClass('live').html('live');
-                $(calculation)[ms ? 'html' : 'empty']('calculated in ' + ms + 'ms');
+            resume: function (){
+                if ($(toggle).hasClass('og-icon-pause')) return;
+                action('resume');
+                initialize = false;
             },
-            disconnected : function () {
+            //update on every cycle
+            cycle: function (ms) {
+                if(resuming) $(message).html('live').addClass('live'), resuming = false;
+                $(calculation)[ms ? 'html' : 'empty']('calculated in ' + ms + 'ms');
+                if (!initialize) init_click_handler();
+            },
+            // og.api.rest.on('disconnect'...
+            disconnected: function () {
                 setTimeout(function () {
-                    $(message).removeClass('live disconnected paused').addClass('disconnected').html('connection lost');
+                    $(message).removeClass(message_classes).addClass('disconnected').html('connection lost');
+                    $(toggle).removeClass(toggle_classes).addClass('og-icon-play og-disabled');
                     $(calculation).empty();
                 }, 500);
             },
+            //initial state when form loaded
             nominal: function () {
-                $(message).removeClass('live disconnected paused').addClass('live').html('ready');
+                $(message).removeClass(message_classes).addClass('live').html('ready');
                 $(calculation).empty();
+                initialize = false;
+                $(toggle).off('click').on('click', function () {return false;});
+
             },
+            // og.api.rest.on('reconnect'...
             reconnected: function () {
-                $(message).removeClass('live disconnected paused').addClass('live').html('connected');
+                $(message).removeClass(message_classes).addClass('live').html('connected');
+                $(toggle).removeClass(toggle_classes).addClass('og-icon-pause');
                 $(calculation).empty();
+                initialize = false; //initialise everying on next cycle
             }
         };
-        return function (selector) {
-            var status = this, init = false;
-            $(selector + ' button').on('click', function (event) {
-                event.preventDefault();
-                if (!status.status || status.status === 'paused') return status.play();
-                if (status.status === 'playing') return status.pause();
-            });
-            status.pause = function () {
-                $(selector + ' em').html('paused').removeClass('live').addClass('paused');
-                $(selector + ' button').removeClass('og-icon-play').addClass('og-icon-pause');
-                status.status = 'paused';
-            };
-            status.play = function () {
-                if (!init) init = !!$(selector + ' button').removeClass('og-disabled');
-                $(selector + ' em').html('live').removeClass('paused').addClass('live');
-                $(selector + ' button').removeClass('og-icon-pause').addClass('og-icon-play');
-                status.status = 'playing';
-            };
-            status.status = null;
-            status.play();
-        };
     }
-})
+});

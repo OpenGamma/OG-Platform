@@ -129,7 +129,7 @@ $.register_module({
         };
         Clipboard.prototype.has = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data,
-                expanded = selection.rows.length === 1 && selection.cols.length === 1;
+                expanded = selection && selection.rows.length === 1 && selection.cols.length === 1;
             if (clipboard.selection && selection && !Object.equals(clipboard.selection, selection))
                 clipboard.viewport(selection);
             if (!selection) return false;
