@@ -407,7 +407,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the the {@code curves} property.
    * @return the property, not null
    */
-  public final Property<Map<YieldCurveKey, CurveSnapshot>> curves() {
+  public final Property<Map<CurveKey, CurveSnapshot>> curves() {
     return metaBean().curves().createProperty(this);
   }
 
@@ -501,7 +501,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
      * The meta-property for the {@code curves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<YieldCurveKey, CurveSnapshot>> _curves = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Map<CurveKey, CurveSnapshot>> _curves = DirectMetaProperty.ofReadWrite(
         this, "curves", ManageableMarketDataSnapshot.class, (Class) Map.class);
     /**
      * The meta-property for the {@code volatilityCubes} property.
@@ -618,7 +618,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
      * The meta-property for the {@code curves} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<YieldCurveKey, CurveSnapshot>> curves() {
+    public final MetaProperty<Map<CurveKey, CurveSnapshot>> curves() {
       return _curves;
     }
 

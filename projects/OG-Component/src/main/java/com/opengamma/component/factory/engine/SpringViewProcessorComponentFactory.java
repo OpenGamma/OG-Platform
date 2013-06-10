@@ -601,7 +601,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the historicalTimeSeriesSource.
+   * Gets the hts source, used in snapshotting if hts data used in place of live data. May be null or not specified.
    * @return the value of the property
    */
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
@@ -609,7 +609,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   }
 
   /**
-   * Sets the historicalTimeSeriesSource.
+   * Sets the hts source, used in snapshotting if hts data used in place of live data. May be null or not specified.
    * @param historicalTimeSeriesSource  the new value of the property
    */
   public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
