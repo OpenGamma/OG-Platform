@@ -44,7 +44,8 @@ public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolv
       return null; // check timeseries actually exists
     }
     if (MarketDataRequirementNames.MARKET_VALUE != dataField) {
-      s_logger.warn("Redis simulation returning ts of {} for {}, this may cause this series to be used in the wrong place in calculations", dataField, externalId);
+      s_logger.warn("Redis simulation asked for {} for {}, can only handle market value.", dataField, externalId);
+      return null;
     }
     ManageableHistoricalTimeSeriesInfo htsInfo = new ManageableHistoricalTimeSeriesInfo() {
       @Override
