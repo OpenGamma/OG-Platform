@@ -7,6 +7,7 @@ package com.opengamma.util.redis;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Protocol;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Connector;
@@ -27,6 +28,8 @@ public class RedisConnector implements Connector {
   
   private final int _port;
   
+  private final String _password;
+  
   private final JedisPool _jedisPool;
   
   private final JedisPoolConfig _jedisPoolConfig;
@@ -39,7 +42,19 @@ public class RedisConnector implements Connector {
    * @param port the redis server port, not null
    */
   public RedisConnector(final String name, final String host, final int port) {
-    this(name, host, port, new JedisPoolConfig());
+    this(name, host, port, (String) null);
+  }
+
+  /**
+   * Creates an instance.
+   *  
+   * @param name the configuration name, not null
+   * @param host the redis server host, not null
+   * @param port the redis server port, not null
+   * @param password the redis server password, may be null
+   */
+  public RedisConnector(final String name, final String host, final int port, String password) {
+    this(name, host, port, password, new JedisPoolConfig());
   }
 
   /**
@@ -51,6 +66,19 @@ public class RedisConnector implements Connector {
    * @param config the redis pool config, not null
    */
   public RedisConnector(final String name, final String host, final int port, final JedisPoolConfig config) {
+    this(name, host, port, null, config);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the configuration name, not null
+   * @param host  the redis server host, not null
+   * @param port  the redis server port, not null
+   * @param password the redis server password. may be null
+   * @param config the redis pool config, not null
+   */
+  public RedisConnector(final String name, final String host, final int port, final String password, final JedisPoolConfig config) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(host, "redisServer");
     ArgumentChecker.notNull(port, "port");
@@ -58,8 +86,14 @@ public class RedisConnector implements Connector {
     _name = name;
     _host = host;
     _port = port;
+    _password = password;
     _jedisPoolConfig = config;
-    JedisPool pool = new JedisPool(config, _host, _port);
+    JedisPool pool = null;
+    if (password == null) {
+      pool = new JedisPool(config, _host, _port);
+    } else {
+      pool = new JedisPool(config, _host, _port, Protocol.DEFAULT_TIMEOUT, _password);
+    }
     _jedisPool = pool;
   }
 
@@ -83,6 +117,14 @@ public class RedisConnector implements Connector {
    */
   public int getPort() {
     return _port;
+  }
+
+  /**
+   * Gets the password.
+   * @return the password
+   */
+  public String getPassword() {
+    return _password;
   }
 
   /**
