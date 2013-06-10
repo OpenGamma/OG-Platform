@@ -57,9 +57,9 @@ import com.opengamma.util.test.TestGroup;
  * Although timings can be reported, the repeated attempts to build the graph are more useful to detect faults with the graph building algorithm - for example inconsistent behaviors.
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class GraphBuildingSpeedTest {
+public class ExampleGraphBuildingSpeedTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(GraphBuildingSpeedTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleGraphBuildingSpeedTest.class);
 
   private static final int LOOPS = 3;
   private static final int COUNT = 3;
@@ -70,7 +70,7 @@ public class GraphBuildingSpeedTest {
   private CacheManager _cacheManager;
   private List<String> _report;
 
-  @BeforeClass
+  @BeforeClass(timeOut = 20_000L)
   public void initialise() {
     final ComponentManager manager = new ComponentManager("test");
     manager.start("classpath:fullstack/fullstack-example-test.properties");
@@ -81,7 +81,7 @@ public class GraphBuildingSpeedTest {
     _report = new LinkedList<String>();
   }
 
-  @AfterClass
+  @AfterClass(timeOut = 20_000L)
   public void cleanup() {
     if (_repo != null) {
       _repo.stop();
