@@ -178,6 +178,16 @@ public abstract class AbstractRedisHistoricalTimeSeriesSource implements Histori
     return new SimpleHistoricalTimeSeries(uniqueId, ts);
   }
 
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
+                                                      boolean includeEnd, int maxPoints) {
+    if (identifierBundle.isEmpty()) {
+      return null;
+    }
+    final ExternalId id = identifierBundle.iterator().next();
+    final UniqueId uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
+  }
+
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(uniqueId);
     if (ts == null) {
@@ -262,11 +272,6 @@ public abstract class AbstractRedisHistoricalTimeSeriesSource implements Histori
 
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
       boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
-  }
-
-  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
-      boolean includeEnd, int maxPoints) {
     throw new UnsupportedOperationException("Unsupported operation.");
   }
 
