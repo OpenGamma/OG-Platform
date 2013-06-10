@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.Profiler;
@@ -46,8 +47,9 @@ import com.opengamma.util.tuple.Triple;
     if (getTask().getFunctionExclusion() != null) {
       final Set<FunctionExclusionGroup> groups = getTask().getFunctionExclusion().get(getTargetSpecification(context));
       if (groups != null) {
-        final FunctionExclusionGroup exclusion = context.getFunctionExclusionGroups().getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
-        if ((exclusion != null) && groups.contains(exclusion)) {
+        final FunctionExclusionGroups util = context.getFunctionExclusionGroups();
+        final FunctionExclusionGroup exclusion = util.getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
+        if ((exclusion != null) && util.isExcluded(exclusion, groups)) {
           s_logger.debug("Ignoring {} from exclusion group {}", resolvedFunction, exclusion);
           getTask().setRecursionDetected();
           setRunnableTaskState(this, context);

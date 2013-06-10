@@ -38,30 +38,30 @@ public class CommodityFutureOptionSurfaceCalculationMethodDefaults extends Defau
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.FORWARD,
-    ValueRequirementNames.SPOT,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_CARRY_RHO,
-    ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.VALUE_DUAL_DELTA,
-    ValueRequirementNames.DELTA,
-    ValueRequirementNames.GAMMA,
-    ValueRequirementNames.VOMMA,
-    ValueRequirementNames.VANNA,
-    ValueRequirementNames.RHO,
-    ValueRequirementNames.CARRY_RHO,
-    ValueRequirementNames.THETA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.VEGA_QUOTE_MATRIX,
+      ValueRequirementNames.VALUE_VEGA,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+      ValueRequirementNames.FORWARD,
+      ValueRequirementNames.SPOT,
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.VALUE_VOMMA,
+      ValueRequirementNames.VALUE_VANNA,
+      ValueRequirementNames.VALUE_RHO,
+      ValueRequirementNames.VALUE_CARRY_RHO,
+      ValueRequirementNames.VALUE_THETA,
+      ValueRequirementNames.VALUE_DUAL_DELTA,
+      ValueRequirementNames.DELTA,
+      ValueRequirementNames.GAMMA,
+      ValueRequirementNames.VOMMA,
+      ValueRequirementNames.VANNA,
+      ValueRequirementNames.RHO,
+      ValueRequirementNames.CARRY_RHO,
+      ValueRequirementNames.THETA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.VEGA
   };
 
   /**
@@ -117,7 +117,7 @@ public class CommodityFutureOptionSurfaceCalculationMethodDefaults extends Defau
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.COMMODITY_FUTURE_OPTION_SURFACE_CALCULATION_METHOD_DEFAULTS;
+    return OpenGammaFunctionExclusions.SURFACE_CALCULATION_METHOD_DEFAULTS;
   }
 
 }
