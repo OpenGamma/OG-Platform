@@ -25,6 +25,7 @@ import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.lazy.LazyResolveContext;
 import com.opengamma.engine.target.lazy.LazyResolver;
+import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -156,7 +157,11 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     if (specification == ComputationTargetSpecification.NULL) {
       return ComputationTarget.NULL;
     }
-    final boolean isDeep = getResolver(specification).isDeepResolver();
+    final ObjectResolver<?> resolver = getResolver(specification);
+    if (resolver == null) {
+      return null;
+    }
+    final boolean isDeep = resolver.isDeepResolver();
     ComputationTarget result = isDeep ? _frontTargetCacheDeep.get(versionCorrection, specification) : _frontTargetCache.get(specification);
     if (result != null) {
       return result;
