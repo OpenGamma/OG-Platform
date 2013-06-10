@@ -35,6 +35,9 @@ public class ViewStatusResultAggregatorImplTest {
   private static final String EMPTY_STR = StringUtils.EMPTY;
   private static final String TRUE_STR = String.valueOf(true);
   private static final String FALSE_STR = String.valueOf(false);
+  private static final String USD = Currency.USD.getCode();
+  private static final String GBP = Currency.GBP.getCode();
+  private static final String EUR = Currency.EUR.getCode();
   
   private ViewStatusResultAggregator _aggregator;
   
@@ -42,17 +45,17 @@ public class ViewStatusResultAggregatorImplTest {
   public void setUp() {
     _aggregator = new ViewStatusResultAggregatorImpl();
     
-    _aggregator.put(new ViewStatusKeyBean(SWAP, PV, Currency.USD), true);
-    _aggregator.put(new ViewStatusKeyBean(SWAP, PV, Currency.GBP), true);
-    _aggregator.put(new ViewStatusKeyBean(SWAP, PV, Currency.EUR), true);
-    _aggregator.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, Currency.USD), false);
-    _aggregator.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, Currency.GBP), true);
-    _aggregator.put(new ViewStatusKeyBean(SWAP, VALUERHO, Currency.USD), true);
-    _aggregator.put(new ViewStatusKeyBean(SWAP, VALUERHO, Currency.GBP), true);
-    _aggregator.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, Currency.USD), true);
-    _aggregator.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, Currency.GBP), false);
-    _aggregator.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, Currency.USD), false);
-    _aggregator.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, Currency.GBP), false);
+    _aggregator.put(new ViewStatusKeyBean(SWAP, PV, USD), true);
+    _aggregator.put(new ViewStatusKeyBean(SWAP, PV, GBP), true);
+    _aggregator.put(new ViewStatusKeyBean(SWAP, PV, EUR), true);
+    _aggregator.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, USD), false);
+    _aggregator.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, GBP), true);
+    _aggregator.put(new ViewStatusKeyBean(SWAP, VALUERHO, USD), true);
+    _aggregator.put(new ViewStatusKeyBean(SWAP, VALUERHO, GBP), true);
+    _aggregator.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, USD), true);
+    _aggregator.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, GBP), false);
+    _aggregator.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, USD), false);
+    _aggregator.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, GBP), false);
   }
   
   public void aggregateByCurrencySecurityValueName() {
