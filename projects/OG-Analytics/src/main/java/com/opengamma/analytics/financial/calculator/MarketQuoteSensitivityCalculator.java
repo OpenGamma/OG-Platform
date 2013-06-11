@@ -18,6 +18,7 @@ import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -93,6 +94,7 @@ public final class MarketQuoteSensitivityCalculator {
     return new DoubleMatrix1D(resultList.toDoubleArray());
   }
 
+  // REVIEW: Would work only for one curve? MH:11-Jun-2013
   public DoubleMatrix1D calculateFromParRate(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
@@ -109,6 +111,17 @@ public final class MarketQuoteSensitivityCalculator {
       }
     }
     return new DoubleMatrix1D(resultList.toDoubleArray());
+  }
+
+  public DoubleMatrix1D calculateFromParRateFromTransition(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D transition) {
+    Set<String> curvesNames = interpolatedCurves.getAllNames();
+    ArgumentChecker.isTrue(curvesNames.size() == 1, "More than one curve");
+    String[] curvesNamesArray = curvesNames.toArray(new String[1]);
+    final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curvesNamesArray[0]),
+        interpolatedCurves.getCurve(curvesNamesArray[0]));
+    final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
+    final DoubleMatrix1D result = (DoubleMatrix1D) MATRIX_ALGEBRA.multiply(nodeSensitivity, transition);
+    return result;
   }
 
   public DoubleMatrix1D calculateFromSimpleInterpolatedCurve(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
