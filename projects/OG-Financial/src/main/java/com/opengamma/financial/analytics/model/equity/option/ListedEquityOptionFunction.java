@@ -54,6 +54,7 @@ import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
 import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
+import com.opengamma.financial.analytics.fudgemsg.MathSurfaceTest;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
@@ -257,7 +258,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     // TODO: Have been running into problems, primarily from illiquid option prices, hence we test
     final double impliedVol;
     final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
-    if (intrinsic > forwardOptionPrice) {
+    if (intrinsic >= forwardOptionPrice) {
       s_logger.info("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
       impliedVol = 0.0;
     } else {
