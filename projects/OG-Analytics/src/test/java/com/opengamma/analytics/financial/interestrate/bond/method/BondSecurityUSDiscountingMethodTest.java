@@ -463,6 +463,27 @@ public class BondSecurityUSDiscountingMethodTest {
   }
 
   @Test
+  /**
+   * Tests the second order expansion of price wrt yield.
+   */
+  public void expansionYieldUSStreet() {
+    final double yield = 0.0500;
+    final double price0 = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double[] shift = {-0.001, 0.001, 0.01 };
+
+    final double modDur = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double convexity = METHOD.convexityFromYield(BOND_FIXED_SECURITY_1, yield);
+    for (int loopshift = 0; loopshift < shift.length; loopshift++) {
+      final double price = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + shift[loopshift]);
+      final double price1 = price0 * (1 - shift[loopshift] * modDur);
+      final double price2 = price0 * (1 - shift[loopshift] * modDur + 0.5 * shift[loopshift] * shift[loopshift] * convexity);
+      assertEquals("Fixed coupon bond security: expansion US Street - shift " + shift[loopshift], price, price1, 2.0E-1 * Math.abs(shift[loopshift]));
+      assertEquals("Fixed coupon bond security: expansion US Street - shift " + shift[loopshift], price, price2, 3.0E-3 * Math.abs(shift[loopshift]));
+    }
+
+  }
+
+  @Test
   public void dirtyPriceCurveSensitivity() {
     InterestRateCurveSensitivity sensi = METHOD.dirtyPriceCurveSensitivity(BOND_FIXED_SECURITY_1, CURVES);
     sensi = sensi.cleaned();
