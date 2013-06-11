@@ -93,7 +93,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    */
   private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph, boolean rootNode) {
     if (depGraph == null) {
-      return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList(), false);
+      return null;
     }
     DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
     String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
