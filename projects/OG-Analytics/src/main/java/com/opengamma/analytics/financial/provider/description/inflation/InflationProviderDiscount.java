@@ -379,13 +379,11 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   public Integer getNumberOfParameters(final String name) {
     final PriceIndexCurve inflationCurve = _allCurves.get(name);
     final YieldAndDiscountCurve curve = _multicurveProvider.getCurve(name);
-    if (!(inflationCurve == null)) {
+    if (inflationCurve != null) {
       return inflationCurve.getNumberOfParameters();
-    }
-    else if (!(curve == null) && (inflationCurve == null)) {
+    } else if (curve != null) {
       return curve.getNumberOfParameters();
-    }
-    else {
+    } else {
       throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
     }
   }

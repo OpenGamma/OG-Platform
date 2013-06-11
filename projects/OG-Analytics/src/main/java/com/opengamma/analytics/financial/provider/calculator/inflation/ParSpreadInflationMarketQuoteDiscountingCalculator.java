@@ -103,9 +103,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
       final double discountFactor = inflation.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpn.getPaymentTime());
       final double tenor = cpn.getPaymentAccrualFactors().length;
       return Math.pow(pvInflationLeg / discountFactor + 1, 1 / tenor) - 1 - cpn.getRate();
-    }
-    else
-    {
+    } else {
       final MulticurveProviderInterface multicurves = inflation.getMulticurveProvider();
       return -multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVMQSC, multicurves);
     }

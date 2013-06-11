@@ -93,21 +93,25 @@ public class OGFunctionsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGArrayfliplr() {
     print(fliplr(ogDoubleMatrixData));
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGArrayflipud() {
     print(flipud(ogDoubleMatrixData));
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGArrayhorzcat() {
     print(horzcat(ogDoubleMatrixData, ogDoubleMatrixData, ogDoubleAbsMatrixData));
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGArrayvertcat() {
     print(vertcat(ogDoubleMatrixData, ogDoubleMatrixData, ogDoubleAbsMatrixData));
   }
@@ -160,21 +164,25 @@ public class OGFunctionsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGIndexfliplr() {
     print(fliplr(ogIntMatrixData));
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGIndexflipud() {
     print(flipud(ogIntMatrixData));
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGIndexhorzcat() {
     print(horzcat(ogIntMatrixData, ogIntMatrixData, ogIntRepeatMatrixData));
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testOGIndexvertcat() {
     print(vertcat(ogIntMatrixData, ogIntMatrixData, ogIntRepeatMatrixData));
   }
