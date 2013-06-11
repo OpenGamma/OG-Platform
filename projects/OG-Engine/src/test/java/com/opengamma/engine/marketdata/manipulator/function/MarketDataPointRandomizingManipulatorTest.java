@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.manipulator.function;
 
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashSet;
@@ -12,6 +13,9 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+/**
+ * Tests for the MarketDataPointRandomizingManipulator.
+ */
 public class MarketDataPointRandomizingManipulatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -37,6 +41,12 @@ public class MarketDataPointRandomizingManipulatorTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeBoundsRejected() {
     createManipulator(-1.1, 0.9);
+  }
+
+  @Test
+  public void testNullValueProducesNullResult() {
+    StructureManipulator<Double> manipulator = createManipulator(0.9, 1.1);
+    assertNull(manipulator.execute(null));
   }
 
   @Test
