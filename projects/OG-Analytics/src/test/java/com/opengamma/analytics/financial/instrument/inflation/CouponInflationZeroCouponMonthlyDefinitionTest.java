@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -49,7 +50,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
   private static final ZonedDateTime REFERENCE_START_DATE = DateUtils.getUTCDate(2008, 5, 1);
   private static final ZonedDateTime REFERENCE_END_DATE = PAYMENT_DATE.minusMonths(MONTH_LAG).withDayOfMonth(1);
   private static final CouponInflationZeroCouponMonthlyDefinition ZERO_COUPON_DEFINITION = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0,
-      NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+      NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String PRICE_INDEX_CURVE_NAME = "Price index";
   private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME };
@@ -57,42 +58,42 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new CouponInflationZeroCouponMonthlyDefinition(null, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE,
-        false);
+    new CouponInflationZeroCouponMonthlyDefinition(null, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008,
+        REFERENCE_END_DATE, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPay() {
-    new CouponInflationZeroCouponMonthlyDefinition(CUR, null, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE,
-        false);
+    new CouponInflationZeroCouponMonthlyDefinition(CUR, null, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008,
+        REFERENCE_END_DATE, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart() {
-    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, null, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE,
-        false);
+    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, null, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008,
+        REFERENCE_END_DATE, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEnd() {
-    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, null, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE,
-        false);
+    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, null, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008,
+        REFERENCE_END_DATE, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, null, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE,
-        false);
+    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, null, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008,
+        REFERENCE_END_DATE, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRefStart() {
-    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, null, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, null, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRefEnd() {
-    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008, null, false);
+    new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008, null, false);
   }
 
   @Test
@@ -120,33 +121,33 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
   public void equalHash() {
     assertEquals(ZERO_COUPON_DEFINITION, ZERO_COUPON_DEFINITION);
     CouponInflationZeroCouponMonthlyDefinition couponDuplicate = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG,
-        REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+        3, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
     assertEquals(ZERO_COUPON_DEFINITION, couponDuplicate);
     assertEquals(ZERO_COUPON_DEFINITION.hashCode(), couponDuplicate.hashCode());
     CouponInflationZeroCouponMonthlyDefinition modified;
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, ACCRUAL_END_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008,
-        REFERENCE_END_DATE, false);
-    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE.minusDays(1), ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE,
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, ACCRUAL_END_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE,
         INDEX_APRIL_2008, REFERENCE_END_DATE, false);
     assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE.minusDays(1), 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE,
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE.minusDays(1), ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3,
+        REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE.minusDays(1), 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3,
+        REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3,
+        REFERENCE_START_DATE.minusDays(1), INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE,
+        INDEX_APRIL_2008, REFERENCE_END_DATE.minusDays(1), false);
+    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 2.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE,
         INDEX_APRIL_2008, REFERENCE_END_DATE, false);
     assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE.minusDays(1),
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL + 10.0, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE,
         INDEX_APRIL_2008, REFERENCE_END_DATE, false);
     assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008,
-        REFERENCE_END_DATE.minusDays(1), false);
-    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 2.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008,
-        REFERENCE_END_DATE, false);
-    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL + 10.0, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008,
-        REFERENCE_END_DATE, false);
-    assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
-    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_APRIL_2008 + 1.0,
-        REFERENCE_END_DATE, false);
+    modified = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE,
+        INDEX_APRIL_2008 + 1.0, REFERENCE_END_DATE, false);
     assertFalse(ZERO_COUPON_DEFINITION.equals(modified));
   }
 
@@ -156,8 +157,9 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
    */
   public void from1() {
     CouponInflationZeroCouponMonthlyDefinition constructor = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG,
-        START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
-    CouponInflationZeroCouponMonthlyDefinition from = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX, MONTH_LAG, INDEX_APRIL_2008, REFERENCE_END_DATE
+        3, START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+    CouponInflationZeroCouponMonthlyDefinition from = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX, MONTH_LAG, MONTH_LAG, INDEX_APRIL_2008,
+        REFERENCE_END_DATE
         );
     assertEquals("Inflation zero-coupon : from", constructor, from);
   }
@@ -168,8 +170,8 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
    */
   public void from2() {
     CouponInflationZeroCouponMonthlyDefinition constructor = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG,
-        REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
-    CouponInflationZeroCouponMonthlyDefinition from = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, MONTH_LAG, false);
+        3, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+    CouponInflationZeroCouponMonthlyDefinition from = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, MONTH_LAG, MONTH_LAG, false);
     assertEquals("Inflation zero-coupon : from", constructor, from);
   }
 
@@ -179,8 +181,8 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
    */
   public void from3() {
     CouponInflationZeroCouponMonthlyDefinition constructor = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG,
-        REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
-    CouponInflationZeroCouponMonthlyDefinition from = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX, HICPX_TS, MONTH_LAG, false);
+        3, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
+    CouponInflationZeroCouponMonthlyDefinition from = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX, HICPX_TS, MONTH_LAG, MONTH_LAG, false);
     assertEquals("Inflation zero-coupon : from", constructor, from);
   }
 
@@ -190,7 +192,9 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false, MONTH_LAG);
+    final double naturalPaymentPaymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
+    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, naturalPaymentPaymentTime,
+        false);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -203,7 +207,9 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false, MONTH_LAG);
+    final double naturalPaymentPaymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
+    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, naturalPaymentPaymentTime,
+        false);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

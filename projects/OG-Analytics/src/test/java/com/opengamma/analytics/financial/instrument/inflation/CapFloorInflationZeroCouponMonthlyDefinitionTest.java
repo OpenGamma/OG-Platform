@@ -56,7 +56,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
   private static final double WEIGHT_START = 0.2;
   private static final double WEIGHT_END = 0.8;
   private static final CapFloorInflationZeroCouponMonthlyDefinition ZERO_COUPON_CAP_DEFINITION = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-      ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+      ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String PRICE_INDEX_CURVE_NAME = "Price index";
   private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME };
@@ -65,43 +65,43 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
     new CapFloorInflationZeroCouponMonthlyDefinition(null, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPay() {
     new CapFloorInflationZeroCouponMonthlyDefinition(CUR, null, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart() {
     new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, null,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEnd() {
     new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        null, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        null, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
     new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, null, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, null, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRefEnd() {
     new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, null, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, null, STRIKE, IS_CAP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIsCap() {
     new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, null, MONTH_LAG, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, null, MONTH_LAG, 3, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
   }
 
   @Test
@@ -133,48 +133,48 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
   public void equalHash() {
     assertEquals(ZERO_COUPON_CAP_DEFINITION, ZERO_COUPON_CAP_DEFINITION);
     CapFloorInflationZeroCouponMonthlyDefinition couponDuplicate = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertEquals(ZERO_COUPON_CAP_DEFINITION, couponDuplicate);
     assertEquals(ZERO_COUPON_CAP_DEFINITION.hashCode(), couponDuplicate.hashCode());
     CapFloorInflationZeroCouponMonthlyDefinition modified;
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE.minusDays(1), ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE.minusDays(1),
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE.minusDays(1), 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE.minusDays(1), 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     final double modifiedIndexStartValue = INDEX_START_VALUE - 1;
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, modifiedIndexStartValue, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, modifiedIndexStartValue, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     final ZonedDateTime modifiedReferenceEndDate = REFERENCE_END_DATE.minusDays(1);
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, modifiedIndexStartValue, modifiedReferenceEndDate, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, modifiedIndexStartValue, modifiedReferenceEndDate, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 2.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 2.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL + 1.0, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL + 1.0, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE + .01, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE + .01, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, false);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, false);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE.minusDays(1), MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE.minusDays(1), MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG - 1, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG - 1, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
     final IndexPrice modifiedPriceIndex = new IndexPrice("US CPI x", Currency.USD);
     modified = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, modifiedPriceIndex, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, modifiedPriceIndex, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertFalse(ZERO_COUPON_CAP_DEFINITION.equals(modified));
   }
 
@@ -184,10 +184,10 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
    */
   public void from() {
     CapFloorInflationZeroCouponMonthlyDefinition constructor = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
 
     CouponInflationZeroCouponMonthlyDefinition zeroCoupon = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, REFERENCE_START_DATE, INDEX_START_VALUE, REFERENCE_END_DATE, false);
+        ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_START_VALUE, REFERENCE_END_DATE, false);
     CapFloorInflationZeroCouponMonthlyDefinition from = CapFloorInflationZeroCouponMonthlyDefinition.from(zeroCoupon, LAST_KNOWN_FIXING_DATE, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon : from", constructor, from);
   }
@@ -200,9 +200,10 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
     final double lastKnownFixingTime = TimeCalculator.getTimeBetween(pricingDate, LAST_KNOWN_FIXING_DATE);
     final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
+    final double naturalPaymentPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_END_DATE);
 
     CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        INDEX_START_VALUE, referenceEndTime, MONTH_LAG, MATURITY, STRIKE, IS_CAP);
+        INDEX_START_VALUE, referenceEndTime, naturalPaymentPaymentTime, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -218,9 +219,10 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
     final double lastKnownFixingTime = TimeCalculator.getTimeBetween(pricingDate, LAST_KNOWN_FIXING_DATE);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
+    final double naturalPaymentPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_END_DATE);
 
     CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
-        INDEX_START_VALUE, referenceEndTime, MONTH_LAG, MATURITY, STRIKE, IS_CAP);
+        INDEX_START_VALUE, referenceEndTime, naturalPaymentPaymentTime, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

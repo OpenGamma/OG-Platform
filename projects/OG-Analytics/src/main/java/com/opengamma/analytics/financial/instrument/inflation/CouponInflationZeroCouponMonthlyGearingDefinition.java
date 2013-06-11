@@ -49,9 +49,14 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
   private final double _factor;
 
   /**
-   * The lag in month between the index validity and the coupon dates for the standard product (the one in exchange market, this lag is in most cases 3 month).
+   * The lag in month between the index validity and the coupon dates for the standard product (the one in exchange market and used for the calibration, this lag is in most cases 3 month).
    */
   private final int _conventionalMonthLag;
+
+  /**
+   * The lag in month between the index validity and the coupon dates for the actual product. (In most of the cases,lags are standard so _conventionalMonthLag=_monthLag)
+   */
+  private final int _monthLag;
 
   /**
    * Constructor for zero-coupon inflation coupon.
@@ -63,6 +68,7 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
    * @param referenceStartDate The reference date for the index at the coupon start.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndDate The reference date for the index at the coupon end.
@@ -71,16 +77,17 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    */
   public CouponInflationZeroCouponMonthlyGearingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int conventionalMonthLag,
-      final ZonedDateTime referenceStartDate, final double indexStartValue, final ZonedDateTime referenceEndDate, final boolean payNotional, final double factor) {
+      int monthLag, final ZonedDateTime referenceStartDate, final double indexStartValue, final ZonedDateTime referenceEndDate, final boolean payNotional, final double factor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
-    this._referenceStartDate = referenceStartDate;
-    this._indexStartValue = indexStartValue;
-    this._referenceEndDate = referenceEndDate;
+    _referenceStartDate = referenceStartDate;
+    _indexStartValue = indexStartValue;
+    _referenceEndDate = referenceEndDate;
     _payNotional = payNotional;
     _factor = factor;
     _conventionalMonthLag = conventionalMonthLag;
+    _monthLag = monthLag;
   }
 
   /**
@@ -91,16 +98,17 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndDate The reference date for the index at the coupon end.
    * @param factor The multiplicative factor.
    * @return The coupon.
    */
   public static CouponInflationZeroCouponMonthlyGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
-      final IndexPrice priceIndex, final int conventionalMonthLag, final double indexStartValue, final ZonedDateTime referenceEndDate, final double factor) {
+      final IndexPrice priceIndex, final int conventionalMonthLag, int monthLag, final double indexStartValue, final ZonedDateTime referenceEndDate, final double factor) {
     ArgumentChecker.notNull(priceIndex, "Price index");
     return new CouponInflationZeroCouponMonthlyGearingDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
-        conventionalMonthLag, accrualStartDate, indexStartValue, referenceEndDate, false, factor);
+        conventionalMonthLag, 3, accrualStartDate, indexStartValue, referenceEndDate, false, factor);
   }
 
   /**
@@ -112,18 +120,19 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @param priceIndex The price index associated to the coupon.
    * @param indexStartValue The index value at the start of the coupon.
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    * @return The inflation zero-coupon.
    */
   public static CouponInflationZeroCouponMonthlyGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
-      final IndexPrice priceIndex, final double indexStartValue, final int conventionalMonthLag, final boolean payNotional, final double factor) {
-    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
-    ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
+      final IndexPrice priceIndex, final double indexStartValue, final int conventionalMonthLag, int monthLag, final boolean payNotional, final double factor) {
+    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
+    ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);
     referenceEndDate = referenceEndDate.withDayOfMonth(1);
     return new CouponInflationZeroCouponMonthlyGearingDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
-        conventionalMonthLag, referenceStartDate, indexStartValue, referenceEndDate, payNotional, factor);
+        conventionalMonthLag, monthLag, referenceStartDate, indexStartValue, referenceEndDate, payNotional, factor);
   }
 
   /**
@@ -135,19 +144,20 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @param priceIndex The price index associated to the coupon.
    * @param indexStartValue The index value at the start of the coupon.
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    * @return The inflation zero-coupon.
    */
   public static CouponInflationZeroCouponMonthlyGearingDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double notional, final IndexPrice priceIndex, final double indexStartValue, final int conventionalMonthLag,
-      final boolean payNotional, final double factor) {
-    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
-    ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
+      int monthLag, final boolean payNotional, final double factor) {
+    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
+    ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);
     referenceEndDate = referenceEndDate.withDayOfMonth(1);
     return new CouponInflationZeroCouponMonthlyGearingDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, 1.0, notional, priceIndex,
-        conventionalMonthLag, referenceStartDate, indexStartValue, referenceEndDate, payNotional, factor);
+        conventionalMonthLag, monthLag, referenceStartDate, indexStartValue, referenceEndDate, payNotional, factor);
   }
 
   /**
@@ -190,6 +200,14 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     return _conventionalMonthLag;
   }
 
+  /**
+   * Gets the lag in month between the index validity and the coupon dates for the actual product.
+   * @return The lag.
+   */
+  public int getMonthLag() {
+    return _monthLag;
+  }
+
   @Override
   public double getFactor() {
     return _factor;
@@ -200,7 +218,7 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
     final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationZeroCouponMonthlyGearingDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, getReferenceStartDate(), getIndexStartValue(), referenceEndDate, payNotional(), _factor);
+        getPriceIndex(), _conventionalMonthLag, _monthLag, _referenceStartDate, _indexStartValue, referenceEndDate, _payNotional, _factor);
   }
 
   @Override
@@ -212,9 +230,10 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
-    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _conventionalMonthLag, _indexStartValue, referenceEndTime,
-        _payNotional,
-        _factor);
+    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
+    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, naturalPaymentTime,
+        _payNotional, _factor);
   }
 
   @Override
@@ -236,9 +255,10 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     }
     double referenceEndTime = 0.0;
     referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
-    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _conventionalMonthLag, _indexStartValue, referenceEndTime,
-        _payNotional,
-        _factor);
+    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
+    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, naturalPaymentTime,
+        _payNotional, _factor);
   }
 
   @Override
@@ -257,12 +277,13 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _conventionalMonthLag;
     long temp;
     temp = Double.doubleToLongBits(_factor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _conventionalMonthLag;
+    result = prime * result + _monthLag;
     result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
     result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
@@ -271,42 +292,33 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (!super.equals(obj)) {
+    if (!super.equals(obj))
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     CouponInflationZeroCouponMonthlyGearingDefinition other = (CouponInflationZeroCouponMonthlyGearingDefinition) obj;
-    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
+    if (_conventionalMonthLag != other._conventionalMonthLag)
       return false;
-    }
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor))
       return false;
-    }
-    if (_conventionalMonthLag != other._conventionalMonthLag) {
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue))
       return false;
-    }
-    if (_payNotional != other._payNotional) {
+    if (_monthLag != other._monthLag)
       return false;
-    }
+    if (_payNotional != other._payNotional)
+      return false;
     if (_referenceEndDate == null) {
-      if (other._referenceEndDate != null) {
+      if (other._referenceEndDate != null)
         return false;
-      }
-    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
+    } else if (!_referenceEndDate.equals(other._referenceEndDate))
       return false;
-    }
     if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null) {
+      if (other._referenceStartDate != null)
         return false;
-      }
-    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
+    } else if (!_referenceStartDate.equals(other._referenceStartDate))
       return false;
-    }
     return true;
   }
 
