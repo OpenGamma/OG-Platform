@@ -148,7 +148,7 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
 
     protected void terminate() {
       s_logger.debug("Terminating delegate");
-      _worker.terminate();
+      ParallelRecompilationViewProcessWorker.this.terminate(this);
     }
 
     protected void deferredActions() {
@@ -198,8 +198,7 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
       if (ParallelRecompilationViewProcessWorker.this.viewDefinitionCompiled(this, compiled)) {
         _deferredCompilation = dataProvider;
       } else {
-        s_logger.debug("Terminating delegate");
-        _worker.terminate();
+        terminate();
       }
     }
 
@@ -209,7 +208,7 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
       try {
         getContext().viewDefinitionCompilationFailed(compilationTime, exception);
       } finally {
-        workerCompleted();
+        terminate();
       }
     }
 
@@ -773,35 +772,50 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
     return WorkerAction.TERMINATE;
   }
 
-  protected synchronized boolean workerCompleted(final AbstractViewProcessWorkerContext context) {
-    if (context._worker == null) {
+  protected boolean workerCompleted(final AbstractViewProcessWorkerContext context) {
+    if (!terminate(context)) {
       return false;
     }
-    context._worker = null;
-    if (getPrimary() == context) {
-      final AbstractViewProcessWorkerContext secondary = getSecondary();
-      if (secondary != null) {
-        promoteSecondaryWorker();
-        secondary.unblock(WorkerAction.PROCEED);
+    synchronized (this) {
+      if (getPrimary() == context) {
+        final AbstractViewProcessWorkerContext secondary = getSecondary();
+        if (secondary != null) {
+          promoteSecondaryWorker();
+          secondary.unblock(WorkerAction.PROCEED);
+          return false;
+        } else {
+          s_logger.info("Primary worker completed - no secondary worker");
+          _primary = null;
+          if (_resolverChanges != null) {
+            getContext().getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_resolverChanges);
+            _resolverChanges = null;
+          }
+          return true;
+        }
+      } else if (getSecondary() == context) {
+        assert getPrimary() != null;
+        s_logger.info("Secondary worker completed");
+        _secondary = null;
         return false;
       } else {
-        s_logger.info("Primary worker completed - no secondary worker");
-        _primary = null;
-        if (_resolverChanges != null) {
-          getContext().getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_resolverChanges);
-          _resolverChanges = null;
-        }
-        return true;
+        // E.g. a late or incorrect notification from a worker 
+        throw new IllegalStateException();
       }
-    } else if (getSecondary() == context) {
-      assert getPrimary() != null;
-      s_logger.info("Secondary worker completed");
-      _secondary = null;
-      return false;
-    } else {
-      // E.g. a late or incorrect notification from a worker 
-      throw new IllegalStateException();
     }
+  }
+
+  protected boolean terminate(final AbstractViewProcessWorkerContext context) {
+    ViewProcessWorker worker;
+    synchronized (this) {
+      worker = context._worker;
+      if (worker == null) {
+        s_logger.error("Worker for {} already terminated", context); // INFO
+        return false;
+      }
+      context._worker = null;
+    }
+    worker.terminate();
+    return true;
   }
 
   // ViewProcessWorker
