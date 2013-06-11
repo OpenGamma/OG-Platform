@@ -201,19 +201,25 @@ import com.opengamma.util.ArgumentChecker;
 
     @Override
     public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-      _cycleReference.release();
-      ViewResultModel results = deltaResult != null ? deltaResult : fullResult;
-      // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
-      // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
-      // this allows dependency graphs grids to be opened and populated without any delay
-      EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(results.getViewCycleId());
-      if (cycleReference == null) {
-        // this shouldn't happen if everything in the engine is working as it should
-        _cycleReference = EmptyViewCycle.REFERENCE;
-      } else {
-        _cycleReference = cycleReference;
+      EngineResourceReference<? extends ViewCycle> oldReference = _cycleReference;
+      try {
+        ViewResultModel results = deltaResult != null ? deltaResult : fullResult;
+        // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
+        // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
+        // this allows dependency graphs grids to be opened and populated without any delay
+        EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(results.getViewCycleId());
+        if (cycleReference == null) {
+          // this shouldn't happen if everything in the engine is working as it should
+          _cycleReference = EmptyViewCycle.REFERENCE;
+        } else {
+          _cycleReference = cycleReference;
+        }
+        _view.updateResults(results, _cycleReference.get());
+      } finally {
+        // don't release the reference to the previous cycle until the view has received an update containing
+        // the new one. this prevents the view making a request to a released cycle
+        oldReference.release();
       }
-      _view.updateResults(results, _cycleReference.get());
     }
 
     @Override
