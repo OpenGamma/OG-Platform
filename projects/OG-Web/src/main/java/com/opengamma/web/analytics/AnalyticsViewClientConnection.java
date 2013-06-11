@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,8 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
@@ -26,6 +29,7 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -52,16 +56,20 @@ import com.opengamma.util.ArgumentChecker;
   private final ViewExecutionOptions _executionOptions;
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
   private final List<AutoCloseable> _listeners;
+  private final ExecutorService _executor;
+  private final SecuritySource _securitySource;
 
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
   /**
-   * @param parallelViewRecompilation Whether to recompile the view whilst running the current version
-   * @param marketDataSpecificationRepository For looking up market data specs
    * @param viewRequest Defines the view that should be created
    * @param aggregatedViewDef The view definition including any aggregation
    * @param viewClient Connects this class to the calculation engine
    * @param view The object that encapsulates the state of the view user interface
+   * @param parallelViewRecompilation Whether to recompile the view whilst running the current version
+   * @param marketDataSpecificationRepository For looking up market data specs
+   * @param executor
+   * @param securitySource
    */
   /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
                                               AggregatedViewDefinition aggregatedViewDef,
@@ -69,11 +77,17 @@ import com.opengamma.util.ArgumentChecker;
                                               AnalyticsView view,
                                               List<AutoCloseable> listeners,
                                               ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
-                                              NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
+                                              NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
+                                              ExecutorService executor,
+                                              SecuritySource securitySource) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(listeners, "listeners");
+    ArgumentChecker.notNull(executor, "executor");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    _executor = executor;
+    _securitySource = securitySource;
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = aggregatedViewDef;
@@ -210,7 +224,16 @@ import com.opengamma.util.ArgumentChecker;
     @Override
     public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
       s_logger.debug("View definition compiled: '{}'", compiledViewDefinition.getViewDefinition().getName());
-      _view.updateStructure(compiledViewDefinition);
+      // resolve the portfolio, it won't be resolved if the engine is in a different VM from the web components
+      // if it's in the same VM then resolution is fairly cheap and doesn't touch the DB
+      Portfolio portfolio = compiledViewDefinition.getPortfolio();
+      Portfolio resolvedPortfolio;
+      if (portfolio != null) {
+        resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio, _executor, _securitySource);
+      } else {
+        resolvedPortfolio = null;
+      }
+      _view.updateStructure(compiledViewDefinition, resolvedPortfolio);
     }
 
     @Override
