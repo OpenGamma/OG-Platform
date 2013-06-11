@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -35,6 +36,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   private static final CurveGroupConfiguration GROUP1;
   private static final CurveGroupConfiguration GROUP2;
   private static final CurveGroupConfiguration GROUP3;
+  private static final CurveConstructionConfiguration CONSTRUCTION;
 
   static {
     DISCOUNTING_CONFIG.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "123"));
@@ -45,6 +47,8 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     GROUP2 = new CurveGroupConfiguration(2, Arrays.asList((CurveTypeConfiguration) LIBOR_6M_CONFIG));
     GROUP2.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "567"));
     GROUP3 = new CurveGroupConfiguration(3, Arrays.asList((CurveTypeConfiguration) ISSUER_CONFIG));
+    CONSTRUCTION = new CurveConstructionConfiguration(Arrays.asList(GROUP1, GROUP2, GROUP3), null);
+    CONSTRUCTION.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "678"));
   }
 
   @Test
@@ -67,5 +71,14 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     assertEquals(GROUP1, cycleObject(CurveGroupConfiguration.class, GROUP1));
     assertEquals(GROUP2, cycleObject(CurveGroupConfiguration.class, GROUP2));
     assertEquals(GROUP3, cycleObject(CurveGroupConfiguration.class, GROUP3));
+  }
+
+  @Test
+  public void testCurveConstructionConfiguration() {
+    assertEquals(CONSTRUCTION, cycleObject(CurveConstructionConfiguration.class, CONSTRUCTION));
+    final List<String> exogenousConfigs = Arrays.asList("Config1", "Config2");
+    final CurveConstructionConfiguration construction = new CurveConstructionConfiguration(Arrays.asList(GROUP1, GROUP2, GROUP3), exogenousConfigs);
+    construction.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "789"));
+    assertEquals(construction, cycleObject(CurveConstructionConfiguration.class, construction));
   }
 }

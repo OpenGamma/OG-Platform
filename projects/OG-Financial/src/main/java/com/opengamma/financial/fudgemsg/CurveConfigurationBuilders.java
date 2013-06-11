@@ -152,6 +152,7 @@ import com.opengamma.id.UniqueIdentifiable;
   @FudgeBuilderFor(CurveConstructionConfiguration.class)
   public static class CurveConstructionConfigurationBuilder implements FudgeBuilder<CurveConstructionConfiguration> {
     private static final String GROUP_FIELD = "group";
+    private static final String EXOGENOUS_CONFIGURATION_FIELD = "exogenousConfiguration";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveConstructionConfiguration object) {
@@ -159,6 +160,11 @@ import com.opengamma.id.UniqueIdentifiable;
       message.add(null, 0, object.getClass().getName());
       for (final CurveGroupConfiguration curveType : object.getCurveGroups()) {
         serializer.addToMessageWithClassHeaders(message, GROUP_FIELD, null, curveType);
+      }
+      if (object.getExogenousConfigurations() != null) {
+        for (final String exogenousConfig : object.getExogenousConfigurations()) {
+          serializer.addToMessage(message, EXOGENOUS_CONFIGURATION_FIELD, null, exogenousConfig);
+        }
       }
       addUniqueId(serializer, object, message);
       return message;
@@ -171,7 +177,15 @@ import com.opengamma.id.UniqueIdentifiable;
       for (final FudgeField field : curveTypeFields) {
         curveTypes.add(deserializer.fieldValueToObject(CurveGroupConfiguration.class, field));
       }
-      final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(curveTypes);
+      List<String> exogenousConfigurations = null;
+      final List<FudgeField> exogenousConfigFields = message.getAllByName(EXOGENOUS_CONFIGURATION_FIELD);
+      if (!exogenousConfigFields.isEmpty()) {
+        exogenousConfigurations = new ArrayList<>();
+        for (final FudgeField field : exogenousConfigFields) {
+          exogenousConfigurations.add((String) field.getValue());
+        }
+      }
+      final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(curveTypes, exogenousConfigurations);
       setUniqueId(deserializer, message, configuration);
       return configuration;
     }
