@@ -5,6 +5,24 @@
  */
 package com.opengamma.component.factory.source;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.pool.impl.GenericObjectPool.Config;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
+
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Protocol;
+
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -18,28 +36,13 @@ import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesRe
 import com.opengamma.master.historicaltimeseries.impl.RedisSimulationSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
-import redis.clients.jedis.JedisPool;
-import org.apache.commons.pool.impl.GenericObjectPool.Config;
-import redis.clients.jedis.Protocol;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
+/**
+ * A component factory to build {@link RedisSimulationSeriesSource} instances.
+ *
+ */
 @BeanDefinition
 public class RedisSimulationSeriesSourceComponentFactory extends AbstractComponentFactory {
-  private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSourceComponentFactory.class);
 
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
