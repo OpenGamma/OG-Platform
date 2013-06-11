@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.helper;
+package com.opengamma.examples.engine;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
@@ -29,6 +29,9 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
+import com.opengamma.engine.view.helper.AvailableOutput;
+import com.opengamma.engine.view.helper.AvailableOutputs;
+import com.opengamma.engine.view.helper.AvailablePortfolioOutputs;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
