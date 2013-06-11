@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
@@ -833,26 +833,6 @@
         <groupId>redis.clients</groupId>
         <artifactId>jedis</artifactId>
         <version>2.1.0</version>
-      </dependency>
-
-      <!-- Testing -->
-      <dependency>
-        <groupId>org.testng</groupId>
-        <artifactId>testng</artifactId>
-        <version>6.8.1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-          </exclusion>
-        </exclusions>
-        <optional>true</optional>
-      </dependency>
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>1.9.0</version>
-        <scope>test</scope>
       </dependency>
 
       <!-- Maven -->
