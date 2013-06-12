@@ -71,7 +71,6 @@ public class DependencyGraphGridStructure implements GridStructure {
                                              ComputationTargetResolver targetResolver,
                                              String rootRowName,
                                              String rootColumnName) {
-    ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(valueSpecs, "valueSpecs");
     ArgumentChecker.notNull(fnNames, "fnNames");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
@@ -186,7 +185,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   /**
-   * @return The root of the node structure representing the dependency graph
+   * @return The root of the node structure representing the dependency graph, possibly null
    */
   public AnalyticsNode getRootNode() {
     return _root;

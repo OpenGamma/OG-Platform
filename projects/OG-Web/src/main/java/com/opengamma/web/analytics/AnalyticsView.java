@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -31,9 +32,10 @@ public interface AnalyticsView {
   /**
    * Updates the grid structures when the view definition compliles and its struture is available.
    * @param compiledViewDefinition The compiled view definition whose data will be displayed in the grids
+   * @param resolvedPortfolio The view's portfolio with all securities resolved
    * @return Callback IDs of grids that were updated
    */
-  List<String> updateStructure(CompiledViewDefinition compiledViewDefinition);
+  List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio resolvedPortfolio);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.

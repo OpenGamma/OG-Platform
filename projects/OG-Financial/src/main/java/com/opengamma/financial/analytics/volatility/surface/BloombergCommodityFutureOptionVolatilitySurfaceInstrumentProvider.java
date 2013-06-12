@@ -79,10 +79,7 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     final String prefix = getFutureOptionPrefix();
     final StringBuffer ticker = new StringBuffer();
     ticker.append(prefix);
-    final ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(prefix);
-    if (expiryRule == null) {
-      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + prefix + ". Determine week and day pattern and add to EXPIRY_RULES.");
-    }
+    final ExchangeTradedInstrumentExpiryCalculator expiryRule = getExpiryRuleCalculator();
     final LocalDate expiryDate = expiryRule.getExpiryMonth(futureOptionNumber.intValue(), surfaceDate);
     final String expiryCode = BloombergFutureUtils.getShortExpiryCode(expiryDate);
     ticker.append(expiryCode);
@@ -107,10 +104,11 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     return EXPIRY_RULES;
   }
 
-  ExchangeTradedInstrumentExpiryCalculator getExpiryCalculator() {
+  @Override
+  public ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator() {
     final ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(getFutureOptionPrefix());
     if (expiryRule == null) {
-      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + getFutureOptionPrefix());
+      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + getFutureOptionPrefix() + ". Determine week and day pattern and add to EXPIRY_RULES.");
     }
     return expiryRule;
   }

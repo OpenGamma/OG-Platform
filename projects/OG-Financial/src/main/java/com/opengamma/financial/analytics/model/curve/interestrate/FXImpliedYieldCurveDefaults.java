@@ -25,8 +25,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.YIELD_CURVE,
-    ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+      ValueRequirementNames.YIELD_CURVE,
+      ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+      ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX
   };
   private final String _absoluteTolerance;
   private final String _relativeTolerance;
@@ -83,7 +84,7 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     }
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();

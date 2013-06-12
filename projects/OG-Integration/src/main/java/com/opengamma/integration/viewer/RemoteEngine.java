@@ -49,12 +49,18 @@ import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
@@ -211,6 +217,21 @@ public class RemoteEngine {
   public RemoteClient getUserClient(final String finUserManagerComponentName, final String username, final String clientId) {
     final URI uri = _components.getComponentInfo(FinancialUserManager.class, finUserManagerComponentName).getUri();
     return RemoteClient.forClient(_fudgeContext, uri, username, clientId);
+  }
+  
+  public RemoteHistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster(final String name) {
+    final URI uri = _components.getComponentInfo(HistoricalTimeSeriesMaster.class, name).getUri();
+    return new RemoteHistoricalTimeSeriesMaster(uri);
+  }
+  
+  public RemoteHistoricalTimeSeriesProvider getHistoricalTimeSeriesProvider(final String name) {
+    final URI uri = _components.getComponentInfo(HistoricalTimeSeriesProvider.class, name).getUri();
+    return new RemoteHistoricalTimeSeriesProvider(uri);
+  }
+  
+  public RemoteHistoricalTimeSeriesLoader getHistoricalTimeSeriesLoader(final String name) {
+    final URI uri = _components.getComponentInfo(HistoricalTimeSeriesLoader.class, name).getUri();
+    return new RemoteHistoricalTimeSeriesLoader(uri);
   }
   
   public void shutDown() {

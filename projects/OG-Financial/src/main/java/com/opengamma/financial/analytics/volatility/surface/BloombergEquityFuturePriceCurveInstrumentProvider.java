@@ -13,6 +13,9 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,6 +46,8 @@ public class BloombergEquityFuturePriceCurveInstrumentProvider implements Future
     EXPIRY_RULES.put("DEFAULT", FutureOptionExpiries.EQUITY_FUTURE);
     //TODO DAX, EUROSTOXX 50 (SX5E)
   }
+  
+  private static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
 
   private final String _futurePrefix;
   private final String _postfix;
@@ -107,11 +112,8 @@ public class BloombergEquityFuturePriceCurveInstrumentProvider implements Future
     ArgumentChecker.notNull(curveDate, "curve date");
     final StringBuffer ticker = new StringBuffer();
     ticker.append(getFuturePrefix());
-    FutureOptionExpiries expiryRule = EXPIRY_RULES.get(getFuturePrefix());
-    if (expiryRule == null) {
-      expiryRule = EXPIRY_RULES.get("DEFAULT");
-    }
-    final LocalDate expiryDate = expiryRule.getOneChicagoEquityFutureExpiry(futureNumber.intValue(), curveDate);
+    final ExchangeTradedInstrumentExpiryCalculator expiryRule = getExpiryRuleCalculator();
+    final LocalDate expiryDate = expiryRule.getExpiryDate(futureNumber.intValue(), curveDate, WEEKDAYS);
     final String expiryCode = BloombergFutureUtils.getShortExpiryCode(expiryDate);
     ticker.append(expiryCode);
     ticker.append(" ");
@@ -122,6 +124,16 @@ public class BloombergEquityFuturePriceCurveInstrumentProvider implements Future
     ticker.append(getPostfix());
     return ExternalId.of(getTickerScheme(), ticker.toString());
   }
+  
+  @Override
+  public ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator() {
+    ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(getFuturePrefix());
+    if (expiryRule == null) {
+      expiryRule = EXPIRY_RULES.get("DEFAULT");
+    }
+    return expiryRule;
+  }
+  
 
   public String getFuturePrefix() {
     return _futurePrefix;
@@ -168,4 +180,5 @@ public class BloombergEquityFuturePriceCurveInstrumentProvider implements Future
         getDataFieldName().equals(other.getDataFieldName()) &&
         getExchange().equals(other.getExchange());
   }
+
 }

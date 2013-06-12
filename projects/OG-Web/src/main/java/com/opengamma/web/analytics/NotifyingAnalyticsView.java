@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -36,8 +37,8 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
-    List<String> callbackIds = _delegate.updateStructure(compiledViewDefinition);
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
+    List<String> callbackIds = _delegate.updateStructure(compiledViewDefinition, portfolio);
     _listener.itemsUpdated(callbackIds);
     return callbackIds;
   }

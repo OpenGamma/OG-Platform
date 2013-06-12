@@ -170,13 +170,13 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final CouponOISDefinition COUPON_OIS = CouponOISDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusYears(1), NOTIONAL, SPOT_LAG, C);
 
   public static final CouponInflationZeroCouponMonthlyDefinition INFLATION_ZERO_COUPON = CouponInflationZeroCouponMonthlyDefinition.from(SETTLE_DATE, SETTLE_DATE.plusMonths(3), NOTIONAL, INDEX_PRICE,
-      100, 1, true);
+      100, 1, 1, true);
   public static final CouponInflationZeroCouponInterpolationDefinition INFLATION_INTERPOLATED_COUPON = CouponInflationZeroCouponInterpolationDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(1),
-      NOTIONAL, INDEX_PRICE, 100, 2, false);
+      NOTIONAL, INDEX_PRICE, 100, 2, 2, false);
   public static final CouponInflationZeroCouponMonthlyGearingDefinition INFLATION_ZERO_GEARING_COUPON = CouponInflationZeroCouponMonthlyGearingDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(1),
-      NOTIONAL, INDEX_PRICE, 100, 2, false, 0.4);
+      NOTIONAL, INDEX_PRICE, 100, 2, 2, false, 0.4);
   public static final CouponInflationZeroCouponInterpolationGearingDefinition INFLATION_INTERPOLATED_GEARING_COUPON = CouponInflationZeroCouponInterpolationGearingDefinition.from(SETTLE_DATE,
-      SETTLE_DATE.plusYears(1), NOTIONAL, INDEX_PRICE, 100, 2, false, 1.4);
+      SETTLE_DATE.plusYears(1), NOTIONAL, INDEX_PRICE, 100, 2, 2, false, 1.4);
 
   public static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> CAPITAL_INDEXED_BOND_SECURITY = BondCapitalIndexedSecurityDefinition.fromMonthly(
       INDEX_PRICE, SPOT_LAG, SETTLE_DATE, 100, SETTLE_DATE.plusYears(5), FIXED_PERIOD, NOTIONAL, FIXED_RATE, BD, 2, C, FIXED_DAY_COUNT, SimpleYieldConvention.AUSTRIA_ISMA_METHOD, IS_EOM, "");

@@ -102,8 +102,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   }
 
   @Override
-  /* package */ BlotterGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef) {
-    Portfolio portfolio = compiledViewDef.getPortfolio();
+  /* package */ BlotterGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
     AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     ValueMappings valueMappings = new ValueMappings(compiledViewDef);

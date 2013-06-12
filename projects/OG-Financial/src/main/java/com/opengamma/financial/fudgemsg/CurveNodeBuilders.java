@@ -155,9 +155,8 @@ import com.opengamma.util.time.Tenor;
       final String dataField = message.getString(DATA_FIELD_FIELD);
       if (dataField == null) {
         return new DiscountFactorNode(curveNodeIdMapperName, tenor);
-      } else {
-        return new DiscountFactorNode(curveNodeIdMapperName, tenor, dataField);
       }
+      return new DiscountFactorNode(curveNodeIdMapperName, tenor, dataField);
     }
   }
 

@@ -61,7 +61,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   private MainAnalyticsGrid _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
   private CompiledViewDefinition _pendingStructureChange;
-  
+  private Portfolio _pendingPortfolio;
 
   /**
    * @param viewId client ID of the view
@@ -127,26 +127,25 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
     if (_compiledViewDefinition != null) {
       // If we are between cycles then hold back the structure change until there's a set of results which use it,
       // allowing the user to continue browsing the current set of results in the meantime.
       _pendingStructureChange = compiledViewDefinition;
+      _pendingPortfolio = portfolio;
       return Collections.emptyList();
     }
-    doUpdateStructure(compiledViewDefinition);
+    doUpdateStructure(compiledViewDefinition, portfolio);
     return getGridIds();
   }
 
-  private void doUpdateStructure(CompiledViewDefinition compiledViewDefinition) {
+  private void doUpdateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
     _compiledViewDefinition = compiledViewDefinition;
-    Portfolio portfolio = _compiledViewDefinition.getPortfolio();
     if (portfolio != null) {
       List<UniqueIdentifiable> entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
       _cache.put(entities);
     }
-    // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable IDs to do that
-    _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition);
+    _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition, portfolio);
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
@@ -167,7 +166,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     List<String> updatedIds = Lists.newArrayList();
     boolean structureUpdated;
     if (_pendingStructureChange != null) {
-      doUpdateStructure(_pendingStructureChange);
+      doUpdateStructure(_pendingStructureChange, _pendingPortfolio);
       structureUpdated = true;
       _pendingStructureChange = null;
       updatedIds.addAll(getGridIds());
