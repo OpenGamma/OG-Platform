@@ -11,6 +11,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Period;
 
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
@@ -67,8 +68,8 @@ import com.opengamma.util.time.Tenor;
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CashNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      message.add(START_TENOR_FIELD, object.getStartTenor());
-      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor());
+      message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
+      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor().getPeriod().toString());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(DATA_FIELD_FIELD, object.getDataField());
@@ -77,8 +78,8 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public CashNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
-      final Tenor maturityTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(MATURITY_TENOR_FIELD));
+      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final String dataField = message.getString(DATA_FIELD_FIELD);
@@ -262,4 +263,5 @@ import com.opengamma.util.time.Tenor;
     }
 
   }
+
 }

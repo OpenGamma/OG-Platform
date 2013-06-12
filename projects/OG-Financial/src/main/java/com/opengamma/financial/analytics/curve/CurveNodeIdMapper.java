@@ -24,6 +24,7 @@ import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -36,7 +37,7 @@ public class CurveNodeIdMapper {
    * The names of the curve instrument providers.
    */
   public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
-
+  private final String _name;
   private final Map<Tenor, CurveInstrumentProvider> _cashNodeIds;
   private final Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
   private final Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
@@ -46,6 +47,7 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
 
   /**
+   * @param name The name of this configuration, not null
    * @param cashNodeIds The cash node ids
    * @param continuouslyCompoundedRateIds The continuously-compounded rate ids
    * @param creditSpreadNodeIds The credit spread node ids
@@ -54,13 +56,16 @@ public class CurveNodeIdMapper {
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
    */
-  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
+  public CurveNodeIdMapper(final String name,
+      final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
       final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
       final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
       final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
+    ArgumentChecker.notNull(name, "name");
+    _name = name;
     _cashNodeIds = cashNodeIds;
     _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateIds;
     _creditSpreadNodeIds = creditSpreadNodeIds;
@@ -84,6 +89,14 @@ public class CurveNodeIdMapper {
     }
     Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
     return ImmutableList.copyOf(list);
+  }
+
+  /**
+   * Gets the name of this configuration.
+   * @return The name
+   */
+  public String getName() {
+    return _name;
   }
 
   /**
@@ -308,7 +321,8 @@ public class CurveNodeIdMapper {
       return false;
     }
     final CurveNodeIdMapper other = (CurveNodeIdMapper) o;
-    return ObjectUtils.equals(_cashNodeIds, other._cashNodeIds) &&
+    return ObjectUtils.equals(_name, other._name) &&
+        ObjectUtils.equals(_cashNodeIds, other._cashNodeIds) &&
         ObjectUtils.equals(_continuouslyCompoundedRateNodeIds, other._continuouslyCompoundedRateNodeIds) &&
         ObjectUtils.equals(_creditSpreadNodeIds, other._creditSpreadNodeIds) &&
         ObjectUtils.equals(_discountFactorNodeIds, other._discountFactorNodeIds) &&
@@ -321,6 +335,7 @@ public class CurveNodeIdMapper {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + _name.hashCode();
     result = prime * result + ((_cashNodeIds == null) ? 0 : _cashNodeIds.hashCode());
     result = prime * result + ((_continuouslyCompoundedRateNodeIds == null) ? 0 : _continuouslyCompoundedRateNodeIds.hashCode());
     result = prime * result + ((_creditSpreadNodeIds == null) ? 0 : _creditSpreadNodeIds.hashCode());

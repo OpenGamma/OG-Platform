@@ -18,7 +18,7 @@ public class PerCurrencyConventionHelper {
   public static final String FRA = "FRA";
   public static final String FIXED_SWAP_LEG = "Fixed Swap Leg";
   public static final String VANILLA_IBOR_LEG = "Vanilla Ibor Leg";
-  public static final String ID_NAME = "Id name";
+  public static final String ID_NAME = "Convention";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {
     final String idName = getConventionName(currency, instrumentName);

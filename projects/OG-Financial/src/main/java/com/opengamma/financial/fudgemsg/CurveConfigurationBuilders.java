@@ -24,6 +24,7 @@ import com.opengamma.financial.analytics.curve.IndexCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
@@ -158,6 +159,7 @@ import com.opengamma.id.UniqueIdentifiable;
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveConstructionConfiguration object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
+      message.add(NAME_FIELD, object.getName());
       for (final CurveGroupConfiguration curveType : object.getCurveGroups()) {
         serializer.addToMessageWithClassHeaders(message, GROUP_FIELD, null, curveType);
       }
@@ -172,6 +174,7 @@ import com.opengamma.id.UniqueIdentifiable;
 
     @Override
     public CurveConstructionConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
       final List<FudgeField> curveTypeFields = message.getAllByName(GROUP_FIELD);
       final List<CurveGroupConfiguration> curveTypes = new ArrayList<>();
       for (final FudgeField field : curveTypeFields) {
@@ -185,7 +188,7 @@ import com.opengamma.id.UniqueIdentifiable;
           exogenousConfigurations.add((String) field.getValue());
         }
       }
-      final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(curveTypes, exogenousConfigurations);
+      final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(name, curveTypes, exogenousConfigurations);
       setUniqueId(deserializer, message, configuration);
       return configuration;
     }
@@ -194,7 +197,7 @@ import com.opengamma.id.UniqueIdentifiable;
 
   static void addUniqueId(final FudgeSerializer serializer, final UniqueIdentifiable object, final MutableFudgeMsg message) {
     if (object.getUniqueId() != null) {
-      serializer.addToMessageWithClassHeaders(message, UNIQUE_ID_FIELD, null, object.getUniqueId(), UniqueId.class);
+      message.add(UNIQUE_ID_FIELD, null, UniqueIdFudgeBuilder.toFudgeMsg(serializer, object.getUniqueId()));
     }
   }
 
