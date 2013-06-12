@@ -16,7 +16,8 @@ import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
 /**
- *
+ * Encapsulates a set of transformations to apply to market data when a calculation cycle is run.
+ * TODO should this be split up into an immutable object and mutable builder
  */
 public class Scenario implements ScenarioBuilder {
 
@@ -25,8 +26,18 @@ public class Scenario implements ScenarioBuilder {
 
   private final Map<DistinctMarketDataSelector, FunctionParameters> _manipulations = Maps.newHashMap();
 
+  /**
+   * @return A object for specifying which curves should be transformed
+   */
   public CurveSelector.Builder curve() {
     return new CurveSelector.Builder(this, DEFAULT);
+  }
+
+  /**
+   * @return An object for specifying which market data points should be transformed
+   */
+  public PointSelector.Builder marketDataPoint() {
+    return new PointSelector.Builder(this, DEFAULT);
   }
 
   public ScenarioBuilder calculationConfig(String configName) {
