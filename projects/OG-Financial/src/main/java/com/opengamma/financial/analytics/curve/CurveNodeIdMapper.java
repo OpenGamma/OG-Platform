@@ -24,7 +24,6 @@ import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -47,7 +46,7 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
 
   /**
-   * @param name The name of this configuration, not null
+   * @param name The name of this configuration
    * @param cashNodeIds The cash node ids
    * @param continuouslyCompoundedRateIds The continuously-compounded rate ids
    * @param creditSpreadNodeIds The credit spread node ids
@@ -64,7 +63,6 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
-    ArgumentChecker.notNull(name, "name");
     _name = name;
     _cashNodeIds = cashNodeIds;
     _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateIds;
@@ -335,7 +333,7 @@ public class CurveNodeIdMapper {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _name.hashCode();
+    result = prime * result + ((_name == null) ? 0 : _name.hashCode());
     result = prime * result + ((_cashNodeIds == null) ? 0 : _cashNodeIds.hashCode());
     result = prime * result + ((_continuouslyCompoundedRateNodeIds == null) ? 0 : _continuouslyCompoundedRateNodeIds.hashCode());
     result = prime * result + ((_creditSpreadNodeIds == null) ? 0 : _creditSpreadNodeIds.hashCode());

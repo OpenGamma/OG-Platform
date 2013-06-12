@@ -66,7 +66,12 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
 
   @Override
   public CurveNodeIdMapper buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final String name = message.getString(NAME_FIELD);
+    final String name;
+    if (message.hasField(NAME_FIELD)) {
+      name = message.getString(NAME_FIELD);
+    } else {
+      name = null;
+    }
     final Map<Tenor, CurveInstrumentProvider> cashNodeIds = getMapForField(CASH_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds = getMapForField(CONTINUOUSLY_COMPOUNDED_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds = getMapForField(CREDIT_SPREAD_NODE_FIELD, deserializer, message);
