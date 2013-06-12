@@ -91,7 +91,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 575402001:  // currency
         return getCurrency();
@@ -108,7 +108,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 575402001:  // currency
         setCurrency((Currency) newValue);
@@ -139,12 +139,12 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final SimpleZeroDepositSecurity other = (SimpleZeroDepositSecurity) obj;
+      SimpleZeroDepositSecurity other = (SimpleZeroDepositSecurity) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
@@ -179,7 +179,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the currency.
    * @param currency  the new value of the property, not null
    */
-  public void setCurrency(final Currency currency) {
+  public void setCurrency(Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
@@ -205,7 +205,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the start date.
    * @param startDate  the new value of the property, not null
    */
-  public void setStartDate(final ZonedDateTime startDate) {
+  public void setStartDate(ZonedDateTime startDate) {
     JodaBeanUtils.notNull(startDate, "startDate");
     this._startDate = startDate;
   }
@@ -231,7 +231,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the maturity date.
    * @param maturityDate  the new value of the property, not null
    */
-  public void setMaturityDate(final ZonedDateTime maturityDate) {
+  public void setMaturityDate(ZonedDateTime maturityDate) {
     JodaBeanUtils.notNull(maturityDate, "maturityDate");
     this._maturityDate = maturityDate;
   }
@@ -257,7 +257,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the rate.
    * @param rate  the new value of the property
    */
-  public void setRate(final double rate) {
+  public void setRate(double rate) {
     this._rate = rate;
   }
 
@@ -282,7 +282,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
    * Sets the region.
    * @param region  the new value of the property, not null
    */
-  public void setRegion(final ExternalId region) {
+  public void setRegion(ExternalId region) {
     JodaBeanUtils.notNull(region, "region");
     this._region = region;
   }
@@ -348,7 +348,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return _currency;

@@ -7,7 +7,7 @@ CREATE TABLE usr_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO usr_schema_version (version_key, version_value) VALUES ('schema_patch', '46');
+INSERT INTO usr_schema_version (version_key, version_value) VALUES ('schema_patch', '47');
 
 CREATE SEQUENCE usr_oguser_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

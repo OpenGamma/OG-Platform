@@ -1,0 +1,9 @@
+.OG-icon.og-icon-dock:after {
+    background-position: -52px -92px;
+    background-color: transparent;
+    height: 16px;
+    width: 13px;
+    left: 1px;
+    z-index: 2;
+    position: absolute;
+}

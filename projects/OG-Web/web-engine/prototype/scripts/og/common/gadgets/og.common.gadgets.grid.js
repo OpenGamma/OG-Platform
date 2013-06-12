@@ -50,7 +50,8 @@ $.register_module({
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var css = {
-                    prefix: id, index: idx + (offset || 0), left: partial, right: total_width - partial - val.width
+                    prefix: id, index: idx + (offset || 0),
+                    left: partial, right: total_width - partial - val.width, left_min_one: partial - 1
                 };
                 return (partial += val.width), css;
             });
@@ -77,11 +78,12 @@ $.register_module({
             };
             var mousemove = function (grid, event) {
                 var scroll_body = grid.elements.scroll_body, scroll_left = scroll_body.scrollLeft(),
-                    fixed_width = grid.meta.columns.width.fixed, scan = grid.meta.columns.scan.all, line_left;
+                    fixed_width = grid.meta.columns.width.fixed, scan = grid.meta.columns.scan.all, line_left,
+                    grid_offset = grid.elements.parent.offset();
                 set_after(grid, event);
-                line_left = grid.offset.left - scroll_left + scan[after];
+                line_left = grid_offset.left - scroll_left + scan[after];
                 $('.' + reorderer).css({left: event.pageX - offset_left});
-                if (line_left <= fixed_width + grid.offset.left && scroll_left)
+                if (line_left <= fixed_width + grid_offset.left && scroll_left)
                     return auto_scroll('left', scroll_left, scroll_body);
                 if (line_left >= grid_width) return auto_scroll('right', scroll_left, scroll_body);
                 timeout = clearTimeout(timeout), null;
@@ -100,14 +102,14 @@ $.register_module({
             };
             var scroll = function () {$('.' + line).hide();};
             var set_after = function (grid, event) {
-                var x = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft();
+                var x = event.pageX - grid.elements.parent.offset().left + grid.elements.scroll_body.scrollLeft();
                 after = Math.max(
                     grid.meta.fixed_length - 1,
                     grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
                 );
             };
             return function (event, $target) {
-                var grid = this, $clone;
+                var grid = this, $clone, grid_offset = grid.elements.parent.offset();
                 clean_up(grid);
                 if (event.which === 3 || event.button === 2) return; // ignore right clicks
                 index = +$target.attr('data-index');
@@ -116,16 +118,16 @@ $.register_module({
                 grid_width = grid.elements.parent.width();
                 $clone = $target.clone();
                 $clone.find('.resize').remove();
-                offset_left = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft() -
+                offset_left = event.pageX - grid_offset.left + grid.elements.scroll_body.scrollLeft() -
                     grid.meta.columns.scan.all[index - 1];
                 $clone.addClass(reorderer).css({
-                    top: grid.offset.top + grid.meta.set_height - 6,
+                    top: grid_offset.top + grid.meta.set_height - 6,
                     left: event.pageX - offset_left,
                     width: grid.meta.columns.widths[index]
                 }).appendTo(document.body);
                 $('<div class="' + line + '" />').css({
-                    top: grid.offset.top + grid.meta.header_height,
-                    left: grid.offset.left - grid.elements.scroll_body.scrollLeft() +
+                    top: grid_offset.top + grid.meta.header_height,
+                    left: grid_offset.left - grid.elements.scroll_body.scrollLeft() +
                         grid.meta.columns.scan.all[index === last ? index - 1 : index] - 3,
                     height: grid.elements.parent.height() - grid.meta.header_height
                 }).appendTo(document.body);
@@ -157,18 +159,18 @@ $.register_module({
                 grid.resize();
             };
             return function (event, $target) {
-                var grid = this, offset_left;
+                var grid = this, offset_left, grid_offset = grid.elements.parent.offset();
                 clean_up(grid);
                 if (event.which === 3 || event.button === 2) return; // ignore right clicks
                 index = +$target.parents('div.OG-g-h-col:first').attr('data-index');
-                offset_left = grid.offset.left -
+                offset_left = grid_offset.left -
                     (index < grid.meta.fixed_length ? 0 : grid.elements.scroll_body.scrollLeft());
                 start_width = grid.meta.columns.widths[index];
                 $(document)
                     .on('mousemove' + namespace, mousemove.partial(grid))
                     .on('mouseup' + namespace, mouseup.partial(grid));
                 $('<div class="' + line + '" />').css({
-                    top: grid.offset.top + grid.meta.set_height,
+                    top: grid_offset.top + grid.meta.set_height,
                     left: start_left = offset_left + grid.meta.columns.scan.all[index] - 3,
                     height: grid.elements.parent.height() - grid.meta.set_height
                 }).appendTo(document.body);
@@ -197,7 +199,7 @@ $.register_module({
             grid.formatter = new og.common.grid.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
             grid.meta = null;
-            grid.state = {col_override: [], col_reorder: [], nodes: null, structure: null};
+            grid.state = {col_override: [], col_reorder: [], nodes: null, structure: null, highlight: null};
             grid.source = config.source;
             grid.updated = (function (last, delta) {
                 return function (time) {
@@ -222,6 +224,7 @@ $.register_module({
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
+                .on('title', function (row_name, col_name, name) {grid.fire('title', row_name, col_name, name);})
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
                     grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
@@ -231,7 +234,7 @@ $.register_module({
             grid.clipboard = new og.common.grid.Clipboard(grid);
         };
         var init_elements = function () {
-            var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,
+            var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 5,
                 last_x, last_y, page_x, page_y, last_corner, cell; // cached values for hover events
             var hoverin_handler = function (event, silent) {
                 (page_x = event.pageX), (page_y = event.pageY);
@@ -239,15 +242,16 @@ $.register_module({
                 if (page_x === last_x && page_y === last_y) return;
                 var scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop(),
+                    grid_offset = grid.elements.parent.offset(),
                     fixed_width = grid.meta.columns.width.fixed, corner, corner_cache,
-                    x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
-                    y = page_y - grid.offset.top + scroll_top - grid.meta.header_height,
+                    x = page_x - grid_offset.left + (page_x > fixed_width ? scroll_left : 0),
+                    y = page_y - grid_offset.top + scroll_top - grid.meta.header_height,
                     rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                     selection = grid.selector.selection(rectangle);
                 if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
                 if (!(cell = grid.cell(selection))) return hoverout_handler(); // cell is undefined
-                if (!cell.value.v) return hoverout_handler(); // cell is empty
-                cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
+                if (!cell.value.v && !cell.value[logging]) return hoverout_handler(); // cell is empty
+                cell.top = corner.top - scroll_top + grid.meta.header_height + grid_offset.top;
                 cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                 last_corner = corner_cache; last_x = page_x; last_y = page_y;
                 if (!silent) grid.fire('cellhoverin', cell);
@@ -270,6 +274,10 @@ $.register_module({
                         .html((grid.config.sparklines = !grid.config.sparklines) ? 'ON' : 'OFF');
                     render_rows.call(grid, grid.data); // re-render right away to show sparklines before next tick
                     grid.resize(); // re-write styles
+                    return false;
+                })
+                .on('click', '.OG-g-h-set-name .og-csv', function (event) {
+                    og.api.rest.views.csv({view_id: grid.dataman.connection.view_id, grid_type: grid.source.type});
                     return false;
                 })
                 .on('mousedown', function (event) {
@@ -344,14 +352,14 @@ $.register_module({
             grid.selector = new og.common.grid.Selector(grid)
                 .on('select', function (selection) {grid.fire('select', selection);})
                 .on('deselect', function () {grid.fire('deselect');});
-            if (config.cellmenu) try {new og.common.grid.CellMenu(grid);}
+            if (config.cellmenu) try {grid.cellmenu = new og.common.grid.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             if (!config.child) // if this is a child gadget, rely on its parent to register with manager
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
         var init_grid = function (metadata) {
-            var grid = this, config = grid.config, meta = grid.meta = JSON.parse(JSON.stringify(metadata)); // a copy
+            var grid = this, config = grid.config, meta = grid.meta = Object.clone(metadata);
             ['show_sets', 'show_views'].forEach(function (key) {meta[key] = key in config ? config[key] : true;});
             meta.show_save = 'show_save' in config ? config['show_save'] : false;
             meta.viewport = {format: 'CELL'};
@@ -363,7 +371,7 @@ $.register_module({
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             verify_state.call(grid);
             if (!reorder_cols.call(grid)) populate_cols.call(grid);
-            if (grid.elements.empty) init_elements.call(grid);
+            if (grid.elements.empty) init_elements.call(grid); else grid.clipboard.clear(), grid.selector.clear();
             grid.resize(config[has]('collapse_level'));
             render_rows.call(grid, null, true);
         };
@@ -387,7 +395,7 @@ $.register_module({
         var reorder_cols = function () {
             var grid = this, meta = grid.meta, columns, reorder, scrolls, sets;
             if (!grid.state.col_reorder.length) return false;
-            columns = (meta = grid.meta = $.extend(grid.meta, JSON.parse(JSON.stringify(grid.dataman.meta)))).columns;
+            columns = (meta = grid.meta = $.extend(grid.meta, Object.clone(grid.dataman.meta))).columns;
             reorder = grid.state.col_reorder.slice(meta.fixed_length)
                 .map(function (value) {return value - meta.fixed_length;});
             scrolls = columns.scroll.reduce(function (acc, set, idx) {
@@ -437,29 +445,36 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, fixed, loading) {
-                var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, i, j, index,
-                    data_row, inner = meta.inner, prefix, cols = meta.viewport.cols, rows = meta.viewport.rows,
+                var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, row, col,
+                    index, data_row, data_col, inner = meta.inner, prefix,
+                    cols = meta.viewport.cols, rows = meta.viewport.rows, highlight = state.highlight,
                     grid_row = state.available.indexOf(rows[0]), types = meta.columns.types, type,
                     total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
                     col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
                     widths = meta.columns.widths, result = {rows: [], loading: loading};
                 if (loading) return result;
-                for (i = 0; i < row_len; i += 1) {
-                    result.rows.push({top: row_height * grid_row++, cells: (cells = []), data_row: data_row = rows[i]});
-                    if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
-                    for (; j < col_end; j += 1) {
-                        index = i * total_cols + j;
-                        column = state.col_reorder.length ? state.col_reorder.indexOf(cols[j]) : cols[j];
+                for (row = 0; row < row_len; row += 1) {
+                    result.rows
+                        .push({top: row_height * grid_row++, cells: (cells = []), data_row: data_row = rows[row]});
+                    if (fixed) {col = 0; col_end = col_len;} else {col = fixed_len; col_end = col_len + fixed_len;}
+                    for (; col < col_end; col += 1) {
+                        data_col = cols[col];
+                        index = row * total_cols + col;
+                        column = state.col_reorder.length ? state.col_reorder.indexOf(data_col) : data_col;
                         value = formatter[type = types[column]] ?
                             data[index] && formatter[type](data[index], widths[column], row_height)
                                 : data[index] && data[index].v || '';
-                        prefix = fixed && j === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
+                        prefix = fixed && col === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
                             state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
-                        cells.push({
-                            column: column, value: prefix + value, type: data[index].t || type,
-                            logging: data[index] && data[index][logging], error: data[index] && data[index].error
-                        });
+                        if(data[index] !== undefined) { //catch any histogram and timeseries resize lags
+                            cells.push({
+                                column: column, value: prefix + value, type: data[index].t || type,
+                                highlight: highlight && highlight.row === data_row && highlight.col === data_col
+                                    && highlight.event_type,
+                                logging: data[index] && data[index][logging], error: data[index] && data[index].error
+                            });
+                        }
                     }
                 }
                 return result;
@@ -652,6 +667,16 @@ $.register_module({
                 (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
+        Grid.prototype.highlight = function (row, col, event_type) {
+            var grid = this, meta = grid.meta, viewport = meta && meta.viewport,
+                data = grid.data, highlit = !!grid.state.highlight;
+            grid.state.highlight = arguments.length ? {row: row, col: col, event_type: event_type} : null;
+            if (data && ~viewport.rows.indexOf(row) && ~viewport.cols.indexOf(col)) // grid is ready and has this cell
+                return render_rows.call(grid, data), grid;
+            if (data && highlit && !grid.state.highlight) // grid is ready and should un-highlight
+                return render_rows.call(grid, data), grid;
+            return grid;
+        };
         Grid.prototype.kill = function () {
             var grid = this;
             try {grid.dataman.kill();} catch (error) {}
@@ -721,7 +746,7 @@ $.register_module({
             };
             meta.visible_rows = Math.min(Math.ceil(meta.inner.scroll_height / row_height), meta.rows);
             css = templates.css({
-                id: id, viewport_width: meta.inner.width, rest_top: meta.inner.height,
+                id: id, viewport_width: meta.inner.width, rest_top: meta.inner.height + 1,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_height: Math.max(meta.inner.height, meta.inner.scroll_height - scrollbar),
@@ -729,13 +754,13 @@ $.register_module({
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
                 scroll_left: columns.width.fixed, set_height: meta.set_height, sparklines: grid.config.sparklines,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
+                row_height_min_one: row_height - 1,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
             grid.elements.style.empty();
             if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
             else sheet.appendChild(document.createTextNode(css));
-            grid.offset = grid.elements.parent.offset();
             grid.fire('resize');
             return viewport.call(grid, render_header);
         };

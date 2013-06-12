@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (selector) {
-            new og.common.gadgets.TimeseriesPlot({
+            new og.common.Timeseries({
                 selector: selector,
                 datapoints_link: false,
                 editable: false,

@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.model.volatility;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
@@ -21,12 +23,16 @@ import com.opengamma.util.ArgumentChecker;
  * classes that have higher level abstractions (e.g. option data bundles) should call these functions.
  * As the numeraire (e.g. the zero bond p(0,T) in the T-forward measure) in the Black formula is just a multiplication factor,  all prices,
  * input/output, are <b>forward</b> prices, i.e. (spot price)/numeraire
+ * NOTE THAT a "reference value" is returned if computation comes across an ambiguous expression
  */
 public abstract class BlackFormulaRepository {
 
-  private static final double EPS = 1e-15;
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackFormulaRepository.class);
+
+  private static final double LARGE = 1.e13;
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-  private static final double SMALL = 1.0E-12;
+  private static final double SMALL = 1.0E-13;
+  private static final double EPS = 1e-15;
   private static final int MAX_ITERATIONS = 15; // something's wrong if Newton-Raphson taking longer than this
   private static final double VOL_TOL = 1e-9; // 1 part in 100,000 basis points will do for implied vol
 
@@ -41,22 +47,45 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double price(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative volatility; have {}", lognormalVol);
-    if (strike < SMALL) {
-      return isCall ? forward : 0.0;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+
+    double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
     }
     final int sign = isCall ? 1 : -1;
-    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
-    if (Math.abs(forward - strike) < SMALL) {
-      return forward * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
+    double d2 = 0.;
+
+    if (bFwd && bStr) {
+      s_logger.info("(large value)/(large value) ambiguous");
+      return isCall ? (forward >= strike ? forward : 0.) : (strike >= forward ? strike : 0.);
     }
     if (sigmaRootT < SMALL) {
       return Math.max(sign * (forward - strike), 0.0);
     }
+    if (Math.abs(forward - strike) < SMALL | bSigRt) {
+      d1 = 0.5 * sigmaRootT;
+      d2 = -0.5 * sigmaRootT;
+    } else {
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+      d2 = d1 - sigmaRootT;
+    }
 
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
-    return sign * (forward * NORMAL.getCDF(sign * d1) - strike * NORMAL.getCDF(sign * d2));
+    final double nF = NORMAL.getCDF(sign * d1);
+    final double nS = NORMAL.getCDF(sign * d2);
+    final double first = nF == 0. ? 0. : forward * nF;
+    final double second = nS == 0. ? 0. : strike * nS;
+
+    final double res = sign * (first - second);
+    return Math.max(0., res);
 
   }
 
@@ -99,28 +128,59 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double delta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    if (strike < SMALL) {
-      return isCall ? 1.0 : 0.0;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+
+    double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
     }
     final int sign = isCall ? 1 : -1;
-    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
 
-    if (sigmaRootT < SMALL) {
-      return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
+    double d1 = 0.;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+
+    if (bSigRt) {
+      return isCall ? 1. : 0.;
     }
-
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
+      } else {
+        s_logger.info("(log 1.)/0., ambiguous value");
+        return isCall ? 0.5 : -0.5;
+      }
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d1 = 0.5 * sigmaRootT;
+    } else {
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    }
 
     return sign * NORMAL.getCDF(sign * d1);
   }
 
   public static double strikeForDelta(final double forward, final double forwardDelta, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-    Validate.isTrue((isCall && forwardDelta > 0 && forwardDelta < 1) || (!isCall && forwardDelta > -1 && forwardDelta < 0), "delta out of range");
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue((isCall && forwardDelta > 0 && forwardDelta < 1) || (!isCall && forwardDelta > -1 && forwardDelta < 0), "delta out of range", forwardDelta);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
     final int sign = isCall ? 1 : -1;
     final double d1 = sign * NORMAL.getInverseCDF(sign * forwardDelta);
-    return forward * Math.exp(-d1 * lognormalVol * Math.sqrt(timeToExpiry) + 0.5 * lognormalVol * lognormalVol * timeToExpiry);
+
+    double sigmaSqT = lognormalVol * lognormalVol * timeToExpiry;
+    if (Double.isNaN(sigmaSqT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaSqT = 1.;
+    }
+
+    return forward * Math.exp(-d1 * Math.sqrt(sigmaSqT) + 0.5 * sigmaSqT);
   }
 
   /**
@@ -134,12 +194,39 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double dualDelta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
+    double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
     final int sign = isCall ? 1 : -1;
-    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
 
-    final double d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+    double d2 = 0.;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+
+    if (bSigRt) {
+      return isCall ? 0. : 1.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return (isCall ? (forward > strike ? -1.0 : 0.0) : (forward > strike ? 0.0 : 1.0));
+      } else {
+        s_logger.info("(log 1.)/0., ambiguous value");
+        return isCall ? -0.5 : 0.5;
+      }
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d2 = -0.5 * sigmaRootT;
+    } else {
+      d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+    }
 
     return -sign * NORMAL.getCDF(sign * d2);
   }
@@ -158,18 +245,40 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double simpleDelta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    if (strike < SMALL) {
-      return isCall ? 1.0 : 0.0;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+
+    double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
     }
     final int sign = isCall ? 1 : -1;
-    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
 
-    if (sigmaRootT < SMALL) {
-      return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
+    double d = 0.;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+
+    if (bSigRt) {
+      return isCall ? 0.5 : -0.5;
     }
-
-    final double d = Math.log(forward / strike) / sigmaRootT;
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
+      } else {
+        s_logger.info("(log 1.)/0., ambiguous");
+        return isCall ? 0.5 : -0.5;
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d = 0.;
+      } else {
+        d = Math.log(forward / strike) / sigmaRootT;
+      }
+    }
 
     return sign * NORMAL.getCDF(sign * d);
   }
@@ -185,21 +294,41 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double gamma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    if (forward == 0 || strike == 0.0) {
-      return 0.0;
-    }
-    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
-    if (sigmaRootT == 0.0) {
-      if (forward != strike) {
-        return 0.0;
-      }
-      // The gamma is infinite in this case
-      return Double.POSITIVE_INFINITY;
-    }
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    return NORMAL.getPDF(d1) / forward / sigmaRootT;
+    double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
+    double d1 = 0.;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.0;
+      } else {
+        s_logger.info("(log 1.)/0. ambiguous");
+        return bFwd ? NORMAL.getPDF(0.) : NORMAL.getPDF(0.) / forward / sigmaRootT;
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d1 = 0.5 * sigmaRootT;
+      } else {
+        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+      }
+    }
+
+    final double nVal = NORMAL.getPDF(d1);
+    return nVal == 0. ? 0. : nVal / forward / sigmaRootT;
   }
 
   /**
@@ -212,14 +341,41 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double dualGamma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    if (strike == 0) {
-      return 0.0;
-    }
-    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
-    final double d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    return NORMAL.getPDF(d2) / strike / sigmaRootT;
+    double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
+    double d2 = 0.;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.0;
+      } else {
+        s_logger.info("(log 1.)/0. ambiguous");
+        return bStr ? NORMAL.getPDF(0.) : NORMAL.getPDF(0.) / strike / sigmaRootT;
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d2 = -0.5 * sigmaRootT;
+      } else {
+        d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+      }
+    }
+
+    final double nVal = NORMAL.getPDF(d2);
+    return nVal == 0. ? 0. : nVal / strike / sigmaRootT;
   }
 
   /**
@@ -232,14 +388,41 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double crossGamma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    if (strike == 0) {
-      return 0.0;
-    }
-    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
-    final double d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    return -NORMAL.getPDF(d2) / forward / sigmaRootT;
+    double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
+    double d2 = 0.;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.0;
+      } else {
+        s_logger.info("(log 1.)/0. ambiguous");
+        return bFwd ? -NORMAL.getPDF(0.) : -NORMAL.getPDF(0.) / forward / sigmaRootT;
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d2 = -0.5 * sigmaRootT;
+      } else {
+        d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+      }
+    }
+
+    final double nVal = NORMAL.getPDF(d2);
+    return nVal == 0. ? 0. : -nVal / forward / sigmaRootT;
   }
 
   /**
@@ -255,18 +438,65 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double theta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall, final double interestRate) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    final int sign = isCall ? 1 : -1;
-    final double b = 0; // for now set cost of carry to 0
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+    ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
+
+    if (-interestRate > LARGE) {
+      return 0.;
+    }
+    final double driftLess = driftlessTheta(forward, strike, timeToExpiry, lognormalVol);
+    if (Math.abs(interestRate) < SMALL) {
+      return driftLess;
+    }
+
     final double rootT = Math.sqrt(timeToExpiry);
-    final double sigmaRootT = lognormalVol * rootT;
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
+    double sigmaRootT = lognormalVol * rootT;
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
+    final int sign = isCall ? 1 : -1;
+    //    final double b = 0; // for now set cost of carry to 0
 
-    final double value = -forward * NORMAL.getPDF(d1) * lognormalVol / 2 / rootT - sign * (b - interestRate) * forward * NORMAL.getCDF(sign * d1) - sign * interestRate * strike
-        * Math.exp(-interestRate * timeToExpiry) * NORMAL.getCDF(sign * d2);
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
+    double d2 = 0.;
 
-    return value;
+    double priceLike = Double.NaN;
+    double rt = (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0. ? 1. : -1.) : interestRate * timeToExpiry;
+    if (bFwd && bStr) {
+      s_logger.info("(large value)/(large value) ambiguous");
+      priceLike = isCall ? (forward >= strike ? forward : 0.) : (strike >= forward ? strike : 0.);
+    } else {
+      if (sigmaRootT < SMALL) {
+        if (rt > LARGE) {
+          priceLike = isCall ? (forward > strike ? forward : 0.0) : (forward > strike ? 0.0 : -forward);
+        } else {
+          priceLike = isCall ? (forward > strike ? forward - strike * Math.exp(-rt) : 0.0) : (forward > strike ? 0.0 : -forward + strike * Math.exp(-rt));
+        }
+      } else {
+        if (Math.abs(forward - strike) < SMALL | bSigRt) {
+          d1 = 0.5 * sigmaRootT;
+          d2 = -0.5 * sigmaRootT;
+        } else {
+          d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+          d2 = d1 - sigmaRootT;
+        }
+        final double nF = NORMAL.getCDF(sign * d1);
+        final double nS = NORMAL.getCDF(sign * d2);
+        final double first = nF == 0. ? 0. : forward * nF;
+        final double second = ((nS == 0.) | (Math.exp(-interestRate * timeToExpiry) == 0.)) ? 0. : strike * Math.exp(-interestRate * timeToExpiry) * nS;
+        priceLike = sign * (first - second);
+      }
+    }
+
+    final double res = (interestRate > LARGE && Math.abs(priceLike) < SMALL) ? 0. : interestRate * priceLike;
+    return Math.abs(res) > LARGE ? res : driftLess + res;
   }
 
   /**
@@ -279,22 +509,48 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double driftlessTheta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    if (forward == 0 || strike == 0.0) {
-      return 0.0;
-    }
-    final double rootT = Math.sqrt(timeToExpiry);
-    final double sigmaRootT = lognormalVol * rootT;
-    if (sigmaRootT == 0.0) {
-      if (forward != strike) {
-        return 0.0;
-      }
-      // The gamma is infinite in this case
-      return Double.POSITIVE_INFINITY;
-    }
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    return -forward * NORMAL.getPDF(d1) * lognormalVol / 2 / rootT;
+    final double rootT = Math.sqrt(timeToExpiry);
+    double sigmaRootT = lognormalVol * rootT;
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
+
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
+
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.0;
+      } else {
+        s_logger.info("log(1)/0 ambiguous");
+        if (rootT < SMALL) {
+          return forward < SMALL ? -NORMAL.getPDF(0.) * lognormalVol / 2. : (lognormalVol < SMALL ? -forward * NORMAL.getPDF(0.) / 2. : -forward * NORMAL.getPDF(0.) * lognormalVol / 2. / rootT);
+        }
+        if (lognormalVol < SMALL) {
+          return bFwd ? -NORMAL.getPDF(0.) / 2. / rootT : -forward * NORMAL.getPDF(0.) * lognormalVol / 2. / rootT;
+        }
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d1 = 0.5 * sigmaRootT;
+      } else {
+        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+      }
+    }
+
+    final double nVal = NORMAL.getPDF(d1);
+    return nVal == 0. ? 0. : -forward * nVal * lognormalVol / 2. / rootT;
   }
 
   /**
@@ -308,23 +564,47 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double vega(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+
     final double rootT = Math.sqrt(timeToExpiry);
-    final double sigmaRootT = lognormalVol * rootT;
+    double sigmaRootT = lognormalVol * rootT;
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
 
-    if (Math.abs(forward - strike) < SMALL) {
-      return forward * rootT * NORMAL.getPDF(sigmaRootT / 2);
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.;
+      } else {
+        s_logger.info("log(1)/0 ambiguous");
+        return (rootT < SMALL && forward > LARGE) ? NORMAL.getPDF(0.) : forward * rootT * NORMAL.getPDF(0.);
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d1 = 0.5 * sigmaRootT;
+      } else {
+        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+      }
     }
 
-    if (sigmaRootT < SMALL || strike < SMALL) {
-      return 0.0;
-    }
-
-    final double d1 = Math.log(forward / strike) / lognormalVol / rootT + 0.5 * lognormalVol * rootT;
-    return forward * rootT * NORMAL.getPDF(d1);
+    final double nVal = NORMAL.getPDF(d1);
+    return nVal == 0. ? 0. : forward * rootT * nVal;
   }
 
   @ExternalFunction
   public static double vega(final SimpleOptionData data, final double lognormalVol) {
+    ArgumentChecker.notNull(data, "null data");
     return data.getDiscountFactor() * vega(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol);
   }
 
@@ -339,19 +619,46 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double vanna(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
-    if (forward == 0.0 || strike == 0.0) {
-      return 0.0;
-    }
-    final double rootT = Math.sqrt(timeToExpiry);
-    final double sigmaRootT = lognormalVol * rootT;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    if (sigmaRootT < SMALL || strike < SMALL) {
-      return 0.0;
+    double rootT = Math.sqrt(timeToExpiry);
+    double sigmaRootT = lognormalVol * rootT;
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
     }
 
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
-    return -NORMAL.getPDF(d1) * d2 / lognormalVol;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
+    double d2 = 0.;
+
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.0;
+      } else {
+        s_logger.info("log(1)/0 ambiguous");
+        return lognormalVol < SMALL ? -NORMAL.getPDF(0.) / lognormalVol : NORMAL.getPDF(0.) * rootT;
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d1 = 0.5 * sigmaRootT;
+        d2 = -0.5 * sigmaRootT;
+      } else {
+        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+        d2 = d1 - sigmaRootT;
+      }
+    }
+
+    final double nVal = NORMAL.getPDF(d1);
+    return nVal == 0. ? 0. : -nVal * d2 / lognormalVol;
   }
 
   /**
@@ -364,19 +671,46 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double dualVanna(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
-    if (forward == 0.0 || strike == 0.0) {
-      return 0.0;
-    }
-    final double rootT = Math.sqrt(timeToExpiry);
-    final double sigmaRootT = lognormalVol * rootT;
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    if (sigmaRootT < SMALL || strike < SMALL) {
-      return 0.0;
+    double rootT = Math.sqrt(timeToExpiry);
+    double sigmaRootT = lognormalVol * rootT;
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
     }
 
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
-    return NORMAL.getPDF(d2) * d1 / lognormalVol;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
+    double d2 = 0.;
+
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.0;
+      } else {
+        s_logger.info("log(1)/0 ambiguous");
+        return lognormalVol < SMALL ? -NORMAL.getPDF(0.) / lognormalVol : -NORMAL.getPDF(0.) * rootT;
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d1 = 0.5 * sigmaRootT;
+        d2 = -0.5 * sigmaRootT;
+      } else {
+        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+        d2 = d1 - sigmaRootT;
+      }
+    }
+
+    final double nVal = NORMAL.getPDF(d2);
+    return nVal == 0. ? 0. : nVal * d1 / lognormalVol;
   }
 
   /**
@@ -389,19 +723,51 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double vomma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
-    if (forward == 0.0 || strike == 0.0) {
-      return 0.0;
-    }
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+
     final double rootT = Math.sqrt(timeToExpiry);
-    final double sigmaRootT = lognormalVol * rootT;
-
-    if (sigmaRootT < SMALL || strike < SMALL) {
-      return 0.0;
+    double sigmaRootT = lognormalVol * rootT;
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
     }
 
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
-    return forward * NORMAL.getPDF(d1) * rootT * d1 * d2 / lognormalVol;
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
+    double d2 = 0.;
+
+    if (bSigRt) {
+      return 0.;
+    }
+    if (sigmaRootT < SMALL) {
+      if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
+        return 0.0;
+      } else {
+        s_logger.info("log(1)/0 ambiguous");
+        if (bFwd) {
+          return rootT < SMALL ? NORMAL.getPDF(0.) / lognormalVol : forward * NORMAL.getPDF(0.) * rootT / lognormalVol;
+        } else {
+          return lognormalVol < SMALL ? forward * NORMAL.getPDF(0.) * rootT / lognormalVol : -forward * NORMAL.getPDF(0.) * timeToExpiry * lognormalVol / 4.;
+        }
+      }
+    } else {
+      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+        d1 = 0.5 * sigmaRootT;
+        d2 = -0.5 * sigmaRootT;
+      } else {
+        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+        d2 = d1 - sigmaRootT;
+      }
+    }
+
+    final double nVal = NORMAL.getPDF(d1);
+    final double res = nVal == 0. ? 0. : forward * nVal * rootT * d1 * d2 / lognormalVol;
+    return res;
   }
 
   /**
@@ -427,19 +793,18 @@ public abstract class BlackFormulaRepository {
    * @return log-normal (Black) implied volatility
    */
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
-    final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
-    Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
-    // if (price == intrinsicPrice) {
-    // return 0.0;
-    // }
-    // ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
-    //
-    // if (isCall) {
-    // Validate.isTrue(price < forward, "call price must be less than forward");
-    // } else {
-    // Validate.isTrue(price < strike, "put price must be less than strike");
-    // }
-    final double targetPrice = price - intrinsicPrice;
+    ArgumentChecker.isTrue(price > 0.0, "negative/NaN price; have {}", price);
+    ArgumentChecker.isTrue(forward > 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike > 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+
+    ArgumentChecker.isFalse(Double.isInfinite(forward), "forward is Infinity");
+    ArgumentChecker.isFalse(Double.isInfinite(strike), "strike is Infinity");
+    ArgumentChecker.isFalse(Double.isInfinite(timeToExpiry), "timeToExpiry is Infinity");
+
+    final double intrinsicPrice = Math.max(0., (isCall ? 1 : -1) * (forward - strike));
+
+    final double targetPrice = price - intrinsicPrice; //Math.max(0., price - intrinsicPrice) should not used for least chi square 
     final double sigmaGuess = 0.3;
     return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess);
   }
@@ -456,12 +821,22 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double impliedVolatility(final double otmPrice, final double forward, final double strike, final double timeToExpiry, final double volGuess) {
+    ArgumentChecker.isTrue(otmPrice >= 0.0, "negative/NaN otmPrice; have {}", otmPrice);
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(volGuess >= 0.0, "negative/NaN volGuess; have {}", volGuess);
+
+    ArgumentChecker.isFalse(Double.isInfinite(otmPrice), "otmPrice is Infinity");
+    ArgumentChecker.isFalse(Double.isInfinite(forward), "forward is Infinity");
+    ArgumentChecker.isFalse(Double.isInfinite(strike), "strike is Infinity");
+    ArgumentChecker.isFalse(Double.isInfinite(timeToExpiry), "timeToExpiry is Infinity");
+    ArgumentChecker.isFalse(Double.isInfinite(volGuess), "volGuess is Infinity");
+
     if (otmPrice == 0) {
       return 0;
     }
-    ArgumentChecker.isTrue(otmPrice > 0.0, "negative OTM price of {} given", otmPrice);
     ArgumentChecker.isTrue(otmPrice < Math.min(forward, strike), "otmPrice of {} exceeded upper bound of {}", otmPrice, Math.min(forward, strike));
-    ArgumentChecker.isTrue(volGuess > 0.0, "negative volGuess");
 
     if (forward == strike) {
       return NORMAL.getInverseCDF(0.5 * (otmPrice / forward + 1)) * 2 / Math.sqrt(timeToExpiry);
@@ -532,10 +907,12 @@ public abstract class BlackFormulaRepository {
         return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
       }
     }
+
     return sigma;
   }
 
   public static double impliedVolatility(final SimpleOptionData data, final double price) {
+    ArgumentChecker.notNull(data, "null data");
     return impliedVolatility(price / data.getDiscountFactor(), data.getForward(), data.getStrike(), data.getTimeToExpiry(), data.isCall());
   }
 
@@ -665,30 +1042,35 @@ public abstract class BlackFormulaRepository {
   }
 
   private static double[] priceAndVega(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-
-    final double rootT = Math.sqrt(timeToExpiry);
-    final double sigmaRootT = lognormalVol * rootT;
     final double[] res = new double[2];
-
-    if (Math.abs(forward - strike) < SMALL) {
-      res[0] = forward * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
-      res[1] = forward * rootT * NORMAL.getPDF(sigmaRootT / 2);
-      return res;
-    }
-
-    final int sign = isCall ? 1 : -1;
-
-    if (sigmaRootT < SMALL || strike < SMALL) {
-      res[0] = Math.max(sign * (forward - strike), 0.0);
-      res[1] = 0.0;
-      return res;
-    }
-
-    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
-    res[0] = sign * (forward * NORMAL.getCDF(sign * d1) - strike * NORMAL.getCDF(sign * d2));
-    res[1] = forward * rootT * NORMAL.getPDF(d1);
+    res[0] = price(forward, strike, timeToExpiry, lognormalVol, isCall);
+    res[1] = vega(forward, strike, timeToExpiry, lognormalVol);
+    //    System.out.println(new DoubleMatrix1D(res));
     return res;
+
+    //    final double rootT = Math.sqrt(timeToExpiry);
+    //    double sigmaRootT = lognormalVol * rootT;
+    //    final double[] res = new double[2];
+    //
+    //    if (Math.abs(forward - strike) < SMALL) {
+    //      res[0] = forward * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
+    //      res[1] = forward * rootT * NORMAL.getPDF(sigmaRootT / 2);
+    //      return res;
+    //    }
+    //
+    //    final int sign = isCall ? 1 : -1;
+    //
+    //    if (sigmaRootT < SMALL || strike < SMALL) {
+    //      res[0] = Math.max(sign * (forward - strike), 0.0);
+    //      res[1] = 0.0;
+    //      return res;
+    //    }
+    //
+    //    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    //    final double d2 = d1 - sigmaRootT;
+    //    res[0] = sign * (forward * NORMAL.getCDF(sign * d1) - strike * NORMAL.getCDF(sign * d2));
+    //    res[1] = forward * rootT * NORMAL.getPDF(d1);
+    //    return res;
   }
 
   private static double[] bracketRoot(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double sigma, final double change) {
@@ -736,95 +1118,4 @@ public abstract class BlackFormulaRepository {
     return rootFinder.getRoot(func, range[0], range[1]);
   }
 
-  /**
-   * Given marked price and implied volatility, return the forward that is implied
-   * @param otmPrice The <b>forward</b> price - i.e. the market price divided by the numeraire (i.e. the zero bond p(0,T) for the T-forward measure)
-   * <b>Note</b> This MUST be an OTM price - i.e. a call price for strike >= forward and a put price otherwise
-   * @param forward The forward value of the underlying
-   * @param strike The Strike
-   * @param timeToExpiry The time-to-expiry
-   * @param volGuess a guess of the implied volatility
-   * @return log-normal (Black) implied volatility
-
-  @ExternalFunction
-  public static double impliedForward(final double otmPrice, final double impliedVol, final double strike, final double timeToExpiry, final double volGuess) {
-    if (otmPrice == 0) {
-      return 0;
-    }
-    ArgumentChecker.isTrue(otmPrice > 0.0, "negative OTM price of {} given", otmPrice);
-    ArgumentChecker.isTrue(otmPrice < Math.min(forward, strike), "otmPrice of {} exceeded upper bound of {}", otmPrice, Math.min(forward, strike));
-    ArgumentChecker.isTrue(volGuess > 0.0, "negative volGuess");
-
-    if (forward == strike) {
-      return NORMAL.getInverseCDF(0.5 * (otmPrice / forward + 1)) * 2 / Math.sqrt(timeToExpiry);
-    }
-
-    boolean isCall = strike >= forward;
-
-    double lowerSigma;
-    double upperSigma;
-
-    try {
-      final double[] temp = bracketRoot(otmPrice, forward, strike, timeToExpiry, isCall, volGuess, Math.min(volGuess, 0.1));
-      lowerSigma = temp[0];
-      upperSigma = temp[1];
-    } catch (final MathException e) {
-      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + otmPrice + ", forward: " + forward + ", strike: " +
-          strike + ", timeToExpiry: " + timeToExpiry + ", " + (isCall ? "Call" : "put"));
-    }
-    double sigma = (lowerSigma + upperSigma) / 2.0;
-    final double maxChange = 0.5;
-
-    double[] pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
-    //TODO check if this is ever called
-    if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-      return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
-    }
-    double diff = pnv[0] / otmPrice - 1.0;
-    boolean above = diff > 0;
-    if (above) {
-      upperSigma = sigma;
-    } else {
-      lowerSigma = sigma;
-    }
-
-    double trialChange = -diff * otmPrice / pnv[1];
-    double actChange;
-    if (trialChange > 0.0) {
-      actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
-    } else {
-      actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
-    }
-
-    int count = 0;
-    while (Math.abs(actChange) > VOL_TOL) {
-      sigma += actChange;
-      pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
-
-      if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-        return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
-      }
-
-      diff = pnv[0] / otmPrice - 1.0;
-      above = diff > 0;
-      if (above) {
-        upperSigma = sigma;
-      } else {
-        lowerSigma = sigma;
-      }
-
-      trialChange = -diff * otmPrice / pnv[1];
-      if (trialChange > 0.0) {
-        actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
-      } else {
-        actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
-      }
-
-      if (count++ > MAX_ITERATIONS) {
-        return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
-      }
-    }
-    return sigma;
-  }
-   */
 }

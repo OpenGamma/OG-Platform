@@ -6,8 +6,8 @@
  * @see http://code.google.com/p/flot/
  */
 $.register_module({
-    name: 'og.common.gadgets.TimeseriesPlot',
-    dependencies: ['og.api.rest', 'og.common.gadgets.manager'],
+    name: 'og.common.Timeseries',
+    dependencies: ['og.api.rest'],
     obj: function () {
         var api = og.api;
         /**
@@ -16,18 +16,17 @@ $.register_module({
          * @param {String} config.id
          * @param {String} config.height optional height of Timeseries, gadget will calculate height from parent
          * if not supplied
-         * @param {Boolean} config.datapoints
-         * @param {Boolean} config.datapoints_link
          * @param {Boolean} config.child Manage resizing gadget manualy
          * @param {Object} config.data Spoffed Data - temporary solution
          */
         return function (config) {
             var timeseries = this, handler, x_max, alive = og.common.id('gadget_timeseries_plot'),
-                selector = config.selector, load_plots, initial_preset,
+                selector = config.selector, load_plots, initial_preset, $refresh,
                 meta = {}, // object that stores the structure and data of the plots
                 plot_template, data_template, common_plot_options, top_plot_options, bot_plot_options, spoofed_data,
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colors for plot 1 data sets
                 colors_arr_p2 = ['#fff', '#fff', '#fff', '#fff']; // line colors for plot 2 data sets
+            timeseries.update = function (data) {load_plots(data);};
             timeseries.resize = (function (timeout) {
                var resize = function () {
                    var height = config.height ? config.height : $(selector).parent().height(),
@@ -43,6 +42,9 @@ $.register_module({
                return function () {timeout = clearTimeout(timeout) || setTimeout(resize, 0);}
             })(null);
             timeseries.alive = function () {return !!$('.' + alive).length;};
+            timeseries.display_refresh = function () {
+                $refresh.show();
+            };
             spoofed_data = (function (data) {
                 if (!data) return null;
                 data.forEach(function (val, idx) {
@@ -83,8 +85,6 @@ $.register_module({
             handler = function (result) {
                 if (result.error) return;
                 var data = result.data,
-                    show_datapoints_link = 'datapoints_link' in config ? config.datapoints_link : true,
-                    init_data_field = data.template_data.data_field,
                     init_ob_time = data.template_data.observation_time,
                     data_arr = [{
                         data: data.timeseries.data,
@@ -97,23 +97,23 @@ $.register_module({
                     $p1, p1_options, p1_selector = selector + ' .og-js-p1',
                     $p2, p2_options, p2_selector = selector + ' .og-js-p2',
                     tenor = selector + ' .og-tenor',
-                    plot_selector = selector + ' .og-plot-header',
                     $legend, panning, hover_pos = null,
                     reset_options,
-                    build_menu, empty_plots, update_legend, rescale_yaxis, resize,
-                    calculate_y_values, load_data_points, get_legend;
+                    empty_plots, update_legend, rescale_yaxis, resize,
+                    calculate_y_values, get_legend;
                 $(selector).html((Handlebars.compile(plot_template))({alive: alive}));
-                $(plot_selector)
-                    .html('<span class="og-checking-related">checking for related timeseries data...</span>');
+                $refresh = $(selector).find('div.og-timeseries-refresh');
+                $refresh.on('click', function (event) {
+                    timeseries.update(handler({data: config.update()}));
+                });
                 get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated
                 reset_options = function () {p1_options = top_plot_options, p2_options = bot_plot_options;};
                 empty_plots = function () {
                     var d = ['1', '2'], disabled_options,
-                        msg = $('<div>No data available</div>').css({
+                        msg = $('<div>Not enough data to render plot</div>').css({
                             position: 'absolute', color: '#999', left: '10px', top: '10px'
                         });
                     reset_options();
-                    load_data_points();
                     disabled_options = {
                         grid: {borderWidth: 0},
                         xaxis: {show: false},
@@ -125,51 +125,10 @@ $.register_module({
                     $p1 = $.plot($(p1_selector), d, $.extend(true, {}, p1_options, disabled_options));
                     $p2 = $.plot($(p2_selector), d, $.extend(true, {}, p2_options, disabled_options));
                     $(p1_selector).append(msg);
+                    setTimeout(show_plot);
                 };
-                load_data_points = function () {
-                    var $template, col_width, render_grid, grid_width,
-                        $data_points = $(selector + ' .og-data-points');
-                    if (!$data_points.length) return;
-                    if (!config.datapoints) {
-                        if (show_datapoints_link) $data_points.css({
-                            'position': 'relative', 'left': '3px'
-                            }).html('<a href="#/timeseries/'+ config.id +'">View Timeseries with DataPoints</a>');
-                        return;
-                    }
-                    $(selector + ' .og-data-points').html('<div class="og-container"></div>');
-                    (function () { // Calculate data grids "grid_width" and "col_width"
-                        var num_cols = data_arr.length * 2, default_col = 180,
-                            min_width = num_cols * default_col,
-                            container_width = $(selector + ' .og-container').width();
-                        if (min_width < container_width) col_width = container_width / num_cols;
-                        else col_width = default_col;
-                        grid_width = ~~(2 * col_width);
-                    }());
-                    $template = $(selector + ' .og-data-points .og-container');
-                    if (!data_arr) return $template.html('<span class="og-no-datapoint">No data available</span>');
-                    render_grid = function (index) {
-                        var data_selector = selector + ' .og-data-points .og-data-' + index;
-                            new og.common.gadgets.Data({
-                                resource: 'timeseries', rest_options: {id: config.id},
-                                type: 'TIME_SERIES', selector: data_selector, menu: false, child: false
-                            });
-
-                    };
-                    data_arr.forEach(function (v, i) {
-                        var cur_id = data_arr[i].object_id, $compiled = $((Handlebars.compile(data_template))({
-                            time: (Object.keys(meta).length ? v.label : init_ob_time).toLowerCase().replace(/_/g, ' '),
-                            index: i, color: colors_arr[i], source: data_arr[i].data_source,
-                            provider: data_arr[i].data_provider
-                        }));
-                        $compiled.find('.og-js-timeseries-csv').attr({
-                            'href': '/jax/timeseries/' + cur_id + '.csv',
-                            'download': 'Timeseries-' + cur_id + '.csv'
-                        }).end().appendTo($template);
-                        setTimeout(render_grid.partial(i), 0);
-                    });
-                    $data_points.find('.og-data-series').css({width: grid_width + 'px', position: 'relative'});
-                };
-                load_plots = function () {
+                load_plots = function (new_data) {
+                    if (new_data) data_arr = new_data;
                     if (data_arr[0] === void 0 || data_arr[0].data.length < 2) {empty_plots(); return}
                     var d = data_arr, data = data_arr[0].data;
                     (function () { // set up presets
@@ -199,7 +158,7 @@ $.register_module({
                                 pre.unshift('<span class="'+ classes +'" style="margin-right: 5px;">'
                                     + cur +'</span>');
                                 return pre;
-                            }, []).join('')).unbind().bind('click', function (e) {
+                            }, []).join('')).css({visibility: 'visible'}).unbind().bind('click', function (e) {
                                 e.stopPropagation();
                                 var target = e.target, from = presets['_' + target.textContent], $elm = $(target);
                                 if ($elm.hasClass('OG-link-disabled') || !$elm.is('span')) return;
@@ -256,11 +215,7 @@ $.register_module({
                     });
                     $legend = get_legend(), $legend.hide();
                     rescale_yaxis();
-                    load_data_points();
-                    setTimeout(function () {
-                        $(selector + ' .og-plots').css('visibility', 'visible');
-                        $(selector + ' .og-loading').remove();
-                    }); // load smoother
+                    setTimeout(show_plot);
                 };
                 calculate_y_values = function () {
                     var cur, // the current data set
@@ -312,6 +267,7 @@ $.register_module({
                     });
                 };
                 update_legend = function () {
+                    if(!!$(selector)) return;
                     var $legends = $(selector + ' .legendLabel'),
                         axes = $p1.getAxes(), j, dataset = $p1.getData(), i = dataset.length, series, y, p1, p2,
                         $date_elm = $legend.find('.og-date'), date, format_date, legend_height,
@@ -350,107 +306,18 @@ $.register_module({
                                 padding: '0 0 0 2px', 'font-size': '10px', 'color': '#999'
                             }).prependTo($legend);
                         }
-                        if (y) $legends.eq(i).text(y.toFixed(2)); // otherwise there is no data, so no update
+                        if (y) $legends.eq(i).text(y); // otherwise there is no data, so no update
                     }
                 };
-                build_menu = function () {
-                    if (config.menu === false) return $(plot_selector).empty();
-                    // build meta data object and populate it with the initial plot data
-                    if (result.data.related) result.data.related.forEach(function (val) {
-                        var df = val.data_field;
-                        if (!meta[df]) meta[df] = {};
-                        meta[df][val.observation_time] = val.object_id;
-                    });
-                    meta[init_data_field][init_ob_time] = result;
-                    state.field = init_data_field, state.time = [init_ob_time];
-                    (function () {
-                        // Helper function, returns a timeseries data object, or an id which can be used to get it
-                        // Takes a sub object of meta
-                        var get_data_or_id = function (obj) {return obj[Object.keys(obj)[0]];},
-                        // build select
-                        build_select = function () {
-                            var field, select = '';
-                            for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><select>' + select
-                                + '</select></div>';
-                        },
-                        // build checkboxes
-                        build_checkbox = function  () {
-                            var time, checkbox = '';
-                            for (time in meta[state.field]) {
-                                checkbox += '<label><input type="checkbox" /><span>' + time + '</span></label>';
-                            }
-                            return checkbox = '<div class="og-observation">' + checkbox + '</div>';
-                        },
-                        // build form
-                        build_form = function () {
-                            var $form = $(build_select() + build_checkbox()), ctr = 0;
-                            // Set selected options
-                            $form.find('select').val(state.field);
-                            $.each(state.time, function (i, time) {
-                                $form.find('label span').contents().each(function (i, node) {
-                                    if (time === $(node).text())
-                                        $(this).parent().prev().prop('checked', 'checked').parent()
-                                            .css({'color': '#fff', 'background-color': colors_arr[ctr]}), ctr += 1;
-                                });
-                            });
-                            // attach handlers
-                            $form.find('select, input').change(function (e) {
-                                var meta_sub_obj, data = [], is_select = $(e.target).is('select'), new_time, index_of,
-                                    handler = function (r) {
-                                        var td = r.data.template_data, field = td.data_field,
-                                            time = td.observation_time, t, cached_object;
-                                        state.field = field, meta[field][time] = r;
-                                        if (is_select) state.time = [time],
-                                            data.push({
-                                                data: r.data.timeseries.data,
-                                                label: time,
-                                                data_provider: r.data.template_data.data_provider,
-                                                data_source: r.data.template_data.data_source,
-                                                object_id: r.data.template_data.object_id
-                                            });
-                                        else for (t in state.time) {
-                                            if (!meta[state.field][state.time[t]]) continue;
-                                            cached_object = meta[state.field][state.time[t]].data;
-                                            data.push({
-                                                data: cached_object.timeseries.data,
-                                                label: state.time[t],
-                                                data_provider: cached_object.template_data.data_provider,
-                                                data_source: cached_object.template_data.data_source,
-                                                object_id: cached_object.template_data.object_id
-                                            });
-                                        }
-                                        data_arr = data;
-                                        load_plots();
-                                        $(plot_selector).html(build_form());
-                                    };
-                                if (is_select) {
-                                    state.from = state.to = void 0;
-                                    meta_sub_obj = get_data_or_id(meta[$(e.target).val()]);
-                                    if (typeof meta_sub_obj === 'object') return handler(meta_sub_obj);
-                                    return api.rest.timeseries.get({id: meta_sub_obj}).pipe(handler);
-                                }
-                                new_time = $(this).next().text();
-                                index_of = state.time.indexOf(new_time);
-                                meta_sub_obj = meta[state.field][new_time];
-                                if (~index_of) state.time.splice(index_of, 1); else state.time.push(new_time);
-                                if (typeof meta_sub_obj === 'object') return handler(meta_sub_obj);
-                                api.rest.timeseries.get({id: meta_sub_obj}).pipe(handler);
-                            });
-                            return $form;
-                        };
-                        $(plot_selector).html(build_form());
-                    }());
+                var show_plot = function () {
+                    $(selector + ' .og-plots').css('visibility', 'visible');
+                    $(selector + ' .og-loading').remove();
                 };
-                build_menu();
                 if (!config.child) og.common.gadgets.manager.register(timeseries);
                 timeseries.resize();
             };
-            $.when(
-                api.text({module: 'og.views.gadgets.timeseries.plot_tash'}),
-                api.text({module: 'og.views.gadgets.timeseries.data_tash'})
-            ).then(function (plot_tmpl, data_tmpl) {
-                plot_template = plot_tmpl, data_template = data_tmpl;
+            $.when(api.text({module: 'og.views.gadgets.timeseries.plot_tash'})).then(function (tmpl) {
+                plot_template = tmpl;
                 if (spoofed_data) return handler(spoofed_data.main);
                 api.rest.timeseries.get({dependencies: ['id'], id: config.id, cache_for: 10000}).pipe(handler);
             });

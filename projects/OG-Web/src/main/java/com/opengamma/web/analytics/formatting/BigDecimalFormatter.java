@@ -90,6 +90,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.BUCKETED_GAMMA_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.BUCKETED_IR01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.YIELD_CURVE_JACOBIAN, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.VARIANCE_ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.SPEED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -210,10 +211,10 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     if (valueNameFormatter != null) {
       return valueNameFormatter;
     } else {
-        if (valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY) != null) {
-            return s_defaultCcyFormatter;
-        }
-        return s_defaultFormatter;
+      if (valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY) != null) {
+        return s_defaultCcyFormatter;
+      }
+      return s_defaultFormatter;
     }
   }
 

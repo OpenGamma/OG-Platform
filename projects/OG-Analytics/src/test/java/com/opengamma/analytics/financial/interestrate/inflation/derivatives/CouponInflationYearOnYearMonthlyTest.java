@@ -40,14 +40,17 @@ public class CouponInflationYearOnYearMonthlyTest {
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 29);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
+  private static final double NATURAL_PAYMENT_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE.minusMonths(12));
+  private static final double NATURAL_PAYMENT_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
   private static final double REFERENCE_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_START_DATE);
   private static final double REFERENCE_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE);
-  private static final CouponInflationYearOnYearMonthly YoY_COUPON = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME,
-      false);
+  private static final CouponInflationYearOnYearMonthly YoY_COUPON = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
+      NATURAL_PAYMENT_START_TIME,
+      REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, REFERENCE_START_TIME, REFERENCE_END_TIME, false);
+    new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, REFERENCE_START_TIME, NATURAL_PAYMENT_START_TIME, REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false);
   }
 
   @Test
@@ -58,6 +61,8 @@ public class CouponInflationYearOnYearMonthlyTest {
     assertEquals("Inflation Zero-coupon: getter", PRICE_INDEX, YoY_COUPON.getPriceIndex());
     assertEquals("Inflation Zero-coupon: getter", REFERENCE_START_TIME, YoY_COUPON.getReferenceStartTime());
     assertEquals("Inflation Zero-coupon: getter", REFERENCE_END_TIME, YoY_COUPON.getReferenceEndTime());
+    assertEquals("Inflation Year on Year coupon: getter", NATURAL_PAYMENT_START_TIME, YoY_COUPON.getNaturalPaymentStartTime());
+    assertEquals("Inflation Year on Year coupon: getter", NATURAL_PAYMENT_END_TIME, YoY_COUPON.getNaturalPaymentEndTime());
   }
 
   @Test
@@ -67,16 +72,24 @@ public class CouponInflationYearOnYearMonthlyTest {
   public void equalHash() {
     assertEquals(YoY_COUPON, YoY_COUPON);
 
-    CouponInflationYearOnYearMonthly couponDuplicate = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME,
-        false);
+    CouponInflationYearOnYearMonthly couponDuplicate = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, NATURAL_PAYMENT_START_TIME,
+        REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false);
     assertEquals(YoY_COUPON, couponDuplicate);
     assertEquals(YoY_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationYearOnYearMonthly modified;
-    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME + 0.1, REFERENCE_END_TIME,
-        false);
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME + 0.1, NATURAL_PAYMENT_START_TIME,
+        REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false);
     assertFalse(YoY_COUPON.equals(modified));
-    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME + 0.1,
-        false);
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, NATURAL_PAYMENT_START_TIME,
+        REFERENCE_END_TIME + 0.1, NATURAL_PAYMENT_END_TIME, false);
+    assertFalse(YoY_COUPON.equals(modified));
+    final double modifiedNaturalPaymentStartTime = NATURAL_PAYMENT_START_TIME + .01;
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
+        modifiedNaturalPaymentStartTime, REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false);
+    assertFalse(YoY_COUPON.equals(modified));
+    final double modifiedNaturalPaymentEndTime = NATURAL_PAYMENT_END_TIME + .01;
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
+        NATURAL_PAYMENT_START_TIME, REFERENCE_END_TIME, modifiedNaturalPaymentEndTime, false);
     assertFalse(YoY_COUPON.equals(modified));
   }
 }

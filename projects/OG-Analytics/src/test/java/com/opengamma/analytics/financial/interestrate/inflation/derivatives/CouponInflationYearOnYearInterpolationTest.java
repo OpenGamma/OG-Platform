@@ -51,6 +51,8 @@ public class CouponInflationYearOnYearInterpolationTest {
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 29);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
+  private static final double NATURAL_PAYMENT_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE.minusMonths(12));
+  private static final double NATURAL_PAYMENT_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
   private static final double[] REFERENCE_START_TIME = new double[2];
   static {
     REFERENCE_START_TIME[0] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE[0]);
@@ -61,15 +63,16 @@ public class CouponInflationYearOnYearInterpolationTest {
     REFERENCE_END_TIME[0] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE[0]);
     REFERENCE_END_TIME[1] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE[1]);
   }
+
   private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
   private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
   private static final CouponInflationYearOnYearInterpolation YoY_COUPON = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
-      REFERENCE_END_TIME, false, WEIGHT_START, WEIGHT_END);
+      NATURAL_PAYMENT_START_TIME, REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false, WEIGHT_START, WEIGHT_END);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
     new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, REFERENCE_START_TIME,
-        REFERENCE_END_TIME, false, WEIGHT_START, WEIGHT_END);
+        NATURAL_PAYMENT_START_TIME, REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false, WEIGHT_START, WEIGHT_END);
   }
 
   @Test
@@ -80,6 +83,8 @@ public class CouponInflationYearOnYearInterpolationTest {
     assertEquals("Inflation Year on Year coupon: getter", PRICE_INDEX, YoY_COUPON.getPriceIndex());
     assertEquals("Inflation Year on Year coupon: getter", REFERENCE_START_TIME, YoY_COUPON.getReferenceStartTime());
     assertEquals("Inflation Year on Year coupon: getter", REFERENCE_END_TIME, YoY_COUPON.getReferenceEndTime());
+    assertEquals("Inflation Year on Year coupon: getter", NATURAL_PAYMENT_START_TIME, YoY_COUPON.getNaturalPaymentStartTime());
+    assertEquals("Inflation Year on Year coupon: getter", NATURAL_PAYMENT_END_TIME, YoY_COUPON.getNaturalPaymentEndTime());
     assertEquals("Inflation Year on Year coupon: getter", WEIGHT_START, YoY_COUPON.getWeightStart());
     assertEquals("Inflation Year on Year coupon: getter", WEIGHT_END, YoY_COUPON.getWeightEnd());
   }
@@ -91,7 +96,7 @@ public class CouponInflationYearOnYearInterpolationTest {
   public void equalHash() {
     assertEquals(YoY_COUPON, YoY_COUPON);
     CouponInflationYearOnYearInterpolation couponDuplicate = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
-        REFERENCE_END_TIME, false, WEIGHT_START, WEIGHT_END);
+        NATURAL_PAYMENT_START_TIME, REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false, WEIGHT_START, WEIGHT_END);
     assertEquals(YoY_COUPON, couponDuplicate);
     assertEquals(YoY_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationYearOnYearInterpolation modified;
@@ -99,13 +104,21 @@ public class CouponInflationYearOnYearInterpolationTest {
     modifiedReferenceStartTime[0] = REFERENCE_START_TIME[0];
     modifiedReferenceStartTime[1] = REFERENCE_START_TIME[1] + 0.1;
     modified = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, modifiedReferenceStartTime,
-        REFERENCE_END_TIME, false, WEIGHT_START, WEIGHT_END);
+        NATURAL_PAYMENT_START_TIME, REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false, WEIGHT_START, WEIGHT_END);
     assertFalse(YoY_COUPON.equals(modified));
     final double[] modifiedReferenceEndTime = new double[2];
     modifiedReferenceEndTime[0] = REFERENCE_END_TIME[0];
     modifiedReferenceEndTime[1] = REFERENCE_END_TIME[1] + 0.1;
     modified = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
-        modifiedReferenceEndTime, false, WEIGHT_START, WEIGHT_END);
+        NATURAL_PAYMENT_START_TIME, modifiedReferenceEndTime, NATURAL_PAYMENT_END_TIME, false, WEIGHT_START, WEIGHT_END);
+    assertFalse(YoY_COUPON.equals(modified));
+    final double modifiedNaturalPaymentStartTime = NATURAL_PAYMENT_START_TIME + .01;
+    modified = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
+        modifiedNaturalPaymentStartTime, REFERENCE_END_TIME, NATURAL_PAYMENT_END_TIME, false, WEIGHT_START, WEIGHT_END);
+    assertFalse(YoY_COUPON.equals(modified));
+    final double modifiedNaturalPaymentEndTime = NATURAL_PAYMENT_END_TIME + .01;
+    modified = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
+        NATURAL_PAYMENT_START_TIME, REFERENCE_END_TIME, modifiedNaturalPaymentEndTime, false, WEIGHT_START, WEIGHT_END);
     assertFalse(YoY_COUPON.equals(modified));
 
   }

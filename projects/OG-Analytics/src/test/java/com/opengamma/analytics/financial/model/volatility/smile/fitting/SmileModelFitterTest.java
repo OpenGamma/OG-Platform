@@ -143,8 +143,8 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   @Test
-  (enabled = false)
-  public void timeTest() {
+      (enabled = false)
+      public void timeTest() {
     final int hotspotWarmupCycles = 200;
     final int benchmarkCycles = 1000;
     final int nStarts = getStartValues().length;
@@ -163,7 +163,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   @Test
-  // (enabled = false)
+  //      (enabled = false)
   public void horribleMarketDataTest() {
     final double forward = 0.0059875;
     final double[] strikes = new double[] {0.0012499999999999734, 0.0024999999999999467, 0.003750000000000031, 0.0050000000000000044, 0.006249999999999978, 0.007499999999999951, 0.008750000000000036,

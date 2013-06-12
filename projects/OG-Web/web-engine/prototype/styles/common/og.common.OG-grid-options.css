@@ -31,6 +31,7 @@
 
 .OG-grid-options div {
     display: inline-block;
+    text-transform: uppercase;
 }
 
 
@@ -68,6 +69,38 @@
 
 .OG-grid-options .og-sparklines.og-active .og-icon-sparkline {
     background-color: #63b563;
+}
+
+/*
+ * CSV
+ */
+.OG-grid-options .og-csv {
+    border: 1px solid #e0e2e3;
+    background-color: #fff;
+    height: 13px;
+    line-height: 12px;
+    margin-right: 1px;
+    position: relative;
+    top: 2px;
+    float: left;
+}
+
+.OG-grid-options .og-icon-csv {
+    background-color: #555;
+    width: 12px;
+    height: 11px;
+    margin: 1px;
+    cursor: default;
+}
+
+.OG-grid-options .og-csv span {
+    display: inline-block;
+    margin-right: 2px;
+    min-width: 25px;
+    overflow: hidden;
+    float: right;
+    line-height: 13px;
+    text-align: center;
 }
 
 /*

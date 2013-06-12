@@ -7,7 +7,11 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (selector) {
-            new og.common.gadgets.TimeseriesPlot({selector: selector, id: 'DbHts~1007', datapoints: true, height: 400});
+            new og.common.gadgets.Timeseries({
+                rest_options: {id: 'DbHts~1007'},
+                selector: selector,
+                datapoints: true
+            });
         };
     }
 });

@@ -34,7 +34,8 @@ public final class NonLoadedSecurityTypes {
       BLOOMBERG_OVERNIGHT_INDEXED_SWAP_TYPE,
       BLOOMBERG_FWD_SWAP_TYPE,
       BLOOMBERG_NDF_SWAP_TYPE,
-      BLOOMBERG_ONSHORE_SWAP_TYPE);
+      BLOOMBERG_ONSHORE_SWAP_TYPE,
+      BloombergConstants.BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE);
   /**
    * The valid Bloomberg security types for basis swaps
    */

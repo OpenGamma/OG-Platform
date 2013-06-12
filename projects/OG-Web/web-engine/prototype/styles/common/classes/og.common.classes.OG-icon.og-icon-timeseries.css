@@ -4,10 +4,10 @@
  */
 .OG-icon.og-icon-Timeseries:after {
   display: inline-block;
-  background-position: -144px -78px;
+  background-position: -148px -92px;
   background-color: transparent;
-  height: 13px;
-  width: 15px;
+  height: 16px;
+  width: 16px;
   z-index: 2;
   position: absolute;
 }

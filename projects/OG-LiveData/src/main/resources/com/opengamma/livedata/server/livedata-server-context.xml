@@ -92,12 +92,10 @@
   </bean>
   
   <!-- Heartbeat -->
-  <bean id="activeSecurityPublicationManager" class="com.opengamma.livedata.server.ExpirationManager">
-    <constructor-arg ref="liveDataServer"/>
-  </bean>
-  
   <bean id="heartbeatReceiver" class="com.opengamma.livedata.server.HeartbeatReceiver">
-    <constructor-arg ref="activeSecurityPublicationManager"/>
+    <constructor-arg>
+      <bean factory-bean="liveDataServer" factory-method="getExpirationManager" />
+    </constructor-arg>
   </bean>
   
   <bean id="heartbeatJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayMessageDispatcher">

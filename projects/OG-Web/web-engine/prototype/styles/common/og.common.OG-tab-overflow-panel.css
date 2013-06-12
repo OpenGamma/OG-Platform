@@ -20,11 +20,15 @@
 }
 
 .OG-tab-overflow-panel li:hover {
-    background-color: #80c696;
+    background-color: #01467a;
     color: #fff;
     cursor: default;
 }
 
 .OG-tab-overflow-panel .OG-multiselect {
     display: none;
+}
+
+.OG-tab-overflow-panel .OG-gadget-tabs-label {
+    top: 0;
 }

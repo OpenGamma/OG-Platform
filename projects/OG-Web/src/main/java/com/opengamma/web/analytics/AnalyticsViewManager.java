@@ -173,7 +173,9 @@ public class AnalyticsViewManager {
                                                                                  timingView,
                                                                                  listeners,
                                                                                  _parallelViewRecompilation,
-                                                                                 _marketDataSpecificationRepository);
+                                                                                 _marketDataSpecificationRepository,
+                                                                                 _portfolioResolutionExecutor,
+                                                                                 _securitySource);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView

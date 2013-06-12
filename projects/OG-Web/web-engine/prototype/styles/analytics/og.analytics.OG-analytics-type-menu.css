@@ -7,17 +7,20 @@
 	border: 1px solid #dadcdd;
 	display: none;
 	margin-left: -3px;
-	margin-top: 1px;
 	position: fixed;
 	z-index: 6;
+	font-size: 11px;
+	line-height: 20px;
+	color: #01467a;
 }
 
 .OG-analytics-typemenu .og-menu div {
     padding: 2px 5px 2px 5px;
+    vertical-align: top;
 }
 
 .OG-analytics-typemenu .og-menu div:hover {
-    background-color: #80c696;
+    background-color: #01467a;
     color: #fff;
     text-shadow: none;
 }
@@ -28,9 +31,8 @@
 
 .OG-analytics-typemenu {
     border: 1px solid transparent;
-    text-transform: uppercase;
     display: inline-block;
-    height: 18px;
+    height: 20px;
     margin: 0;
     position: relative;
     cursor: default;
@@ -45,10 +47,14 @@
     background-color: #fff;
 }
 
+.OG-analytics-typemenu .og-menu-toggle:hover {
+    background-color: #01467a;
+}
+
 .OG-analytics-typemenu .og-menu-toggle:after {
     background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
     background-color: transparent;
-    background-position: -5px -4px;
+    background-position: -18px -4px;
     content: '';
     display: inline-block;
     height: 4px;
@@ -57,6 +63,11 @@
     top: 7px;
     width: 7px;
     z-index: 6;
+}
+
+.OG-analytics-typemenu .OG-gadget-buttons.og-active:after,
+.OG-analytics-typemenu .og-menu-toggle:hover:after {
+    background-position: -26px -4px;
 }
 
 .OG-analytics-typemenu .og-menu-toggle {
@@ -74,92 +85,8 @@
     padding-right: 20px;
 }
 
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Depgraph {
+.OG-analytics-typemenu .og-menu-toggle .OG-icon,
+.OG-analytics-typemenu .og-menu .OG-icon {
     top: 2px;
-    height: 14px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Depgraph {
-    top: 3px;
-    height: 14px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Curve {
-    top: 2px;
-    height: 13px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Curve {
-    top: 3px;
-    height: 13px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Data {
-    top: 3px;
-    height: 13px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Data {
-    top: 3px;
-    height: 13px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Surface {
-    top: 2px;
-    height: 15px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Surface {
-    top: 3px;
-    height: 15px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Timeseries {
-    top: 2px;
-    height: 13px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Timeseries {
-    top: 3px;
-    height: 13px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Histogram {
-    top: 2px;
-    height: 11px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Histogram {
-    top: 3px;
-    height: 11px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Log {
-    top: 2px;
-    height: 14px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Log {
-    top: 3px;
-    height: 14px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-ExpandedPositions {
-    top: 3px;
-    height: 12px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-ExpandedPositions {
-    top: 3px;
-    height: 12px;
-}
-
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Text {
-    top: 4px;
-    height: 12px;
-}
-
-.OG-analytics-typemenu .og-menu .og-icon-Text {
-    top: 3px;
-    height: 12px;
+    height: 16px;
 }

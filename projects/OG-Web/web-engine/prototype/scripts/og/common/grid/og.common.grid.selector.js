@@ -8,9 +8,10 @@ $.register_module({
     obj: function () {
         var module = this, namespace = '.og_grid_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var Selector = function (grid) {
-            var selector = this, grid_offset, grid_width, grid_height, fixed_width, max_scroll_top;
+            var selector = this, grid_width, grid_height, fixed_width, max_scroll_top;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
-                var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
+                var grid_offset = grid.elements.parent.offset(),
+                    x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
                 clearTimeout(auto_scroll.timeout);
                 if (x > grid_width) scroll_body.scrollLeft(scroll_left + increment);
@@ -41,7 +42,6 @@ $.register_module({
             };
             var initialize = function () {
                 var meta = grid.meta, inner = grid.meta.inner;
-                grid_offset = grid.offset;
                 grid_width = meta.columns.width.fixed + inner.width;
                 grid_height = inner.scroll_height + meta.header_height;
                 fixed_width = meta.columns.width.fixed;
@@ -51,6 +51,7 @@ $.register_module({
             var mousedown = function (event) {
                 initialize();
                 var $target = $(event.target), scroll_body = grid.elements.scroll_body,
+                    grid_offset = grid.elements.parent.offset(),
                     is_cell = ($target.is(cell) ? $target : $target.parents(cell + ':first')).length,
                     x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_body.scrollLeft() : 0),
                     y = event.pageY - grid_offset.top + scroll_body.scrollTop() - grid.meta.header_height;
@@ -78,6 +79,7 @@ $.register_module({
                     if (counter > resolution) counter = 1;
                     var scroll_body = grid.elements.scroll_body, rectangle = {},
                         scroll_left = scroll_body.scrollLeft(), scroll_top = scroll_body.scrollTop(),
+                        grid_offset = grid.elements.parent.offset(),
                         x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
                         y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height;
                     auto_scroll(event, scroll_top, scroll_left, start);
