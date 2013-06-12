@@ -67,10 +67,10 @@ public abstract class ISDAModelDatasets {
     final int nCurvePoints = 7;
     final LocalDate[] parSpreadDates = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 3, 20),
         LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20)};
-    final double[] parSpreads = new double[] {50, 70, 100, 150, 200, 400, 1000};
+    // final double[] parSpreads = new double[] {50, 70, 100, 150, 200, 400, 1000};
     // check data
     ArgumentChecker.isTrue(nCurvePoints == parSpreadDates.length, "parSpreadDates should have {} entires", nCurvePoints);
-    ArgumentChecker.isTrue(nCurvePoints == parSpreads.length, "parSpreads should have {} entires", nCurvePoints);
+    // ArgumentChecker.isTrue(nCurvePoints == parSpreads.length, "parSpreads should have {} entires", nCurvePoints);
 
     final int nSets = 100;
     final LocalDate[] today = new LocalDate[] {LocalDate.of(2013, 2, 2), LocalDate.of(2012, 9, 22), LocalDate.of(2012, 7, 12), LocalDate.of(2013, 3, 17), LocalDate.of(2013, 5, 1),
