@@ -54,7 +54,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
   private static final CouponInflationZeroCouponInterpolationGearingDefinition ZERO_COUPON_1_DEFINITION = CouponInflationZeroCouponInterpolationGearingDefinition.from(START_DATE, PAYMENT_DATE,
-      NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008_INT, MONTH_LAG, false, FACTOR);
+      NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008_INT, MONTH_LAG, MONTH_LAG, false, FACTOR);
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponInterpolationGearing ZERO_COUPON_1 = ZERO_COUPON_1_DEFINITION.toDerivative(PRICING_DATE, "not used");
 

@@ -60,6 +60,25 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
   }
 
   @Override
+  public int expireSubscriptions() {
+    int expired = 0;
+    for (StandardLiveDataServer server : _underlyings) {
+      expired += server.expireSubscriptions();
+    }
+    return expired;
+  }
+
+  @Override
+  protected void startExpirationManager() {
+    // No-op; the underlyings will have their own
+  }
+
+  @Override
+  protected void stopExpirationManager() {
+    // No-op; the underlyings will have their own
+  }
+
+  @Override
   public Collection<LiveDataSubscriptionResponse> subscribe(Collection<LiveDataSpecification> liveDataSpecificationsFromClient, final boolean persistent) {
     return subscribeByServer(
         liveDataSpecificationsFromClient,
@@ -178,7 +197,6 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
     throw new OpenGammaRuntimeException("Couldn't find server for " + spec);
   }
 
-  // For expiration manager
   @Override
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
     for (StandardLiveDataServer server : _underlyings) {

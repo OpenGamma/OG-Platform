@@ -7,9 +7,12 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * <p>This is the top level object of the back-end of the the analytics user interface. A view displays analytics data
@@ -29,9 +32,10 @@ public interface AnalyticsView {
   /**
    * Updates the grid structures when the view definition compliles and its struture is available.
    * @param compiledViewDefinition The compiled view definition whose data will be displayed in the grids
+   * @param resolvedPortfolio The view's portfolio with all securities resolved
    * @return Callback IDs of grids that were updated
    */
-  List<String> updateStructure(CompiledViewDefinition compiledViewDefinition);
+  List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio resolvedPortfolio);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.
@@ -182,4 +186,20 @@ public interface AnalyticsView {
   List<String> entityChanged(MasterChangeNotification<?> notification);
 
   List<String> portfolioChanged();
+  
+  /**
+   * Returns the current data for all cells in a grid without publishing it.
+   * 
+   * @param gridType specify the grid type, not null.
+   * @param format the type formatter type, not null.
+   * @return the current data for the viewport.
+   */
+  ViewportResults getAllGridData(GridType gridType, TypeFormatter.Format format);
+  
+  /**
+   * Gets the id of the view definition that produces this analytics view.
+   * 
+   * @return the view definition unique id.
+   */
+  UniqueId getViewDefinitionId();
 }

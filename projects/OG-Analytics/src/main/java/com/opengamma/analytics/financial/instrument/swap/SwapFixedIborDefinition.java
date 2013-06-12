@@ -99,7 +99,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   }
 
   /**
-   * Vanilla swap builder from the settlement date, a CMS index and other details of a swap.
+   * Vanilla swap builder from the settlement date, a swap generator and other details of a swap.
    * @param settlementDate The settlement date.
    * @param maturityDate The swap maturity date.
    * @param generator The swap generator.

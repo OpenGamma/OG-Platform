@@ -65,10 +65,8 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    * @param spotLag Lag between today and the spot date.
    * @param isLinear TODO
    */
-  public GeneratorSwapFixedInflationZeroCoupon(final String name, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final BusinessDayConvention businessDayConvention,
-      final Calendar calendar,
-      final boolean endOfMonth,
-      final int monthLag, final int spotLag, final boolean isLinear) {
+  public GeneratorSwapFixedInflationZeroCoupon(final String name, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean isLinear) {
     super(name);
     Validate.notNull(indexPrice, "index price");
     Validate.notNull(calendar, "calendar");

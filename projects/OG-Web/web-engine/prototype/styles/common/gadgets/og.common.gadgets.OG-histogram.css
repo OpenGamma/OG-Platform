@@ -15,16 +15,16 @@
 }
 
 .OG-histogram-gadget .og-buckets {
-    border-radius: 1px 1px 1px 1px;
-    color: #555555;
-    font-size: 12px;
-    font-weight: normal;
-    line-height: 12px;
-    padding: 7px 3px 5px 8px;
-    position: absolute;
-    right: 0;
-    text-shadow: 0 1px 0 #FFFFFF;
-    z-index: 3;;
+  border-radius: 1px 1px 1px 1px;
+  color: #555555;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 12px;
+  margin-top: 4px;
+  position: absolute;
+  right: 0;
+  text-shadow: 0 1px 0 #FFFFFF;
+  z-index: 3;
 }
 
 .og-histogram-var95-line {
@@ -52,7 +52,14 @@
 }
 
 .og-histogram-var-label {
-    position:absolute;
-    color:#666;
+    background-color: #FFFFFF;
+    color: #666666;
     font-size: 10px;
+    position: absolute;
+}
+
+.og-histogram-refresh {
+    display: none;
+    margin: 4px 0 0 15px;
+    position: absolute;
 }

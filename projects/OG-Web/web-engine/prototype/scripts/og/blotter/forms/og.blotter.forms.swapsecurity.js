@@ -103,13 +103,11 @@ $.register_module({
                     $('#' + swap.index).replaceWith(html);
                     if(swap.receive_edit) {
                         util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
-                        util.set_select(receive_leg + "notional.currency",
-                            data.security.receiveLeg.notional.currency);
+                        util.set_select(receive_leg + "notional.currency", data.security.receiveLeg.notional.currency);
                     }
                     else if(swap.pay_edit) {
                         util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
-                        util.set_select(pay_leg + "notional.currency",
-                            data.security.payLeg.notional.currency);
+                        util.set_select(pay_leg + "notional.currency", data.security.payLeg.notional.currency);
                     }
                 });
                 form.children[swap.child] = new_block;

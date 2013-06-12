@@ -113,7 +113,7 @@ $.register_module({
                 if (!data || !data.timeseries.data.length) return;
                 return {
                     meta: meta(dataman, data.timeseries.data.length, data.timeseries.fieldLabels, 125, true),
-                    data: data.timeseries.data.reduce(function (acc, val) {
+                    data: data.timeseries.data.reverse().reduce(function (acc, val) {
                         return (val[0] = og.common.util.date(val[0])), acc.concat(val.map(cell_value));
                     }, [])
                 };
@@ -122,9 +122,10 @@ $.register_module({
         var DataMan = function (row, col, type, source, config) {
             var dataman = this, format = formatters[type].partial(dataman);
             dataman.cell = (config.parent ? config.parent.cell : new og.analytics
-                .Cell({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
-                    source: source, col: col, row: row, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
+                .Cells({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
+                    source: source, single: {row: row, col: col}, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
                 }, config.label))
+                .on('title', function (row_name, col_name, name) {dataman.fire('title', row_name, col_name, name);})
                 .on('data', function (raw) {
                     var message, viewport = dataman.meta.viewport;
                     if (raw.error || !raw.v) return;
@@ -161,6 +162,7 @@ $.register_module({
                 if (dataman.formatted.meta) {
                     Object.keys(dataman.formatted.meta) // populate dataman.meta
                         .forEach(function (key) {dataman.meta[key] = dataman.formatted.meta[key];});
+                    dataman.fire('title', null, null, result.data.template_data.name)
                     dataman.fire('meta', dataman.meta);
                 }
                 if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)

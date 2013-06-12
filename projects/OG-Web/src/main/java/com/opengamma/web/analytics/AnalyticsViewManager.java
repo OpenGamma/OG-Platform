@@ -148,7 +148,8 @@ public class AnalyticsViewManager {
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
     boolean primitivesOnly = portfolioId == null;
-    AnalyticsView view = new SimpleAnalyticsView(primitivesOnly,
+    AnalyticsView view = new SimpleAnalyticsView(aggregatedViewDef.getUniqueId(),
+                                                 primitivesOnly,
                                                  versionCorrection,
                                                  viewId,
                                                  portfolioGridId,
@@ -172,7 +173,9 @@ public class AnalyticsViewManager {
                                                                                  timingView,
                                                                                  listeners,
                                                                                  _parallelViewRecompilation,
-                                                                                 _marketDataSpecificationRepository);
+                                                                                 _marketDataSpecificationRepository,
+                                                                                 _portfolioResolutionExecutor,
+                                                                                 _securitySource);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView

@@ -8,9 +8,11 @@ $.register_module({
     obj: function () {
         return function (config) {
             var $main = $(config.selector), $menu, block_menu = false, $resizer = $(config.tmpl),
+                offset_top, offset_left,
                 icon_size = 16, offset = $main.offset(), right_handler = config.right_handler || $.noop,
                 $bars = $('<div class="OG-analytics-resize og-bars"></div>'),
                 $overlay = $('<div class="OG-analytics-resize og-overlay"></div>');
+                if (config.offset) offset_top = config.offset.top, offset_left = config.offset.left;
             var left_handler = function () {
                 var offset = $main.offset(), right, bottom;
                 if ($menu) $menu.remove();
@@ -50,8 +52,8 @@ $.register_module({
             };
             var resize = function () {
                 $resizer.css({
-                    left: offset.left + $main.width() - icon_size - 1,
-                    top: offset.top + $main.height() - icon_size - 1
+                    left: offset.left + $main.outerWidth() - icon_size - 1 + (offset_left || 0),
+                    top: offset.top + $main.outerHeight() - icon_size - 1 + (offset_top || 0)
                 });
             };
             var reset = function () {

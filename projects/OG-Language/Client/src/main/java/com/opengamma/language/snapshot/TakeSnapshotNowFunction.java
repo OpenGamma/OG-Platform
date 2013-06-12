@@ -82,7 +82,7 @@ public class TakeSnapshotNowFunction extends AbstractFunctionInvoker implements 
       resultListener.awaitResult();
 
       if (resultListener.getCycleReference() != null) {
-        final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(globalContext.getComputationTargetResolver(), globalContext.getVolatilityCubeDefinitionSource());
+        final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(globalContext.getComputationTargetResolver(), globalContext.getVolatilityCubeDefinitionSource(), globalContext.getHistoricalTimeSeriesSource());
         return snapshotter.createSnapshot(viewClient.getViewClient(), resultListener.getCycleReference());
       } else {
         throw new OpenGammaRuntimeException("Unable to obtain cycle from view client " + viewClient.getViewClient().getUniqueId(), resultListener.getException());

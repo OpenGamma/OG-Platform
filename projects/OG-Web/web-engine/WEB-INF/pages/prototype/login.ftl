@@ -18,10 +18,10 @@ ${ogStyle.print('og_all.css', 'all', false)}
 ${ogScript.print('og_common.js', false)}
 <!--[if lt IE 9]>${ogScript.print('ie.js', false)}<![endif]-->
 ${ogScript.print('og_admin.js', false)}
-<!--${ogScript.print('og_analytics2.js', false)}-->
+<!--${ogScript.print('og_analytics.js', false)}-->
 <script type="text/javascript">
   $('.OG-login button').focus().on('click', function () {
-      return window.location = '/jax/bundles/fm/prototype/analytics2.ftl', false;
+      return window.location = '/jax/bundles/fm/prototype/analytics.ftl', false;
   });
 </script>
 </body>

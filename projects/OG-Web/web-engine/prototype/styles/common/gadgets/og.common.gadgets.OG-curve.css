@@ -1,0 +1,21 @@
+/**
+ * Copyright 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.og-curve-tooltip {
+    opacity: 0.5;
+    position: absolute;
+    background: #000;
+    padding: 2px;
+    display: none;
+    border: 1px solid #fff;
+    zIndex: 5;
+}
+
+.og-curve-tooltip td{
+    color: #fff;
+}
+
+.og-curve-plot {
+    background: #fff;
+}

@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import org.springframework.web.context.ServletContextAware;
 import org.threeten.bp.Instant;
 
+import com.opengamma.util.rest.RestUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -53,7 +54,7 @@ public class WebAnalyticsResource implements ServletContextAware {
   //-------------------------------------------------------------------------
   @GET
   @Path("{clientId}/{gridName}")
-  @Produces("text/csv")
+  @Produces(RestUtils.TEXT_CSV)
   public Response getGridCsv(@PathParam("clientId") String clientId, @PathParam("gridName") String gridName) {
     LiveResultsService liveResultsService = _liveResultsServiceBean.getLiveResultsService();
     if (liveResultsService == null) {

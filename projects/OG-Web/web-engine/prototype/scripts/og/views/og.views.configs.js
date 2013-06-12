@@ -19,53 +19,61 @@ $.register_module({
         'og.views.config_forms.default'
     ],
     obj: function () {
-        var api = og.api, common = og.common, details = common.details,
+        var api = og.api, common = og.common, details = common.details, events = common.events,
             history = common.util.history, masthead = common.masthead, routes = common.routes,
+            form_inst, form_state, unsaved_txt = 'You have unsaved changes to', toolbar_action = false,
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
             current_type, config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
-                'new': function () {ui.dialog({
-                    type: 'input',
-                    title: 'Add configuration',
-                    width: 400, height: 190,
-                    fields: [{
-                        type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types,
-                        value: function () {return current_type;}
-                    }],
-                    buttons: {
-                        'OK': function () {
-                            var config_type = ui.dialog({return_field_value: 'config_type'});
-                            $(this).dialog('close');
-                            routes.go(routes.hash(view.rules.load_new, routes.current().args, {
-                                add: {config_type: config_type}
-                            }));
-                        },
-                        'Cancel': function () {$(this).dialog('close');}
-                    }
-                })},
-                'delete': function () {ui.dialog({
-                    type: 'confirm',
-                    title: 'Delete configuration?',
-                    width: 400, height: 190,
-                    message: 'Are you sure you want to permanently delete this configuration?',
-                    buttons: {
-                        'Delete': function () {
-                            var args = routes.current().args;
-                            suppress_update = true;
-                            $(this).dialog('close');
-                            api.rest.configs.del({
-                                handler: function (result) {
-                                    if (result.error) return view.error(result.message);
-                                    routes.go(routes.hash(view.rules.load, args, {del: ['id']}));
-                                    setTimeout(function () {view.search(args);});
-                                }, id: routes.current().args.id
-                            });
-                        },
-                        'Cancel': function () {$(this).dialog('close');}
-                    }
-                })}
+                'new': function () {
+                    toolbar_action = true;
+                    ui.dialog({
+                        type: 'input',
+                        title: 'Add configuration',
+                        width: 400, height: 190,
+                        fields: [{
+                            type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types,
+                            value: function () {return current_type;}
+                        }],
+                        buttons: {
+                            'OK': function () {
+                                var config_type = ui.dialog({return_field_value: 'config_type'});
+                                $(this).dialog('close');
+                                routes.go(routes.hash(view.rules.load_new, routes.current().args, {
+                                    add: {config_type: config_type}
+                                }));
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    })
+                },
+                'delete': function () {
+                    toolbar_action = true;
+                    ui.dialog({
+                        type: 'confirm',
+                        title: 'Delete configuration?',
+                        width: 400, height: 190,
+                        message: 'Are you sure you want to permanently delete this configuration?',
+                        buttons: {
+                            'Delete': function () {
+                                var args = routes.current().args;
+                                suppress_update = true;
+                                form_inst = form_state = null;
+                                $(this).dialog('close');
+                                api.rest.configs.del({
+                                    handler: function (result) {
+                                        if (result.error) return view.error(result.message);
+                                        routes.go(routes.hash(view.rules.load, args, {del: ['id']}));
+                                        setTimeout(function () {view.search(args);});
+                                    }, id: routes.current().args.id
+                                });
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    })
+                }
             },
             toolbar = function (options) {
                 ui.toolbar(options);
@@ -114,6 +122,7 @@ $.register_module({
                             var args = routes.current().args;
                             view.notify(null);
                             if (result.error) return view.error(result.message);
+                            toolbar_action = true;
                             view.search(args);
                             routes.go(routes.hash(view.rules.load_item, routes.current().args, {
                                 add: {id: result.meta.id}
@@ -164,6 +173,8 @@ $.register_module({
                             });
                             view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
+                            form_inst = form;
+                            form_state = form_inst.compile();
                         },
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
@@ -182,6 +193,21 @@ $.register_module({
                 if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
                 api.rest.configs.get(rest_options);
             };
+            events.on('hashchange', function () {
+                if (!form_inst && !form_state || toolbar_action) return toolbar_action = false, void 0;
+                var msg = unsaved_txt + ' ' + form_state.data.name + '. \n\n' +
+                    'OK to discard changes \n'+
+                    'Cancel to continue editing';
+                if (!Object.equals(form_state, form_inst.compile()) && !window.confirm(msg)) return false;
+                form_inst = form_state = null;
+                return true;
+            });
+            events.on('unload', function () {
+                if (!form_inst && !form_state) return true;
+                if (!Object.equals(form_state, form_inst.compile())) return false;
+                form_inst = form_state = null;
+                return true;
+            });
         return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
                 // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having

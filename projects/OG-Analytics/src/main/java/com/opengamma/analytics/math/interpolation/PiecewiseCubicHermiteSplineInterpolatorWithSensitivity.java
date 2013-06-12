@@ -100,12 +100,11 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       coeff[0][2] = delta[0];
       coeff[0][3] = xValues[0];
     } else {
-      double[][] temp = slopeFinder(h, delta);
-      double[] d = temp[0];
-      double[][] dDDelta = new double[n - 1][n];
-      System.arraycopy(temp, 1, dDDelta, 0, n - 1);
-      // the i,j element of dDDelta is d(d_j)/d(delta_i) -i.e. it is transposed
+      SlopeFinderResults temp = slopeFinder(h, delta, yValues);
+      final double[] d = temp.getSlopes().getData();
+      final double[][] dDy = temp.getSlopeJacobian().getData();
 
+      // form up the coefficient matrix
       for (int i = 0; i < n - 1; ++i) {
         coeff[i][0] = (d[i] - 2 * delta[i] + d[i + 1]) / h[i] / h[i]; // b
         coeff[i][1] = (3 * delta[i] - 2. * d[i] - d[i + 1]) / h[i]; // c
@@ -113,17 +112,17 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
         coeff[i][3] = yValues[i];
       }
 
-      // TODO this would all be a lot nicer if we had multiplication of sparse matrices
-      double[][] dDy = new double[n][];
-      for (int i = 0; i < n; i++) {
-        final double[] vec = new double[n];
-        vec[0] = -dDDelta[0][i] / h[0];
-        vec[n - 1] = dDDelta[n - 2][i] / h[n - 2];
-        for (int j = 1; j < n - 1; j++) {
-          vec[j] = -dDDelta[j][i] / h[j] + dDDelta[j - 1][i] / h[j - 1];
-        }
-        dDy[i] = vec;
-      }
+      // // TODO this would all be a lot nicer if we had multiplication of sparse matrices
+      // double[][] dDy = new double[n][];
+      // for (int i = 0; i < n; i++) {
+      // final double[] vec = new double[n];
+      // vec[0] = -dDDelta[0][i] / h[0];
+      // vec[n - 1] = dDDelta[n - 2][i] / h[n - 2];
+      // for (int j = 1; j < n - 1; j++) {
+      // vec[j] = -dDDelta[j][i] / h[j] + dDDelta[j - 1][i] / h[j - 1];
+      // }
+      // dDy[i] = vec;
+      // }
 
       double[][] bDy = new double[n - 1][n];
       double[][] cDy = new double[n - 1][n];
@@ -158,17 +157,48 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     return res;
   }
 
+  private class SlopeFinderResults {
+    private final DoubleMatrix1D _d;
+    private final DoubleMatrix2D _dDy;
+
+    public SlopeFinderResults(final DoubleMatrix1D d, final DoubleMatrix2D dDy) {
+      // this is a private class - don't do the normal checks on inputs
+      _d = d;
+      _dDy = dDy;
+    }
+
+    public DoubleMatrix1D getSlopes() {
+      return _d;
+    }
+
+    public DoubleMatrix2D getSlopeJacobian() {
+      return _dDy;
+    }
+
+  }
+
   /**
    * Finds the the first derivatives at knots and their sensitivity to delta
    * @param h 
    * @param delta 
-   * @return An array of arrays - the first row is the first derivatives at knots (d), while the remaining rows are the sensitivity to delta, so the ith row is the 
-   * of d to the (i-1)th delta
+   * @return slope finder results 
    */
-  private double[][] slopeFinder(final double[] h, final double[] delta) {
-    final int n = h.length + 1;
+  private SlopeFinderResults slopeFinder(final double[] h, final double[] delta, final double[] y) {
+    final int n = y.length;
+
+    final double[] invDelta = new double[n - 1];
+    final double[] invDelta2 = new double[n - 1];
+    final double[] invH = new double[n - 1];
+    for (int i = 0; i < (n - 1); i++) {
+      invDelta[i] = 1 / delta[i];
+      invDelta2[i] = invDelta[i] * invDelta[i];
+      invH[i] = 1 / h[i];
+    }
+
+    final double[] d = new double[n];
+
     // TODO it would be better if this were a sparse matrix
-    double[][] res = new double[n][n];
+    final double[][] jac = new double[n][n];
 
     // internal points
     for (int i = 1; i < n - 1; ++i) {
@@ -176,47 +206,97 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
         final double w1 = 2. * h[i] + h[i - 1];
         final double w2 = h[i] + 2. * h[i - 1];
         final double w12 = w1 + w2;
-        final double d = w12 / (w1 / delta[i - 1] + w2 / delta[i]);
-        res[0][i] = d;
-        res[i][i] = w1 / (w12) * FunctionUtils.square(d / delta[i - 1]);
-        res[i + 1][i] = w2 / (w12) * FunctionUtils.square(d / delta[i]);
+        d[i] = w12 / (w1 * invDelta[i - 1] + w2 * invDelta[i]);
+
+        final double z1 = d[i] * d[i] / w12;
+        jac[i][i - 1] = -w1 * invH[i - 1] * invDelta2[i - 1] * z1;
+        jac[i][i] = (w1 * invH[i - 1] * invDelta2[i - 1] - w2 * invH[i] * invDelta2[i]) * z1;
+        jac[i][i + 1] = w2 * invH[i] * invDelta2[i] * z1;
+      } else if (delta[i] == 0 ^ delta[i - 1] == 0) {
+        // d is zero, so we don't explicitly set it
+        final double w1 = 2. * h[i] + h[i - 1];
+        final double w2 = h[i] + 2. * h[i - 1];
+        final double w12 = w1 + w2;
+        final double z2 = 0.5 * w12 / FunctionUtils.square(w1 * delta[i] + w2 * delta[i - 1]);
+        jac[i][i - 1] = -w1 * invH[i - 1] * delta[i] * delta[i] * z2;
+        jac[i][i] = (w1 * invH[i - 1] * delta[i] * delta[i] - w2 * invH[i] * delta[i - 1] * delta[i - 1]) * z2;
+        jac[i][i + 1] = w2 * invH[i] * delta[i - 1] * delta[i - 1] * z2;
       }
     }
 
     // fill in end points
-    double[] temp = endpointSlope(h[0], h[1], delta[0], delta[1]);
+    double[] temp = endpointSlope(h[0], h[1], delta[0], delta[1], false);
+    d[0] = temp[0];
     for (int i = 0; i < 3; i++) {
-      res[i][0] = temp[i];
+      jac[0][i] = temp[i + 1];
     }
-    temp = endpointSlope(h[n - 2], h[n - 3], delta[n - 2], delta[n - 3]);
-    res[0][n - 1] = temp[0];
-    res[n - 1][n - 1] = temp[1];
-    res[n - 2][n - 1] = temp[2];
+    temp = endpointSlope(h[n - 2], h[n - 3], delta[n - 2], delta[n - 3], true);
+    d[n - 1] = temp[0];
+    for (int i = 1; i < 4; i++) {
+      jac[n - 1][n - i] = temp[i];
+    }
 
-    return res;
+    return new SlopeFinderResults(new DoubleMatrix1D(d), new DoubleMatrix2D(jac));
   }
 
   /**
    * First derivative at end point and its sensitivity to delta
    * @param h1
    * @param h2
-   * @param del1
-   * @param del2
-   * @return array of length 3 - the first element contains d, while the other two are sensitivities 
+   * @param y1
+   * @param y2
+   * @param y3
+   * @return array of length 4 - the first element contains d, while the other three are sensitivities to the ys 
    */
-  private double[] endpointSlope(final double h1, final double h2, final double del1, final double del2) {
+  private double[] endpointSlope(final double h1, final double h2, final double del1, final double del2, final boolean rightSide) {
 
-    final double d = ((2. * h1 + h2) * del1 - h1 * del2) / (h1 + h2);
-    final double[] res = new double[3];
-    if (Math.signum(d) != Math.signum(del1)) {
+    final double[] res = new double[4];
+
+    if (del1 == 0.0) { // quick exist for particular edge case
+      // d and dDy3 are both zero - no need to explicitly set
+      if (del2 == 0) {
+        res[1] = -(2 * h1 + h2) / h1 / (h1 + h2);
+        if (h1 > 2 * h2) {
+          res[2] = 3 / h1;
+        } else {
+          res[2] = (h1 + h2) / h1 / h2;
+        }
+      } else {
+        res[1] = -1.5 / h1;
+        res[2] = -res[1];
+      }
+      if (rightSide) {
+        res[1] = -res[1];
+        res[2] = -res[2];
+      }
       return res;
+    }
+
+    // This value is used in the clauses - may not be the returned value
+    final double d = ((2. * h1 + h2) * del1 - h1 * del2) / (h1 + h2);
+
+    if (Math.signum(d) != Math.signum(del1)) {
+      // again d is now set to zero
+      if (Math.abs(d) < 1e-15) {
+        res[1] = -(2 * h1 + h2) / h1 / (h1 + h2);
+        res[2] = (h1 + h2) / h1 / h2;
+        res[3] = -h1 / h2 / (h1 + h2);
+      }
     } else if (Math.signum(del1) != Math.signum(del2) && Math.abs(d) > 3. * Math.abs(del1)) {
       res[0] = 3 * del1;
-      res[1] = 3;
+      res[1] = -3 / h1;
+      res[2] = -res[1];
     } else {
       res[0] = d;
-      res[1] = (2 * h1 + h2) / (h1 + h2);
-      res[2] = -h1 / (h1 + h2);
+      res[1] = -(2 * h1 + h2) / h1 / (h1 + h2);
+      res[2] = (h1 + h2) / h1 / h2;
+      res[3] = -h1 / h2 / (h1 + h2);
+    }
+
+    if (rightSide) {
+      for (int i = 1; i < 4; i++) {
+        res[i] = -res[i];
+      }
     }
     return res;
   }

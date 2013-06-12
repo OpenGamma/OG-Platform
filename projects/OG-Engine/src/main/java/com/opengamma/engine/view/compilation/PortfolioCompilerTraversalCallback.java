@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -64,7 +65,7 @@ import com.opengamma.util.tuple.Pair;
 
   private final Set<UniqueId> _includeEvents;
   private final Set<UniqueId> _excludeEvents;
-  private final ViewCalculationConfiguration _calculationConfiguration;
+  private Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType;
   private final ResultModelDefinition _resultModelDefinition;
   private final DependencyGraphBuilder _builder;
   private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
@@ -77,12 +78,24 @@ import com.opengamma.util.tuple.Pair;
 
   public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
       final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
-    _calculationConfiguration = calculationConfiguration;
+    _portfolioRequirementsBySecurityType = calculationConfiguration.getPortfolioRequirementsBySecurityType();
     _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     _builder = builder;
     _resolutions = resolutions;
     _includeEvents = includeEvents;
     _excludeEvents = excludeEvents;
+  }
+
+  public Map<String, Set<Pair<String, ValueProperties>>> getPortfolioRequirementsBySecurityType() {
+    return _portfolioRequirementsBySecurityType;
+  }
+
+  public void setPortfolioRequirementsBySecurityType(Map<String, Set<Pair<String, ValueProperties>>> portfolioRequirementsBySecurityType) {
+    _portfolioRequirementsBySecurityType = portfolioRequirementsBySecurityType;
+  }
+
+  public void reset() {
+    _nodeData.clear();
   }
 
   /**
@@ -148,7 +161,7 @@ import com.opengamma.util.tuple.Pair;
     _nodeData.put(node.getUniqueId(), nodeData);
     // Retrieve the required aggregate outputs (by 'aggregate' sec type) for the current calc configuration
     final Set<Pair<String, ValueProperties>> requiredOutputs =
-        _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
+        _portfolioRequirementsBySecurityType.get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
     if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
       // Add the aggregate value requirements for the current portfolio node to the graph builder's set of value requirements,
       // building them using the retrieved required aggregate outputs and the newly created computation target spec
@@ -197,7 +210,7 @@ import com.opengamma.util.tuple.Pair;
         || (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE)) {
 
       // Get all known required outputs for this security type in the current calculation configuration
-      requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(securityType);
+      requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
 
       // Check that there's at least one required output to deal with
       if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
@@ -221,7 +234,7 @@ import com.opengamma.util.tuple.Pair;
     final Collection<Trade> trades = position.getTrades();
     if (!trades.isEmpty()) {
       if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
-        requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(securityType);
+        requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
 
         // Check that there's at least one required output to deal with
         if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {

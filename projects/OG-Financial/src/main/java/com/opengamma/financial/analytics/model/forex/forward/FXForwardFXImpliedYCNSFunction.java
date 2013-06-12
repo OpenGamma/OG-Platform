@@ -139,7 +139,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final String resultCurrency, resultCurveConfigName;
     if (!(curveName.equals(payCurveName) || curveName.equals(receiveCurveName))) {
-      s_logger.info("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName});
+      s_logger.info("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName });
       return null;
     }
     if (currency.equals(payCurrency.getCode())) {
@@ -180,7 +180,9 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
     if (!resultCurveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       return null;
     }
-    requirements.add(getJacobianRequirement(Currency.of(resultCurrency), resultCurveConfigName, resultCurveCalculationConfig.getCalculationMethod()));
+    final Currency ccy = Currency.of(resultCurrency);
+    requirements.add(getJacobianRequirement(ccy, resultCurveConfigName, resultCurveCalculationConfig.getCalculationMethod()));
+    requirements.add(getFXImpliedTransitionMatrixRequirement(ccy, resultCurveConfigName, resultCurveCalculationConfig.getCalculationMethod()));
     return requirements;
   }
 
@@ -310,6 +312,13 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency), properties);
   }
 
+  private static ValueRequirement getFXImpliedTransitionMatrixRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod) {
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
+    return new ValueRequirement(ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX, ComputationTargetSpecification.of(currency), properties);
+  }
+
   private static Set<ComputedValue> getResult(final FunctionInputs inputs, final String curveCalculationConfig, final String fullCurveName,
       final YieldCurveBundle interpolatedCurveForCurrency, final Map<String, List<DoublesPair>> sensitivitiesForCurrency, final ValueSpecification spec,
       final Tenor[] tenors) {
@@ -322,6 +331,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
     }
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
+
     final DoubleMatrix1D result = CALCULATOR.calculateFromParRate(sensitivitiesForCurrency, interpolatedCurveForCurrency, jacobian);
     if (result.getNumberOfElements() != tenors.length) {
       throw new OpenGammaRuntimeException("Did not have one sensitivity per tenor");
@@ -336,6 +346,18 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
       labels[i] = tenors[i].getPeriod().toString();
     }
     final DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
+
+    final Object fxImpliedTransitionMatrixObject = inputs.getValue(ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX);
+    if (fxImpliedTransitionMatrixObject == null) {
+      throw new OpenGammaRuntimeException("Could not get foreign Jacobian");
+    }
+    final double[][] arrayFx = FunctionUtils.decodeJacobian(fxImpliedTransitionMatrixObject);
+    final DoubleMatrix2D fxImpliedTransitionMatrix = new DoubleMatrix2D(arrayFx);
+
+    @SuppressWarnings("unused")
+    final DoubleMatrix1D resultFx = CALCULATOR.calculateFromParRateFromTransition(sensitivitiesForCurrency, interpolatedCurveForCurrency, fxImpliedTransitionMatrix);
+    // TODO: use it! [PLAT-3555]
+
     return Collections.singleton(new ComputedValue(spec, labelledMatrix));
   }
 }

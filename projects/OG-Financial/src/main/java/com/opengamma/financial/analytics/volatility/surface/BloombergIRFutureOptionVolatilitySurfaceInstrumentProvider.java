@@ -9,6 +9,8 @@ import java.text.DecimalFormat;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.IRFutureAndFutureOptionExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -70,5 +72,10 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider extends 
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());
+  }
+
+  @Override
+  public ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator() {
+    return IRFutureAndFutureOptionExpiryCalculator.getInstance();
   }
 }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.engine.marketdata;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -19,106 +17,28 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Combines a {@link MarketDataProvider} with another which provides overrides.
  */
 public class MarketDataProviderWithOverride implements MarketDataProvider {
 
-  private static class Subscription {
-
-    private String _errorMessage;
-    private int _pendingCount = 2;
-
-    public boolean pending() {
-      return --_pendingCount > 0;
-    }
-
-    public String getError() {
-      return _errorMessage;
-    }
-
-    public void setError(final String msg) {
-      _errorMessage = msg;
-    }
-
-    public String getError(final String msg) {
-      if (_errorMessage != null) {
-        return _errorMessage + ", " + msg;
-      } else {
-        return msg;
-      }
-    }
-
-  }
-
   private final MarketDataProvider _underlying;
-  private final MarketDataProvider _override;
+  private final MarketDataInjectorImpl _override;
   private final Set<MarketDataListener> _listeners = new CopyOnWriteArraySet<MarketDataListener>();
-  private final Map<ValueSpecification, Subscription> _pendingSubscriptions = new HashMap<ValueSpecification, Subscription>();
-  private int _pendingErrors;
+  private final Set<ValueSpecification> _pendingSubscriptions = new HashSet<ValueSpecification>();
 
   private boolean _listenerAttached;
   private final MarketDataListener _listener = new MarketDataListener() {
 
     @Override
     public void subscriptionsSucceeded(Collection<ValueSpecification> specifications) {
-      Collection<ValueSpecification> success = null;
-      Collection<Pair<ValueSpecification, String>> error = null;
-      synchronized (_pendingSubscriptions) {
-        for (ValueSpecification specification : specifications) {
-          final Subscription subscription = _pendingSubscriptions.get(specification);
-          if (subscription != null) {
-            if (!subscription.pending()) {
-              _pendingSubscriptions.remove(specification);
-              String err = subscription.getError();
-              if (err != null) {
-                if (error == null) {
-                  error = new ArrayList<Pair<ValueSpecification, String>>(_pendingErrors);
-                }
-                error.add(Pair.of(specification, err));
-              } else {
-                if (success == null) {
-                  success = new ArrayList<ValueSpecification>(specifications.size());
-                }
-                success.add(specification);
-              }
-            }
-          }
-        }
-        if (error != null) {
-          _pendingErrors -= error.size();
-        }
-      }
-      if (success != null) {
-        MarketDataProviderWithOverride.this.subscriptionsSucceeded(success);
-      }
-      if (error != null) {
-        for (Pair<ValueSpecification, String> entry : error) {
-          MarketDataProviderWithOverride.this.subscriptionFailed(entry.getFirst(), entry.getSecond());
-        }
-      }
+      MarketDataProviderWithOverride.this.subscriptionsSucceeded(specifications);
     }
 
     @Override
     public void subscriptionFailed(ValueSpecification specification, String msg) {
-      String error = null;
-      synchronized (_pendingSubscriptions) {
-        final Subscription subscription = _pendingSubscriptions.get(specification);
-        if (subscription != null) {
-          if (subscription.pending()) {
-            subscription.setError(msg);
-            _pendingErrors++;
-          } else {
-            _pendingSubscriptions.remove(specification);
-            error = subscription.getError(msg);
-          }
-        }
-      }
-      if (error != null) {
-        MarketDataProviderWithOverride.this.subscriptionFailed(specification, error);
-      }
+      MarketDataProviderWithOverride.this.subscriptionFailed(specification, msg);
     }
 
     @Override
@@ -139,7 +59,7 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
    * @param underlying the underlying, or default, provider, not null
    * @param override the override provider, not null
    */
-  public MarketDataProviderWithOverride(final MarketDataProvider underlying, final MarketDataProvider override) {
+  public MarketDataProviderWithOverride(final MarketDataProvider underlying, final MarketDataInjectorImpl override) {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(override, "override");
     _underlying = underlying;
@@ -164,11 +84,9 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
       final boolean anyListeners = _listeners.size() > 0;
       if (anyListeners && !_listenerAttached) {
         _underlying.addListener(_listener);
-        _override.addListener(_listener);
         _listenerAttached = true;
       } else if (!anyListeners && _listenerAttached) {
         _underlying.removeListener(_listener);
-        _override.removeListener(_listener);
         _listenerAttached = false;
       }
     }
@@ -177,30 +95,24 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
   //-------------------------------------------------------------------------
   @Override
   public void subscribe(final ValueSpecification valueSpecification) {
-    _pendingSubscriptions.put(valueSpecification, new Subscription());
+    _pendingSubscriptions.add(valueSpecification);
     _underlying.subscribe(valueSpecification);
-    _override.subscribe(valueSpecification);
   }
 
   @Override
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
-    for (final ValueSpecification specification : valueSpecifications) {
-      _pendingSubscriptions.put(specification, new Subscription());
-    }
+    _pendingSubscriptions.addAll(valueSpecifications);
     _underlying.subscribe(valueSpecifications);
-    _override.subscribe(valueSpecifications);
   }
 
   @Override
   public void unsubscribe(final ValueSpecification valueSpecification) {
     _underlying.unsubscribe(valueSpecification);
-    _override.unsubscribe(valueSpecification);
   }
 
   @Override
   public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
     _underlying.unsubscribe(valueSpecifications);
-    _override.unsubscribe(valueSpecifications);
   }
 
   //-------------------------------------------------------------------------
@@ -219,13 +131,13 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
   //-------------------------------------------------------------------------
   @Override
   public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
-    return _underlying.isCompatible(marketDataSpec) && _override.isCompatible(marketDataSpec);
+    return _underlying.isCompatible(marketDataSpec);
   }
 
   @Override
   public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
     final MarketDataSnapshot underlyingSnapshot = _underlying.snapshot(marketDataSpec);
-    final MarketDataSnapshot overrideSnapshot = _override.snapshot(marketDataSpec);
+    final MarketDataInjectorImpl.Snapshot overrideSnapshot = _override.snapshot(getAvailabilityProvider(marketDataSpec));
     return new MarketDataSnapshotWithOverride(underlyingSnapshot, overrideSnapshot);
   }
 

@@ -24,14 +24,14 @@
 }
 
 .OG-g-loading {
-    font: 10px arial;
+    font: 10px;
     text-transform: uppercase;
     display: block;
     left: 50%;
     top: 50%;
     position: absolute;
     margin-left: -75px;
-    margin-top: -23px;
+    margin-top: -25px;
     z-index: 4;
 }
 
@@ -43,15 +43,15 @@
 .OG-g-cell {
     position: absolute;
     overflow: hidden;
-    height: 18px;
-    line-height: 22px;
     border: 1px solid transparent;
-    border-bottom: 1px solid #dadcdd;
-    border-right: 1px solid #dadcdd;
     text-overflow: ellipsis;
     padding: 0 0 0 5px;
     cursor: default;
     white-space: nowrap;
+}
+
+.OG-g-cell.og-cell-highlight {
+    background-color: #eee;
 }
 
 .OG-g-cell.og-error {
@@ -153,7 +153,6 @@
     border-bottom: 1px solid #ddd;
     border-right: 1px solid #ddd;
     cursor: default;
-    text-transform: uppercase;
     font-size: 10px;
     color: #555;
     text-shadow: 0 1px 0 #fff;
@@ -184,7 +183,7 @@
     font-size: 10px;
     height: 14px;
     line-height: 14px;
-    padding: 0 2px;
+    padding: 1px 2px 2px 2px;
     text-shadow: none;
 }
 

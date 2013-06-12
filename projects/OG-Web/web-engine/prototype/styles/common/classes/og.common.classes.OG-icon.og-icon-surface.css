@@ -4,10 +4,10 @@
  */
 .OG-icon.og-icon-Surface:after {
   display: inline-block;
-  background-position: -159px -76px;
+  background-position: -165px -92px;
   background-color: transparent;
-  height: 15px;
-  width: 15px;
+  height: 16px;
+  width: 16px;
   z-index: 2;
   position: absolute;
 }

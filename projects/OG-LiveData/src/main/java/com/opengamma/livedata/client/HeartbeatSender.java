@@ -1,92 +1,52 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.livedata.client;
 
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Collection;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.Heartbeat;
+import com.opengamma.livedata.server.LiveDataHeartbeat;
+import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.ByteArrayMessageSender;
+import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * All logic relating to sending a subscription heartbeat message.
- *
- * @author kirk
+ * Basic implementation of a subscription heartbeater that notifies the server(s) but does not receive any information back.
  */
-public class HeartbeatSender {
-  /**
-   * If not specified, send heartbeats every <em>5 minutes</em>.
-   */
-  public static final long DEFAULT_PERIOD = 5 * 60 * 1000L;
-  private static final Logger s_logger = LoggerFactory.getLogger(HeartbeatSender.class);
-  private final ByteArrayMessageSender _messageSender;
-  private final ValueDistributor _valueDistributor;
-  private final FudgeContext _fudgeContext;
-  
-  public HeartbeatSender(ByteArrayMessageSender messageSender, ValueDistributor valueDistributor, FudgeContext fudgeContext, Timer timer, long period) {
-    ArgumentChecker.notNull(messageSender, "Message Sender");
-    ArgumentChecker.notNull(valueDistributor, "Value Distributor");
-    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
-    ArgumentChecker.notNull(timer, "Timer");
+public class HeartbeatSender implements LiveDataHeartbeat {
+
+  private final FudgeMessageSender _messageSender;
+
+  public HeartbeatSender(final FudgeMessageSender messageSender) {
+    ArgumentChecker.notNull(messageSender, "messageSender");
     _messageSender = messageSender;
-    _valueDistributor = valueDistributor;
-    _fudgeContext = fudgeContext;
-    timer.schedule(new HeartbeatSendingTask(), period, period);
   }
 
-  /**
-   * @return the messageSender
-   */
-  public ByteArrayMessageSender getMessageSender() {
+  public HeartbeatSender(final ByteArrayMessageSender messageSender, final FudgeContext fudgeContext) {
+    this(new ByteArrayFudgeMessageSender(messageSender, fudgeContext));
+  }
+
+  protected FudgeMessageSender getMessageSender() {
     return _messageSender;
   }
-  
-  /**
-   * @return the valueDistributor
-   */
-  public ValueDistributor getValueDistributor() {
-    return _valueDistributor;
-  }
 
-  /**
-   * @return the fudgeContext
-   */
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
+  // LiveDataHeartbeat
 
-  /**
-   * The task which actually sends the heartbeat messages.
-   */
-  public class HeartbeatSendingTask extends TimerTask {
-    @Override
-    public void run() {
-      Set<LiveDataSpecification> liveDataSpecs = getValueDistributor().getActiveSpecifications();
-      if (liveDataSpecs.isEmpty()) {
-        return;
-      }
-      s_logger.debug("Sending heartbeat message with {} specs", liveDataSpecs.size());
-      Heartbeat heartbeat = new Heartbeat(liveDataSpecs);
-      FudgeMsg heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializer(getFudgeContext()));
-      byte[] bytes = getFudgeContext().toByteArray(heartbeatMsg);
-      try {
-        getMessageSender().send(bytes);
-      } catch (Exception e) {
-        s_logger.error("Unable to send heartbeat message", e);
-      }
-    }
+  @Override
+  public Collection<LiveDataSpecification> heartbeat(final Collection<LiveDataSpecification> activeSubscriptions) {
+    Heartbeat heartbeat = new Heartbeat(activeSubscriptions);
+    FudgeMsg heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializer(getMessageSender().getFudgeContext()));
+    getMessageSender().send(heartbeatMsg);
+    return null;
   }
 
 }

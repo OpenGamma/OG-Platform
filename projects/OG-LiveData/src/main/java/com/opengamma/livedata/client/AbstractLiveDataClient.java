@@ -50,12 +50,12 @@ import com.opengamma.util.metric.MetricProducer;
 public abstract class AbstractLiveDataClient implements LiveDataClient, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:
-  private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
+  private long _heartbeatPeriod = Heartbeater.DEFAULT_PERIOD;
   private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
   // Running State:
   private final ValueDistributor _valueDistributor = new ValueDistributor();
   private final Timer _timer = new Timer("LiveDataClient Timer");
-  private HeartbeatSender _heartbeatSender;
+  private Heartbeater _heartbeater;
   private final Lock _subscriptionLock = new ReentrantLock();
 
   private final ReentrantReadWriteLock _pendingSubscriptionLock = new ReentrantReadWriteLock();
@@ -85,7 +85,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
 
   public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
     ArgumentChecker.notNull(messageSender, "Message Sender");
-    _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getFudgeContext(), getTimer(), getHeartbeatPeriod());
+    _heartbeater = new Heartbeater(_valueDistributor, new HeartbeatSender(messageSender, getFudgeContext()), getTimer(), getHeartbeatPeriod());
   }
 
   @Override
@@ -94,10 +94,10 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
   }
 
   /**
-   * @return the heartbeatSender
+   * @return the heartbeater
    */
-  public HeartbeatSender getHeartbeatSender() {
-    return _heartbeatSender;
+  public Heartbeater getHeartbeater() {
+    return _heartbeater;
   }
 
   /**

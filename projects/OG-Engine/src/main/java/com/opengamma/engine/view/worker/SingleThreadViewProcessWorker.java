@@ -462,14 +462,20 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
           return;
         }
-
-        setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
+        // [PLAT-1174] This is necessary to support global injections by ValueRequirement. The use of a process-context level variable will be bad
+        // if there are multiple worker threads that initialise snapshots concurrently.
+        getProcessContext().getLiveDataOverrideInjector().setComputationTargetResolver(
+            getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(versionCorrection));
+        boolean marketDataSubscribed = false;
         try {
           if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
             // REVIEW jonathan/andrew -- 2013-03-28 -- if the user wants to wait for market data, then assume they mean
             // it and wait as long as it takes. There are mechanisms for cancelling the job.
+            setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
+            marketDataSubscribed = true;
             marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements(), Long.MAX_VALUE, TimeUnit.MILLISECONDS);
           } else {
+            marketDataSubscribed = false;
             marketDataSnapshot.init();
           }
           if (executionOptions.getValuationTime() == null) {
@@ -514,6 +520,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             if (isTerminated()) {
               cycleReference.release();
               return;
+            }
+            if (!marketDataSubscribed) {
+              setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
             }
             executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
           } catch (final InterruptedException e) {
@@ -1428,12 +1437,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     final Set<ValueSpecification> currentSubscriptions = _marketDataSubscriptions;
     final Set<ValueSpecification> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions);
     if (!unusedMarketData.isEmpty()) {
-      s_logger.debug("{} unused market data subscriptions: {}", unusedMarketData.size(), unusedMarketData);
+      s_logger.debug("{} unused market data subscriptions", unusedMarketData.size());
       removeMarketDataSubscriptions(new ArrayList<ValueSpecification>(unusedMarketData));
     }
     final Set<ValueSpecification> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions);
     if (!newMarketData.isEmpty()) {
-      s_logger.debug("{} new market data requirements: {}", newMarketData.size(), newMarketData);
+      s_logger.debug("{} new market data requirements", newMarketData.size());
       addMarketDataSubscriptions(new HashSet<ValueSpecification>(newMarketData));
     }
   }
@@ -1459,17 +1468,28 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   }
 
   private void removePendingSubscription(final ValueSpecification specification) {
-    if (_pendingSubscriptions.remove(specification) && _pendingSubscriptions.isEmpty()) {
-      synchronized (_pendingSubscriptions) {
-        if (_pendingSubscriptions.isEmpty()) {
-          _pendingSubscriptions.notifyAll();
-        }
-      }
+    if (_pendingSubscriptions.remove(specification)) {
+      notifyIfPendingSubscriptionsDone();
     }
   }
 
   private void removePendingSubscriptions(final Collection<ValueSpecification> specifications) {
-    if (_pendingSubscriptions.removeAll(specifications) && _pendingSubscriptions.isEmpty()) {
+
+    // Previously, this used removeAll, but as specifications may be a list, it was observed
+    // that we may end up iterating over _pendingSubscriptions and calling contains() on
+    // specifications, resulting in long wait times for a view to load (PLAT-3508)
+    boolean removalPerformed = false;
+    for (ValueSpecification specification : specifications) {
+      removalPerformed = _pendingSubscriptions.remove(specification) || removalPerformed;
+    }
+
+    if (removalPerformed) {
+      notifyIfPendingSubscriptionsDone();
+    }
+  }
+
+  private void notifyIfPendingSubscriptionsDone() {
+    if (_pendingSubscriptions.isEmpty()) {
       synchronized (_pendingSubscriptions) {
         if (_pendingSubscriptions.isEmpty()) {
           _pendingSubscriptions.notifyAll();

@@ -13,53 +13,25 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.redis.AbstractRedisTestCase;
 
 /**
  * 
  */
 @Test(enabled=false)
-public class RedisSimulationSeriesSourceTest {
+public class RedisSimulationSeriesSourceTest extends AbstractRedisTestCase {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSourceTest.class);
-  private JedisPool _jedisPool;
-  private String _redisPrefix;
-  
-  @BeforeClass
-  public void launchJedisPool() {
-    _jedisPool = new JedisPool("localhost");
-    _redisPrefix = System.getProperty("user.name") + "_" + System.currentTimeMillis();
-  }
-  
-  @AfterClass
-  public void clearJedisPool() {
-    if (_jedisPool == null) {
-      return;
-    }
-    _jedisPool.destroy();
-  }
-  
-  @BeforeMethod
-  public void clearRedisDb() {
-    Jedis jedis = _jedisPool.getResource();
-    jedis.flushDB();
-    _jedisPool.returnResource(jedis);
-  }
   
   public void basicOperation() {
     LocalDate simulationSeriesDate = LocalDate.of(2013, 4, 24);
-    RedisSimulationSeriesSource simulationSource = new RedisSimulationSeriesSource(_jedisPool, _redisPrefix);
+    RedisSimulationSeriesSource simulationSource = new RedisSimulationSeriesSource(getJedisPool(), getRedisPrefix());
     simulationSource.setCurrentSimulationExecutionDate(simulationSeriesDate);
     UniqueId id = generateId(5);
     HistoricalTimeSeries hts = null;
@@ -98,7 +70,7 @@ public class RedisSimulationSeriesSourceTest {
   }
   
   public void clearSpecificDate() {
-    RedisSimulationSeriesSource simulationSource = new RedisSimulationSeriesSource(_jedisPool, _redisPrefix);
+    RedisSimulationSeriesSource simulationSource = new RedisSimulationSeriesSource(getJedisPool(), getRedisPrefix());
     LocalDate simulationSeriesDate = LocalDate.now();
     HistoricalTimeSeries hts = null;
     
@@ -124,7 +96,7 @@ public class RedisSimulationSeriesSourceTest {
   
   @Test(enabled=false)
   public void largePerformanceTest() {
-    RedisSimulationSeriesSource simulationSource = new RedisSimulationSeriesSource(_jedisPool);
+    RedisSimulationSeriesSource simulationSource = new RedisSimulationSeriesSource(getJedisPool());
     LocalDate simulationSeriesDate = LocalDate.now();
     
     int numDaysHistory = 20;

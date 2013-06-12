@@ -9,10 +9,13 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 import com.opengamma.web.analytics.push.UpdateListener;
 
 /**
@@ -34,8 +37,8 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
-    List<String> callbackIds = _delegate.updateStructure(compiledViewDefinition);
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
+    List<String> callbackIds = _delegate.updateStructure(compiledViewDefinition, portfolio);
     _listener.itemsUpdated(callbackIds);
     return callbackIds;
   }
@@ -148,4 +151,15 @@ import com.opengamma.web.analytics.push.UpdateListener;
     _listener.itemsUpdated(ids);
     return ids;
   }
+
+  @Override
+  public ViewportResults getAllGridData(GridType gridType, Format format) {
+    return _delegate.getAllGridData(gridType, format);
+  }
+
+  @Override
+  public UniqueId getViewDefinitionId() {
+    return _delegate.getViewDefinitionId();
+  }
+  
 }

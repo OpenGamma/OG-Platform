@@ -71,7 +71,6 @@ public class DependencyGraphGridStructure implements GridStructure {
                                              ComputationTargetResolver targetResolver,
                                              String rootRowName,
                                              String rootColumnName) {
-    ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(valueSpecs, "valueSpecs");
     ArgumentChecker.notNull(fnNames, "fnNames");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
@@ -125,7 +124,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     ViewportResults newResults = new ViewportResults(results,
                                                      viewportDefinition,
                                                      _columnGroups,
-                                                     cache.getLastCalculationDuration());
+                                                     cache.getLastCalculationDuration(), cache.getValuationTime());
     Viewport.State state;
     if (previousResults != null && results.equals(previousResults.getResults())) {
       state = Viewport.State.STALE_DATA;
@@ -186,7 +185,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   /**
-   * @return The root of the node structure representing the dependency graph
+   * @return The root of the node structure representing the dependency graph, possibly null
    */
   public AnalyticsNode getRootNode() {
     return _root;

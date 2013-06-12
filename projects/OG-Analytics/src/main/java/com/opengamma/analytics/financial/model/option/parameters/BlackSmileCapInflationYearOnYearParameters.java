@@ -22,14 +22,14 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
    */
   private final Surface<Double, Double, Double> _volatility;
   /**
-   * The Ibor index for which the volatility is valid. Not null.
+   * The index price for which the volatility is valid. Not null.
    */
   private final IndexPrice _index;
 
   /**
    * Constructor from the parameter surfaces. 
    * @param volatility The Black volatility curve.
-   * @param index The Ibor index for which the volatility is valid.
+   * @param index The index price for which the volatility is valid.
    */
   public BlackSmileCapInflationYearOnYearParameters(final Surface<Double, Double, Double> volatility, final IndexPrice index) {
     Validate.notNull(volatility, "volatility curve");

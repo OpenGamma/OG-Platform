@@ -27,6 +27,7 @@ import com.opengamma.engine.marketdata.CombinedMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.LatestHistoricalMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.resolver.CachingMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.TypeBasedMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.snapshot.UserMarketDataProviderFactory;
@@ -49,9 +50,9 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
   /**
-   * The live market data provider factory.
+   * The live market data provider factory. May be null if no live data required.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private MarketDataProviderFactory _liveMarketDataProviderFactory;
   /**
    * The historical time-series source.
@@ -74,26 +75,26 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     initMarketDataProviderResolver(repo);
   }
 
-  private MarketDataProviderResolver initMarketDataProviderResolver(final ComponentRepository repo) {
+  protected MarketDataProviderResolver createMarketDataProviderResolver() {
     final TypeBasedMarketDataProviderResolver providerResolver = new TypeBasedMarketDataProviderResolver();
-
-    providerResolver.addProvider(LiveMarketDataSpecification.class, getLiveMarketDataProviderFactory());
-
+    if (getLiveMarketDataProviderFactory() != null) {
+      providerResolver.addProvider(LiveMarketDataSpecification.class, getLiveMarketDataProviderFactory());
+    }
     final MarketDataProviderFactory fixedHistoricalMarketDataProviderFactory = initFixedHistoricalMarketDataProviderFactory();
     providerResolver.addProvider(FixedHistoricalMarketDataSpecification.class, fixedHistoricalMarketDataProviderFactory);
-
     final MarketDataProviderFactory latestHistoricalMarketDataProviderFactory = initLatestHistoricalMarketDataProviderFactory();
     providerResolver.addProvider(LatestHistoricalMarketDataSpecification.class, latestHistoricalMarketDataProviderFactory);
-
     final MarketDataProviderFactory userMarketDataProviderFactory = initUserMarketDataProviderFactory();
     providerResolver.addProvider(UserMarketDataSpecification.class, userMarketDataProviderFactory);
-
     final MarketDataProviderFactory combinedMarketDataProviderFactory = initCombinedMarketDataProviderFactory(providerResolver);
     providerResolver.addProvider(CombinedMarketDataSpecification.class, combinedMarketDataProviderFactory);
-
-    final ComponentInfo info = new ComponentInfo(MarketDataProviderResolver.class, getClassifier());
-    repo.registerComponent(info, providerResolver);
     return providerResolver;
+  }
+
+  private void initMarketDataProviderResolver(final ComponentRepository repo) {
+    final MarketDataProviderResolver resolver = new CachingMarketDataProviderResolver(createMarketDataProviderResolver());
+    final ComponentInfo info = new ComponentInfo(MarketDataProviderResolver.class, getClassifier());
+    repo.registerComponent(info, resolver);
   }
 
   protected MarketDataProviderFactory initFixedHistoricalMarketDataProviderFactory() {
@@ -172,7 +173,6 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_liveMarketDataProviderFactory, "liveMarketDataProviderFactory");
     JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
     JodaBeanUtils.notNull(_marketDataSnapshotSource, "marketDataSnapshotSource");
@@ -235,19 +235,18 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the live market data provider factory.
-   * @return the value of the property, not null
+   * Gets the live market data provider factory. May be null if no live data required.
+   * @return the value of the property
    */
   public MarketDataProviderFactory getLiveMarketDataProviderFactory() {
     return _liveMarketDataProviderFactory;
   }
 
   /**
-   * Sets the live market data provider factory.
-   * @param liveMarketDataProviderFactory  the new value of the property, not null
+   * Sets the live market data provider factory. May be null if no live data required.
+   * @param liveMarketDataProviderFactory  the new value of the property
    */
   public void setLiveMarketDataProviderFactory(MarketDataProviderFactory liveMarketDataProviderFactory) {
-    JodaBeanUtils.notNull(liveMarketDataProviderFactory, "liveMarketDataProviderFactory");
     this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
   }
 

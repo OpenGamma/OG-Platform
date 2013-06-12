@@ -9,17 +9,24 @@
     left: 0;
     right: 0;
     overflow: hidden;
+    border: 1px solid #bbb;
+}
+
+.OG-gadget-container.og-focus {
+    border: 1px solid #000;
 }
 
 .OG-gadget-container:before {
-    content: '';
-    background: url(/prototype/images/common/sprites/main-sprite-sheet.png) 0 -162px;
-    width: 48px;
-    height: 48px;
+    content: 'Drop gadget here';
+    width: 100px;
+    height: 20px;
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: -24px 0 0 -24px;
+    margin: -10px 0 0 -50px;
+    color: #999;
+    font-size: 10px;
+    text-align: center;
 }
 
 .ie8 .OG-gadget-container:before {

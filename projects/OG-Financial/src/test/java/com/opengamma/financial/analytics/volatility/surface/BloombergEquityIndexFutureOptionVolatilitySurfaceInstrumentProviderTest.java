@@ -34,7 +34,7 @@ public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider
   private static final String[][] RESULTS = new String[][]
     {new String[] {"DJX 06/16/12 P90.0 Index", "DJX 06/16/12 P145.0 Index", "DJX 06/16/12 C205.0 Index"},
     new String[] {"DJX 07/21/12 P90.0 Index", "DJX 07/21/12 P145.0 Index", "DJX 07/21/12 C205.0 Index"},
-      new String[] { "DJX 01/18/14 P90.0 Index", "DJX 01/18/14 P145.0 Index", "DJX 01/18/14 C205.0 Index" } }; // TODO Fix date on this last one
+      new String[] { "DJX 01/19/13 P90.0 Index", "DJX 01/19/13 P145.0 Index", "DJX 01/19/13 C205.0 Index" } }; // TODO Fix date on this last one
 
   private static final FutureOptionExpiries UTILS = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
   private static LocalDate[] EXPIRY_DATES = new LocalDate[3];
@@ -56,7 +56,10 @@ public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider
         final String expected = RESULTS[i][j];
         final ExternalId actual = PROVIDER.getInstrument(EXPIRY_OFFSETS[i], STRIKES[j], DATE);
         assertEquals(ExternalSchemes.BLOOMBERG_TICKER_WEAK, actual.getScheme());
-        assertEquals(expected, actual.getValue());
+        if (!(expected.equals(actual.getValue()))) {
+          assertEquals(expected, actual.getValue());  
+        }
+        
       }
     }
   }

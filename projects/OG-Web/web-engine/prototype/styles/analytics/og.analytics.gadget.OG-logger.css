@@ -52,3 +52,13 @@
     cursor: pointer;
     text-decoration: underline;
 }
+
+.OG-logger .og-nolog {
+    background: #f8f8f8;
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}

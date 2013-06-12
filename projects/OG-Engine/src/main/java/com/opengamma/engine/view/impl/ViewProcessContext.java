@@ -14,8 +14,7 @@ import com.opengamma.engine.exec.DependencyGraphExecutorFactory;
 import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
-import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjectorImpl;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -49,7 +48,7 @@ public class ViewProcessContext {
 
   // TODO: Need to rethink this for distribution if the workers for the process are remote so they receive injections from the original process. The
   // workers only need read access via the _marketDataProviderResolver. Only the original process requires the injector.
-  private final MarketDataInjector _liveDataOverrideInjector;
+  private final MarketDataInjectorImpl _liveDataOverrideInjector;
 
   private final MarketDataProviderResolver _marketDataProviderResolver;
   private final OverrideOperationCompiler _overrideOperationCompiler;
@@ -105,7 +104,7 @@ public class ViewProcessContext {
     _processId = processId;
     _configSource = configSource;
     _viewPermissionProvider = viewPermissionProvider;
-    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider();
+    final MarketDataInjectorImpl liveDataOverrideInjector = new MarketDataInjectorImpl();
     _liveDataOverrideInjector = liveDataOverrideInjector;
     _marketDataProviderResolver = new MarketDataProviderResolverWithOverride(marketDataProviderResolver, liveDataOverrideInjector);
     _functionCompilationService = functionCompilationService;
@@ -158,7 +157,7 @@ public class ViewProcessContext {
    * 
    * @return the live data override injector, not null
    */
-  public MarketDataInjector getLiveDataOverrideInjector() {
+  public MarketDataInjectorImpl getLiveDataOverrideInjector() {
     return _liveDataOverrideInjector;
   }
 

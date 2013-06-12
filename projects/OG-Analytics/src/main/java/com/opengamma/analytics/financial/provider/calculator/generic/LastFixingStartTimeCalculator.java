@@ -9,7 +9,14 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -60,6 +67,11 @@ public final class LastFixingStartTimeCalculator extends InstrumentDerivativeVis
   }
 
   @Override
+  public Double visitCouponFixedCompounding(final CouponFixedCompounding payment) {
+    return 0.0;
+  }
+
+  @Override
   public Double visitCouponIbor(final CouponIbor payment) {
     return payment.getFixingPeriodStartTime();
   }
@@ -97,6 +109,38 @@ public final class LastFixingStartTimeCalculator extends InstrumentDerivativeVis
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap) {
     return visitSwap(swap);
+  }
+
+  // -----     Inflation     -----
+
+  @Override
+  public Double visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon) {
+    return coupon.getReferenceEndTime();
+  }
+
+  @Override
+  public Double visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon) {
+    return coupon.getReferenceEndTime();
+  }
+
+  @Override
+  public Double visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon) {
+    return coupon.getWeight() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeight()) * coupon.getReferenceEndTime()[1];
+  }
+
+  @Override
+  public Double visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon) {
+    return coupon.getWeight() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeight()) * coupon.getReferenceEndTime()[1];
+  }
+
+  @Override
+  public Double visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon) {
+    return coupon.getReferenceEndTime();
+  }
+
+  @Override
+  public Double visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
+    return coupon.getReferenceEndTime()[0];
   }
 
 }

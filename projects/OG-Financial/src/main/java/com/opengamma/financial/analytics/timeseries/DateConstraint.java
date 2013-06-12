@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
@@ -500,46 +501,50 @@ public abstract class DateConstraint {
     if (str.length() == 0) {
       return null;
     }
-    if (str.startsWith(NOW_STRING)) {
-      if (str.length() == NOW_STRING.length()) {
-        return VALUATION_TIME;
+    try {
+      if (str.startsWith(NOW_STRING)) {
+        if (str.length() == NOW_STRING.length()) {
+          return VALUATION_TIME;
+        } else {
+          return parseRight(VALUATION_TIME, str.substring(NOW_STRING.length()));
+        }
+      } else if (str.startsWith(NULL_STRING)) {
+        return NULL;
+      } else if (str.charAt(0) == '-') {
+        return VALUATION_TIME.minus(Period.parse(str.substring(1)));
+      } else if (str.charAt(0) == '+') {
+        return VALUATION_TIME.plus(Period.parse(str.substring(1)));
+      } else if (str.startsWith(PREVIOUS_WEEK_DAY_STRING)) {
+        final Pair<String, String> brackets = parseBrackets(str.substring(PREVIOUS_WEEK_DAY_STRING.length()));
+        final DateConstraint left;
+        if (brackets.getFirst() != null) {
+          left = parse(brackets.getFirst()).previousWeekDay();
+        } else {
+          left = VALUATION_TIME.previousWeekDay();
+        }
+        if (brackets.getSecond() != null) {
+          return parseRight(left, brackets.getSecond());
+        } else {
+          return left;
+        }
+      } else if (str.startsWith(NEXT_WEEK_DAY_STRING)) {
+        final Pair<String, String> brackets = parseBrackets(str.substring(NEXT_WEEK_DAY_STRING.length()));
+        final DateConstraint left;
+        if (brackets.getFirst() != null) {
+          left = parse(brackets.getFirst()).nextWeekDay();
+        } else {
+          left = VALUATION_TIME.nextWeekDay();
+        }
+        if (brackets.getSecond() != null) {
+          return parseRight(left, brackets.getSecond());
+        } else {
+          return left;
+        }
       } else {
-        return parseRight(VALUATION_TIME, str.substring(NOW_STRING.length()));
+        return new LiteralDateConstraint(LocalDate.parse(str));
       }
-    } else if (str.startsWith(NULL_STRING)) {
-      return NULL;
-    } else if (str.charAt(0) == '-') {
-      return VALUATION_TIME.minus(Period.parse(str.substring(1)));
-    } else if (str.charAt(0) == '+') {
-      return VALUATION_TIME.plus(Period.parse(str.substring(1)));
-    } else if (str.startsWith(PREVIOUS_WEEK_DAY_STRING)) {
-      final Pair<String, String> brackets = parseBrackets(str.substring(PREVIOUS_WEEK_DAY_STRING.length()));
-      final DateConstraint left;
-      if (brackets.getFirst() != null) {
-        left = parse(brackets.getFirst()).previousWeekDay();
-      } else {
-        left = VALUATION_TIME.previousWeekDay();
-      }
-      if (brackets.getSecond() != null) {
-        return parseRight(left, brackets.getSecond());
-      } else {
-        return left;
-      }
-    } else if (str.startsWith(NEXT_WEEK_DAY_STRING)) {
-      final Pair<String, String> brackets = parseBrackets(str.substring(NEXT_WEEK_DAY_STRING.length()));
-      final DateConstraint left;
-      if (brackets.getFirst() != null) {
-        left = parse(brackets.getFirst()).nextWeekDay();
-      } else {
-        left = VALUATION_TIME.nextWeekDay();
-      }
-      if (brackets.getSecond() != null) {
-        return parseRight(left, brackets.getSecond());
-      } else {
-        return left;
-      }
-    } else {
-      return new LiteralDateConstraint(LocalDate.parse(str));
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("Unable to parse date constraint '" + str + "'", e);
     }
   }
 

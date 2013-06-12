@@ -44,16 +44,13 @@ public abstract class ExactMatchMarketDataSelector<K> implements DistinctMarketD
 
   @Override
   public boolean equals(Object o) {
-
     if (this == o) {
       return true;
     }
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    MarketDataPointSelector that = (MarketDataPointSelector) o;
-    return _structureId.equals(that._structureId);
+    return _structureId.equals(((ExactMatchMarketDataSelector) o)._structureId);
   }
 
   @Override

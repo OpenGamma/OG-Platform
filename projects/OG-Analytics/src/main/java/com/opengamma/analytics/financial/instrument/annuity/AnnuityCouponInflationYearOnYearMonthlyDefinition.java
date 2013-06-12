@@ -39,22 +39,23 @@ public class AnnuityCouponInflationYearOnYearMonthlyDefinition extends AnnuityCo
    * @param businessDayConvention the business day convention. 
    * @param calendar the calendar.
    * @param endOfMonth The end-of-month flag.
+   * @param conventionalMonthLag TODO
    * @param monthLag The day count of the coupons.
    * @param payNotional Payer (true) / receiver (false) flag.
    * @return The Year on year coupon leg.
    */
   public static AnnuityCouponInflationYearOnYearMonthlyDefinition from(final IndexPrice priceIndex, final ZonedDateTime settlementDate,
       final double notional, final Period totalPeriod, final Period paymentPeriod, final BusinessDayConvention businessDayConvention, final Calendar calendar,
-      final boolean endOfMonth, final int monthLag, final boolean payNotional) {
+      final boolean endOfMonth, int conventionalMonthLag, final int monthLag, final boolean payNotional) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.isTrue(notional > 0, "notional <= 0");
     Validate.notNull(paymentPeriod, "Payment period");
     ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, paymentPeriod, totalPeriod, true, false, businessDayConvention, calendar, endOfMonth);
 
     final CouponInflationYearOnYearMonthlyDefinition[] coupons = new CouponInflationYearOnYearMonthlyDefinition[paymentDates.length];
-    coupons[0] = CouponInflationYearOnYearMonthlyDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, monthLag, payNotional);
+    coupons[0] = CouponInflationYearOnYearMonthlyDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, monthLag, conventionalMonthLag, payNotional);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = CouponInflationYearOnYearMonthlyDefinition.from(paymentDates[loopcpn - 1], paymentDates[loopcpn], notional, priceIndex, monthLag, payNotional);
+      coupons[loopcpn] = CouponInflationYearOnYearMonthlyDefinition.from(paymentDates[loopcpn - 1], paymentDates[loopcpn], notional, priceIndex, monthLag, conventionalMonthLag, payNotional);
     }
     return new AnnuityCouponInflationYearOnYearMonthlyDefinition(coupons);
   }

@@ -37,6 +37,17 @@ public class PortfolioNodeEquivalenceMapperTest {
     return node;
   }
 
+  private PortfolioNode createNodeAUnbalanced(final UniqueIdSupplier uidSupplier, final boolean omitB, final boolean omitC) {
+    final SimplePortfolioNode node = new SimplePortfolioNode(uidSupplier.get(), "A");
+    if (!omitB) {
+      node.addChildNode(createNodeB(uidSupplier, false, 2));
+    }
+    if (!omitC) {
+      node.addChildNode(createNodeC(uidSupplier));
+    }
+    return node;
+  }
+
   private PortfolioNode createNodeB(final UniqueIdSupplier uidSupplier, final boolean swap, final int size) {
     final SimplePortfolioNode node = new SimplePortfolioNode(uidSupplier.get(), "B");
     if (swap) {
@@ -91,6 +102,28 @@ public class PortfolioNodeEquivalenceMapperTest {
     assertEquals(map.get(UniqueId.of("Node", "2")), UniqueId.of("Node", "6"));
     assertEquals(map.get(UniqueId.of("Node", "3")), UniqueId.of("Node", "7"));
     assertEquals(map.get(UniqueId.of("Node", "4")), UniqueId.of("Node", "8"));
+  }
+
+  public void testEqualNodesSubset() {
+    final UniqueIdSupplier ids = new UniqueIdSupplier("Node");
+    final PortfolioNodeEquivalenceMapper mapper = new PortfolioNodeEquivalenceMapper();
+    final PortfolioNode a = createNodeAUnbalanced(ids, false, false); // 1-4
+    final PortfolioNode b = createNodeAUnbalanced(ids, false, true); // 5-6
+    final PortfolioNode c = createNodeAUnbalanced(ids, true, false); // 7-9
+    Map<UniqueId, UniqueId> map = mapper.getEquivalentNodes(a, b);
+    assertEquals(map.size(), 1);
+    assertEquals(map.get(UniqueId.of("Node", "2")), UniqueId.of("Node", "6"));
+    map = mapper.getEquivalentNodes(b, a);
+    assertEquals(map.size(), 1);
+    assertEquals(map.get(UniqueId.of("Node", "6")), UniqueId.of("Node", "2"));
+    map = mapper.getEquivalentNodes(a, c);
+    assertEquals(map.size(), 2);
+    assertEquals(map.get(UniqueId.of("Node", "3")), UniqueId.of("Node", "8"));
+    assertEquals(map.get(UniqueId.of("Node", "4")), UniqueId.of("Node", "9"));
+    map = mapper.getEquivalentNodes(c, a);
+    assertEquals(map.size(), 2);
+    assertEquals(map.get(UniqueId.of("Node", "8")), UniqueId.of("Node", "3"));
+    assertEquals(map.get(UniqueId.of("Node", "9")), UniqueId.of("Node", "4"));
   }
 
   public void testEqualNodesReordered() {

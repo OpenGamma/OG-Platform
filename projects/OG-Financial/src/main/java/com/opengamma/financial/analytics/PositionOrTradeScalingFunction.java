@@ -60,8 +60,7 @@ public class PositionOrTradeScalingFunction extends AbstractFunction.NonCompiled
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Object value = target.getValue();
     if (value instanceof Position) {
-      if (((Position) value).getTrades().size() > 1) {
-        // Can't scale the security when there are multiple trades; PositionTradeScalingFunction must be used instead
+      if (!((Position) value).getTrades().isEmpty()) { // Use PositionTradeScalingFunction instead
         return false;
       }
     }

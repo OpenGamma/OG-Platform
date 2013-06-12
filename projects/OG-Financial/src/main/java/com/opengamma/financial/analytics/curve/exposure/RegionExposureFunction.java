@@ -169,7 +169,7 @@ public class RegionExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-    return null;
+    return Arrays.asList(security.getRegion());
   }
 
   @Override
@@ -241,6 +241,9 @@ public class RegionExposureFunction implements ExposureFunction {
   public List<ExternalId> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(payLeg.getRegionId());
+    }
     return Arrays.asList(payLeg.getRegionId(), receiveLeg.getRegionId());
   }
 
@@ -288,6 +291,9 @@ public class RegionExposureFunction implements ExposureFunction {
   public List<ExternalId> visitSwapSecurity(final SwapSecurity security) {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(payLeg.getRegionId());
+    }
     return Arrays.asList(payLeg.getRegionId(), receiveLeg.getRegionId());
   }
 
@@ -296,6 +302,9 @@ public class RegionExposureFunction implements ExposureFunction {
     final SwapSecurity underlyingSwap = (SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version
     final SwapLeg payLeg = underlyingSwap.getPayLeg();
     final SwapLeg receiveLeg = underlyingSwap.getReceiveLeg();
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(payLeg.getRegionId());
+    }
     return Arrays.asList(payLeg.getRegionId(), receiveLeg.getRegionId());
   }
 
