@@ -229,11 +229,13 @@ public class MultipleYieldCurveFinderDataBundle {
 
   public int getNumberOfPointsForCurve(final String name) {
     ArgumentChecker.notNull(name, "name");
-    if (_knownCurves.containsName(name)) {
-      return _knownCurves.getCurve(name).getNumberOfParameters();
-    }
     if (_unknownCurveNodePoints.containsKey(name)) {
       return _unknownCurveNodePoints.get(name).length;
+    }
+    if (_knownCurves != null) {
+      if (_knownCurves.containsName(name)) {
+        return _knownCurves.getCurve(name).getNumberOfParameters();
+      }
     }
     throw new IllegalArgumentException("Data for name " + name + " not found");
   }
