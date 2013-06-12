@@ -115,6 +115,47 @@
   </reporting>
 
   <!-- ==================================================================== -->
+  <!-- src zip file, activated with -Ddist -->
+  <profiles>
+    <profile>
+      <id>dist</id>
+      <activation>
+        <property>
+          <name>dist</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>src</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/assembly-src.xml</descriptor>
+                  </descriptors>
+                  <formats>
+                    <format>zip</format>
+                    <format>tar.gz</format>
+                  </formats>
+                  <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
   <properties>
     <!-- Properties for maven-deploy-plugin -->
     <maven.deploy.skip>true</maven.deploy.skip>
