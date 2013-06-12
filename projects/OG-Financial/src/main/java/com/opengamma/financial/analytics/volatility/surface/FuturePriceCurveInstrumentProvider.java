@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -23,4 +24,6 @@ public interface FuturePriceCurveInstrumentProvider<X> {
   String getDataFieldName();
   
   String getTickerScheme();
+  
+  ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator();
 }

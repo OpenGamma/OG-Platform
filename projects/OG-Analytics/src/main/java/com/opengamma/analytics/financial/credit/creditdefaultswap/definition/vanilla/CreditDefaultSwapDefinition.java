@@ -33,8 +33,8 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
   // This convention is chosen to avoid confusion about whether a negative notional means a long/short position etc
 
-  // Buy protection   -> Pay premium leg, receive contingent leg  -> 'long' protection  -> 'short' credit risk
-  // Sell protection  -> Receive premium leg, pay contingent leg  -> 'short' protection -> 'long' credit risk
+  // Buy protection -> Pay premium leg, receive contingent leg -> 'long' protection -> 'short' credit risk
+  // Sell protection -> Receive premium leg, pay contingent leg -> 'short' protection -> 'long' credit risk
 
   // Coupon conventions - coupons are always assumed to be entered in bps (therefore there are internal conversions to absolute values by division by 10,000)
 
@@ -130,29 +130,37 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   // Constructor for a CDS contract object
 
-  public CreditDefaultSwapDefinition(
-      final BuySellProtection buySellProtection,
-      final Obligor protectionBuyer,
-      final Obligor protectionSeller,
-      final Obligor referenceEntity,
-      final Currency currency,
-      final DebtSeniority debtSeniority,
-      final RestructuringClause restructuringClause,
-      final Calendar calendar,
-      final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate,
-      final ZonedDateTime maturityDate,
-      final StubType stubType,
-      final PeriodFrequency couponFrequency,
-      final DayCount daycountFractionConvention,
-      final BusinessDayConvention businessdayAdjustmentConvention,
-      final boolean immAdjustMaturityDate,
-      final boolean adjustEffectiveDate,
-      final boolean adjustMaturityDate,
-      final double notional,
-      final double recoveryRate,
-      final boolean includeAccruedPremium,
-      final boolean protectionStart) {
+  /**
+   * Create a CDS object 
+   * @param buySellProtection Are we buying or selling the credit protection
+   * @param protectionBuyer protection buyer
+   * @param protectionSeller protection seller
+   * @param referenceEntity reference entity
+   * @param currency Currency 
+   * @param debtSeniority Debt Seniority
+   * @param restructuringClause Restructuring Clause
+   * @param calendar Calendar
+   * @param startDate Date when protection begins (this can be the start or the end of the day depending on the value of protectionStart)
+   * @param effectiveDate Date when party assumes ownership (aka stepin date or assignment date). Currently must have  startDate <= effectiveDate which
+   * means you cannot buy forward protection - TODO investigate whether this can be removed
+   * @param maturityDate Date when protection ends (end of day)
+   * @param stubType stub type
+   * @param couponFrequency coupon frequency
+   * @param daycountFractionConvention day-count convention
+   * @param businessdayAdjustmentConvention business-day adjustment convention
+   * @param immAdjustMaturityDate if true adjust IMM maturity date - TODO check exactly what this does 
+   * @param adjustEffectiveDate if true adjust effective date for non-business days 
+   * @param adjustMaturityDate if true adjust (non-IMM) maturity date for non-business days 
+   * @param notional the notional 
+   * @param recoveryRate the recovery rate (between 0 and 1.0)
+   * @param includeAccruedPremium If true accrued premium must be paid in the event of default
+   * @param protectionStart if true the protection is from the start of day 
+   */
+  public CreditDefaultSwapDefinition(final BuySellProtection buySellProtection, final Obligor protectionBuyer, final Obligor protectionSeller, final Obligor referenceEntity, final Currency currency,
+      final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final Calendar calendar, final ZonedDateTime startDate, final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate, final StubType stubType, final PeriodFrequency couponFrequency, final DayCount daycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate, final boolean adjustMaturityDate, final double notional,
+      final double recoveryRate, final boolean includeAccruedPremium, final boolean protectionStart) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -182,7 +190,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
     ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
     ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
-    //ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
+    // ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
 
     ArgumentChecker.notNull(stubType, "Stub Type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
@@ -247,6 +255,8 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   public abstract CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate);
 
   public abstract CreditDefaultSwapDefinition withEffectiveDate(ZonedDateTime effectiveDate);
+  
+
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -475,31 +485,11 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   @Override
   public String toString() {
-    return "CreditDefaultSwapDefinition{" +
-        "_buySellProtection=" + _buySellProtection +
-        ", _protectionBuyer=" + _protectionBuyer +
-        ", _protectionSeller=" + _protectionSeller +
-        ", _referenceEntity=" + _referenceEntity +
-        ", _currency=" + _currency +
-        ", _debtSeniority=" + _debtSeniority +
-        ", _restructuringClause=" + _restructuringClause +
-        ", _calendar=" + _calendar +
-        ", _startDate=" + _startDate +
-        ", _effectiveDate=" + _effectiveDate +
-        ", _maturityDate=" + _maturityDate +
-        ", _stubType=" + _stubType +
-        ", _couponFrequency=" + _couponFrequency +
-        ", _daycountFractionConvention=" + _daycountFractionConvention +
-        ", _businessdayAdjustmentConvention=" + _businessdayAdjustmentConvention +
-        ", _immAdjustMaturityDate=" + _immAdjustMaturityDate +
-        ", _adjustEffectiveDate=" + _adjustEffectiveDate +
-        ", _adjustMaturityDate=" + _adjustMaturityDate +
-        ", _notional=" + _notional +
-        ", _recoveryRate=" + _recoveryRate +
-        ", _includeAccruedPremium=" + _includeAccruedPremium +
-        ", _protectionStart=" + _protectionStart +
-        ", _creditKey='" + _creditKey + '\'' +
-        ", _protectionOffset=" + _protectionOffset +
-        '}';
+    return "CreditDefaultSwapDefinition{" + "_buySellProtection=" + _buySellProtection + ", _protectionBuyer=" + _protectionBuyer + ", _protectionSeller=" + _protectionSeller + ", _referenceEntity="
+        + _referenceEntity + ", _currency=" + _currency + ", _debtSeniority=" + _debtSeniority + ", _restructuringClause=" + _restructuringClause + ", _calendar=" + _calendar + ", _startDate="
+        + _startDate + ", _effectiveDate=" + _effectiveDate + ", _maturityDate=" + _maturityDate + ", _stubType=" + _stubType + ", _couponFrequency=" + _couponFrequency
+        + ", _daycountFractionConvention=" + _daycountFractionConvention + ", _businessdayAdjustmentConvention=" + _businessdayAdjustmentConvention + ", _immAdjustMaturityDate="
+        + _immAdjustMaturityDate + ", _adjustEffectiveDate=" + _adjustEffectiveDate + ", _adjustMaturityDate=" + _adjustMaturityDate + ", _notional=" + _notional + ", _recoveryRate=" + _recoveryRate
+        + ", _includeAccruedPremium=" + _includeAccruedPremium + ", _protectionStart=" + _protectionStart + ", _creditKey='" + _creditKey + '\'' + ", _protectionOffset=" + _protectionOffset + '}';
   }
 }

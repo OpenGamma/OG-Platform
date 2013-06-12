@@ -184,6 +184,11 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   /**
+   * The transition matrix between the sensitivity with respect to the new currency parameters and the initial currency market data.
+   * Used for FX swaps implied curves calibration. 
+   */
+  public static final String FX_IMPLIED_TRANSITION_MATRIX = "FXImpliedTransitionMatrix";
+  /**
    * The raw market data that is used in yield curve construction.
    */
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";

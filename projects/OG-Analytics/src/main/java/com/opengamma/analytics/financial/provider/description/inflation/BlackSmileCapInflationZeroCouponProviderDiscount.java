@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapIn
 
 /**
  * Implementation of a provider of Black smile for zero-coupon inflation options. The volatility is time to expiration/strike/delay dependent. 
- * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
+ * The "delay" is the time between expiration of the option and last trading date of the underlying.
  */
 public class BlackSmileCapInflationZeroCouponProviderDiscount extends BlackSmileCapInflationZeroCouponProvider {
 

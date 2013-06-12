@@ -96,7 +96,7 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE.or(ComputationTargetType.CURRENCY); // Bloomberg ticker, weak ticker, or currency
+    return ComputationTargetType.PRIMITIVE.or(ComputationTargetType.CURRENCY);
   }
 
   @Override
@@ -106,7 +106,8 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     } else {
       final String scheme = target.getUniqueId().getScheme();
       return scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
-          || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
+          || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())
+          || scheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
     }
   }
 

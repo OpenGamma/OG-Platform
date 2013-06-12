@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -35,10 +36,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
     try {
       _lock.writeLock().lock();
-      return _delegate.updateStructure(compiledViewDefinition);
+      return _delegate.updateStructure(compiledViewDefinition, portfolio);
     } finally {
       _lock.writeLock().unlock();
     }

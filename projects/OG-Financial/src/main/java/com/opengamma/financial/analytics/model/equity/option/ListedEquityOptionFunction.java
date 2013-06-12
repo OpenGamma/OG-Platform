@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAdesiWhaleyModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
@@ -64,8 +63,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.ExerciseTypeVisitorImpl;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -257,7 +254,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     // TODO: Have been running into problems, primarily from illiquid option prices, hence we test
     final double impliedVol;
     final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
-    if (intrinsic > forwardOptionPrice) {
+    if (intrinsic >= forwardOptionPrice) {
       s_logger.info("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
       impliedVol = 0.0;
     } else {

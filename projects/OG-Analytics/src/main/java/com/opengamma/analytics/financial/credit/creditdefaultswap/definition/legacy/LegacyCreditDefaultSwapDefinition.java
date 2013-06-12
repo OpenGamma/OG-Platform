@@ -119,6 +119,7 @@ public abstract class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwa
   public abstract LegacyCreditDefaultSwapDefinition withSpread(double parSpread);
 
   public abstract LegacyCreditDefaultSwapDefinition withCouponFrequency(final PeriodFrequency couponFrequency);
+  
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

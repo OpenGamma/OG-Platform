@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivatives;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -44,13 +43,14 @@ public class CouponInflationZeroCouponMonthlyTest {
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 29);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
+  private static final double NATURAL_PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
   private static final double REFERENCE_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE);
   private static final CouponInflationZeroCouponMonthly ZERO_COUPON = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME,
-      false);
+      NATURAL_PAYMENT_TIME, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, false);
+    new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, NATURAL_PAYMENT_TIME, false);
   }
 
   @Test
@@ -61,6 +61,7 @@ public class CouponInflationZeroCouponMonthlyTest {
     assertEquals("Inflation Zero-coupon: getter", PRICE_INDEX, ZERO_COUPON.getPriceIndex());
     assertEquals("Inflation Zero-coupon: getter", INDEX_APRIL_2008, ZERO_COUPON.getIndexStartValue());
     assertEquals("Inflation Zero-coupon: getter", REFERENCE_END_TIME, ZERO_COUPON.getReferenceEndTime());
+    assertEquals("Inflation Zero-coupon: getter", NATURAL_PAYMENT_TIME, ZERO_COUPON.getNaturalPaymentTime());
   }
 
   @Test
@@ -70,13 +71,16 @@ public class CouponInflationZeroCouponMonthlyTest {
   public void equalHash() {
     assertEquals(ZERO_COUPON, ZERO_COUPON);
     CouponInflationZeroCouponMonthly couponDuplicate = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME,
-        false);
+        NATURAL_PAYMENT_TIME, false);
     assertEquals(ZERO_COUPON, couponDuplicate);
     assertEquals(ZERO_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationZeroCouponMonthly modified;
-    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, false);
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, NATURAL_PAYMENT_TIME, false);
     assertFalse(ZERO_COUPON.equals(modified));
-    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME + 0.1, false);
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME + 0.1, NATURAL_PAYMENT_TIME, false);
+    assertFalse(ZERO_COUPON.equals(modified));
+    double modifiedNaturalPaymentTime = NATURAL_PAYMENT_TIME + .01;
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME, modifiedNaturalPaymentTime, false);
     assertFalse(ZERO_COUPON.equals(modified));
   }
 

@@ -52,7 +52,11 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
    */
   private final double _weightEnd;
   /**
-   * The lag in month between the index validity and the coupon dates.
+   * The lag in month between the index validity and the coupon dates for the standard product (the one in exchange market and used for the calibration, this lag is in most cases 3 month).
+   */
+  private final int _conventionalMonthLag;
+  /**
+   * The lag in month between the index validity and the coupon dates for the actual product. (In most of the cases,lags are standard so _conventionalMonthLag=_monthLag)
    */
   private final int _monthLag;
 
@@ -75,7 +79,8 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
-   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
    * @param referenceStartDate The reference date for the index at the coupon start.
    * @param referenceEndDate The reference date for the index at the coupon end.
    * @param weightStart he weight on the first month index in the interpolation of the index at the _referenceStartDate.
@@ -85,18 +90,20 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
    */
   public CapFloorInflationYearOnYearInterpolationDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate,
-      final int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final double weightStart, final double weightEnd,
-      final double strike, final boolean isCap) {
+      final int conventionalMonthLag, final int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final double weightStart,
+      final double weightEnd, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
+    ArgumentChecker.isTrue(conventionalMonthLag <= monthLag, "the month lag should be superior (or equal)to the conventional month lag");
     _lastKnownFixingDate = lastKnownFixingDate;
+    _conventionalMonthLag = conventionalMonthLag;
+    _monthLag = monthLag;
     _referenceStartDate = referenceStartDate;
     _referenceEndDate = referenceEndDate;
     _weightStart = weightStart;
     _weightEnd = weightEnd;
-    _monthLag = monthLag;
     _strike = strike;
     _isCap = isCap;
   }
@@ -108,7 +115,8 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
-   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
    * @param referenceStartDate The reference dates for the index at the coupon start.
    * @param referenceEndDate The reference dates for the index at the coupon end.
    * @param strike The strike
@@ -116,7 +124,8 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
    * @return The cap/floor.
    */
   public static CapFloorInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
-      final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate, final int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate,
+      final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate, final int conventionalMonthLag, final int monthLag, final ZonedDateTime[] referenceStartDate,
+      final ZonedDateTime[] referenceEndDate,
       final double strike, final boolean isCap) {
     Validate.notNull(priceIndex, "Price index");
     final double weightStart;
@@ -124,8 +133,35 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     weightStart = 1.0 - (paymentDate.getDayOfMonth() - 1.0) / paymentDate.toLocalDate().lengthOfMonth();
     weightEnd = weightStart;
     return new CapFloorInflationYearOnYearInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
-        notional, priceIndex, lastKnownFixingDate, monthLag, referenceStartDate, referenceEndDate, weightStart, weightEnd,
-        strike, isCap);
+        notional, priceIndex, lastKnownFixingDate, conventionalMonthLag, monthLag, referenceStartDate, referenceEndDate, weightStart,
+        weightEnd, strike, isCap);
+  }
+
+  /**
+   * Builder from all the cap/floor details except weights which are calculated using the payment date, and the month lag is the conventional month lag.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param paymentDate Coupon payment date.
+   * @param notional Coupon notional.
+   * @param priceIndex The price index associated to the coupon.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param referenceStartDate The reference dates for the index at the coupon start.
+   * @param referenceEndDate The reference dates for the index at the coupon end.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   * @return The cap/floor.
+   */
+  public static CapFloorInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate, final int conventionalMonthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate,
+      final double strike, final boolean isCap) {
+    Validate.notNull(priceIndex, "Price index");
+    final double weightStart;
+    final double weightEnd;
+    weightStart = 1.0 - (paymentDate.getDayOfMonth() - 1.0) / paymentDate.toLocalDate().lengthOfMonth();
+    weightEnd = weightStart;
+    return new CapFloorInflationYearOnYearInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
+        notional, priceIndex, lastKnownFixingDate, conventionalMonthLag, conventionalMonthLag, referenceStartDate, referenceEndDate, weightStart,
+        weightEnd, strike, isCap);
   }
 
   /**
@@ -141,39 +177,79 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     Validate.notNull(coupon, "coupon year on year interpolation Inflation");
     return new CapFloorInflationYearOnYearInterpolationDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(),
         coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getPriceIndex(), lastKnownFixingDate,
-        coupon.getMonthLag(), coupon.getReferenceStartDate(), coupon.getReferenceEndDate(), coupon.getWeightStart(), coupon.getWeightEnd(),
-        strike, isCap);
+        coupon.getConventionalMonthLag(), coupon.getMonthLag(), coupon.getReferenceStartDate(), coupon.getReferenceEndDate(), coupon.getWeightStart(),
+        coupon.getWeightEnd(), strike, isCap);
   }
 
+  /**
+   * Gets the fixing date (always the first of a month) of the last known fixing..
+   * @return the last known fixing date.
+   */
   public ZonedDateTime getLastKnownFixingDate() {
     return _lastKnownFixingDate;
   }
 
-  public ZonedDateTime[] getReferenceStartDate() {
-    return _referenceStartDate;
+  /**
+   * Gets the lag in month between the index validity and the coupon dates for the standard product.
+   * @return The lag.
+   */
+  public int getConventionalMonthLag() {
+    return _conventionalMonthLag;
   }
 
-  public ZonedDateTime[] getReferenceEndDate() {
-    return _referenceEndDate;
-  }
-
-  public double getWeightStart() {
-    return _weightStart;
-  }
-
-  public double getWeightEnd() {
-    return _weightEnd;
-  }
-
+  /**
+   * Gets the lag in month between the index validity and the coupon dates for the actual product.
+   * @return The lag.
+   */
   public int getMonthLag() {
     return _monthLag;
   }
 
+  /**
+   * Gets the reference dates for the index at the coupon start.
+   * @return The reference dates for the index at the coupon start.
+   */
+  public ZonedDateTime[] getReferenceStartDate() {
+    return _referenceStartDate;
+  }
+
+  /**
+   * Gets the reference dates for the index at the coupon end.
+   * @return The reference dates for the index at the coupon end.
+   */
+  public ZonedDateTime[] getReferenceEndDate() {
+    return _referenceEndDate;
+  }
+
+  /**
+   * Gets the weight on the first month index in the interpolation for the index at the coupon start.
+   * @return The weightStart.
+   */
+  public double getWeightStart() {
+    return _weightStart;
+  }
+
+  /**
+   * Gets the weight on the first month index in the interpolation for the index at the coupon end.
+   * @return The weightEnd.
+   */
+  public double getWeightEnd() {
+    return _weightEnd;
+  }
+
+  /**
+   * Gets the cap/floor strike in years.
+   * @return The strike.
+   */
   @Override
   public double getStrike() {
     return _strike;
   }
 
+  /**
+   * Gets The cap (true) / floor (false) flag.
+   * @return The flag.
+   */
   @Override
   public boolean isCap() {
     return _isCap;
@@ -205,8 +281,12 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
+    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
+    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
+    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
     return new CapFloorInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), lastKnownFixingTime, referenceStartTime,
-        referenceEndTime, _weightStart, _weightEnd, _strike, _isCap);
+        naturalPaymentStartTime, referenceEndTime, naturalPaymentEndTime, _weightStart, _weightEnd, _strike, _isCap);
   }
 
   @Override
@@ -239,8 +319,12 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
+    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
+    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
+    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
     return new CapFloorInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), lastKnownFixingTime, referenceStartTime,
-        referenceEndTime, _weightStart, _weightEnd, _strike, _isCap);
+        naturalPaymentStartTime, referenceEndTime, naturalPaymentEndTime, _weightStart, _weightEnd, _strike, _isCap);
   }
 
   @Override
@@ -264,6 +348,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _conventionalMonthLag;
     result = prime * result + (_isCap ? 1231 : 1237);
     result = prime * result + ((_lastKnownFixingDate == null) ? 0 : _lastKnownFixingDate.hashCode());
     result = prime * result + _monthLag;
@@ -281,44 +366,34 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (!super.equals(obj)) {
+    if (!super.equals(obj))
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     CapFloorInflationYearOnYearInterpolationDefinition other = (CapFloorInflationYearOnYearInterpolationDefinition) obj;
-    if (_isCap != other._isCap) {
+    if (_conventionalMonthLag != other._conventionalMonthLag)
       return false;
-    }
+    if (_isCap != other._isCap)
+      return false;
     if (_lastKnownFixingDate == null) {
-      if (other._lastKnownFixingDate != null) {
+      if (other._lastKnownFixingDate != null)
         return false;
-      }
-    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate)) {
+    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate))
       return false;
-    }
-    if (_monthLag != other._monthLag) {
+    if (_monthLag != other._monthLag)
       return false;
-    }
-    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
+    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate))
       return false;
-    }
-    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate)) {
+    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate))
       return false;
-    }
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
       return false;
-    }
-    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd))
       return false;
-    }
-    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart))
       return false;
-    }
     return true;
   }
 

@@ -63,7 +63,7 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
    * @param name The curve name
    * @param baseDate base date to convert other (future) dates into year fractions using the day-count convention  
    * @param curveDates The dates of points on the curve 
-   * @param rates The zero default rates at points on the curve   
+   * @param rates The zero default rates at points on the curve. <b>Note:</b>These as annually compounded rates   
    * @param offset TODO find out what this does 
    */
   public ISDADateCurve(final String name, final ZonedDateTime baseDate, final ZonedDateTime[] curveDates, final double[] rates, final double offset) {
@@ -75,7 +75,7 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
    * @param name The curve name
    * @param baseDate base date to convert other (future) dates into year fractions using the day-count convention  
    * @param curveDates The dates of points on the curve 
-   * @param rates The zero default rates at points on the curve   
+   * @param rates The zero default rates at points on the curve. <b>Note:</b>These as annually compounded rates   
    * @param offset TODO find out what this does 
    * @param dayCount The day-count convention 
    */
@@ -123,7 +123,8 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
    * @param name The curve name
    * @param curveDates The dates of points on the curve 
    * @param times Time in years to points on the curve (these should have been calculated from a base date using some day-count convention)
-   * @param rates The zero default rates at points on the curve   
+   * @param rates The zero default rates at points on the curve. <b>Note:</b>These are continually compounded rates, while the other constructors take
+   * annually compounded rates    
    * @param offset TODO find out what this does 
    */
   public ISDADateCurve(final String name, final ZonedDateTime[] curveDates, final double[] times, final double[] rates, final double offset) {

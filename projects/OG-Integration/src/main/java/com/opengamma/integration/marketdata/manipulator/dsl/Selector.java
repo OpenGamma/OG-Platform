@@ -18,8 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for selectors. This isn't an interface because the methods need to be package scoped so they're
- * not on the public API and don't interfere with the DSL.
+ *
  */
 /* package */ abstract class Selector<T> implements DistinctMarketDataSelector {
 

@@ -72,7 +72,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
             }
           }
         }
-        offset += _data.getCurveNodePointsForCurve(name).length;
+        offset += _data.getNumberOfPointsForCurve(name); //_data.getCurveNodePointsForCurve(name).length;
       }
     }
     return new DoubleMatrix2D(res);
