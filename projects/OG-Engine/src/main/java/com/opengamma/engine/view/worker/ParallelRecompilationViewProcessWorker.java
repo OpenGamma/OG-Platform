@@ -148,12 +148,15 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
 
     protected void terminate() {
       s_logger.debug("Terminating delegate");
-      ParallelRecompilationViewProcessWorker.this.terminate(this);
+      if (!ParallelRecompilationViewProcessWorker.this.terminate(this)) {
+        s_logger.debug("Worker for {} already terminated", this);
+      }
     }
 
     protected void deferredActions() {
       if (_deferredCompilation != null) {
         try {
+          s_logger.debug("Notifying context of deferred compilation by {}", this);
           getContext().viewDefinitionCompiled(_deferredCompilation, _lastCompiled);
         } finally {
           _deferredCompilation = null;
@@ -161,6 +164,7 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
       }
       if (_deferredCycleStarted != null) {
         try {
+          s_logger.debug("Notifying context of deferred cycle start by {}", this);
           getContext().cycleStarted(_deferredCycleStarted);
         } finally {
           _deferredCycleStarted = null;
@@ -170,19 +174,23 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
 
     protected void notifyCycleStarted(ViewCycleMetadata cycleMetadata) {
       deferredActions();
+      s_logger.debug("Notifying context of cycle started by {}", this);
       getContext().cycleStarted(cycleMetadata);
     }
 
     protected void notifyCycleFragmentCompleted(ViewComputationResultModel result, ViewDefinition viewDefinition) {
       deferredActions();
+      s_logger.debug("Notifying context of cycle fragment completed by {}", this);
       getContext().cycleFragmentCompleted(result, viewDefinition);
     }
 
     protected void notifyCycleCompleted(ViewCycle cycle) {
+      s_logger.debug("Notifying context of cycle completed by {}", this);
       getContext().cycleCompleted(cycle);
     }
 
     protected void notifyCycleExecutionFailed(ViewCycleExecutionOptions options, Exception exception) {
+      s_logger.debug("Notifying context of cycle execution failed by {}", this);
       getContext().cycleExecutionFailed(options, exception);
     }
 
@@ -774,6 +782,7 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
 
   protected boolean workerCompleted(final AbstractViewProcessWorkerContext context) {
     if (!terminate(context)) {
+      s_logger.info("Worker for {} already terminated", context);
       return false;
     }
     synchronized (this) {
@@ -809,7 +818,6 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
     synchronized (this) {
       worker = context._worker;
       if (worker == null) {
-        s_logger.error("Worker for {} already terminated", context); // INFO
         return false;
       }
       context._worker = null;
