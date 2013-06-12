@@ -69,13 +69,13 @@ public class PresentValueCreditDefaultSwap {
   // Method to calculate the value of the premium leg of a CDS (replicates the calculation in the ISDA model)
 
   /**
-   * 
+   * Get the RPV01 of the premium leg  - i.e. the value of the leg per point of spread (expressed as a fraction, so 1bs is 0.0001) 
    * @param valuationDate The date that all cash-flows are PVed back to
    * @param cds Description of the CDS 
    * @param yieldCurve The discount curve
    * @param hazardRateCurve The survival curve 
    * @param priceType Clean or dirty 
-   * @return The PV of the premium leg
+   * @return The RPV01 of the premium leg
    * @deprecated Use ISDACompliantPremiumLegCalculator.calculateLeg
    */
   @Deprecated
@@ -86,7 +86,7 @@ public class PresentValueCreditDefaultSwap {
 
     double presentValuePremiumLeg = 0.0;
 
-    double thisPV = 0.0;
+    double thisPV = 0.0; // this sums the (risk discounted) premium payments ignoring the premium accrued on default (name from ISDA c code)
 
     int obsOffset = 0;
 
@@ -106,7 +106,7 @@ public class PresentValueCreditDefaultSwap {
     // TODO : Add the extra logic for this calculation (safe for the moment since 'protectionStart' is TRUE always)
     // TODO : ISDA uses accEndDates - check this
     // final ZonedDateTime matDate = cds.getMaturityDate();
-    final ZonedDateTime matDate = premiumLegSchedule[premiumLegSchedule.length - 1][2].minusDays(1);
+    final ZonedDateTime matDate = premiumLegSchedule[premiumLegSchedule.length - 1][2].minusDays(1); // this is the final accrual end date minus one day
 
     // TODO : Check valueDate >= today and stepinDate >= today
 
@@ -118,6 +118,7 @@ public class PresentValueCreditDefaultSwap {
       return presentValuePremiumLeg;
     }
 
+    // The survival curve is defined as to the end of day. If the observation is at the start of day we subtract one.
     if (cds.getProtectionStart()) {
       obsOffset = -1;
     }
@@ -163,7 +164,7 @@ public class PresentValueCreditDefaultSwap {
 
       double myPV = 0.0;
 
-      // TODO : Extract out this calc into a seperate routine
+      // TODO : Extract out this calc into a separate routine
       // Do we want to include the accrued premium corresponding to this accrual period
       if (cds.getIncludeAccruedPremium()) {
 
