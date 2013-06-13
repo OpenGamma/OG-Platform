@@ -259,7 +259,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
   /**
    * Immutable key into view status result map
    */
-  private static class ImmutableViewStatusKey implements ViewStatusKey  {
+  static class ImmutableViewStatusKey implements ViewStatusKey  {
     
     private final String _securityType;
     
