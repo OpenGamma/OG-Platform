@@ -14,7 +14,7 @@ import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.util.money.Currency;
 
 /**
- * TODO should this extend PredicateSelector? not sure why it needs to exist
+ *
  */
 public class CurveSelector extends Selector<YieldCurveKey> {
 

@@ -25,7 +25,7 @@ public class SchemaVersion implements Comparable<SchemaVersion> {
    * - a period, followed by
    * - one or more digits (captured into group 2)
    */
-  private static final Pattern _pattern = Pattern.compile("(\\d+)\\.(\\d+)");
+  private static final Pattern s_pattern = Pattern.compile("(\\d+)\\.(\\d+)");
 
   /**
    * The major part of the version number.
@@ -41,7 +41,7 @@ public class SchemaVersion implements Comparable<SchemaVersion> {
 
     ArgumentChecker.notNull(version, "version");
 
-    Matcher matcher = _pattern.matcher(version);
+    Matcher matcher = s_pattern.matcher(version);
     ArgumentChecker.isTrue(matcher.matches(), "Version number must be of the form M.n");
 
     _majorVersion = Integer.parseInt(matcher.group(1));

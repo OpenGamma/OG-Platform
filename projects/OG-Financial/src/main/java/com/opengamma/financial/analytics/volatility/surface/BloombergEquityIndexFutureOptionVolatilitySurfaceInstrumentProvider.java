@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Provides ExternalIds for equity future options used to build a volatility surface
  */
-public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Pair<Integer, Tenor>, Double> {
+public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Pair<Integer, Tenor>, Double> {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider.class);
   /** The strike formatter */
@@ -115,7 +115,6 @@ public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider
     return _dataFieldName;
   }
 
-  @Override
   public Double useCallAboveStrike() {
     return _useCallAboveStrike;
   }

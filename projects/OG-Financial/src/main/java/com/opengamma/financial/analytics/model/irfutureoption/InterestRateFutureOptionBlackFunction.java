@@ -109,9 +109,12 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String[] fullCurveNames = new String[curveNames.length];
+    final String[] fullCurveNames = new String[Math.max(2, curveNames.length)];
     for (int i = 0; i < curveNames.length; i++) {
       fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
+    if (curveNames.length == 1) { // MultiCurveCalculationConfig contains just a single curve for discounting and forwarding
+      fullCurveNames[1] = fullCurveNames[0];
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceNameWithPrefix, currency));
