@@ -134,7 +134,7 @@ public class DepricatedCalAgaintISDATest {
     int constructionFailCount = 0;
 
     final int nEx = data.length;
-    for (int count = 0; count < nEx; count++) {
+    for (int count = 92; count < 93; count++) {
 
       ISDA_Results res = data[count];
 
@@ -196,7 +196,7 @@ public class DepricatedCalAgaintISDATest {
     testISDA_Results(EXAMPLE1, true);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void example3Test() {
     testISDA_Results(EXAMPLE3, true);
   }

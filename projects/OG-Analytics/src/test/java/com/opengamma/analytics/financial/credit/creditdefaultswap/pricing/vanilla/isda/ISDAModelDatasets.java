@@ -29,7 +29,7 @@ public abstract class ISDAModelDatasets {
 
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final double OFFSET = 0.0;//1. / 365;
+  private static final double OFFSET = 0.0;// 1. / 365;
 
   protected static class ISDA_Results {
 
@@ -55,7 +55,7 @@ public abstract class ISDAModelDatasets {
     public int accruedDays;
 
   }
-  
+
   public static ISDA_Results[] getExample1() {
 
     // global data
@@ -76,7 +76,7 @@ public abstract class ISDAModelDatasets {
 
     final LocalDate[] curveInstrumentsStartDate = new LocalDate[] {LocalDate.of(2012, 7, 29)};
 
-    final double[][] q = new double[][] { {0.996810615509364, 0.99256914801695, 0.981114953972081, 0.947234616931817, 0.898378314399555, 0.689993952066726, 0.0366572089666166}};
+    final double[][] q = new double[][] {{0.996810615509364, 0.99256914801695, 0.981114953972081, 0.947234616931817, 0.898378314399555, 0.689993952066726, 0.0366572089666166}};
 
     final LocalDate[] cdsStartDate = new LocalDate[] {LocalDate.of(2012, 9, 12)};
 
@@ -130,7 +130,7 @@ public abstract class ISDAModelDatasets {
         r[j] = -Math.log(surProb[j]) / t[j];
 
       }
-      //note offset is zero in keeping with ISDA code
+      // note offset is zero in keeping with ISDA code
       temp.creditCurve = new HazardRateCurve(curveTenors, t, r, OFFSET);
 
       // cds inputs
