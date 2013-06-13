@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
@@ -174,11 +174,10 @@
       <!-- setup Fudge-Proto to generate -->
       <plugin>
         <groupId>org.fudgemsg</groupId>
-        <artifactId>maven-fudge-proto-plugin</artifactId>
+        <artifactId>fudge-proto-maven-plugin</artifactId>
         <executions>
           <execution>
             <id>fudge-proto-generate</id>
-            <phase>process-sources</phase>
             <goals>
               <goal>generate</goal>
             </goals>
