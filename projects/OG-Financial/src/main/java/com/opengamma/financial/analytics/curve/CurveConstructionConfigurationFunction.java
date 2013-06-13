@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 
 import java.util.Collections;
 import java.util.Set;
@@ -64,9 +64,9 @@ public class CurveConstructionConfigurationFunction extends AbstractFunction {
     }
     //TODO also return any exogenous configs
     final ValueProperties properties = createValueProperties()
-        .with(CURVE_CALCULATION_CONFIG, _configurationName)
+        .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
         .get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, ComputationTargetSpecification.NULL, properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_CONSTRUCTION_CONFIG, ComputationTargetSpecification.NULL, properties);
     final Set<ComputedValue> result = Collections.singleton(new ComputedValue(spec, curveConstructionConfiguration));
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 

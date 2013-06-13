@@ -36,14 +36,41 @@ public class CurveNodeIdMapper {
    * The names of the curve instrument providers.
    */
   public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
+  /** The name of this configuration */
   private final String _name;
+  /** Curve instrument providers for cash nodes */
   private final Map<Tenor, CurveInstrumentProvider> _cashNodeIds;
+  /** Curve instrument providers for continuously-compounded rate nodes */
   private final Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
+  /** Curve instrument providers for credit spread nodes */
   private final Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
+  /** Curve instrument providers for discount factor nodes */
   private final Map<Tenor, CurveInstrumentProvider> _discountFactorNodeIds;
+  /** Curve instrument providers for FRA nodes */
   private final Map<Tenor, CurveInstrumentProvider> _fraNodeIds;
+  /** Curve instrument providers for rate future nodes */
   private final Map<Tenor, CurveInstrumentProvider> _rateFutureNodeIds;
+  /** Curve instrument providers for swap nodes */
   private final Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
+
+  /**
+   * @param cashNodeIds The cash node ids
+   * @param continuouslyCompoundedRateIds The continuously-compounded rate ids
+   * @param creditSpreadNodeIds The credit spread node ids
+   * @param discountFactorNodeIds The discount factor node ids
+   * @param fraNodeIds The FRA node ids
+   * @param rateFutureNodeIds The rate future node ids
+   * @param swapNodeIds The swap node ids
+   */
+  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
+      final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
+    this(null, cashNodeIds, continuouslyCompoundedRateIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds, rateFutureNodeIds, swapNodeIds);
+  }
 
   /**
    * @param name The name of this configuration
@@ -183,7 +210,7 @@ public class CurveNodeIdMapper {
    */
   public ExternalId getCashNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_cashNodeIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get cash node id provider");
+      throw new OpenGammaRuntimeException("Cannot get cash node id provider for curve node id mapper called " + _name);
     }
     return getStaticSecurity(_cashNodeIds, curveDate, tenor);
   }
@@ -197,7 +224,7 @@ public class CurveNodeIdMapper {
    */
   public ExternalId getContinuouslyCompoundedRateNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_continuouslyCompoundedRateNodeIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get continuously-compounded rate node id provider");
+      throw new OpenGammaRuntimeException("Cannot get continuously-compounded rate node id provider for curve node id mapper called " + _name);
     }
     return getStaticSecurity(_continuouslyCompoundedRateNodeIds, curveDate, tenor);
   }
@@ -211,7 +238,7 @@ public class CurveNodeIdMapper {
    */
   public ExternalId getCreditSpreadNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_creditSpreadNodeIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get credit spread node id provider");
+      throw new OpenGammaRuntimeException("Cannot get credit spread node id provider for curve node id mapper called " + _name);
     }
     return getStaticSecurity(_creditSpreadNodeIds, curveDate, tenor);
   }
@@ -225,7 +252,7 @@ public class CurveNodeIdMapper {
    */
   public ExternalId getDiscountFactorNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_discountFactorNodeIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get discount factor node id provider");
+      throw new OpenGammaRuntimeException("Cannot get discount factor node id provider for curve node id mapper called " + _name);
     }
     return getStaticSecurity(_discountFactorNodeIds, curveDate, tenor);
   }
@@ -239,7 +266,7 @@ public class CurveNodeIdMapper {
    */
   public ExternalId getFRANodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_fraNodeIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get FRA node id provider");
+      throw new OpenGammaRuntimeException("Cannot get FRA node id provider for curve node id mapper called " + _name);
     }
     return getStaticSecurity(_fraNodeIds, curveDate, tenor);
   }
@@ -253,7 +280,7 @@ public class CurveNodeIdMapper {
    */
   public ExternalId getRateFutureNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_swapNodeIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get rate future node id provider");
+      throw new OpenGammaRuntimeException("Cannot get rate future node id provider for curve node id mapper called " + _name);
     }
     return getStaticSecurity(_swapNodeIds, curveDate, tenor);
   }
@@ -267,7 +294,7 @@ public class CurveNodeIdMapper {
    */
   public ExternalId getSwapNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_swapNodeIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get swap node id provider");
+      throw new OpenGammaRuntimeException("Cannot get swap node id provider for curve node id mapper called " + _name);
     }
     return getStaticSecurity(_swapNodeIds, curveDate, tenor);
   }

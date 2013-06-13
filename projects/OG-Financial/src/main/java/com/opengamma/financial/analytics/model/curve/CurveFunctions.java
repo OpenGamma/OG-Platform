@@ -12,6 +12,7 @@ import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationFunction;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
 import com.opengamma.financial.analytics.curve.CurveMarketDataFunction;
@@ -68,6 +69,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     }
 
     protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions, final String curveConfigName) {
+      functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
       functions.add(functionConfiguration(MulticurveProviderDiscountingFunction.class, curveConfigName));
     }
 
