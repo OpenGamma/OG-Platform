@@ -43,24 +43,26 @@ import com.opengamma.livedata.UserPrincipal;
   private static final List<Double> SCALING_FACTORS = ImmutableList.of(0.95, 1.0, 1.05);
 
   public static void main(String[] args) {
-    ToolContext toolContext = ToolContextUtils.getToolContext("http://localhost:8080/jax", ToolContext.class);
-    ViewProcessor viewProcessor = toolContext.getViewProcessor();
-    ConfigSource configSource = toolContext.getConfigSource();
-    String viewDefName = "AUD Swaps (3m / 6m basis) (1)";
-    Collection<ConfigItem<ViewDefinition>> viewDefs =
-            configSource.get(ViewDefinition.class, viewDefName, VersionCorrection.LATEST);
-    UniqueId viewDefId = viewDefs.iterator().next().getValue().getUniqueId();
-    List<MarketDataSpecification> marketDataSpecs =
-        ImmutableList.<MarketDataSpecification>of(new LiveMarketDataSpecification("Simulated live market data"));
+    try (ToolContext toolContext = ToolContextUtils.getToolContext("http://localhost:8080/jax", ToolContext.class)) {
+      ViewProcessor viewProcessor = toolContext.getViewProcessor();
+      ConfigSource configSource = toolContext.getConfigSource();
+      String viewDefName = "AUD Swaps (3m / 6m basis) (1)";
+      Collection<ConfigItem<ViewDefinition>> viewDefs =
+          configSource.get(ViewDefinition.class, viewDefName, VersionCorrection.LATEST);
+      UniqueId viewDefId = viewDefs.iterator().next().getValue().getUniqueId();
+      List<MarketDataSpecification> marketDataSpecs =
+          ImmutableList.<MarketDataSpecification>of(new LiveMarketDataSpecification("Simulated live market data"));
 
-    Simulation.Builder simulation = Simulation.builder();
-    for (Double scalingFactor : SCALING_FACTORS) {
-      Scenario scenario = simulation.addScenario();
-      for (String currencyPair : CURRENCY_PAIRS) {
-        scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor).execute();
+      Simulation.Builder simulationBuilder = Simulation.builder();
+      for (Double scalingFactor : SCALING_FACTORS) {
+        Scenario scenario = simulationBuilder.addScenario();
+        for (String currencyPair : CURRENCY_PAIRS) {
+          scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor).execute();
+        }
       }
+      Simulation sim = simulationBuilder.build();
+      sim.run(viewDefId, VersionCorrection.LATEST, Instant.now(), marketDataSpecs, false, new Listener(), viewProcessor);
     }
-    simulation.build().run(viewDefId, VersionCorrection.LATEST, Instant.now(), marketDataSpecs, false, new Listener(), viewProcessor);
   }
 
   private static class Listener extends AbstractViewResultListener {
