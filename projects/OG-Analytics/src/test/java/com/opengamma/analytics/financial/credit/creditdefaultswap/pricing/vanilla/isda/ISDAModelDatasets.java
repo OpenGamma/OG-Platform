@@ -29,7 +29,7 @@ public abstract class ISDAModelDatasets {
 
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final double OFFSET = 1. / 365;
+  private static final double OFFSET = 0.0;//1. / 365;
 
   protected static class ISDA_Results {
 
@@ -54,6 +54,101 @@ public abstract class ISDAModelDatasets {
     public double accruedPremium;
     public int accruedDays;
 
+  }
+  
+  public static ISDA_Results[] getExample1() {
+
+    // global data
+    final double notional = 1e7;
+    final double recoveryRate = 0.4;
+
+    // curve data
+    final int nCurvePoints = 7;
+    final LocalDate[] parSpreadDates = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 3, 20),
+        LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20)};
+    // final double[] parSpreads = new double[] {50, 70, 100, 150, 200, 400, 1000};
+    // check data
+    ArgumentChecker.isTrue(nCurvePoints == parSpreadDates.length, "parSpreadDates should have {} entires", nCurvePoints);
+    // ArgumentChecker.isTrue(nCurvePoints == parSpreads.length, "parSpreads should have {} entires", nCurvePoints);
+
+    final int nSets = 1;
+    final LocalDate[] today = new LocalDate[] {LocalDate.of(2013, 2, 2)};
+
+    final LocalDate[] curveInstrumentsStartDate = new LocalDate[] {LocalDate.of(2012, 7, 29)};
+
+    final double[][] q = new double[][] { {0.996810615509364, 0.99256914801695, 0.981114953972081, 0.947234616931817, 0.898378314399555, 0.689993952066726, 0.0366572089666166}};
+
+    final LocalDate[] cdsStartDate = new LocalDate[] {LocalDate.of(2012, 9, 12)};
+
+    final LocalDate[] cdsEndDate = new LocalDate[] {LocalDate.of(2018, 7, 4)};
+
+    final double[] spreadBP = new double[] {100};
+
+    final double[] premLeg = new double[] {483704.040209604};
+
+    final double[] protectionLeg = new double[] {2508592.58471593};
+
+    final double[] defaultAcc = new double[] {5497.55738374288};
+
+    final double[] accruedPrem = new double[] {8333.33333333325};
+
+    final int[] accruedDays = new int[] {30};
+
+    // check data hasn't been messed up
+    ArgumentChecker.isTrue(nSets == today.length, "today");
+    ArgumentChecker.isTrue(nSets == curveInstrumentsStartDate.length, "curveInstrumentsStartDate");
+    ArgumentChecker.isTrue(nSets == q.length, "q");
+    ArgumentChecker.isTrue(nCurvePoints == q[0].length, "q");
+    ArgumentChecker.isTrue(nSets == cdsStartDate.length, "cdsStartDate");
+    ArgumentChecker.isTrue(nSets == cdsEndDate.length, "cdsEndDate");
+    ArgumentChecker.isTrue(nSets == spreadBP.length, "spreadBP");
+    ArgumentChecker.isTrue(nSets == premLeg.length, "premLeg");
+    ArgumentChecker.isTrue(nSets == protectionLeg.length, "protectionLeg");
+    ArgumentChecker.isTrue(nSets == defaultAcc.length, "defaultAcc");
+    ArgumentChecker.isTrue(nSets == accruedPrem.length, "accruedPrem");
+    ArgumentChecker.isTrue(nSets == accruedDays.length, "accruedDays");
+
+    // since current OG ISDA Java code used ZoneDateTime, 'upscale' LocalTime
+    final ZonedDateTime[] curveTenors = new ZonedDateTime[nCurvePoints];
+    for (int j = 0; j < nCurvePoints; j++) {
+      curveTenors[j] = ZonedDateTime.of(parSpreadDates[j], LOCAL_TIME, TIME_ZONE);
+    }
+
+    final ISDA_Results[] res = new ISDA_Results[nSets];
+    for (int i = 0; i < nSets; i++) {
+      ISDA_Results temp = new ISDA_Results();
+      temp.notional = notional;
+      temp.recoveryRate = recoveryRate;
+      temp.today = today[i];
+
+      // build the credit curve
+      final double[] surProb = q[i];
+      final double[] t = new double[nCurvePoints];
+      final double[] r = new double[nCurvePoints];
+      for (int j = 0; j < nCurvePoints; j++) {
+        t[j] = ACT365.getDayCountFraction(temp.today, parSpreadDates[j]);
+        r[j] = -Math.log(surProb[j]) / t[j];
+
+      }
+      //note offset is zero in keeping with ISDA code
+      temp.creditCurve = new HazardRateCurve(curveTenors, t, r, OFFSET);
+
+      // cds inputs
+      temp.startDate = cdsStartDate[i];
+      temp.endDate = cdsEndDate[i];
+      temp.fracSpread = spreadBP[i] / 10000;
+
+      // cds outputs
+      temp.premiumLeg = premLeg[i];
+      temp.protectionLeg = protectionLeg[i];
+      temp.defaultAcc = defaultAcc[i];
+      temp.accruedPremium = accruedPrem[i];
+      temp.accruedDays = accruedDays[i];
+
+      res[i] = temp;
+    }
+
+    return res;
   }
 
   // TODO replace with a CSV reader

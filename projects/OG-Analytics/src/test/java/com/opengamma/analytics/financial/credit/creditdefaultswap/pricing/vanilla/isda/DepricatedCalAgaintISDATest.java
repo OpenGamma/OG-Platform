@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.Ca
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwapDebug;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDAModelDatasets.ISDA_Results;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -42,7 +43,7 @@ public class DepricatedCalAgaintISDATest {
   private static final GenerateCreditDefaultSwapPremiumLegSchedule PREMIUM_LEG_SCHEDULE_BUILDER = new GenerateCreditDefaultSwapPremiumLegSchedule();
   private static final CalibrateHazardRateTermStructureISDAMethod HAZARD_CURVE_CALIBRATOR = new CalibrateHazardRateTermStructureISDAMethod();
   private static final PresentValueCreditDefaultSwap DEPRICATED_CALCULATOR = new PresentValueCreditDefaultSwap();
-
+  private static final PresentValueCreditDefaultSwapDebug DEPRICATED_CALCULATOR_DEBUG = new PresentValueCreditDefaultSwapDebug();
 
   private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2013, 4, 21);
   private static final ZonedDateTime BASE_DATE = TODAY;
@@ -84,6 +85,7 @@ public class DepricatedCalAgaintISDATest {
   private static final CreditDefaultSwapDefinition[] PAR_CDS;
 
   // examples
+  private static final ISDA_Results[] EXAMPLE1 = ISDAModelDatasets.getExample1();
   private static final ISDA_Results[] EXAMPLE3 = ISDAModelDatasets.getExample3();
 
   // private static final ZonedDateTime[] FEE_LEG_PAYMENT_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 6, 20), DateUtils.getUTCDate(2013, 9, 20), DateUtils.getUTCDate(2013, 12, 20),
@@ -160,7 +162,7 @@ public class DepricatedCalAgaintISDATest {
       double rpv01_clean_ISDA = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
       double rpv01_clean_ISDA_noAccOnDefault = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds_noAcc, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
       double rpv01_dirty_ISDA = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.DIRTY);
-      double contLeg_ISDA = DEPRICATED_CALCULATOR.calculateContingentLeg(today, cds, YIELD_CURVE, res.creditCurve);
+      double contLeg_ISDA = DEPRICATED_CALCULATOR_DEBUG.calculateContingentLeg(today, cds, YIELD_CURVE, res.creditCurve);
 
       double premLeg_clean_ISDA = res.fracSpread * rpv01_clean_ISDA;
       double defaultAcc = res.fracSpread * (rpv01_clean_ISDA - rpv01_clean_ISDA_noAccOnDefault);
@@ -175,9 +177,9 @@ public class DepricatedCalAgaintISDATest {
             + "\t" + accruedPrem + "\t\t" + res.accruedDays + "\t" + accruedDays);
       }
       try {
-        assertEquals("Premium Leg:", res.premiumLeg, premLeg_clean_ISDA, 1e-4 * NOTIONAL); // This should be 1e-15*NOTIONAL
-        assertEquals("Protection Leg:", res.protectionLeg, contLeg_ISDA, 1e-4 * NOTIONAL); // ditto
-        assertEquals("Default Acc:", res.defaultAcc, defaultAcc, 1e-5 * NOTIONAL);
+        assertEquals("Premium Leg:", res.premiumLeg, premLeg_clean_ISDA, 1e-8 * NOTIONAL); // This should be 1e-15*NOTIONAL
+        assertEquals("Protection Leg:", res.protectionLeg, contLeg_ISDA, 1e-8 * NOTIONAL); // ditto
+        assertEquals("Default Acc:", res.defaultAcc, defaultAcc, 1e-8 * NOTIONAL);
         assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
         assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
       } catch (AssertionError e) {
@@ -187,6 +189,11 @@ public class DepricatedCalAgaintISDATest {
     if (debug) {
       System.out.println("\nFailed to construct: " + constructionFailCount + " Failed: " + failCount + "\n");
     }
+  }
+  
+  @Test(enabled = false)
+  public void example1Test() {
+    testISDA_Results(EXAMPLE1, true);
   }
 
   @Test(enabled = false)
