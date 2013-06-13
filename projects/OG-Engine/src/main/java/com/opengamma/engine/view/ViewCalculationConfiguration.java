@@ -26,6 +26,7 @@ import com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform;
 import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
@@ -47,6 +48,7 @@ public class ViewCalculationConfiguration implements Serializable {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   private final ViewDefinition _viewDefinition;
+
   private final String _name;
 
   /**
@@ -68,6 +70,11 @@ public class ViewCalculationConfiguration implements Serializable {
    * required for the view configuration.
    */
   private DeltaDefinition _deltaDefinition = new DeltaDefinition();
+
+  /**
+   * The scenarioId to be used for this configuration
+   * */
+  private UniqueId _scenarioId;
 
   /**
    * A set of default properties for functions to configure themselves from. Note that these are intended to represent generic
@@ -119,6 +126,7 @@ public class ViewCalculationConfiguration implements Serializable {
     newOwner.addViewCalculationConfiguration(copy);
     copy.setDefaultProperties(getDefaultProperties());
     copy.addSpecificRequirements(getSpecificRequirements());
+    copy.setScenarioId(getScenarioId());
     for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getPortfolioRequirementsBySecurityType().entrySet()) {
       copy.addPortfolioRequirements(requirementEntry.getKey(), requirementEntry.getValue()); 
     }
@@ -163,6 +171,26 @@ public class ViewCalculationConfiguration implements Serializable {
    */
   public ValueProperties getDefaultProperties() {
     return _defaultProperties;
+  }
+
+  /**
+   * Returns the scenarioId to be used for this configuration - if set, this will refer to a scenario defined in
+   * the config master.
+   *
+   * @return the scenarioId for this configuration, may be null
+   */
+  public UniqueId getScenarioId() {
+    return _scenarioId;
+  }
+
+  /**
+   * Sets the scenarioId to be used for this configuration - if set, this will refer to a scenario defined in
+   * the config master.
+   *
+   * @param scenarioId the scenarioId for this configuration, may be null
+   */
+  public void setScenarioId(UniqueId scenarioId) {
+    _scenarioId = scenarioId;
   }
 
   /**
@@ -339,6 +367,7 @@ public class ViewCalculationConfiguration implements Serializable {
     result = prime * result + ObjectUtils.hashCode(getAllPortfolioRequirements());
     result = prime * result + ObjectUtils.hashCode(getSpecificRequirements());
     result = prime * result + ObjectUtils.hashCode(getDefaultProperties());
+    result = prime * result + ObjectUtils.hashCode(getScenarioId());
     result = prime * result + ObjectUtils.hashCode(getResolutionRuleTransform());
     return result;
   }
@@ -369,6 +398,9 @@ public class ViewCalculationConfiguration implements Serializable {
       return false;
     }
     if (!ObjectUtils.equals(getResolutionRuleTransform(), other.getResolutionRuleTransform())) {
+      return false;
+    }
+    if (!ObjectUtils.equals(getScenarioId(), other.getScenarioId())) {
       return false;
     }
     return true;
