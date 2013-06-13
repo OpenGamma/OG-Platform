@@ -93,14 +93,14 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
     final ZonedDateTime tradeDate = previousWorkingDay(now.minusDays(getRandom(getDaysTrading())), ccy);
     final Tenor forward = getRandom(FORWARDS);
     final ZonedDateTime forwardDate = nextWorkingDay(now.plus(forward.getPeriod()), ccy);
-    ConventionBundle swapConvention = getConventionSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
+    ConventionBundle swapConvention = getConventionBundleSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {
       s_logger.error("Couldn't get swap convention for {}", ccy.getCode());
       return null;
     }
     final Tenor maturity = getRandom(TENORS);
     // get the convention of the identifier of the initial rate
-    ConventionBundle liborConvention = getConventionSource().getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
+    ConventionBundle liborConvention = getConventionBundleSource().getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     if (liborConvention == null) {
       s_logger.error("Couldn't get libor convention for {}", swapConvention.getSwapFloatingLegInitialRate());
       return null;
