@@ -33,17 +33,13 @@ public class TestSimulationSupplier implements SimulationSupplier {
 
   @Override
   public Simulation get() {
-    /*Simulation.Builder simulation = Simulation.builder();
+    Simulation.Builder simulation = Simulation.builder();
     for (Double scalingFactor : SCALING_FACTORS) {
       Scenario scenario = simulation.addScenario();
       for (String currencyPair : CURRENCY_PAIRS) {
         scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor).execute();
       }
     }
-    return simulation.build();*/
-    Simulation.Builder simulation = Simulation.builder();
-    simulation.addScenario().curve().named("foo").apply().parallelShift(0.1).execute();
-    simulation.addScenario().curve().named("bar").apply().parallelShift(0.1).execute();
     return simulation.build();
   }
 

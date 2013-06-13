@@ -19,10 +19,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PointSelector implements DistinctMarketDataSelector {
 
+  /** Types of structured data selected by this class. */
   private static final ImmutableSet<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.MARKET_DATA_POINT);
 
+  /** ID of the market data point to be manipulated. */
   private final ExternalId _id;
   // TODO regex pattern for ID value
+  /** Calculation configuration to which the manipulation should be applied. */
   private final String _calcConfigName;
 
   /* package */ PointSelector(ExternalId id, String calcConfigName) {
@@ -89,9 +92,12 @@ public class PointSelector implements DistinctMarketDataSelector {
 
   public static class Builder {
 
+    /** Calculation configuration to which the manipulation should be applied. */
     private final String _calcConfigName;
+    /** Scenario that the transformation will be added to. */
     private final Scenario _scenario;
 
+    /** ID of the market data point to be manipulated. */
     private ExternalId _id;
     // TODO regex pattern for ID value
 
@@ -100,12 +106,12 @@ public class PointSelector implements DistinctMarketDataSelector {
       _scenario = scenario;
     }
 
-    public PointManipulator.Builder apply() {
+    public PointManipulatorBuilder apply() {
       if (_id == null) {
         throw new IllegalStateException("No ID specified");
       }
       PointSelector selector = new PointSelector(_id, _calcConfigName);
-      return new PointManipulator.Builder(selector, _scenario);
+      return new PointManipulatorBuilder(selector, _scenario);
     }
 
     public Builder id(String scheme, String value) {

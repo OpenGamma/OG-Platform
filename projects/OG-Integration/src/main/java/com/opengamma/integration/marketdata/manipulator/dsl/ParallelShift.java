@@ -14,14 +14,17 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
 /**
- *
+ * {@link StructureManipulator} that shifts all points on a curve up or down by the same amount.
+ * Uses {@link YieldAndDiscountCurve#withParallelShift(double)} to perform the transformation.
  */
 public class ParallelShift implements StructureManipulator<YieldAndDiscountCurve> {
 
+  /** Field name for Fudge message */
   private static final String SHIFT = "shift";
+  /** The shift to apply  */
   private final double _shift;
 
-  public ParallelShift(double shift) {
+  /* package */ ParallelShift(double shift) {
     _shift = shift;
   }
 

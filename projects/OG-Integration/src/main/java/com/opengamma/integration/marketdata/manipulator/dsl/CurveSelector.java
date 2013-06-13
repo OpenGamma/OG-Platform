@@ -33,8 +33,8 @@ public class CurveSelector extends Selector<YieldCurveKey> {
       super(scenario, calcConfigName);
     }
 
-    public CurveManipulator.Builder apply() {
-      return new CurveManipulator.Builder(selector(), getScenario());
+    public CurveManipulatorBuilder apply() {
+      return new CurveManipulatorBuilder(selector(), getScenario());
     }
 
     @Override
