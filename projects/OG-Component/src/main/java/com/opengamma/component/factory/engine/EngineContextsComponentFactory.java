@@ -48,6 +48,7 @@ import com.opengamma.financial.analytics.riskfactors.DefaultRiskFactorsGatherer;
 import com.opengamma.financial.analytics.riskfactors.RiskFactorsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.marketdata.MarketDataELCompiler;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.config.ConfigMaster;
@@ -147,6 +148,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
   /**
+   * The convention source. 
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ConventionSource _conventionSource;
+  /**
    * The execution blacklist. View processors will not submit nodes matched by this blacklist for execution.
    */
   @PropertyDefinition
@@ -161,6 +167,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private TempTargetRepository _tempTargetRepository;
+
   /**
    * The slave view processor executing functions can make requests to. This might be the view processor that owns the context, but might be a different but compatible one.
    */
@@ -195,6 +202,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaCompilationContext.setConventionSource(context, getConventionSource());
     OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, getInterpolatedYieldCurveDefinitionSource());
     OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, getInterpolatedYieldCurveSpecificationBuilder());
     OpenGammaCompilationContext.setVolatilityCubeDefinitionSource(context, getVolatilityCubeDefinitionSource());
@@ -312,6 +320,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getHistoricalTimeSeriesSource();
       case -946313676:  // historicalTimeSeriesResolver
         return getHistoricalTimeSeriesResolver();
+      case 225875692:  // conventionSource
+        return getConventionSource();
       case -557041435:  // executionBlacklist
         return getExecutionBlacklist();
       case 1210914458:  // compilationBlacklist
@@ -381,6 +391,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       case -946313676:  // historicalTimeSeriesResolver
         setHistoricalTimeSeriesResolver((HistoricalTimeSeriesResolver) newValue);
         return;
+      case 225875692:  // conventionSource
+        setConventionSource((ConventionSource) newValue);
+        return;
       case -557041435:  // executionBlacklist
         setExecutionBlacklist((FunctionBlacklist) newValue);
         return;
@@ -420,6 +433,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_exchangeSource, "exchangeSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
+    JodaBeanUtils.notNull(_conventionSource, "conventionSource");
     super.validate();
   }
 
@@ -446,6 +460,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
+          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
           JodaBeanUtils.equal(getExecutionBlacklist(), other.getExecutionBlacklist()) &&
           JodaBeanUtils.equal(getCompilationBlacklist(), other.getCompilationBlacklist()) &&
           JodaBeanUtils.equal(getTempTargetRepository(), other.getTempTargetRepository()) &&
@@ -477,6 +492,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
@@ -922,6 +938,32 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the convention source.
+   * @return the value of the property, not null
+   */
+  public ConventionSource getConventionSource() {
+    return _conventionSource;
+  }
+
+  /**
+   * Sets the convention source.
+   * @param conventionSource  the new value of the property, not null
+   */
+  public void setConventionSource(ConventionSource conventionSource) {
+    JodaBeanUtils.notNull(conventionSource, "conventionSource");
+    this._conventionSource = conventionSource;
+  }
+
+  /**
+   * Gets the the {@code conventionSource} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionSource> conventionSource() {
+    return metaBean().conventionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the execution blacklist. View processors will not submit nodes matched by this blacklist for execution.
    * @return the value of the property
    */
@@ -1186,6 +1228,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<HistoricalTimeSeriesResolver> _historicalTimeSeriesResolver = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesResolver", EngineContextsComponentFactory.class, HistoricalTimeSeriesResolver.class);
     /**
+     * The meta-property for the {@code conventionSource} property.
+     */
+    private final MetaProperty<ConventionSource> _conventionSource = DirectMetaProperty.ofReadWrite(
+        this, "conventionSource", EngineContextsComponentFactory.class, ConventionSource.class);
+    /**
      * The meta-property for the {@code executionBlacklist} property.
      */
     private final MetaProperty<FunctionBlacklist> _executionBlacklist = DirectMetaProperty.ofReadWrite(
@@ -1241,6 +1288,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         "exchangeSource",
         "historicalTimeSeriesSource",
         "historicalTimeSeriesResolver",
+        "conventionSource",
         "executionBlacklist",
         "compilationBlacklist",
         "tempTargetRepository",
@@ -1290,6 +1338,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _historicalTimeSeriesSource;
         case -946313676:  // historicalTimeSeriesResolver
           return _historicalTimeSeriesResolver;
+        case 225875692:  // conventionSource
+          return _conventionSource;
         case -557041435:  // executionBlacklist
           return _executionBlacklist;
         case 1210914458:  // compilationBlacklist
@@ -1450,6 +1500,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<HistoricalTimeSeriesResolver> historicalTimeSeriesResolver() {
       return _historicalTimeSeriesResolver;
+    }
+
+    /**
+     * The meta-property for the {@code conventionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionSource> conventionSource() {
+      return _conventionSource;
     }
 
     /**

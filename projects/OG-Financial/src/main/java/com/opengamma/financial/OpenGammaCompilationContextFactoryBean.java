@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -42,6 +43,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private ComputationTargetResolver _targetResolver;
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
+  private ConventionSource _conventionSource;
 
   public void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
@@ -89,6 +91,14 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
 
   public ConventionBundleSource getConventionBundleSource() {
     return _conventionBundleSource;
+  }
+
+  public void setConventionSource(final ConventionSource conventionSource) {
+    _conventionSource = conventionSource;
+  }
+
+  public ConventionSource getConventionSource() {
+    return _conventionSource;
   }
 
   public void setConfigSource(final ConfigSource configSource) {
@@ -166,6 +176,9 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     }
     if (getConventionBundleSource() != null) {
       OpenGammaCompilationContext.setConventionBundleSource(context, getConventionBundleSource());
+    }
+    if (getConventionSource() != null) {
+      OpenGammaCompilationContext.setConventionSource(context, getConventionSource());
     }
     if (getInterpolatedYieldCurveDefinitionSource() != null) {
       OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, getInterpolatedYieldCurveDefinitionSource());
