@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.util.money.Currency;
 
@@ -34,9 +33,8 @@ public class CurveSelector extends Selector<YieldCurveKey> {
       super(scenario, calcConfigName);
     }
 
-    public CurveManipulator.Builder apply() {
-      CurveSelector selector = new CurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
-      return new CurveManipulator.Builder(selector, getScenario());
+    public CurveManipulatorBuilder apply() {
+      return new CurveManipulatorBuilder(selector(), getScenario());
     }
 
     @Override
@@ -58,10 +56,10 @@ public class CurveSelector extends Selector<YieldCurveKey> {
     }
 
     /**
-     * This is for testing
+     * This is package scoped for testing
      * @return A selector built from this builder's data
      */
-    /* package */ MarketDataSelector selector() {
+    /* package */ CurveSelector selector() {
       return new CurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
     }
   }

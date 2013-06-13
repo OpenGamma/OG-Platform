@@ -13,7 +13,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 /**
  * Simple implementation of {@link ViewStatusModel}
@@ -57,8 +56,8 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   }
 
   @Override
-  public Set<Currency> getCurrencies() {
-    Set<Currency> result = Sets.newTreeSet();
+  public Set<String> getCurrencies() {
+    Set<String> result = Sets.newTreeSet();
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getCurrency());
     }

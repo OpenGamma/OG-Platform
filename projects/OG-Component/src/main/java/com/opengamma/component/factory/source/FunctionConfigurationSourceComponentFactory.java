@@ -36,6 +36,7 @@ import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
+import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
@@ -167,13 +168,17 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   protected FunctionConfigurationSource yieldCurveConfigurations() {
     return IRCurveFunctions.providers(getConfigMaster());
   }
-  
+
   protected FunctionConfigurationSource fxForwardCurveConfigurations() {
     return FXForwardCurveFunctions.providers(getConfigMaster());
   }
 
   protected FunctionConfigurationSource cubeConfigurations() {
     return BloombergVolatilityCubeFunctions.instance();
+  }
+
+  protected FunctionConfigurationSource curveConfigurations() {
+    return CurveFunctions.providers(getConfigMaster());
   }
 
   /**
@@ -186,6 +191,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
     sources.add(yieldCurveConfigurations());
+    sources.add(curveConfigurations());
     sources.add(fxForwardCurveConfigurations());
     sources.add(cubeConfigurations());
     return sources;

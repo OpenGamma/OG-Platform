@@ -124,6 +124,7 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_redisConnector, "redisConnector");
+    JodaBeanUtils.notNull(_redisPrefix, "redisPrefix");
     super.validate();
   }
 
@@ -208,7 +209,7 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   //-----------------------------------------------------------------------
   /**
    * Gets if set (optional) prefixes all Redis keys with the specified value.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getRedisPrefix() {
     return _redisPrefix;
@@ -216,9 +217,10 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
 
   /**
    * Sets if set (optional) prefixes all Redis keys with the specified value.
-   * @param redisPrefix  the new value of the property
+   * @param redisPrefix  the new value of the property, not null
    */
   public void setRedisPrefix(String redisPrefix) {
+    JodaBeanUtils.notNull(redisPrefix, "redisPrefix");
     this._redisPrefix = redisPrefix;
   }
 

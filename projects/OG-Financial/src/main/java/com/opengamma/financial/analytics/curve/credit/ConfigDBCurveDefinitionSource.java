@@ -12,11 +12,15 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * A source for {@link CurveDefinition}s.
  */
 public class ConfigDBCurveDefinitionSource implements CurveDefinitionSource {
+  /** The config source */
   private final ConfigSource _configSource;
 
+  /**
+   * @param configSource The config source, not null
+   */
   public ConfigDBCurveDefinitionSource(final ConfigSource configSource) {
     ArgumentChecker.notNull(configSource, "config source");
     _configSource = configSource;

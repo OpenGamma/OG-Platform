@@ -53,7 +53,7 @@ public class CurveBuildingBlock {
    * @return The start index.
    */
   public Integer getStart(final String name) {
-    // TODO: Test nqme exists?
+    // TODO: Test name exists?
     return _unit.get(name).getFirst();
   }
 

@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import com.opengamma.lambdava.functions.Function2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.DayOfWeek;
@@ -66,6 +65,7 @@ import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurv
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixResolver;
@@ -76,6 +76,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -123,7 +124,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   protected static final double YEAR_LENGTH = 365.25;
 
   private Random _random = new Random();
-  private ConventionBundleSource _conventionSource;
+  private ConventionBundleSource _conventionBundleSource;
   private ConfigSource _configSource;
   private ConfigMaster _configMaster;
   private HolidaySource _holidaySource;
@@ -137,6 +138,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private final Map<Currency, String> _curveCalculationConfig = new HashMap<Currency, String>();
   private ExternalScheme _preferredScheme;
   private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
+  private ConventionSource _conventionSource;
 
   private Currency[] _currencies;
 
@@ -172,11 +174,19 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return xs[getRandom(xs.length)];
   }
 
-  public ConventionBundleSource getConventionSource() {
+  public ConventionBundleSource getConventionBundleSource() {
+    return _conventionBundleSource;
+  }
+
+  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
+    _conventionBundleSource = conventionBundleSource;
+  }
+
+  public ConventionSource getConventionSource() {
     return _conventionSource;
   }
 
-  public void setConventionSource(final ConventionBundleSource conventionSource) {
+  public void setConventionSource(final ConventionSource conventionSource) {
     _conventionSource = conventionSource;
   }
 
@@ -240,7 +250,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return _organizationSource;
   }
 
-  public void setOrganizationSource(OrganizationSource organizationSource) {
+  public void setOrganizationSource(final OrganizationSource organizationSource) {
     _organizationSource = organizationSource;
   }
 
@@ -294,7 +304,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
         new DefaultComputationTargetResolver(context.getSecuritySource()).atVersionCorrection(VersionCorrection.LATEST));
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
-    OpenGammaExecutionContext.setConventionBundleSource(context, getConventionSource());
+    OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaExecutionContext.setConventionSource(context, getConventionSource());
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
@@ -310,7 +321,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
     OpenGammaCompilationContext.setOrganizationSource(context, getOrganizationSource());
-    OpenGammaCompilationContext.setConventionBundleSource(context, getConventionSource());
+    OpenGammaCompilationContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaCompilationContext.setConventionSource(context, getConventionSource());
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()),
         getHistoricalTimeSeriesMaster()));
@@ -338,7 +350,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     } catch (final AsynchronousExecution ex) {
       results = AsynchronousOperation.getResult(ex);
     }
-    for (ComputedValue result : results) {
+    for (final ComputedValue result : results) {
       if (output.getValueName().equals(result.getSpecification().getValueName())) {
         return result;
       }
@@ -418,14 +430,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
         ValueProperties.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(payCurrency)).with(ValuePropertyNames.FUNCTION, "").get()), new HistoricalTimeSeriesBundle());
     final ComputedValue payCurve = execute(execContext, yieldCurveFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target.toSpecification(),
         ValueProperties
-            .with(ValuePropertyNames.CURVE, getCurrencyCurveName())
-            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(payCurrency))
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, DecompositionFactory.SV_COLT_NAME)
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, "false")
-            .get()), payCurveSpec,
+        .with(ValuePropertyNames.CURVE, getCurrencyCurveName())
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(payCurrency))
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, DecompositionFactory.SV_COLT_NAME)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, "false")
+        .get()), payCurveSpec,
         payCurveMarketData, payHtsConversion);
     // RECEIVE
     target = new ComputationTarget(ComputationTargetType.CURRENCY, receiveCurrency);
@@ -445,14 +457,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
         ValueProperties.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(receiveCurrency)).with(ValuePropertyNames.FUNCTION, "").get()), new HistoricalTimeSeriesBundle());
     final ComputedValue receiveCurve = execute(execContext, yieldCurveFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target.toSpecification(),
         ValueProperties
-            .with(ValuePropertyNames.CURVE, getCurrencyCurveName())
-            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(receiveCurrency))
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, DecompositionFactory.SV_COLT_NAME)
-            .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, "false")
-            .get()), receiveCurveSpec,
+        .with(ValuePropertyNames.CURVE, getCurrencyCurveName())
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(receiveCurrency))
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, DecompositionFactory.SV_COLT_NAME)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, "false")
+        .get()), receiveCurveSpec,
         receiveCurveMarketData, receiveHtsConversion);
     // FXForwardCurveFromYieldCurveFunction
     target = new ComputationTarget(ComputationTargetType.UNORDERED_CURRENCY_PAIR, UnorderedCurrencyPair.of(payCurrency, receiveCurrency));

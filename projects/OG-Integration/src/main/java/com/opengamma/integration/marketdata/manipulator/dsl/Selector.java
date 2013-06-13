@@ -124,7 +124,7 @@ import com.opengamma.util.money.Currency;
     if (_currencies != null ? !_currencies.equals(selector._currencies) : selector._currencies != null) {
       return false;
     }
-    if (_namePattern != null ? !_namePattern.equals(selector._namePattern) : selector._namePattern != null) {
+    if (_namePattern != null ? !_namePattern.pattern().equals(selector._namePattern.pattern()) : selector._namePattern != null) {
       return false;
     }
     if (_names != null ? !_names.equals(selector._names) : selector._names != null) {

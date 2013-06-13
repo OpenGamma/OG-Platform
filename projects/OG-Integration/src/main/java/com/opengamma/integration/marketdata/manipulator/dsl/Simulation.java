@@ -41,6 +41,7 @@ public class Simulation {
     ArgumentChecker.notEmpty(scenarios, "scenarios");
     _scenarios = ImmutableList.copyOf(scenarios);
     //_name = null;
+    // TODO check for empty scenarios
     Set<DistinctMarketDataSelector> selectors = Sets.newHashSet();
     for (Scenario scenario : _scenarios) {
       selectors.addAll(scenario.getMarketDataManipulations().keySet());

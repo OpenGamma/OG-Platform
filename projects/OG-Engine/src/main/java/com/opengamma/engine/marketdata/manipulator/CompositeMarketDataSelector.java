@@ -33,6 +33,7 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
   private final Set<MarketDataSelector> _underlyingSpecifications;
 
   private CompositeMarketDataSelector(Set<MarketDataSelector> underlyingSpecifications) {
+    // TODO should this allow an empty set? what if you want a scenario that doesn't change anything as part of a simulation?
     ArgumentChecker.notEmpty(underlyingSpecifications, "underlyingSpecifications");
     _underlyingSpecifications = underlyingSpecifications;
   }

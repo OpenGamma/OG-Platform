@@ -31,6 +31,7 @@ import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -199,6 +200,11 @@ public class DepricatedCalAgaintISDATest {
   @Test//(enabled = false)
   public void example3Test() {
     testISDA_Results(EXAMPLE3, true);
+  }
+
+  @Test(enabled = true)
+  public void exampleSheetTest() {
+    testISDA_Results(ISDAModelDatasetsSheetReader.loadSheet("example1.csv"), true);
   }
 
   @Test
