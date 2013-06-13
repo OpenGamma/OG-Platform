@@ -66,7 +66,7 @@ public class CurveNodeToDefinitionConverter {
   private final RegionSource _regionSource;
 
   public CurveNodeToDefinitionConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource) {
-    //ArgumentChecker.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     _conventionSource = conventionSource;
