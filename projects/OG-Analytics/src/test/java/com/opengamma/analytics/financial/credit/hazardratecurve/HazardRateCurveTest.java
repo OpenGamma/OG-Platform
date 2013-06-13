@@ -50,6 +50,7 @@ public class HazardRateCurveTest {
     new HazardRateCurve(null, TIMES, RATES, OFFSET);
   }
 
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDates2() {
     new HazardRateCurve(DATES, TIMES, RATES, OFFSET).bootstrapHelperHazardRateCurve(null, TIMES, RATES);
@@ -60,6 +61,7 @@ public class HazardRateCurveTest {
     new HazardRateCurve(DATES, null, RATES, OFFSET);
   }
 
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTimes2() {
     new HazardRateCurve(DATES, TIMES, RATES, OFFSET).bootstrapHelperHazardRateCurve(DATES, null, RATES);
@@ -70,6 +72,7 @@ public class HazardRateCurveTest {
     new HazardRateCurve(DATES, TIMES, null, OFFSET);
   }
 
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRates2() {
     new HazardRateCurve(DATES, TIMES, RATES, OFFSET).bootstrapHelperHazardRateCurve(DATES, TIMES, null);
