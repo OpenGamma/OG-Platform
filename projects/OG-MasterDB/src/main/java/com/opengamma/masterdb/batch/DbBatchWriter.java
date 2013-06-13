@@ -912,6 +912,10 @@ public class DbBatchWriter extends AbstractDbMaster {
           
           final long computationTargetId = _computationTargets.get(targetSpec);
           final ValueSpecification specification = computedValue.getSpecification();
+          if (!_riskValueSpecifications.containsKey(specification)) {
+            s_logger.error("Unexpected result specification " + specification + ". Result cannot be written. Result value was " + computedValue.getValue());
+            continue;
+          }
           final long valueSpecificationId = _riskValueSpecifications.get(specification);
           final long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
           final long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
