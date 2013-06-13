@@ -115,7 +115,7 @@ stop() {
     read kpid < $PIDFILE
     kwait=$SHUTDOWN_WAIT
     kill -15 $kpid 2> /dev/null
-    until [ $(ps --pid $kpid 2> /dev/null | grep -c $kpid 2> /dev/null) -eq '0' ] || [ $count -gt $kwait ]
+    until [ $(ps -p $kpid 2> /dev/null | grep -c $kpid 2> /dev/null) -eq '0' ] || [ $count -gt $kwait ]
     do
       sleep 1
       count=$(($count+1))
@@ -132,7 +132,7 @@ status() {
   local count kpid
   if [ -f $PIDFILE ]; then
     read kpid < $PIDFILE
-    count=$(ps --pid $kpid 2> /dev/null | grep -c $kpid 2> /dev/null)
+    count=$(ps -p $kpid 2> /dev/null | grep -c $kpid 2> /dev/null)
     if [ $count -gt 0 ]; then
       echo $"${BASENAME} (pid $kpid) is running..."
       RETVAL=0
