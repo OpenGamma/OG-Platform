@@ -12,7 +12,7 @@ import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO get rid of this, follow the pattern in CurveManipulator
  */
 public class PointManipulator implements StructureManipulator<Double> {
 

@@ -13,7 +13,7 @@ import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO is this class necessary? merge it with its builder?
  */
 public class CurveManipulator {
 

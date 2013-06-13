@@ -20,7 +20,6 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.marketdata.manipulator.CompositeMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
-import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -46,13 +45,13 @@ import com.opengamma.util.generate.scripts.Scriptable;
 public class SimulationTool extends AbstractTool<ToolContext> {
 
   /** Command line option for portfolio name. */
-  private static final String PORTFOLIO_NAME_OPTION = "portfolio";
+  private static final String PORTFOLIO_NAME_OPTION = "p";
   /** Command line option for the class name of an implementation of SimulationSupplier. */
-  private static final String SIMULATION_PROVIDER_CLASS_OPTION = "simulationclass";
+  private static final String SIMULATION_SUPPLIER_CLASS_OPTION = "s";
   /** Command line option for whether to execute in batch mode. */
-  private static final String BATCH_MODE_OPTION = "batchmode";
+  private static final String BATCH_MODE_OPTION = "b";
   /** Command line option for the class name of an implementation of ViewResultListener. */
-  private static final String LISTENER_CLASS_OPTION = "listenerclass";
+  private static final String LISTENER_CLASS_OPTION = "v";
 
   public static void main(final String[] args) {
     new SimulationTool().initAndRun(args, ToolContext.class);
@@ -89,16 +88,16 @@ public class SimulationTool extends AbstractTool<ToolContext> {
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(cycleOptions);
     EnumSet<ViewExecutionFlags> executionFlags = ExecutionFlags.none().awaitMarketData().runAsFastAsPossible().get();
     ViewExecutionOptions executionOptions;
-    if (getCommandLine().hasOption('l')) {
-      String listenerClass = getCommandLine().getOptionValue('l');
+    if (getCommandLine().hasOption('v')) {
+      String listenerClass = getCommandLine().getOptionValue('v');
       ViewResultListener listener = instantiate(listenerClass, ViewResultListener.class);
       viewClient.setResultListener(listener);
     }
     if (getCommandLine().hasOption('b')) {
-      executionOptions = ExecutionOptions.of(sequence, executionFlags);
+      executionOptions = ExecutionOptions.batch(sequence, baseOptions);
     } else {
       // TODO warn if no listener, the results are going nowhere
-      executionOptions = ExecutionOptions.batch(sequence, baseOptions);
+      executionOptions = ExecutionOptions.of(sequence, executionFlags);
     }
     viewClient.attachToViewProcess(viewDef.getUniqueId(), executionOptions, true);
     viewClient.waitForCompletion();
@@ -123,57 +122,29 @@ public class SimulationTool extends AbstractTool<ToolContext> {
     }
   }
 
-  /*private static class Listener extends AbstractViewResultListener {
-
-    private static final Logger s_logger = LoggerFactory.getLogger(Listener.class);
-
-    @Override
-    public UserPrincipal getUser() {
-      return UserPrincipal.getTestUser();
-    }
-
-    @Override
-    public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-      s_logger.info("view definition complied");
-    }
-
-    @Override
-    public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
-      s_logger.warn("view definition compilation failed", exception);
-    }
-
-    @Override
-    public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-      s_logger.info("cycle completed");
-    }
-  }*/
-
   @Override
   protected Options createOptions(boolean mandatoryConfigResource) {
     Options options = super.createOptions(mandatoryConfigResource);
 
     Option portfolioNameOption = new Option(PORTFOLIO_NAME_OPTION, true, "Portfolio name");
     portfolioNameOption.setRequired(true);
+    portfolioNameOption.setArgName("portfolio");
     options.addOption(portfolioNameOption);
 
-    Option simulationProviderOption = new Option(SIMULATION_PROVIDER_CLASS_OPTION, true, "Simulation provider class");
-    simulationProviderOption.setRequired(true);
-    options.addOption(simulationProviderOption);
+    Option simulationSupplierOption = new Option(SIMULATION_SUPPLIER_CLASS_OPTION, true, "Simulation supplier class");
+    simulationSupplierOption.setRequired(true);
+    simulationSupplierOption.setArgName("supplierclass");
+    options.addOption(simulationSupplierOption);
 
     Option batchModeOption = new Option(BATCH_MODE_OPTION, false, "Run in batch mode");
+    batchModeOption.setArgName("batchmode");
     options.addOption(batchModeOption);
 
-    Option listenerClassOption = new Option(LISTENER_CLASS_OPTION, true, "Listener class");
+    Option listenerClassOption = new Option(LISTENER_CLASS_OPTION, true, "ViewResultListener class");
+    listenerClassOption.setArgName("viewresultlistenerclass");
     options.addOption(listenerClassOption);
 
     return options;
   }
 }
 
-/* package */ class NoOpStructureManipulator<T> implements StructureManipulator<T> {
-
-  @Override
-  public T execute(T structure) {
-    return structure;
-  }
-}

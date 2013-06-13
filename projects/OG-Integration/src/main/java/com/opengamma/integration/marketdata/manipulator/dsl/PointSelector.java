@@ -22,9 +22,10 @@ public class PointSelector implements DistinctMarketDataSelector {
   private static final ImmutableSet<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.MARKET_DATA_POINT);
 
   private final ExternalId _id;
+  // TODO regex pattern for ID value
   private final String _calcConfigName;
 
-  private PointSelector(ExternalId id, String calcConfigName) {
+  /* package */ PointSelector(ExternalId id, String calcConfigName) {
     ArgumentChecker.notNull(id, "id");
     _calcConfigName = calcConfigName;
     _id = id;
@@ -55,12 +56,44 @@ public class PointSelector implements DistinctMarketDataSelector {
     return STRUCTURE_TYPES;
   }
 
+  /* package */ ExternalId getId() {
+    return _id;
+  }
+
+  /* package */ String getCalculationConfigurationName() {
+    return _calcConfigName;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PointSelector that = (PointSelector) o;
+
+    if (!_calcConfigName.equals(that._calcConfigName)) {
+      return false;
+    }
+    return _id.equals(that._id);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = _id.hashCode();
+    result = 31 * result + _calcConfigName.hashCode();
+    return result;
+  }
+
   public static class Builder {
 
     private final String _calcConfigName;
     private final Scenario _scenario;
 
     private ExternalId _id;
+    // TODO regex pattern for ID value
 
     /* package */ Builder(Scenario scenario, String calcConfigName) {
       _calcConfigName = calcConfigName;
