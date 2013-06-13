@@ -1,7 +1,7 @@
 <ehcache>
 
-  <diskStore path="java.io.tmpdir"/>
-  
+  <diskStore path="${java.io.tmpdir}/${user.name}-ehcache-${og.server.name}"/>
+
   <defaultCache
     maxElementsInMemory="10000"
     eternal="false"
@@ -13,7 +13,7 @@
     diskExpiryThreadIntervalSeconds="120"
     memoryStoreEvictionPolicy="LRU"
     />
-    
+
   <!-- Market data -->
   <cache
     name="referenceData"
@@ -27,7 +27,7 @@
     diskExpiryThreadIntervalSeconds="120"
     memoryStoreEvictionPolicy="LRU"
     />
-  
+
   <!-- Engine -->
   <cache
     name="executionPlans"
@@ -55,7 +55,7 @@
     diskExpiryThreadIntervalSeconds="0"
     memoryStoreEvictionPolicy="LRU"
     />
-    
+
   <!-- Historical Time-Series -->
   <cache
     name="HistoricalTimeSeriesIdBundleCache"
@@ -68,7 +68,7 @@
     diskPersistent="false"
     diskExpiryThreadIntervalSeconds="120"
     memoryStoreEvictionPolicy="LRU"
-    />    
+    />
   <cache
     name="HistoricalTimeSeriesDataCache"
     maxElementsInMemory="5000"
@@ -80,7 +80,7 @@
     diskPersistent="false"
     diskExpiryThreadIntervalSeconds="120"
     memoryStoreEvictionPolicy="LRU"
-    />    
+    />
   <cache
     name="htsResolution.DEFAULT"
     maxElementsInMemory="5000"
@@ -93,5 +93,5 @@
     diskExpiryThreadIntervalSeconds="120"
     memoryStoreEvictionPolicy="LRU"
     />
-    
+
 </ehcache>
