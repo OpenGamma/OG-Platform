@@ -10,6 +10,11 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
+import com.opengamma.financial.analytics.curve.CurveMarketDataFunction;
+import com.opengamma.financial.analytics.curve.CurveSpecificationFunction;
+import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -56,11 +61,11 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(YieldCurveSpecificationFunction.class, currency, curveName));
     }
 
-    //    protected void addCurveFunctions(final List<FunctionConfiguration> functions, final String curveName) {
-    //      functions.add(functionConfiguration(CurveDefinitionFunction.class, curveName));
-    //      functions.add(functionConfiguration(CurveSpecificationFunction.class, curveName));
-    //      functions.add(functionConfiguration(CurveMarketDataFunction.class, curveName));
-    //    }
+    protected void addCurveFunctions(final List<FunctionConfiguration> functions, final String curveName) {
+      functions.add(functionConfiguration(CurveDefinitionFunction.class, curveName));
+      functions.add(functionConfiguration(CurveSpecificationFunction.class, curveName));
+      functions.add(functionConfiguration(CurveMarketDataFunction.class, curveName));
+    }
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -77,15 +82,15 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
         addYieldCurveFunctions(functions, currencyISO, curveName);
       }
 
-      //      // new curves
-      //      Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
-      //      for (final Class klass : curveClasses) {
-      //        searchRequest.setType(klass);
-      //        for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
-      //          final String documentName = configDocument.getName();
-      //          addCurveFunctions(functions, documentName);
-      //        }
-      //      }
+      // new curves
+      final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
+      for (final Class klass : curveClasses) {
+        searchRequest.setType(klass);
+        for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
+          final String documentName = configDocument.getName();
+          addCurveFunctions(functions, documentName);
+        }
+      }
     }
 
   }
