@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.exec;
 
-import java.util.Queue;
 import java.util.concurrent.Future;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -42,10 +41,9 @@ public class PlanBasedGraphExecutor implements DependencyGraphExecutor {
   // DependencyGraphExecutor
 
   @Override
-  public Future<?> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue,
-      final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
+  public Future<?> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
     final GraphExecutionPlan plan = getPlanner().createPlan(graph, logModeSource, getCycle().getFunctionInitId());
-    final PlanExecutor executor = new PlanExecutor(getCycle(), plan);
+    final PlanExecutor executor = new PlanExecutor(getCycle(), plan, statistics);
     executor.start();
     return executor;
   }

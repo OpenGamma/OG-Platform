@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -62,8 +61,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
   }
 
   @Override
-  public Future<Object> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue,
-      final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
+  public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
     // Partition graph into primitives, securities, positions, portfolios
     final Collection<DependencyNode> primitiveNodes = new HashSet<DependencyNode>();
     final List<Map<UniqueId, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes =
@@ -113,7 +111,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
     s_logger.info("Executing {} PRIMITIVE nodes", primitiveNodes.size());
     final DependencyGraph primitiveGraph = graph.subGraph(primitiveNodes);
     try {
-      final Future<?> future = _delegate.execute(primitiveGraph, executionResultQueue, statistics, logModeSource);
+      final Future<?> future = _delegate.execute(primitiveGraph, statistics, logModeSource);
       future.get();
     } catch (final InterruptedException e) {
       Thread.interrupted();
@@ -131,7 +129,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
       for (final Collection<DependencyNode> nodesRelatedToSingleTarget : target2SecurityAndPositionNodes.values()) {
         final DependencyGraph secAndPositionGraph = graph.subGraph(nodesRelatedToSingleTarget);
         nodeCount += nodesRelatedToSingleTarget.size();
-        final Future<?> future = _delegate.execute(secAndPositionGraph, executionResultQueue, statistics, logModeSource);
+        final Future<?> future = _delegate.execute(secAndPositionGraph, statistics, logModeSource);
         secAndPositionFutures.add(future);
       }
       s_logger.info("Pass number {} has {} different computation targets, and a total of {} nodes",
@@ -152,7 +150,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
     s_logger.info("Executing {} PORTFOLIO_NODE nodes", portfolioNodes.size());
     final DependencyGraph portfolioGraph = graph.subGraph(portfolioNodes);
     try {
-      final Future<?> future = _delegate.execute(portfolioGraph, executionResultQueue, statistics, logModeSource);
+      final Future<?> future = _delegate.execute(portfolioGraph, statistics, logModeSource);
       future.get();
     } catch (final InterruptedException e) {
       Thread.interrupted();

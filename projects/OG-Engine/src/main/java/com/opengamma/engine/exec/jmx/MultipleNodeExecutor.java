@@ -72,26 +72,31 @@ public final class MultipleNodeExecutor implements MultipleNodeExecutorMBean {
   @Override
   public void setMaximumConcurrency(int maximumConcurrency) {
     getUnderlying().setMaximumConcurrency(maximumConcurrency);
+    getUnderlying().invalidateCache();
   }
 
   @Override
   public void setMaximumJobCost(long maximumJobCost) {
     getUnderlying().setMaximumJobCost(maximumJobCost);
+    getUnderlying().invalidateCache();
   }
 
   @Override
   public void setMaximumJobItems(int maximumJobItems) {
     getUnderlying().setMaximumJobItems(maximumJobItems);
+    getUnderlying().invalidateCache();
   }
 
   @Override
   public void setMinimumJobCost(long minimumJobCost) {
     getUnderlying().setMinimumJobCost(minimumJobCost);
+    getUnderlying().invalidateCache();
   }
 
   @Override
   public void setMinimumJobItems(int minimumJobItems) {
     getUnderlying().setMinimumJobItems(minimumJobItems);
+    getUnderlying().invalidateCache();
   }
 
 }

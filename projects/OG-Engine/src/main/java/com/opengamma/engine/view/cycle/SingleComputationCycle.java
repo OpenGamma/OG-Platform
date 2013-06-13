@@ -20,12 +20,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -54,7 +52,6 @@ import com.opengamma.engine.exec.DefaultAggregatedExecutionLog;
 import com.opengamma.engine.exec.DependencyGraphExecutor;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResult;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResultCache;
-import com.opengamma.engine.exec.ExecutionResult;
 import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
@@ -423,55 +420,39 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    *           must be called.
    */
   public void execute(final ExecutorService calcJobResultExecutorService) throws InterruptedException {
-    final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
-    final CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
-    Future<?> resultStreamConsumerJobInProgress;
-    try {
-      resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
-      final LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
-      for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
-        s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-        final DependencyGraph depGraph;
-        depGraph = createExecutableDependencyGraph(calcConfigurationName);
-        s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
-        final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
+    final LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
+    for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
+      final DependencyGraph depGraph;
+      depGraph = createExecutableDependencyGraph(calcConfigurationName);
+      s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
+      final Future<?> future = getDependencyGraphExecutor().execute(depGraph, _statisticsGatherer, getLogModeSource());
+      futures.add(future);
+    }
+    while (!futures.isEmpty()) {
+      final Future<?> future = futures.poll();
+      try {
+        future.get(5, TimeUnit.SECONDS);
+      } catch (final TimeoutException e) {
+        s_logger.info("Waiting for " + future);
         futures.add(future);
-      }
-      while (!futures.isEmpty()) {
-        final Future<?> future = futures.poll();
-        try {
-          future.get(5, TimeUnit.SECONDS);
-        } catch (final TimeoutException e) {
-          s_logger.info("Waiting for " + future);
-          futures.add(future);
-        } catch (final InterruptedException e) {
-          Thread.interrupted();
-          // Cancel all outstanding jobs to free up resources
-          future.cancel(true);
-          for (final Future<?> incompleteFuture : futures) {
-            incompleteFuture.cancel(true);
-          }
-          _state = ViewCycleState.EXECUTION_INTERRUPTED;
-          s_logger.info("Execution interrupted before completion.");
-          throw e;
-        } catch (final ExecutionException e) {
-          s_logger.error("Unable to execute dependency graph", e);
-          // Should we be swallowing this or not?
-          throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
+      } catch (final InterruptedException e) {
+        Thread.interrupted();
+        // Cancel all outstanding jobs to free up resources
+        future.cancel(true);
+        for (final Future<?> incompleteFuture : futures) {
+          incompleteFuture.cancel(true);
         }
+        _state = ViewCycleState.EXECUTION_INTERRUPTED;
+        s_logger.info("Execution interrupted before completion.");
+        throw e;
+      } catch (final ExecutionException e) {
+        s_logger.error("Unable to execute dependency graph", e);
+        // Should we be swallowing this or not?
+        throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
       }
-      _endTime = Instant.now();
-    } finally {
-      calculationJobResultStreamConsumer.terminate();
     }
-    // Wait for calculationJobResultStreamConsumer to finish
-    try {
-      if (resultStreamConsumerJobInProgress != null) {
-        resultStreamConsumerJobInProgress.get();
-      }
-    } catch (final ExecutionException e) {
-      Thread.currentThread().interrupt();
-    }
+    _endTime = Instant.now();
   }
 
   /**
@@ -805,19 +786,15 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * @param node the node that was executed, not null
-   * @deprecated - should be private and the cycle's jobCompleted logic used; otherwise the execution components are too tightly coupled to how the cycle works with the dependency graph
    */
-  @Deprecated
-  public void markExecuted(final DependencyNode node) {
+  private void markExecuted(final DependencyNode node) {
     setNodeState(node, NodeStateFlag.EXECUTED);
   }
 
   /**
    * @param node the node that failed, not null
-   * @deprecated - should be private and the cycle's jobCompleted logic used; otherwise the execution components are too tightly coupled to how the cycle works with the dependency graph
    */
-  @Deprecated
-  public void markFailed(final DependencyNode node) {
+  private void markFailed(final DependencyNode node) {
     setNodeState(node, NodeStateFlag.FAILED);
   }
 
@@ -948,6 +925,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   protected DependencyNodeJobExecutionResultCache getJobExecutionResultCache(final String calcConfigName) {
     return _jobResultCachesByCalculationConfiguration.get(calcConfigName);
+  }
+
+  @Override
+  public String toString() {
+    return "ComputationCycle-" + _cycleId.toString();
   }
 
 }

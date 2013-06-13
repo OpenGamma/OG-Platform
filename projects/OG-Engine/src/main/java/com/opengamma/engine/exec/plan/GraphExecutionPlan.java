@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.exec.plan;
 
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.threeten.bp.Instant;
 
@@ -106,6 +109,18 @@ public class GraphExecutionPlan implements Serializable {
 
   public void reportStatistics(final GraphExecutorStatisticsGatherer statistics) {
     statistics.graphProcessed(getCalculationConfiguration(), getTotalJobs(), getMeanJobSize(), getMeanJobCycleCost(), getMeanJobIOCost());
+  }
+
+  public void print(final PrintStream out) {
+    out.println(getCalculationConfiguration() + ", " + getTotalJobs() + " job(s)");
+    final Map<PlannedJob, Integer> jobs = new HashMap<PlannedJob, Integer>();
+    for (PlannedJob job : getLeafJobs()) {
+      job.print(out, "  ", jobs);
+    }
+  }
+
+  public void print() {
+    print(System.out);
   }
 
 }

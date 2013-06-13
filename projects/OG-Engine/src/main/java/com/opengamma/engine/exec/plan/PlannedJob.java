@@ -5,8 +5,10 @@
  */
 package com.opengamma.engine.exec.plan;
 
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.calcnode.CalculationJob;
@@ -97,6 +99,31 @@ public class PlannedJob implements Serializable {
       final VersionCorrection resolverVersionCorrection, final long[] requiredJobIds) {
     assert getInputJobCount() == ((requiredJobIds != null) ? requiredJobIds.length : 0);
     return new CalculationJob(jobSpec, functionInitializationId, resolverVersionCorrection, requiredJobIds, getItems(), getCacheSelectHint());
+  }
+
+  public void print(final PrintStream out, final String indent, final Map<PlannedJob, Integer> jobs) {
+    boolean alloc = false;
+    Integer id = jobs.get(this);
+    if (id == null) {
+      id = jobs.size();
+      jobs.put(this, id);
+      alloc = true;
+    }
+    out.println(indent + id + ": " + getItems().size() + " item(s)");
+    if (alloc) {
+      if (getTails() != null) {
+        final String tailIndent = indent + " T ";
+        for (PlannedJob tail : getTails()) {
+          tail.print(out, tailIndent, jobs);
+        }
+      }
+      if (getDependents() != null) {
+        final String dependentIndent = indent + "   ";
+        for (PlannedJob dependent : getDependents()) {
+          dependent.print(out, dependentIndent, jobs);
+        }
+      }
+    }
   }
 
 }

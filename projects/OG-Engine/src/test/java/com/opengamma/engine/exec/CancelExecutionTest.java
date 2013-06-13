@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -187,7 +186,7 @@ public class CancelExecutionTest {
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), vpc.getExecutionLogModeSource());
+    return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer(), vpc.getExecutionLogModeSource());
   }
 
   private boolean jobFinished() {

@@ -14,9 +14,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PlanBasedGraphExecutorFactory implements DependencyGraphExecutorFactory {
 
-  private final GraphExecutionPlanner _planner;
+  private GraphExecutionPlanner _planner;
 
   public PlanBasedGraphExecutorFactory(final GraphExecutionPlanner planner) {
+    setPlanner(planner);
+  }
+
+  protected void setPlanner(final GraphExecutionPlanner planner) {
     ArgumentChecker.notNull(planner, "planner");
     _planner = planner;
   }

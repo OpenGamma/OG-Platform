@@ -33,7 +33,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Caches the plans produced by other execution planners.
  */
-public class CachingExecutionPlanner {
+public class CachingExecutionPlanner implements GraphExecutionPlanner {
 
   // NOTE: This class has been created for completeness, to preserve the previous behaviours of ExecutionPlanCache, even though those behaviours are unlikely to be correct.
 
@@ -190,7 +190,7 @@ public class CachingExecutionPlanner {
     _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
   }
 
-  public synchronized void clear() {
+  public synchronized void invalidate() {
     if (_cache != null) {
       s_logger.info("Clearing execution plan cache of {} items", _cache.getSize());
       _cache.removeAll();
@@ -199,6 +199,7 @@ public class CachingExecutionPlanner {
 
   // GraphExecutionPlanner
 
+  @Override
   public GraphExecutionPlan createPlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitId) {
     // NOTE: The logModeSource is not used as part of the key; this is wrong as the plan contains job items which embed the logging requirements
     s_logger.debug("Searching for cached execution plan for {}/{}", graph, functionInitId);

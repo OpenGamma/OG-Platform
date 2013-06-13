@@ -250,9 +250,8 @@ public class ExecutingGraph {
    * Any jobs that were not yet executable because they require one or more results from this job may now become executable.
    * 
    * @param jobSpec the job that has completed, not null
-   * @return true if the notification was accepted, false if the notification has already been seen
    */
-  public synchronized boolean jobCompleted(CalculationJobSpecification jobSpec) {
+  public synchronized void jobCompleted(CalculationJobSpecification jobSpec) {
     final BlockedJobInfo[] blockedJobs = _executing.remove(jobSpec);
     if (blockedJobs != null) {
       for (BlockedJobInfo blockedJob : blockedJobs) {
@@ -260,10 +259,12 @@ public class ExecutingGraph {
           _executable.add(blockedJob.getJob());
         }
       }
-      return true;
-    } else {
-      return false;
     }
+  }
+
+  @Override
+  public String toString() {
+    return "ExecutingGraph-" + _plan.getCalculationConfiguration();
   }
 
 }
