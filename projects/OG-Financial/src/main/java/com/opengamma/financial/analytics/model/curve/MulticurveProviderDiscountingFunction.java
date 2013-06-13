@@ -13,6 +13,8 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -28,8 +30,14 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
+import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -39,7 +47,6 @@ import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDis
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -61,13 +68,14 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeToDefinitionConverter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.IndexCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.VersionCorrection;
@@ -85,8 +93,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
   private final String _configurationName;
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
-  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR); //TODO get this from curve
 
   public MulticurveProviderDiscountingFunction(final String configurationName) {
     ArgumentChecker.notNull(configurationName, "configuration name");
@@ -187,6 +193,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           final ValueProperties properties = ValueProperties.builder()
               .with(CURVE, curveName)
               .get();
+          requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
           requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
           requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
         }
@@ -216,6 +223,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
             .get();
       }
 
+      @SuppressWarnings("synthetic-access")
       private Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
           final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder) {
         final int nGroups = constructionConfiguration.getCurveGroups().size();
@@ -248,12 +256,19 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
             if (specificationObject == null) {
               throw new OpenGammaRuntimeException("Could not get curve specification for " + curveName);
             }
+            final Object definitionObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
+            if (definitionObject == null) {
+              throw new OpenGammaRuntimeException("Could not get curve definition for " + curveName);
+            }
             final CurveSpecification specification = (CurveSpecification) specificationObject;
+            final CurveDefinition definition = (CurveDefinition) definitionObject;
             final SnapshotDataBundle snapshot = (SnapshotDataBundle) snapshotObject;
             final int nNodes = specification.getNodes().size();
             final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
             final double[] marketDataForCurve = new double[nNodes];
             int k = 0;
+            final Set<IborIndex> uniqueIborIndices = new HashSet<>();
+            final Set<IndexON> uniqueOvernightIndices = new HashSet<>();
             for (final CurveNodeWithIdentifier node : specification.getNodes()) {
               final Double marketData = snapshot.getDataPoint(node.getIdentifier());
               if (marketData == null) {
@@ -261,27 +276,74 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               }
               marketDataForCurve[k] = marketData;
               parameterGuessForCurves.add(marketData);
-              derivativesForCurve[k++] = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot).toDerivative(now, new String[] {"", ""});
+              final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot);
+              uniqueIborIndices.addAll(getIborIndices(definitionForNode));
+              uniqueOvernightIndices.addAll(getOvernightIndices(definitionForNode));
+              derivativesForCurve[k++] = definitionForNode.toDerivative(now, new String[] {"", ""});
             }
             definitions[i][j] = derivativesForCurve;
-            curveGenerators[i][j] = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR); //TODO
+            curveGenerators[i][j] = getGenerator(definition);
             curves[i][j] = curveName;
             parameterGuess[i] = parameterGuessForCurves.toDoubleArray();
+            final IborIndex[] iborIndex = uniqueIborIndices.toArray(new IborIndex[uniqueIborIndices.size()]);
+            final IndexON[] overnightIndex = uniqueOvernightIndices.toArray(new IndexON[uniqueOvernightIndices.size()]);
+            forwardIborMap.put(curveName, iborIndex);
+            forwardONMap.put(curveName, overnightIndex);
             if (type instanceof DiscountingCurveTypeConfiguration) {
               discountingMap.put(curveName, Currency.of(((DiscountingCurveTypeConfiguration) type).getCode()));
-            } else if (type instanceof IndexCurveTypeConfiguration) {
-              final String indexType = ((IndexCurveTypeConfiguration) type).getIndexType();
-              if (indexType.equals("Ibor")) {
-                forwardIborMap.put(curveName, null);
-              } else if (indexType.equals("Overnight")) {
-                forwardONMap.put(curveName, null);
-              }
             }
             j++;
           }
           i++;
         }
         return builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess, knownData, discountingMap, forwardIborMap, forwardONMap, PSMQC, PSMQCSC);
+      }
+
+      //TODO pull this out into a visitor
+      private Collection<IborIndex> getIborIndices(final InstrumentDefinition<?> definition) {
+        if (definition instanceof DepositIborDefinition) {
+          return Collections.singleton(((DepositIborDefinition) definition).getIndex());
+        } else if (definition instanceof ForwardRateAgreementDefinition) {
+          return Collections.singleton(((ForwardRateAgreementDefinition) definition).getIndex());
+        } else if (definition instanceof SwapDefinition) {
+          final SwapDefinition swap = (SwapDefinition) definition;
+          final Set<IborIndex> result = new HashSet<>();
+          if (swap.getFirstLeg() instanceof AnnuityCouponIborDefinition) {
+            result.add(((AnnuityCouponIborDefinition) swap.getFirstLeg()).getIborIndex());
+          }
+          if (swap.getSecondLeg() instanceof AnnuityCouponIborDefinition) {
+            result.add(((AnnuityCouponIborDefinition) swap.getSecondLeg()).getIborIndex());
+          }
+          return result;
+        }
+        return Collections.emptySet();
+      }
+
+      private Collection<IndexON> getOvernightIndices(final InstrumentDefinition<?> definition) {
+        if (definition instanceof SwapDefinition) {
+          final SwapDefinition swap = (SwapDefinition) definition;
+          final Set<IndexON> result = new HashSet<>();
+          if (swap.getFirstLeg() instanceof AnnuityCouponOISSimplifiedDefinition) {
+            result.add(((AnnuityCouponOISSimplifiedDefinition) swap.getFirstLeg()).getIndex());
+          }
+          if (swap.getSecondLeg() instanceof AnnuityCouponOISSimplifiedDefinition) {
+            result.add(((AnnuityCouponOISSimplifiedDefinition) swap.getSecondLeg()).getIndex());
+          }
+          return result;
+        }
+        return Collections.emptySet();
+      }
+
+      private GeneratorYDCurve getGenerator(final CurveDefinition definition) {
+        if (definition instanceof InterpolatedCurveDefinition) {
+          final InterpolatedCurveDefinition interpolatedDefinition = (InterpolatedCurveDefinition) definition;
+          final String interpolatorName = interpolatedDefinition.getInterpolatorName();
+          final String leftExtrapolatorName = interpolatedDefinition.getLeftExtrapolatorName();
+          final String rightExtrapolatorName = interpolatedDefinition.getRightExtrapolatorName();
+          final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+          return new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, interpolator);
+        }
+        throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
       }
     };
   }

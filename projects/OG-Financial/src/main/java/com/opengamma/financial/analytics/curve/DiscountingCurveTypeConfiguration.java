@@ -5,21 +5,22 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.core.config.Config;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.config.Config;
+
 /**
- * 
+ * Configuration object for curves that are to be used as discounting curves.
  */
 @BeanDefinition
 @Config
@@ -38,6 +39,10 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
     super();
   }
 
+  /**
+   * @param name The curve name, not null
+   * @param code The code for this curve (e.g. a currency)
+   */
   public DiscountingCurveTypeConfiguration(final String name, final String code) {
     super(name);
     setCode(code);
