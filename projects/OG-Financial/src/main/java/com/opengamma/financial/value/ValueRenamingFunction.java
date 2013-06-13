@@ -134,7 +134,7 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public boolean canHandleMissingRequirements() {
-    return true;
+    return _valueNamesToChange.size() > 1;
   }
 
   @Override
