@@ -13,7 +13,7 @@ import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO is this class necessary? merge it with its builder?
+ * TODO get rid of the execute() method, add to scenario immediately and mutate?
  */
 public class CurveManipulatorBuilder {
 

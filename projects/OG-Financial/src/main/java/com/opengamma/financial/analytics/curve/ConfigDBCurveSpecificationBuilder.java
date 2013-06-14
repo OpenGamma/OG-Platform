@@ -23,6 +23,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
+import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
@@ -32,8 +33,12 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuilder {
+  /** The config source */
   private final ConfigSource _configSource;
 
+  /**
+   * @param configSource The config source, not null
+   */
   public ConfigDBCurveSpecificationBuilder(final ConfigSource configSource) {
     ArgumentChecker.notNull(configSource, "config source");
     _configSource = configSource;
@@ -64,6 +69,9 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
         identifiers.add(new CurveNodeWithIdentifier(node, identifier));
       } else if (node instanceof SwapNode) {
         final ExternalId identifier = builderConfig.getSwapNodeId(curveDate, ((SwapNode) node).getMaturityTenor());
+        identifiers.add(new CurveNodeWithIdentifier(node, identifier));
+      } else if (node instanceof FRANode) {
+        final ExternalId identifier = builderConfig.getFRANodeId(curveDate, ((FRANode) node).getFixingEnd());
         identifiers.add(new CurveNodeWithIdentifier(node, identifier));
       } else {
         throw new OpenGammaRuntimeException("Could not handle nodes of type " + node);
@@ -96,6 +104,9 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
         identifiers.add(new CurveNodeWithIdentifier(node, identifier));
       } else if (node instanceof SwapNode) {
         final ExternalId identifier = builderConfig.getSwapNodeId(curveDate, ((SwapNode) node).getMaturityTenor());
+        identifiers.add(new CurveNodeWithIdentifier(node, identifier));
+      } else if (node instanceof FRANode) {
+        final ExternalId identifier = builderConfig.getFRANodeId(curveDate, ((FRANode) node).getFixingEnd());
         identifiers.add(new CurveNodeWithIdentifier(node, identifier));
       } else {
         throw new OpenGammaRuntimeException("Could not handle nodes of type " + node);

@@ -7,7 +7,7 @@ package com.opengamma.financial.convention.percurrency;
 
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FIXED_SWAP_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.JIBOR;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.VANILLA_IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getIds;
@@ -46,7 +46,7 @@ public class ZAConventions {
     final String fixedSwapLegConventionName = getConventionName(ZAR, FIXED_SWAP_LEG);
     final String vanillaIborLegConventionName = getConventionName(ZAR, VANILLA_IBOR_LEG);
     final String tenorString = "3m";
-    final String libor3mConventionName = getConventionName(ZAR, tenorString, IBOR);
+    final String libor3mConventionName = getConventionName(ZAR, tenorString, JIBOR);
     final ExternalId libor3mConventionId = InMemoryConventionBundleMaster.simpleNameSecurityId(libor3mConventionName);
     final Convention fixedLegConvention = new SwapFixedLegConvention(fixedSwapLegConventionName, getIds(ZAR, FIXED_SWAP_LEG),
         Tenor.THREE_MONTHS, ACT_365, FOLLOWING, 2, false, ZAR, ZA, StubType.NONE);
@@ -65,8 +65,8 @@ public class ZAConventions {
   }
 
   private static void addLiborConventions(final InMemoryConventionMaster conventionMaster) {
-    final String liborConventionName = getConventionName(ZAR, IBOR);
-    final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(ZAR, IBOR), ACT_365, FOLLOWING, 2, false, ZAR,
+    final String liborConventionName = getConventionName(ZAR, JIBOR);
+    final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(ZAR, JIBOR), ACT_365, FOLLOWING, 2, false, ZAR,
         LocalTime.of(11, 00), ZA, ZA, "");
     conventionMaster.add(liborConvention);
   }
