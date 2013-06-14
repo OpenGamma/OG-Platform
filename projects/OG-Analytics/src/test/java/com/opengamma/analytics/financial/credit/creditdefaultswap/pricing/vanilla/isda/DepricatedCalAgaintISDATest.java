@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Arrays;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalTime;
@@ -79,7 +81,7 @@ public class DepricatedCalAgaintISDATest {
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   // TODO check the purpose of this offset
-  private static final double OFFSET = 0.0;//1. / 365;
+  private static final double OFFSET = 0.0;// 1. / 365;
   private static final ISDAYieldCurveAndHazardRateCurveProvider CURVES;
 
   // The parCDS
@@ -135,7 +137,7 @@ public class DepricatedCalAgaintISDATest {
     int constructionFailCount = 0;
 
     final int nEx = data.length;
-    for (int count = 92; count < 93; count++) {
+    for (int count = 0; count < nEx; count++) {
 
       ISDA_Results res = data[count];
 
@@ -145,7 +147,7 @@ public class DepricatedCalAgaintISDATest {
       ZonedDateTime end = ZonedDateTime.of(res.endDate, LOCAL_TIME, TIME_ZONE);
       ZonedDateTime effectiveDate = today.plusDays(1); // aka stepin date - hard coded to today+1
 
-      // make a CDS
+      // make a CDS - not the notional is 10MM and cannot be changed (what ever is in res is ignored) TODO must change this 
       final CreditDefaultSwapDefinition cds;
       final CreditDefaultSwapDefinition cds_noAcc;
       try {
@@ -191,21 +193,23 @@ public class DepricatedCalAgaintISDATest {
       System.out.println("\nFailed to construct: " + constructionFailCount + " Failed: " + failCount + "\n");
     }
   }
-  
+
   @Test(enabled = false)
   public void example1Test() {
     testISDA_Results(EXAMPLE1, true);
   }
 
-  @Test//(enabled = false)
+  @Test
+   (enabled = false)
   public void example3Test() {
     testISDA_Results(EXAMPLE3, true);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void exampleSheetTest() {
-    testISDA_Results(ISDAModelDatasetsSheetReader.loadSheet("example1.csv"), true);
+    testISDA_Results(ISDAModelDatasetsSheetReader.loadSheet("example1.csv", RECOVERY_RATE), true);
   }
+
 
   @Test
   public void yieldCurveTest() {
@@ -217,7 +221,7 @@ public class DepricatedCalAgaintISDATest {
     }
   }
 
-  //This test only passes with OFFSET = 0.0;
+  // This test only passes with OFFSET = 0.0;
   @Test
   public void hazardCurveTest() {
     final int n = HR_TIMES.length;
