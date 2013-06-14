@@ -7,7 +7,4 @@
   <fileset name="all" enabled="true" check-config-name="OG Checkstyle lax" local="true">
     <file-match-pattern match-pattern=".*[.]java$" include-pattern="true"/>
   </fileset>
-  <fileset name="all" enabled="true" check-config-name="OG Checkstyle" local="false">
-    <file-match-pattern match-pattern=".java$" include-pattern="true"/>
-  </fileset>
 </fileset-config>
