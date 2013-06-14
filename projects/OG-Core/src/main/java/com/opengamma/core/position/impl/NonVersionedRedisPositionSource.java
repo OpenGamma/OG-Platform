@@ -277,7 +277,9 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       UniqueId uniqueId = storePosition(jedis, position);
       positionUniqueIds.add(uniqueId.toString());
     }
-    jedis.sadd(redisKey, positionUniqueIds.toArray(new String[0]));
+    if (!positionUniqueIds.isEmpty()) {
+      jedis.sadd(redisKey, positionUniqueIds.toArray(new String[0]));
+    }
     
     if (!node.getChildNodes().isEmpty()) {
       s_logger.warn("Possible misuse. Portfolio has a deep structure, but this source flattens. Positions being stored flat.");
