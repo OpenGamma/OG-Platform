@@ -16,51 +16,53 @@
   <name>OG-Server</name>
   <description>OpenGamma server dependencies</description>
 
+  <!-- ==================================================================== -->
   <build>
     <plugins>
       <plugin>
-        <groupId>com.opengamma</groupId>
-        <artifactId>og-deploy-maven-plugin</artifactId>
-        <version>1.0.1</version>
+        <groupId>com.opengamma.tools</groupId>
+        <artifactId>opengamma-maven-plugin</artifactId>
+        <version>1.0.0</version>
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
-              <goal>scripts-tools</goal>
+              <goal>generate-scripts</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <template>scripts-templates/script-template.ftl</template>
+          <outputDir>${project.build.directory}/scripts</outputDir>
+          <unixTemplate>com/opengamma/scripts/templates/tool-template-unix.ftl</unixTemplate>
+          <windowsTemplate>com/opengamma/scripts/templates/tool-template-unix.ftl</windowsTemplate>
           <additionalScripts>
-            <param>scripts-templates/run-tool.sh</param>
-            <param>scripts-templates/java-utils.sh</param>
+            <param>src/main/scripts/run-tool.sh</param>
+            <param>src/main/scripts/run-tool.bat</param>
+            <param>src/main/scripts/java-utils.sh</param>
           </additionalScripts>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
+            <id>scripts</id>
             <phase>package</phase>
-            <configuration>
-              <target>
-                <zip basedir="${project.build.directory}/scripts-tools" destfile="${project.build.directory}/scripts-tools.zip" />
-                <attachartifact file="${project.build.directory}/scripts-tools.zip" classifier="scripts-tools" type="zip" />
-                <zip basedir="scripts-templates" destfile="${project.build.directory}/scripts-templates.zip" />
-                <attachartifact file="${project.build.directory}/scripts-templates.zip" classifier="scripts-templates" type="zip" />
-              </target>
-            </configuration>
             <goals>
-              <goal>run</goal>
+              <goal>single</goal>
             </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-scripts.xml</descriptor>
+              </descriptors>
+            </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
 
+  <!-- ==================================================================== -->
   <dependencies>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
