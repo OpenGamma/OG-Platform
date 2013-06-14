@@ -9,7 +9,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.opengamma:lambdava:0.1" level="project" />
     <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module" module-name="OG-TimeSeries" />
     <orderEntry type="library" name="Maven: org.threeten:threetenbp:0.8.1" level="project" />
@@ -141,6 +140,8 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.testng:testng:6.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.beanshell:bsh:2.0b4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.beust:jcommander:1.12" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.activemq:activemq-pool:5.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1" level="project" />
     <orderEntry type="module" module-name="OG-Web" />
     <orderEntry type="library" name="Maven: com.opengamma:og-web:resources:2.0.0-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="OG-MavenPlugin" />

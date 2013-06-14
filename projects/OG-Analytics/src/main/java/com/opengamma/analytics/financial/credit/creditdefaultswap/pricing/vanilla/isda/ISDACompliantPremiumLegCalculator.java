@@ -62,7 +62,6 @@ public class ISDACompliantPremiumLegCalculator extends ISDACompliantLegCalculato
     final ZonedDateTime stepinDate = cds.getEffectiveDate(); //TODO this relies on the person that's set up the CDS to know that effective date = 1 day after valuation date by convention
     // The value date is when cash settlement is made
     // TODO : Add the extra logic for this calculation
-    //    final ZonedDateTime matDate = cds.getMaturityDate();
     final ZonedDateTime matDate = cds.getMaturityDate();
     // TODO : Check valueDate >= today and stepinDate >= today
     if (today.isAfter(matDate) || stepinDate.isAfter(matDate)) {

@@ -53,10 +53,10 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponMonthlyGearingDefinition ZERO_COUPON_NO_DEFINITION = CouponInflationZeroCouponMonthlyGearingDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL,
-      PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG, false, FACTOR);
+      PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG, MONTH_LAG, false, FACTOR);
   private static final CouponInflationZeroCouponMonthlyGearing ZERO_COUPON_NO = ZERO_COUPON_NO_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponMonthlyGearingDefinition ZERO_COUPON_WITH_DEFINITION = CouponInflationZeroCouponMonthlyGearingDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL,
-      PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG, true, FACTOR);
+      PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG, MONTH_LAG, true, FACTOR);
   private static final CouponInflationZeroCouponMonthlyGearing ZERO_COUPON_WITH = ZERO_COUPON_WITH_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponMonthlyGearingDiscountingMethod METHOD = new CouponInflationZeroCouponMonthlyGearingDiscountingMethod();
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();

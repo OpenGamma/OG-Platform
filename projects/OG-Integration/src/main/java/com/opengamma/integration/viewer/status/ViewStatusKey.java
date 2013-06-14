@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.viewer.status;
 
-import com.opengamma.util.money.Currency;
 
 
 /**
@@ -29,6 +28,6 @@ public interface ViewStatusKey {
    * 
    * @return the currency, not-null.
    */
-  Currency getCurrency();
+  String getCurrency();
   
 }

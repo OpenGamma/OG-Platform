@@ -32,7 +32,9 @@ public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolv
   @Override
   public HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
                                                       String resolutionKey) {
-    if (identifierBundle.size() > 1) {
+    if (identifierBundle.isEmpty()) {
+      return null; // is this the correct action?
+    } else if (identifierBundle.size() > 1) {
       s_logger.warn("Attempted to call RedisSimulationSeriesSource with bundle {}. Calls with more than 1 entry in ID bundle are probably misuse of this class.", identifierBundle);
     }
     ExternalId externalId = identifierBundle.getExternalIds().iterator().next();
@@ -42,7 +44,8 @@ public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolv
       return null; // check timeseries actually exists
     }
     if (MarketDataRequirementNames.MARKET_VALUE != dataField) {
-      s_logger.warn("Redis simulation returning ts of {} for {}, this may cause this series to be used in the wrong place in calculations", dataField, externalId);
+      s_logger.warn("Redis simulation asked for {} for {}, can only handle market value.", dataField, externalId);
+      return null;
     }
     ManageableHistoricalTimeSeriesInfo htsInfo = new ManageableHistoricalTimeSeriesInfo() {
       @Override

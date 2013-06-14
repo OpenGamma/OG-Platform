@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.riskfactors.RiskFactorsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsResolver;
@@ -50,6 +51,10 @@ public final class OpenGammaCompilationContext {
    * The name under which an instance of {@link ConvensionBundleSource} should be bound.
    */
   public static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+  /**
+   * The name under which an instance of {@link ConvensionSource} should be bound.
+   */
+  public static final String CONVENTION_SOURCE_NAME = "conventionSource";
   /**
    * The name under which an instance of {@link InterpolatedYieldCurveDefinitionSource} should be bound.
    */
@@ -159,6 +164,28 @@ public final class OpenGammaCompilationContext {
    */
   public static void setRegionSource(final FunctionCompilationContext compilationContext, final RegionSource regionSource) {
     set(compilationContext, REGION_SOURCE_NAME, regionSource);
+  }
+
+  // -------------------------------------------------------------------------
+  /**
+   * Gets a {@code ConventionSource} from the context.
+   * 
+   * @param compilationContext the context to examine, not null
+   * @return the convention source, null if not found
+   */
+  public static ConventionSource getConventionSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, CONVENTION_SOURCE_NAME);
+  }
+
+  /**
+   * Stores a {@code ConventionSource} in the context.
+   * 
+   * @param compilationContext the context to store in, not null
+   * @param conventionSource the convention source to store, not null
+   */
+  public static void setConventionSource(final FunctionCompilationContext compilationContext,
+      final ConventionSource conventionSource) {
+    set(compilationContext, CONVENTION_SOURCE_NAME, conventionSource);
   }
 
   // -------------------------------------------------------------------------
@@ -350,10 +377,10 @@ public final class OpenGammaCompilationContext {
       }
 
       @Override
-      public CurrencyPair getCurrencyPair(String name, Currency currency1, Currency currency2) {
+      public CurrencyPair getCurrencyPair(final String name, final Currency currency1, final Currency currency2) {
         ArgumentChecker.notNull(currency1, "currency1");
         ArgumentChecker.notNull(currency2, "currency2");
-        CurrencyPairs currencyPairs = getCurrencyPairs(name);
+        final CurrencyPairs currencyPairs = getCurrencyPairs(name);
         if (currencyPairs == null) {
           return null;
         }

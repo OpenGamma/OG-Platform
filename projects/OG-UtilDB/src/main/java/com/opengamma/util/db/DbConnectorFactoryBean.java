@@ -20,6 +20,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -401,11 +402,14 @@ public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
   protected PlatformTransactionManager createTransactionManager(SessionFactory sessionFactory) {
     PlatformTransactionManager transMgr = getTransactionManager();
     if (transMgr == null) {
+      AbstractPlatformTransactionManager newTransMgr;
       if (sessionFactory != null) {
-        transMgr = new HibernateTransactionManager(sessionFactory);
+        newTransMgr = new HibernateTransactionManager(sessionFactory);
       } else {
-        transMgr = new DataSourceTransactionManager(getDataSource());
+        newTransMgr = new DataSourceTransactionManager(getDataSource());
       }
+      newTransMgr.setNestedTransactionAllowed(true);
+      transMgr = newTransMgr;
     }
     return transMgr;
   }

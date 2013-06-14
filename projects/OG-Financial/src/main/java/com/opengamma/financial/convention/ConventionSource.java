@@ -5,34 +5,38 @@
  */
 package com.opengamma.financial.convention;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
- * 
+ * Source of convention data.
  */
 public interface ConventionSource {
 
+  /**
+   * Gets a convention for the given identifier.
+   * @param identifier An identifier of the instrument
+   * @return The convention data, or null if not found
+   * @throws OpenGammaRuntimeException if multiple matches to the identifier are found.
+   */
   Convention getConvention(ExternalId identifier);
 
-  CMSLegConvention getCMSLegConvention(ExternalId identifier);
+  /**
+   * Gets a convention for the given instrument identifiers.
+   * @param identifiers The identifiers of the instrument
+   * @return The convention data, or null if not found
+   * @throws OpenGammaRuntimeException if multiple matches to the identifier are found.
+   */
+  Convention getConvention(ExternalIdBundle identifiers);
 
-  CompoundingIborLegConvention getCompoundingIborLegConvention(ExternalId identifier);
-
-  DepositConvention getDepositConvention(ExternalId identifier);
-
-  EquityConvention getEquityConvention(ExternalId identifier);
-
-  InterestRateFutureConvention getInterestRateFutureConvention(ExternalId identifier);
-
-  FXForwardAndSwapConvention getFXForwardAndSwapConvention(ExternalId identifier);
-
-  FXSpotConvention getFXSpotConvention(ExternalId identifier);
-
-  IborIndexConvention getIborIndexConvention(ExternalId identifier);
-
-  OISLegConvention getOISLegConvention(ExternalId identifier);
-
-  OvernightIndexConvention getOvernightIndexConvention(ExternalId identifier);
-
+  /**
+   * Gets a convention for an instrument's unique identifier.
+   * @param identifier An identifier of the instrument
+   * @return The convention data, or null if not found
+   * @throws OpenGammaRuntimeException if multiple matches to the identifier are found.
+   */
+  Convention getConvention(UniqueId identifier);
 
 }

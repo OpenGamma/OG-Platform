@@ -390,7 +390,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
       @Override
       public Void doInTransaction(final TransactionStatus status) {
-        _dbBatchWriter.addJobResultsInTransaction(riskRunId, result);
+        _dbBatchWriter.addJobResultsInTransaction(status, riskRunId, result);
         return null;
       }
     });

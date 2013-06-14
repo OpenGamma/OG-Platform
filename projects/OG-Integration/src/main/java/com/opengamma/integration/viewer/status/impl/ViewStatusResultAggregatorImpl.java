@@ -28,7 +28,6 @@ import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.integration.viewer.status.ViewStatusResultAggregator;
 import com.opengamma.integration.viewer.status.impl.ViewStatusKeyBean.Meta;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 /**
  * Implementation of {@link ViewStatusResultAggregator}
@@ -56,7 +55,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     Meta statusKeyMeta = ViewStatusKeyBean.meta();
     HEADERS.put(statusKeyMeta.securityType(), SECURITY_HEADER);
     HEADERS.put(statusKeyMeta.valueRequirementName(), VALUE_REQUIREMENT_NAME_HEADER);
-    HEADERS.put(statusKeyMeta.currencyStr(), CURRENCY_HEADER);
+    HEADERS.put(statusKeyMeta.currency(), CURRENCY_HEADER);
   }
 
   public ViewStatusModel aggregate(final ViewAggregationType columnType, final ViewAggregationType rowType, final ViewAggregationType subRowType) {
@@ -209,7 +208,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
       return getSecurityTypes();
     } else if (meta.valueRequirementName().equals(statusKey)) {
       return getValueNames();
-    } else if (meta.currencyStr().equals(statusKey)) {
+    } else if (meta.currency().equals(statusKey)) {
       return getCurrencies();
     } else {
       return Sets.newHashSet();
@@ -235,7 +234,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
   private Set<String> getCurrencies() {
     Set<String> result = Sets.newTreeSet();
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
-      result.add(key.getCurrency().getCode());
+      result.add(key.getCurrency());
     }
     return result;
   }
@@ -260,15 +259,15 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
   /**
    * Immutable key into view status result map
    */
-  private static class ImmutableViewStatusKey implements ViewStatusKey  {
+  static class ImmutableViewStatusKey implements ViewStatusKey  {
     
     private final String _securityType;
     
     private final String _valueName;
     
-    private final Currency _currency;
+    private final String _currency;
     
-    public ImmutableViewStatusKey(String securityType, String valueName, Currency currency) {
+    public ImmutableViewStatusKey(String securityType, String valueName, String currency) {
       ArgumentChecker.notNull(securityType, "securityType");
       ArgumentChecker.notNull(valueName, "valueName");
       ArgumentChecker.notNull(currency, "currency");
@@ -290,7 +289,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     }
 
     @Override
-    public Currency getCurrency() {
+    public String getCurrency() {
       return _currency;
     }
     

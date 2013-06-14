@@ -23,6 +23,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -42,7 +43,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.IRFutureAndFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
@@ -199,6 +202,13 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType,
       final Calendar calendar) {
     double callAboveStrike = 0;
+    SurfaceInstrumentProvider<?, ?> instrumentProvider = specification.getSurfaceInstrumentProvider();
+    ExchangeTradedInstrumentExpiryCalculator expiryRule;
+    if (instrumentProvider instanceof CallPutSurfaceInstrumentProvider) {
+      expiryRule = ((CallPutSurfaceInstrumentProvider<?, ?>) instrumentProvider).getExpiryRuleCalculator();
+    } else {
+      expiryRule = IRFutureAndFutureOptionExpiryCalculator.getInstance();
+    }
     if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
       callAboveStrike = ((CallPutSurfaceInstrumentProvider<?, ?>) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
     }
@@ -206,9 +216,9 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Number x : optionPrices.getXs()) {
-      // Loop over option expiries
-      final Double optionTtm = FutureOptionUtils.getIRFutureOptionTtm(x.intValue(), today, calendar);
+    for (final Number x : optionPrices.getXs()) { // Loop over option expiries
+      final LocalDate expiry = expiryRule.getExpiryDate(x.intValue(), today, calendar);
+      final Double optionTtm = TimeCalculator.getTimeBetween(today, expiry); 
       // Get the corresponding future, which may not share the same expiries as the option itself
       final Double[] futureExpiries = futurePrices.getXData();
       final int nFutures = futureExpiries.length;

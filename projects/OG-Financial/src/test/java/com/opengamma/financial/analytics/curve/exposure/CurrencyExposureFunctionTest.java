@@ -340,7 +340,7 @@ public class CurrencyExposureFunctionTest {
 
   @Test
   public void testFixedFloatSwapSecurity() {
-    final SwapSecurity security = ExposureFunctionTestHelper.getFixedFloatSwapSecurity();
+    final SwapSecurity security = ExposureFunctionTestHelper.getPayFixedFloatSwapSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EUR"), ids.get(0));
@@ -356,7 +356,7 @@ public class CurrencyExposureFunctionTest {
 
   @Test
   public void testForwardFixedFloatSwapSecurity() {
-    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardFixedFloatSwapSecurity();
+    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getPayForwardFixedFloatSwapSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EUR"), ids.get(0));
@@ -541,7 +541,7 @@ public class CurrencyExposureFunctionTest {
 
   @Test
   public void testSwaptionSecurity() {
-    final SwaptionSecurity security = ExposureFunctionTestHelper.getSwaptionSecurity();
+    final SwaptionSecurity security = ExposureFunctionTestHelper.getPaySwaptionSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EUR"), ids.get(0));

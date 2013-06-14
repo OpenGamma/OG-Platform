@@ -236,6 +236,11 @@ public final class ValuePropertyNames {
   public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
 
   /**
+   * The name for a property describing the curve calculation configuration name.
+   */
+  public static final String CURVE_CONSTRUCTION_CONFIG = "CurveConstructionConfiguration";
+
+  /**
    * The name for a property describing the shift of the strike
    * when approximating a binary option as a call or put spread
    */

@@ -1468,17 +1468,28 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   }
 
   private void removePendingSubscription(final ValueSpecification specification) {
-    if (_pendingSubscriptions.remove(specification) && _pendingSubscriptions.isEmpty()) {
-      synchronized (_pendingSubscriptions) {
-        if (_pendingSubscriptions.isEmpty()) {
-          _pendingSubscriptions.notifyAll();
-        }
-      }
+    if (_pendingSubscriptions.remove(specification)) {
+      notifyIfPendingSubscriptionsDone();
     }
   }
 
   private void removePendingSubscriptions(final Collection<ValueSpecification> specifications) {
-    if (_pendingSubscriptions.removeAll(specifications) && _pendingSubscriptions.isEmpty()) {
+
+    // Previously, this used removeAll, but as specifications may be a list, it was observed
+    // that we may end up iterating over _pendingSubscriptions and calling contains() on
+    // specifications, resulting in long wait times for a view to load (PLAT-3508)
+    boolean removalPerformed = false;
+    for (ValueSpecification specification : specifications) {
+      removalPerformed = _pendingSubscriptions.remove(specification) || removalPerformed;
+    }
+
+    if (removalPerformed) {
+      notifyIfPendingSubscriptionsDone();
+    }
+  }
+
+  private void notifyIfPendingSubscriptionsDone() {
+    if (_pendingSubscriptions.isEmpty()) {
       synchronized (_pendingSubscriptions) {
         if (_pendingSubscriptions.isEmpty()) {
           _pendingSubscriptions.notifyAll();

@@ -23,6 +23,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.YIELD_CURVE,
     ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+    ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX
   };
   private final String _absoluteTolerance;
   private final String _relativeTolerance;

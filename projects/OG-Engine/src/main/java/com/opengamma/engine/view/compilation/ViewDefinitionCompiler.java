@@ -499,6 +499,7 @@ public final class ViewDefinitionCompiler {
         traverser.traverse(portfolio.getRootNode());
         try {
           s_logger.debug("Waiting for stripe {} to complete", stripe);
+          // TODO: Waiting for a completion state causes any progress tracker to abort (it sees 100% and stops). Need to rethink how to do the progress estimates.
           builder.waitForDependencyGraphBuild();
         } catch (InterruptedException e) {
           throw new OpenGammaRuntimeException("Interrupted during striped compilation", e);

@@ -60,7 +60,7 @@ public class FunctionExclusionGroupTest {
   }
 
   public void testAbstract() {
-    final FunctionExclusionGroups groups = new AbstractFunctionExclusionGroups<String>() {
+    final FunctionExclusionGroups groups = new AbstractFunctionExclusionGroups() {
       @Override
       protected String getKey(final FunctionDefinition function) {
         if (function.getShortName().startsWith("A_")) {

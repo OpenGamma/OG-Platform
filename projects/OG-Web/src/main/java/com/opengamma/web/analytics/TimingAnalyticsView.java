@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -33,10 +34,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.updateStructure");
-    List<String> retVal = _delegate.updateStructure(compiledViewDefinition);
+    List<String> retVal = _delegate.updateStructure(compiledViewDefinition, portfolio);
     s_logger.trace("updateStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }

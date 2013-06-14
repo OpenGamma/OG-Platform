@@ -145,7 +145,7 @@ public abstract class AbstractPortfolioGeneratorTool {
     }
     if (getToolContext() != null) {
       securityGenerator.setConfigSource(getToolContext().getConfigSource());
-      securityGenerator.setConventionSource(getToolContext().getConventionBundleSource());
+      securityGenerator.setConventionBundleSource(getToolContext().getConventionBundleSource());
       securityGenerator.setHolidaySource(getToolContext().getHolidaySource());
       securityGenerator.setHistoricalSource(getToolContext().getHistoricalTimeSeriesSource());
       securityGenerator.setExchangeMaster(getToolContext().getExchangeMaster());

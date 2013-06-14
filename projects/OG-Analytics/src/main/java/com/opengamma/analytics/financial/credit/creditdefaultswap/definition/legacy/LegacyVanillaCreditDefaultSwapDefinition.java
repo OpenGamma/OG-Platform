@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisito
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -254,6 +255,35 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getProtectionStart(),
         getParSpread());
   }
+  
+  
+
+  public CreditDefaultSwapDefinition withIncludeAccruedPremium(boolean includeAccruedPremium) {
+    return new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+       getRecoveryRate(),
+        includeAccruedPremium,
+        getProtectionStart(),
+        getParSpread());
+  }
+
 
   @Override
   public <DATA_TYPE, RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> visitor, final DATA_TYPE data) {
@@ -266,5 +296,6 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitLegacyVanillaCDS(this);
   }
+
 
 }

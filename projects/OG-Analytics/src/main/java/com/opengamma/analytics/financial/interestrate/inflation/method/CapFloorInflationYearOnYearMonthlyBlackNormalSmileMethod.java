@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
@@ -26,31 +26,31 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public final class CapFloorInflationYearOnYearMonthlyBlackSmileMethod {
+public final class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CapFloorInflationYearOnYearMonthlyBlackSmileMethod INSTANCE = new CapFloorInflationYearOnYearMonthlyBlackSmileMethod();
+  private static final CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod INSTANCE = new CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod();
 
   /**
    * Private constructor.
    */
-  private CapFloorInflationYearOnYearMonthlyBlackSmileMethod() {
+  private CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod() {
   }
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CapFloorInflationYearOnYearMonthlyBlackSmileMethod getInstance() {
+  public static CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * The Black function used in the pricing.
    */
-  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+  private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
 
   /**
    * Computes the net amount.
@@ -67,9 +67,9 @@ public final class CapFloorInflationYearOnYearMonthlyBlackSmileMethod {
     final double priceIndexEnd = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), cap.getReferenceEndTime());
     final double forward = priceIndexEnd / priceIndexStart - 1;
     final double volatility = black.getBlackParameters().getVolatility(cap.getReferenceEndTime(), cap.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
-    final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
-    final double price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
+    final NormalFunctionData dataNormaL = new NormalFunctionData(forward, 1.0, volatility);
+    final Function1D<NormalFunctionData, Double> func = NORMAL_FUNCTION.getPriceFunction(option);
+    final double price = func.evaluate(dataNormaL) * cap.getNotional() * cap.getPaymentYearFraction();
     return MultipleCurrencyAmount.of(cap.getCurrency(), price);
   }
 
@@ -110,15 +110,16 @@ public final class CapFloorInflationYearOnYearMonthlyBlackSmileMethod {
     final InflationSensitivity forwardDi = InflationSensitivity.ofPriceIndex(resultMapPrice);
     final double dfDr = -cap.getPaymentTime() * df;
     final double volatility = black.getBlackParameters().getVolatility(cap.getReferenceEndTime(), cap.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
-    final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    final NormalFunctionData dataBlack = new NormalFunctionData(forward, 1.0, volatility);
+    double[] priceDerivatives = new double[3];
+    final double bsAdjoint = NORMAL_FUNCTION.getPriceAdjoint(option, dataBlack, priceDerivatives);
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(inflation.getName(cap.getCurrency()), list);
     InflationSensitivity result = InflationSensitivity.ofYieldDiscounting(resultMap);
-    result = result.multipliedBy(bsAdjoint[0]);
-    result = result.plus(forwardDi.multipliedBy(df * bsAdjoint[1]));
+    result = result.multipliedBy(priceDerivatives[0]);
+    result = result.plus(forwardDi.multipliedBy(df * priceDerivatives[1]));
     result = result.multipliedBy(cap.getNotional() * cap.getPaymentYearFraction());
     return MultipleCurrencyInflationSensitivity.of(cap.getCurrency(), result);
   }

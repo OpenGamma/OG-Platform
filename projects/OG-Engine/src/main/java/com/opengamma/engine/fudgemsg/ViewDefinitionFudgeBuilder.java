@@ -64,6 +64,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
   private static final String CURRENCY_FIELD = "currency";
   private static final String DEFAULT_PROPERTIES_FIELD = "defaultProperties";
   private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
+  private static final String SCENARIO_ID_FIELD = "scenarioId";
 
   // field names for column dat
   private static final String COLUMNS_FIELD = "columns";
@@ -125,6 +126,10 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
       serializer.addToMessage(calcConfigMsg, DELTA_DEFINITION_FIELD, null, calcConfig.getDeltaDefinition());
       serializer.addToMessage(calcConfigMsg, DEFAULT_PROPERTIES_FIELD, null, calcConfig.getDefaultProperties());
       serializer.addToMessage(calcConfigMsg, RESOLUTION_RULE_TRANSFORM_FIELD, null, calcConfig.getResolutionRuleTransform());
+      UniqueId scenarioId = calcConfig.getScenarioId();
+      if (scenarioId != null) {
+        serializer.addToMessageWithClassHeaders(calcConfigMsg, SCENARIO_ID_FIELD, null, scenarioId, UniqueId.class);
+      }
       MutableFudgeMsg columnsMsg = serializer.newMessage();
       for (ViewCalculationConfiguration.Column column : calcConfig.getColumns()) {
         MutableFudgeMsg columnMsg = serializer.newMessage();
@@ -236,10 +241,17 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
         calcConfig.setDeltaDefinition(deserializer.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
       }
       if (calcConfigMsg.hasField(DEFAULT_PROPERTIES_FIELD)) {
-        calcConfig.setDefaultProperties(deserializer.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
+        calcConfig.setDefaultProperties(deserializer.fieldValueToObject(ValueProperties.class,
+                                                                        calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
       }
       if (calcConfigMsg.hasField(RESOLUTION_RULE_TRANSFORM_FIELD)) {
-        calcConfig.setResolutionRuleTransform(deserializer.fieldValueToObject(ResolutionRuleTransform.class, calcConfigMsg.getByName(RESOLUTION_RULE_TRANSFORM_FIELD)));
+        calcConfig.setResolutionRuleTransform(deserializer.fieldValueToObject(ResolutionRuleTransform.class,
+                                                                              calcConfigMsg.getByName(
+                                                                                  RESOLUTION_RULE_TRANSFORM_FIELD)));
+      }
+      if (calcConfigMsg.hasField(SCENARIO_ID_FIELD)) {
+        calcConfig.setScenarioId(deserializer.fieldValueToObject(UniqueId.class,
+                                                                 calcConfigMsg.getByName(SCENARIO_ID_FIELD)));
       }
       List<ViewCalculationConfiguration.Column> columns = Lists.newArrayList();
       if (calcConfigMsg.hasField(COLUMNS_FIELD)) {

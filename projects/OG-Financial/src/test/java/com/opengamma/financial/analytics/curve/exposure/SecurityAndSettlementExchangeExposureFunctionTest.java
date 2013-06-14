@@ -322,7 +322,7 @@ public class SecurityAndSettlementExchangeExposureFunctionTest {
 
   @Test
   public void testFixedFloatSwapSecurity() {
-    final SwapSecurity security = ExposureFunctionTestHelper.getFixedFloatSwapSecurity();
+    final SwapSecurity security = ExposureFunctionTestHelper.getPayFixedFloatSwapSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
@@ -336,7 +336,7 @@ public class SecurityAndSettlementExchangeExposureFunctionTest {
 
   @Test
   public void testForwardFixedFloatSwapSecurity() {
-    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardFixedFloatSwapSecurity();
+    final ForwardSwapSecurity security = ExposureFunctionTestHelper.getPayForwardFixedFloatSwapSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
@@ -490,7 +490,7 @@ public class SecurityAndSettlementExchangeExposureFunctionTest {
 
   @Test
   public void testSwaptionSecurity() {
-    final SwaptionSecurity security = ExposureFunctionTestHelper.getSwaptionSecurity();
+    final SwaptionSecurity security = ExposureFunctionTestHelper.getPaySwaptionSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
