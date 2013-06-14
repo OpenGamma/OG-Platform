@@ -137,6 +137,7 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-content-items.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-constraints.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-scenario.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
@@ -458,6 +459,7 @@
     <!-- config blocks -->
     <fragment>/scripts/og/views/config_blocks/og.views.config_blocks.constraints.js</fragment>
     <fragment>/scripts/og/views/config_blocks/og.views.config_blocks.ruletransform.js</fragment>
+    <fragment>/scripts/og/views/config_blocks/og.views.config_blocks.scenario.js</fragment>
     <!-- /config blocks -->
     <!-- config forms -->
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.default.js</fragment> <!-- keep this first! -->

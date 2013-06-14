@@ -20,6 +20,7 @@ $.register_module({
             CONS = 'constraints',               WITH = 'with',
             WTHO = 'without',                   INDX = '<INDEX>',
             ORDS = 'columns',                   EMPT = '<EMPTY>',
+            SCEN = 'scenario',
             type_map = [
                 ['0',                                                                           Form.type.STR],
                 [[SETS, 'name'].join('.'),                                                      Form.type.STR],
@@ -423,6 +424,9 @@ $.register_module({
                             extras: {name: [SETS, set_idx, 'name'].join('.'), value: set.name},
                             children: [
                                 col_tabs, col_vals, spec_vals, // additional values
+                                new blocks.Scenario({ // scenario
+                                	form: form, data: set[SCEN], index: [SETS, set_idx, SCEN].join('.')
+                                }),
                                 new blocks.Constraints({ // default properties
                                     form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')
                                 }),
@@ -437,7 +441,7 @@ $.register_module({
                         }).on('click', set_id + ' .og-js-colset-nav', function (event) {
                             var $target = $(event.target),
                                 $tab = $target.is(this.selector) ? $target : $target.parents(this.selector + ':first'),
-                                navs = ['og-js-col-vals', 'og-js-specs', 'og-js-def-prop', 'og-js-rule-trans'],
+                                navs = ['og-js-col-vals', 'og-js-specs', 'og-js-scenario', 'og-js-def-prop', 'og-js-rule-trans'],
                                 show = navs[$(this.selector).index($tab)];
                             $tab.addClass('og-active').siblings().removeClass('og-active');
                             navs.forEach(function (cl) {$(set_id + ' .' + cl)[cl === show ? 'show' : 'hide']();});
