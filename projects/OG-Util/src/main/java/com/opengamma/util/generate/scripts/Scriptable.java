@@ -11,9 +11,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to indicate that a class is a suitable target for auto-generated launcher scripts.
+ * Indicates  that a class is a suitable target for auto-generated launcher scripts.
+ * <p>
+ * This will be implemented on classes that are compatible with the standard script launcher.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
+@Target(ElementType.TYPE)
 public @interface Scriptable {
 }
