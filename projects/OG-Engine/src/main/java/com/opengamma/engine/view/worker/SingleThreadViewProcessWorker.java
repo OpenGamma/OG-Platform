@@ -828,19 +828,42 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return new PortfolioNodeEquivalenceMapper();
   }
 
-  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped) {
-    if (mapped.containsKey(node.getUniqueId())) {
-      return;
+  private void markMappedPositions(final PortfolioNode node, final Map<UniqueId, Position> positions) {
+    for (Position position : node.getPositions()) {
+      positions.put(position.getUniqueId(), null);
     }
-    if (unmapped.add(node.getUniqueId())) {
+    for (PortfolioNode child : node.getChildNodes()) {
+      markMappedPositions(child, positions);
+    }
+  }
+
+  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped, final Map<UniqueId, Position> positions) {
+    if (mapped.containsKey(node.getUniqueId())) {
+      // This node is mapped; as are the nodes underneath it, so just mark the child positions
+      markMappedPositions(node, positions);
+    } else {
+      // This node is unmapped - mark it as such and check the nodes underneath it
+      unmapped.add(node.getUniqueId());
       for (PortfolioNode child : node.getChildNodes()) {
-        findUnmapped(child, mapped, unmapped);
+        findUnmapped(child, mapped, unmapped, positions);
       }
-      for (Position child : node.getPositions()) {
-        if (unmapped.add(child.getUniqueId())) {
-          for (Trade trade : child.getTrades()) {
-            unmapped.add(trade.getUniqueId());
-          }
+      // Any child positions (and their trades) are unmapped if, and only if, they are not referenced by anything else
+      for (Position position : node.getPositions()) {
+        if (!positions.containsKey(position.getUniqueId())) {
+          positions.put(position.getUniqueId(), position);
+        }
+      }
+    }
+  }
+
+  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped) {
+    final Map<UniqueId, Position> positions = new HashMap<UniqueId, Position>();
+    findUnmapped(node, mapped, unmapped, positions);
+    for (Map.Entry<UniqueId, Position> position : positions.entrySet()) {
+      if (position.getValue() != null) {
+        unmapped.add(position.getKey());
+        for (Trade trade : position.getValue().getTrades()) {
+          unmapped.add(trade.getUniqueId());
         }
       }
     }
@@ -994,7 +1017,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         invalidIdentifiers.put(target.getValue(), resolved);
       }
     }
-    s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
+    s_logger.info("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
     return invalidIdentifiers;
   }
 
@@ -1053,6 +1076,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    * @param include the map to build the result into
    * @param nodes the nodes to process
    * @param filter the filter to apply to the nodes
+   * @return true if all of the nodes in the collection were included
    */
   private static boolean includeNodes(final Map<DependencyNode, Boolean> include, final Collection<DependencyNode> nodes, final DependencyNodeFilter filter) {
     boolean includedAll = true;
