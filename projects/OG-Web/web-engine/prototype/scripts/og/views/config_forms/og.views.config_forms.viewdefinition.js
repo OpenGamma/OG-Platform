@@ -20,7 +20,7 @@ $.register_module({
             CONS = 'constraints',               WITH = 'with',
             WTHO = 'without',                   INDX = '<INDEX>',
             ORDS = 'columns',                   EMPT = '<EMPTY>',
-            SCEN = 'scenario',
+            SCEN = 'scenarioId',
             type_map = [
                 ['0',                                                                           Form.type.STR],
                 [[SETS, 'name'].join('.'),                                                      Form.type.STR],
