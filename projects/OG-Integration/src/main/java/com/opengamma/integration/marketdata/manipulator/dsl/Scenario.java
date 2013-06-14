@@ -63,8 +63,8 @@ public class Scenario {
   /**
    * @return A object for specifying which curves should be transformed
    */
-  public CurveSelector.Builder curve() {
-    return new CurveSelector.Builder(this, _calcConfigName);
+  public YieldCurveSelector.Builder curve() {
+    return new YieldCurveSelector.Builder(this, _calcConfigName);
   }
 
   /**
