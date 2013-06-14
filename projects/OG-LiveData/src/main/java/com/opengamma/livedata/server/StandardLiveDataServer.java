@@ -345,12 +345,13 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   }
 
   //-------------------------------------------------------------------------
-  void reestablishSubscriptions() {
+  public void reestablishSubscriptions() {
     _subscriptionLock.lock();
     try {
       Set<String> securities = _securityUniqueId2Subscription.keySet();
       try {
         Map<String, Object> subscriptions = doSubscribe(securities);
+
         if (securities.size() != subscriptions.size()) {
           s_logger.warn("Attempting to re-establish security subscriptions - have {} securities " +
                             "but only managed to establish subscriptions to {}",
@@ -1012,7 +1013,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
       // REVIEW kirk 2013-04-26 -- Should this really be a WARN? I believe some gateway systems
       // handle unsubscribes asynchronously so it's totally valid to get a few ticks after
       // unsubscribe has pulled it out of the subscription list.
-      s_logger.warn("Got data for invalid security unique ID {}", securityUniqueId);
+      s_logger.warn("Unexpectedly got data for security unique ID {} - no subscription is held for this data", securityUniqueId);
       return;
     }
 
