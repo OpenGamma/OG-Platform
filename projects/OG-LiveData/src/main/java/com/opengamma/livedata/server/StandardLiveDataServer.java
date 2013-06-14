@@ -59,16 +59,16 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   private static final Logger s_logger = LoggerFactory.getLogger(StandardLiveDataServer.class);
 
   private volatile MarketDataSenderFactory _marketDataSenderFactory = new EmptyMarketDataSenderFactory();
-  private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
+  private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<>();
 
   /** Access controlled via _subscriptionLock */
-  private final Set<Subscription> _currentlyActiveSubscriptions = new HashSet<Subscription>();
+  private final Set<Subscription> _currentlyActiveSubscriptions = new HashSet<>();
 
   /** _Write_ access controlled via _subscriptionLock */
-  private final Map<String, Subscription> _securityUniqueId2Subscription = new ConcurrentHashMap<String, Subscription>();
+  private final Map<String, Subscription> _securityUniqueId2Subscription = new ConcurrentHashMap<>();
 
   /** Access controlled via _subscriptionLock */
-  private final Map<LiveDataSpecification, MarketDataDistributor> _fullyQualifiedSpec2Distributor = new HashMap<LiveDataSpecification, MarketDataDistributor>();
+  private final Map<LiveDataSpecification, MarketDataDistributor> _fullyQualifiedSpec2Distributor = new HashMap<>();
 
   private final AtomicLong _numMarketDataUpdatesReceived = new AtomicLong(0);
   private final PerformanceCounter _performanceCounter;
@@ -433,10 +433,9 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
    * @return A {@code LiveDataSpecification} with default normalization rule used.
    */
   public LiveDataSpecification getLiveDataSpecification(String securityUniqueId) {
-    LiveDataSpecification liveDataSpecification = new LiveDataSpecification(
+    return new LiveDataSpecification(
         getDefaultNormalizationRuleSetId(),
         ExternalId.of(getUniqueIdDomain(), securityUniqueId));
-    return liveDataSpecification;
   }
 
   /**
@@ -491,9 +490,9 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
 
     verifyConnectionOk();
 
-    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
-    Map<String, Subscription> securityUniqueId2NewSubscription = new HashMap<String, Subscription>();
-    Map<String, LiveDataSpecification> securityUniqueId2SpecFromClient = new HashMap<String, LiveDataSpecification>();
+    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<>();
+    Map<String, Subscription> securityUniqueId2NewSubscription = new HashMap<>();
+    Map<String, LiveDataSpecification> securityUniqueId2SpecFromClient = new HashMap<>();
 
     _subscriptionLock.lock();
     try {
@@ -531,7 +530,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
 
       // In some cases, the underlying market data API may not, when the subscription is started,
       // return a full image of all fields. If so, we need to get the full image explicitly.
-      Collection<String> newSubscriptionsForWhichSnapshotIsRequired = new ArrayList<String>();
+      Collection<String> newSubscriptionsForWhichSnapshotIsRequired = new ArrayList<>();
       for (Subscription subscription : securityUniqueId2NewSubscription.values()) {
         if (snapshotOnSubscriptionStartRequired(subscription)) {
           newSubscriptionsForWhichSnapshotIsRequired.add(subscription.getSecurityUniqueId());
@@ -652,10 +651,10 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
 
     verifyConnectionOk();
 
-    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
+    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<>();
 
-    Collection<String> snapshotsToActuallyDo = new ArrayList<String>();
-    Map<String, LiveDataSpecification> securityUniqueId2LiveDataSpecificationFromClient = new HashMap<String, LiveDataSpecification>();
+    Collection<String> snapshotsToActuallyDo = new ArrayList<>();
+    Map<String, LiveDataSpecification> securityUniqueId2LiveDataSpecificationFromClient = new HashMap<>();
 
     Map<LiveDataSpecification, DistributionSpecification> resolved = getDistributionSpecificationResolver().resolve(liveDataSpecificationsFromClient);
     for (LiveDataSpecification liveDataSpecificationFromClient : liveDataSpecificationsFromClient) {
@@ -747,7 +746,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     } catch (Exception ex) {
       s_logger.error("Failed to subscribe to " + subscriptionRequest, ex);
 
-      ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
+      ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<>();
       for (LiveDataSpecification requestedSpecification : subscriptionRequest.getSpecifications()) {
         responses.add(buildErrorResponse(requestedSpecification, ex));
       }
@@ -763,11 +762,11 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
    */
   protected LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(LiveDataSubscriptionRequest subscriptionRequest) {
     final boolean persistent = subscriptionRequest.getType().equals(SubscriptionType.PERSISTENT);
-    final ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
+    final ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<>();
 
     // build and check the distribution specifications
     Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(subscriptionRequest.getSpecifications());
-    ArrayList<LiveDataSpecification> distributable = new ArrayList<LiveDataSpecification>();
+    ArrayList<LiveDataSpecification> distributable = new ArrayList<>();
     for (LiveDataSpecification requestedSpecification : subscriptionRequest.getSpecifications()) {
       try {
         // Check that this spec can be found
@@ -787,8 +786,8 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     }
 
     // check entitlement and sort into snapshots/subscriptions
-    ArrayList<LiveDataSpecification> snapshots = new ArrayList<LiveDataSpecification>();
-    ArrayList<LiveDataSpecification> subscriptions = new ArrayList<LiveDataSpecification>();
+    ArrayList<LiveDataSpecification> snapshots = new ArrayList<>();
+    ArrayList<LiveDataSpecification> subscriptions = new ArrayList<>();
     Map<LiveDataSpecification, Boolean> entitled = getEntitlementChecker().isEntitled(subscriptionRequest.getUser(), distributable);
     for (Entry<LiveDataSpecification, Boolean> entry : entitled.entrySet()) {
       LiveDataSpecification requestedSpecification = entry.getKey();
@@ -969,7 +968,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     int expired = 0;
     _subscriptionLock.lock();
     try {
-      for (MarketDataDistributor distributor : new ArrayList<MarketDataDistributor>(_fullyQualifiedSpec2Distributor.values())) {
+      for (MarketDataDistributor distributor : new ArrayList<>(_fullyQualifiedSpec2Distributor.values())) {
         if (distributor.hasExpired()) {
           if (stopDistributor(distributor)) {
             expired++;
@@ -1013,7 +1012,8 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
       // REVIEW kirk 2013-04-26 -- Should this really be a WARN? I believe some gateway systems
       // handle unsubscribes asynchronously so it's totally valid to get a few ticks after
       // unsubscribe has pulled it out of the subscription list.
-      s_logger.warn("Unexpectedly got data for security unique ID {} - no subscription is held for this data", securityUniqueId);
+      s_logger.warn("Unexpectedly got data for security unique ID {} - " +
+                        "no subscription is held for this data (has it recently expired?)", securityUniqueId);
       return;
     }
 
@@ -1021,7 +1021,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   }
 
   public Set<String> getActiveDistributionSpecs() {
-    Set<String> subscriptions = new HashSet<String>();
+    Set<String> subscriptions = new HashSet<>();
     for (Subscription subscription : getSubscriptions()) {
       for (DistributionSpecification distributionSpec : subscription.getDistributionSpecifications()) {
         subscriptions.add(distributionSpec.toString());
@@ -1031,7 +1031,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   }
 
   public Set<String> getActiveSubscriptionIds() {
-    Set<String> subscriptions = new HashSet<String>();
+    Set<String> subscriptions = new HashSet<>();
     for (Subscription subscription : getSubscriptions()) {
       subscriptions.add(subscription.getSecurityUniqueId());
     }
@@ -1056,7 +1056,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   public Set<Subscription> getSubscriptions() {
     _subscriptionLock.lock();
     try {
-      return new HashSet<Subscription>(_currentlyActiveSubscriptions);
+      return new HashSet<>(_currentlyActiveSubscriptions);
     } finally {
       _subscriptionLock.unlock();
     }
@@ -1087,7 +1087,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     //NOTE: this is not much (if any) faster here, but for subclasses it can be
     _subscriptionLock.lock();
     try {
-      HashMap<LiveDataSpecification, MarketDataDistributor> hashMap = new HashMap<LiveDataSpecification, MarketDataDistributor>();
+      HashMap<LiveDataSpecification, MarketDataDistributor> hashMap = new HashMap<>();
       for (LiveDataSpecification liveDataSpecification : fullyQualifiedSpecs) {
         hashMap.put(liveDataSpecification, _fullyQualifiedSpec2Distributor.get(liveDataSpecification));
       }
