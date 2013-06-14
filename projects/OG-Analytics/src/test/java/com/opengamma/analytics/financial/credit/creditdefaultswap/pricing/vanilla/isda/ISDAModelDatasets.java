@@ -30,7 +30,7 @@ public abstract class ISDAModelDatasets {
 
   protected static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   protected static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  protected static final double OFFSET = 1. / 365;
+  protected static final double OFFSET = 0.0;//1. / 365;
 
   protected static class ISDA_Results {
 
@@ -54,9 +54,90 @@ public abstract class ISDAModelDatasets {
     public double defaultAcc;
     public double accruedPremium;
     public int accruedDays;
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + accruedDays;
+      long temp;
+      temp = Double.doubleToLongBits(accruedPremium);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+      result = prime * result + ((creditCurve == null) ? 0 : creditCurve.hashCode());
+      temp = Double.doubleToLongBits(defaultAcc);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+      result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+      temp = Double.doubleToLongBits(fracSpread);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+      temp = Double.doubleToLongBits(notional);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+      temp = Double.doubleToLongBits(premiumLeg);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+      temp = Double.doubleToLongBits(protectionLeg);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+      temp = Double.doubleToLongBits(recoveryRate);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+      result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
+      result = prime * result + ((today == null) ? 0 : today.hashCode());
+      result = prime * result + ((yieldCurve == null) ? 0 : yieldCurve.hashCode());
+      return result;
+    }
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      ISDA_Results other = (ISDA_Results) obj;
+      if (accruedDays != other.accruedDays)
+        return false;
+      if (Double.doubleToLongBits(accruedPremium) != Double.doubleToLongBits(other.accruedPremium))
+        return false;
+      if (creditCurve == null) {
+        if (other.creditCurve != null)
+          return false;
+      } else if (!creditCurve.equals(other.creditCurve))
+        return false;
+      if (Double.doubleToLongBits(defaultAcc) != Double.doubleToLongBits(other.defaultAcc))
+        return false;
+      if (endDate == null) {
+        if (other.endDate != null)
+          return false;
+      } else if (!endDate.equals(other.endDate))
+        return false;
+      if (Double.doubleToLongBits(fracSpread) != Double.doubleToLongBits(other.fracSpread))
+        return false;
+      if (Double.doubleToLongBits(notional) != Double.doubleToLongBits(other.notional))
+        return false;
+      if (Double.doubleToLongBits(premiumLeg) != Double.doubleToLongBits(other.premiumLeg))
+        return false;
+      if (Double.doubleToLongBits(protectionLeg) != Double.doubleToLongBits(other.protectionLeg))
+        return false;
+      if (Double.doubleToLongBits(recoveryRate) != Double.doubleToLongBits(other.recoveryRate))
+        return false;
+      if (startDate == null) {
+        if (other.startDate != null)
+          return false;
+      } else if (!startDate.equals(other.startDate))
+        return false;
+      if (today == null) {
+        if (other.today != null)
+          return false;
+      } else if (!today.equals(other.today))
+        return false;
+      if (yieldCurve == null) {
+        if (other.yieldCurve != null)
+          return false;
+      } else if (!yieldCurve.equals(other.yieldCurve))
+        return false;
+      return true;
+    }
+    
+    
 
   }
-  
+
   public static ISDA_Results[] getExample1() {
 
     // global data
@@ -77,7 +158,7 @@ public abstract class ISDAModelDatasets {
 
     final LocalDate[] curveInstrumentsStartDate = new LocalDate[] {LocalDate.of(2012, 7, 29)};
 
-    final double[][] q = new double[][] { {0.996810615509364, 0.99256914801695, 0.981114953972081, 0.947234616931817, 0.898378314399555, 0.689993952066726, 0.0366572089666166}};
+    final double[][] q = new double[][] {{0.996810615509364, 0.99256914801695, 0.981114953972081, 0.947234616931817, 0.898378314399555, 0.689993952066726, 0.0366572089666166}};
 
     final LocalDate[] cdsStartDate = new LocalDate[] {LocalDate.of(2012, 9, 12)};
 
@@ -131,7 +212,7 @@ public abstract class ISDAModelDatasets {
         r[j] = -Math.log(surProb[j]) / t[j];
 
       }
-      //note offset is zero in keeping with ISDA code
+      // note offset is zero in keeping with ISDA code
       temp.creditCurve = new HazardRateCurve(curveTenors, t, r, OFFSET);
 
       // cds inputs

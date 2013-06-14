@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 
@@ -33,47 +33,54 @@ import au.com.bytecode.opencsv.CSVReader;
  */
 public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
 
-  public final static String SHEET_LOCATION =  "isda_comparison_sheets/";
+  private static final String SHEET_LOCATION = "isda_comparison_sheets/";
   private final List<ISDA_Results> _results = new ArrayList<>(100); // ~100 rows nominally
   private CSVReader _csvReader;
   private String[] _headers;
 
   // header fields we expect in the file (lowercased when loaded)
-  final static private String TODAY_HEADER = "today".toLowerCase();
-  final static private String CURVE_INSTRUMENT_START_DATE = "curve instrument start date".toLowerCase();
-  final static private String START_DATE_HEADER = "start date".toLowerCase();
-  final static private String END_DATE_HEADER = "end date".toLowerCase();
-  final static private String SPREAD_HEADER = "spread".toLowerCase();
-  final static private String CLEAN_PRICE_HEADER = "clean price".toLowerCase();
-  final static private String CLEAN_PRICE_NOACC_HEADER = "clean price (no acc on default)".toLowerCase();
-  final static private String DIRTY_PRICE_NOACC_HEADER = "dirty price (no acc on default)".toLowerCase();
-  final static private String PREMIUM_LEG_HEADER = "premium leg".toLowerCase();
-  final static private String PROTECTION_LEG_HEADER = "protection leg".toLowerCase();
-  final static private String DEFAULT_ACC_HEADER = "default acc".toLowerCase();
-  final static private String ACC_PREMIUM_HEADER = "accrued premium".toLowerCase();
-  final static private String ACC_DAYS_HEADER = "accrued days".toLowerCase();
+  private static final String TODAY_HEADER = "today".toLowerCase();
+  @SuppressWarnings("unused")
+  private static final String CURVE_INSTRUMENT_START_DATE = "curve instrument start date".toLowerCase();
+  private static final String START_DATE_HEADER = "start date".toLowerCase();
+  private static final String END_DATE_HEADER = "end date".toLowerCase();
+  private static final String SPREAD_HEADER = "spread".toLowerCase();
+  @SuppressWarnings("unused")
+  private static final String CLEAN_PRICE_HEADER = "clean price".toLowerCase();
+  @SuppressWarnings("unused")
+  private static final String CLEAN_PRICE_NOACC_HEADER = "clean price (no acc on default)".toLowerCase();
+  @SuppressWarnings("unused")
+  private static final String DIRTY_PRICE_NOACC_HEADER = "dirty price (no acc on default)".toLowerCase();
+  private static final String PREMIUM_LEG_HEADER = "premium leg".toLowerCase();
+  private static final String PROTECTION_LEG_HEADER = "protection leg".toLowerCase();
+  private static final String DEFAULT_ACC_HEADER = "default acc".toLowerCase();
+  private static final String ACC_PREMIUM_HEADER = "accrued premium".toLowerCase();
+  private static final String ACC_DAYS_HEADER = "accrued days".toLowerCase();
 
-  final DateTimeFormatter DATE_TIME_PARSER = new DateTimeFormatterBuilder().appendPattern("dd-MMM-yy").toFormatter();
+  private static final DateTimeFormatter DATE_TIME_PARSER = new DateTimeFormatterBuilder().appendPattern("dd-MMM-yy").toFormatter();
 
   // component parts of the resultant ISDA_Results instances
-  LocalDate[] _parSpreadDates; // assume in ascending order
-  ZonedDateTime[] _curveTenors;
+  private LocalDate[] _parSpreadDates; // assume in ascending order
+  private ZonedDateTime[] _curveTenors;
 
   /**
    * Load specified sheet.
    *
    * @param sheetName the sheet name
+   *  @param recoveryRate the recovery rate 
+   * @return at set of ISDA results
    */
-  public static ISDA_Results[] loadSheet(final String sheetName) {
-    return new ISDAModelDatasetsSheetReader(sheetName).getResults();
+  public static ISDA_Results[] loadSheet(final String sheetName, final double recoveryRate) {
+    return new ISDAModelDatasetsSheetReader(sheetName, recoveryRate).getResults();
   }
 
   /**
    * Load specified sheet.
    *
    * @param sheetName the sheet name
+   * @param recoveryRate the recovery rate 
    */
-  public ISDAModelDatasetsSheetReader(final String sheetName) {
+  public ISDAModelDatasetsSheetReader(final String sheetName, final double recoveryRate) {
     ArgumentChecker.notEmpty(sheetName, "filename");
 
     // Open file
@@ -91,7 +98,9 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
 
     Map<String, String> row;
     while ((row = loadNextRow()) != null) {
-      _results.add(getResult(row));
+      ISDA_Results temp = getResult(row);
+      temp.recoveryRate = recoveryRate;
+      _results.add(temp);
 
     }
 
@@ -130,7 +139,7 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
     throw new OpenGammaRuntimeException(field + " not present in sheet row, got " + fields);
   }
 
-  private HazardRateCurve getCreditCurve(final Map<String, String> fields,  final LocalDate today) {
+  private HazardRateCurve getCreditCurve(final Map<String, String> fields, final LocalDate today) {
     // load the curve dates from the inputs
     final int nCurvePoints = _parSpreadDates.length;
     final double[] surProb = new double[nCurvePoints];
@@ -203,7 +212,7 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
     }
 
     // Map read-in row onto expected columns
-    Map<String, String> result = new HashMap<String, String>();
+    Map<String, String> result = new HashMap<>();
     for (int i = 0; i < _headers.length; i++) {
       if (i >= rawRow.length) {
         break;
