@@ -58,8 +58,10 @@ import com.opengamma.livedata.UserPrincipal;
 
       Simulation simulation = new Simulation();
       for (Double scalingFactor : SCALING_FACTORS) {
+        // add a scenario (a single calculation cycle and set of results) for each scale factor
         Scenario scenario = simulation.addScenario();
         for (String currencyPair : CURRENCY_PAIRS) {
+          // bump each spot rate in the scenario by the scale factor
           scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor);
         }
       }

@@ -25,8 +25,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Encapsulates a set of transformations to apply to market data when a calculation cycle is run.
- * TODO valuation time
- * TODO resolver version correction
  */
 public class Scenario {
 
@@ -34,10 +32,17 @@ public class Scenario {
   private static final String DEFAULT = "Default";
 
   // TODO is it right that a Scenario only applies to a single calc config? should this be a list?
+  /** Calc config to which this scenario will be applied. */
   private String _calcConfigName = DEFAULT;
+  /** Valuation time of this scenario's calculation cycle. */
   private Instant _valuationTime = Instant.now();
+  /** Version correction used by the resolver. */
   private VersionCorrection _resolverVersionCorrection = VersionCorrection.LATEST;
 
+  /**
+   * Creates a new scenario with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
+   * and resolver version correction of {@link VersionCorrection#LATEST}.
+   */
   public Scenario() {
   }
 
@@ -69,18 +74,33 @@ public class Scenario {
     return new PointSelector.Builder(this, _calcConfigName);
   }
 
+  /**
+   * Updates this scenario to apply to the specified calculation configuration.
+   * @param configName The calculation configuration name
+   * @return The modified scenario
+   */
   public Scenario calculationConfig(String configName) {
     ArgumentChecker.notEmpty(configName, "configName");
     _calcConfigName = configName;
     return this;
   }
 
+  /**
+   * Updates this scenario to use the specified valuation time.
+   * @param valuationTime The valuation time
+   * @return The modified scenario
+   */
   public Scenario valuationTime(Instant valuationTime) {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     _valuationTime = valuationTime;
     return this;
   }
 
+  /**
+   * Updates this scenario to use the specified version correction in the resolver.
+   * @param resolverVersionCorrection The resolver version correction
+   * @return The modified scenario
+   */
   public Scenario resolverVersionCorrection(VersionCorrection resolverVersionCorrection) {
     ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
     _resolverVersionCorrection = resolverVersionCorrection;
@@ -88,14 +108,14 @@ public class Scenario {
   }
 
   /**
-   * @return A {@link ScenarioDefinition} created from this scenario's selectors and manipulators.
+   * @return A {@link ScenarioDefinition} created from this scenario's selectors and manipulators
    */
   @SuppressWarnings("unchecked")
   public ScenarioDefinition createDefinition() {
     Map<DistinctMarketDataSelector, FunctionParameters> params = Maps.newHashMapWithExpectedSize(_manipulations.size());
     for (Map.Entry<DistinctMarketDataSelector, Collection<StructureManipulator<?>>> entry : _manipulations.asMap().entrySet()) {
-      // ListMultimap always has Lists as entries even if the signature doesn't say so
       DistinctMarketDataSelector selector = entry.getKey();
+      // ListMultimap always has Lists as entries even if the signature doesn't say so
       List<StructureManipulator<?>> manipulators = (List<StructureManipulator<?>>) entry.getValue();
       CompositeStructureManipulator compositeManipulator = new CompositeStructureManipulator(manipulators);
       SimpleFunctionParameters functionParameters = new SimpleFunctionParameters();

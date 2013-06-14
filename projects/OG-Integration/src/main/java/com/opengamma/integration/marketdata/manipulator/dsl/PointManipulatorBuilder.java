@@ -8,22 +8,29 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Collects actions to manipulate raw market data points and adds them to a scenario.
  */
 public class PointManipulatorBuilder {
 
-    private final PointSelector _selector;
-    private final Scenario _scenario;
+  /** Selects the points to which the manipulations are applied. */
+  private final PointSelector _selector;
+  /** The scenario to which the manipulators are added */
+  private final Scenario _scenario;
 
-    public PointManipulatorBuilder(PointSelector selector, Scenario scenario) {
-      ArgumentChecker.notNull(selector, "selector");
-      ArgumentChecker.notNull(scenario, "scenario");
-      _selector = selector;
-      _scenario = scenario;
-    }
+  /* package */ PointManipulatorBuilder(PointSelector selector, Scenario scenario) {
+    ArgumentChecker.notNull(selector, "selector");
+    ArgumentChecker.notNull(scenario, "scenario");
+    _selector = selector;
+    _scenario = scenario;
+  }
 
-    public PointManipulatorBuilder scaling(double scalingFactor) {
-      _scenario.add(_selector, new Scaling(scalingFactor));
-      return this;
-    }
+  /**
+   * Adds an action to scale the raw value.
+   * @param scalingFactor The scaling factor
+   * @return This builder
+   */
+  public PointManipulatorBuilder scaling(double scalingFactor) {
+    _scenario.add(_selector, new Scaling(scalingFactor));
+    return this;
+  }
 }

@@ -41,7 +41,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * A collection of {@link Scenario}s, each of which modifies the market data in a single calculation cycle.
  */
 public class Simulation {
 
@@ -49,9 +49,13 @@ public class Simulation {
   private static final SimpleFunctionParameters NOOP_FUNCTION_PARAMETERS;
 
   //private final String _name;
+  /** The scenarios in this simulation. */
   private final List<Scenario> _scenarios = Lists.newArrayList();
+  /** The default calculation configuration name for scenarios. */
   private final String _calcConfigName; // TODO should this be a list?
+  /** The default valuation time for scenarios. */
   private final Instant _valuationTime;
+  /** The default resolver version correction for scenarios. */
   private final VersionCorrection _resolverVersionCorrection;
 
   static {
@@ -60,10 +64,20 @@ public class Simulation {
     NOOP_FUNCTION_PARAMETERS.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, noOpManipulator);
   }
 
+  /**
+   * Creates a new simulation with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
+   * and resolver version correction of {@link VersionCorrection#LATEST}.
+   */
   public Simulation() {
     this("Default", Instant.now(), VersionCorrection.LATEST);
   }
 
+  /**
+   * Creates a new simulation, specifying the default values to use for its scenarios
+   * @param calcConfigName The default calculation configuration name for scenarios
+   * @param valuationTime The default valuation time for scenarios
+   * @param resolverVersionCorrection The default resolver version correction for scenarios
+   */
   public Simulation(String calcConfigName, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
     ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -82,6 +96,12 @@ public class Simulation {
     return Collections.unmodifiableSet(selectors);
   }
 
+  /**
+   * Builds cycle execution options for each scenario in this simulation.
+   * @param baseOptions Base set of options
+   * @param allSelectors This simulation's selectors
+   * @return Execution options for each scenario in this simulation
+   */
   /* package */ List<ViewCycleExecutionOptions> cycleExecutionOptions(ViewCycleExecutionOptions baseOptions,
                                                                       Set<DistinctMarketDataSelector> allSelectors) {
     List<ViewCycleExecutionOptions> options = Lists.newArrayListWithCapacity(_scenarios.size());
@@ -107,13 +127,25 @@ public class Simulation {
     return options;
   }
 
+  /**
+   * Adds a new scenario to this simulation, initializing it with default the simulation's default values
+   * for calculation configuration, valuation time and resolver version correction.
+   * @return The new scenario.
+   */
   public Scenario addScenario() {
     Scenario scenario = new Scenario(_calcConfigName, _valuationTime, _resolverVersionCorrection);
     _scenarios.add(scenario);
     return scenario;
   }
 
-  // TODO does this belong here or on a helper class?
+  /**
+   * Executes this simulation on a running server.
+   * @param viewDefId The ID of the view definition to use
+   * @param marketDataSpecs The market data to use when running the view
+   * @param batchMode Whether to run the simulation using batch mode
+   * @param listener Listener that is notified as the simulation runs
+   * @param viewProcessor View process that will be used to execute the simulation
+   */
   public void run(UniqueId viewDefId,
                   List<MarketDataSpecification> marketDataSpecs,
                   boolean batchMode,
