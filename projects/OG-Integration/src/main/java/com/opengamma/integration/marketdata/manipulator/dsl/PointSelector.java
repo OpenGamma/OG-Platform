@@ -15,7 +15,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Selects raw market data points that will be manipulated.
  */
 public class PointSelector implements DistinctMarketDataSelector {
 
@@ -90,6 +90,9 @@ public class PointSelector implements DistinctMarketDataSelector {
     return result;
   }
 
+  /**
+   * Mutable builder to create {@link PointSelector}s.
+   */
   public static class Builder {
 
     /** Calculation configuration to which the manipulation should be applied. */
@@ -106,6 +109,9 @@ public class PointSelector implements DistinctMarketDataSelector {
       _scenario = scenario;
     }
 
+    /**
+     * @return A selector built from this object's data.
+     */
     public PointManipulatorBuilder apply() {
       if (_id == null) {
         throw new IllegalStateException("No ID specified");

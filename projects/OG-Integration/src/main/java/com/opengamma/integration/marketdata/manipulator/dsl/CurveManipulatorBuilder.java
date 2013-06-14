@@ -5,41 +5,32 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO get rid of the execute() method, add to scenario immediately and mutate?
+ * Collects actions to manipulate a curve and adds them to a scenario.
  */
 public class CurveManipulatorBuilder {
 
+  /** Selector whose selected items will be modified by the manipulators from this builder. */
   private final CurveSelector _selector;
+  /** The scenario to which manipulations are added. */
   private final Scenario _scenario;
-  private final List<StructureManipulator<YieldAndDiscountCurve>> _manipulators = Lists.newArrayList();
 
-  public CurveManipulatorBuilder(CurveSelector selector, Scenario scenario) {
+  /* package */ CurveManipulatorBuilder(CurveSelector selector, Scenario scenario) {
     ArgumentChecker.notNull(selector, "selector");
     ArgumentChecker.notNull(scenario, "scenario");
     _selector = selector;
     _scenario = scenario;
   }
 
+  /**
+   * Adds an action to perform a parallel shift to the scenario.
+   * @param shift The size of the shift
+   * @return This builder
+   */
   public CurveManipulatorBuilder parallelShift(double shift) {
-    _manipulators.add(new ParallelShift(shift));
+    _scenario.add(_selector, new ParallelShift(shift));
     return this;
-  }
-
-  // TODO this won't work for remote view clients
-    /*public Builder transform(Function<YieldAndDiscountCurve, YieldAndDiscountCurve> fn) {
-      return this;
-    }*/
-
-  // TODO what should this method be called? should it be package private and called by Scenario.add(builder)?
-  public void execute() {
-    _scenario.add(_selector, new CompositeStructureManipulator<>(_manipulators));
   }
 }

@@ -33,14 +33,14 @@ public class TestSimulationSupplier implements SimulationSupplier {
 
   @Override
   public Simulation get() {
-    Simulation.Builder simulation = Simulation.builder();
+    Simulation simulation = new Simulation();
     for (Double scalingFactor : SCALING_FACTORS) {
       Scenario scenario = simulation.addScenario();
       for (String currencyPair : CURRENCY_PAIRS) {
-        scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor).execute();
+        scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor);
       }
     }
-    return simulation.build();
+    return simulation;
   }
 
   public static class Listener extends AbstractViewResultListener {
