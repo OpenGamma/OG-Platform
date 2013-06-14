@@ -29,7 +29,7 @@ import com.opengamma.financial.aggregation.PortfolioAggregator;
 import com.opengamma.financial.aggregation.PositionAttributeAggregationFunction;
 import com.opengamma.financial.aggregation.UnderlyingAggregationFunction;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Tool to aggregate portfolios

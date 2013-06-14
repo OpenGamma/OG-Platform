@@ -21,7 +21,7 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.time.DateUtils;
 
 /**

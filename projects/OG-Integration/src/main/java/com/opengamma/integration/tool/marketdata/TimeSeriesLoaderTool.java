@@ -17,7 +17,7 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.timeseries.TimeSeriesLoader;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * The timeseries loader tool

@@ -35,7 +35,7 @@ import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  *

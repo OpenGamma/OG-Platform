@@ -41,7 +41,7 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.provider.security.SecurityProvider;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 

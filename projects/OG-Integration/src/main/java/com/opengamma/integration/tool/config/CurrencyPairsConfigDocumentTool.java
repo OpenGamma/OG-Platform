@@ -9,7 +9,7 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Tool to read currency pairs from a text file and store them in the config master.
