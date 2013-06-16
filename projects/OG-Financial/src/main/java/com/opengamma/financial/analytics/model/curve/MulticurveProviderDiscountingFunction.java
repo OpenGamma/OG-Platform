@@ -13,8 +13,6 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -31,10 +29,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -275,7 +271,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               parameterGuessForCurves.add(marketData);
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot);
               uniqueIborIndices.addAll(definitionForNode.accept(IborIndexVisitor.getInstance()));
-              uniqueOvernightIndices.addAll(getOvernightIndices(definitionForNode));
+              uniqueOvernightIndices.addAll(definitionForNode.accept(OvernightIndexVisitor.getInstance()));
               derivativesForCurve[k++] = definitionForNode.toDerivative(now, new String[] {"", ""});
             }
             definitions[i][j] = derivativesForCurve;
@@ -294,21 +290,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           i++;
         }
         return builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess, knownData, discountingMap, forwardIborMap, forwardONMap, PSMQC, PSMQCSC);
-      }
-
-      private Collection<IndexON> getOvernightIndices(final InstrumentDefinition<?> definition) {
-        if (definition instanceof SwapDefinition) {
-          final SwapDefinition swap = (SwapDefinition) definition;
-          final Set<IndexON> result = new HashSet<>();
-          if (swap.getFirstLeg() instanceof AnnuityCouponOISSimplifiedDefinition) {
-            result.add(((AnnuityCouponOISSimplifiedDefinition) swap.getFirstLeg()).getIndex());
-          }
-          if (swap.getSecondLeg() instanceof AnnuityCouponOISSimplifiedDefinition) {
-            result.add(((AnnuityCouponOISSimplifiedDefinition) swap.getSecondLeg()).getIndex());
-          }
-          return result;
-        }
-        return Collections.emptySet();
       }
 
       private GeneratorYDCurve getGenerator(final CurveDefinition definition) {

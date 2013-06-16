@@ -22,10 +22,10 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 
 /**
- * Returns an {@link IborIndex} object for an instrument definition.
+ * Returns all {@link IborIndex} objects for an instrument definition or an empty set if none exist.
  */
 public final class IborIndexVisitor extends InstrumentDefinitionVisitorSameValueAdapter<Object, Collection<IborIndex>> {
-  /** Single instance */
+  /** Static instance */
   private static final InstrumentDefinitionVisitor<Object, Collection<IborIndex>> INSTANCE = new IborIndexVisitor();
 
   /**
