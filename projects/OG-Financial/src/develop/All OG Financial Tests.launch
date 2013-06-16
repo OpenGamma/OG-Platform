@@ -24,6 +24,7 @@
 <listEntry value="com.opengamma.financial.analytics.ircurve.calcconfig"/>
 <listEntry value="com.opengamma.financial.analytics.model"/>
 <listEntry value="com.opengamma.financial.analytics.model.cds"/>
+<listEntry value="com.opengamma.financial.analytics.model.curve"/>
 <listEntry value="com.opengamma.financial.analytics.model.sabrcube"/>
 <listEntry value="com.opengamma.financial.analytics.timeseries"/>
 <listEntry value="com.opengamma.financial.analytics.volatility.cube"/>

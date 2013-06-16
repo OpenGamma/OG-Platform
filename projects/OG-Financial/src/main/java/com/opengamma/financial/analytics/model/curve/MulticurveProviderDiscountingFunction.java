@@ -31,10 +31,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
-import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
-import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
@@ -277,7 +274,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               marketDataForCurve[k] = marketData;
               parameterGuessForCurves.add(marketData);
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot);
-              uniqueIborIndices.addAll(getIborIndices(definitionForNode));
+              uniqueIborIndices.addAll(definitionForNode.accept(IborIndexVisitor.getInstance()));
               uniqueOvernightIndices.addAll(getOvernightIndices(definitionForNode));
               derivativesForCurve[k++] = definitionForNode.toDerivative(now, new String[] {"", ""});
             }
@@ -297,26 +294,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           i++;
         }
         return builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess, knownData, discountingMap, forwardIborMap, forwardONMap, PSMQC, PSMQCSC);
-      }
-
-      //TODO pull this out into a visitor
-      private Collection<IborIndex> getIborIndices(final InstrumentDefinition<?> definition) {
-        if (definition instanceof DepositIborDefinition) {
-          return Collections.singleton(((DepositIborDefinition) definition).getIndex());
-        } else if (definition instanceof ForwardRateAgreementDefinition) {
-          return Collections.singleton(((ForwardRateAgreementDefinition) definition).getIndex());
-        } else if (definition instanceof SwapDefinition) {
-          final SwapDefinition swap = (SwapDefinition) definition;
-          final Set<IborIndex> result = new HashSet<>();
-          if (swap.getFirstLeg() instanceof AnnuityCouponIborDefinition) {
-            result.add(((AnnuityCouponIborDefinition) swap.getFirstLeg()).getIborIndex());
-          }
-          if (swap.getSecondLeg() instanceof AnnuityCouponIborDefinition) {
-            result.add(((AnnuityCouponIborDefinition) swap.getSecondLeg()).getIborIndex());
-          }
-          return result;
-        }
-        return Collections.emptySet();
       }
 
       private Collection<IndexON> getOvernightIndices(final InstrumentDefinition<?> definition) {
