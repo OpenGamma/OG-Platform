@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.metric.MetricProducer;
 
 /*
@@ -256,7 +256,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   protected UniqueId storePortfolio(Jedis jedis, Portfolio portfolio) {
     UniqueId uniqueId = portfolio.getUniqueId();
     if (uniqueId == null) {
-      uniqueId = UniqueId.of("UUID", UUID.randomUUID().toString());
+      uniqueId = UniqueId.of("UUID", GUIDGenerator.generate().toString());
     }
     
     String redisKey = toPortfolioRedisKey(uniqueId);
@@ -292,7 +292,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   protected UniqueId storePosition(Jedis jedis, Position position) {
     UniqueId uniqueId = position.getUniqueId();
     if (uniqueId == null) {
-      uniqueId = UniqueId.of("UUID", UUID.randomUUID().toString());
+      uniqueId = UniqueId.of("UUID", GUIDGenerator.generate().toString());
     }
     
     String redisKey = toPositionRedisKey(uniqueId);
