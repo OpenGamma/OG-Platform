@@ -394,48 +394,42 @@ public class DependencyGraph {
     return converted;
   }
 
-  /**
-   * Marks an output as terminal, meaning that it cannot be pruned.
-   * 
-   * @param requirement the output requirement to mark as terminal
-   * @param specification the output specification to mark as terminal
-   */
-  public void addTerminalOutput(final ValueRequirement requirement, final ValueSpecification specification) {
-    // Register it with the node responsible for producing it - informs the node that the output is required
+  private Set<ValueRequirement> getTerminalOutputValueRequirements(final ValueSpecification specification) {
     final DependencyNode node = _outputValues.get(specification);
     if (node == null) {
       throw new IllegalArgumentException("No node produces " + specification);
     }
     node.addTerminalOutputValue(specification);
-    // Maintain a cache of all terminal outputs at the graph level
     Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
     if (requirements == null) {
       requirements = new HashSet<>();
       _terminalOutputs.put(specification, requirements);
     }
-    requirements.add(requirement);
+    return requirements;
+  }
+
+  /**
+   * Marks an output as terminal, meaning that it cannot be pruned.
+   * <p>
+   * Terminal outputs are marked on each node, and a cache is held at the graph level for the specifications against the original requirements that requested them.
+   * 
+   * @param requirement the output requirement to mark as terminal
+   * @param specification the output specification to mark as terminal
+   */
+  public void addTerminalOutput(final ValueRequirement requirement, final ValueSpecification specification) {
+    getTerminalOutputValueRequirements(specification).add(requirement);
   }
 
   /**
    * Marks an outputs as terminals, meaning that it cannot be pruned.
+   * <p>
+   * Terminal outputs are marked on each node, and a cache is held at the graph level for the specifications against the original requirements that requested them.
    * 
    * @param specifications the outputs to mark as terminals
    */
   public void addTerminalOutputs(final Map<ValueSpecification, Set<ValueRequirement>> specifications) {
     for (Map.Entry<ValueSpecification, Set<ValueRequirement>> specification : specifications.entrySet()) {
-      // Register it with the node responsible for producing it - informs the node that the output is required
-      final DependencyNode node = _outputValues.get(specification.getKey());
-      if (node == null) {
-        throw new IllegalArgumentException("No node produces " + specification.getKey());
-      }
-      node.addTerminalOutputValue(specification.getKey());
-      // Maintain a cache of all terminal outputs at the graph level
-      Set<ValueRequirement> requirements = _terminalOutputs.get(specification.getKey());
-      if (requirements == null) {
-        requirements = new HashSet<>();
-        _terminalOutputs.put(specification.getKey(), requirements);
-      }
-      requirements.addAll(specification.getValue());
+      getTerminalOutputValueRequirements(specification.getKey()).addAll(specification.getValue());
     }
   }
 
@@ -542,6 +536,15 @@ public class DependencyGraph {
     for (final DependencyNode node : getDependencyNodes()) {
       if (filter.accept(node)) {
         subGraph.addDependencyNode(node);
+        for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
+          if (_terminalOutputs.containsKey(terminalOutput)) {
+            if (_terminalOutputs.get(terminalOutput) == null) {
+              System.err.println("This is bad");
+            }
+          } else {
+            System.err.println("This is very bad");
+          }
+        }
       }
     }
     subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getTerminalOutputSpecifications()));
