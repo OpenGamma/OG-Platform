@@ -28,7 +28,6 @@ import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.viewer.status.ViewStatusReporterOption.TargetType;
 import com.opengamma.integration.viewer.status.ViewStatusReporterOption.ResultFormat;
 import com.opengamma.integration.viewer.status.impl.BloombergReferencePortfolioMaker;
 import com.opengamma.integration.viewer.status.impl.ViewStatusCalculationWorker;
@@ -44,9 +43,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
 public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusReporterTool.class);
-  
-  private static final UserPrincipal DEFAULT_USER = UserPrincipal.getLocalUser();
-  
+    
   /**
    * Main methog to run the tool.
    * 
@@ -71,14 +68,14 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
-    String computationTargetType = option.getComputationTargetType();
+    UserPrincipal user = option.getUser();
     String format = option.getFormat();
-    generateViewStatusReport(portfolioId, TargetType.of(computationTargetType), ResultFormat.of(format));
+    generateViewStatusReport(portfolioId, user, ResultFormat.of(format));
   }
   
-  private void generateViewStatusReport(final UniqueId portfolioId, TargetType targetType, ResultFormat resultFormat) {
+  private void generateViewStatusReport(final UniqueId portfolioId, UserPrincipal user, ResultFormat resultFormat) {
     
-    Map<String, Collection<String>> valueRequirementBySecType = scanValueRequirementBySecType(portfolioId, targetType);
+    Map<String, Collection<String>> valueRequirementBySecType = scanValueRequirementBySecType(portfolioId);
     
     if (s_logger.isDebugEnabled()) {
       StringBuilder strBuf = new StringBuilder();
@@ -89,8 +86,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
       s_logger.debug("\n{}\n", strBuf.toString());
     }
     
-    ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(valueRequirementBySecType, getToolContext(), 
-        portfolioId, TargetType.toEngineType(targetType), DEFAULT_USER);
+    ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(valueRequirementBySecType, getToolContext(), portfolioId, user);
     ViewStatusResultAggregator resultAggregator = calculationWorker.run();
     
     ViewStatusResultProducer resultProducer = new ViewStatusResultProducer();
@@ -109,7 +105,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     return new File(FileUtils.getUserDirectory(), "view-status" + "." + resultFormat.getExtension());
   }
 
-  private Map<String, Collection<String>> scanValueRequirementBySecType(UniqueId portfolioId, TargetType computationTargetType) {
+  private Map<String, Collection<String>> scanValueRequirementBySecType(UniqueId portfolioId) {
     ToolContext toolContext = getToolContext();
     AvailableOutputsProvider availableOutputsProvider = toolContext.getAvaliableOutputsProvider();
     if (availableOutputsProvider == null) {
@@ -118,26 +114,12 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     final SetMultimap<String, String> valueNamesBySecurityType = TreeMultimap.create();
     
     AvailableOutputs portfolioOutputs = availableOutputsProvider.getPortfolioOutputs(portfolioId, null);
-    switch (computationTargetType) {
-      case POSITION:
-        Set<String> securityTypes = portfolioOutputs.getSecurityTypes();
-        for (String securityType : securityTypes) {
-          Set<AvailableOutput> positionOutputs = portfolioOutputs.getPositionOutputs(securityType);
-          for (AvailableOutput availableOutput : positionOutputs) {
-            valueNamesBySecurityType.put(securityType, availableOutput.getValueName());
-          }        
-        }
-        break;
-      case PORTFOLIO_NODE:
-        Set<AvailableOutput> portfolioNodeOutputs = portfolioOutputs.getPortfolioNodeOutputs();
-        for (AvailableOutput availableOutput : portfolioNodeOutputs) {
-          for (String securityType : availableOutput.getSecurityTypes()) {
-            valueNamesBySecurityType.put(securityType, availableOutput.getValueName());
-          }
-        }
-        break;
-      default:
-        throw new OpenGammaRuntimeException("Unsupported computation target type: " + computationTargetType.name());
+    Set<String> securityTypes = portfolioOutputs.getSecurityTypes();
+    for (String securityType : securityTypes) {
+      Set<AvailableOutput> positionOutputs = portfolioOutputs.getPositionOutputs(securityType);
+      for (AvailableOutput availableOutput : positionOutputs) {
+        valueNamesBySecurityType.put(securityType, availableOutput.getValueName());
+      }        
     }
     return valueNamesBySecurityType.asMap();
   }
