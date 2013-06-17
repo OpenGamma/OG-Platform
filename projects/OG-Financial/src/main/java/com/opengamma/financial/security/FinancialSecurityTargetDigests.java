@@ -6,7 +6,11 @@
 package com.opengamma.financial.security;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.digest.SecurityTypeTargetDigests;
+import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -88,6 +92,15 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
       return new Digests(key);
     }
   };
+
+  public FinancialSecurityTargetDigests() {
+    addHandler(ComputationTargetType.CURRENCY, new TargetDigests() {
+      @Override
+      public Object getDigest(FunctionCompilationContext context, ComputationTargetSpecification targetSpec) {
+        return targetSpec.getUniqueId().getValue();
+      }
+    });
+  }
 
   protected Object pair(final Object a, final Object b) {
     if (b == null) {

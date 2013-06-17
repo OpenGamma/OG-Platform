@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -975,8 +976,8 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   protected PrintStream openDebugStream(final String name) {
     try {
-      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt";
-      return new PrintStream(new FileOutputStream(fileName));
+      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt.gz";
+      return new PrintStream(new GZIPOutputStream(new FileOutputStream(fileName)));
     } catch (final IOException e) {
       s_logger.error("Can't open debug file", e);
       return System.out;

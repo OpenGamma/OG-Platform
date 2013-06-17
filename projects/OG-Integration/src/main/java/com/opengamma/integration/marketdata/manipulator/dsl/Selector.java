@@ -18,7 +18,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Selector base class for data structures that will be selected by name and currency.
+ * @param <T> The type of data structure handled by this selector
  */
 /* package */ abstract class Selector<T> implements DistinctMarketDataSelector {
 

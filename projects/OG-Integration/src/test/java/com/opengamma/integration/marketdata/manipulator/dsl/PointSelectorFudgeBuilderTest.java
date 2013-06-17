@@ -5,15 +5,22 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.regex.Pattern;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 public class PointSelectorFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void roundTrip() {
-    assertEncodeDecodeCycle(PointSelector.class, new PointSelector(ExternalId.of("scheme", "value"), "ccn"));
+    PointSelector selector = new PointSelector("ccn",
+                                               ExternalId.of("scheme", "value"),
+                                               ExternalScheme.of("anotherScheme"),
+                                               Pattern.compile("\\d*"));
+    assertEncodeDecodeCycle(PointSelector.class, selector);
   }
 }

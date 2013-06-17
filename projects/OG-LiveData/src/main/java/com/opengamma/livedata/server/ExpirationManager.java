@@ -97,7 +97,7 @@ public class ExpirationManager extends AbstractHousekeeper<StandardLiveDataServe
         s_logger.debug("Heartbeat on {}", fullyQualifiedSpec);
         distributor.extendExpiry(getTimeoutExtension());
       } else {
-        s_logger.debug("Failed to find distributor for heartbeat on {} from {}", fullyQualifiedSpec, server);
+        s_logger.warn("Failed to find distributor for heartbeat on {} from {}", fullyQualifiedSpec, server);
       }
     } else {
       s_logger.warn("No server for {}", fullyQualifiedSpec);
