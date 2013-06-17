@@ -81,6 +81,13 @@ public class Scenario {
   }
 
   /**
+   * @return An object for specifying which volatility surfaces should be transformed
+   */
+  public VolatilitySurfaceSelector.Builder surface() {
+    return new VolatilitySurfaceSelector.Builder(this);
+  }
+
+  /**
    * Updates this scenario to apply to the specified calculation configuration.
    * @param configNames The calculation configuration name
    * @return The modified scenario
