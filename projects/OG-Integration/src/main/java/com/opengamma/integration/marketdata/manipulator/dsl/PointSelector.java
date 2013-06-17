@@ -26,24 +26,23 @@ public class PointSelector implements DistinctMarketDataSelector {
 
   /** ID of the market data point to be manipulated. */
   private final Set<ExternalId> _ids;
-  /** Calculation configuration to which the manipulation should be applied. */
-  private final String _calcConfigName;
+  /** Calc configs to which this selector will apply, null will match any config. */
+  private final Set<String> _calcConfigNames;
   /** External ID scheme used when pattern matching ID value. */
   private final ExternalScheme _idMatchScheme;
   /** Regex pattern for matching ID value. */
   private final Pattern _idValuePattern;
 
-  /* package */ PointSelector(String calcConfigName,
+  /* package */ PointSelector(Set<String> calcConfigNames,
                               Set<ExternalId> ids,
                               ExternalScheme idMatchScheme,
                               Pattern idValuePattern) {
-    ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
     if (idMatchScheme == null && idValuePattern != null || idMatchScheme != null && idValuePattern == null) {
       throw new IllegalArgumentException("Scheme and pattern must both be specified to pattern match on ID");
     }
     _idMatchScheme = idMatchScheme;
     _idValuePattern = idValuePattern;
-    _calcConfigName = calcConfigName;
+    _calcConfigNames = calcConfigNames;
     _ids = ids;
   }
 
@@ -54,7 +53,7 @@ public class PointSelector implements DistinctMarketDataSelector {
 
   @Override
   public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calcConfigName) {
-    if (!_calcConfigName.equals(calcConfigName)) {
+    if (_calcConfigNames != null && !_calcConfigNames.contains(calcConfigName)) {
       return null;
     }
     Object value = structureId.getValue();
@@ -76,8 +75,8 @@ public class PointSelector implements DistinctMarketDataSelector {
     return _ids;
   }
 
-  /* package */ String getCalculationConfigurationName() {
-    return _calcConfigName;
+  /* package */ Set<String> getCalculationConfigurationNames() {
+    return _calcConfigNames;
   }
 
   /* package */ ExternalScheme getIdMatchScheme() {
@@ -99,7 +98,7 @@ public class PointSelector implements DistinctMarketDataSelector {
 
     PointSelector that = (PointSelector) o;
 
-    if (_calcConfigName != null ? !_calcConfigName.equals(that._calcConfigName) : that._calcConfigName != null) {
+    if (_calcConfigNames != null ? !_calcConfigNames.equals(that._calcConfigNames) : that._calcConfigNames != null) {
       return false;
     }
     if (_idMatchScheme != null ? !_idMatchScheme.equals(that._idMatchScheme) : that._idMatchScheme != null) {
@@ -125,7 +124,7 @@ public class PointSelector implements DistinctMarketDataSelector {
   @Override
   public int hashCode() {
     int result = _ids != null ? _ids.hashCode() : 0;
-    result = 31 * result + (_calcConfigName != null ? _calcConfigName.hashCode() : 0);
+    result = 31 * result + (_calcConfigNames != null ? _calcConfigNames.hashCode() : 0);
     result = 31 * result + (_idMatchScheme != null ? _idMatchScheme.hashCode() : 0);
     result = 31 * result + (_idValuePattern != null ? _idValuePattern.hashCode() : 0);
     return result;
@@ -135,7 +134,7 @@ public class PointSelector implements DistinctMarketDataSelector {
   public String toString() {
     return "PointSelector [" +
         "_ids=" + _ids +
-        ", _calcConfigName='" + _calcConfigName + "'" +
+        ", _calcConfigName='" + _calcConfigNames + "'" +
         ", _idMatchScheme=" + _idMatchScheme +
         ", _idValuePattern=" + _idValuePattern +
         "]";
@@ -145,9 +144,6 @@ public class PointSelector implements DistinctMarketDataSelector {
    * Mutable builder to create {@link PointSelector}s.
    */
   public static class Builder {
-
-    /** Calculation configuration to which the manipulation should be applied. */
-    private final String _calcConfigName;
     /** Scenario that the transformation will be added to. */
     private final Scenario _scenario;
 
@@ -158,8 +154,7 @@ public class PointSelector implements DistinctMarketDataSelector {
     /** Regex pattern for matching ID value. */
     private Pattern _idValuePattern;
 
-    /* package */ Builder(Scenario scenario, String calcConfigName) {
-      _calcConfigName = calcConfigName;
+    /* package */ Builder(Scenario scenario) {
       _scenario = scenario;
     }
 
@@ -167,7 +162,7 @@ public class PointSelector implements DistinctMarketDataSelector {
      * @return A selector built from this object's data.
      */
     public PointManipulatorBuilder apply() {
-      PointSelector selector = new PointSelector(_calcConfigName, _ids, _idMatchScheme, _idValuePattern);
+      PointSelector selector = new PointSelector(_scenario.getCalcConfigNames(), _ids, _idMatchScheme, _idValuePattern);
       return new PointManipulatorBuilder(selector, _scenario);
     }
 

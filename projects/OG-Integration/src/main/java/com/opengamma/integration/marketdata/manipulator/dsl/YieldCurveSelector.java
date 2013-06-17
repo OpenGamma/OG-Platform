@@ -17,11 +17,11 @@ import com.opengamma.util.money.Currency;
  */
 public class YieldCurveSelector extends Selector<YieldCurveKey> {
 
-  /* package */ YieldCurveSelector(String calcConfigName,
+  /* package */ YieldCurveSelector(Set<String> calcConfigNames,
                                    Set<String> names,
                                    Set<Currency> currencies,
                                    Pattern namePattern) {
-    super(calcConfigName, names, currencies, namePattern, YieldCurveKey.class, StructureType.YIELD_CURVE);
+    super(calcConfigNames, names, currencies, namePattern, YieldCurveKey.class, StructureType.YIELD_CURVE);
   }
 
   @Override
@@ -32,8 +32,8 @@ public class YieldCurveSelector extends Selector<YieldCurveKey> {
 
   public static class Builder extends Selector.Builder {
 
-    /* package */ Builder(Scenario scenario, String calcConfigName) {
-      super(scenario, calcConfigName);
+    /* package */ Builder(Scenario scenario) {
+      super(scenario);
     }
 
     public YieldCurveManipulatorBuilder apply() {
@@ -63,7 +63,7 @@ public class YieldCurveSelector extends Selector<YieldCurveKey> {
      * @return A selector built from this builder's data
      */
     /* package */ YieldCurveSelector selector() {
-      return new YieldCurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
+      return new YieldCurveSelector(getScenario().getCalcConfigNames(), getNames(), getCurrencies(), getNamePattern());
     }
   }
 }

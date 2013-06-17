@@ -8,10 +8,12 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.function.FunctionParameters;
@@ -28,13 +30,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Scenario {
 
-  /** Default calculation configuration name. TODO does this exist as a constant somewhere else? */
-  private static final String DEFAULT = "Default";
-
   // TODO name field
-  // TODO this should be a list, null matches anything
-  /** Calc config to which this scenario will be applied. */
-  private String _calcConfigName = DEFAULT;
+  /** Calc configs to which this scenario will be applied, null will match any config. */
+  private Set<String> _calcConfigNames;
   /** Valuation time of this scenario's calculation cycle. */
   private Instant _valuationTime = Instant.now();
   /** Version correction used by the resolver. */
@@ -47,11 +45,10 @@ public class Scenario {
   public Scenario() {
   }
 
-  /* package */ Scenario(String calcConfigName, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
-    ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
+  /* package */ Scenario(Set<String> calcConfigNames, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
-    _calcConfigName = calcConfigName;
+    _calcConfigNames = calcConfigNames;
     _valuationTime = valuationTime;
     _resolverVersionCorrection = resolverVersionCorrection;
   }
@@ -65,24 +62,24 @@ public class Scenario {
    * @return A object for specifying which curves should be transformed
    */
   public YieldCurveSelector.Builder curve() {
-    return new YieldCurveSelector.Builder(this, _calcConfigName);
+    return new YieldCurveSelector.Builder(this);
   }
 
   /**
    * @return An object for specifying which market data points should be transformed
    */
   public PointSelector.Builder marketDataPoint() {
-    return new PointSelector.Builder(this, _calcConfigName);
+    return new PointSelector.Builder(this);
   }
 
   /**
    * Updates this scenario to apply to the specified calculation configuration.
-   * @param configName The calculation configuration name
+   * @param configNames The calculation configuration name
    * @return The modified scenario
    */
-  public Scenario calculationConfig(String configName) {
-    ArgumentChecker.notEmpty(configName, "configName");
-    _calcConfigName = configName;
+  public Scenario calculationConfigs(String... configNames) {
+    ArgumentChecker.notEmpty(configNames, "configName");
+    _calcConfigNames = ImmutableSet.copyOf(configNames);
     return this;
   }
 
@@ -136,5 +133,9 @@ public class Scenario {
 
   /* package */ VersionCorrection getResolverVersionCorrection() {
     return _resolverVersionCorrection;
+  }
+
+  /* package */ Set<String> getCalcConfigNames() {
+    return _calcConfigNames;
   }
 }

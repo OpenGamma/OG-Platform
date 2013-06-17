@@ -20,14 +20,11 @@ import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
-/**
- *
- */
 @FudgeBuilderFor(PointSelector.class)
 public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
 
   /** Field name for Fudge message. */
-  private static final String CALC_CONFIG = "calculationConfigurationName";
+  private static final String CALC_CONFIGS = "calculationConfigurationNames";
   /** Field name for Fudge message. */
   private static final String IDS = "ids";
   /** Field name for Fudge message. */
@@ -35,11 +32,14 @@ public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
   /** Field name for Fudge message. */
   private static final String ID_MATCH_REGEX = "idMatchRegex";
 
-
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, PointSelector selector) {
     MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessage(msg, CALC_CONFIG, null, selector.getCalculationConfigurationName());
+    MutableFudgeMsg calcConfigsMsg = serializer.newMessage();
+    for (String calcConfigName : selector.getCalculationConfigurationNames()) {
+      serializer.addToMessage(calcConfigsMsg, null, null, calcConfigName);
+    }
+    serializer.addToMessage(msg, CALC_CONFIGS, null, calcConfigsMsg);
     MutableFudgeMsg idsMsg = serializer.newMessage();
     for (ExternalId id : selector.getIds()) {
       serializer.addToMessage(idsMsg, null, null, id);
@@ -52,7 +52,6 @@ public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
 
   @Override
   public PointSelector buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    String calcConfigName = deserializer.fieldValueToObject(String.class, msg.getByName(CALC_CONFIG));
     FudgeMsg idsMsg = msg.getMessage(IDS);
     Set<ExternalId> ids = Sets.newHashSet();
     for (FudgeField field : idsMsg) {
@@ -61,6 +60,11 @@ public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
     }
     String idMatchScheme = deserializer.fieldValueToObject(String.class, msg.getByName(ID_MATCH_SCHEME));
     String idValuePattern = deserializer.fieldValueToObject(String.class, msg.getByName(ID_MATCH_REGEX));
-    return new PointSelector(calcConfigName, ids, ExternalScheme.of(idMatchScheme), Pattern.compile(idValuePattern));
+    FudgeMsg calcConfigsMsg = msg.getMessage(CALC_CONFIGS);
+    Set<String> calcConfigNames = Sets.newHashSet();
+    for (FudgeField field : calcConfigsMsg) {
+      calcConfigNames.add(deserializer.fieldValueToObject(String.class, field));
+    }
+    return new PointSelector(calcConfigNames, ids, ExternalScheme.of(idMatchScheme), Pattern.compile(idValuePattern));
   }
 }

@@ -15,7 +15,7 @@ import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
 import com.opengamma.util.money.Currency;
 
-public class CurveSelectorTest {
+public class YieldCurveSelectorTest {
 
   private static final Scenario SCENARIO = new Scenario();
   private static final String CALC_CONFIG_NAME = "calcConfigName";
@@ -27,7 +27,7 @@ public class CurveSelectorTest {
   /** if no criteria are specified the selector should match any curve */
   @Test
   public void noCriteria() {
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId("curveName1"), CALC_CONFIG_NAME));
     assertEquals(selector, selector.findMatchingSelector(structureId("curveName2"), CALC_CONFIG_NAME));
@@ -38,7 +38,7 @@ public class CurveSelectorTest {
   public void singleName() {
     String curveName = "curveName";
     String calcConfigName = "calcConfigName";
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, calcConfigName);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName);
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curveName), calcConfigName));
@@ -50,7 +50,7 @@ public class CurveSelectorTest {
   public void multipleNames() {
     String curveName1 = "curveName1";
     String curveName2 = "curveName2";
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName1, curveName2);
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curveName1), CALC_CONFIG_NAME));
@@ -61,7 +61,7 @@ public class CurveSelectorTest {
   /** don't match if the calc config name doesn't match */
   @Test
   public void calcConfigName() {
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, "calcConfigName");
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario().calculationConfigs(CALC_CONFIG_NAME));
     MarketDataSelector selector = curve.selector();
     assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName"));
   }
@@ -71,7 +71,7 @@ public class CurveSelectorTest {
   public void nameRegex() {
     String curve3M = "curve3M";
     String curve6M = "curve6M";
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.nameMatches(".*3M");
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME));
@@ -81,7 +81,7 @@ public class CurveSelectorTest {
   /** match if the curve currency is specified */
   @Test
   public void singleCurrency() {
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.currencies("GBP");
     MarketDataSelector selector = curve.selector();
     String curveName = "curveName";
@@ -94,7 +94,7 @@ public class CurveSelectorTest {
   /** match if the curve currency matches any of the specified currency codes */
   @Test
   public void multipleCurrencies() {
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.currencies("GBP", "USD");
     MarketDataSelector selector = curve.selector();
     String curveName = "curveName";
@@ -109,7 +109,7 @@ public class CurveSelectorTest {
   /** match if the curve satisfies all criteria, fail if it fails any of them */
   @Test
   public void multipleCriteria() {
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     String curveName1 = "curveName1";
     String curveName2 = "curveName2";
     String curveName3 = "curveName3";

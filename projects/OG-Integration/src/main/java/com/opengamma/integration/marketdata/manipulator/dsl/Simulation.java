@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -48,11 +49,12 @@ public class Simulation {
   private static final Logger s_logger = LoggerFactory.getLogger(Simulation.class);
   private static final SimpleFunctionParameters NOOP_FUNCTION_PARAMETERS;
 
+  // TODO name field
   //private final String _name;
   /** The scenarios in this simulation. */
   private final List<Scenario> _scenarios = Lists.newArrayList();
   /** The default calculation configuration name for scenarios. */
-  private final String _calcConfigName; // TODO should this be a list?
+  private final Set<String> _calcConfigNames;
   /** The default valuation time for scenarios. */
   private final Instant _valuationTime;
   /** The default resolver version correction for scenarios. */
@@ -69,20 +71,23 @@ public class Simulation {
    * and resolver version correction of {@link VersionCorrection#LATEST}.
    */
   public Simulation() {
-    this("Default", Instant.now(), VersionCorrection.LATEST);
+    this(Instant.now(), VersionCorrection.LATEST);
   }
 
   /**
    * Creates a new simulation, specifying the default values to use for its scenarios
-   * @param calcConfigName The default calculation configuration name for scenarios
+   * @param calcConfigNames The default calculation configuration name for scenarios
    * @param valuationTime The default valuation time for scenarios
    * @param resolverVersionCorrection The default resolver version correction for scenarios
    */
-  public Simulation(String calcConfigName, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
-    ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
+  public Simulation(Instant valuationTime, VersionCorrection resolverVersionCorrection, String... calcConfigNames) {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
-    _calcConfigName = calcConfigName;
+    if (calcConfigNames.length > 0) {
+      _calcConfigNames = ImmutableSet.copyOf(calcConfigNames);
+    } else {
+      _calcConfigNames = null;
+    }
     _valuationTime = valuationTime;
     _resolverVersionCorrection = resolverVersionCorrection;
   }
@@ -134,7 +139,7 @@ public class Simulation {
    * @return The new scenario.
    */
   public Scenario addScenario() {
-    Scenario scenario = new Scenario(_calcConfigName, _valuationTime, _resolverVersionCorrection);
+    Scenario scenario = new Scenario(_calcConfigNames, _valuationTime, _resolverVersionCorrection);
     _scenarios.add(scenario);
     return scenario;
   }
