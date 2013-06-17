@@ -5,17 +5,34 @@
  */
 package com.opengamma.integration.viewer.status;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
+import com.google.common.collect.TreeMultimap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.engine.view.helper.AvailableOutput;
+import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.viewer.status.ViewStatusReporterOption.TargetType;
+import com.opengamma.integration.viewer.status.ViewStatusReporterOption.ResultFormat;
 import com.opengamma.integration.viewer.status.impl.BloombergReferencePortfolioMaker;
+import com.opengamma.integration.viewer.status.impl.ViewStatusCalculationWorker;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -28,10 +45,8 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusReporterTool.class);
   
-  /** Portfolio name option flag*/
-  private static final String PORTFOLIO_NAME_OPT = "n";
+  private static final UserPrincipal DEFAULT_USER = UserPrincipal.getLocalUser();
   
-
   /**
    * Main methog to run the tool.
    * 
@@ -44,31 +59,87 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
 
   @Override
   protected void doRun() throws Exception {
-    String portfolioName = getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT);
+    ViewStatusReporterOption option = ViewStatusReporterOption.getViewStatusReporterOption(getCommandLine());
+    
+    String portfolioName = option.getPortfolioName();
     UniqueId portfolioId = null;
     if (portfolioName == null) {
       portfolioId = createReferencePortfolio();
     } else {
       portfolioId = findPortfolioId(portfolioName);
     }
-    if (portfolioId != null) {
-      generateReport(portfolioId);
-    } else {
-      s_logger.error("Couldn't find portfolio {}", portfolioName);
+    if (portfolioId == null) {
+      throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
+    String computationTargetType = option.getComputationTargetType();
+    String format = option.getFormat();
+    generateViewStatusReport(portfolioId, TargetType.of(computationTargetType), ResultFormat.of(format));
   }
   
-  private void generateReport(final UniqueId portfolioId) {
-    ToolContext toolContext = getToolContext();
-    AvailableOutputsProvider outputsProvider = toolContext.getAvaliableOutputsProvider();
-    if (outputsProvider != null) {
-      doGenerateViewStatus();
-    } else {
-      throw new OpenGammaRuntimeException("AvailableOutputsProvider missing from ToolContext");
+  private void generateViewStatusReport(final UniqueId portfolioId, TargetType targetType, ResultFormat resultFormat) {
+    
+    Map<String, Collection<String>> valueRequirementBySecType = scanValueRequirementBySecType(portfolioId, targetType);
+    
+    if (s_logger.isDebugEnabled()) {
+      StringBuilder strBuf = new StringBuilder();
+      for (String securityType : Sets.newTreeSet(valueRequirementBySecType.keySet())) {
+        Set<String> valueNames = Sets.newTreeSet(valueRequirementBySecType.get(securityType));
+        strBuf.append(String.format("%s\t%s\n", StringUtils.rightPad(securityType, 40), valueNames.toString()));
+      }
+      s_logger.debug("\n{}\n", strBuf.toString());
     }
+    
+    ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(valueRequirementBySecType, getToolContext(), 
+        portfolioId, TargetType.toEngineType(targetType), DEFAULT_USER);
+    ViewStatusResultAggregator resultAggregator = calculationWorker.run();
+    
+    ViewStatusResultProducer resultProducer = new ViewStatusResultProducer();
+    String statusResult = resultProducer.statusResult(resultAggregator, resultFormat);
+    try {
+      File filename = getFileName(resultFormat);
+      s_logger.debug("Writing status report into : {}", filename.getPath());
+      FileUtils.writeStringToFile(filename, statusResult);
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("Error writing view-status report file", ex.getCause());
+    }
+   
   }
 
-  private void doGenerateViewStatus() {
+  private File getFileName(ResultFormat resultFormat) {
+    return new File(FileUtils.getUserDirectory(), "view-status" + "." + resultFormat.getExtension());
+  }
+
+  private Map<String, Collection<String>> scanValueRequirementBySecType(UniqueId portfolioId, TargetType computationTargetType) {
+    ToolContext toolContext = getToolContext();
+    AvailableOutputsProvider availableOutputsProvider = toolContext.getAvaliableOutputsProvider();
+    if (availableOutputsProvider == null) {
+      throw new OpenGammaRuntimeException("AvailableOutputsProvider missing from ToolContext");
+    }
+    final SetMultimap<String, String> valueNamesBySecurityType = TreeMultimap.create();
+    
+    AvailableOutputs portfolioOutputs = availableOutputsProvider.getPortfolioOutputs(portfolioId, null);
+    switch (computationTargetType) {
+      case POSITION:
+        Set<String> securityTypes = portfolioOutputs.getSecurityTypes();
+        for (String securityType : securityTypes) {
+          Set<AvailableOutput> positionOutputs = portfolioOutputs.getPositionOutputs(securityType);
+          for (AvailableOutput availableOutput : positionOutputs) {
+            valueNamesBySecurityType.put(securityType, availableOutput.getValueName());
+          }        
+        }
+        break;
+      case PORTFOLIO_NODE:
+        Set<AvailableOutput> portfolioNodeOutputs = portfolioOutputs.getPortfolioNodeOutputs();
+        for (AvailableOutput availableOutput : portfolioNodeOutputs) {
+          for (String securityType : availableOutput.getSecurityTypes()) {
+            valueNamesBySecurityType.put(securityType, availableOutput.getValueName());
+          }
+        }
+        break;
+      default:
+        throw new OpenGammaRuntimeException("Unsupported computation target type: " + computationTargetType.name());
+    }
+    return valueNamesBySecurityType.asMap();
   }
 
   private UniqueId findPortfolioId(final String portfolioName) {
@@ -79,7 +150,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     if (searchResult.getFirstPortfolio() != null) {
       portfolioId = searchResult.getFirstPortfolio().getUniqueId();
     }
-    return portfolioId;
+    return portfolioId.toLatest();
   }
 
   private UniqueId createReferencePortfolio() {
@@ -89,16 +160,16 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     return findPortfolioId(BloombergReferencePortfolioMaker.PORTFOLIO_NAME);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected Options createOptions(boolean contextProvided) {
+    final Options toolOptions = super.createOptions(contextProvided);
     
-    Options options = super.createOptions(contextProvided);
-    
-    Option portfolioNameOption = new Option(
-        PORTFOLIO_NAME_OPT, "name", true, "The name of the source OpenGamma portfolio");
-    options.addOption(portfolioNameOption);
-    
-    return options;
+    Options viewStatusOptions = ViewStatusReporterOption.createOptions();
+    for (Option option : (Collection<Option>) viewStatusOptions.getOptions()) {
+      toolOptions.addOption(option);
+    }
+    return toolOptions;
   }
-
+  
 }

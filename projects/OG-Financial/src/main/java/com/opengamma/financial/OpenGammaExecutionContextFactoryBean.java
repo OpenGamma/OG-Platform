@@ -17,6 +17,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -36,6 +37,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   private OrganizationSource _organizationSource;
   private ConfigMaster _configMaster;
   private OverrideOperationCompiler _overrideOperationCompiler;
+  private ConventionSource _conventionSource;
 
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return _historicalTimeSeriesSource;
@@ -73,7 +75,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _organizationSource;
   }
 
-  public void setOrganizationSource(OrganizationSource organizationSource) {
+  public void setOrganizationSource(final OrganizationSource organizationSource) {
     _organizationSource = organizationSource;
   }
 
@@ -125,6 +127,14 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     _overrideOperationCompiler = overrideOperationCompiler;
   }
 
+  public ConventionSource getConventionSource() {
+    return _conventionSource;
+  }
+
+  public void setConventionSource(final ConventionSource conventionSource) {
+    _conventionSource = conventionSource;
+  }
+
   @Override
   protected FunctionExecutionContext createObject() {
     final FunctionExecutionContext context = new FunctionExecutionContext();
@@ -147,6 +157,9 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     }
     if (getConventionBundleSource() != null) {
       OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
+    }
+    if (getConventionSource() != null) {
+      OpenGammaExecutionContext.setConventionSource(context, getConventionSource());
     }
     if (getConfigSource() != null) {
       OpenGammaExecutionContext.setConfigSource(context, getConfigSource());

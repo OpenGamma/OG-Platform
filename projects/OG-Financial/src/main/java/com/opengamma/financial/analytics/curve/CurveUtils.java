@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.ChronoUnit;
@@ -43,5 +46,15 @@ public class CurveUtils {
       throw new OpenGammaRuntimeException("Could not get curve calculation config called " + configName);
     }
     return curveConfig;
+  }
+
+  public static String[] getCurveNamesForConstructionConfiguration(final CurveConstructionConfiguration configuration) {
+    final List<String> names = new ArrayList<>();
+    for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
+      for (final CurveTypeConfiguration type : group.getCurveTypes()) {
+        names.add(type.getName());
+      }
+    }
+    return names.toArray(new String[names.size()]);
   }
 }

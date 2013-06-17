@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.calibratehazardratecurve;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
@@ -17,8 +19,9 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -126,13 +129,15 @@ public class CalibrateHazardRateCurveTest {
   private static final boolean adjustEffectiveDate = true;
   private static final boolean adjustMaturityDate = true;
 
-  private static final double notional = 10000000.0;
+  private static final double notional = 100000000.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
-  private static final PriceType priceType = PriceType.CLEAN;
+  private static final PriceType PRICE_TYPE_CLEAN = PriceType.CLEAN;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
+
+  private static final double TOLERANCE_HARDCODED = 1.0E-2; // 0.01 currency unit for 100m
 
   // ----------------------------------------------------------------------------------
 
@@ -140,76 +145,152 @@ public class CalibrateHazardRateCurveTest {
 
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
-  final ZonedDateTime baseDate = zdt(2008, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+  private static final ZonedDateTime BASE_DATE = zdt(2008, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
 
-  double[] times = {
-      s_act365.getDayCountFraction(baseDate, zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2009, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2009, 6, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2009, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2010, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2010, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2011, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2011, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2012, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2012, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2013, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2014, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2015, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2015, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2016, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2016, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2017, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2017, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2018, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2018, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2019, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2019, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2020, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2020, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2021, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2021, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2022, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2022, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2023, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2023, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2024, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2024, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2025, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2025, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2026, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2026, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2027, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2027, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2028, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2028, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2029, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2029, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2030, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2030, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2031, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2031, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2032, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2032, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2033, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2033, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2034, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2034, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2035, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2035, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2036, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2036, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2037, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2037, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
-  };
+  private static final int NB_DATES = 64;
+  private static final ZonedDateTime[] CURVE_DATES = new ZonedDateTime[NB_DATES];
+  static {
+    CURVE_DATES[0] = zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[1] = zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[2] = zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[3] = zdt(2009, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[4] = zdt(2009, 6, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[5] = zdt(2009, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[6] = zdt(2010, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[7] = zdt(2010, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[8] = zdt(2011, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[9] = zdt(2011, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[10] = zdt(2012, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[11] = zdt(2012, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[12] = zdt(2013, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[13] = zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[14] = zdt(2014, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[15] = zdt(2014, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[16] = zdt(2015, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[17] = zdt(2015, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[18] = zdt(2016, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[19] = zdt(2016, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[20] = zdt(2017, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[21] = zdt(2017, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[22] = zdt(2018, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[23] = zdt(2018, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[24] = zdt(2019, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[25] = zdt(2019, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[26] = zdt(2020, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[27] = zdt(2020, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[28] = zdt(2021, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[29] = zdt(2021, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[30] = zdt(2022, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[31] = zdt(2022, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[32] = zdt(2023, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[33] = zdt(2023, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[34] = zdt(2024, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[35] = zdt(2024, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[36] = zdt(2025, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[37] = zdt(2025, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[38] = zdt(2026, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[39] = zdt(2026, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[40] = zdt(2027, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[41] = zdt(2027, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[42] = zdt(2028, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[43] = zdt(2028, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[44] = zdt(2029, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[45] = zdt(2029, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[46] = zdt(2030, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[47] = zdt(2030, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[48] = zdt(2031, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[49] = zdt(2031, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[50] = zdt(2032, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[51] = zdt(2032, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[52] = zdt(2033, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[53] = zdt(2033, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[54] = zdt(2034, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[55] = zdt(2034, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[56] = zdt(2035, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[57] = zdt(2035, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[58] = zdt(2036, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[59] = zdt(2036, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[60] = zdt(2037, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[61] = zdt(2037, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[62] = zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    CURVE_DATES[63] = zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+  }
 
-  double[] rates = {
+  private static final double[] CURVE_TIMES = new double[NB_DATES];
+  static {
+    for (int loopdate = 0; loopdate < NB_DATES; loopdate++) {
+      CURVE_TIMES[loopdate] = s_act365.getDayCountFraction(BASE_DATE, CURVE_DATES[loopdate]);
+    }
+  }
+
+  //  double[] times = {
+  //      s_act365.getDayCountFraction(baseDate, zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2009, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2009, 6, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2009, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2010, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2010, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2011, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2011, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2012, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2012, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2013, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2014, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2015, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2015, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2016, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2016, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2017, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2017, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2018, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2018, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2019, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2019, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2020, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2020, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2021, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2021, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2022, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2022, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2023, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2023, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2024, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2024, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2025, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2025, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2026, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2026, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2027, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2027, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2028, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2028, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2029, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2029, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2030, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2030, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2031, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2031, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2032, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2032, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2033, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2033, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2034, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2034, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2035, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2035, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2036, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2036, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2037, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2037, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //      s_act365.getDayCountFraction(baseDate, zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+  //  };
+
+  private static final double[] RATES = {
       (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.01256719569422680000, 1)).toContinuous().getRate(),
@@ -277,7 +358,7 @@ public class CalibrateHazardRateCurveTest {
   };
 
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
-  ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
+  //  private static final  ISDACurve yieldCurve = new ISDACurve("IR_CURVE", CURVE_TIMES, rates, s_act365.getDayCountFraction(valuationDate, BASE_DATE));
 
   // ----------------------------------------------------------------------------------
 
@@ -520,14 +601,26 @@ public class CalibrateHazardRateCurveTest {
     // -----------------------------------------------------------------------------------------------
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Don't remove this code yet
-
+  @SuppressWarnings("deprecation")
+  @Test
   public void testCalibrateHazardRateCurveData() {
 
-    /*
+    ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 6, 19);
+    ZonedDateTime startDate = DateUtils.getUTCDate(2008, 6, 25); // TODO: meaningful dates
+    ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 6, 27);
+    ZonedDateTime maturityDate = DateUtils.getUTCDate(2014, 6, 27);
+
+    final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority,
+        restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate,
+        adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
+
+    PresentValueCreditDefaultSwap pvcds = new PresentValueCreditDefaultSwap();
+
+    ISDADateCurve curveISDADate = new ISDADateCurve("Test", BASE_DATE, CURVE_DATES, RATES, 0.0);
+
     // Set the tenors at which we have market observed par CDS spread quotes
+    final int nbTenors = 10;
+    ZonedDateTime[] tenors = new ZonedDateTime[nbTenors];
     tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
     tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
     tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
@@ -538,242 +631,138 @@ public class CalibrateHazardRateCurveTest {
     tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
     tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
     tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
-     */
 
-    /*
-    // Flat (tight)
+    //Note: The input are in bps. Should we change it to relative number to be coherent with the rest of the library? The scale is hard-coded (/10000.0 in the code).
+    double[] flat = {0.0, 1.0, 50.0, 100.0, 200.0, 1000.0 };    // Flat (tight, distressed, blown)
+    // Note: Flat with 100000.0 fails to calibrate.
+    final int nbFlat = flat.length;
+    double[][] zigzag = { {50.0, 60.0 }, {500.0, 550.0 } };
+    // Note: Zig-zag with {500.0, 600.0 } fails to calibrate
+    final int nbZigzag = zigzag.length;
+    final double[][] upward = { {100.0, 20.0 }, {100.0, 40.0 } }; // Start, step
+    // Note: Upward with {100.0, 100.0 } or {100.0, 50.0 } fails to calibrate
+    final int nbUpward = upward.length;
+    final int nbSpecific = 8;
 
-    marketSpreads[0] = 100.0;
-    marketSpreads[1] = 100.0;
-    marketSpreads[2] = 100.0;
-    marketSpreads[3] = 100.0;
-    marketSpreads[4] = 100.0;
-    marketSpreads[5] = 100.0;
-    marketSpreads[6] = 100.0;
-    marketSpreads[7] = 100.0;
-    marketSpreads[8] = 100.0;
-    marketSpreads[9] = 100.0;
-    //curveRecoveryRate = 0.40;
-     */
+    final int nbSpreads = nbFlat + nbZigzag + nbUpward + nbSpecific;
+    final double[][] marketSpreads = new double[nbSpreads][nbTenors];
+    for (int loopflat = 0; loopflat < nbFlat; loopflat++) {
+      for (int loopten = 0; loopten < nbTenors; loopten++) {
+        marketSpreads[loopflat][loopten] = flat[loopflat];
+      }
+    }
+    for (int loopzz = 0; loopzz < nbZigzag; loopzz++) {
+      for (int loopten = 0; loopten < nbTenors / 2; loopten++) {
+        marketSpreads[nbFlat + loopzz][2 * loopten + 0] = zigzag[loopzz][0];
+        marketSpreads[nbFlat + loopzz][2 * loopten + 1] = zigzag[loopzz][1];
+      }
+    }
+    for (int loopup = 0; loopup < nbUpward; loopup++) {
+      for (int loopten = 0; loopten < nbTenors; loopten++) {
+        marketSpreads[nbFlat + nbZigzag + loopup][loopten] = upward[loopup][0] + loopten * upward[loopup][1];
+      }
+    }
+    final int nbNonSpecific = nbFlat + nbZigzag + nbUpward;
+    int loopspec = 0; // Upward, steep short end
+    marketSpreads[nbNonSpecific + loopspec][0] = 100.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 200.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 300.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 400.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 500.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 520.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 540.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 560.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 580.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 600.0;
+    loopspec++;// Upward, steep long end
+    marketSpreads[nbNonSpecific + loopspec][0] = 100.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 120.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 140.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 160.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 180.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 220.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 260.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 300.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 340.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 380.0;
+    loopspec++;//Downward, gentle
+    marketSpreads[nbNonSpecific + loopspec][0] = 280.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 260.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 240.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 220.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 200.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 180.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 160.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 140.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 120.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 100.0;
+    loopspec++;//Downward, steep
+    marketSpreads[nbNonSpecific + loopspec][0] = 1000.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 900.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 800.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 700.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 600.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 500.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 450.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 400.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 400.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 380.0;
+    loopspec++; //Downward, steep short end
+    marketSpreads[nbNonSpecific + loopspec][0] = 600.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 500.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 400.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 300.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 200.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 180.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 160.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 140.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 120.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 100.0;
+    loopspec++; // Downward, steep long end
+    marketSpreads[nbNonSpecific + loopspec][0] = 680.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 660.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 640.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 620.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 600.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 580.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 480.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 380.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 280.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 180.0;
+    loopspec++; // Inverted Cavale
+    marketSpreads[nbNonSpecific + loopspec][0] = 1774.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 1805.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 1856.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 1994.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 2045.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 2045.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 2045.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 2045.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 2045.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 2045.0;
+    loopspec++; // BCPN
+    marketSpreads[nbNonSpecific + loopspec][0] = 780.0;
+    marketSpreads[nbNonSpecific + loopspec][1] = 812.0;
+    marketSpreads[nbNonSpecific + loopspec][2] = 803.0;
+    marketSpreads[nbNonSpecific + loopspec][3] = 826.0;
+    marketSpreads[nbNonSpecific + loopspec][4] = 874.0;
+    marketSpreads[nbNonSpecific + loopspec][5] = 896.0;
+    marketSpreads[nbNonSpecific + loopspec][6] = 868.0;
+    marketSpreads[nbNonSpecific + loopspec][7] = 838.0;
+    marketSpreads[nbNonSpecific + loopspec][8] = 800.0;
+    marketSpreads[nbNonSpecific + loopspec][9] = 780.0;
 
-    // Flat (distressed)
-    /*
-        marketSpreads[0] = 1000.0;
-        marketSpreads[1] = 1000.0;
-        marketSpreads[2] = 1000.0;
-        marketSpreads[3] = 1000.0;
-        marketSpreads[4] = 1000.0;
-        marketSpreads[5] = 1000.0;
-        marketSpreads[6] = 1000.0;
-        marketSpreads[7] = 1000.0;
-        marketSpreads[8] = 1000.0;
-        marketSpreads[9] = 1000.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Flat (blown)
-    /*
-        marketSpreads[0] = 100000.0;
-        marketSpreads[1] = 100000.0;
-        marketSpreads[2] = 100000.0;
-        marketSpreads[3] = 100000.0;
-        marketSpreads[4] = 100000.0;
-        marketSpreads[5] = 100000.0;
-        marketSpreads[6] = 100000.0;
-        marketSpreads[7] = 100000.0;
-        marketSpreads[8] = 100000.0;
-        marketSpreads[9] = 100000.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Zig-zag (Tight)
-    /*
-    marketSpreads[0] = 50.0;
-    marketSpreads[1] = 60.0;
-    marketSpreads[2] = 50.0;
-    marketSpreads[3] = 60.0;
-    marketSpreads[4] = 50.0;
-    marketSpreads[5] = 40.0;
-    marketSpreads[6] = 50.0;
-    marketSpreads[7] = 60.0;
-    marketSpreads[8] = 50.0;
-    marketSpreads[9] = 60.0;
-    curveRecoveryRate = 0.40;
-     */
+    final double[] pv = new double[nbSpreads];
+    for (int loopspread = 0; loopspread < nbSpreads; loopspread++) {
+      pv[loopspread] = pvcds.calibrateAndGetPresentValue(valuationDate, cds, tenors, marketSpreads[loopspread], curveISDADate, PRICE_TYPE_CLEAN);
+    }
+    final double[] pvExpected = {-5672458.043975232, -5612833.8411497325, -2764265.396014931, 72.73528969381005, 5126779.225961099, 3.2042108339047514E7, -2210334.5968965204, 1.9690546519727346E7,
+        5196701.133692645, 1.00057853795825E7, 1.9044683964563813E7, 6220964.461377103, 4085113.125930696, 1.686216455050518E7, 4001404.223613698, 2.0290515510249116E7, 4.728163157144226E7,
+        2.9981696893176883E7 }; // From previous run
 
-    // Zig-zag (Distressed)
-    /*
-        marketSpreads[0] = 500.0;
-        marketSpreads[1] = 600.0;
-        marketSpreads[2] = 500.0;
-        marketSpreads[3] = 600.0;
-        marketSpreads[4] = 500.0;
-        marketSpreads[5] = 400.0;
-        marketSpreads[6] = 500.0;
-        marketSpreads[7] = 600.0;
-        marketSpreads[8] = 500.0;
-        marketSpreads[9] = 600.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Upward, gentle
-    /*
-        marketSpreads[0] = 100.0;
-        marketSpreads[1] = 120.0;
-        marketSpreads[2] = 140.0;
-        marketSpreads[3] = 160.0;
-        marketSpreads[4] = 180.0;
-        marketSpreads[5] = 200.0;
-        marketSpreads[6] = 220.0;
-        marketSpreads[7] = 240.0;
-        marketSpreads[8] = 260.0;
-        marketSpreads[9] = 280.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Upward, steep
-
-    /* marketSpreads[0] = 100.0;
-     marketSpreads[1] = 200.0;
-     marketSpreads[2] = 300.0;
-     marketSpreads[3] = 400.0;
-     marketSpreads[4] = 500.0;
-     marketSpreads[5] = 600.0;
-     marketSpreads[6] = 700.0;
-     marketSpreads[7] = 800.0;
-     marketSpreads[8] = 900.0;
-     marketSpreads[9] = 1000.0;
-     curveRecoveryRate = 0.40;
-     */
-
-    // Upward, steep short end
-    /*
-        marketSpreads[0] = 100.0;
-        marketSpreads[1] = 200.0;
-        marketSpreads[2] = 300.0;
-        marketSpreads[3] = 400.0;
-        marketSpreads[4] = 500.0;
-        marketSpreads[5] = 520.0;
-        marketSpreads[6] = 540.0;
-        marketSpreads[7] = 560.0;
-        marketSpreads[8] = 580.0;
-        marketSpreads[9] = 600.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Upward, steep long end
-
-    /*  marketSpreads[0] = 100.0;
-      marketSpreads[1] = 120.0;
-      marketSpreads[2] = 140.0;
-      marketSpreads[3] = 160.0;
-      marketSpreads[4] = 180.0;
-      marketSpreads[5] = 280.0;
-      marketSpreads[6] = 380.0;
-      marketSpreads[7] = 480.0;
-      marketSpreads[8] = 580.0;
-      marketSpreads[9] = 680.0;
-      curveRecoveryRate = 0.40;
-     */
-    // Downward, gentle
-
-    /*
-    marketSpreads[0] = 280.0;
-    marketSpreads[1] = 260.0;
-    marketSpreads[2] = 240.0;
-    marketSpreads[3] = 220.0;
-    marketSpreads[4] = 200.0;
-    marketSpreads[5] = 180.0;
-    marketSpreads[6] = 160.0;
-    marketSpreads[7] = 140.0;
-    marketSpreads[8] = 120.0;
-    marketSpreads[9] = 100.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Downward, steep
-    /*
-    marketSpreads[0] = 1000.0;
-    marketSpreads[1] = 900.0;
-    marketSpreads[2] = 800.0;
-    marketSpreads[3] = 700.0;
-    marketSpreads[4] = 600.0;
-    marketSpreads[5] = 500.0;
-    marketSpreads[6] = 400.0;
-    marketSpreads[7] = 300.0;
-    marketSpreads[8] = 200.0;
-    marketSpreads[9] = 100.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Downward, steep short end
-    /*
-    marketSpreads[0] = 600.0;
-    marketSpreads[1] = 500.0;
-    marketSpreads[2] = 400.0;
-    marketSpreads[3] = 300.0;
-    marketSpreads[4] = 200.0;
-    marketSpreads[5] = 180.0;
-    marketSpreads[6] = 160.0;
-    marketSpreads[7] = 140.0;
-    marketSpreads[8] = 120.0;
-    marketSpreads[9] = 100.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Downward, steep long end
-    /*
-    marketSpreads[0] = 680.0;
-    marketSpreads[1] = 660.0;
-    marketSpreads[2] = 640.0;
-    marketSpreads[3] = 620.0;
-    marketSpreads[4] = 600.0;
-    marketSpreads[5] = 580.0;
-    marketSpreads[6] = 480.0;
-    marketSpreads[7] = 380.0;
-    marketSpreads[8] = 280.0;
-    marketSpreads[9] = 180.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Inverted Cavale
-    /*
-    marketSpreads[0] = 1774.0;
-    marketSpreads[1] = 1805.0;
-    marketSpreads[2] = 1856.0;
-    marketSpreads[3] = 1994.0;
-    marketSpreads[4] = 2045.0;
-    marketSpreads[5] = 2141.0;
-    marketSpreads[6] = 2243.0;
-    marketSpreads[7] = 2559.0;
-    marketSpreads[8] = 3072.0;
-    marketSpreads[9] = 3865.0;
-    curveRecoveryRate = 0.20;
-     */
-
-    // Cavale
-    /*
-    marketSpreads[0] = 3865.0;
-    marketSpreads[1] = 3072.0;
-    marketSpreads[2] = 2559.0;
-    marketSpreads[3] = 2243.0;
-    marketSpreads[4] = 2141.0;
-    marketSpreads[5] = 2045.0;
-    marketSpreads[6] = 1944.0;
-    marketSpreads[7] = 1856.0;
-    marketSpreads[8] = 1805.0;
-    marketSpreads[9] = 1774.0;
-    curveRecoveryRate = 0.20;
-     */
-    // BCPN
-    /*
-    marketSpreads[0] = 780.0;
-    marketSpreads[1] = 812.0;
-    marketSpreads[2] = 803.0;
-    marketSpreads[3] = 826.0;
-    marketSpreads[4] = 874.0;
-    marketSpreads[5] = 896.0;
-    marketSpreads[6] = 868.0;
-    marketSpreads[7] = 838.0;
-    marketSpreads[8] = 800.0;
-    marketSpreads[9] = 780.0;
-    curveRecoveryRate = 0.40;
-     */
+    for (int loopspread = 0; loopspread < nbSpreads; loopspread++) {
+      assertEquals("PresentValueCreditDefaultSwap.calibrateAndGetPresentValue - spread " + loopspread, pv[loopspread], pvExpected[loopspread], TOLERANCE_HARDCODED);
+    }
   }
 
   //-------------------------------------------------------------------------

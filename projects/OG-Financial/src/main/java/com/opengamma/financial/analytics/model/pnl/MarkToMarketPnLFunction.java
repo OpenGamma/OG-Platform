@@ -165,19 +165,11 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     if (isNewTrade) {
       referencePrice = trade.getPremium();
       if (referencePrice == null) {
-        throw new NullPointerException("Encountered a new future trade without a required premium: " + trade.getUniqueId());
+        throw new NullPointerException("New Trades require a premium to compute PNL on trade date. Premium was null for " + trade.getUniqueId());
       }
     } else {
       for (final ComputedValue input : inputs.getAllValues()) {
-        if (input.getSpecification().getValueName().equals(ValueRequirementNames.HISTORICAL_TIME_SERIES)) {
-          try {
-            final HistoricalTimeSeries hts = (HistoricalTimeSeries) input.getValue();
-            referencePrice = hts.getTimeSeries().getLatestValue();
-          } catch (final NoSuchElementException e) {
-            throw new OpenGammaRuntimeException("Time series for " + security.getExternalIdBundle() + " was empty");
-          }
-
-        } else if (input.getSpecification().getValueName().equals(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST)) {
+        if (input.getSpecification().getValueName().equals(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST)) {
           final String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
           if (field.equals(_costOfCarryField)) {
             // Get cost of carry, if available
@@ -185,8 +177,20 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
             if (value != null) {
               costOfCarry = (Double) value;
             }
+          } else if (field.equals(_closingPriceField)) {
+            // Get most recent closing price before today 
+            // By intention, this will not be today's close even if it's available  
+            // TODO Review - Note that this may be stale, if time series aren't updated nightly, as we take latest value. Illiquid securities do not trade each day..
+            Object value = input.getValue();
+            if (value == null) {
+              throw new NullPointerException("Did not satisfy time series latest requirement," + _closingPriceField + ", for security, " + security.getExternalIdBundle());
+            }
+            referencePrice = (Double) value;
           }
         }
+      }
+      if (referencePrice == null) {
+        throw new NullPointerException("Missing Time Series for security: " + security);
       }
     }
     // 3. Compute the PNL
@@ -232,24 +236,6 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    if (inputs.size() < 2) {
-      return null;
-    }
-    boolean hasLivePrice = false;
-    for (ValueSpecification input : inputs.keySet()) {
-      if (MarketDataRequirementNames.MARKET_VALUE.equals(input.getValueName())) {
-        hasLivePrice = true;
-        break;
-      }
-    }
-    if (!hasLivePrice) {
-      return null;
-    }
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<>();
     // Security's Market Value. We scale up by Notionals and Quantities during execute()
@@ -258,16 +244,16 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
     requirements.add(securityValueReq);
     // TimeSeries - Closing prices 
-    final ValueRequirement markToMarketValue = getReferencePriceRequirement(security);
-    if (markToMarketValue == null) {
-      return null;
-    }
+//    final ValueRequirement markToMarketValue = getReferencePriceRequirement(security);
+    final ValueRequirement markToMarketValue = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, 
+        ValueProperties.with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _closingPriceField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get());
     requirements.add(markToMarketValue);
     // and Cost of Carry, if provided
     if (_costOfCarryField.length() > 0) {
       requirements.add(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, ValueProperties
           .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _costOfCarryField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get()));  
     }
+    
     return requirements;
   }
 
@@ -294,8 +280,9 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
       s_logger.warn("Failed to find time series for: " + idBundle.toString());
       return null;
     }
+    final int lookbackWindow = 100;
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, false);
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(lookbackWindow)), true, DateConstraint.VALUATION_TIME, false);
   }
   
   /** The logger */

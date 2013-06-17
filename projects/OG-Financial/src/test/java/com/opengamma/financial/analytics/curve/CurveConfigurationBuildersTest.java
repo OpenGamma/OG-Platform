@@ -24,11 +24,10 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   private static final DiscountingCurveTypeConfiguration DISCOUNTING_CONFIG = new DiscountingCurveTypeConfiguration(DISCOUNTING_NAME, DISCOUNTING_CODE);
   private static final String LIBOR_3M_NAME = "USD Forward3M";
   private static final String LIBOR_3M_CONVENTION_NAME = "USD 3m Libor";
-  private static final String LIBOR_INDEX_TYPE = "Ibor";
-  private static final IndexCurveTypeConfiguration LIBOR_3M_CONFIG = new IndexCurveTypeConfiguration(LIBOR_3M_NAME, LIBOR_3M_CONVENTION_NAME, LIBOR_INDEX_TYPE);
+  private static final IndexCurveTypeConfiguration LIBOR_3M_CONFIG = new IndexCurveTypeConfiguration(LIBOR_3M_NAME, LIBOR_3M_CONVENTION_NAME, IndexType.IBOR);
   private static final String LIBOR_6M_NAME = "USD Forward3M";
   private static final String LIBOR_6M_CONVENTION_NAME = "USD 6m Libor";
-  private static final IndexCurveTypeConfiguration LIBOR_6M_CONFIG = new IndexCurveTypeConfiguration(LIBOR_6M_NAME, LIBOR_6M_CONVENTION_NAME, LIBOR_INDEX_TYPE);
+  private static final IndexCurveTypeConfiguration LIBOR_6M_CONFIG = new IndexCurveTypeConfiguration(LIBOR_6M_NAME, LIBOR_6M_CONVENTION_NAME, IndexType.OVERNIGHT);
   private static final String BOND_CURVE_NAME = "OG Bond Curve";
   private static final String BOND_ISSUER_NAME = "OG";
   private static final String BOND_CODE = "USD";
@@ -47,7 +46,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     GROUP2 = new CurveGroupConfiguration(2, Arrays.asList((CurveTypeConfiguration) LIBOR_6M_CONFIG));
     GROUP2.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "567"));
     GROUP3 = new CurveGroupConfiguration(3, Arrays.asList((CurveTypeConfiguration) ISSUER_CONFIG));
-    CONSTRUCTION = new CurveConstructionConfiguration(Arrays.asList(GROUP1, GROUP2, GROUP3), null);
+    CONSTRUCTION = new CurveConstructionConfiguration("Config", Arrays.asList(GROUP1, GROUP2, GROUP3), null);
     CONSTRUCTION.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "678"));
   }
 
@@ -77,7 +76,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   public void testCurveConstructionConfiguration() {
     assertEquals(CONSTRUCTION, cycleObject(CurveConstructionConfiguration.class, CONSTRUCTION));
     final List<String> exogenousConfigs = Arrays.asList("Config1", "Config2");
-    final CurveConstructionConfiguration construction = new CurveConstructionConfiguration(Arrays.asList(GROUP1, GROUP2, GROUP3), exogenousConfigs);
+    final CurveConstructionConfiguration construction = new CurveConstructionConfiguration("Config", Arrays.asList(GROUP1, GROUP2, GROUP3), exogenousConfigs);
     construction.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "789"));
     assertEquals(construction, cycleObject(CurveConstructionConfiguration.class, construction));
   }

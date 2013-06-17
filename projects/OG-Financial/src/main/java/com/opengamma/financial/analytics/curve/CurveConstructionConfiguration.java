@@ -43,6 +43,12 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   private UniqueId _uniqueId;
 
   /**
+   * The name of this configuration.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _name;
+
+  /**
    * The curve groups.
    */
   @PropertyDefinition(validate = "notNull")
@@ -57,7 +63,8 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   /* package */CurveConstructionConfiguration() {
   }
 
-  public CurveConstructionConfiguration(final List<CurveGroupConfiguration> curveGroups, final List<String> exogenousConfigurations) {
+  public CurveConstructionConfiguration(final String name, final List<CurveGroupConfiguration> curveGroups, final List<String> exogenousConfigurations) {
+    setName(name);
     setCurveGroups(curveGroups);
     setExogenousConfigurations(exogenousConfigurations);
   }
@@ -85,6 +92,8 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
+      case 3373707:  // name
+        return getName();
       case -2135025757:  // curveGroups
         return getCurveGroups();
       case -1107510858:  // exogenousConfigurations
@@ -100,6 +109,9 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
+      case 3373707:  // name
+        setName((String) newValue);
+        return;
       case -2135025757:  // curveGroups
         setCurveGroups((List<CurveGroupConfiguration>) newValue);
         return;
@@ -112,6 +124,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
 
   @Override
   protected void validate() {
+    JodaBeanUtils.notNull(_name, "name");
     JodaBeanUtils.notNull(_curveGroups, "curveGroups");
     super.validate();
   }
@@ -124,6 +137,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveConstructionConfiguration other = (CurveConstructionConfiguration) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getCurveGroups(), other.getCurveGroups()) &&
           JodaBeanUtils.equal(getExogenousConfigurations(), other.getExogenousConfigurations());
     }
@@ -134,6 +148,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurveGroups());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExogenousConfigurations());
     return hash;
@@ -162,6 +177,32 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    */
   public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of this configuration.
+   * @return the value of the property, not null
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name of this configuration.
+   * @param name  the new value of the property, not null
+   */
+  public void setName(String name) {
+    JodaBeanUtils.notNull(name, "name");
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -231,6 +272,11 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", CurveConstructionConfiguration.class, UniqueId.class);
     /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", CurveConstructionConfiguration.class, String.class);
+    /**
      * The meta-property for the {@code curveGroups} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -248,6 +294,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
+        "name",
         "curveGroups",
         "exogenousConfigurations");
 
@@ -262,6 +309,8 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
+        case 3373707:  // name
+          return _name;
         case -2135025757:  // curveGroups
           return _curveGroups;
         case -1107510858:  // exogenousConfigurations
@@ -292,6 +341,14 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
     }
 
     /**

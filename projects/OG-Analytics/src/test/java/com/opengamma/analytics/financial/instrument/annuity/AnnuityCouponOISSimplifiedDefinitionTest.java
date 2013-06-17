@@ -69,7 +69,7 @@ public class AnnuityCouponOISSimplifiedDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupons() {
-    new AnnuityCouponOISSimplifiedDefinition(null);
+    new AnnuityCouponOISSimplifiedDefinition(null, GENERATOR.getIndex());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

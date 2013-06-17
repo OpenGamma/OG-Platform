@@ -509,7 +509,7 @@ public class DbBatchWriterTest extends DbTest {
     _batchMaster.addJobResults(null, result);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void addJobResultsWithoutExistingComputeNodeId() {
     final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
 
@@ -524,6 +524,8 @@ public class DbBatchWriterTest extends DbTest {
     final ComputedValueResult cvr = new ComputedValueResult(valueSpec, 1000.0, AggregatedExecutionLog.EMPTY, null, null, InvocationResult.SUCCESS);
     //cvr.setRequirements(newHashSet(_requirement));
     result.addValue("config_1", cvr);
+    
+    // Result will be skipped but should not cause any exception to be thrown 
     _batchMaster.addJobResults(run.getObjectId(), result);
   }
 

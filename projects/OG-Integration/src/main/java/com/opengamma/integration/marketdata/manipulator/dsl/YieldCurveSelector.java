@@ -9,16 +9,18 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.util.money.Currency;
 
 /**
- * TODO should this extend PredicateSelector? not sure why it needs to exist
+ *
  */
-public class CurveSelector extends Selector<YieldCurveKey> {
+public class YieldCurveSelector extends Selector<YieldCurveKey> {
 
-  /* package */ CurveSelector(String calcConfigName, Set<String> names, Set<Currency> currencies, Pattern namePattern) {
+  /* package */ YieldCurveSelector(String calcConfigName,
+                                   Set<String> names,
+                                   Set<Currency> currencies,
+                                   Pattern namePattern) {
     super(calcConfigName, names, currencies, namePattern, YieldCurveKey.class, StructureType.YIELD_CURVE);
   }
 
@@ -34,9 +36,8 @@ public class CurveSelector extends Selector<YieldCurveKey> {
       super(scenario, calcConfigName);
     }
 
-    public CurveManipulator.Builder apply() {
-      CurveSelector selector = new CurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
-      return new CurveManipulator.Builder(selector, getScenario());
+    public YieldCurveManipulatorBuilder apply() {
+      return new YieldCurveManipulatorBuilder(selector(), getScenario());
     }
 
     @Override
@@ -58,11 +59,11 @@ public class CurveSelector extends Selector<YieldCurveKey> {
     }
 
     /**
-     * This is for testing
+     * This is package scoped for testing
      * @return A selector built from this builder's data
      */
-    /* package */ MarketDataSelector selector() {
-      return new CurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
+    /* package */ YieldCurveSelector selector() {
+      return new YieldCurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
     }
   }
 }

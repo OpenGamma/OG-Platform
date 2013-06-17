@@ -13,8 +13,7 @@ import com.opengamma.analytics.financial.credit.schedulegeneration.ScheduleUtils
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class to generate the integration schedules for instrument legs which require a numerical integration
- * (for example the contingent and accrued legs of a CDS require numerical evaluation of integrals)
+ * Class to generate the accrued integration schedules
  */
 public class ISDAAccruedLegIntegrationScheduleGenerator {
 
@@ -22,8 +21,12 @@ public class ISDAAccruedLegIntegrationScheduleGenerator {
 
   // -------------------------------------------------------------------------------------------
 
-  // Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
-
+  /**
+   * Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
+   * @param cds {@link CreditDefaultSwapDefinition}
+   * @param curves {@link ISDAYieldCurveAndHazardRateCurveProvider}
+   * @return The time nodes
+   */
   public ZonedDateTime[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves) {
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");

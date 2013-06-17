@@ -29,6 +29,7 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
 
   @Test
   public void test() {
+    final String name = "Mapper";
     final Map<Tenor, CurveInstrumentProvider> cashIds = new HashMap<>();
     cashIds.put(Tenor.ONE_DAY, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("123")));
     cashIds.put(Tenor.ONE_WEEK, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("1234")));
@@ -67,7 +68,7 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
     rateFutureIds.put(Tenor.ONE_YEAR, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
     rateFutureIds.put(Tenor.TWO_YEARS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
     rateFutureIds.put(Tenor.EIGHTEEN_MONTHS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
-    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, fraIds, rateFutureIds, swapIds);
+    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(name, cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, fraIds, rateFutureIds, swapIds);
     assertEquals(mapper, cycleObject(CurveNodeIdMapper.class, mapper));
   }
 }

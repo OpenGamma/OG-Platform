@@ -269,25 +269,6 @@ public class BlotterResource {
     return Response.ok().build();
   }
 
-  @DELETE
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("nodes/{nodeId}/positions/{positionId}")
-  public Response deletePosition(@PathParam("positionId") String positionIdStr, @PathParam("nodeId") String nodeIdStr) {
-    ObjectId positionId = UniqueId.parse(positionIdStr).getObjectId();
-    UniqueId nodeId = UniqueId.parse(nodeIdStr);
-    ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId.getUniqueId());
-    PortfolioDocument portfolioDoc = _portfolioMaster.get(node.getPortfolioId());
-
-    if (portfolioDoc.isLatest()) {
-      if (node.getPositionIds().remove(positionId) == false) {
-        throw new DataNotFoundException("Position id not found: " + positionId);
-      }
-      _positionMaster.remove(positionId);
-      _portfolioMaster.update(portfolioDoc);
-    }
-    return Response.ok().build();
-  }
-
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("positions/{positionId}")

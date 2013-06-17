@@ -60,12 +60,17 @@ public class ISDACompliantAccruedLegIntegrationScheduleGenerationTest {
     CURVES = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
   }
 
-  @Test
-  public void regressionTest() {
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCdSTest() {
+    final CreditDefaultSwapDefinition cds = null;
+    CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, CURVES);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCurveTest() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final ZonedDateTime[] deprecatedResult = DEPRECATED_CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, false);
-    final ZonedDateTime[] result = CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, CURVES);
-    assertDateArrayEquals(deprecatedResult, result);
+    final ISDAYieldCurveAndHazardRateCurveProvider cv = null;
+    CALCULATOR.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, cv);
   }
 
   @Test

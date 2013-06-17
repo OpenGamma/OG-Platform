@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Arrays;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalTime;
@@ -19,6 +21,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.Ca
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwapDebug;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDAModelDatasets.ISDA_Results;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -30,6 +33,7 @@ import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -42,7 +46,7 @@ public class DepricatedCalAgaintISDATest {
   private static final GenerateCreditDefaultSwapPremiumLegSchedule PREMIUM_LEG_SCHEDULE_BUILDER = new GenerateCreditDefaultSwapPremiumLegSchedule();
   private static final CalibrateHazardRateTermStructureISDAMethod HAZARD_CURVE_CALIBRATOR = new CalibrateHazardRateTermStructureISDAMethod();
   private static final PresentValueCreditDefaultSwap DEPRICATED_CALCULATOR = new PresentValueCreditDefaultSwap();
-
+  private static final PresentValueCreditDefaultSwapDebug DEPRICATED_CALCULATOR_DEBUG = new PresentValueCreditDefaultSwapDebug();
 
   private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2013, 4, 21);
   private static final ZonedDateTime BASE_DATE = TODAY;
@@ -77,13 +81,14 @@ public class DepricatedCalAgaintISDATest {
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   // TODO check the purpose of this offset
-  private static final double OFFSET = 0.0;//1. / 365;
+  private static final double OFFSET = 0.0;// 1. / 365;
   private static final ISDAYieldCurveAndHazardRateCurveProvider CURVES;
 
   // The parCDS
   private static final CreditDefaultSwapDefinition[] PAR_CDS;
 
   // examples
+  private static final ISDA_Results[] EXAMPLE1 = ISDAModelDatasets.getExample1();
   private static final ISDA_Results[] EXAMPLE3 = ISDAModelDatasets.getExample3();
 
   // private static final ZonedDateTime[] FEE_LEG_PAYMENT_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 6, 20), DateUtils.getUTCDate(2013, 9, 20), DateUtils.getUTCDate(2013, 12, 20),
@@ -142,7 +147,7 @@ public class DepricatedCalAgaintISDATest {
       ZonedDateTime end = ZonedDateTime.of(res.endDate, LOCAL_TIME, TIME_ZONE);
       ZonedDateTime effectiveDate = today.plusDays(1); // aka stepin date - hard coded to today+1
 
-      // make a CDS
+      // make a CDS - not the notional is 10MM and cannot be changed (what ever is in res is ignored) TODO must change this 
       final CreditDefaultSwapDefinition cds;
       final CreditDefaultSwapDefinition cds_noAcc;
       try {
@@ -160,7 +165,7 @@ public class DepricatedCalAgaintISDATest {
       double rpv01_clean_ISDA = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
       double rpv01_clean_ISDA_noAccOnDefault = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds_noAcc, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
       double rpv01_dirty_ISDA = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.DIRTY);
-      double contLeg_ISDA = DEPRICATED_CALCULATOR.calculateContingentLeg(today, cds, YIELD_CURVE, res.creditCurve);
+      double contLeg_ISDA = DEPRICATED_CALCULATOR_DEBUG.calculateContingentLeg(today, cds, YIELD_CURVE, res.creditCurve);
 
       double premLeg_clean_ISDA = res.fracSpread * rpv01_clean_ISDA;
       double defaultAcc = res.fracSpread * (rpv01_clean_ISDA - rpv01_clean_ISDA_noAccOnDefault);
@@ -175,9 +180,9 @@ public class DepricatedCalAgaintISDATest {
             + "\t" + accruedPrem + "\t\t" + res.accruedDays + "\t" + accruedDays);
       }
       try {
-        assertEquals("Premium Leg:", res.premiumLeg, premLeg_clean_ISDA, 1e-4 * NOTIONAL); // This should be 1e-15*NOTIONAL
-        assertEquals("Protection Leg:", res.protectionLeg, contLeg_ISDA, 1e-4 * NOTIONAL); // ditto
-        assertEquals("Default Acc:", res.defaultAcc, defaultAcc, 1e-5 * NOTIONAL);
+        assertEquals("Premium Leg:", res.premiumLeg, premLeg_clean_ISDA, 1e-8 * NOTIONAL); // This should be 1e-15*NOTIONAL
+        assertEquals("Protection Leg:", res.protectionLeg, contLeg_ISDA, 1e-8 * NOTIONAL); // ditto
+        assertEquals("Default Acc:", res.defaultAcc, defaultAcc, 1e-8 * NOTIONAL);
         assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
         assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
       } catch (AssertionError e) {
@@ -190,9 +195,21 @@ public class DepricatedCalAgaintISDATest {
   }
 
   @Test(enabled = false)
+  public void example1Test() {
+    testISDA_Results(EXAMPLE1, true);
+  }
+
+  @Test
+   (enabled = false)
   public void example3Test() {
     testISDA_Results(EXAMPLE3, true);
   }
+
+  @Test(enabled = false)
+  public void exampleSheetTest() {
+    testISDA_Results(ISDAModelDatasetsSheetReader.loadSheet("example1.csv", RECOVERY_RATE), true);
+  }
+
 
   @Test
   public void yieldCurveTest() {
@@ -204,7 +221,7 @@ public class DepricatedCalAgaintISDATest {
     }
   }
 
-  //This test only passes with OFFSET = 0.0;
+  // This test only passes with OFFSET = 0.0;
   @Test
   public void hazardCurveTest() {
     final int n = HR_TIMES.length;

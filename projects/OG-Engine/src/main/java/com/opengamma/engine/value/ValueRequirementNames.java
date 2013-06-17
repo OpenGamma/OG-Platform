@@ -229,6 +229,10 @@ public final class ValueRequirementNames {
    */
   public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
   /**
+   * Curve construction property metadata
+   */
+  public static final String CURVE_CONSTRUCTION_CONFIG = "CurveConstructionConfiguration";
+  /**
    * The raw FX forward and spot market data that is used in curve construction
    */
   public static final String FX_FORWARD_CURVE_MARKET_DATA = "FXForwardCurveMarketData";
@@ -252,6 +256,10 @@ public final class ValueRequirementNames {
    * FX forward curve specification
    */
   public static final String FX_FORWARD_CURVE_SPECIFICATION = "FXForwardCurveSpecification";
+  /**
+   * A bundle of curves
+   */
+  public static final String CURVE_BUNDLE = "CurveBundle"; 
   /**
    * Currency pairs property metadata
    */

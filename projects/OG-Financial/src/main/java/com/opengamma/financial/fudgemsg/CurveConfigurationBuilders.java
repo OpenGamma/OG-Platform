@@ -21,23 +21,31 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IndexCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.IndexType;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
- * 
+ * Builders for curve construction configurations.
  */
 /* package */ final class CurveConfigurationBuilders {
+  /** The name field */
   private static final String NAME_FIELD = "name";
+  /** The unique id field */
   private static final String UNIQUE_ID_FIELD = "uniqueId";
 
   private CurveConfigurationBuilders() {
   }
 
+  /**
+   * Fudge builder for {@link DiscountingCurveTypeConfiguration}
+   */
   @FudgeBuilderFor(DiscountingCurveTypeConfiguration.class)
   public static class DiscountingCurveTypeConfigurationBuilder implements FudgeBuilder<DiscountingCurveTypeConfiguration> {
+    /** The code field */
     private static final String CODE_FIELD = "code";
 
     @Override
@@ -61,9 +69,14 @@ import com.opengamma.id.UniqueIdentifiable;
 
   }
 
+  /**
+   * Fudge builder for {@link IndexCurveTypeConfiguration}
+   */
   @FudgeBuilderFor(IndexCurveTypeConfiguration.class)
   public static class IndexCurveTypeConfigurationBuilder implements FudgeBuilder<IndexCurveTypeConfiguration> {
+    /** The convention name field */
     private static final String CONVENTION_NAME_FIELD = "conventionName";
+    /** The index type field */
     private static final String INDEX_TYPE_FIELD = "indexType";
 
     @Override
@@ -72,7 +85,7 @@ import com.opengamma.id.UniqueIdentifiable;
       message.add(null, 0, object.getClass().getName());
       serializer.addToMessage(message, NAME_FIELD, null, object.getName());
       serializer.addToMessage(message, CONVENTION_NAME_FIELD, null, object.getConventionName());
-      serializer.addToMessage(message, INDEX_TYPE_FIELD, null, object.getIndexType());
+      serializer.addToMessage(message, INDEX_TYPE_FIELD, null, object.getIndexType().toString());
       addUniqueId(serializer, object, message);
       return message;
     }
@@ -81,7 +94,7 @@ import com.opengamma.id.UniqueIdentifiable;
     public IndexCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final String conventionName = message.getString(CONVENTION_NAME_FIELD);
-      final String indexType = message.getString(INDEX_TYPE_FIELD);
+      final IndexType indexType = IndexType.valueOf(message.getString(INDEX_TYPE_FIELD).toUpperCase());
       final IndexCurveTypeConfiguration configuration = new IndexCurveTypeConfiguration(name, conventionName, indexType);
       setUniqueId(deserializer, message, configuration);
       return configuration;
@@ -89,9 +102,14 @@ import com.opengamma.id.UniqueIdentifiable;
 
   }
 
+  /**
+   * Fudge builder for {@link IssuerCurveTypeConfiguration}
+   */
   @FudgeBuilderFor(IssuerCurveTypeConfiguration.class)
   public static class IssuerCurveTypeConfigurationBuilder implements FudgeBuilder<IssuerCurveTypeConfiguration> {
+    /** The issuer type field */
     private static final String ISSUER_NAME_FIELD = "issuerName";
+    /** The underlying code field */
     private static final String UNDERLYING_CODE_FIELD = "underlyingCode";
 
     @Override
@@ -117,9 +135,14 @@ import com.opengamma.id.UniqueIdentifiable;
 
   }
 
+  /**
+   * Fudge builder for {@link CurveGroupConfiguration}
+   */
   @FudgeBuilderFor(CurveGroupConfiguration.class)
   public static class CurveGroupConfigurationBuilder implements FudgeBuilder<CurveGroupConfiguration> {
+    /** The order field */
     private static final String ORDER_FIELD = "order";
+    /** The curve field */
     private static final String CURVE_FIELD = "curve";
 
     @Override
@@ -149,15 +172,21 @@ import com.opengamma.id.UniqueIdentifiable;
 
   }
 
+  /**
+   * Fudge builder for {@link CurveConstructionConfiguration}
+   */
   @FudgeBuilderFor(CurveConstructionConfiguration.class)
   public static class CurveConstructionConfigurationBuilder implements FudgeBuilder<CurveConstructionConfiguration> {
+    /** The group field */
     private static final String GROUP_FIELD = "group";
+    /** The exogenous configuration field */
     private static final String EXOGENOUS_CONFIGURATION_FIELD = "exogenousConfiguration";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveConstructionConfiguration object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
+      message.add(NAME_FIELD, object.getName());
       for (final CurveGroupConfiguration curveType : object.getCurveGroups()) {
         serializer.addToMessageWithClassHeaders(message, GROUP_FIELD, null, curveType);
       }
@@ -172,6 +201,7 @@ import com.opengamma.id.UniqueIdentifiable;
 
     @Override
     public CurveConstructionConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
       final List<FudgeField> curveTypeFields = message.getAllByName(GROUP_FIELD);
       final List<CurveGroupConfiguration> curveTypes = new ArrayList<>();
       for (final FudgeField field : curveTypeFields) {
@@ -185,7 +215,7 @@ import com.opengamma.id.UniqueIdentifiable;
           exogenousConfigurations.add((String) field.getValue());
         }
       }
-      final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(curveTypes, exogenousConfigurations);
+      final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(name, curveTypes, exogenousConfigurations);
       setUniqueId(deserializer, message, configuration);
       return configuration;
     }
@@ -194,7 +224,7 @@ import com.opengamma.id.UniqueIdentifiable;
 
   static void addUniqueId(final FudgeSerializer serializer, final UniqueIdentifiable object, final MutableFudgeMsg message) {
     if (object.getUniqueId() != null) {
-      serializer.addToMessageWithClassHeaders(message, UNIQUE_ID_FIELD, null, object.getUniqueId(), UniqueId.class);
+      message.add(UNIQUE_ID_FIELD, null, UniqueIdFudgeBuilder.toFudgeMsg(serializer, object.getUniqueId()));
     }
   }
 

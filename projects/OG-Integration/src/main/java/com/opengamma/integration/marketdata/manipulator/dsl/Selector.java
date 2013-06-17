@@ -18,8 +18,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for selectors. This isn't an interface because the methods need to be package scoped so they're
- * not on the public API and don't interfere with the DSL.
+ * Selector base class for data structures that will be selected by name and currency.
+ * @param <T> The type of data structure handled by this selector
  */
 /* package */ abstract class Selector<T> implements DistinctMarketDataSelector {
 
@@ -125,7 +125,7 @@ import com.opengamma.util.money.Currency;
     if (_currencies != null ? !_currencies.equals(selector._currencies) : selector._currencies != null) {
       return false;
     }
-    if (_namePattern != null ? !_namePattern.equals(selector._namePattern) : selector._namePattern != null) {
+    if (_namePattern != null ? !_namePattern.pattern().equals(selector._namePattern.pattern()) : selector._namePattern != null) {
       return false;
     }
     if (_names != null ? !_names.equals(selector._names) : selector._names != null) {

@@ -5,21 +5,22 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.core.config.Config;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.config.Config;
+
 /**
- * 
+ * Configuration object for curves that are to be used as an issuer curve.
  */
 @BeanDefinition
 @Config
@@ -47,6 +48,11 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     super();
   }
 
+  /**
+   * @param name The curve name, not null
+   * @param issuerName The issuer name, not null
+   * @param underlyingCode The underlying code (e.g. a currency) for the curve
+   */
   public IssuerCurveTypeConfiguration(final String name, final String issuerName, final String underlyingCode) {
     super(name);
     setIssuerName(issuerName);

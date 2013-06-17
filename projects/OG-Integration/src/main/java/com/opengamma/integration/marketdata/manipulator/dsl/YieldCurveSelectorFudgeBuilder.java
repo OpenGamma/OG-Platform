@@ -22,8 +22,8 @@ import com.opengamma.util.money.Currency;
 /**
  * TODO this logic is useful for any class that extends Selector
  */
-@FudgeBuilderFor(CurveSelector.class)
-public class CurveSelectorFudgeBuilder implements FudgeBuilder<CurveSelector> {
+@FudgeBuilderFor(YieldCurveSelector.class)
+public class YieldCurveSelectorFudgeBuilder implements FudgeBuilder<YieldCurveSelector> {
 
   private static final String CALC_CONFIG = "calculationConfigurationName";
   private static final String NAMES = "names";
@@ -31,7 +31,7 @@ public class CurveSelectorFudgeBuilder implements FudgeBuilder<CurveSelector> {
   private static final String NAME_PATTERN = "namePattern";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CurveSelector selector) {
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, YieldCurveSelector selector) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, CALC_CONFIG, null, selector.getCalcConfigName());
     if (selector.getNames() != null && !selector.getNames().isEmpty()) {
@@ -55,7 +55,7 @@ public class CurveSelectorFudgeBuilder implements FudgeBuilder<CurveSelector> {
   }
 
   @Override
-  public CurveSelector buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+  public YieldCurveSelector buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     String calcConfigName = deserializer.fieldValueToObject(String.class, msg.getByName(CALC_CONFIG));
 
     FudgeField namesField = msg.getByName(NAMES);
@@ -90,6 +90,6 @@ public class CurveSelectorFudgeBuilder implements FudgeBuilder<CurveSelector> {
     } else {
       namePattern = null;
     }
-    return new CurveSelector(calcConfigName, names, currencies, namePattern);
+    return new YieldCurveSelector(calcConfigName, names, currencies, namePattern);
   }
 }

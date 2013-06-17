@@ -14,6 +14,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.schedulegeneration.isda.ISDAAccruedLegIntegrationScheduleGenerator;
+import com.opengamma.analytics.financial.credit.schedulegeneration.isda.ISDAContingentLegIntegrationScheduleGenerator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -36,8 +38,17 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
-
+  // valuationDate is NOT used in a substantial way. Any constraint, e.g., valuationDate < maturity date, is NOT checked 
+  /**
+   * @deprecated replaced by {@link ISDAAccruedLegIntegrationScheduleGenerator}
+   * Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
+   * @param valuationDate The valuation date
+   * @param cds  {@link CreditDefaultSwapDefinition}     
+   * @param yieldCurve The yield curve
+   * @param hazardRateCurve The hazard rate curve
+   * @param includeSchedule True for including the offset
+   * @return The time nodes 
+   */
   @Deprecated
   public ZonedDateTime[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
@@ -75,8 +86,17 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
-
+  /**
+   * @deprecated replaced by {@link ISDAContingentLegIntegrationScheduleGenerator}
+   * Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
+   * @param valuationDate The valuation date
+   * @param startDate The start date
+   * @param endDate The end date
+   * @param cds  {@link CreditDefaultSwapDefinition} 
+   * @param yieldCurve The yield curve
+   * @param hazardRateCurve The hazard rate curve
+   * @return The time nodes
+   */
   @Deprecated
   public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
@@ -101,6 +121,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     // Calculate the maturity of the CDS with respect to the valuation date
     final double maturity = calculateCreditDefaultSwapMaturity(valuationDate, cds, ACT_365);
 
+    //TimeCalculator.getTimeBetween produces 0.0 for valuationDate == startDate, this branch is not taken
     if (Double.compare(protectionStartTime, -0.0) == 0) {
       protectionStartTime = 0;
     }
@@ -186,6 +207,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
     // ------------------------------------------------
 
+    // Always includeSchedule == false, the true case is never taken
     if (includeSchedule) {
 
       double offset = 0.0;
@@ -237,6 +259,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // This is a total hack just to get the accrued leg calculation working - need to re-merge with the other functions
   // This is actually how I want to re-write the other function
 
+  // valuationDate is never used
   private ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,

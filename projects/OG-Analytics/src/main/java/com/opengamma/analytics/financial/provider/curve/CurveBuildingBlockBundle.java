@@ -36,7 +36,7 @@ public class CurveBuildingBlockBundle {
 
   /**
    * Constructor from a map. A new map is created.
-   * @param bundle A map of string to curve building units and Jacobian.
+   * @param bundle A map of curve names to curve building units and Jacobian.
    */
   public CurveBuildingBlockBundle(final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> bundle) {
     _bundle = new LinkedHashMap<>();
@@ -52,8 +52,13 @@ public class CurveBuildingBlockBundle {
     _bundle.putAll(other._bundle);
   }
 
+  /**
+   * @param name The name of the curve
+   * @param block The block
+   * @param mat The inverse Jacobian matrix
+   */
   public void add(final String name, final CurveBuildingBlock block, final DoubleMatrix2D mat) {
-    _bundle.put(name, new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(block, mat));
+    _bundle.put(name, new ObjectsPair<>(block, mat));
   }
 
   /**

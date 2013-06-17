@@ -83,7 +83,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       // new curves
-      Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
+      final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
       for (final Class klass : curveClasses) {
         searchRequest.setType(klass);
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {

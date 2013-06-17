@@ -64,6 +64,10 @@
       <version>10.6.1.0</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
+    </dependency>
   </dependencies>
 
   <properties>
