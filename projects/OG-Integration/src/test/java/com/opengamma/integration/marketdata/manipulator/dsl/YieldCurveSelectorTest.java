@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 
 public class YieldCurveSelectorTest {
 
-  private static final Scenario SCENARIO = new Scenario();
+  private static final Scenario SCENARIO = new Scenario("scenario");
   private static final String CALC_CONFIG_NAME = "calcConfigName";
 
   private static StructureIdentifier structureId(String curveName) {
@@ -61,7 +61,7 @@ public class YieldCurveSelectorTest {
   /** don't match if the calc config name doesn't match */
   @Test
   public void calcConfigName() {
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario().calculationConfigs(CALC_CONFIG_NAME));
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario("foo").calculationConfigs(CALC_CONFIG_NAME));
     MarketDataSelector selector = curve.selector();
     assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName"));
   }

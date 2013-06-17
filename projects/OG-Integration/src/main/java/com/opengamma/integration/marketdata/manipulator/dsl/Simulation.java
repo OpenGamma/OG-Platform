@@ -51,8 +51,8 @@ public class Simulation {
 
   // TODO name field
   //private final String _name;
-  /** The scenarios in this simulation. */
-  private final List<Scenario> _scenarios = Lists.newArrayList();
+  /** The scenarios in this simulation, keyed by name. */
+  private final Map<String, Scenario> _scenarios = Maps.newHashMap();
   /** The default calculation configuration name for scenarios. */
   private final Set<String> _calcConfigNames;
   /** The default valuation time for scenarios. */
@@ -95,7 +95,7 @@ public class Simulation {
   /* package */ Set<DistinctMarketDataSelector> allSelectors() {
     // TODO check for empty scenarios
     Set<DistinctMarketDataSelector> selectors = Sets.newHashSet();
-    for (Scenario scenario : _scenarios) {
+    for (Scenario scenario : _scenarios.values()) {
       selectors.addAll(scenario.createDefinition().getDefinitionMap().keySet());
     }
     return Collections.unmodifiableSet(selectors);
@@ -110,7 +110,7 @@ public class Simulation {
   /* package */ List<ViewCycleExecutionOptions> cycleExecutionOptions(ViewCycleExecutionOptions baseOptions,
                                                                       Set<DistinctMarketDataSelector> allSelectors) {
     List<ViewCycleExecutionOptions> options = Lists.newArrayListWithCapacity(_scenarios.size());
-    for (Scenario scenario : _scenarios) {
+    for (Scenario scenario : _scenarios.values()) {
       ScenarioDefinition definition = scenario.createDefinition();
       Map<DistinctMarketDataSelector, FunctionParameters> scenarioParams = definition.getDefinitionMap();
       Map<DistinctMarketDataSelector, FunctionParameters> params = Maps.newHashMap();
@@ -132,16 +132,19 @@ public class Simulation {
     return options;
   }
 
-  // TODO change this to scenario(name) which looks up scenarios by name and creates if necessary
   /**
    * Adds a new scenario to this simulation, initializing it with default the simulation's default values
    * for calculation configuration, valuation time and resolver version correction.
    * @return The new scenario.
    */
-  public Scenario addScenario() {
-    Scenario scenario = new Scenario(_calcConfigNames, _valuationTime, _resolverVersionCorrection);
-    _scenarios.add(scenario);
-    return scenario;
+  public Scenario scenario(String name) {
+    if (_scenarios.containsKey(name)) {
+      return _scenarios.get(name);
+    } else {
+      Scenario scenario = new Scenario(name, _calcConfigNames, _valuationTime, _resolverVersionCorrection);
+      _scenarios.put(name, scenario);
+      return scenario;
+    }
   }
 
   /**

@@ -35,7 +35,7 @@ public class TestSimulationSupplier implements SimulationSupplier {
   public Simulation get() {
     Simulation simulation = new Simulation();
     for (Double scalingFactor : SCALING_FACTORS) {
-      Scenario scenario = simulation.addScenario();
+      Scenario scenario = simulation.scenario(Double.toString(scalingFactor));
       for (String currencyPair : CURRENCY_PAIRS) {
         scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor);
       }

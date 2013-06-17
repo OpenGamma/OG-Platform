@@ -30,7 +30,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Scenario {
 
-  // TODO name field
+  /** This scenario's name. */
+  private final String _name;
   /** Calc configs to which this scenario will be applied, null will match any config. */
   private Set<String> _calcConfigNames;
   /** Valuation time of this scenario's calculation cycle. */
@@ -42,12 +43,19 @@ public class Scenario {
    * Creates a new scenario with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
    * and resolver version correction of {@link VersionCorrection#LATEST}.
    */
-  public Scenario() {
+  public Scenario(String name) {
+    ArgumentChecker.notEmpty(name, "name"); // should this be allowed to be null? should there be a no-arg constructor?
+    _name = name;
   }
 
-  /* package */ Scenario(Set<String> calcConfigNames, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
+  /* package */ Scenario(String name,
+                         Set<String> calcConfigNames,
+                         Instant valuationTime,
+                         VersionCorrection resolverVersionCorrection) {
+    ArgumentChecker.notEmpty(name, "name");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
+    _name = name;
     _calcConfigNames = calcConfigNames;
     _valuationTime = valuationTime;
     _resolverVersionCorrection = resolverVersionCorrection;
@@ -120,7 +128,7 @@ public class Scenario {
       functionParameters.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, compositeManipulator);
       params.put(selector, functionParameters);
     }
-    return new ScenarioDefinition(params);
+    return new ScenarioDefinition(_name, params);
   }
 
   /* package */ void add(DistinctMarketDataSelector selector, StructureManipulator<?> manipulator) {
@@ -137,5 +145,9 @@ public class Scenario {
 
   /* package */ Set<String> getCalcConfigNames() {
     return _calcConfigNames;
+  }
+
+  /* package */ String getName() {
+    return _name;
   }
 }
