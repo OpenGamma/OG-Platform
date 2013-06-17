@@ -428,7 +428,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         try {
           // Don't query the cache so that the process gets a "compiled" message even if a cached compilation is used
           final CompiledViewDefinitionWithGraphs previous = _latestCompiledViewDefinition;
-          if (_ignoreCompilationValidity && (previous != null)) {
+          if (_ignoreCompilationValidity && (previous != null) && CompiledViewDefinitionWithGraphsImpl.isValidFor(previous, compilationValuationTime)) {
             compiledViewDefinition = previous;
           } else {
             compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
@@ -750,13 +750,17 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private EngineResourceReference<SingleComputationCycle> createCycle(final ViewCycleExecutionOptions executionOptions,
       final CompiledViewDefinitionWithGraphs compiledViewDefinition, final VersionCorrection versionCorrection) {
+
+    // [PLAT-3581] Is the check below still necessary? The logic to create the valuation time for compilation is the same as that for
+    // populating the valuation time on the execution options that this detects.
+
     // View definition was compiled based on compilation options, which might have only included an indicative
     // valuation time. A further check ensures that the compiled view definition is still valid.
     if (!CompiledViewDefinitionWithGraphsImpl.isValidFor(compiledViewDefinition, executionOptions.getValuationTime())) {
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
-    final UniqueId cycleId = getProcessContext().getCycleIdentifiers().get();
 
+    final UniqueId cycleId = getProcessContext().getCycleIdentifiers().get();
     final ComputationResultListener streamingResultListener = new ComputationResultListener() {
       @Override
       public void resultAvailable(final ViewComputationResultModel result) {
