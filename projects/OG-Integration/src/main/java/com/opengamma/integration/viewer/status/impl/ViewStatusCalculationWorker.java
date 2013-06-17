@@ -43,25 +43,21 @@ public class ViewStatusCalculationWorker {
   private final UniqueId _portfolioId;
   
   private final UserPrincipal _user;
-  private final ComputationTargetType _computationTargetType;
   
-  public ViewStatusCalculationWorker(final Map<String, Collection<String>> valueRequirementBySecType, ToolContext toolContext, UniqueId portfolioId, ComputationTargetType computationTargetType, 
-      UserPrincipal user) {
-    this(valueRequirementBySecType, toolContext, portfolioId, computationTargetType, user, DEFAULT_EXECUTOR);
+  public ViewStatusCalculationWorker(final Map<String, Collection<String>> valueRequirementBySecType, ToolContext toolContext, UniqueId portfolioId, UserPrincipal user) {
+    this(valueRequirementBySecType, toolContext, portfolioId, user, DEFAULT_EXECUTOR);
   }
   
-  public ViewStatusCalculationWorker(final Map<String, Collection<String>> valueRequirementBySecType, ToolContext toolContext, UniqueId portfolioId, ComputationTargetType computationTargetType, 
+  public ViewStatusCalculationWorker(final Map<String, Collection<String>> valueRequirementBySecType, ToolContext toolContext, UniqueId portfolioId, 
       UserPrincipal user, final ExecutorService executorService) {
     ArgumentChecker.notNull(valueRequirementBySecType, "valueRequirementBySecType");
     ArgumentChecker.notNull(toolContext, "toolContex");
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     ArgumentChecker.notNull(user, "user");
-    ArgumentChecker.notNull(computationTargetType, "computationTargetType");
     ArgumentChecker.notNull(executorService, "executorService");
     
     _portfolioId = portfolioId;
     _user = user;
-    _computationTargetType = computationTargetType;
     _valueRequirementBySecType = deepCopy(valueRequirementBySecType);
     _toolContext = toolContext;
     _executor = executorService;
@@ -78,11 +74,13 @@ public class ViewStatusCalculationWorker {
   public ViewStatusResultAggregator run() {
     ViewStatusResultAggregator aggregator = new ViewStatusResultAggregatorImpl();
     CompletionService<PerViewStatusResult> completionService = new ExecutorCompletionService<PerViewStatusResult>(_executor);
+    //submit task to executor to run partitioned by security type
     for (String securityType : _valueRequirementBySecType.keySet()) {
       Set<String> valueRequirements = _valueRequirementBySecType.get(securityType);
-      completionService.submit(new ViewStatusCalculationTask(_toolContext, _portfolioId, _computationTargetType, _user, securityType, valueRequirements));
+      completionService.submit(new ViewStatusCalculationTask(_toolContext, _portfolioId, _user, securityType, valueRequirements));
     }
     try {
+      // process all completed task
       for (int i = 0; i < _valueRequirementBySecType.size(); i++) {
         Future<PerViewStatusResult> futureTask = completionService.take();
         PerViewStatusResult perViewStatusResult = futureTask.get();
@@ -98,5 +96,4 @@ public class ViewStatusCalculationWorker {
     }
     return aggregator;
   }
-
 }
