@@ -714,7 +714,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     boolean continueExecution = cycleReference.get().preExecute(deltaCycle, marketDataSnapshot, _suppressExecutionOnNoMarketData);
     if (_executeGraphs && continueExecution) {
       try {
-        cycleReference.get().execute(s_executor);
+        cycleReference.get().execute();
       } catch (final InterruptedException e) {
         Thread.interrupted();
         // In reality this means that the job has been terminated, and it will end as soon as we return from this method.

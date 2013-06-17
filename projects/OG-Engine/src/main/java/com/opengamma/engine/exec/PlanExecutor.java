@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -31,7 +30,7 @@ import com.opengamma.util.async.Cancelable;
 /**
  * Executes a {@link GraphExecutionPlan} by forming jobs and submitting them to the available calculation nodes.
  */
-public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Object> {
+public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGraphExecutionFuture {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PlanExecutor.class);
 
@@ -68,22 +67,20 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Objec
 
   private final SingleComputationCycle _cycle;
   private final ExecutingGraph _graph;
-  private final GraphExecutorStatisticsGatherer _statistics;
   private Map<CalculationJobSpecification, ExecutingJob> _executing = new HashMap<CalculationJobSpecification, ExecutingJob>();
   private State _state;
   private int _nodeCount;
   private long _executionTime;
   private long _startTime;
+  private Listener _listener;
 
-  public PlanExecutor(final SingleComputationCycle cycle, final GraphExecutionPlan plan, final GraphExecutorStatisticsGatherer statistics) {
+  public PlanExecutor(final SingleComputationCycle cycle, final GraphExecutionPlan plan) {
     ArgumentChecker.notNull(cycle, "cycle");
     ArgumentChecker.notNull(plan, "plan");
-    ArgumentChecker.notNull(statistics, "statistics");
     _cycle = cycle;
     _graph = plan.createExecution(cycle.getUniqueId(), cycle.getValuationTime(), cycle.getVersionCorrection());
-    _statistics = statistics;
     _state = State.NOT_STARTED;
-    plan.reportStatistics(statistics);
+    plan.reportStatistics(getStatisticsGatherer());
   }
 
   protected SingleComputationCycle getCycle() {
@@ -92,6 +89,10 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Objec
 
   protected ExecutingGraph getGraph() {
     return _graph;
+  }
+
+  protected GraphExecutorStatisticsGatherer getStatisticsGatherer() {
+    return getCycle().getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getCycle().getViewProcessId());
   }
 
   protected synchronized void submit(CalculationJob job) {
@@ -128,16 +129,25 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Objec
     submitExecutableJobs();
   }
 
-  protected synchronized long notifyComplete() {
-    if (_executing != null) {
-      s_logger.info("Finished executing {}", this);
-      _state = State.FINISHED;
-      _executing = null;
-    } else {
-      s_logger.info("Already completed or cancelled execution of {}", this);
+  protected long notifyComplete() {
+    final long startTime;
+    final Listener listener;
+    synchronized (this) {
+      if (_executing != null) {
+        s_logger.info("Finished executing {}", this);
+        _state = State.FINISHED;
+        _executing = null;
+      } else {
+        s_logger.info("Already completed or cancelled execution of {}", this);
+      }
+      notifyAll();
+      startTime = _startTime;
+      listener = _listener;
     }
-    notifyAll();
-    return System.nanoTime() - _startTime;
+    if (listener != null) {
+      listener.graphCompleted(_graph.getCalculationConfiguration());
+    }
+    return System.nanoTime() - startTime;
   }
 
   // Cancelable
@@ -191,7 +201,7 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Objec
     getCycle().jobCompleted(job.getJob(), result);
     if (graph.isFinished()) {
       final long duration = notifyComplete();
-      _statistics.graphExecuted(graph.getCalculationConfiguration(), _nodeCount, _executionTime, duration);
+      getStatisticsGatherer().graphExecuted(graph.getCalculationConfiguration(), _nodeCount, _executionTime, duration);
     }
   }
 
@@ -208,7 +218,7 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Objec
   }
 
   @Override
-  public synchronized Object get() throws InterruptedException, ExecutionException {
+  public synchronized String get() throws InterruptedException, ExecutionException {
     while (_executing != null) {
       s_logger.debug("Waiting for completion of {}", this);
       wait();
@@ -217,11 +227,11 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Objec
       s_logger.info("Cancelled {}", this);
       throw new CancellationException();
     }
-    return null;
+    return _graph.getCalculationConfiguration();
   }
 
   @Override
-  public synchronized Object get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+  public synchronized String get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     if (_executing != null) {
       s_logger.debug("Waiting for completion of {}", this);
       wait(unit.toMillis(timeout));
@@ -234,7 +244,18 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, Future<Objec
       s_logger.warn("Cancelled {}", this);
       throw new CancellationException();
     }
-    return null;
+    return _graph.getCalculationConfiguration();
+  }
+
+  @Override
+  public void setListener(final Listener listener) {
+    synchronized (this) {
+      _listener = listener;
+      if (_executing != null) {
+        return;
+      }
+    }
+    listener.graphCompleted(_graph.getCalculationConfiguration());
   }
 
   // Object

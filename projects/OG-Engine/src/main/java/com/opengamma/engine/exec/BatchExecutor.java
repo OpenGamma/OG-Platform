@@ -21,10 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -61,7 +59,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
   }
 
   @Override
-  public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
+  public DependencyGraphExecutionFuture execute(final DependencyGraph graph) {
     // Partition graph into primitives, securities, positions, portfolios
     final Collection<DependencyNode> primitiveNodes = new HashSet<DependencyNode>();
     final List<Map<UniqueId, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes =
@@ -111,7 +109,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
     s_logger.info("Executing {} PRIMITIVE nodes", primitiveNodes.size());
     final DependencyGraph primitiveGraph = graph.subGraph(primitiveNodes);
     try {
-      final Future<?> future = _delegate.execute(primitiveGraph, statistics, logModeSource);
+      final Future<?> future = _delegate.execute(primitiveGraph);
       future.get();
     } catch (final InterruptedException e) {
       Thread.interrupted();
@@ -129,7 +127,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
       for (final Collection<DependencyNode> nodesRelatedToSingleTarget : target2SecurityAndPositionNodes.values()) {
         final DependencyGraph secAndPositionGraph = graph.subGraph(nodesRelatedToSingleTarget);
         nodeCount += nodesRelatedToSingleTarget.size();
-        final Future<?> future = _delegate.execute(secAndPositionGraph, statistics, logModeSource);
+        final Future<?> future = _delegate.execute(secAndPositionGraph);
         secAndPositionFutures.add(future);
       }
       s_logger.info("Pass number {} has {} different computation targets, and a total of {} nodes",
@@ -150,7 +148,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
     s_logger.info("Executing {} PORTFOLIO_NODE nodes", portfolioNodes.size());
     final DependencyGraph portfolioGraph = graph.subGraph(portfolioNodes);
     try {
-      final Future<?> future = _delegate.execute(portfolioGraph, statistics, logModeSource);
+      final Future<?> future = _delegate.execute(portfolioGraph);
       future.get();
     } catch (final InterruptedException e) {
       Thread.interrupted();
@@ -214,22 +212,67 @@ public class BatchExecutor implements DependencyGraphExecutor {
     return securityNode;
   }
 
-  private class BatchExecutorFuture extends FutureTask<Object> {
+  private static class Result {
 
-    private final DependencyGraph _graph;
+    private final String _calculationConfiguration;
+    private DependencyGraphExecutionFuture.Listener _listener;
+    private boolean _finished;
 
-    public BatchExecutorFuture(final DependencyGraph graph) {
+    public Result(final String calculationConfiguration) {
+      _calculationConfiguration = calculationConfiguration;
+    }
+
+    public void setFinished() {
+      DependencyGraphExecutionFuture.Listener listener;
+      synchronized (this) {
+        _finished = true;
+        listener = _listener;
+      }
+      if (listener != null) {
+        listener.graphCompleted(_calculationConfiguration);
+      }
+    }
+
+    public void setListener(final DependencyGraphExecutionFuture.Listener listener) {
+      boolean finished;
+      synchronized (this) {
+        _listener = listener;
+        finished = _finished;
+      }
+      if (finished) {
+        listener.graphCompleted(_calculationConfiguration);
+      }
+    }
+
+  }
+
+  private class BatchExecutorFuture extends FutureTask<String> implements DependencyGraphExecutionFuture {
+
+    private final Result _result;
+
+    private BatchExecutorFuture(final Result result) {
       super(new Runnable() {
         @Override
         public void run() {
+          result.setFinished();
         }
-      }, null);
-      _graph = graph;
+      }, result._calculationConfiguration);
+      _result = result;
+    }
+
+    public BatchExecutorFuture(final DependencyGraph graph) {
+      this(new Result(graph.getCalculationConfigurationName()));
     }
 
     @Override
     public String toString() {
-      return "BatchExecutorFuture[calcConfName=" + _graph.getCalculationConfigurationName() + "]";
+      return "BatchExecutorFuture[calcConfName=" + _result._calculationConfiguration + "]";
     }
+
+    @Override
+    public void setListener(final Listener listener) {
+      _result.setListener(listener);
+    }
+
   }
 }

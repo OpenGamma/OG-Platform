@@ -131,7 +131,7 @@ public class CancelExecutionTest {
     }
   };
 
-  private Future<?> executeTestJob(final DependencyGraphExecutorFactory factory) {
+  private DependencyGraphExecutionFuture executeTestJob(final DependencyGraphExecutorFactory factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
@@ -186,7 +186,7 @@ public class CancelExecutionTest {
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer(), vpc.getExecutionLogModeSource());
+    return factory.createExecutor(cycle).execute(graph);
   }
 
   private boolean jobFinished() {

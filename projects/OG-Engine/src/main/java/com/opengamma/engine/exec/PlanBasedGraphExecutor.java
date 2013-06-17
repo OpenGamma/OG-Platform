@@ -5,14 +5,10 @@
  */
 package com.opengamma.engine.exec;
 
-import java.util.concurrent.Future;
-
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.exec.plan.GraphExecutionPlan;
 import com.opengamma.engine.exec.plan.GraphExecutionPlanner;
-import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
-import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,9 +37,9 @@ public class PlanBasedGraphExecutor implements DependencyGraphExecutor {
   // DependencyGraphExecutor
 
   @Override
-  public Future<?> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
-    final GraphExecutionPlan plan = getPlanner().createPlan(graph, logModeSource, getCycle().getFunctionInitId());
-    final PlanExecutor executor = new PlanExecutor(getCycle(), plan, statistics);
+  public DependencyGraphExecutionFuture execute(final DependencyGraph graph) {
+    final GraphExecutionPlan plan = getPlanner().createPlan(graph, getCycle().getViewProcessContext().getExecutionLogModeSource(), getCycle().getFunctionInitId());
+    final PlanExecutor executor = new PlanExecutor(getCycle(), plan);
     executor.start();
     return executor;
   }
