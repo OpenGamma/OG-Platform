@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.viewer.status;
 
+import java.util.Set;
+
 /**
  * Aggregates view status result
  */
@@ -34,4 +36,16 @@ public interface ViewStatusResultAggregator {
    * @return the status result or null if there is no matching key.
    */
   Boolean get(ViewStatusKey key);
+  /**
+   * Get the underlying keys
+   * 
+   * @return the set of view status keys, not-null.
+   */
+  Set<ViewStatusKey> keySet();
+  /**
+   * Produce the default model, with key property as column without any aggregation
+   * 
+   * @return the no aggregation result model, not null
+   */
+  ViewStatusModel defaultModel();
 }
