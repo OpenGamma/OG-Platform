@@ -25,7 +25,7 @@ public class PointSelector implements DistinctMarketDataSelector {
   private static final ImmutableSet<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.MARKET_DATA_POINT);
 
   /** ID of the market data point to be manipulated. */
-  private final ExternalId _id;
+  private final Set<ExternalId> _ids;
   /** Calculation configuration to which the manipulation should be applied. */
   private final String _calcConfigName;
   /** External ID scheme used when pattern matching ID value. */
@@ -34,7 +34,7 @@ public class PointSelector implements DistinctMarketDataSelector {
   private final Pattern _idValuePattern;
 
   /* package */ PointSelector(String calcConfigName,
-                              ExternalId id,
+                              Set<ExternalId> ids,
                               ExternalScheme idMatchScheme,
                               Pattern idValuePattern) {
     ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
@@ -44,7 +44,7 @@ public class PointSelector implements DistinctMarketDataSelector {
     _idMatchScheme = idMatchScheme;
     _idValuePattern = idValuePattern;
     _calcConfigName = calcConfigName;
-    _id = id;
+    _ids = ids;
   }
 
   @Override
@@ -61,7 +61,7 @@ public class PointSelector implements DistinctMarketDataSelector {
     if (!(value instanceof ExternalId)) {
       return null;
     }
-    if (!_id.equals(value)) {
+    if (_ids != null && !_ids.contains(value)) {
       return null;
     }
     return this;
@@ -72,8 +72,8 @@ public class PointSelector implements DistinctMarketDataSelector {
     return STRUCTURE_TYPES;
   }
 
-  /* package */ ExternalId getId() {
-    return _id;
+  /* package */ Set<ExternalId> getIds() {
+    return _ids;
   }
 
   /* package */ String getCalculationConfigurationName() {
@@ -96,30 +96,49 @@ public class PointSelector implements DistinctMarketDataSelector {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
+
     PointSelector that = (PointSelector) o;
 
-    if (!_calcConfigName.equals(that._calcConfigName)) {
-      return false;
-    }
-    if (_id != null ? !_id.equals(that._id) : that._id != null) {
+    if (_calcConfigName != null ? !_calcConfigName.equals(that._calcConfigName) : that._calcConfigName != null) {
       return false;
     }
     if (_idMatchScheme != null ? !_idMatchScheme.equals(that._idMatchScheme) : that._idMatchScheme != null) {
       return false;
     }
-    if (_idValuePattern != null ? !_idValuePattern.pattern().equals(that._idValuePattern.pattern()) : that._idValuePattern != null) {
+    String thisPattern = _idValuePattern == null ? null : _idValuePattern.pattern();
+    String thatPattern = that._idValuePattern == null ? null : that._idValuePattern.pattern();
+    if (thisPattern != null) {
+      if (!thisPattern.equals(thatPattern)) {
+        return false;
+      }
+    } else {
+      if (thatPattern != null) {
+        return false;
+      }
+    }
+    if (_ids != null ? !_ids.equals(that._ids) : that._ids != null) {
       return false;
     }
+
     return true;
   }
-
   @Override
   public int hashCode() {
-    int result = _id != null ? _id.hashCode() : 0;
-    result = 31 * result + _calcConfigName.hashCode();
+    int result = _ids != null ? _ids.hashCode() : 0;
+    result = 31 * result + (_calcConfigName != null ? _calcConfigName.hashCode() : 0);
     result = 31 * result + (_idMatchScheme != null ? _idMatchScheme.hashCode() : 0);
     result = 31 * result + (_idValuePattern != null ? _idValuePattern.hashCode() : 0);
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "PointSelector [" +
+        "_ids=" + _ids +
+        ", _calcConfigName='" + _calcConfigName + "'" +
+        ", _idMatchScheme=" + _idMatchScheme +
+        ", _idValuePattern=" + _idValuePattern +
+        "]";
   }
 
   /**
@@ -133,7 +152,7 @@ public class PointSelector implements DistinctMarketDataSelector {
     private final Scenario _scenario;
 
     /** ID of the market data point to be manipulated. */
-    private ExternalId _id;
+    private Set<ExternalId> _ids;
     /** External ID scheme used when pattern matching ID value. */
     private ExternalScheme _idMatchScheme;
     /** Regex pattern for matching ID value. */
@@ -148,7 +167,7 @@ public class PointSelector implements DistinctMarketDataSelector {
      * @return A selector built from this object's data.
      */
     public PointManipulatorBuilder apply() {
-      PointSelector selector = new PointSelector(_calcConfigName, _id, _idMatchScheme, _idValuePattern);
+      PointSelector selector = new PointSelector(_calcConfigName, _ids, _idMatchScheme, _idValuePattern);
       return new PointManipulatorBuilder(selector, _scenario);
     }
 
@@ -161,10 +180,25 @@ public class PointSelector implements DistinctMarketDataSelector {
     public Builder id(String scheme, String value) {
       ArgumentChecker.notEmpty(scheme, "scheme");
       ArgumentChecker.notEmpty(value, "value");
-      if (_id != null) {
-        throw new IllegalStateException("id() can only be called once");
+      if (_ids != null) {
+        throw new IllegalStateException("id() or ids() can only be called once");
       }
-      _id = ExternalId.of(scheme, value);
+      _ids = ImmutableSet.of(ExternalId.of(scheme, value));
+      return this;
+    }
+
+
+    /**
+     * Adds a test for the market data ID value to match exactly.
+     * @param ids The IDs to match
+     * @return This builder
+     */
+    public Builder ids(ExternalId... ids) {
+      ArgumentChecker.notEmpty(ids, "ids");
+      if (_ids != null) {
+        throw new IllegalStateException("id() or ids() can only be called once");
+      }
+      _ids = ImmutableSet.copyOf(ids);
       return this;
     }
 

@@ -127,6 +127,7 @@ public class Simulation {
     return options;
   }
 
+  // TODO change this to scenario(name) which looks up scenarios by name and creates if necessary
   /**
    * Adds a new scenario to this simulation, initializing it with default the simulation's default values
    * for calculation configuration, valuation time and resolver version correction.

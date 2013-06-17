@@ -31,7 +31,8 @@ public class Scenario {
   /** Default calculation configuration name. TODO does this exist as a constant somewhere else? */
   private static final String DEFAULT = "Default";
 
-  // TODO is it right that a Scenario only applies to a single calc config? should this be a list?
+  // TODO name field
+  // TODO this should be a list, null matches anything
   /** Calc config to which this scenario will be applied. */
   private String _calcConfigName = DEFAULT;
   /** Valuation time of this scenario's calculation cycle. */
