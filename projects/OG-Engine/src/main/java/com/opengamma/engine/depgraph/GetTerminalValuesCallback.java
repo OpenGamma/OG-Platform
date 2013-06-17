@@ -851,11 +851,29 @@ import com.opengamma.util.tuple.Pair;
   public Map<ValueRequirement, ValueSpecification> getTerminalValues() {
     _readLock.lock();
     try {
-      final Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues.size());
+      final Map<ValueRequirement, ValueSpecification> result = Maps.newHashMapWithExpectedSize(_resolvedValues.size());
       for (final Map.Entry<ValueSpecification, Collection<ValueRequirement>> resolvedValues : _resolvedValues.entrySet()) {
         for (final ValueRequirement requirement : resolvedValues.getValue()) {
           result.put(requirement, resolvedValues.getKey());
         }
+      }
+      return result;
+    } finally {
+      _readLock.unlock();
+    }
+  }
+
+  /**
+   * Returns the inverse of the {@link #getTerminalValues} map, mapping the specifications to the value requirements that they satisfy.
+   * 
+   * @return the map of resolutions, not null
+   */
+  public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesBySpecification() {
+    _readLock.lock();
+    try {
+      final Map<ValueSpecification, Set<ValueRequirement>> result = Maps.newHashMapWithExpectedSize(_resolvedValues.size());
+      for (final Map.Entry<ValueSpecification, Collection<ValueRequirement>> resolvedValues : _resolvedValues.entrySet()) {
+        result.put(resolvedValues.getKey(), new HashSet<ValueRequirement>(resolvedValues.getValue()));
       }
       return result;
     } finally {

@@ -610,7 +610,11 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
   }
 
   protected void checkForRecompilation(final AbstractViewProcessWorkerContext primary, CompiledViewDefinitionWithGraphs compiled) {
-    final ViewCycleExecutionSequence tailSequence = (getSecondary() == null) ? primary.getSequence().copy() : null;
+    final AbstractViewProcessWorkerContext secondary;
+    synchronized (this) {
+      secondary = getSecondary();
+    }
+    final ViewCycleExecutionSequence tailSequence = (secondary == null) ? primary.getSequence().copy() : null;
     final ViewCycleExecutionOptions nextCycle = primary.getSequence().poll(getDefaultExecutionOptions());
     if (nextCycle != null) {
       final VersionCorrection vc = nextCycle.getResolverVersionCorrection();
@@ -638,7 +642,9 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
         final Set<ObjectId> oids = Sets.newHashSetWithExpectedSize(uids.size());
         for (UniqueId uid : uids) {
           final ObjectId oid = uid.getObjectId();
-          changes |= _resolverChanges.isChanged(oid);
+          if (tailSequence != null) {
+            changes |= _resolverChanges.isChanged(oid);
+          }
           oids.add(oid);
         }
         _resolverChanges.watchOnly(oids);

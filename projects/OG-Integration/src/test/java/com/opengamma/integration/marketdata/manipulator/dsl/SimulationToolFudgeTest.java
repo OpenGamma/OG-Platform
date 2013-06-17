@@ -27,13 +27,12 @@ public class SimulationToolFudgeTest {
    */
   @Test
   public void roundTrip() {
-    Simulation.Builder builder = Simulation.builder();
-    builder.addScenario().curve().named("foo").apply().parallelShift(0.1).execute();
-    builder.addScenario().curve().named("bar").apply().parallelShift(0.1).execute();
-    Simulation simulation = builder.build();
+    Simulation simulation = new Simulation();
+    simulation.addScenario().curve().named("foo").apply().parallelShift(0.1);
+    simulation.addScenario().curve().named("bar").apply().parallelShift(0.1);
     MarketDataSelector selector = CompositeMarketDataSelector.of(simulation.allSelectors());
     ViewCycleExecutionOptions options = ViewCycleExecutionOptions.builder().setMarketDataSelector(selector).create();
-    List<ViewCycleExecutionOptions> optionsList = simulation.cycleExecutionOptions(options);
+    List<ViewCycleExecutionOptions> optionsList = simulation.cycleExecutionOptions(options, simulation.allSelectors());
     ArbitraryViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(optionsList);
     FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     ArbitraryViewCycleExecutionSequenceFudgeBuilder fudgeBuilder = new ArbitraryViewCycleExecutionSequenceFudgeBuilder();

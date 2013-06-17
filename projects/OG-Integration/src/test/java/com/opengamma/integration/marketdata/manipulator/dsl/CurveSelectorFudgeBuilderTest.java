@@ -20,6 +20,6 @@ public class CurveSelectorFudgeBuilderTest extends AbstractFudgeBuilderTestCase 
   public void roundTrip() {
     Set<String> names = Sets.newHashSet("name1", "name2");
     Set<Currency> currencies = Sets.newHashSet(Currency.AUD, Currency.CAD);
-    assertEncodeDecodeCycle(CurveSelector.class, new CurveSelector("ccn", names, currencies, Pattern.compile("\\d.*")));
+    assertEncodeDecodeCycle(YieldCurveSelector.class, new YieldCurveSelector("ccn", names, currencies, Pattern.compile("\\d.*")));
   }
 }

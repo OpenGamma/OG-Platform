@@ -27,7 +27,7 @@ public class CurveSelectorTest {
   /** if no criteria are specified the selector should match any curve */
   @Test
   public void noCriteria() {
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId("curveName1"), CALC_CONFIG_NAME));
     assertEquals(selector, selector.findMatchingSelector(structureId("curveName2"), CALC_CONFIG_NAME));
@@ -38,7 +38,7 @@ public class CurveSelectorTest {
   public void singleName() {
     String curveName = "curveName";
     String calcConfigName = "calcConfigName";
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, calcConfigName);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, calcConfigName);
     curve.named(curveName);
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curveName), calcConfigName));
@@ -50,7 +50,7 @@ public class CurveSelectorTest {
   public void multipleNames() {
     String curveName1 = "curveName1";
     String curveName2 = "curveName2";
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
     curve.named(curveName1, curveName2);
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curveName1), CALC_CONFIG_NAME));
@@ -61,7 +61,7 @@ public class CurveSelectorTest {
   /** don't match if the calc config name doesn't match */
   @Test
   public void calcConfigName() {
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, "calcConfigName");
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, "calcConfigName");
     MarketDataSelector selector = curve.selector();
     assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName"));
   }
@@ -71,7 +71,7 @@ public class CurveSelectorTest {
   public void nameRegex() {
     String curve3M = "curve3M";
     String curve6M = "curve6M";
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
     curve.nameMatches(".*3M");
     MarketDataSelector selector = curve.selector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME));
@@ -81,7 +81,7 @@ public class CurveSelectorTest {
   /** match if the curve currency is specified */
   @Test
   public void singleCurrency() {
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
     curve.currencies("GBP");
     MarketDataSelector selector = curve.selector();
     String curveName = "curveName";
@@ -94,7 +94,7 @@ public class CurveSelectorTest {
   /** match if the curve currency matches any of the specified currency codes */
   @Test
   public void multipleCurrencies() {
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
     curve.currencies("GBP", "USD");
     MarketDataSelector selector = curve.selector();
     String curveName = "curveName";
@@ -109,7 +109,7 @@ public class CurveSelectorTest {
   /** match if the curve satisfies all criteria, fail if it fails any of them */
   @Test
   public void multipleCriteria() {
-    CurveSelector.Builder curve = new CurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO, CALC_CONFIG_NAME);
     String curveName1 = "curveName1";
     String curveName2 = "curveName2";
     String curveName3 = "curveName3";

@@ -91,12 +91,20 @@ public abstract class BlackScholesFormulaRepository {
     if (Math.abs(spot - strike) < SMALL || sigmaRootT > LARGE) {
       final double coefD1 = (costOfCarry / lognormalVol + 0.5 * lognormalVol);
       final double coefD2 = (costOfCarry / lognormalVol - 0.5 * lognormalVol);
-      d1 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
-      d2 = Math.abs(coefD2) < SMALL ? 0. : coefD2 * rootT;
+      final double tmpD1 = coefD1 * rootT;
+      final double tmpD2 = coefD2 * rootT;
+      d1 = Double.isNaN(tmpD1) ? 0. : tmpD1;
+      d2 = Double.isNaN(tmpD2) ? 0. : tmpD2;
     } else {
-      d1 = Math.log(spot / strike) / sigmaRootT + costOfCarry / lognormalVol * rootT + 0.5 * sigmaRootT;
+      final double tmp = costOfCarry * rootT / lognormalVol;
+      final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+      final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+      d1 = Math.log(spot / strike) / sigmaRootT + scnd + 0.5 * sigmaRootT;
       d2 = d1 - sigmaRootT;
     }
+    //    if (Double.isNaN(d1) || Double.isNaN(d2)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     final double res = sign * discount * (rescaledSpot * NORMAL.getCDF(sign * d1) - strike * NORMAL.getCDF(sign * d2));
     return Double.isNaN(res) ? 0. : Math.max(res, 0.);
   }
@@ -157,15 +165,22 @@ public abstract class BlackScholesFormulaRepository {
     double rescaledSpot = spot * factor;
 
     double d1 = 0.;
-    if (Math.abs(spot - strike) < SMALL || sigmaRootT > LARGE) {
+    if (Math.abs(spot - strike) < SMALL || sigmaRootT > LARGE || (spot > LARGE && strike > LARGE)) {
       final double coefD1 = (costOfCarry / lognormalVol + 0.5 * lognormalVol);
-      d1 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
+      final double tmp = coefD1 * rootT;
+      d1 = Double.isNaN(tmp) ? 0. : tmp;
     } else {
       if (sigmaRootT < SMALL) {
         return isCall ? (rescaledSpot > strike ? coef : 0.) : (rescaledSpot < strike ? -coef : 0.);
       }
-      d1 = Math.log(spot / strike) / sigmaRootT + costOfCarry / lognormalVol * rootT + 0.5 * sigmaRootT;
+      final double tmp = costOfCarry * rootT / lognormalVol;
+      final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+      final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+      d1 = Math.log(spot / strike) / sigmaRootT + scnd + 0.5 * sigmaRootT;
     }
+    //    if (Double.isNaN(d1)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     final double norm = NORMAL.getCDF(sign * d1);
 
     return norm < SMALL ? 0. : sign * coef * norm;
@@ -270,15 +285,22 @@ public abstract class BlackScholesFormulaRepository {
     double rescaledSpot = spot * factor;
 
     double d2 = 0.;
-    if (Math.abs(spot - strike) < SMALL || sigmaRootT > LARGE) {
+    if (Math.abs(spot - strike) < SMALL || sigmaRootT > LARGE || (spot > LARGE && strike > LARGE)) {
       final double coefD2 = (costOfCarry / lognormalVol - 0.5 * lognormalVol);
-      d2 = Math.abs(coefD2) < SMALL ? 0. : coefD2 * rootT;
+      final double tmp = coefD2 * rootT;
+      d2 = Double.isNaN(tmp) ? 0. : tmp;
     } else {
       if (sigmaRootT < SMALL) {
         return isCall ? (rescaledSpot > strike ? -discount : 0.) : (rescaledSpot < strike ? discount : 0.);
       }
-      d2 = Math.log(spot / strike) / sigmaRootT + costOfCarry / lognormalVol * rootT - 0.5 * sigmaRootT;
+      final double tmp = costOfCarry * rootT / lognormalVol;
+      final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+      final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+      d2 = Math.log(spot / strike) / sigmaRootT + scnd - 0.5 * sigmaRootT;
     }
+    //    if (Double.isNaN(d2)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     final double norm = NORMAL.getCDF(sign * d2);
 
     return norm < SMALL ? 0. : -sign * discount * norm;
@@ -334,17 +356,25 @@ public abstract class BlackScholesFormulaRepository {
     }
 
     double d1 = 0.;
-    if (Math.abs(spot - strike) < SMALL) {
+    if (Math.abs(spot - strike) < SMALL || (spot > LARGE && strike > LARGE)) {
       final double coefD1 = (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ? Math.signum(costOfCarry) + 0.5 * lognormalVol : (costOfCarry / lognormalVol + 0.5 * lognormalVol);
-      d1 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
+      final double tmp = coefD1 * rootT;
+      d1 = Double.isNaN(tmp) ? 0. : tmp;
     } else {
       if (sigmaRootT < SMALL) {
-        final double tmp = (Math.abs(costOfCarry) < LARGE && lognormalVol < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
-        d1 = (Math.log(spot / strike) / rootT + tmp) / lognormalVol;
+        final double scnd = (Math.abs(costOfCarry) > LARGE && rootT < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
+        final double tmp = (Math.log(spot / strike) / rootT + scnd) / lognormalVol;
+        d1 = Double.isNaN(tmp) ? 0. : tmp;
       } else {
-        d1 = Math.log(spot / strike) / sigmaRootT + costOfCarry / lognormalVol * rootT + 0.5 * sigmaRootT;
+        final double tmp = costOfCarry * rootT / lognormalVol;
+        final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+        final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+        d1 = Math.log(spot / strike) / sigmaRootT + scnd + 0.5 * sigmaRootT;
       }
     }
+    //    if (Double.isNaN(d1)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     final double norm = NORMAL.getPDF(d1);
 
     final double res = norm < SMALL ? 0. : coef * norm / spot / sigmaRootT;
@@ -370,14 +400,13 @@ public abstract class BlackScholesFormulaRepository {
     ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
     ArgumentChecker.isFalse(Double.isNaN(costOfCarry), "costOfCarry is NaN");
 
-    double discount = 0.;
     if (-interestRate > LARGE) {
       return costOfCarry > LARGE ? 0. : Double.POSITIVE_INFINITY;
     }
     if (interestRate > LARGE) {
       return 0.;
     }
-    discount = (Math.abs(interestRate) < SMALL && timeToExpiry > LARGE) ? 1. : Math.exp(-interestRate * timeToExpiry);
+    double discount = (Math.abs(interestRate) < SMALL && timeToExpiry > LARGE) ? 1. : Math.exp(-interestRate * timeToExpiry);
 
     final double rootT = Math.sqrt(timeToExpiry);
     double sigmaRootT = lognormalVol * rootT;
@@ -395,17 +424,25 @@ public abstract class BlackScholesFormulaRepository {
     }
 
     double d2 = 0.;
-    if (Math.abs(spot - strike) < SMALL) {
+    if (Math.abs(spot - strike) < SMALL || (spot > LARGE && strike > LARGE)) {
       final double coefD1 = (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ? Math.signum(costOfCarry) - 0.5 * lognormalVol : (costOfCarry / lognormalVol - 0.5 * lognormalVol);
-      d2 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
+      final double tmp = coefD1 * rootT;
+      d2 = Double.isNaN(tmp) ? 0. : tmp;
     } else {
       if (sigmaRootT < SMALL) {
-        final double tmp = (Math.abs(costOfCarry) < LARGE && lognormalVol < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
-        d2 = (Math.log(spot / strike) / rootT + tmp) / lognormalVol;
+        final double scnd = (Math.abs(costOfCarry) > LARGE && rootT < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
+        final double tmp = (Math.log(spot / strike) / rootT + scnd) / lognormalVol;
+        d2 = Double.isNaN(tmp) ? 0. : tmp;
       } else {
-        d2 = Math.log(spot / strike) / sigmaRootT + costOfCarry / lognormalVol * rootT - 0.5 * sigmaRootT;
+        final double tmp = costOfCarry * rootT / lognormalVol;
+        final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+        final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+        d2 = Math.log(spot / strike) / sigmaRootT + scnd - 0.5 * sigmaRootT;
       }
     }
+    //    if (Double.isNaN(d2)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     final double norm = NORMAL.getPDF(d2);
 
     final double res = norm < SMALL ? 0. : discount * norm / strike / sigmaRootT;
@@ -431,14 +468,13 @@ public abstract class BlackScholesFormulaRepository {
     ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
     ArgumentChecker.isFalse(Double.isNaN(costOfCarry), "costOfCarry is NaN");
 
-    double discount = 0.;
     if (-interestRate > LARGE) {
       return costOfCarry > LARGE ? 0. : Double.NEGATIVE_INFINITY;
     }
     if (interestRate > LARGE) {
       return 0.;
     }
-    discount = (Math.abs(interestRate) < SMALL && timeToExpiry > LARGE) ? 1. : Math.exp(-interestRate * timeToExpiry);
+    double discount = (Math.abs(interestRate) < SMALL && timeToExpiry > LARGE) ? 1. : Math.exp(-interestRate * timeToExpiry);
 
     final double rootT = Math.sqrt(timeToExpiry);
     double sigmaRootT = lognormalVol * rootT;
@@ -456,17 +492,25 @@ public abstract class BlackScholesFormulaRepository {
     }
 
     double d2 = 0.;
-    if (Math.abs(spot - strike) < SMALL) {
+    if (Math.abs(spot - strike) < SMALL || (spot > LARGE && strike > LARGE)) {
       final double coefD1 = (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ? Math.signum(costOfCarry) - 0.5 * lognormalVol : (costOfCarry / lognormalVol - 0.5 * lognormalVol);
-      d2 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
+      final double tmp = coefD1 * rootT;
+      d2 = Double.isNaN(tmp) ? 0. : tmp;
     } else {
       if (sigmaRootT < SMALL) {
-        final double tmp = (Math.abs(costOfCarry) < LARGE && lognormalVol < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
-        d2 = (Math.log(spot / strike) / rootT + tmp) / lognormalVol;
+        final double scnd = (Math.abs(costOfCarry) > LARGE && rootT < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
+        final double tmp = (Math.log(spot / strike) / rootT + scnd) / lognormalVol;
+        d2 = Double.isNaN(tmp) ? 0. : tmp;
       } else {
-        d2 = Math.log(spot / strike) / sigmaRootT + costOfCarry / lognormalVol * rootT - 0.5 * sigmaRootT;
+        final double tmp = costOfCarry * rootT / lognormalVol;
+        final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+        final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+        d2 = Math.log(spot / strike) / sigmaRootT + scnd - 0.5 * sigmaRootT;
       }
     }
+    //    if (Double.isNaN(d2)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     final double norm = NORMAL.getPDF(d2);
 
     final double res = norm < SMALL ? 0. : -discount * norm / spot / sigmaRootT;
@@ -494,137 +538,146 @@ public abstract class BlackScholesFormulaRepository {
     ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
     ArgumentChecker.isFalse(Double.isNaN(costOfCarry), "costOfCarry is NaN");
 
+    if (Math.abs(interestRate) > LARGE) {
+      return 0.;
+    }
+    double discount = (Math.abs(interestRate) < SMALL && timeToExpiry > LARGE) ? 1. : Math.exp(-interestRate * timeToExpiry);
+
+    if (costOfCarry > LARGE) {
+      return isCall ? Double.NEGATIVE_INFINITY : 0.;
+    }
+    if (-costOfCarry > LARGE) {
+      final double res = isCall ? 0. : (discount > SMALL ? strike * discount * interestRate : 0.);
+      return Double.isNaN(res) ? discount : res;
+    }
+
+    if (spot > LARGE * strike) {
+      final double tmp = Math.exp((costOfCarry - interestRate) * timeToExpiry);
+      final double res = isCall ? (tmp > SMALL ? -(costOfCarry - interestRate) * spot * tmp : 0.) : 0.;
+      return Double.isNaN(res) ? tmp : res;
+    }
+    if (LARGE * spot < strike) {
+      final double res = isCall ? 0. : (discount > SMALL ? strike * discount * interestRate : 0.);
+      return Double.isNaN(res) ? discount : res;
+    }
+    if (spot > LARGE && strike > LARGE) {
+      return Double.POSITIVE_INFINITY;
+    }
+
     final double rootT = Math.sqrt(timeToExpiry);
     double sigmaRootT = lognormalVol * rootT;
     if (Double.isNaN(sigmaRootT)) {
-      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
-      sigmaRootT = 1.;
-    }
-
-    double factorInd = costOfCarry * timeToExpiry;
-    if (Double.isNaN(factorInd)) {
-      s_logger.info("costOfCarry * timeToExpiry ambiguous");
-      factorInd = 0.;
-    }
-    double rescaledSpot = spot * Math.exp(factorInd);
-
-    double discount = Math.exp(-interestRate * timeToExpiry);
-    if (discount < SMALL) {
-      return 0.;
-    }
-    if (Double.isNaN(discount)) {
-      s_logger.info("interestRate * timeToExpiry ambiguous");
-      discount = 1.;
+      sigmaRootT = 1.; //ref value is returned
     }
 
     final int sign = isCall ? 1 : -1;
     double d1 = 0.;
     double d2 = 0.;
-    double priceLike = 0.;
-    if (rescaledSpot > LARGE && strike > LARGE) {
-      s_logger.info("spot *  Math.exp(costOfCarry * timeToExpiry) / strike ambiguous");
-      d1 = 0.5 * sigmaRootT;
-      priceLike = isCall ? (rescaledSpot >= strike ? (costOfCarry - interestRate) * discount * rescaledSpot : 0.) : (strike >= rescaledSpot ? interestRate * strike : 0.);
+    if (Math.abs(spot - strike) < SMALL) {
+      final double coefD1 = (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ? Math.signum(costOfCarry) + 0.5 * lognormalVol : (costOfCarry / lognormalVol + 0.5 * lognormalVol);
+      final double tmpD1 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
+      d1 = Double.isNaN(tmpD1) ? Math.signum(coefD1) : tmpD1;
+      final double coefD2 = (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ? Math.signum(costOfCarry) - 0.5 * lognormalVol : (costOfCarry / lognormalVol - 0.5 * lognormalVol);
+      final double tmpD2 = Math.abs(coefD2) < SMALL ? 0. : coefD2 * rootT;
+      d2 = Double.isNaN(tmpD2) ? Math.signum(coefD2) : tmpD2;
     } else {
-      double logRatio = Math.log(spot / strike) + factorInd;
-      if (Double.isNaN(logRatio)) {
-        s_logger.info("spot *  Math.exp(costOfCarry * timeToExpiry) / strike, ambiguous");
-        logRatio = 1.;
-      }
-
-      if (Math.abs(logRatio) < SMALL * sigmaRootT | (Math.abs(logRatio) > LARGE && sigmaRootT > LARGE)) {
-        d1 = 0.5 * sigmaRootT;
-        d2 = -0.5 * sigmaRootT;
+      if (sigmaRootT < SMALL) {
+        d1 = (Math.log(spot / strike) / rootT + costOfCarry * rootT) / lognormalVol;
+        d2 = d1;
       } else {
-        if (Math.abs(logRatio) > LARGE * sigmaRootT | (Math.abs(logRatio) < SMALL && sigmaRootT < SMALL)) {
-          d1 = logRatio / sigmaRootT;
-          d2 = d1;
+        if (sigmaRootT > LARGE) {
+          final double coefD1 = (costOfCarry / lognormalVol + 0.5 * lognormalVol);
+          final double coefD2 = (costOfCarry / lognormalVol - 0.5 * lognormalVol);
+          d1 = Math.abs(coefD1) > SMALL ? coefD1 * rootT : 0.;
+          d2 = Math.abs(coefD2) > SMALL ? coefD2 * rootT : 0.;
         } else {
-          d1 = logRatio / sigmaRootT + 0.5 * sigmaRootT;
+          final double tmp = (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ? rootT : ((Math.abs(costOfCarry) < SMALL && rootT > LARGE) ? 1. / lognormalVol : costOfCarry / lognormalVol *
+              rootT);
+          d1 = Math.log(spot / strike) / sigmaRootT + tmp + 0.5 * sigmaRootT;
           d2 = d1 - sigmaRootT;
         }
       }
-
-      final double fn = NORMAL.getCDF(sign * d1);
-      final double sn = NORMAL.getCDF(sign * d2);
-      final double coef1 = (costOfCarry - interestRate) * rescaledSpot;
-      final double coef2 = interestRate * strike;
-      final double first = fn < SMALL ? 0. : (Double.isNaN(coef1) ? fn : coef1 * fn);
-      final double second = sn < SMALL ? 0. : (Double.isNaN(coef2) ? sn : coef2 * sn);
-
-      priceLike = -sign * (first + second) * discount;
     }
-
+    //    if (Double.isNaN(d1) || Double.isNaN(d2)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     final double norm = NORMAL.getPDF(d1);
+    final double rescaledSpot = Math.exp((costOfCarry - interestRate) * timeToExpiry) * spot;
+    final double rescaledStrike = discount * strike;
+    final double normForSpot = NORMAL.getCDF(sign * d1);
+    final double normForStrike = NORMAL.getCDF(sign * d2);
+    final double spotTerm = normForSpot < SMALL ? 0. : (Double.isNaN(rescaledSpot) ? -sign * Math.signum((costOfCarry - interestRate)) * rescaledSpot : -sign *
+        ((costOfCarry - interestRate) * rescaledSpot * normForSpot));
+    final double strikeTerm = normForStrike < SMALL ? 0. : (Double.isNaN(rescaledSpot) ? sign * (-Math.signum(interestRate) * discount) : sign * (-interestRate * rescaledStrike * normForStrike));
 
-    double tmp = rescaledSpot * lognormalVol * discount / rootT;
-    if (Double.isNaN(tmp)) {
+    double coef = rescaledSpot * lognormalVol / rootT;
+    if (Double.isNaN(coef)) {
       s_logger.info("spot * lognormalVol / rootT, ambiguous");
-      tmp = 1.;
+      coef = 1.;
     }
-    final double dlTerm = norm < SMALL ? 0. : -0.5 * norm * tmp;
+    final double dlTerm = norm < SMALL ? 0. : -0.5 * norm * coef;
 
-    final double res = dlTerm + priceLike;
+    final double res = dlTerm + spotTerm + strikeTerm;
     return Double.isNaN(res) ? 0. : res;
   }
 
-  /**
-  * The spot driftless theta
-  * @param spot The spot value of the underlying
-  * @param strike The Strike
-  * @param timeToExpiry The time-to-expiry
-  * @param lognormalVol The log-normal volatility
-  * @return The driftless theta
-  */
-  @ExternalFunction
-  public static double driftlessTheta(final double spot, final double strike, final double timeToExpiry, final double lognormalVol) {
-    ArgumentChecker.isTrue(spot >= 0.0, "negative/NaN spot; have {}", spot);
-    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
-    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
-    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
-
-    final double rootT = Math.sqrt(timeToExpiry);
-    double sigmaRootT = lognormalVol * rootT;
-    if (Double.isNaN(sigmaRootT)) {
-      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
-      sigmaRootT = 1.;
-    }
-
-    double d = 0.;
-
-    double logRatio = Math.log(spot / strike);
-    if (Double.isNaN(logRatio)) {
-      s_logger.info("spot *  Math.exp(costOfCarry * timeToExpiry) / strike, ambiguous");
-      logRatio = 1.;
-    }
-
-    if (Math.abs(logRatio) < SMALL * sigmaRootT || (Math.abs(logRatio) > LARGE && sigmaRootT > LARGE)) {
-      d = 0.5 * sigmaRootT;
-    } else {
-      if (Math.abs(logRatio) > LARGE * sigmaRootT || (Math.abs(logRatio) < SMALL && sigmaRootT < SMALL)) {
-        d = logRatio / sigmaRootT;
-      } else {
-        d = logRatio / sigmaRootT + 0.5 * sigmaRootT;
-      }
-    }
-    final double norm = NORMAL.getPDF(d);
-
-    double tmp = spot * lognormalVol / rootT;
-    if (Double.isNaN(tmp)) {
-      s_logger.info("spot * lognormalVol / rootT, ambiguous");
-      if (Double.isNaN(spot * lognormalVol)) {
-        tmp = 1 / rootT;
-      } else {
-        if (Double.isNaN(spot / rootT)) {
-          tmp = lognormalVol;
-        } else {
-          tmp = spot;
-        }
-      }
-    }
-
-    return norm < SMALL ? 0. : -0.5 * norm * tmp;
-  }
+  //  /**
+  //  * The spot driftless theta
+  //  * @param spot The spot value of the underlying
+  //  * @param strike The Strike
+  //  * @param timeToExpiry The time-to-expiry
+  //  * @param lognormalVol The log-normal volatility
+  //  * @return The driftless theta
+  //  */
+  //  @ExternalFunction
+  //  public static double driftlessTheta(final double spot, final double strike, final double timeToExpiry, final double lognormalVol) {
+  //    ArgumentChecker.isTrue(spot >= 0.0, "negative/NaN spot; have {}", spot);
+  //    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+  //    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+  //    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+  //
+  //    final double rootT = Math.sqrt(timeToExpiry);
+  //    double sigmaRootT = lognormalVol * rootT;
+  //    if (Double.isNaN(sigmaRootT)) {
+  //      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+  //      sigmaRootT = 1.;
+  //    }
+  //
+  //    double d = 0.;
+  //
+  //    double logRatio = Math.log(spot / strike);
+  //    if (Double.isNaN(logRatio)) {
+  //      s_logger.info("spot *  Math.exp(costOfCarry * timeToExpiry) / strike, ambiguous");
+  //      logRatio = 1.;
+  //    }
+  //
+  //    if (Math.abs(logRatio) < SMALL * sigmaRootT || (Math.abs(logRatio) > LARGE && sigmaRootT > LARGE)) {
+  //      d = 0.5 * sigmaRootT;
+  //    } else {
+  //      if (Math.abs(logRatio) > LARGE * sigmaRootT || (Math.abs(logRatio) < SMALL && sigmaRootT < SMALL)) {
+  //        d = logRatio / sigmaRootT;
+  //      } else {
+  //        d = logRatio / sigmaRootT + 0.5 * sigmaRootT;
+  //      }
+  //    }
+  //    final double norm = NORMAL.getPDF(d);
+  //
+  //    double tmp = spot * lognormalVol / rootT;
+  //    if (Double.isNaN(tmp)) {
+  //      s_logger.info("spot * lognormalVol / rootT, ambiguous");
+  //      if (Double.isNaN(spot * lognormalVol)) {
+  //        tmp = 1 / rootT;
+  //      } else {
+  //        if (Double.isNaN(spot / rootT)) {
+  //          tmp = lognormalVol;
+  //        } else {
+  //          tmp = spot;
+  //        }
+  //      }
+  //    }
+  //
+  //    return norm < SMALL ? 0. : -0.5 * norm * tmp;
+  //  }
 
   /**
    * Charm, minus of second order derivative of option value, once spot and once time to maturity
@@ -652,12 +705,6 @@ public abstract class BlackScholesFormulaRepository {
       sigmaRootT = 1.;
     }
 
-    double factorInd = costOfCarry * timeToExpiry;
-    if (Double.isNaN(factorInd)) {
-      s_logger.info("costOfCarry * timeToExpiry ambiguous");
-      factorInd = 0.;
-    }
-
     double coeff = Math.exp((costOfCarry - interestRate) * timeToExpiry);
     if (coeff < SMALL) {
       return 0.;
@@ -670,29 +717,45 @@ public abstract class BlackScholesFormulaRepository {
     final int sign = isCall ? 1 : -1;
     double d1 = 0.;
     double d2 = 0.;
-    double logRatio = Math.log(spot / strike) + factorInd;
-    if (Double.isNaN(logRatio)) {
-      s_logger.info("spot *  Math.exp(costOfCarry * timeToExpiry) / strike, ambiguous");
-      logRatio = 1.;
+    if (Math.abs(spot - strike) < SMALL || (spot > LARGE && strike > LARGE)) {
+      final double coefD1 = Double.isNaN(Math.abs(costOfCarry) / lognormalVol) ? Math.signum(costOfCarry) + 0.5 * lognormalVol : (costOfCarry / lognormalVol + 0.5 * lognormalVol);
+      final double tmpD1 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
+      d1 = Double.isNaN(tmpD1) ? Math.signum(coefD1) : tmpD1;
+      final double coefD2 = Double.isNaN(Math.abs(costOfCarry) / lognormalVol) ? Math.signum(costOfCarry) - 0.5 * lognormalVol : (costOfCarry / lognormalVol - 0.5 * lognormalVol);
+      final double tmpD2 = Math.abs(coefD2) < SMALL ? 0. : coefD2 * rootT;
+      d2 = Double.isNaN(tmpD2) ? Math.signum(coefD2) : tmpD2;
+    } else {
+      if (sigmaRootT < SMALL) {
+        final double scnd = (Math.abs(costOfCarry) > LARGE && rootT < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
+        final double tmp = (Math.log(spot / strike) / rootT + scnd) / lognormalVol;
+        d1 = Double.isNaN(tmp) ? 0. : tmp;
+        d2 = d1;
+      } else {
+        if (sigmaRootT > LARGE) {
+          final double coefD1 = (costOfCarry / lognormalVol + 0.5 * lognormalVol);
+          final double coefD2 = (costOfCarry / lognormalVol - 0.5 * lognormalVol);
+          d1 = Math.abs(coefD1) > SMALL ? coefD1 * rootT : 0.;
+          d2 = Math.abs(coefD2) > SMALL ? coefD2 * rootT : 0.;
+        } else {
+          final double tmp = costOfCarry * rootT / lognormalVol;
+          final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+          final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+          final double d1Tmp = Math.log(spot / strike) / sigmaRootT + scnd + 0.5 * sigmaRootT;
+          final double d2Tmp = Math.log(spot / strike) / sigmaRootT + scnd - 0.5 * sigmaRootT;
+          d1 = Double.isNaN(d1Tmp) ? 0. : d1Tmp;
+          d2 = Double.isNaN(d2Tmp) ? 0. : d2Tmp;
+        }
+      }
     }
+    //    if (Double.isNaN(d1) || Double.isNaN(d2)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
     double cocMod = costOfCarry / sigmaRootT;
     if (Double.isNaN(cocMod)) {
       s_logger.info("costOfCarry / sigmaRootT, ambiguous");
       cocMod = 1.;
     }
 
-    if (Math.abs(logRatio) < SMALL * sigmaRootT || (Math.abs(logRatio) > LARGE && sigmaRootT > LARGE)) {
-      d1 = 0.5 * sigmaRootT;
-      d2 = -0.5 * sigmaRootT;
-    } else {
-      if (Math.abs(logRatio) > LARGE * sigmaRootT || (Math.abs(logRatio) < SMALL && sigmaRootT < SMALL)) {
-        d1 = logRatio / sigmaRootT;
-        d2 = logRatio / sigmaRootT;
-      } else {
-        d1 = logRatio / sigmaRootT + 0.5 * sigmaRootT;
-        d2 = logRatio / sigmaRootT - 0.5 * sigmaRootT;
-      }
-    }
     double tmp = d2 / timeToExpiry;
     tmp = Double.isNaN(tmp) ? (d2 >= 0. ? 1. : -1.) : tmp;
     double coefPdf = cocMod - 0.5 * tmp;
@@ -733,12 +796,6 @@ public abstract class BlackScholesFormulaRepository {
       sigmaRootT = 1.;
     }
 
-    double factorInd = costOfCarry * timeToExpiry;
-    if (Double.isNaN(factorInd)) {
-      s_logger.info("costOfCarry * timeToExpiry ambiguous");
-      factorInd = 0.;
-    }
-
     double discount = Math.exp(-interestRate * timeToExpiry);
     if (discount < SMALL) {
       return 0.;
@@ -751,33 +808,52 @@ public abstract class BlackScholesFormulaRepository {
     final int sign = isCall ? 1 : -1;
     double d1 = 0.;
     double d2 = 0.;
-
-    double logRatio = Math.log(spot / strike) + factorInd;
-    if (Double.isNaN(logRatio)) {
-      s_logger.info("spot *  Math.exp(costOfCarry * timeToExpiry) / strike, ambiguous");
-      logRatio = 1.;
-    }
-    double cocMod = costOfCarry / sigmaRootT;
-    if (Double.isNaN(cocMod)) {
-      s_logger.info("costOfCarry / sigmaRootT, ambiguous");
-      cocMod = 1.;
-    }
-
-    if (Math.abs(logRatio) < SMALL * sigmaRootT || (Math.abs(logRatio) > LARGE && sigmaRootT > LARGE)) {
-      d1 = 0.5 * sigmaRootT;
-      d2 = -0.5 * sigmaRootT;
+    if (Math.abs(spot - strike) < SMALL || (spot > LARGE && strike > LARGE)) {
+      final double coefD1 = Double.isNaN(Math.abs(costOfCarry) / lognormalVol) ? Math.signum(costOfCarry) + 0.5 * lognormalVol : (costOfCarry / lognormalVol + 0.5 * lognormalVol);
+      final double tmpD1 = Math.abs(coefD1) < SMALL ? 0. : coefD1 * rootT;
+      d1 = Double.isNaN(tmpD1) ? Math.signum(coefD1) : tmpD1;
+      final double coefD2 = Double.isNaN(Math.abs(costOfCarry) / lognormalVol) ? Math.signum(costOfCarry) - 0.5 * lognormalVol : (costOfCarry / lognormalVol - 0.5 * lognormalVol);
+      final double tmpD2 = Math.abs(coefD2) < SMALL ? 0. : coefD2 * rootT;
+      d2 = Double.isNaN(tmpD2) ? Math.signum(coefD2) : tmpD2;
     } else {
-      if (Math.abs(logRatio) > LARGE * sigmaRootT || (Math.abs(logRatio) < SMALL && sigmaRootT < SMALL)) {
-        d1 = logRatio / sigmaRootT;
-        d2 = logRatio / sigmaRootT;
+      if (sigmaRootT < SMALL) {
+        final double scnd = (Math.abs(costOfCarry) > LARGE && rootT < SMALL) ? Math.signum(costOfCarry) : costOfCarry * rootT;
+        final double tmp = (Math.log(spot / strike) / rootT + scnd) / lognormalVol;
+        d1 = Double.isNaN(tmp) ? 0. : tmp;
+        d2 = d1;
       } else {
-        d1 = logRatio / sigmaRootT + 0.5 * sigmaRootT;
-        d2 = logRatio / sigmaRootT - 0.5 * sigmaRootT;
+        if (sigmaRootT > LARGE) {
+          final double coefD1 = (costOfCarry / lognormalVol + 0.5 * lognormalVol);
+          final double coefD2 = (costOfCarry / lognormalVol - 0.5 * lognormalVol);
+          d1 = Math.abs(coefD1) > SMALL ? coefD1 * rootT : 0.;
+          d2 = Math.abs(coefD2) > SMALL ? coefD2 * rootT : 0.;
+        } else {
+          final double tmp = costOfCarry * rootT / lognormalVol;
+          final double sig = (costOfCarry >= 0.) ? 1. : -1.;
+          final double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ? sig / lognormalVol : sig * rootT) : tmp;
+          final double d1Tmp = Math.log(spot / strike) / sigmaRootT + scnd + 0.5 * sigmaRootT;
+          final double d2Tmp = Math.log(spot / strike) / sigmaRootT + scnd - 0.5 * sigmaRootT;
+          d1 = Double.isNaN(d1Tmp) ? 0. : d1Tmp;
+          d2 = Double.isNaN(d2Tmp) ? 0. : d2Tmp;
+        }
       }
     }
-    double tmp = d1 / timeToExpiry;
-    tmp = Double.isNaN(tmp) ? (d1 >= 0. ? 1. : -1.) : tmp;
-    double coefPdf = cocMod - 0.5 * tmp;
+    //    if (Double.isNaN(d1) || Double.isNaN(d2)) {
+    //      throw new IllegalArgumentException("NaN found");
+    //    }
+    double coefPdf = 0.;
+    if (timeToExpiry < SMALL) {
+      coefPdf = (Math.abs(spot - strike) < SMALL || (spot > LARGE && strike > LARGE)) ? 1. / sigmaRootT : Math.log(spot / strike) / sigmaRootT / timeToExpiry;
+    } else {
+      double cocMod = costOfCarry / sigmaRootT;
+      if (Double.isNaN(cocMod)) {
+        s_logger.info("costOfCarry / sigmaRootT, ambiguous");
+        cocMod = 1.;
+      }
+      double tmp = d1 / timeToExpiry;
+      tmp = Double.isNaN(tmp) ? (d1 >= 0. ? 1. : -1.) : tmp;
+      coefPdf = cocMod - 0.5 * tmp;
+    }
 
     final double normPdf = NORMAL.getPDF(d2);
     final double normCdf = NORMAL.getCDF(sign * d2);
