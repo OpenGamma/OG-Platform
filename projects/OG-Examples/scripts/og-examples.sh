@@ -33,7 +33,7 @@ PROJECTJAR=${PROJECT}.jar
 . ${SCRIPTDIR}/java-utils.sh
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 
-if [ ! -f ${BASEDIR}/install/db/hsqldb/example-db.properties ]; then
+if [ ! -f ${BASEDIR}/data/db/hsqldb/example-db.properties ]; then
   if [ -x ${SCRIPTDIR}/init-${PROJECT}-db.sh ]; then
     ${SCRIPTDIR}/init-${PROJECT}-db.sh || exit 1
   else

@@ -32,7 +32,7 @@ $JAVA  -cp "$CLASSPATH" \
   com.opengamma.util.examples.MainRunner \
   -n 3 \
   -class0 com.opengamma.util.test.DbTool \
-  -arg0 "-jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db -database og-financial -user OpenGamma -password OpenGamma -drop true -create true -createtables true -dbscriptbasedir ." \
+  -arg0 "-jdbcUrl jdbc:hsqldb:file:data/db/hsqldb/example-db -database og-financial -user OpenGamma -password OpenGamma -drop true -create true -createtables true -dbscriptbasedir ." \
   -class1 com.opengamma.util.test.DbTool \
   -arg1 "-jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user -database og-financial -user OpenGamma -password OpenGamma -drop true -create true  -createtables true  -dbscriptbasedir ." \
   -class2 com.opengamma.examples.tool.ExampleDatabasePopulator

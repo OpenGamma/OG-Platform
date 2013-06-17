@@ -21,14 +21,14 @@
   </scm>
 
   <build>
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-      </testResource>
-      <testResource>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
         <directory>config</directory>
-      </testResource>
-    </testResources>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>
