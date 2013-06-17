@@ -39,13 +39,6 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-component</artifactId>
-      <classifier>config</classifier>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-bloomberg</artifactId>
       <version>${project.version}</version>
     </dependency>

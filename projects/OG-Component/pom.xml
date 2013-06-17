@@ -22,6 +22,14 @@
 
   <!-- ==================================================================== -->
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>config</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -57,28 +65,6 @@
       <version>${project.version}</version>
     </dependency>
   </dependencies>
-
-  <!-- ==================================================================== -->
-  <profiles>
-    <!-- Hack to add extra config directory to classpath in m2e -->
-    <!-- m2e cannot handle adding classifier based jar files to classpath -->
-    <profile>
-      <id>m2e</id>
-      <activation>
-        <property><name>m2e.version</name></property>
-      </activation>
-      <build>
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-          </resource>
-          <resource>
-            <directory>config</directory>
-          </resource>
-        </resources>
-      </build>
-    </profile>
-  </profiles>
 
   <!-- ==================================================================== -->
   <properties>
