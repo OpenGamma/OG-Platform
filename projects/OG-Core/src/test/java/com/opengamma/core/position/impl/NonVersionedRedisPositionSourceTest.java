@@ -99,5 +99,29 @@ public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
     position.setSecurityLink(new SimpleSecurityLink(ExternalId.of("Test", "Pos-" + quantity)));
     return position;
   }
+  
+  /**
+   * Test how fast we can add positions to an existing portfolio.
+   * When this was run on Kirk's machine (localhost) took 9.337sec at 50k positions
+   * (equivalent to 0.18674ms/position).
+   */
+  @Test(enabled = false)
+  public void largePerformanceTest() {
+    NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
+    SimplePortfolio portfolio = new SimplePortfolio("Fibble");
+    portfolio.setRootNode(new SimplePortfolioNode());
+    UniqueId uniqueId = source.storePortfolio(portfolio);
+    Portfolio p = source.getPortfolio(uniqueId, null);
+    
+    long start = System.nanoTime();
+    final int NUM_POSITIONS = 50000;
+    for (int i = 0; i < NUM_POSITIONS; i++) {
+      source.addPositionToPortfolio(p, addPosition(i));
+    }
+    long end = System.nanoTime();
+    double durationInSec = ((double) (end - start)) / 1000000000.0;
+    System.out.println("Adding " + NUM_POSITIONS + " took " + durationInSec + " sec");
+    
+  }
 
 }

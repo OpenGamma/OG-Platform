@@ -46,7 +46,7 @@ import com.opengamma.util.metric.MetricProducer;
  *        Hash[NAME] -> Name
  *        HASH["ATT-"AttributeName] -> Attribute Value
  * Portfolio contents:
- *     Key["PRT-"UniqueId"-POS"] -> Set
+ *     Key["PRTPOS-"UniqueId] -> Set
  *        Each item in the list is a UniqueId for a position
  * Positions:
  *     Key["POS-"UniqueId] -> Hash
@@ -81,7 +81,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
     ArgumentChecker.notNull(redisPrefix, "redisPrefix");
     
     _jedisPool = jedisPool;
-    _redisPrefix = redisPrefix;
+    _redisPrefix = redisPrefix.intern();
   }
   
   /**
@@ -109,34 +109,38 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
     _positionSetTimer = summaryRegistry.timer(namePrefix + ".positionSet");
     _positionAddTimer = summaryRegistry.timer(namePrefix + ".positionAdd");
   }
+  
+  protected static UniqueId generateUniqueId() {
+    return UniqueId.of("UUID", GUIDGenerator.generate().toString());
+  }
 
 
   // ---------------------------------------------------------------------------------------
   // REDIS KEY MANAGEMENT
   // ---------------------------------------------------------------------------------------
   
-  protected String toPortfolioRedisKey(UniqueId uniqueId) {
+  protected final String toRedisKey(UniqueId uniqueId, String intermediate) {
     StringBuilder sb = new StringBuilder();
     if (!getRedisPrefix().isEmpty()) {
       sb.append(getRedisPrefix());
       sb.append("-");
     }
-    sb.append("PRT-");
+    sb.append(intermediate);
     sb.append(uniqueId);
     String keyText = sb.toString();
     return keyText;
   }
   
-  protected String toPositionRedisKey(UniqueId uniqueId) {
-    StringBuilder sb = new StringBuilder();
-    if (!getRedisPrefix().isEmpty()) {
-      sb.append(getRedisPrefix());
-      sb.append("-");
-    }
-    sb.append("POS-");
-    sb.append(uniqueId);
-    String keyText = sb.toString();
-    return keyText;
+  protected final String toPortfolioRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, "PRT-");
+  }
+  
+  protected final String toPortfolioPositionsRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, "PRTPOS-");
+  }
+  
+  protected final String toPositionRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, "POS-");
   }
   
   // ---------------------------------------------------------------------------------------
@@ -160,7 +164,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       try {
         
         uniqueId = storePortfolio(jedis, portfolio);
-        storePortfolioNodes(jedis, toPortfolioRedisKey(uniqueId) + "-POS", portfolio.getRootNode());
+        storePortfolioNodes(jedis, toPortfolioPositionsRedisKey(uniqueId), portfolio.getRootNode());
         
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
@@ -223,7 +227,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       
     }
   }
-  
+
   /**
    * Store a new position and attach it to the specified portfolio.
    * @param portfolio the existing portfolio. Must already be in this source.
@@ -240,7 +244,14 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       try {
         
         UniqueId uniqueId = storePosition(jedis, position);
-        jedis.sadd(toPortfolioRedisKey(portfolio.getUniqueId()) + "-POS", uniqueId.toString());
+        UniqueId portfolioUniqueId = portfolio.getUniqueId();
+        String portfolioPositionsKey = toPortfolioPositionsRedisKey(portfolioUniqueId);
+        // NOTE kirk 2013-06-18 -- The following call is a known performance bottleneck.
+        // I spent a full day attempting almost every single way I could imagine to
+        // figure out what was going on, before I gave up for the time being.
+        // When we're running in a far more realistic way we need to second guess
+        // it, but it is a known performance issue on large portfolio loading.
+        jedis.sadd(portfolioPositionsKey, uniqueId.toString());
         
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
@@ -256,7 +267,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   protected UniqueId storePortfolio(Jedis jedis, Portfolio portfolio) {
     UniqueId uniqueId = portfolio.getUniqueId();
     if (uniqueId == null) {
-      uniqueId = UniqueId.of("UUID", GUIDGenerator.generate().toString());
+      uniqueId = generateUniqueId();
     }
     
     String redisKey = toPortfolioRedisKey(uniqueId);
@@ -292,7 +303,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   protected UniqueId storePosition(Jedis jedis, Position position) {
     UniqueId uniqueId = position.getUniqueId();
     if (uniqueId == null) {
-      uniqueId = UniqueId.of("UUID", GUIDGenerator.generate().toString());
+      uniqueId = generateUniqueId();
     }
     
     String redisKey = toPositionRedisKey(uniqueId);
@@ -355,8 +366,9 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
           
           SimplePortfolioNode portfolioNode = new SimplePortfolioNode();
           portfolioNode.setName(portfolio.getName());
-          
-          Set<String> positionUniqueIds = jedis.smembers(redisKey + "-POS");
+
+          String portfolioPositionsKey = toPortfolioPositionsRedisKey(portfolio.getUniqueId());
+          Set<String> positionUniqueIds = jedis.smembers(portfolioPositionsKey);
           for (String positionUniqueId : positionUniqueIds) {
             Position position = getPosition(jedis, UniqueId.parse(positionUniqueId));
             if (position != null) {
