@@ -189,7 +189,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         marketValues.add(forwardFX);
         nodeTimes.add(paymentTime); //TODO
         if (nInstruments > 1 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), paymentTime, 1e-12)) {
-          throw new OpenGammaRuntimeException("FX forward with tenor " + tenor + " has already been added - will lead to equal nodes in the curve");
+          throw new OpenGammaRuntimeException("FX forward with tenor " + tenor + " has already been added - will lead to equal nodes in the curve. Remove one of these tenors.");
         }
         nInstruments++;
         initialRatesGuess.add(0.02);

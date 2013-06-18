@@ -163,7 +163,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
           final double t = derivative.accept(LAST_TIME_CALCULATOR);
           if (nInstruments > 0 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), t, 1e-12)) {
             throw new OpenGammaRuntimeException("Strip " + strip + " has same maturity as one already added (" + previousStrip + ") - will lead to" +
-                "equal nodes in the curve");
+                "equal nodes in the curve. Remove one of these strips.");
           }
           nodeTimes.add(t);
           marketValues.add(0.0);
