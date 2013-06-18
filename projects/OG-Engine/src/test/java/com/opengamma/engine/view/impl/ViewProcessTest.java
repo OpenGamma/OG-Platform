@@ -204,7 +204,6 @@ public class ViewProcessTest {
     resultListener.expectNextCall(ViewDefinitionCompiledCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
-    // TODO: How many fragments are we expecting? Should we do the collation logic like the separate thread was previously doing?
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getViewCycleExecutionOptions().getValuationTime());
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());

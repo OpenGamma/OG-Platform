@@ -108,7 +108,7 @@ import com.opengamma.util.tuple.Pair;
       run(executor, fragmentResultModel, fullResultModel);
       executor.mergeResults(fragmentResultModel, fullResultModel);
       s_logger.info("Fragment execution complete");
-      executor.getCycle().notifyFragmentCompleted(fragmentResultModel);
+      executor.fragmentCompleted(fragmentResultModel);
     }
 
   }
@@ -146,6 +146,14 @@ import com.opengamma.util.tuple.Pair;
         execution.cancel(true);
       }
       throw e;
+    }
+  }
+
+  private void fragmentCompleted(final InMemoryViewComputationResultModel fragmentResultModel) {
+    if (_executing.isEmpty()) {
+      s_logger.info("Discarding fragment completion message - overall execution is complete");
+    } else {
+      getCycle().notifyFragmentCompleted(fragmentResultModel);
     }
   }
 
