@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,21 +52,21 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
   }
-  
+
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getPosition().getSecurity();
     return security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity;
   }
-  
+
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    ComputationTargetSpecification targetSpec = target.toSpecification();
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, targetSpec, ValueProperties.all()));
   }
-  
+
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> payCurveNames = constraints.getValues(ValuePropertyNames.PAY_CURVE);
     if (payCurveNames == null || payCurveNames.size() != 1) {
@@ -108,17 +109,11 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     }
     final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String curveCalculationMethod;
-    String baseCurrency = null;
     if (curveCalculationMethods == null) {
       final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
       final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
       final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
-      curveCalculationMethod = curveCalculationConfig.getCalculationMethod();      
-      if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
-        final String underlyingCurveConfigName = Iterables.getOnlyElement(curveCalculationConfig.getExogenousConfigData().entrySet()).getKey();
-        final MultiCurveCalculationConfig underlyingCurveConfig = curveCalculationConfigSource.getConfig(underlyingCurveConfigName);
-        baseCurrency = underlyingCurveConfig.getTarget().getUniqueId().getValue();
-      }
+      curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     } else {
       curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
     }
@@ -134,16 +129,31 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
         .withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD).get();
     final ValueRequirement returnSeriesRequirement;
     if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
-      if (baseCurrency == null) {
-        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-        final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-        final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
-        final String underlyingCurveConfigName = Iterables.getOnlyElement(curveCalculationConfig.getExogenousConfigData().entrySet()).getKey();
+      final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+      final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+      final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+      final LinkedHashMap<String, String[]> exogenousConfigData = curveCalculationConfig.getExogenousConfigData();
+      if (exogenousConfigData != null) {
+        final String underlyingCurveConfigName = Iterables.getOnlyElement(exogenousConfigData.entrySet()).getKey();
         final MultiCurveCalculationConfig underlyingCurveConfig = curveCalculationConfigSource.getConfig(underlyingCurveConfigName);
-        baseCurrency = underlyingCurveConfig.getTarget().getUniqueId().getValue();
+        final Currency baseCurrency = Currency.of(underlyingCurveConfig.getTarget().getUniqueId().getValue());
+        returnSeriesRequirement = getReturnSeriesRequirement(curveName, baseCurrency, curveCurrency, curveCalculationConfigName,
+            returnSeriesBaseConstraints);
+      } else {
+        returnSeriesRequirement = getReturnSeriesRequirement(curveName, curveCurrency, curveCalculationConfigName, returnSeriesBaseConstraints);
       }
-      returnSeriesRequirement = getReturnSeriesRequirement(curveName, Currency.of(baseCurrency), curveCurrency, curveCalculationConfigName,
-          returnSeriesBaseConstraints);
+      //    if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
+      //      if (baseCurrency == null) {
+      //        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+      //        final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+      //        final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+      //        final LinkedHashMap<String, String[]> exogenousConfigData = curveCalculationConfig.getExogenousConfigData();
+      //        final String underlyingCurveConfigName = Iterables.getOnlyElement(exogenousConfigData.entrySet()).getKey();
+      //        final MultiCurveCalculationConfig underlyingCurveConfig = curveCalculationConfigSource.getConfig(underlyingCurveConfigName);
+      //        baseCurrency = underlyingCurveConfig.getTarget().getUniqueId().getValue();
+      //      }
+      //      returnSeriesRequirement = getReturnSeriesRequirement(curveName, Currency.of(baseCurrency), curveCurrency, curveCalculationConfigName,
+      //          returnSeriesBaseConstraints);
     } else {
       returnSeriesRequirement = getReturnSeriesRequirement(curveName, curveCurrency, curveCalculationConfigName, returnSeriesBaseConstraints);
     }
@@ -152,7 +162,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     requirements.add(returnSeriesRequirement);
     return requirements;
   }
-  
+
   private ValueRequirement getYCNSRequirement(final String payCurveName, final String payCurveCalculationConfigName, final String receiveCurveName,
       final String receiveCurveCalculationConfigName, final String currencyName, final String curveName, final Set<String> curveCalculationMethods, final Security security) {
     final ValueProperties.Builder properties = ValueProperties.builder()
@@ -168,16 +178,16 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     }
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ComputationTargetType.SECURITY, security.getUniqueId(), properties.get());
   }
-  
-  private ValueRequirement getReturnSeriesRequirement(String curveName, Currency curveCurrency, String curveCalculationConfigName, ValueProperties baseConstraints) {
-    ComputationTargetSpecification targetSpec = ComputationTargetType.CURRENCY.specification(curveCurrency);
-    ValueProperties constraints = baseConstraints.copy()
+
+  private ValueRequirement getReturnSeriesRequirement(final String curveName, final Currency curveCurrency, final String curveCalculationConfigName, final ValueProperties baseConstraints) {
+    final ComputationTargetSpecification targetSpec = ComputationTargetType.CURRENCY.specification(curveCurrency);
+    final ValueProperties constraints = baseConstraints.copy()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_RETURN_SERIES, targetSpec, constraints);
   }
-  
+
   private ValueRequirement getReturnSeriesRequirement(final String curveName, final Currency payCurrency, final Currency receiveCurrency, final String curveCalculationConfig,
       final ValueProperties baseConstraints) {
     final ComputationTargetSpecification targetSpec = ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
@@ -188,16 +198,16 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
         .get();
     return new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_RETURN_SERIES, targetSpec, constraints);
   }
-  
+
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-    Builder builder = createValueProperties();
-    for (ValueSpecification inputSpec : inputs.keySet()) {
-      for (String propertyName : inputSpec.getProperties().getProperties()) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Builder builder = createValueProperties();
+    for (final ValueSpecification inputSpec : inputs.keySet()) {
+      for (final String propertyName : inputSpec.getProperties().getProperties()) {
         if (ValuePropertyNames.FUNCTION.equals(propertyName)) {
           continue;
         }
-        Set<String> values = inputSpec.getProperties().getValues(propertyName);
+        final Set<String> values = inputSpec.getProperties().getValues(propertyName);
         if (values == null || values.isEmpty()) {
           builder.withAny(propertyName);
         } else {
@@ -206,18 +216,19 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
       }
     }
     builder.with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    ValueProperties properties = builder.get(); 
-    ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = builder.get();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, targetSpec, properties));
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    TenorLabelledLocalDateDoubleTimeSeriesMatrix1D ycReturnSeries = (TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) inputs.getValue(ValueRequirementNames.YIELD_CURVE_RETURN_SERIES);
-    TenorLabelledLocalDateDoubleTimeSeriesMatrix1D fcReturnSeries = (TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_RETURN_SERIES);    
-    DoubleLabelledMatrix1D sensitivities = (DoubleLabelledMatrix1D) inputs.getValue(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    
-    ValueProperties resultProperties = desiredValues.iterator().next().getConstraints();
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D ycReturnSeries = (TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) inputs.getValue(ValueRequirementNames.YIELD_CURVE_RETURN_SERIES);
+    final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D fcReturnSeries = (TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_RETURN_SERIES);
+    final DoubleLabelledMatrix1D sensitivities = (DoubleLabelledMatrix1D) inputs.getValue(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+
+    final ValueProperties resultProperties = desiredValues.iterator().next().getConstraints();
     TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeries;
     if (ycReturnSeries != null) {
       returnSeries = ycReturnSeries;
@@ -229,14 +240,14 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     if (returnSeries.size() != sensitivities.size()) {
       throw new OpenGammaRuntimeException("Yield Curve Node Sensitivites vector of size " + sensitivities.size() + " but return series vector of size " + returnSeries.size());
     }
-    
-    int size = returnSeries.size();
-    LocalDateDoubleTimeSeries[] nodesPnlSeries = new LocalDateDoubleTimeSeries[size];
+
+    final int size = returnSeries.size();
+    final LocalDateDoubleTimeSeries[] nodesPnlSeries = new LocalDateDoubleTimeSeries[size];
     for (int i = 0; i < size; i++) {
-      LocalDateDoubleTimeSeries nodePnlSeries = returnSeries.getValues()[i].multiply(sensitivities.getValues()[i]);
+      final LocalDateDoubleTimeSeries nodePnlSeries = returnSeries.getValues()[i].multiply(sensitivities.getValues()[i]);
       nodesPnlSeries[i] = nodePnlSeries;
     }
-    TenorLabelledLocalDateDoubleTimeSeriesMatrix1D pnlSeriesVector = new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(returnSeries.getKeys(), returnSeries.getLabels(), nodesPnlSeries);
+    final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D pnlSeriesVector = new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(returnSeries.getKeys(), returnSeries.getLabels(), nodesPnlSeries);
 
     return ImmutableSet.of(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, target.toSpecification(), resultProperties), pnlSeriesVector));
   }
