@@ -60,6 +60,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> {
   
+  private static final String MIXED_CURRENCY = "MIXED_CURRENCY";
   private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusCalculationTask.class);
   
   private static final String DEFAULT_CALC_CONFIG = "Default";
@@ -69,26 +70,22 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
   private final UniqueId _portfolioId;
   private final UserPrincipal _user;
   private final ToolContext _toolContext;
-  private final ComputationTargetType _computationTargetType;
   private final CurrenciesAggregationFunction _currenciesAggrFunction;
   private final Map<UniqueId, String> _targetCurrenciesCache = Maps.newConcurrentMap();
   
-  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, ComputationTargetType computationTargetType, 
-      UserPrincipal user, String securityType, Set<String> valueRequirementNames) {
+  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, UserPrincipal user, String securityType, Set<String> valueRequirementNames) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(valueRequirementNames, "valueRequirementNames");
     ArgumentChecker.notEmpty(valueRequirementNames, "valueRequirementNames");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(toolcontext, "toolcontext");
-    ArgumentChecker.notNull(computationTargetType, "computationTargetType");
     
     _portfolioId = portfolioId;
     _user = user;
     _securityType = securityType;
     _valueRequirementNames = valueRequirementNames;
     _toolContext = toolcontext;
-    _computationTargetType = computationTargetType;
     _currenciesAggrFunction = new CurrenciesAggregationFunction(_toolContext.getSecuritySource());
   }
 
@@ -118,13 +115,14 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
         CompiledViewCalculationConfiguration compiledCalculationConfiguration = compiledViewDefinition.getCompiledCalculationConfiguration(DEFAULT_CALC_CONFIG);
         Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = compiledCalculationConfiguration.getTerminalOutputSpecifications();
         for (ValueSpecification valueSpec : terminalOutputs.keySet()) {
-          if (_computationTargetType.isCompatible(valueSpec.getTargetSpecification().getType())) {
+          ComputationTargetType computationTargetType = valueSpec.getTargetSpecification().getType();
+          if (isValidTargetType(computationTargetType)) {
             UniqueId uniqueId = valueSpec.getTargetSpecification().getUniqueId();
-            String currency = getCurrency(uniqueId, _computationTargetType);
+            String currency = getCurrency(uniqueId, computationTargetType);
             if (currency != null) {
-              statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency), false);
+              statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency, computationTargetType.getName()), false);
             } else {
-              s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", uniqueId, _computationTargetType);
+              s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", uniqueId, computationTargetType);
             }
           }
         }
@@ -189,6 +187,14 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     return statusResult;
   }
 
+  protected boolean isValidTargetType(final ComputationTargetType computationTargetType) {
+    if (ComputationTargetType.POSITION.isCompatible(computationTargetType) || ComputationTargetType.PORTFOLIO.isCompatible(computationTargetType) ||
+        ComputationTargetType.PORTFOLIO_NODE.isCompatible(computationTargetType)) {
+      return true;
+    }
+    return false;
+  }
+
   private void removeViewDefinition(ViewDefinition viewDefinition) {
     s_logger.debug("Removing ViewDefintion with id: {}", viewDefinition.getUniqueId());
     ConfigMaster configMaster = _toolContext.getConfigMaster();
@@ -222,19 +228,19 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     Collection<ComputationTargetSpecification> allTargets = calculationResult.getAllTargets();
     for (ComputationTargetSpecification targetSpec : allTargets) {
       ComputationTargetType targetType = targetSpec.getSpecification().getType();
-      if (_computationTargetType.isCompatible(targetType)) {
+      if (isValidTargetType(targetType)) {
         Map<Pair<String, ValueProperties>, ComputedValueResult> values = calculationResult.getValues(targetSpec);
         for (Map.Entry<Pair<String, ValueProperties>, ComputedValueResult> valueEntry : values.entrySet()) {
           String valueName = valueEntry.getKey().getFirst();
-          String currency = getCurrency(targetSpec.getUniqueId(), _computationTargetType);
-          s_logger.debug("{} currency returned for id:{} targetType:{}", currency, targetSpec.getUniqueId(), _computationTargetType);
+          String currency = getCurrency(targetSpec.getUniqueId(), targetType);
+          s_logger.debug("{} currency returned for id:{} targetType:{}", currency, targetSpec.getUniqueId(), targetType);
           if (currency != null) {
             ComputedValueResult computedValue = valueEntry.getValue();
             if (isGoodValue(computedValue)) {
-              statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency), true);
+              statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency, targetType.getName()), true);
             }
           } else {
-            s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", targetSpec.getUniqueId(), _computationTargetType);
+            s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", targetSpec.getUniqueId(), targetType);
           }
         }
       }
@@ -243,18 +249,21 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
   
   private String getCurrency(UniqueId uniqueId, ComputationTargetType computationTargetType) {
     synchronized (_targetCurrenciesCache) {
-      String cachedCurrency = _targetCurrenciesCache.get(uniqueId);
-      if (cachedCurrency == null) {
-        if (ComputationTargetType.POSITION.isCompatible(computationTargetType)) {
+      String currency = _targetCurrenciesCache.get(uniqueId);
+      if (currency == null) {
+        if (ComputationTargetType.PORTFOLIO_NODE.isCompatible(computationTargetType) || ComputationTargetType.PORTFOLIO.isCompatible(computationTargetType)) {
+          currency = MIXED_CURRENCY;
+        } else if (ComputationTargetType.POSITION.isCompatible(computationTargetType)) {
           PositionSource positionSource = _toolContext.getPositionSource();
           Position position = positionSource.getPosition(uniqueId);
           position.getSecurityLink().resolve(_toolContext.getSecuritySource());
-          cachedCurrency = _currenciesAggrFunction.classifyPosition(position);
-          _targetCurrenciesCache.put(uniqueId, cachedCurrency);
-          return cachedCurrency;
+          currency = _currenciesAggrFunction.classifyPosition(position);
+        } else {
+          currency = "N/A";
         }
       }
-      return cachedCurrency;
+      _targetCurrenciesCache.put(uniqueId, currency);
+      return currency;
     }
   }
   

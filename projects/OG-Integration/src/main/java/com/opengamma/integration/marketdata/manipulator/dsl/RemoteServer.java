@@ -10,7 +10,7 @@ import com.opengamma.financial.tool.ToolContext;
 
 /**
  * A connection to a remote server that provides an easy way to access remote component implementations.
- * TODO this might be generally useful, move to another package / project?
+ * TODO this is generally useful, move to another package / project when PLAT-2746 has been tackled
  */
 public class RemoteServer extends ToolContext {
 

@@ -8,10 +8,12 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.function.FunctionParameters;
@@ -28,12 +30,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Scenario {
 
-  /** Default calculation configuration name. TODO does this exist as a constant somewhere else? */
-  private static final String DEFAULT = "Default";
-
-  // TODO is it right that a Scenario only applies to a single calc config? should this be a list?
-  /** Calc config to which this scenario will be applied. */
-  private String _calcConfigName = DEFAULT;
+  /** This scenario's name. */
+  private final String _name;
+  /** Calc configs to which this scenario will be applied, null will match any config. */
+  private Set<String> _calcConfigNames;
   /** Valuation time of this scenario's calculation cycle. */
   private Instant _valuationTime = Instant.now();
   /** Version correction used by the resolver. */
@@ -43,14 +43,20 @@ public class Scenario {
    * Creates a new scenario with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
    * and resolver version correction of {@link VersionCorrection#LATEST}.
    */
-  public Scenario() {
+  public Scenario(String name) {
+    ArgumentChecker.notEmpty(name, "name"); // should this be allowed to be null? should there be a no-arg constructor?
+    _name = name;
   }
 
-  /* package */ Scenario(String calcConfigName, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
-    ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
+  /* package */ Scenario(String name,
+                         Set<String> calcConfigNames,
+                         Instant valuationTime,
+                         VersionCorrection resolverVersionCorrection) {
+    ArgumentChecker.notEmpty(name, "name");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
-    _calcConfigName = calcConfigName;
+    _name = name;
+    _calcConfigNames = calcConfigNames;
     _valuationTime = valuationTime;
     _resolverVersionCorrection = resolverVersionCorrection;
   }
@@ -64,24 +70,31 @@ public class Scenario {
    * @return A object for specifying which curves should be transformed
    */
   public YieldCurveSelector.Builder curve() {
-    return new YieldCurveSelector.Builder(this, _calcConfigName);
+    return new YieldCurveSelector.Builder(this);
   }
 
   /**
    * @return An object for specifying which market data points should be transformed
    */
   public PointSelector.Builder marketDataPoint() {
-    return new PointSelector.Builder(this, _calcConfigName);
+    return new PointSelector.Builder(this);
+  }
+
+  /**
+   * @return An object for specifying which volatility surfaces should be transformed
+   */
+  public VolatilitySurfaceSelector.Builder surface() {
+    return new VolatilitySurfaceSelector.Builder(this);
   }
 
   /**
    * Updates this scenario to apply to the specified calculation configuration.
-   * @param configName The calculation configuration name
+   * @param configNames The calculation configuration name
    * @return The modified scenario
    */
-  public Scenario calculationConfig(String configName) {
-    ArgumentChecker.notEmpty(configName, "configName");
-    _calcConfigName = configName;
+  public Scenario calculationConfigs(String... configNames) {
+    ArgumentChecker.notEmpty(configNames, "configName");
+    _calcConfigNames = ImmutableSet.copyOf(configNames);
     return this;
   }
 
@@ -122,7 +135,7 @@ public class Scenario {
       functionParameters.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, compositeManipulator);
       params.put(selector, functionParameters);
     }
-    return new ScenarioDefinition(params);
+    return new ScenarioDefinition(_name, params);
   }
 
   /* package */ void add(DistinctMarketDataSelector selector, StructureManipulator<?> manipulator) {
@@ -135,5 +148,13 @@ public class Scenario {
 
   /* package */ VersionCorrection getResolverVersionCorrection() {
     return _resolverVersionCorrection;
+  }
+
+  /* package */ Set<String> getCalcConfigNames() {
+    return _calcConfigNames;
+  }
+
+  /* package */ String getName() {
+    return _name;
   }
 }

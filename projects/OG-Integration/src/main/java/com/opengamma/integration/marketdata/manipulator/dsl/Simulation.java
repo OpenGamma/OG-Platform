@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -48,11 +49,12 @@ public class Simulation {
   private static final Logger s_logger = LoggerFactory.getLogger(Simulation.class);
   private static final SimpleFunctionParameters NOOP_FUNCTION_PARAMETERS;
 
+  // TODO name field
   //private final String _name;
-  /** The scenarios in this simulation. */
-  private final List<Scenario> _scenarios = Lists.newArrayList();
+  /** The scenarios in this simulation, keyed by name. */
+  private final Map<String, Scenario> _scenarios = Maps.newHashMap();
   /** The default calculation configuration name for scenarios. */
-  private final String _calcConfigName; // TODO should this be a list?
+  private final Set<String> _calcConfigNames;
   /** The default valuation time for scenarios. */
   private final Instant _valuationTime;
   /** The default resolver version correction for scenarios. */
@@ -69,20 +71,23 @@ public class Simulation {
    * and resolver version correction of {@link VersionCorrection#LATEST}.
    */
   public Simulation() {
-    this("Default", Instant.now(), VersionCorrection.LATEST);
+    this(Instant.now(), VersionCorrection.LATEST);
   }
 
   /**
    * Creates a new simulation, specifying the default values to use for its scenarios
-   * @param calcConfigName The default calculation configuration name for scenarios
+   * @param calcConfigNames The default calculation configuration name for scenarios
    * @param valuationTime The default valuation time for scenarios
    * @param resolverVersionCorrection The default resolver version correction for scenarios
    */
-  public Simulation(String calcConfigName, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
-    ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
+  public Simulation(Instant valuationTime, VersionCorrection resolverVersionCorrection, String... calcConfigNames) {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
-    _calcConfigName = calcConfigName;
+    if (calcConfigNames.length > 0) {
+      _calcConfigNames = ImmutableSet.copyOf(calcConfigNames);
+    } else {
+      _calcConfigNames = null;
+    }
     _valuationTime = valuationTime;
     _resolverVersionCorrection = resolverVersionCorrection;
   }
@@ -90,7 +95,7 @@ public class Simulation {
   /* package */ Set<DistinctMarketDataSelector> allSelectors() {
     // TODO check for empty scenarios
     Set<DistinctMarketDataSelector> selectors = Sets.newHashSet();
-    for (Scenario scenario : _scenarios) {
+    for (Scenario scenario : _scenarios.values()) {
       selectors.addAll(scenario.createDefinition().getDefinitionMap().keySet());
     }
     return Collections.unmodifiableSet(selectors);
@@ -105,7 +110,7 @@ public class Simulation {
   /* package */ List<ViewCycleExecutionOptions> cycleExecutionOptions(ViewCycleExecutionOptions baseOptions,
                                                                       Set<DistinctMarketDataSelector> allSelectors) {
     List<ViewCycleExecutionOptions> options = Lists.newArrayListWithCapacity(_scenarios.size());
-    for (Scenario scenario : _scenarios) {
+    for (Scenario scenario : _scenarios.values()) {
       ScenarioDefinition definition = scenario.createDefinition();
       Map<DistinctMarketDataSelector, FunctionParameters> scenarioParams = definition.getDefinitionMap();
       Map<DistinctMarketDataSelector, FunctionParameters> params = Maps.newHashMap();
@@ -132,10 +137,14 @@ public class Simulation {
    * for calculation configuration, valuation time and resolver version correction.
    * @return The new scenario.
    */
-  public Scenario addScenario() {
-    Scenario scenario = new Scenario(_calcConfigName, _valuationTime, _resolverVersionCorrection);
-    _scenarios.add(scenario);
-    return scenario;
+  public Scenario scenario(String name) {
+    if (_scenarios.containsKey(name)) {
+      return _scenarios.get(name);
+    } else {
+      Scenario scenario = new Scenario(name, _calcConfigNames, _valuationTime, _resolverVersionCorrection);
+      _scenarios.put(name, scenario);
+      return scenario;
+    }
   }
 
   /**

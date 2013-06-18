@@ -48,6 +48,10 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
    * Header for Currency
    */
   public static final String CURRENCY_HEADER = "Currency";
+  /**
+   * Header for Target type
+   */
+  public static final String TARGET_TYPE_HEADER = "Target Type";
   
   private Map<ViewStatusKey, Boolean> _viewStatusResult = Maps.newConcurrentMap();
   
@@ -56,7 +60,10 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     HEADERS.put(statusKeyMeta.securityType(), SECURITY_HEADER);
     HEADERS.put(statusKeyMeta.valueRequirementName(), VALUE_REQUIREMENT_NAME_HEADER);
     HEADERS.put(statusKeyMeta.currency(), CURRENCY_HEADER);
+    HEADERS.put(statusKeyMeta.targetType(), TARGET_TYPE_HEADER);
   }
+  
+  private static final String[] DEFAULT_HEADERS = {TARGET_TYPE_HEADER, SECURITY_HEADER, VALUE_REQUIREMENT_NAME_HEADER, CURRENCY_HEADER, "Status"};
 
   public ViewStatusModel aggregate(final ViewAggregationType columnType, final ViewAggregationType rowType, final ViewAggregationType subRowType) {
     ArgumentChecker.notNull(columnType, "columnType");
@@ -239,6 +246,14 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     return result;
   }
   
+  private Set<String> getTargetTypes() {
+    Set<String> result = Sets.newTreeSet();
+    for (ViewStatusKey key : _viewStatusResult.keySet()) {
+      result.add(key.getTargetType());
+    }
+    return result;
+  }
+  
   @Override
   public void put(ViewStatusKey key, boolean status) {
     ArgumentChecker.notNull(key, "key");
@@ -255,7 +270,29 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
       return _viewStatusResult.get(ImmutableViewStatusKey.of(key)); 
     }
   }
+  
+  @Override
+  public Set<ViewStatusKey> keySet() {
+    return Sets.newHashSet(_viewStatusResult.keySet());
+  }
+  
+  @Override
+  public ViewStatusModel defaultModel() {
     
+    String[][] columnHeaders = new String[1][DEFAULT_HEADERS.length];
+    columnHeaders[0] = DEFAULT_HEADERS;
+    
+    Object[][] rowData = new Object[_viewStatusResult.size()][DEFAULT_HEADERS.length];
+    
+    int count = 0;
+    for (ViewStatusKey key : _viewStatusResult.keySet()) {
+      Boolean status = _viewStatusResult.get(key);
+      String[] row = {key.getTargetType(), key.getSecurityType(), key.getValueRequirementName(), key.getCurrency(), String.valueOf(status)};
+      rowData[count++] = row;
+    }    
+    return new SimpleViewStatusModel(columnHeaders, rowData, ImmutableMap.copyOf(_viewStatusResult));
+  }
+  
   /**
    * Immutable key into view status result map
    */
@@ -267,15 +304,18 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     
     private final String _currency;
     
-    public ImmutableViewStatusKey(String securityType, String valueName, String currency) {
+    private final String _targetType;
+    
+    public ImmutableViewStatusKey(String securityType, String valueName, String currency, String targetType) {
       ArgumentChecker.notNull(securityType, "securityType");
       ArgumentChecker.notNull(valueName, "valueName");
       ArgumentChecker.notNull(currency, "currency");
+      ArgumentChecker.notNull(targetType, "targetType");
       
       _securityType = securityType;
       _valueName = valueName;
       _currency = currency;
-      
+      _targetType = targetType;
     }
 
     @Override
@@ -293,9 +333,14 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
       return _currency;
     }
     
+    @Override
+    public String getTargetType() {
+      return _targetType;
+    }
+    
     public static ImmutableViewStatusKey of(final ViewStatusKey key) {
       ArgumentChecker.notNull(key, "key");
-      return new ImmutableViewStatusKey(key.getSecurityType(), key.getValueRequirementName(), key.getCurrency());
+      return new ImmutableViewStatusKey(key.getSecurityType(), key.getValueRequirementName(), key.getCurrency(), key.getTargetType());
     }
 
     @Override
@@ -312,6 +357,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     public String toString() {
       return ToStringBuilder.reflectionToString(this);
     }
+
   }
 
 }

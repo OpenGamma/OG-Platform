@@ -110,7 +110,8 @@ public class SummingFunction extends MissingInputsFunction {
     }
 
     protected ValueProperties.Builder createValueProperties(final ValueProperties inputProperties, final int componentCount) {
-      return inputProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).with(POSITION_COUNT, Integer.toString(componentCount));
+      return inputProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).withoutAny(POSITION_COUNT)
+          .with(POSITION_COUNT, Integer.toString(componentCount));
     }
 
     @Override

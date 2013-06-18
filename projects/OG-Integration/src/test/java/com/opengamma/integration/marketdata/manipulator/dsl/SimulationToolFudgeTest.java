@@ -28,8 +28,8 @@ public class SimulationToolFudgeTest {
   @Test
   public void roundTrip() {
     Simulation simulation = new Simulation();
-    simulation.addScenario().curve().named("foo").apply().parallelShift(0.1);
-    simulation.addScenario().curve().named("bar").apply().parallelShift(0.1);
+    simulation.scenario("scenario1").curve().named("foo").apply().parallelShift(0.1);
+    simulation.scenario("scenario2").curve().named("bar").apply().parallelShift(0.1);
     MarketDataSelector selector = CompositeMarketDataSelector.of(simulation.allSelectors());
     ViewCycleExecutionOptions options = ViewCycleExecutionOptions.builder().setMarketDataSelector(selector).create();
     List<ViewCycleExecutionOptions> optionsList = simulation.cycleExecutionOptions(options, simulation.allSelectors());

@@ -169,7 +169,7 @@ public class DependencyNode {
    * 
    * @param existingOutputValue the existing value
    * @param newOutputValue the value to replace it with
-   * @return the number of replacements made in dependenct nodes
+   * @return the number of replacements made in dependent nodes
    */
   public int replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
     Boolean terminal = _outputValues.remove(existingOutputValue);
@@ -202,16 +202,16 @@ public class DependencyNode {
 
   /**
    * Replaces the dependency node that an input value is sourced from. If this was the only input value sourced from the previous input node then it is removed from the input node set.
-   *
+   * 
    * @param previousInputValue the input value to replace, not null
    * @param newInputValue the new input value to replace, not null
    * @param previousInputNode the node the data was being produced by, not null
    * @param newInputNode the new input node, not null
    */
   public void replaceInput(final ValueSpecification previousInputValue,
-                           final ValueSpecification newInputValue,
-                           final DependencyNode previousInputNode,
-                           final DependencyNode newInputNode) {
+      final ValueSpecification newInputValue,
+      final DependencyNode previousInputNode,
+      final DependencyNode newInputNode) {
 
     addInputNode(newInputNode);
     _inputValues.remove(previousInputValue);

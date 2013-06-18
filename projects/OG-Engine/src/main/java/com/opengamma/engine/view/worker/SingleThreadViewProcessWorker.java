@@ -41,6 +41,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioNodeEquivalenceMapper;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -1214,8 +1215,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
                 // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
                 // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
                 // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
-                final ComputationTarget newPortfolio = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver()
-                    .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                final ComputationTargetResolver resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
+                final ComputationTargetSpecification portfolioSpec = resolver.getSpecificationResolver().getTargetSpecification(
+                    new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                final ComputationTarget newPortfolio = resolver.resolve(portfolioSpec, versionCorrection);
                 unchangedNodes = rewritePortfolioNodes(previousGraphs, compiledViewDefinition, (Portfolio) newPortfolio.getValue());
               }
               // Invalidate any dependency graph nodes on the invalid targets

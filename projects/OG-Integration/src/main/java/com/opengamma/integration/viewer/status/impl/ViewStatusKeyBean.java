@@ -37,6 +37,9 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
   
   @PropertyDefinition(validate = "notNull")
   private String _currency;
+  
+  @PropertyDefinition(validate = "notNull")
+  private String _targetType;
    
   /**
    * Creates an instance
@@ -44,15 +47,18 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
    * @param securityType the security type, not-null.
    * @param valueRequirementName the value name, not-null.
    * @param currency the currency, not-null.
+   * @param targetType the target type, not-null.
    */
-  public ViewStatusKeyBean(String securityType, String valueRequirementName, String currency) {
+  public ViewStatusKeyBean(String securityType, String valueRequirementName, String currency, String targetType) {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(valueRequirementName, "valueRequirementName");
     ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(targetType, "targetType");
     
     setSecurityType(securityType);
     setValueRequirementName(valueRequirementName);
     setCurrency(currency);
+    setTargetType(targetType);
   }
   
   /**
@@ -110,6 +116,8 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
         return getValueRequirementName();
       case 575402001:  // currency
         return getCurrency();
+      case 486622315:  // targetType
+        return getTargetType();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -126,6 +134,9 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
       case 575402001:  // currency
         setCurrency((String) newValue);
         return;
+      case 486622315:  // targetType
+        setTargetType((String) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -135,6 +146,7 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
     JodaBeanUtils.notNull(_securityType, "securityType");
     JodaBeanUtils.notNull(_valueRequirementName, "valueRequirementName");
     JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_targetType, "targetType");
     super.validate();
   }
 
@@ -147,7 +159,8 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
       ViewStatusKeyBean other = (ViewStatusKeyBean) obj;
       return JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
           JodaBeanUtils.equal(getValueRequirementName(), other.getValueRequirementName()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency());
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getTargetType(), other.getTargetType());
     }
     return false;
   }
@@ -158,6 +171,7 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirementName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetType());
     return hash;
   }
 
@@ -241,6 +255,32 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the targetType.
+   * @return the value of the property, not null
+   */
+  public String getTargetType() {
+    return _targetType;
+  }
+
+  /**
+   * Sets the targetType.
+   * @param targetType  the new value of the property, not null
+   */
+  public void setTargetType(String targetType) {
+    JodaBeanUtils.notNull(targetType, "targetType");
+    this._targetType = targetType;
+  }
+
+  /**
+   * Gets the the {@code targetType} property.
+   * @return the property, not null
+   */
+  public final Property<String> targetType() {
+    return metaBean().targetType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ViewStatusKeyBean}.
    */
   public static class Meta extends DirectMetaBean {
@@ -265,13 +305,19 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
     private final MetaProperty<String> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", ViewStatusKeyBean.class, String.class);
     /**
+     * The meta-property for the {@code targetType} property.
+     */
+    private final MetaProperty<String> _targetType = DirectMetaProperty.ofReadWrite(
+        this, "targetType", ViewStatusKeyBean.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "securityType",
         "valueRequirementName",
-        "currency");
+        "currency",
+        "targetType");
 
     /**
      * Restricted constructor.
@@ -288,6 +334,8 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
           return _valueRequirementName;
         case 575402001:  // currency
           return _currency;
+        case 486622315:  // targetType
+          return _targetType;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -330,6 +378,14 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
      */
     public final MetaProperty<String> currency() {
       return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code targetType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> targetType() {
+      return _targetType;
     }
 
   }

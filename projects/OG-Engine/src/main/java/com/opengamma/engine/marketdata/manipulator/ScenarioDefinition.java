@@ -5,6 +5,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.config.Config;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Simple immutable class defining a scenario which holds a map of the market
@@ -17,9 +18,12 @@ import com.opengamma.engine.function.FunctionParameters;
 @Config
 public class ScenarioDefinition {
 
+  private final String _name;
   private final Map<DistinctMarketDataSelector, FunctionParameters> _definitionMap;
 
-  public ScenarioDefinition(Map<DistinctMarketDataSelector, FunctionParameters> definitionMap) {
+  public ScenarioDefinition(String name, Map<DistinctMarketDataSelector, FunctionParameters> definitionMap) {
+    ArgumentChecker.notEmpty(name, "name");
+    _name = name;
     _definitionMap = ImmutableMap.copyOf(definitionMap);
   }
 
@@ -30,5 +34,12 @@ public class ScenarioDefinition {
    */
   public Map<DistinctMarketDataSelector, FunctionParameters> getDefinitionMap() {
     return _definitionMap;
+  }
+
+  /**
+   * @return The scenario name, not null
+   */
+  public String getName() {
+    return _name;
   }
 }

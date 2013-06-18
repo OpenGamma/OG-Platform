@@ -748,6 +748,15 @@ import com.opengamma.util.tuple.Pair;
             } else {
               _spec2Node.put(newValue, node);
             }
+            final Collection<ValueRequirement> oldRequirements = _resolvedValues.remove(oldValue);
+            if (oldRequirements != null) {
+              final Collection<ValueRequirement> newRequirements = _resolvedValues.get(newValue);
+              if (newRequirements != null) {
+                newRequirements.addAll(oldRequirements);
+              } else {
+                _resolvedValues.put(newValue, oldRequirements);
+              }
+            }
             // TODO: Should update the target digest data
           }
         }

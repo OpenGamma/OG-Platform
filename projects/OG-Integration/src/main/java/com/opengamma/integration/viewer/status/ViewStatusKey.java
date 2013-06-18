@@ -29,5 +29,10 @@ public interface ViewStatusKey {
    * @return the currency, not-null.
    */
   String getCurrency();
-  
+  /**
+   * Gets the target type.
+   * 
+   * @return the target type, not-null.
+   */
+  String getTargetType();
 }

@@ -39,12 +39,28 @@ public class ViewStatusResultProducer {
     FTL_DIRECTORY = new File(resource.getFile());
   }
   
-  public String statusResult(ViewStatusResultAggregator aggregator, ResultFormat format) {
+  /**
+   * Produce view result with the given aggregation parameters
+   * 
+   * @param aggregator the view status aggregator, not null
+   * @param format the result format type, not null
+   * @param columnType the column type, not null
+   * @param rowType the row type, not null
+   * @param subRowType the sub row type, not null
+   * @return the string representation of the result
+   */
+  public String statusResult(ViewStatusResultAggregator aggregator, ResultFormat format, ViewAggregationType columnType, ViewAggregationType rowType, ViewAggregationType subRowType) {
     ArgumentChecker.notNull(aggregator, "aggregator");
     ArgumentChecker.notNull(format, "format");
+    ArgumentChecker.notNull(columnType, "columnType");
+    ArgumentChecker.notNull(rowType, "rowType");
+    ArgumentChecker.notNull(subRowType, "subRowType");
     
-    ViewStatusModel viewStatusModel = aggregator.aggregate(ViewAggregationType.CURRENCY, ViewAggregationType.SECURITY, ViewAggregationType.VALUE_REQUIREMENT_NAME);
- 
+    ViewStatusModel viewStatusModel = aggregator.aggregate(columnType, rowType, subRowType);
+    return formatResultModel(format, viewStatusModel);
+  }
+
+  private String formatResultModel(ResultFormat format, ViewStatusModel viewStatusModel) {
     StringWriter stringWriter = new StringWriter();
     Configuration cfg = new Configuration();
     try {
@@ -60,6 +76,21 @@ public class ViewStatusResultProducer {
       throw new OpenGammaRuntimeException("Error generating html format for View status report", e);
     } 
     return stringWriter.toString();
+  }
+  
+  /**
+   * Produces default result view without any aggregation
+   * 
+   * @param aggregator the view status result aggregator, not null
+   * @param format the result format type, not null
+   * @return the string representation of the result
+   */
+  public String statusResult(ViewStatusResultAggregator aggregator, ResultFormat format) {
+    ArgumentChecker.notNull(aggregator, "aggregator");
+    ArgumentChecker.notNull(format, "format");
+    
+    ViewStatusModel viewStatusModel = aggregator.defaultModel();
+    return formatResultModel(format, viewStatusModel);
   }
 
   private String getTemplateName(ResultFormat format) {
