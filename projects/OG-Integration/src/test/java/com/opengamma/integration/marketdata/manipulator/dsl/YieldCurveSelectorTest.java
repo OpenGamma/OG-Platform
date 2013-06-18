@@ -28,7 +28,7 @@ public class YieldCurveSelectorTest {
   @Test
   public void noCriteria() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     assertEquals(selector, selector.findMatchingSelector(structureId("curveName1"), CALC_CONFIG_NAME));
     assertEquals(selector, selector.findMatchingSelector(structureId("curveName2"), CALC_CONFIG_NAME));
   }
@@ -40,7 +40,7 @@ public class YieldCurveSelectorTest {
     String calcConfigName = "calcConfigName";
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName);
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curveName), calcConfigName));
     assertNull(selector.findMatchingSelector(structureId("otherName"), calcConfigName));
   }
@@ -52,7 +52,7 @@ public class YieldCurveSelectorTest {
     String curveName2 = "curveName2";
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName1, curveName2);
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curveName1), CALC_CONFIG_NAME));
     assertEquals(selector, selector.findMatchingSelector(structureId(curveName2), CALC_CONFIG_NAME));
     assertNull(selector.findMatchingSelector(structureId("otherName"), CALC_CONFIG_NAME));
@@ -62,7 +62,7 @@ public class YieldCurveSelectorTest {
   @Test
   public void calcConfigName() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario("foo").calculationConfigs(CALC_CONFIG_NAME));
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName"));
   }
 
@@ -73,7 +73,7 @@ public class YieldCurveSelectorTest {
     String curve6M = "curve6M";
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.nameMatches(".*3M");
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME));
     assertNull(selector.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME));
   }
@@ -83,7 +83,7 @@ public class YieldCurveSelectorTest {
   public void singleCurrency() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.currencies("GBP");
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     String curveName = "curveName";
     StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
     StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
@@ -96,7 +96,7 @@ public class YieldCurveSelectorTest {
   public void multipleCurrencies() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.currencies("GBP", "USD");
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     String curveName = "curveName";
     StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
     StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
@@ -114,7 +114,7 @@ public class YieldCurveSelectorTest {
     String curveName2 = "curveName2";
     String curveName3 = "curveName3";
     curve.named(curveName1, curveName2).currencies("USD", "GBP");
-    MarketDataSelector selector = curve.selector();
+    MarketDataSelector selector = curve.getSelector();
     StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName1));
     StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName2));
     StructureIdentifier structure3 = StructureIdentifier.of(new YieldCurveKey(Currency.AUD, curveName1));

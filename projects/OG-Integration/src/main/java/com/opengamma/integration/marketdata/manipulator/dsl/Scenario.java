@@ -30,6 +30,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Scenario {
 
+  /** Manipulators keyed by the selectors for the items they apply to. */
+  private final ListMultimap<DistinctMarketDataSelector, StructureManipulator<?>> _manipulations = ArrayListMultimap.create();
+
   /** This scenario's name. */
   private final String _name;
   /** Calc configs to which this scenario will be applied, null will match any config. */
@@ -61,11 +64,6 @@ public class Scenario {
     _valuationTime = valuationTime;
     _resolverVersionCorrection = resolverVersionCorrection;
   }
-
-  /**
-   * Manipulators keyed by the selectors for the items they apply to.
-   */
-  private final ListMultimap<DistinctMarketDataSelector, StructureManipulator<?>> _manipulations = ArrayListMultimap.create();
 
   /**
    * @return A object for specifying which curves should be transformed
@@ -157,5 +155,16 @@ public class Scenario {
 
   /* package */ String getName() {
     return _name;
+  }
+
+  @Override
+  public String toString() {
+    return "Scenario [" +
+        "_name='" + _name + "'" +
+        ", _calcConfigNames=" + _calcConfigNames +
+        ", _valuationTime=" + _valuationTime +
+        ", _resolverVersionCorrection=" + _resolverVersionCorrection +
+        ", _manipulations=" + _manipulations +
+        "]";
   }
 }

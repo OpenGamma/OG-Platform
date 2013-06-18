@@ -17,7 +17,7 @@ public class PointManipulatorBuilder {
   /** The scenario to which the manipulators are added */
   private final Scenario _scenario;
 
-  /* package */ PointManipulatorBuilder(PointSelector selector, Scenario scenario) {
+  /* package */ PointManipulatorBuilder(Scenario scenario, PointSelector selector) {
     ArgumentChecker.notNull(selector, "selector");
     ArgumentChecker.notNull(scenario, "scenario");
     _selector = selector;

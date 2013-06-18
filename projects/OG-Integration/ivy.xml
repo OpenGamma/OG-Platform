@@ -26,6 +26,7 @@
     <dependency org="org.jdesktop" name="appframework" rev="1.0.3" />
     <dependency org="org.jdesktop" name="swingx" rev="1.0" />
     <dependency org="net.sourceforge.ehcache" name="ehcache" rev="[1.6.0,2.7[" />
+    <dependency org="org.codehaus.groovy" name="groovy-all" rev="2.1.5" />
 
     <exclude org="org.apache.log4j" module="log4j" />
     <exclude org="org.junit" />

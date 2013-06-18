@@ -162,8 +162,11 @@ public class PointSelector implements DistinctMarketDataSelector {
      * @return A selector built from this object's data.
      */
     public PointManipulatorBuilder apply() {
-      PointSelector selector = new PointSelector(_scenario.getCalcConfigNames(), _ids, _idMatchScheme, _idValuePattern);
-      return new PointManipulatorBuilder(selector, _scenario);
+      return new PointManipulatorBuilder(_scenario, getSelector());
+    }
+
+    /* package */ PointSelector getSelector() {
+      return new PointSelector(_scenario.getCalcConfigNames(), _ids, _idMatchScheme, _idValuePattern);
     }
 
     /**
@@ -206,12 +209,16 @@ public class PointSelector implements DistinctMarketDataSelector {
     public Builder idMatches(String scheme, String valueRegex) {
       ArgumentChecker.notEmpty(scheme, "scheme");
       ArgumentChecker.notEmpty(valueRegex, "valueRegex");
-      if (scheme != null) {
+      if (_idMatchScheme != null) {
         throw new IllegalStateException("idMatches can only be called once");
       }
       _idMatchScheme = ExternalScheme.of(scheme);
       _idValuePattern = Pattern.compile(valueRegex);
       return this;
+    }
+
+    /* package */ Scenario getScenario() {
+      return _scenario;
     }
   }
 }

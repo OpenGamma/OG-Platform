@@ -177,7 +177,7 @@ import com.opengamma.util.money.Currency;
     private Set<Currency> _currencies;
     private Pattern _namePattern;
 
-    protected Builder(Scenario scenario) {
+    /* package */ Builder(Scenario scenario) {
       ArgumentChecker.notNull(scenario, "scenario");
       _scenario = scenario;
     }
