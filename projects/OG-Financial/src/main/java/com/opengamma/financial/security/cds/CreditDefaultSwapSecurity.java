@@ -35,7 +35,8 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /**
-   * The recovery rate.
+   * The recovery rate. Note: this field is no longer used by the analytics,
+   * being resolved independently.
    */
   @PropertyDefinition(validate = "notNull")
   private double _recoveryRate;
@@ -183,7 +184,8 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the recovery rate.
+   * Gets the recovery rate. Note: this field is no longer used by the analytics,
+   * being resolved independently.
    * @return the value of the property, not null
    */
   public double getRecoveryRate() {
@@ -191,7 +193,8 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
   }
 
   /**
-   * Sets the recovery rate.
+   * Sets the recovery rate. Note: this field is no longer used by the analytics,
+   * being resolved independently.
    * @param recoveryRate  the new value of the property, not null
    */
   public void setRecoveryRate(double recoveryRate) {
@@ -201,6 +204,7 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
 
   /**
    * Gets the the {@code recoveryRate} property.
+   * being resolved independently.
    * @return the property, not null
    */
   public final Property<Double> recoveryRate() {
