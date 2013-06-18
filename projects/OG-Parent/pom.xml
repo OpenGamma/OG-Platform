@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
@@ -185,15 +185,6 @@
         </executions>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.opengamma.tools</groupId>
-          <artifactId>opengamma-maven-plugin</artifactId>
-          <version>${opengamma-maven-plugin.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
   
   <!-- ==================================================================== -->
@@ -926,8 +917,6 @@
 
   <!-- ==================================================================== -->
   <properties>
-    <!-- Versions -->
-    <opengamma-maven-plugin.version>1.0.0</opengamma-maven-plugin.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Platform API</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Platform API</h1>]]></doctitle>
