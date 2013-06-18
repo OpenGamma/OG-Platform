@@ -35,6 +35,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -52,8 +53,10 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
-import com.opengamma.engine.marketdata.manipulator.MarketDataManipulator;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelectionGraphManipulator;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -255,7 +258,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   /**
    * The manipulator for structured market data.
    */
-  private final MarketDataManipulator _marketDataManipulator;
+  private final MarketDataSelectionGraphManipulator _marketDataSelectionGraphManipulator;
 
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
@@ -290,18 +293,47 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _suppressExecutionOnNoMarketData = executionOptions.getFlags().contains(ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA);
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
-    _marketDataManipulator = createMarketDataManipulator();
+    _marketDataSelectionGraphManipulator = createMarketDataManipulator(viewDefinition);
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
     s_executor.submit(_thread);
   }
 
-  private MarketDataManipulator createMarketDataManipulator() {
+  /**
+   * We can pickup market data manipulators from either the default execution context or from the
+   * view definition. Those from the execution context will have their function parameters
+   * specified within the execution options as well (either per cycle or default). Manipulators
+   * from the view def will have function params specified alongside them.
+   *
+   * @param viewDefinition the view defintion to check for manipulators
+   * @return a market data manipulator combined those found in the execution context and the
+   * view defintion
+   */
+  private MarketDataSelectionGraphManipulator createMarketDataManipulator(ViewDefinition viewDefinition) {
+
+    Collection<ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurations();
+    ConfigSource configSource = getProcessContext().getConfigSource();
+
+    // Map of [Graph name -> Map of [MD selector -> Function params]]
+    Map<String, Set<MarketDataSelector>>  specificSelectors = new HashMap<>();
+
+    for (ViewCalculationConfiguration calcConfig : calculationConfigurations) {
+
+      UniqueId scenarioId = calcConfig.getScenarioId();
+      if (scenarioId != null) {
+        ScenarioDefinition scenarioDefinition = configSource.getConfig(ScenarioDefinition.class, scenarioId);
+        if (scenarioDefinition != null) {
+          specificSelectors.put(calcConfig.getName(), new HashSet<MarketDataSelector>(scenarioDefinition.getDefinitionMap().keySet()));
+        }
+      }
+    }
 
     ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
-    return new MarketDataManipulator(defaultExecutionOptions != null ?
+    MarketDataSelector executionOptionsMarketDataSelector = defaultExecutionOptions != null ?
         defaultExecutionOptions.getMarketDataSelector() :
-        NoOpMarketDataSelector.getInstance());
+        NoOpMarketDataSelector.getInstance();
+
+    return new MarketDataSelectionGraphManipulator(executionOptionsMarketDataSelector, new HashMap<>(specificSelectors));
   }
 
   private ViewProcessWorkerContext getWorkerContext() {
@@ -1323,14 +1355,14 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition) {
 
-    if (_marketDataManipulator.hasManipulationsDefined()) {
+    if (_marketDataSelectionGraphManipulator.hasManipulationsDefined()) {
 
       Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
 
       for (DependencyGraphExplorer graphExplorer : compiledViewDefinition.getDependencyGraphExplorers()) {
 
         DependencyGraph graph = graphExplorer.getWholeGraph();
-        Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataManipulator.modifyDependencyGraph(graph);
+        Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph);
 
         if (!selectorMapping.isEmpty()) {
           selectionsByGraph.put(graph, selectorMapping);
