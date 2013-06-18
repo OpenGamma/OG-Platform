@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * We are testing the schedule generated for ISDA premium leg. There is 4 schedule generated.
  */
 public class ISDAPremiumLegScheduleGeneratorTest {
   private static final GenerateCreditDefaultSwapPremiumLegSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -58,6 +58,10 @@ public class ISDAPremiumLegScheduleGeneratorTest {
 
   }
 
+  /*
+   * Test of the schedule generation, here we test the FRONTSHORT stub case : 
+   * Stub is at the start (front) of the cashflow schedule; first coupon is on the first IMM date after the effective date (short stub).
+   */
   @Test
   public void testFrontShort() {
     LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTSHORT);
@@ -204,6 +208,10 @@ public class ISDAPremiumLegScheduleGeneratorTest {
     assertDateArrayEquals(expected4, extractCalculatedScheduleAdjusted4);
   }
 
+  /*
+   * Test of the schedule generation, here we test the FRONTSHORT stub case when the start date is an holiday: 
+   * Stub is at the start (front) of the cashflow schedule; first coupon is on the first IMM date after the effective date (short stub).
+   */
   @Test
   public void testFrontShortFirstDateHoliday() {
     final ZonedDateTime startDate = new IMMDates(2008).getImmDateSeptember();
@@ -380,6 +388,10 @@ public class ISDAPremiumLegScheduleGeneratorTest {
     assertDateArrayEquals(expected4, extractCalculatedScheduleAdjusted4);
   }
 
+  /*
+   * Test of the schedule generation, here we test the FRONTLONG stub case: 
+   * Stub is at the end (back) of the cashflow schedule; last but one coupon is on the last scheduled coupon date before the maturity date (short stub)
+   */
   @Test
   public void testFrontLong() {
     LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinitionWithStubType(StubType.FRONTLONG);
@@ -527,6 +539,10 @@ public class ISDAPremiumLegScheduleGeneratorTest {
     assertDateArrayEquals(expected4, extractCalculatedScheduleAdjusted4);
   }
 
+  /*
+   * Test of the schedule generation, here we test the FRONTLONG stub case when the start date is an holiday: 
+   * Stub is at the end (back) of the cashflow schedule; last but one coupon is on the last scheduled coupon date before the maturity date (short stub)
+   */
   @Test
   public void testFrontLongFirstDateHoliday() {
     final ZonedDateTime startDate = new IMMDates(2008).getImmDateSeptember();
@@ -702,6 +718,10 @@ public class ISDAPremiumLegScheduleGeneratorTest {
     assertDateArrayEquals(expected4, extractCalculatedScheduleAdjusted4);
   }
 
+  /*
+   * Test of the schedule generation, here we test the FRONTLONG stub case when there is only one date generated in the schedule (the schedule contain two dates but the start date is not generated): 
+   * Stub is at the end (back) of the cashflow schedule; last but one coupon is on the last scheduled coupon date before the maturity date (short stub)
+   */
   @Test
   public void testFrontOneDate() {
     final ZonedDateTime startDate = new IMMDates(2007).getImmDateJune();
