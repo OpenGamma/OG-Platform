@@ -79,6 +79,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -122,8 +123,8 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-    LinkedHashSet<String> curveNames = new LinkedHashSet<>();
-    for (String curveName : curveCalculationConfig.getYieldCurveNames()) {
+    final LinkedHashSet<String> curveNames = new LinkedHashSet<>();
+    for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       curveNames.add(curveName);
     }
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
@@ -140,6 +141,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
       final Interpolator1D interpolator = spec.getInterpolator();
       final SnapshotDataBundle marketData = getMarketData(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
+      FixedIncomeStripWithSecurity previousStrip = null;
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
         final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
         if (marketValue == null) {
@@ -166,8 +168,14 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
             derivatives.add(derivative);
             initialRatesGuess.add(marketValue);
           }
-          nodeTimes.add(derivative.accept(LAST_TIME_CALCULATOR));
+          final double t = derivative.accept(LAST_TIME_CALCULATOR);
+          if (nInstruments > 0 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), t, 1e-12)) {
+            throw new OpenGammaRuntimeException("Strip " + strip + " has same maturity as one already added (" + previousStrip + ") - will lead to" +
+                "equal nodes in the curve");
+          }
+          nodeTimes.add(t);
           marketValues.add(0.0);
+          previousStrip = strip;
           nInstruments++;
         }
       }

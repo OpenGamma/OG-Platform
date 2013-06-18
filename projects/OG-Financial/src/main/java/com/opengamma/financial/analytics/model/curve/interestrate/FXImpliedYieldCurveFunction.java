@@ -74,6 +74,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -178,6 +179,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<>();
+    int nInstruments = 0;
     for (final Tenor tenor : definition.getTenors()) {
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
@@ -186,6 +188,10 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
         marketValues.add(forwardFX);
         nodeTimes.add(paymentTime); //TODO
+        if (nInstruments > 1 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), paymentTime, 1e-12)) {
+          throw new OpenGammaRuntimeException("FX forward with tenor " + tenor + " has already been added - will lead to equal nodes in the curve");
+        }
+        nInstruments++;
         initialRatesGuess.add(0.02);
       }
     }
@@ -221,8 +227,8 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final DoubleMatrix2D jacobianMatrixAllCurves = jacobianCalculatorAllCurves.evaluate(new DoubleMatrix1D(fittedYields));
     // Order is: previous curves (domestic), current curves (foreign)
     final DoubleMatrix2D jacobianMatrixInverse = MATRIX_ALGEBRA.getInverse(jacobianMatrix);
-    int nbLine = nodeTimes.size();
-    int nbCol = dataAllCurves.getTotalNodes() - nodeTimes.size();
+    final int nbLine = nodeTimes.size();
+    final int nbCol = dataAllCurves.getTotalNodes() - nodeTimes.size();
     final double[][] sensiPreviousCurves1 = new double[nbLine][nbCol];
     for (int loopline = 0; loopline < nbLine; loopline++) {
       for (int loopcol = 0; loopcol < nbCol; loopcol++) {
@@ -231,8 +237,8 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     }
     final DoubleMatrix2D sensiQuoteToParameterPreviousCurvesMat = new DoubleMatrix2D(sensiPreviousCurves1);
     final DoubleMatrix2D sensiParameterToParameterPreviousCurvesMat = (DoubleMatrix2D) MATRIX_ALGEBRA.multiply(jacobianMatrixInverse, sensiQuoteToParameterPreviousCurvesMat);
-    int startIndex = 0;
-    int nbIndex = sensiParameterToParameterPreviousCurvesMat.getNumberOfColumns();
+    final int startIndex = 0;
+    final int nbIndex = sensiParameterToParameterPreviousCurvesMat.getNumberOfColumns();
     final double[][] arrayForeignJacobianDiscount = new double[nbIndex][nbIndex];
     for (int loopline = 0; loopline < nbIndex; loopline++) {
       for (int loopcol = 0; loopcol < nbIndex; loopcol++) {
