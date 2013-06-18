@@ -91,12 +91,7 @@ public class DepricatedCalAgaintISDATest {
   private static final ISDA_Results[] EXAMPLE1 = ISDAModelDatasets.getExample1();
   private static final ISDA_Results[] EXAMPLE3 = ISDAModelDatasets.getExample3();
 
-  // private static final ZonedDateTime[] FEE_LEG_PAYMENT_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 6, 20), DateUtils.getUTCDate(2013, 9, 20), DateUtils.getUTCDate(2013, 12, 20),
-  // DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2014, 6, 20), DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2014, 12, 22), DateUtils.getUTCDate(2015, 3, 20),
-  // DateUtils.getUTCDate(2015, 6, 22), DateUtils.getUTCDate(2015, 9, 21), DateUtils.getUTCDate(2015, 12, 21), DateUtils.getUTCDate(2016, 3, 21), DateUtils.getUTCDate(2016, 6, 20),
-  // DateUtils.getUTCDate(2016, 9, 20), DateUtils.getUTCDate(2016, 12, 20), DateUtils.getUTCDate(2017, 3, 20), DateUtils.getUTCDate(2017, 6, 20), DateUtils.getUTCDate(2017, 9, 20),
-  // DateUtils.getUTCDate(2017, 12, 20), DateUtils.getUTCDate(2018, 3, 20), DateUtils.getUTCDate(2018, 6, 20)};
-  //
+ 
   static {
     final int ccPoints = HR_DATES.length;
     HR_TIMES = new double[ccPoints];
@@ -147,7 +142,7 @@ public class DepricatedCalAgaintISDATest {
       ZonedDateTime end = ZonedDateTime.of(res.endDate, LOCAL_TIME, TIME_ZONE);
       ZonedDateTime effectiveDate = today.plusDays(1); // aka stepin date - hard coded to today+1
 
-      // make a CDS - not the notional is 10MM and cannot be changed (what ever is in res is ignored) TODO must change this 
+      // make a CDS - not the notional is 10MM and cannot be changed (what ever is in res is ignored) TODO must change this
       final CreditDefaultSwapDefinition cds;
       final CreditDefaultSwapDefinition cds_noAcc;
       try {
@@ -162,9 +157,9 @@ public class DepricatedCalAgaintISDATest {
       }
 
       // price it
-      double rpv01_clean_ISDA = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
-      double rpv01_clean_ISDA_noAccOnDefault = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds_noAcc, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
-      double rpv01_dirty_ISDA = DEPRICATED_CALCULATOR.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.DIRTY);
+      double rpv01_clean_ISDA = DEPRICATED_CALCULATOR_DEBUG.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
+      double rpv01_clean_ISDA_noAccOnDefault = DEPRICATED_CALCULATOR_DEBUG.calculatePremiumLeg(today, cds_noAcc, YIELD_CURVE, res.creditCurve, PriceType.CLEAN);
+      double rpv01_dirty_ISDA = DEPRICATED_CALCULATOR_DEBUG.calculatePremiumLeg(today, cds, YIELD_CURVE, res.creditCurve, PriceType.DIRTY);
       double contLeg_ISDA = DEPRICATED_CALCULATOR_DEBUG.calculateContingentLeg(today, cds, YIELD_CURVE, res.creditCurve);
 
       double premLeg_clean_ISDA = res.fracSpread * rpv01_clean_ISDA;
@@ -176,17 +171,23 @@ public class DepricatedCalAgaintISDATest {
       int accruedDays = (int) Math.round(360 * rpv01_accrued / NOTIONAL);
 
       if (debug) {
-        System.out.println(res.premiumLeg + "\t" + premLeg_clean_ISDA + "\t\t" + res.protectionLeg + "\t" + contLeg_ISDA + "\t\t" + res.defaultAcc + "\t" + defaultAcc + "\t\t" + res.accruedPremium
-            + "\t" + accruedPrem + "\t\t" + res.accruedDays + "\t" + accruedDays);
-      }
-      try {
-        assertEquals("Premium Leg:", res.premiumLeg, premLeg_clean_ISDA, 1e-8 * NOTIONAL); // This should be 1e-15*NOTIONAL
-        assertEquals("Protection Leg:", res.protectionLeg, contLeg_ISDA, 1e-8 * NOTIONAL); // ditto
-        assertEquals("Default Acc:", res.defaultAcc, defaultAcc, 1e-8 * NOTIONAL);
+        System.out.println(count + "\t" + res.premiumLeg + "\t" + premLeg_clean_ISDA + "\t\t" + res.protectionLeg + "\t" + contLeg_ISDA + "\t\t" + res.defaultAcc + "\t" + defaultAcc + "\t\t"
+            + res.accruedPremium + "\t" + accruedPrem + "\t\t" + res.accruedDays + "\t" + accruedDays);
+        try {
+          assertEquals("Premium Leg:", res.premiumLeg, premLeg_clean_ISDA, 1e-12 * NOTIONAL); // This should be 1e-15*NOTIONAL
+          assertEquals("Protection Leg:", res.protectionLeg, contLeg_ISDA, 1e-11 * NOTIONAL); // ditto
+          assertEquals("Default Acc:", res.defaultAcc, defaultAcc, 1e-13 * NOTIONAL);
+          assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
+          assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
+        } catch (AssertionError e) {
+          failCount++;
+        }
+      } else {
+        assertEquals("Premium Leg:", res.premiumLeg, premLeg_clean_ISDA, 1e-12 * NOTIONAL); // This should be 1e-15*NOTIONAL
+        assertEquals("Protection Leg:", res.protectionLeg, contLeg_ISDA, 1e-11 * NOTIONAL); // ditto
+        assertEquals("Default Acc:", res.defaultAcc, defaultAcc, 1e-13 * NOTIONAL);
         assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
         assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
-      } catch (AssertionError e) {
-        failCount++;
       }
     }
     if (debug) {
@@ -194,22 +195,23 @@ public class DepricatedCalAgaintISDATest {
     }
   }
 
-  @Test(enabled = false)
+  @Test
+  // (enabled = false)
   public void example1Test() {
-    testISDA_Results(EXAMPLE1, true);
+    testISDA_Results(EXAMPLE1, false);
   }
 
   @Test
-   (enabled = false)
+  // (enabled = false)
   public void example3Test() {
-    testISDA_Results(EXAMPLE3, true);
+    testISDA_Results(EXAMPLE3, false);
   }
 
-  @Test(enabled = false)
+  @Test
+  // (enabled = false)
   public void exampleSheetTest() {
-    testISDA_Results(ISDAModelDatasetsSheetReader.loadSheet("example1.csv", RECOVERY_RATE), true);
+    testISDA_Results(ISDAModelDatasetsSheetReader.loadSheet("example1.csv", RECOVERY_RATE), false);
   }
-
 
   @Test
   public void yieldCurveTest() {
