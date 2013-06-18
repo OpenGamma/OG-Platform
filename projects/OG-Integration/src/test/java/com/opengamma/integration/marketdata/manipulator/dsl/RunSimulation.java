@@ -57,6 +57,8 @@ import com.opengamma.livedata.UserPrincipal;
           // bump each spot rate in the scenario by the scale factor
           scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor);
         }
+        scenario.surface().named("foo").apply().constantMultiplicativeShift(0.1);
+        scenario.surface().named("bar").apply().singleAdditiveShift(1, 2, 3);
       }
 
       // run the simulation --------------------------------------------------------------------------------------------
