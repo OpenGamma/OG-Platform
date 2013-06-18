@@ -40,7 +40,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class MultipleNodeExecutionPlannerTest {
 
-  private static final boolean PRINT_GRAPHS = true;
+  private static final boolean PRINT_GRAPHS = false;
 
   /**
    * Test graph:

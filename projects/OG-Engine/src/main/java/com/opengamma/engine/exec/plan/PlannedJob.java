@@ -97,7 +97,7 @@ public class PlannedJob implements Serializable {
    */
   public CalculationJob createCalculationJob(final CalculationJobSpecification jobSpec, final long functionInitializationId,
       final VersionCorrection resolverVersionCorrection, final long[] requiredJobIds) {
-    assert getInputJobCount() == ((requiredJobIds != null) ? requiredJobIds.length : 0);
+    assert (requiredJobIds == null) || (getInputJobCount() == requiredJobIds.length);
     return new CalculationJob(jobSpec, functionInitializationId, resolverVersionCorrection, requiredJobIds, getItems(), getCacheSelectHint());
   }
 

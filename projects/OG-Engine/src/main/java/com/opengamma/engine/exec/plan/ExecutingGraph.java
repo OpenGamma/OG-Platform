@@ -196,7 +196,7 @@ public class ExecutingGraph {
           jobInfo.put(tail, tailInfo);
         }
         if (tailInfo.addRequiredJobId(jobId)) {
-          actual.addTail(createTailCalculationJob(planned, jobInfo));
+          actual.addTail(createTailCalculationJob(tail, jobInfo));
         }
       }
     }
