@@ -42,6 +42,7 @@ public class Scenario {
   /**
    * Creates a new scenario with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
    * and resolver version correction of {@link VersionCorrection#LATEST}.
+   * @param name The scenario name, not null
    */
   public Scenario(String name) {
     ArgumentChecker.notEmpty(name, "name"); // should this be allowed to be null? should there be a no-arg constructor?

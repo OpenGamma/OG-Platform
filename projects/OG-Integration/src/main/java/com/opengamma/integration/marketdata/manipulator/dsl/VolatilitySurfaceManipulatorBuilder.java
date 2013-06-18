@@ -5,6 +5,12 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceConstantMultiplicativeShift;
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceMultipleAdditiveShifts;
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceMultipleMultiplicativeShifts;
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceParallelShift;
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceSingleAdditiveShift;
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceSingleMultiplicativeShift;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,32 +31,32 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   public VolatilitySurfaceManipulatorBuilder parallelShift(double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceManipulations.ParallelShift(shift));
+    _scenario.add(_selector, new VolatilitySurfaceParallelShift(shift));
     return this;
   }
 
   public VolatilitySurfaceManipulatorBuilder singleAdditiveShift(double x, double y, double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceManipulations.SingleAdditiveShift(x, y, shift));
+    _scenario.add(_selector, new VolatilitySurfaceSingleAdditiveShift(x, y, shift));
     return this;
   }
 
   public VolatilitySurfaceManipulatorBuilder multipleAdditiveShifts(double[] x, double[] y, double[] shifts) {
-    _scenario.add(_selector, new VolatilitySurfaceManipulations.MultipleAdditiveShifts(x, y, shifts));
+    _scenario.add(_selector, new VolatilitySurfaceMultipleAdditiveShifts(x, y, shifts));
     return this;
   }
 
   public VolatilitySurfaceManipulatorBuilder constantMultiplicativeShift(double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceManipulations.ConstantMultiplicativeShift(shift));
+    _scenario.add(_selector, new VolatilitySurfaceConstantMultiplicativeShift(shift));
     return this;
   }
 
   public VolatilitySurfaceManipulatorBuilder singleMultiplicativeShift(double x, double y, double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceManipulations.SingleMultiplicativeShift(x, y, shift));
+    _scenario.add(_selector, new VolatilitySurfaceSingleMultiplicativeShift(x, y, shift));
     return this;
   }
 
   public VolatilitySurfaceManipulatorBuilder multipleMultiplicativeShifts(double[] x, double[] y, double[] shifts) {
-    _scenario.add(_selector, new VolatilitySurfaceManipulations.MultipleMultiplicativeShifts(x, y, shifts));
+    _scenario.add(_selector, new VolatilitySurfaceMultipleMultiplicativeShifts(x, y, shifts));
     return this;
   }
 }
