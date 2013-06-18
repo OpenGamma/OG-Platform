@@ -67,10 +67,6 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
   private static final String WRITE_OPT = "w";
   /** Verbose option flag */
   private static final String VERBOSE_OPT = "v";
-  /** Time series data provider option flag*/
-  private static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
-  /** Time series data field option flag*/
-  private static final String TIME_SERIES_DATAFIELD_OPT = "d";
 
   //-------------------------------------------------------------------------
 

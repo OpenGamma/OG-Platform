@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -24,6 +24,7 @@ import com.opengamma.engine.function.SimpleFunctionParameters;
 import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.marketdata.manipulator.CompositeMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -41,16 +42,23 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * A collection of {@link Scenario}s, each of which modifies the market data in a single calculation cycle.
  */
 public class Simulation {
 
   private static final Logger s_logger = LoggerFactory.getLogger(Simulation.class);
-
-  private final List<Scenario> _scenarios;
-  //private final String _name;
-  private final Set<DistinctMarketDataSelector> _allSelectors;
   private static final SimpleFunctionParameters NOOP_FUNCTION_PARAMETERS;
+
+  // TODO name field
+  //private final String _name;
+  /** The scenarios in this simulation, keyed by name. */
+  private final Map<String, Scenario> _scenarios = Maps.newHashMap();
+  /** The default calculation configuration name for scenarios. */
+  private final Set<String> _calcConfigNames;
+  /** The default valuation time for scenarios. */
+  private final Instant _valuationTime;
+  /** The default resolver version correction for scenarios. */
+  private final VersionCorrection _resolverVersionCorrection;
 
   static {
     NOOP_FUNCTION_PARAMETERS = new SimpleFunctionParameters();
@@ -58,46 +66,96 @@ public class Simulation {
     NOOP_FUNCTION_PARAMETERS.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, noOpManipulator);
   }
 
-  private Simulation(List<Scenario> scenarios) {
-    ArgumentChecker.notEmpty(scenarios, "scenarios");
-    _scenarios = ImmutableList.copyOf(scenarios);
-    //_name = null;
-    // TODO check for empty scenarios
-    Set<DistinctMarketDataSelector> selectors = Sets.newHashSet();
-    for (Scenario scenario : _scenarios) {
-      selectors.addAll(scenario.getMarketDataManipulations().keySet());
+  /**
+   * Creates a new simulation with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
+   * and resolver version correction of {@link VersionCorrection#LATEST}.
+   */
+  public Simulation() {
+    this(Instant.now(), VersionCorrection.LATEST);
+  }
+
+  /**
+   * Creates a new simulation, specifying the default values to use for its scenarios
+   * @param calcConfigNames The default calculation configuration name for scenarios
+   * @param valuationTime The default valuation time for scenarios
+   * @param resolverVersionCorrection The default resolver version correction for scenarios
+   */
+  public Simulation(Instant valuationTime, VersionCorrection resolverVersionCorrection, String... calcConfigNames) {
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
+    if (calcConfigNames.length > 0) {
+      _calcConfigNames = ImmutableSet.copyOf(calcConfigNames);
+    } else {
+      _calcConfigNames = null;
     }
-    _allSelectors = Collections.unmodifiableSet(selectors);
+    _valuationTime = valuationTime;
+    _resolverVersionCorrection = resolverVersionCorrection;
   }
 
   /* package */ Set<DistinctMarketDataSelector> allSelectors() {
-    return _allSelectors;
+    // TODO check for empty scenarios
+    Set<DistinctMarketDataSelector> selectors = Sets.newHashSet();
+    for (Scenario scenario : _scenarios.values()) {
+      selectors.addAll(scenario.createDefinition().getDefinitionMap().keySet());
+    }
+    return Collections.unmodifiableSet(selectors);
   }
 
-  /* package */ List<ViewCycleExecutionOptions> cycleExecutionOptions(ViewCycleExecutionOptions baseOptions) {
+  /**
+   * Builds cycle execution options for each scenario in this simulation.
+   * @param baseOptions Base set of options
+   * @param allSelectors This simulation's selectors
+   * @return Execution options for each scenario in this simulation
+   */
+  /* package */ List<ViewCycleExecutionOptions> cycleExecutionOptions(ViewCycleExecutionOptions baseOptions,
+                                                                      Set<DistinctMarketDataSelector> allSelectors) {
     List<ViewCycleExecutionOptions> options = Lists.newArrayListWithCapacity(_scenarios.size());
-    for (Scenario scenario : _scenarios) {
-      Map<DistinctMarketDataSelector, FunctionParameters> scenarioParams = scenario.getMarketDataManipulations();
+    for (Scenario scenario : _scenarios.values()) {
+      ScenarioDefinition definition = scenario.createDefinition();
+      Map<DistinctMarketDataSelector, FunctionParameters> scenarioParams = definition.getDefinitionMap();
       Map<DistinctMarketDataSelector, FunctionParameters> params = Maps.newHashMap();
       params.putAll(scenarioParams);
       // TODO confirm this is necessary, parameters might be cleared before every cycle
       // if a selector isn't used by a particular scenario then it needs to have a no-op manipulatior. if it didn't
       // then the manipulator from the previous scenario would be used
-      Set<DistinctMarketDataSelector> unusedSelectors = Sets.difference(_allSelectors, params.keySet());
+      Set<DistinctMarketDataSelector> unusedSelectors = Sets.difference(allSelectors, params.keySet());
       for (DistinctMarketDataSelector unusedSelector : unusedSelectors) {
         params.put(unusedSelector, NOOP_FUNCTION_PARAMETERS);
       }
-      // TODO different valuation time for each scenario
-      ViewCycleExecutionOptions scenarioOptions = baseOptions.copy().setFunctionParameters(params).create();
+      ViewCycleExecutionOptions scenarioOptions = baseOptions.copy()
+          .setFunctionParameters(params)
+          .setValuationTime(scenario.getValuationTime())
+          .setResolverVersionCorrection(scenario.getResolverVersionCorrection())
+          .create();
       options.add(scenarioOptions);
     }
     return options;
   }
 
-  // TODO does this belong here or on a helper class?
+  /**
+   * Adds a new scenario to this simulation, initializing it with default the simulation's default values
+   * for calculation configuration, valuation time and resolver version correction.
+   * @return The new scenario.
+   */
+  public Scenario scenario(String name) {
+    if (_scenarios.containsKey(name)) {
+      return _scenarios.get(name);
+    } else {
+      Scenario scenario = new Scenario(name, _calcConfigNames, _valuationTime, _resolverVersionCorrection);
+      _scenarios.put(name, scenario);
+      return scenario;
+    }
+  }
+
+  /**
+   * Executes this simulation on a running server.
+   * @param viewDefId The ID of the view definition to use
+   * @param marketDataSpecs The market data to use when running the view
+   * @param batchMode Whether to run the simulation using batch mode
+   * @param listener Listener that is notified as the simulation runs
+   * @param viewProcessor View process that will be used to execute the simulation
+   */
   public void run(UniqueId viewDefId,
-                  VersionCorrection resolverVersionCorrection,
-                  Instant valuationTime,
                   List<MarketDataSpecification> marketDataSpecs,
                   boolean batchMode,
                   ViewResultListener listener,
@@ -108,12 +166,10 @@ public class Simulation {
       ViewCycleExecutionOptions baseOptions =
           ViewCycleExecutionOptions
               .builder()
-              .setValuationTime(valuationTime)
               .setMarketDataSpecifications(marketDataSpecs)
               .setMarketDataSelector(CompositeMarketDataSelector.of(allSelectors))
-              .setResolverVersionCorrection(resolverVersionCorrection)
               .create();
-      List<ViewCycleExecutionOptions> cycleOptions = cycleExecutionOptions(baseOptions);
+      List<ViewCycleExecutionOptions> cycleOptions = cycleExecutionOptions(baseOptions, allSelectors);
       ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(cycleOptions);
       EnumSet<ViewExecutionFlags> executionFlags = ExecutionFlags.none().awaitMarketData().runAsFastAsPossible().get();
       ViewExecutionOptions executionOptions;
@@ -136,26 +192,6 @@ public class Simulation {
       }
     } finally {
       viewClient.shutdown();
-    }
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-
-    private final List<Scenario> _scenarios = Lists.newArrayList();
-
-    public Scenario addScenario() {
-      // scenario needs a ref to the simulation but it doesn't exist yet, only the builder does
-      Scenario scenario = new Scenario();
-      _scenarios.add(scenario);
-      return scenario;
-    }
-
-    public Simulation build() {
-      return new Simulation(_scenarios);
     }
   }
 }

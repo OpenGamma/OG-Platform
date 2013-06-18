@@ -6,7 +6,6 @@
 package com.opengamma.integration.viewer.status;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -14,9 +13,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EnumUtils;
 
@@ -25,46 +23,48 @@ import com.opengamma.util.EnumUtils;
  */
 public final class ViewStatusReporterOption {
   
-  private static final String DEFAULT_TARGET_TYPE = "position";
   private static final String DEFAULT_FORMAT = "html";
   
-  private static final List<String> SUPPORTED_TARGET_TYPES = Lists.newArrayList("position");
-  private static final List<String> SUPPORTED_FORMAT = Lists.newArrayList("html");
+  private static final List<String> SUPPORTED_FORMAT = Lists.newArrayList("html", "csv");
   /** 
    * Portfolio name option flag 
    */
   private static final String PORTFOLIO_NAME_OPT = "n";
   /** 
-   * Computation target type 
+   * Username option flag
    */
-  private static final String TARGET_TYPE_OPT = "t";
+  private static final String USERNAME_OPT = "u";
+  /**
+   * User ip address flag
+   */
+  private static final String USER_IP_ADDRESS_OPT = "ip";
   /**
    * Result format type
    */
   private static final String FORMAT_TYPE_OPT = "fm";
-  
+  /**
+   * Default user
+   */
+  private static final UserPrincipal DEFAULT_USER = UserPrincipal.getLocalUser();
   
   private final String _portfolioName;
   
-  private final String _computationTargetType;
-  
   private final String _format;
   
-  private ViewStatusReporterOption(final String portfolioName, String computationTargetType, String format) {
+  private final UserPrincipal _user;
+    
+  private ViewStatusReporterOption(final String portfolioName, String format, UserPrincipal user) {
     ArgumentChecker.notNull(portfolioName, "portfolioName");
+    ArgumentChecker.notNull(user, "user");
+    ArgumentChecker.notNull(format, "format");
+    
     _portfolioName = portfolioName;
-    
-    computationTargetType = computationTargetType.toLowerCase();
-    if (!SUPPORTED_TARGET_TYPES.contains(computationTargetType)) {
-      throw new OpenGammaRuntimeException("Unsupported target type: " + computationTargetType);
-    }
-    _computationTargetType = computationTargetType;
-    
     format = format.toLowerCase();
     if (!SUPPORTED_FORMAT.contains(format)) {
       throw new OpenGammaRuntimeException("Unsupported format type: " + format);
     }
     _format = format;
+    _user = user;
   }
   
   public static Options createOptions() {
@@ -75,15 +75,19 @@ public final class ViewStatusReporterOption {
     portfolioNameOption.setArgName("portfolioName");
     portfolioNameOption.setRequired(true);
    
-    Option targetTypeOption = new Option(TARGET_TYPE_OPT, "target", true, "the computation target type");
-    targetTypeOption.setArgName("position, portfolio_node");
+    Option usernameOption = new Option(USERNAME_OPT, "username", true, "the username for computing views");
+    usernameOption.setArgName("username");
+    
+    Option ipaddressOption = new Option(USER_IP_ADDRESS_OPT, "ipaddress", true, "the ip address of user for computing views");
+    ipaddressOption.setArgName("ipaddress");
     
     Option formatTypeOption = new Option(FORMAT_TYPE_OPT, "format", true, "the format of status result, default is html");
     formatTypeOption.setArgName("csv, xml, html");
     
     options.addOption(portfolioNameOption);
-    options.addOption(targetTypeOption);
+    options.addOption(usernameOption);
     options.addOption(formatTypeOption);
+    options.addOption(ipaddressOption);
     
     return options;
   }
@@ -92,13 +96,23 @@ public final class ViewStatusReporterOption {
     ArgumentChecker.notNull(commandLine, "commandLine");
     
     String portfolioName = StringUtils.trimToNull(commandLine.getOptionValue(PORTFOLIO_NAME_OPT));
-    String computationTargetType = StringUtils.trimToNull(commandLine.getOptionValue(TARGET_TYPE_OPT));
-    computationTargetType = StringUtils.defaultString(computationTargetType, DEFAULT_TARGET_TYPE);
+    String username = StringUtils.trimToNull(commandLine.getOptionValue(USERNAME_OPT));
+    UserPrincipal user = null;
+    if (username == null) {
+      user = DEFAULT_USER;
+    } else {
+      String ipaddress = StringUtils.trimToNull(commandLine.getOptionValue(USER_IP_ADDRESS_OPT));
+      if (ipaddress == null) {
+        user = DEFAULT_USER;
+      } else {
+        user = new UserPrincipal(username, ipaddress);
+      }
+    }
     
     String format = StringUtils.trimToNull(commandLine.getOptionValue(FORMAT_TYPE_OPT));
     format = StringUtils.defaultString(format, DEFAULT_FORMAT);
     
-    return new ViewStatusReporterOption(portfolioName, computationTargetType, format);
+    return new ViewStatusReporterOption(portfolioName, format, user);
   }
 
   /**
@@ -108,16 +122,15 @@ public final class ViewStatusReporterOption {
   public String getPortfolioName() {
     return _portfolioName;
   }
-
-
-  /**
-   * Gets the computationTargetType.
-   * @return the computationTargetType
-   */
-  public String getComputationTargetType() {
-    return _computationTargetType;
-  }
   
+  /**
+   * Gets the user.
+   * @return the user
+   */
+  public UserPrincipal getUser() {
+    return _user;
+  }
+
   /**
    * Gets the format.
    * @return the format
@@ -125,40 +138,7 @@ public final class ViewStatusReporterOption {
   public String getFormat() {
     return _format;
   }
-  
-  static enum TargetType {
-    /**
-     * Position
-     */
-    POSITION,
-    /**
-     * Portfolio Node
-     */
-    PORTFOLIO_NODE;
     
-    private static Map<TargetType, ComputationTargetType> s_typeMapping = Maps.newHashMap();
-    static {
-      s_typeMapping.put(POSITION, ComputationTargetType.POSITION);
-      s_typeMapping.put(PORTFOLIO_NODE, ComputationTargetType.PORTFOLIO_NODE);
-    }
-
-    public static TargetType of(String targetTypeStr) {
-      targetTypeStr = StringUtils.trimToNull(targetTypeStr);
-      if (targetTypeStr != null) {
-        return EnumUtils.safeValueOf(TargetType.class, targetTypeStr.toUpperCase());
-      }
-      return null;
-    }
-    
-    public static ComputationTargetType toEngineType(TargetType type) {
-      ComputationTargetType targetType = s_typeMapping.get(type);
-      if (targetType == null) {
-        throw new OpenGammaRuntimeException("Unsupported target type: " + type.name());
-      }
-      return targetType;
-    }
-  }
-  
   static enum ResultFormat {
     /**
      * CSV

@@ -20,20 +20,27 @@ import com.google.common.collect.Sets;
 import com.opengamma.util.money.Currency;
 
 /**
- * TODO this logic is useful for any class that extends Selector
+ * TODO this logic is useful for any class that extends Selector - move to helper methods in selector fudge builder
  */
-@FudgeBuilderFor(CurveSelector.class)
-public class CurveSelectorFudgeBuilder implements FudgeBuilder<CurveSelector> {
+@FudgeBuilderFor(YieldCurveSelector.class)
+public class YieldCurveSelectorFudgeBuilder implements FudgeBuilder<YieldCurveSelector> {
 
-  private static final String CALC_CONFIG = "calculationConfigurationName";
+  private static final String CALC_CONFIGS = "calculationConfigurationNames";
   private static final String NAMES = "names";
   private static final String CURRENCIES = "currencies";
   private static final String NAME_PATTERN = "namePattern";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CurveSelector selector) {
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, YieldCurveSelector selector) {
     MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessage(msg, CALC_CONFIG, null, selector.getCalcConfigName());
+    Set<String> calcConfigNames = selector.getCalcConfigNames();
+    if (calcConfigNames != null) {
+      MutableFudgeMsg calcConfigsMsg = serializer.newMessage();
+      for (String calcConfigName : calcConfigNames) {
+        serializer.addToMessage(calcConfigsMsg, null, null, calcConfigName);
+      }
+      serializer.addToMessage(msg, CALC_CONFIGS, null, calcConfigsMsg);
+    }
     if (selector.getNames() != null && !selector.getNames().isEmpty()) {
       MutableFudgeMsg namesMsg = serializer.newMessage();
       for (String name : selector.getNames()) {
@@ -55,9 +62,17 @@ public class CurveSelectorFudgeBuilder implements FudgeBuilder<CurveSelector> {
   }
 
   @Override
-  public CurveSelector buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    String calcConfigName = deserializer.fieldValueToObject(String.class, msg.getByName(CALC_CONFIG));
-
+  public YieldCurveSelector buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    Set<String> calcConfigNames;
+    if (msg.hasField(CALC_CONFIGS)) {
+      calcConfigNames = Sets.newHashSet();
+      FudgeMsg calcConfigsMsg = msg.getMessage(CALC_CONFIGS);
+      for (FudgeField field : calcConfigsMsg) {
+        calcConfigNames.add(deserializer.fieldValueToObject(String.class, field));
+      }
+    } else {
+      calcConfigNames = null;
+    }
     FudgeField namesField = msg.getByName(NAMES);
     Set<String> names;
     if (namesField != null) {
@@ -90,6 +105,6 @@ public class CurveSelectorFudgeBuilder implements FudgeBuilder<CurveSelector> {
     } else {
       namePattern = null;
     }
-    return new CurveSelector(calcConfigName, names, currencies, namePattern);
+    return new YieldCurveSelector(calcConfigNames, names, currencies, namePattern);
   }
 }

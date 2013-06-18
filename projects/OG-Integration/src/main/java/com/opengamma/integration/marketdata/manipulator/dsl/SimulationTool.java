@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
@@ -28,7 +27,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
- *
+ * Tool for running simulations. It's probably easier to use the approach in {@code RunSimulation} instead.
  */
 @Scriptable
 public class SimulationTool extends AbstractTool<ToolContext> {
@@ -66,9 +65,6 @@ public class SimulationTool extends AbstractTool<ToolContext> {
         ImmutableList.<MarketDataSpecification>of(new LiveMarketDataSpecification("Simulated live market data"));
     SimulationSupplier supplier = instantiate(supplierClassName, SimulationSupplier.class);
     Simulation simulation = supplier.get();
-    Instant valuationTime = Instant.now();
-    // TODO do there need to be options for these version corrections?
-    VersionCorrection resolverVersionCorrection = VersionCorrection.LATEST;
     VersionCorrection viewDefVersionCorrection = VersionCorrection.LATEST;
     Collection<ConfigItem<ViewDefinition>> viewDefs =
         configSource.get(ViewDefinition.class, portfolioName, viewDefVersionCorrection);
@@ -77,7 +73,7 @@ public class SimulationTool extends AbstractTool<ToolContext> {
     }
     ConfigItem<ViewDefinition> viewDef = viewDefs.iterator().next();
     UniqueId viewDefId = viewDef.getUniqueId();
-    simulation.run(viewDefId, resolverVersionCorrection, valuationTime, marketDataSpecs, batchMode, listener, viewProcessor);
+    simulation.run(viewDefId, marketDataSpecs, batchMode, listener, viewProcessor);
   }
 
   @SuppressWarnings("unchecked")

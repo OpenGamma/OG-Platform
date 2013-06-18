@@ -41,6 +41,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioNodeEquivalenceMapper;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -428,7 +429,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         try {
           // Don't query the cache so that the process gets a "compiled" message even if a cached compilation is used
           final CompiledViewDefinitionWithGraphs previous = _latestCompiledViewDefinition;
-          if (_ignoreCompilationValidity && (previous != null)) {
+          if (_ignoreCompilationValidity && (previous != null) && CompiledViewDefinitionWithGraphsImpl.isValidFor(previous, compilationValuationTime)) {
             compiledViewDefinition = previous;
           } else {
             compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
@@ -750,13 +751,17 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private EngineResourceReference<SingleComputationCycle> createCycle(final ViewCycleExecutionOptions executionOptions,
       final CompiledViewDefinitionWithGraphs compiledViewDefinition, final VersionCorrection versionCorrection) {
+
+    // [PLAT-3581] Is the check below still necessary? The logic to create the valuation time for compilation is the same as that for
+    // populating the valuation time on the execution options that this detects.
+
     // View definition was compiled based on compilation options, which might have only included an indicative
     // valuation time. A further check ensures that the compiled view definition is still valid.
     if (!CompiledViewDefinitionWithGraphsImpl.isValidFor(compiledViewDefinition, executionOptions.getValuationTime())) {
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
-    final UniqueId cycleId = getProcessContext().getCycleIdentifiers().get();
 
+    final UniqueId cycleId = getProcessContext().getCycleIdentifiers().get();
     final ComputationResultListener streamingResultListener = new ComputationResultListener() {
       @Override
       public void resultAvailable(final ViewComputationResultModel result) {
@@ -828,19 +833,42 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return new PortfolioNodeEquivalenceMapper();
   }
 
-  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped) {
-    if (mapped.containsKey(node.getUniqueId())) {
-      return;
+  private void markMappedPositions(final PortfolioNode node, final Map<UniqueId, Position> positions) {
+    for (Position position : node.getPositions()) {
+      positions.put(position.getUniqueId(), null);
     }
-    if (unmapped.add(node.getUniqueId())) {
+    for (PortfolioNode child : node.getChildNodes()) {
+      markMappedPositions(child, positions);
+    }
+  }
+
+  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped, final Map<UniqueId, Position> positions) {
+    if (mapped.containsKey(node.getUniqueId())) {
+      // This node is mapped; as are the nodes underneath it, so just mark the child positions
+      markMappedPositions(node, positions);
+    } else {
+      // This node is unmapped - mark it as such and check the nodes underneath it
+      unmapped.add(node.getUniqueId());
       for (PortfolioNode child : node.getChildNodes()) {
-        findUnmapped(child, mapped, unmapped);
+        findUnmapped(child, mapped, unmapped, positions);
       }
-      for (Position child : node.getPositions()) {
-        if (unmapped.add(child.getUniqueId())) {
-          for (Trade trade : child.getTrades()) {
-            unmapped.add(trade.getUniqueId());
-          }
+      // Any child positions (and their trades) are unmapped if, and only if, they are not referenced by anything else
+      for (Position position : node.getPositions()) {
+        if (!positions.containsKey(position.getUniqueId())) {
+          positions.put(position.getUniqueId(), position);
+        }
+      }
+    }
+  }
+
+  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped) {
+    final Map<UniqueId, Position> positions = new HashMap<UniqueId, Position>();
+    findUnmapped(node, mapped, unmapped, positions);
+    for (Map.Entry<UniqueId, Position> position : positions.entrySet()) {
+      if (position.getValue() != null) {
+        unmapped.add(position.getKey());
+        for (Trade trade : position.getValue().getTrades()) {
+          unmapped.add(trade.getUniqueId());
         }
       }
     }
@@ -994,7 +1022,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         invalidIdentifiers.put(target.getValue(), resolved);
       }
     }
-    s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
+    s_logger.info("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
     return invalidIdentifiers;
   }
 
@@ -1053,6 +1081,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    * @param include the map to build the result into
    * @param nodes the nodes to process
    * @param filter the filter to apply to the nodes
+   * @return true if all of the nodes in the collection were included
    */
   private static boolean includeNodes(final Map<DependencyNode, Boolean> include, final Collection<DependencyNode> nodes, final DependencyNodeFilter filter) {
     boolean includedAll = true;
@@ -1186,8 +1215,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
                 // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
                 // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
                 // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
-                final ComputationTarget newPortfolio = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver()
-                    .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                final ComputationTargetResolver resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
+                final ComputationTargetSpecification portfolioSpec = resolver.getSpecificationResolver().getTargetSpecification(
+                    new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                final ComputationTarget newPortfolio = resolver.resolve(portfolioSpec, versionCorrection);
                 unchangedNodes = rewritePortfolioNodes(previousGraphs, compiledViewDefinition, (Portfolio) newPortfolio.getValue());
               }
               // Invalidate any dependency graph nodes on the invalid targets

@@ -14,7 +14,7 @@ import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Manipulator that scales a single market data value.
  */
 public class Scaling implements StructureManipulator<Double> {
 

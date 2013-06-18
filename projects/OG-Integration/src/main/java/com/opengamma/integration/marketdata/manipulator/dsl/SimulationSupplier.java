@@ -6,7 +6,7 @@
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 /**
- * A supplier of {@link Simulation}s.
+ * A supplier of {@link Simulation}s. It's probably easier to run simulations using the approach in {@code RunSimulation}.
  */
 public interface SimulationSupplier {
 

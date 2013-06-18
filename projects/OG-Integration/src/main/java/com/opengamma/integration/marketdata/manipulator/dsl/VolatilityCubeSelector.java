@@ -8,21 +8,21 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.util.money.Currency;
 
 /**
  *
  */
-public class CurveSelector extends Selector<YieldCurveKey> {
+public class VolatilityCubeSelector extends Selector<VolatilityCubeKey> {
 
-  /* package */ CurveSelector(String calcConfigName, Set<String> names, Set<Currency> currencies, Pattern namePattern) {
-    super(calcConfigName, names, currencies, namePattern, YieldCurveKey.class, StructureType.YIELD_CURVE);
+  /* package */ VolatilityCubeSelector(Set<String> calcConfigNames, Set<String> names, Set<Currency> currencies, Pattern namePattern) {
+    super(calcConfigNames, names, currencies, namePattern, VolatilityCubeKey.class, StructureType.VOLATILITY_CUBE);
   }
 
   @Override
-  boolean matches(YieldCurveKey key) {
+  boolean matches(VolatilityCubeKey key) {
     return matches(key.getName(), key.getCurrency());
   }
 
@@ -30,11 +30,11 @@ public class CurveSelector extends Selector<YieldCurveKey> {
   public static class Builder extends Selector.Builder {
 
     /* package */ Builder(Scenario scenario, String calcConfigName) {
-      super(scenario, calcConfigName);
+      super(scenario);
     }
 
-    public CurveManipulatorBuilder apply() {
-      return new CurveManipulatorBuilder(selector(), getScenario());
+    public VolatilityCubeManipulatorBuilder apply() {
+      return new VolatilityCubeManipulatorBuilder(selector(), getScenario());
     }
 
     @Override
@@ -59,8 +59,8 @@ public class CurveSelector extends Selector<YieldCurveKey> {
      * This is package scoped for testing
      * @return A selector built from this builder's data
      */
-    /* package */ CurveSelector selector() {
-      return new CurveSelector(getCalcConfigName(), getNames(), getCurrencies(), getNamePattern());
+    /* package */ VolatilityCubeSelector selector() {
+      return new VolatilityCubeSelector(getScenario().getCalcConfigNames(), getNames(), getCurrencies(), getNamePattern());
     }
   }
 }

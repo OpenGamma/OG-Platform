@@ -118,6 +118,10 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   public ValueRequirement getValueRequirement() {
     return _valueRequirement;
   }
+  
+  public List<Object> getEvents() {
+    return _events;
+  }
 
   @SuppressWarnings("unchecked")
   @Override

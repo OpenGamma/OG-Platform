@@ -44,9 +44,11 @@ import com.opengamma.util.tuple.Pair;
 
     private final ComputationTargetSpecification _targetSpec;
     private final Set<Pair<String, ValueProperties>> _requirements = Sets.newHashSet();
+    private final boolean _excluded;
 
-    public NodeData(final PortfolioNode node) {
+    public NodeData(final PortfolioNode node, final boolean excluded) {
       _targetSpec = ComputationTargetSpecification.of(node);
+      _excluded = excluded;
     }
 
     public synchronized void addRequirements(final Set<Pair<String, ValueProperties>> requirements) {
@@ -61,14 +63,20 @@ import com.opengamma.util.tuple.Pair;
       return _targetSpec;
     }
 
+    public boolean isExcluded() {
+      return _excluded;
+    }
+
   }
 
   private final Set<UniqueId> _includeEvents;
   private final Set<UniqueId> _excludeEvents;
   private Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType;
-  private final ResultModelDefinition _resultModelDefinition;
   private final DependencyGraphBuilder _builder;
   private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
+  private final boolean _outputAggregates;
+  private final boolean _outputPositions;
+  private final boolean _outputTrades;
 
   /**
    * This map persists gathered information for each portfolio node and position across multiple traversal steps, thus allowing child nodes/positions to insert aggregate requirements into their parent
@@ -79,7 +87,10 @@ import com.opengamma.util.tuple.Pair;
   public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
       final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
     _portfolioRequirementsBySecurityType = calculationConfiguration.getPortfolioRequirementsBySecurityType();
-    _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
+    final ResultModelDefinition resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
+    _outputAggregates = resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE;
+    _outputPositions = resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE;
+    _outputTrades = resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE;
     _builder = builder;
     _resolutions = resolutions;
     _includeEvents = includeEvents;
@@ -149,26 +160,33 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public void preOrderOperation(final PortfolioNode node) {
     // If a sub-set of nodes is to be considered, fail/return quickly
+    boolean nodeExcluded = false;
     if (_excludeEvents != null) {
       if (_excludeEvents.contains(node.getUniqueId())) {
-        return;
+        if ((node.getParentNodeId() != null) && (_nodeData.get(node.getParentNodeId()) != null)) {
+          nodeExcluded = true;
+        } else {
+          return;
+        }
       }
     }
     // Initialise an empty set of requirements for the current portfolio node
     // This will be filled in as the traversal of this portfolio node's children proceeds, and retrieved during
     // this portfolio node's post-order traversal.
-    final NodeData nodeData = new NodeData(node);
+    final NodeData nodeData = new NodeData(node, nodeExcluded);
     _nodeData.put(node.getUniqueId(), nodeData);
-    // Retrieve the required aggregate outputs (by 'aggregate' sec type) for the current calc configuration
-    final Set<Pair<String, ValueProperties>> requiredOutputs =
-        _portfolioRequirementsBySecurityType.get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
-    if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-      // Add the aggregate value requirements for the current portfolio node to the graph builder's set of value requirements,
-      // building them using the retrieved required aggregate outputs and the newly created computation target spec
-      // for this portfolio node.
-      final ComputationTargetSpecification targetSpec = nodeData.getTargetSpecification();
-      for (final Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-        addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), targetSpec, requiredOutput.getSecond()));
+    if (_outputAggregates && !nodeExcluded) {
+      // Retrieve the required aggregate outputs (by 'aggregate' sec type) for the current calc configuration
+      final Set<Pair<String, ValueProperties>> requiredOutputs =
+          _portfolioRequirementsBySecurityType.get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
+      if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
+        // Add the aggregate value requirements for the current portfolio node to the graph builder's set of value requirements,
+        // building them using the retrieved required aggregate outputs and the newly created computation target spec
+        // for this portfolio node.
+        final ComputationTargetSpecification targetSpec = nodeData.getTargetSpecification();
+        for (final Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+          addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), targetSpec, requiredOutput.getSecond()));
+        }
       }
     }
   }
@@ -182,14 +200,19 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
     // If a sub-set of positions is to be considered, fail/return quickly
+    boolean positionExcluded = false;
+    NodeData nodeData = null;
     if (_includeEvents != null) {
       if (!_includeEvents.contains(position.getUniqueId())) {
         return;
       }
     } else if (_excludeEvents != null) {
-      if (_excludeEvents.contains(parentNode.getUniqueId())) {
+      nodeData = _nodeData.get(parentNode.getUniqueId());
+      if (nodeData == null) {
+        // Node is wholly excluded if it has no entry in the map
         return;
       }
+      positionExcluded = nodeData.isExcluded();
     }
 
     // Get this position's security or return immediately if not available
@@ -197,8 +220,10 @@ import com.opengamma.util.tuple.Pair;
     if (security == null) {
       return;
     }
-    store(position);
-    store(position.getSecurityLink());
+    if (!positionExcluded) {
+      store(position);
+      store(position.getSecurityLink());
+    }
 
     // Identify this position's security type
     final String securityType = security.getSecurityType();
@@ -206,21 +231,22 @@ import com.opengamma.util.tuple.Pair;
     Set<Pair<String, ValueProperties>> requiredOutputs;
 
     // Are we interested in producing results for positions?
-    if ((_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE)
-        || (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE)) {
+    if (_outputPositions || _outputAggregates) {
 
       // Get all known required outputs for this security type in the current calculation configuration
       requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
 
       // Check that there's at least one required output to deal with
       if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-        final NodeData nodeData = _nodeData.get(parentNode.getUniqueId());
+        if (nodeData == null) {
+          nodeData = _nodeData.get(parentNode.getUniqueId());
+        }
         // Are we interested in aggregate results for the parent? If so, pass on requirements to parent portfolio node
-        if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
+        if (_outputAggregates) {
           nodeData.addRequirements(requiredOutputs);
         }
         // Are we interested in any results at all for this position?
-        if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
+        if (_outputPositions && !positionExcluded) {
           final ComputationTargetSpecification positionSpec = nodeData.getTargetSpecification().containing(ComputationTargetType.POSITION, position.getUniqueId().toLatest());
           // Add the value requirements for the current position to the graph builder's set of value requirements,
           // building them using the retrieved required outputs for this security type and the newly created computation
@@ -231,9 +257,9 @@ import com.opengamma.util.tuple.Pair;
         }
       }
     }
-    final Collection<Trade> trades = position.getTrades();
-    if (!trades.isEmpty()) {
-      if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
+    if (_outputTrades && !positionExcluded) {
+      final Collection<Trade> trades = position.getTrades();
+      if (!trades.isEmpty()) {
         requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
 
         // Check that there's at least one required output to deal with
@@ -252,9 +278,9 @@ import com.opengamma.util.tuple.Pair;
             }
           }
         }
-      }
-      for (final Trade trade : position.getTrades()) {
-        store(trade.getSecurityLink());
+        for (final Trade trade : position.getTrades()) {
+          store(trade.getSecurityLink());
+        }
       }
     }
   }
@@ -270,7 +296,7 @@ import com.opengamma.util.tuple.Pair;
     // Retrieve this portfolio node's value requirements (gathered during traversal of this portfolio node's children)
     final NodeData nodeData = _nodeData.remove(node.getUniqueId());
     if (nodeData == null) {
-      // Excluded
+      // Totally excluded
       return;
     }
     final Set<Pair<String, ValueProperties>> nodeRequirements = nodeData.getRequirements();
@@ -279,12 +305,14 @@ import com.opengamma.util.tuple.Pair;
       final NodeData parentNodeData = _nodeData.get(node.getParentNodeId());
       parentNodeData.addRequirements(nodeRequirements);
     }
-    final ComputationTargetSpecification targetSpec = nodeData.getTargetSpecification();
-    // Add the value requirements for the current portfolio node to the graph builder's set of value requirements,
-    // building them using the requirements gathered during its children's traversal and the newly created computation
-    // target spec for this portfolio node.
-    for (final Pair<String, ValueProperties> requiredOutput : nodeRequirements) {
-      addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), targetSpec, requiredOutput.getSecond()));
+    if (!nodeData.isExcluded()) {
+      final ComputationTargetSpecification targetSpec = nodeData.getTargetSpecification();
+      // Add the value requirements for the current portfolio node to the graph builder's set of value requirements,
+      // building them using the requirements gathered during its children's traversal and the newly created computation
+      // target spec for this portfolio node.
+      for (final Pair<String, ValueProperties> requiredOutput : nodeRequirements) {
+        addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), targetSpec, requiredOutput.getSecond()));
+      }
     }
   }
 
