@@ -11,6 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator;
+
 /**
  * 
  */

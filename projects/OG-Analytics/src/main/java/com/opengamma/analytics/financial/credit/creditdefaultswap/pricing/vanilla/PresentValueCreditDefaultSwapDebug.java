@@ -5,6 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla;
 
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.toLocalDate;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.getIntegrationNodesAsDates;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.truncateList;
+
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -12,16 +17,16 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.Ca
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACompliantPremiumLegCalculator;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACompliantScheduleGenerator;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDAPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.schedulegeneration.ScheduleUtils;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * This is a version  of PresentValueCreditDefaultSwap for testing/debugging purposes only. <b>Do not use in any production code.</b>
@@ -40,10 +45,10 @@ public class PresentValueCreditDefaultSwapDebug {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
 
-  // Create objects used for the construction of the various legs in the CDS valuation
-  private static final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegScheduleBuilder = new GenerateCreditDefaultSwapPremiumLegSchedule();
-  private static final GenerateCreditDefaultSwapIntegrationSchedule contingentLegScheduleBuilder = new GenerateCreditDefaultSwapIntegrationSchedule();
-  private static final GenerateCreditDefaultSwapIntegrationSchedule accruedLegScheduleBuilder = new GenerateCreditDefaultSwapIntegrationSchedule();
+  // // Create objects used for the construction of the various legs in the CDS valuation
+  // private static final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegScheduleBuilder = new GenerateCreditDefaultSwapPremiumLegSchedule();
+  // private static final GenerateCreditDefaultSwapIntegrationSchedule contingentLegScheduleBuilder = new GenerateCreditDefaultSwapIntegrationSchedule();
+  // private static final GenerateCreditDefaultSwapIntegrationSchedule accruedLegScheduleBuilder = new GenerateCreditDefaultSwapIntegrationSchedule();
 
   // Create an object for calibrating a SNCDS
   private static final CalibrateHazardRateTermStructureISDAMethod cdsCalibrator = new CalibrateHazardRateTermStructureISDAMethod();
@@ -83,72 +88,83 @@ public class PresentValueCreditDefaultSwapDebug {
   @Deprecated
   public double calculatePremiumLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
+    ArgumentChecker.notNull(valuationDate, "null valuationDate");
+    ArgumentChecker.notNull(cds, "null cds");
+    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
+    ArgumentChecker.notNull(hazardRateCurve, "null hazardRateCurve");
+    ArgumentChecker.notNull(priceType, "null priceType");
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
+    final LocalDate valueDate = valuationDate.toLocalDate();
+    final LocalDate today = valueDate; // TODO in the ISDA code today is a separate input to value(ation)Date - here they are the same
+    // TODO uncomment this once it is a usful test (i.e. donot set today = valueDate)
+    // ArgumentChecker.isFalse(valueDate.isBefore(today), "require valueDate > = today");
+    final LocalDate stepinDate = cds.getEffectiveDate().toLocalDate();
+    ArgumentChecker.isFalse(stepinDate.isBefore(today), "require stepinDate >= today");
 
     double presentValuePremiumLeg = 0.0;
-
     double thisPV = 0.0; // this sums the (risk discounted) premium payments ignoring the premium accrued on default (name from ISDA c code)
-
     int obsOffset = 0;
 
-    final ZonedDateTime today = valuationDate;
-    final ZonedDateTime stepinDate = cds.getEffectiveDate();
-
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Build the premium leg cashflow schedule from the contract specification
-    final ZonedDateTime[][] premiumLegSchedule = premiumLegScheduleBuilder.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
+    // // Build the premium leg cashflow schedule from the contract specification
+    // final ZonedDateTime[][] premiumLegSchedule = premiumLegScheduleBuilder.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
 
-    // Build the integration schedule for the calculation of the accrued leg (this is not a cashflow schedule per se, but a set of time nodes for evaluating the accrued payment integral)
-    final ZonedDateTime[] accruedLegIntegrationSchedule = accruedLegScheduleBuilder.constructCreditDefaultSwapAccruedLegIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, false);
+    final LocalDate startDate = cds.getStartDate().toLocalDate();
+    final LocalDate endDate = cds.getMaturityDate().toLocalDate();
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
+    ISDAPremiumLegSchedule paymentSchedule = new ISDAPremiumLegSchedule(startDate, endDate, cds.getCouponFrequency().getPeriod(), cds.getStubType(), cds.getBusinessDayAdjustmentConvention(),
+        cds.getCalendar(), cds.getProtectionStart());
+    final int nPayments = paymentSchedule.getNumPayments();
 
-    // TODO : Add the extra logic for this calculation (safe for the moment since 'protectionStart' is TRUE always)
-    // TODO : ISDA uses accEndDates - check this
-    // final ZonedDateTime matDate = cds.getMaturityDate();
-    final ZonedDateTime matDate = premiumLegSchedule[premiumLegSchedule.length - 1][2].minusDays(1); // this is the final accrual end date minus one day
+    // these are potentially different from startDate and endDate
+    final LocalDate globalAccStart = paymentSchedule.getAccStartDate(0);
+    final LocalDate golobalAccEnd = paymentSchedule.getAccEndDate(nPayments - 1);
 
-    // TODO : Check valueDate >= today and stepinDate >= today
+    // TODO this logic could be part of ISDAPremiumLegSchdule
+    final LocalDate matDate = cds.getProtectionStart() ? golobalAccEnd.minusDays(1) : golobalAccEnd;
 
     if (today.isAfter(matDate) || stepinDate.isAfter(matDate)) {
-
-      // Trade has no remaining value
-      presentValuePremiumLeg = 0.0;
-
-      return presentValuePremiumLeg;
+      return 0.0; // trade has expired
     }
+
+    final LocalDate[] yieldCurveDates = toLocalDate(yieldCurve.getCurveDates());
+    final LocalDate[] creditCurveDates = toLocalDate(hazardRateCurve.getCurveTenors());
+    LocalDate[] integrationSchedule = getIntegrationNodesAsDates(globalAccStart, golobalAccEnd, yieldCurveDates, creditCurveDates);
+
+    // Build the integration schedule for the calculation of the accrued leg (this is not a cashflow schedule per se, but a set of time nodes for evaluating the accrued payment integral)
+    // final ZonedDateTime[] accruedLegIntegrationSchedule = accruedLegScheduleBuilder.constructCreditDefaultSwapAccruedLegIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, false);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // The survival curve is defined as to the end of day. If the observation is at the start of day we subtract one.
     if (cds.getProtectionStart()) {
       obsOffset = -1;
     }
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
+    for (int i = 0; i < nPayments; i++) {
 
-    // Note the start index of this loop
-    for (int i = 1; i < premiumLegSchedule.length; i++) {
+      // this loop mimics the ISCA c function FreePaymentPVWithTimeLine
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+      final LocalDate accStart = paymentSchedule.getAccStartDate(i);
+      final LocalDate accEnd = paymentSchedule.getAccEndDate(i);
+      final LocalDate pay = paymentSchedule.getPaymentDate(i);
 
-      final ZonedDateTime accrualStartDate = premiumLegSchedule[i][1];
-      final ZonedDateTime accrualEndDate = premiumLegSchedule[i][2];
-      final ZonedDateTime payDate = premiumLegSchedule[i][3];
+      // final ZonedDateTime accrualStartDate = premiumLegSchedule[i][1];
+      // final ZonedDateTime accrualEndDate = premiumLegSchedule[i][2]; // accuralEnd and payDate are 1 less than in ISDA c
+      // final ZonedDateTime payDate = premiumLegSchedule[i][3];
 
-      // If the stepinDate (valuationDate + 1) is after the end of the current accrual date, then this cashflow has already been realised
-      if (!accrualEndDate.isAfter(stepinDate)) {
-        continue;
+      if (!accEnd.isAfter(stepinDate)) {
+        continue; // this cashflow has already been realised
       }
 
-      // Calculate the time between the current accrual period start and end dates
-      final double accTime = TimeCalculator.getTimeBetween(accrualStartDate, accrualEndDate, ACT_360);
+      // TODO should not be hard-coded to ACT/360
+      final double accTime = ACT_360.getDayCountFraction(accStart, accEnd);
 
-      // Calculate the time between the current valuationDate and when the cashflow is paid (for purposes of discounting the cashflow)
-      double t = TimeCalculator.getTimeBetween(today, payDate, ACT_365);
+      // time relevant for discounting - discount curve also uses ACT/365
+      double t = ACT_365.getDayCountFraction(today, pay);
 
-      // Calculate the time between the current valuation date and the end of the current (offset) accrual period
-      double tObsOffset = TimeCalculator.getTimeBetween(today, accrualEndDate.plusDays(obsOffset), ACT_365);
+      double tObsOffset = ACT_365.getDayCountFraction(today, accEnd.plusDays(obsOffset));
 
       // TODO : Add this check for t
       // Compensate Java shortcoming
@@ -165,32 +181,24 @@ public class PresentValueCreditDefaultSwapDebug {
       // ----------------------------------------------------------------------------------------------------------------------------------------
 
       double myPV = 0.0;
-
       // TODO : Extract out this calc into a separate routine
       // Do we want to include the accrued premium corresponding to this accrual period
+      // This mimics the ISDA c function JpmcdsAccrualOnDefaultPVWithTimeLine
       if (cds.getIncludeAccruedPremium()) {
 
-        final ZonedDateTime offsetStepinDate = stepinDate.plusDays(obsOffset);
-        final ZonedDateTime offsetAccStartDate = accrualStartDate.plusDays(obsOffset);
-        final ZonedDateTime offsetAccEndDate = accrualEndDate.plusDays(obsOffset);
+        final LocalDate offsetStepinDate = stepinDate.plusDays(obsOffset);
+        final LocalDate offsetAccStartDate = accStart.plusDays(obsOffset);
+        final LocalDate offsetAccEndDate = accEnd.plusDays(obsOffset);
 
-        // TODO : Check endDate > startDate
+        LocalDate[] truncatedDateList = truncateList(offsetAccStartDate, offsetAccEndDate, integrationSchedule);
+        final int nItems = truncatedDateList.length;
 
-        final ZonedDateTime[] truncatedDateList = accruedLegScheduleBuilder.getTruncatedTimeLineDeprecated(accruedLegIntegrationSchedule, offsetAccStartDate, offsetAccEndDate);
-
-        ZonedDateTime subStartDate;
-
-        if (offsetStepinDate.isAfter(offsetAccStartDate)) {
-          subStartDate = offsetStepinDate;
-        } else {
-          subStartDate = offsetAccStartDate;
-        }
-
-        final double tAcc = TimeCalculator.getTimeBetween(offsetAccStartDate, offsetAccEndDate, ACT_365);
+        // max(offsetStepinDate,offsetAccStartDate)
+        LocalDate subStartDate = offsetStepinDate.isAfter(offsetAccStartDate) ? offsetStepinDate : offsetAccStartDate;
+        double tAcc = ACT_365.getDayCountFraction(offsetAccStartDate, offsetAccEndDate);
 
         final double accRate = accTime / tAcc;
-
-        t = TimeCalculator.getTimeBetween(today, subStartDate, ACT_365);
+        t = ACT_365.getDayCountFraction(today, subStartDate);
 
         // Compensate Java shortcoming
         if (Double.compare(t, -0.0) == 0) {
@@ -199,40 +207,40 @@ public class PresentValueCreditDefaultSwapDebug {
         double s0 = hazardRateCurve.getSurvivalProbability(t);
         double df0 = yieldCurve.getDiscountFactor(t);
 
-        for (int j = 1; j < truncatedDateList.length; ++j) {
+        for (int j = 1; j < nItems; ++j) {
+
+          if (!truncatedDateList[j].isAfter(offsetStepinDate)) {
+            continue;
+          }
 
           double thisAccPV = 0.0;
+          t = ACT_365.getDayCountFraction(today, truncatedDateList[j]);
+          final double s1 = hazardRateCurve.getSurvivalProbability(t);
+          final double df1 = yieldCurve.getDiscountFactor(t);
 
-          // Check this
-          if (!truncatedDateList[j].isAfter(offsetStepinDate)) {
+          final double t0 = ACT_365.getDayCountFraction(offsetAccStartDate, subStartDate) + 1 / 730.; // add on half a day
+          final double t1 = ACT_365.getDayCountFraction(offsetAccStartDate, truncatedDateList[j]) + 1 / 730.;
+          t = t1 - t0; // t repurposed
 
-          } else {
+          // TODO check for s0 == s1 -> zero prob of default (and thus zero PV contribution) from this section
+          // if (s0 == s1) {
+          // continue;
+          // }
 
-            t = TimeCalculator.getTimeBetween(today, truncatedDateList[j], ACT_365);
+          final double lambda = Math.log(s0 / s1) / t;
+          final double fwdRate = Math.log(df0 / df1) / t;
+          final double lambdafwdRate = lambda + fwdRate + 1.0e-50;
 
-            final double s1 = hazardRateCurve.getSurvivalProbability(t);
-            final double df1 = yieldCurve.getDiscountFactor(t);
-
-            final double t0 = TimeCalculator.getTimeBetween(offsetAccStartDate, subStartDate, ACT_365) + 0.5 / 365.0;
-            final double t1 = TimeCalculator.getTimeBetween(offsetAccStartDate, truncatedDateList[j], ACT_365) + 0.5 / 365.0;
-            t = t1 - t0;
-            final double lambda = Math.log(s0 / s1) / t;
-            final double fwdRate = Math.log(df0 / df1) / t;
-            final double lambdafwdRate = lambda + fwdRate + 1.0e-50; // Note the hack here
-
-            thisAccPV = lambda * accRate * s0 * df0 * ((t0 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) - (t1 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) * s1 / s0 * df1 / df0);
-            myPV += thisAccPV;
-            s0 = s1;
-            df0 = df1;
-            subStartDate = truncatedDateList[j];
-          }
+          thisAccPV = lambda * accRate * s0 * df0 * ((t0 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) - (t1 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) * s1 / s0 * df1 / df0);
+          myPV += thisAccPV;
+          s0 = s1;
+          df0 = df1;
+          subStartDate = truncatedDateList[j];
         }
+
       } // end if acc fee payment
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
-
       thisPV += myPV;
-
     } // end loop over fee leg payments
 
     presentValuePremiumLeg = thisPV;
@@ -248,7 +256,7 @@ public class PresentValueCreditDefaultSwapDebug {
 
     // Do we want to calculate the clean price (includes the previously accrued portion of the premium)
     if (priceType == PriceType.CLEAN) {
-      presentValuePremiumLeg -= calculateAccruedInterest(cds, premiumLegSchedule, stepinDate);
+      presentValuePremiumLeg -= calculateAccruedInterest(cds.getDayCountFractionConvention(), paymentSchedule, stepinDate);
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -258,58 +266,29 @@ public class PresentValueCreditDefaultSwapDebug {
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Method to calculate the contribution to the premium leg value from coupon accruals between cashflow dates
-
-  private double calculatePremiumLegAccrued() {
-
-    double ai = 0.0;
-
-    return ai;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
   // Method to calculate the accrued interest between the last accrual date and the current valuation date
 
-  private double calculateAccruedInterest(final CreditDefaultSwapDefinition cds, final ZonedDateTime[][] premiumLegSchedule, final ZonedDateTime stepinDate) {
+  private double calculateAccruedInterest(final DayCount dayCount, final ISDAPremiumLegSchedule premiumLegSchedule, final LocalDate stepinDate) {
 
-    // TODO : Maybe check if stepinDate is in range [startDate, maturityDate + 1] - probably not necessary since the valuation will not allow this
-    // TODO : Would be useful to re-write this to make it clearer
+    final int n = premiumLegSchedule.getNumPayments();
 
-    // Start at the beginning of the cashflow schedule
-    // ZonedDateTime rollingDate = premiumLegSchedule[0];
-    ZonedDateTime rollingDate = premiumLegSchedule[0][0];
-    // ZonedDateTime rollingDate = premiumLegSchedule[1][1];
-
-    // Check if the stepin date falls on any of the accrual begin dates
-    for (int i = 1; i < premiumLegSchedule.length; i++) {
-      if (stepinDate.equals(premiumLegSchedule[i][1])) {
-        // If it does, then there has been no accrued interest
-        return 0.0;
-      }
+    // stepinDate is before first accStart or after last accEnd
+    if (!stepinDate.isAfter(premiumLegSchedule.getAccStartDate(0)) || !stepinDate.isBefore(premiumLegSchedule.getAccEndDate(n - 1))) {
+      return 0.0;
     }
 
-    int startCashflowIndex = 0;
-    // int startCashflowIndex = 1;
-
-    // step through the cashflow schedule until we get to the step in date
-    while (rollingDate.isBefore(stepinDate)) {
-      startCashflowIndex++;
-      // rollingDate = premiumLegSchedule[startCashflowIndex];
-      rollingDate = premiumLegSchedule[startCashflowIndex][0];
-      // rollingDate = premiumLegSchedule[startCashflowIndex][1];
+    int index = premiumLegSchedule.getAccStartDateIndex(stepinDate);
+    if (index >= 0) {
+      return 0.0; // on accrual start date
     }
 
-    // Get the date of the last coupon before the current valuation date
-    // final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1];
-    final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1][0];
-    // final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1][1];
+    index = -(index + 1); // binary search notation
 
-    final double ai = cds.getDayCountFractionConvention().getDayCountFraction(previousPeriod, stepinDate);
+    if (index == 0) {
+      throw new MathException("Error in calculateAccruedInterest - check logic"); // this should never be hit
+    }
 
-    return ai;
+    return dayCount.getDayCountFraction(premiumLegSchedule.getAccStartDate(index - 1), stepinDate);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -379,10 +358,11 @@ public class PresentValueCreditDefaultSwapDebug {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Build the integration schedule for the calculation of the contingent leg (this is not a cashflow schedule per se, but a set of timenodes for evaluating the contingent leg integral)
-//    final double[] contingentLegIntegrationSchedule = contingentLegScheduleBuilder.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, startDate, clEndDate, cds, yieldCurve,
-//        hazardRateCurve);
-    
-    final double[] contingentLegIntegrationSchedule = ISDACompliantScheduleGenerator.getIntegrationNodesAsTimes(valuationDate, startDate, clEndDate, yieldCurve.getCurveDates(), hazardRateCurve.getCurveTenors());
+    // final double[] contingentLegIntegrationSchedule = contingentLegScheduleBuilder.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, startDate, clEndDate, cds, yieldCurve,
+    // hazardRateCurve);
+
+    final double[] contingentLegIntegrationSchedule = ISDACompliantScheduleGenerator.getIntegrationNodesAsTimes(valuationDate, startDate, clEndDate, yieldCurve.getCurveDates(),
+        hazardRateCurve.getCurveTenors());
 
     double s1 = hazardRateCurve.getSurvivalProbability(contingentLegIntegrationSchedule[0]);
     double df1 = yieldCurve.getDiscountFactor(contingentLegIntegrationSchedule[0]);
@@ -395,9 +375,9 @@ public class PresentValueCreditDefaultSwapDebug {
       s1 = hazardRateCurve.getSurvivalProbability(contingentLegIntegrationSchedule[i]);
       df1 = yieldCurve.getDiscountFactor(contingentLegIntegrationSchedule[i]);
 
-      //TODO handle abs(s0-s1) -> and dt -> 0 cases by taking proper limits 
+      // TODO handle abs(s0-s1) -> and dt -> 0 cases by taking proper limits
       if (s0 == s1) {
-        continue; //there is no chance of a default over this period 
+        continue; // there is no chance of a default over this period
       }
       final double hazardRate = Math.log(s0 / s1) / dt;
       final double interestRate = Math.log(df0 / df1) / dt;
