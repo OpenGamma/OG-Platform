@@ -142,18 +142,6 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
       } else {
         returnSeriesRequirement = getReturnSeriesRequirement(curveName, curveCurrency, curveCalculationConfigName, returnSeriesBaseConstraints);
       }
-      //    if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
-      //      if (baseCurrency == null) {
-      //        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-      //        final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-      //        final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
-      //        final LinkedHashMap<String, String[]> exogenousConfigData = curveCalculationConfig.getExogenousConfigData();
-      //        final String underlyingCurveConfigName = Iterables.getOnlyElement(exogenousConfigData.entrySet()).getKey();
-      //        final MultiCurveCalculationConfig underlyingCurveConfig = curveCalculationConfigSource.getConfig(underlyingCurveConfigName);
-      //        baseCurrency = underlyingCurveConfig.getTarget().getUniqueId().getValue();
-      //      }
-      //      returnSeriesRequirement = getReturnSeriesRequirement(curveName, Currency.of(baseCurrency), curveCurrency, curveCalculationConfigName,
-      //          returnSeriesBaseConstraints);
     } else {
       returnSeriesRequirement = getReturnSeriesRequirement(curveName, curveCurrency, curveCalculationConfigName, returnSeriesBaseConstraints);
     }
