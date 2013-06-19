@@ -91,7 +91,7 @@ public class Scenario {
    * @param configNames The calculation configuration name
    * @return The modified scenario
    */
-  public Scenario calculationConfigs(String... configNames) {
+  public Scenario calculationConfigurations(String... configNames) {
     ArgumentChecker.notEmpty(configNames, "configName");
     _calcConfigNames = ImmutableSet.copyOf(configNames);
     return this;

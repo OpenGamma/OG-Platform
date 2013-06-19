@@ -48,10 +48,22 @@ public class SimulationUtils {
 
   /**
    * Runs a Groovy script that defines a {@link Simulation} using the DSL.
-   * @param scriptFile The script location on the filesystem
+   * @param groovyScript The script location in the filesystem
    * @return The simulation defined by the script
    */
-  public static Simulation runGroovyDslScript(String scriptFile) {
+  public static Simulation createSimulationFromDsl(String groovyScript) {
+    return runGroovyDslScript(groovyScript, Simulation.class);
+  }
+
+  /**
+   * Runs a Groovy script that defines a {@link Scenario} using the DSL.
+   * @param groovyScript The script location in the filesystem
+   * @return The scenario defined by the script
+   */
+  public static Scenario createScenarioFromDsl(String groovyScript) {
+    return runGroovyDslScript(groovyScript, Scenario.class);
+  }
+  private static <T> T runGroovyDslScript(String scriptFile, Class<T> expectedType) {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(SimulationScript.class.getName());
     GroovyShell shell = new GroovyShell(config);
@@ -59,10 +71,16 @@ public class SimulationUtils {
     try {
       script = shell.parse(new File(scriptFile));
       Object scriptOutput = script.run();
-      if (scriptOutput instanceof Simulation) {
-        return (Simulation) scriptOutput;
+      if (scriptOutput == null) {
+        throw new IllegalArgumentException("Script " + scriptFile + " didn't return an object");
+      }
+      if (expectedType.isInstance(scriptOutput)) {
+        return expectedType.cast(scriptOutput);
       } else {
-        throw new IllegalArgumentException("Script " + scriptFile + " didn't create a simulation. output=" + scriptOutput);
+        throw new IllegalArgumentException("Script '" + scriptFile + "' didn't create an object of the expected type. " +
+                                               "expected type: " + expectedType.getName() + ", " +
+                                               "actual type: " + scriptOutput.getClass().getName() + ", " +
+                                               "actual value: " + scriptOutput);
       }
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Failed to open script file", e);

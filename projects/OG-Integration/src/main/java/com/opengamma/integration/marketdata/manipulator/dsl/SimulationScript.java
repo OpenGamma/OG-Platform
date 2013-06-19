@@ -9,13 +9,14 @@ import groovy.lang.Closure;
 import groovy.lang.Script;
 
 /**
- *
+ * Base class for scripts that create {@link Simulation}s and {@link Scenario}s. The methods in this class are available
+ * in the script and form the basis of a DSL.
  */
 public abstract class SimulationScript extends Script {
 
-  /** Set to the currently building simulation. */
+  /** The currently building simulation. */
   private Simulation _simulation;
-  /** Set to the currently building scenario. */
+  /** The currently building scenario. */
   private Scenario _scenario;
 
   public Simulation simulation(Closure body) {
@@ -26,7 +27,12 @@ public abstract class SimulationScript extends Script {
   }
 
   public Scenario scenario(String name, Closure body) {
-    _scenario = _simulation.scenario(name);
+    // scenarios can be defined as part of a simulation or stand-alone
+    if (_simulation != null) {
+      _scenario = _simulation.scenario(name);
+    } else {
+      _scenario = new Scenario(name);
+    }
     body.setDelegate(_scenario);
     body.call();
     return _scenario;

@@ -61,7 +61,7 @@ public class YieldCurveSelectorTest {
   /** don't match if the calc config name doesn't match */
   @Test
   public void calcConfigName() {
-    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario("foo").calculationConfigs(CALC_CONFIG_NAME));
+    YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario("foo").calculationConfigurations(CALC_CONFIG_NAME));
     MarketDataSelector selector = curve.getSelector();
     assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName"));
   }
