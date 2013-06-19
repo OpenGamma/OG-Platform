@@ -7,8 +7,6 @@ package com.opengamma.integration.viewer.status;
 
 import java.util.Set;
 
-import com.opengamma.util.money.Currency;
-
 
 /**
  * View status model
@@ -32,7 +30,7 @@ public interface ViewStatusModel {
    * 
    * @return the set of currencies, empty set if none.
    */
-  Set<Currency> getCurrencies();
+  Set<String> getCurrencies();
   /**
    * Gets all supported security types.
    * 

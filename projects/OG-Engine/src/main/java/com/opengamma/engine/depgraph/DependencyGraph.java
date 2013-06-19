@@ -326,23 +326,18 @@ public class DependencyGraph {
   }
 
   /**
-   * Creates a new node with the same definition as the specified node, which is automatically placed in the
-   * dependency graph such that it effectively proxies the original node. It will takes its inputs from the
-   * outputs of the original node and it will expose the same output specifications along with the same set
-   * of dependents. Meanwhile the original node will be adjusted such that its only dependent is the new node.
-   *
-   * As each node must produce a unique ValueSpecification, additional properties are added to the value spec
-   * produced by the new node to maintain this uniqueness.
-   *
+   * Creates a new node with the same definition as the specified node, which is automatically placed in the dependency graph such that it effectively proxies the original node. It will takes its
+   * inputs from the outputs of the original node and it will expose the same output specifications along with the same set of dependents. Meanwhile the original node will be adjusted such that its
+   * only dependent is the new node. As each node must produce a unique ValueSpecification, additional properties are added to the value spec produced by the new node to maintain this uniqueness.
+   * 
    * @param original the node to be proxied, not equal and not this node
    * @param function the function for the new node, not null
-   * @param discriminatorProperties properties added to the value spec of the original node, such that the new
-   * node produces a unique value spec, not null
+   * @param discriminatorProperties properties added to the value spec of the original node, such that the new node produces a unique value spec, not null
    * @return the newly created proxy node, not null
    */
   public DependencyNode appendInput(final DependencyNode original,
-                                    final CompiledFunctionDefinition function,
-                                    final Map<String, String> discriminatorProperties) {
+      final CompiledFunctionDefinition function,
+      final Map<String, String> discriminatorProperties) {
 
     ArgumentChecker.notNull(original, "node");
     ArgumentChecker.isFalse(equals(original), "Proxy node must be different to the proxied node");
@@ -381,7 +376,7 @@ public class DependencyGraph {
   }
 
   private Map<ValueSpecification, ValueSpecification> copyValueSpecifications(final DependencyNode node,
-                                                          final Map<String, String> discriminatorProperties) {
+      final Map<String, String> discriminatorProperties) {
 
     Map<ValueSpecification, ValueSpecification> converted = new HashMap<>();
 
@@ -394,53 +389,47 @@ public class DependencyGraph {
       }
 
       converted.put(original,
-                    new ValueSpecification(original.getValueName(), original.getTargetSpecification(), builder.get()));
+          new ValueSpecification(original.getValueName(), original.getTargetSpecification(), builder.get()));
     }
     return converted;
   }
 
-  /**
-   * Marks an output as terminal, meaning that it cannot be pruned.
-   * 
-   * @param requirement the output requirement to mark as terminal
-   * @param specification the output specification to mark as terminal
-   */
-  public void addTerminalOutput(final ValueRequirement requirement, final ValueSpecification specification) {
-    // Register it with the node responsible for producing it - informs the node that the output is required
+  private Set<ValueRequirement> getTerminalOutputValueRequirements(final ValueSpecification specification) {
     final DependencyNode node = _outputValues.get(specification);
     if (node == null) {
       throw new IllegalArgumentException("No node produces " + specification);
     }
     node.addTerminalOutputValue(specification);
-    // Maintain a cache of all terminal outputs at the graph level
     Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
     if (requirements == null) {
       requirements = new HashSet<>();
       _terminalOutputs.put(specification, requirements);
     }
-    requirements.add(requirement);
+    return requirements;
+  }
+
+  /**
+   * Marks an output as terminal, meaning that it cannot be pruned.
+   * <p>
+   * Terminal outputs are marked on each node, and a cache is held at the graph level for the specifications against the original requirements that requested them.
+   * 
+   * @param requirement the output requirement to mark as terminal
+   * @param specification the output specification to mark as terminal
+   */
+  public void addTerminalOutput(final ValueRequirement requirement, final ValueSpecification specification) {
+    getTerminalOutputValueRequirements(specification).add(requirement);
   }
 
   /**
    * Marks an outputs as terminals, meaning that it cannot be pruned.
+   * <p>
+   * Terminal outputs are marked on each node, and a cache is held at the graph level for the specifications against the original requirements that requested them.
    * 
    * @param specifications the outputs to mark as terminals
    */
   public void addTerminalOutputs(final Map<ValueSpecification, Set<ValueRequirement>> specifications) {
     for (Map.Entry<ValueSpecification, Set<ValueRequirement>> specification : specifications.entrySet()) {
-      // Register it with the node responsible for producing it - informs the node that the output is required
-      final DependencyNode node = _outputValues.get(specification.getKey());
-      if (node == null) {
-        throw new IllegalArgumentException("No node produces " + specification.getKey());
-      }
-      node.addTerminalOutputValue(specification.getKey());
-      // Maintain a cache of all terminal outputs at the graph level
-      Set<ValueRequirement> requirements = _terminalOutputs.get(specification.getKey());
-      if (requirements == null) {
-        requirements = new HashSet<>();
-        _terminalOutputs.put(specification.getKey(), requirements);
-      }
-      requirements.addAll(specification.getValue());
+      getTerminalOutputValueRequirements(specification.getKey()).addAll(specification.getValue());
     }
   }
 
@@ -547,9 +536,18 @@ public class DependencyGraph {
     for (final DependencyNode node : getDependencyNodes()) {
       if (filter.accept(node)) {
         subGraph.addDependencyNode(node);
+        for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
+          if (_terminalOutputs.containsKey(terminalOutput)) {
+            if (_terminalOutputs.get(terminalOutput) == null) {
+              System.err.println("This is bad");
+            }
+          } else {
+            System.err.println("This is very bad");
+          }
+        }
       }
     }
-    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getOutputSpecifications()));
+    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getTerminalOutputSpecifications()));
     return subGraph;
   }
 
@@ -564,7 +562,7 @@ public class DependencyGraph {
     for (final DependencyNode node : subNodes) {
       subGraph.addDependencyNode(node);
     }
-    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getOutputSpecifications()));
+    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getTerminalOutputSpecifications()));
     return subGraph;
   }
 
@@ -589,19 +587,22 @@ public class DependencyGraph {
 
   private void dumpNodeASCII(final PrintStream out, String indent, final DependencyNode node, final Map<DependencyNode, Integer> uidMap, final Set<DependencyNode> visited) {
     out.println(indent + uidMap.get(node) + " " + node);
-    visited.add(node);
-    indent = indent + "  ";
-    for (final ValueSpecification input : node.getInputValues()) {
-      out.println(indent + "Iv=" + input);
-    }
-    for (final ValueSpecification output : node.getOutputValues()) {
-      out.println(indent + "Ov=" + output);
-    }
-    for (final DependencyNode input : node.getInputNodes()) {
-      if (!input.getDependentNodes().contains(node)) {
-        out.println(indent + "** " + input);
+    if (visited.add(node)) {
+      indent = indent + "  ";
+      for (final ValueSpecification input : node.getInputValues()) {
+        out.println(indent + "Iv=" + input);
       }
-      dumpNodeASCII(out, indent, input, uidMap, visited);
+      for (final ValueSpecification output : node.getOutputValues()) {
+        out.println(indent + "Ov=" + output);
+      }
+      for (final DependencyNode input : node.getInputNodes()) {
+        if (!input.getDependentNodes().contains(node)) {
+          out.println(indent + "** " + input);
+        }
+        dumpNodeASCII(out, indent, input, uidMap, visited);
+      }
+    } else {
+      out.println(indent + "  ...");
     }
   }
 

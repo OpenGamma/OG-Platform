@@ -9,6 +9,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -83,6 +84,12 @@ public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider i
    */
   public abstract ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate);
 
+  /**
+   * Gets the expiryRule calculator providing dates from offsets
+   * @return ExchangeTradedInstrumentExpiryCalculator
+   */
+  public abstract ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator();
+  
   /**
    * Gets the exchange name.
    * @return The exchange name

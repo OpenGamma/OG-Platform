@@ -6,16 +6,25 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -32,14 +41,24 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -56,8 +75,15 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   private final String _closingPriceField;
   private final String _costOfCarryField;
   private final String _resolutionKey;
-
-  public MarkToMarketPnLFunction(String resolutionKey, String closingPriceField, String costOfCarryField) {
+  // The following is defined in the init method, hence not final
+  private FinancialSecurityVisitor<InstrumentDefinition<?>> _securityConverter;
+  private HistoricalTimeSeriesResolver _timeSeriesResolver;
+  
+  protected String getValueRequirementName() {
+    return ValueRequirementNames.MTM_PNL;
+  }
+  
+  public MarkToMarketPnLFunction(final String resolutionKey, final String closingPriceField, final String costOfCarryField) {
     super();
     ArgumentChecker.notNull(resolutionKey, "resolutionKey");
     ArgumentChecker.notNull(closingPriceField, "closing price data field");
@@ -67,16 +93,21 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     _costOfCarryField = costOfCarryField;
   }
 
-  public MarkToMarketPnLFunction() {
-    _closingPriceField = "PX_LAST";
-    _costOfCarryField = "COST_OF_CARRY";
-    _resolutionKey = "DEFAULT_TSS_CONFIG";
+  @Override
+  /**
+   * Method initialises variables requiring sources and resolves from the FunctionCompilationContext, 
+   * including HolidaySource, RegionSource, ConventionBundleSource, HistoricalTimeSeriesResolver
+   * As more securities are required, extend this method to get whatever is needed. 
+   */
+  public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    _timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    _securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().interestRateFutureSecurityVisitor(irFutureConverter).create();
   }
-
-  protected String getValueRequirementName() {
-    return ValueRequirementNames.MTM_PNL;
-  }
-
+  
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.TRADE;
@@ -124,7 +155,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
       throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + security.getName());
     }
     Double livePrice = (Double) valLivePrice.getValue();
-
+    
     // For PNL, we need a reference price. We have two cases:
     // Open: will need the closing price
     // New: will need the trade price
@@ -134,7 +165,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     if (isNewTrade) {
       referencePrice = trade.getPremium();
       if (referencePrice == null) {
-        throw new NullPointerException("Encountered a new future trade without a required premium: " + trade.getUniqueId());
+        throw new NullPointerException("New Trades require a premium to compute PNL on trade date. Premium was null for " + trade.getUniqueId());
       }
     } else {
       for (final ComputedValue input : inputs.getAllValues()) {
@@ -158,6 +189,9 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
           }
         }
       }
+      if (referencePrice == null) {
+        throw new NullPointerException("Missing Time Series for security: " + security);
+      }
     }
     // 3. Compute the PNL
     // Move in the marked prices: Live - Previous Close 
@@ -169,16 +203,20 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     // Some SecurityType's have Notional values built-in. Scale by these if required.
     if (security instanceof FutureSecurity) {
       final FutureSecurity futureSecurity = (FutureSecurity) security;
-      dailyValueMove = dailyValueMove * futureSecurity.getUnitAmount();
+      dailyValueMove *= futureSecurity.getUnitAmount();
+      if (security instanceof InterestRateFutureSecurity) {
+        InterestRateFutureSecurityDefinition defn = (InterestRateFutureSecurityDefinition) ((FutureSecurity) security).accept(_securityConverter);
+        dailyValueMove *= defn.getPaymentAccrualFactor();
+      }
     } else if (security instanceof EquityOptionSecurity) {
       final EquityOptionSecurity optionSecurity = (EquityOptionSecurity) security;
-      dailyValueMove = dailyValueMove * optionSecurity.getPointValue();
+      dailyValueMove *= optionSecurity.getPointValue();
     } else if (security instanceof EquityIndexOptionSecurity) {
       final EquityIndexOptionSecurity optionSecurity = (EquityIndexOptionSecurity) security;
-      dailyValueMove = dailyValueMove * optionSecurity.getPointValue();
+      dailyValueMove *= optionSecurity.getPointValue();
     } else if (security instanceof EquityIndexFutureOptionSecurity) {
       final EquityIndexFutureOptionSecurity optionSecurity = (EquityIndexFutureOptionSecurity) security;
-      dailyValueMove = dailyValueMove * optionSecurity.getPointValue();
+      dailyValueMove *= optionSecurity.getPointValue();
 
     }
     // Multiply by the Trade's Quantity
@@ -189,41 +227,34 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     return Sets.newHashSet(result);
   }
 
+
+  
+  
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    if (inputs.size() < 2) {
-      return null;
-    }
-    boolean hasLivePrice = false;
-    for (ValueSpecification input : inputs.keySet()) {
-      if (MarketDataRequirementNames.MARKET_VALUE.equals(input.getValueName())) {
-        hasLivePrice = true;
-        break;
-      }
-    }
-    if (!hasLivePrice) {
-      return null;
-    }
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+    final Set<ValueRequirement> requirements = new HashSet<>();
     // Security's Market Value. We scale up by Notionals and Quantities during execute()
     final Security security = target.getPositionOrTrade().getSecurity();
     final ComputationTargetReference securityTarget = new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId());
-    final ValueRequirement securityValue = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
-    // TimeSeries - Closing prices and Cost of Carry
-    final ValueRequirement markToMarketValue = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, ValueProperties
-        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _closingPriceField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get());
-    final ValueRequirement costOfCarryValue = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, ValueProperties
-        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _costOfCarryField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get());
-    return ImmutableSet.of(securityValue, markToMarketValue, costOfCarryValue);
+    final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
+    requirements.add(securityValueReq);
+    // TimeSeries - Closing prices 
+//    final ValueRequirement markToMarketValue = getReferencePriceRequirement(security);
+    final ValueRequirement markToMarketValue = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, 
+        ValueProperties.with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _closingPriceField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get());
+    requirements.add(markToMarketValue);
+    // and Cost of Carry, if provided
+    if (_costOfCarryField.length() > 0) {
+      requirements.add(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, ValueProperties
+          .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _costOfCarryField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get()));  
+    }
+    
+    return requirements;
   }
 
   @Override
@@ -241,4 +272,20 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     return properties;
   }
 
+  /* Time Series requirements should be done via createHTSRequirement(timeSeries,...) to allow for normalisation */
+  protected ValueRequirement getReferencePriceRequirement(final Security security) {
+    final ExternalIdBundle idBundle = security.getExternalIdBundle();
+    final HistoricalTimeSeriesResolutionResult timeSeries = _timeSeriesResolver.resolve(idBundle, null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey); 
+    if (timeSeries == null) {
+      s_logger.warn("Failed to find time series for: " + idBundle.toString());
+      return null;
+    }
+    final int lookbackWindow = 100;
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(lookbackWindow)), true, DateConstraint.VALUATION_TIME, false);
+  }
+  
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(MarkToMarketPnLFunction.class);
+  
 }

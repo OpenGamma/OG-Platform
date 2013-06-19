@@ -39,8 +39,10 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -68,9 +70,11 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrument
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -84,6 +88,8 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   private static final Logger s_logger = LoggerFactory.getLogger(FXImpliedYieldCurveFunction.class);
   private static final ParRateCalculator PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
   private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  /** The matrix algebra used for matrix inversion. */
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra();  //TODO make this a parameter
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -107,6 +113,11 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     if (foreignCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get foreign yield curve");
     }
+    final Object foreignJacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);
+    if (foreignJacobianObject == null) {
+      throw new OpenGammaRuntimeException("Could not get foreign Jacobian");
+    }
+    final double[][] arrayForeignJacobian = FunctionUtils.decodeJacobian(foreignJacobianObject);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
@@ -168,6 +179,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<>();
+    int nInstruments = 0;
     for (final Tenor tenor : definition.getTenors()) {
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
@@ -176,6 +188,10 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
         marketValues.add(forwardFX);
         nodeTimes.add(paymentTime); //TODO
+        if (nInstruments > 1 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), paymentTime, 1e-12)) {
+          throw new OpenGammaRuntimeException("FX forward with tenor " + tenor + " has already been added - will lead to equal nodes in the curve. Remove one of these tenors.");
+        }
+        nInstruments++;
         initialRatesGuess.add(0.02);
       }
     }
@@ -198,14 +214,44 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
     final YieldCurve curve = YieldCurve.from(InterpolatedDoublesCurve.from(nodeTimes.toDoubleArray(), fittedYields, interpolator));
-    final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(2);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, domesticCurveName, absoluteToleranceName, relativeToleranceName,
         iterationsName, decompositionName, useFiniteDifferenceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final ValueProperties properties = getProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName, decompositionName,
         useFiniteDifferenceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    // Implementation note: computes transition Dpf pd: derivative of the current (domestic) curve parameter to the previous (foreign) currency curves
+    // For details on the computation, see "Multi-curve Framework with Collateral-3.5 Keeping track of transition matrices", OpenGamma Quantitative Research 13, May 2013.
+    final MultipleYieldCurveFinderDataBundle dataAllCurves = MultipleYieldCurveFinderDataBundle.withAllCurves(derivatives, marketValues.toDoubleArray(), knownCurve, curveNodes, interpolators,
+        useFiniteDifference, fxMatrix);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculatorAllCurves = new MultipleYieldCurveFinderJacobian(dataAllCurves, PAR_RATE_SENSITIVITY_CALCULATOR);
+    final DoubleMatrix2D jacobianMatrixAllCurves = jacobianCalculatorAllCurves.evaluate(new DoubleMatrix1D(fittedYields));
+    // Order is: previous curves (domestic), current curves (foreign)
+    final DoubleMatrix2D jacobianMatrixInverse = MATRIX_ALGEBRA.getInverse(jacobianMatrix);
+    final int nbLine = nodeTimes.size();
+    final int nbCol = dataAllCurves.getTotalNodes() - nodeTimes.size();
+    final double[][] sensiPreviousCurves1 = new double[nbLine][nbCol];
+    for (int loopline = 0; loopline < nbLine; loopline++) {
+      for (int loopcol = 0; loopcol < nbCol; loopcol++) {
+        sensiPreviousCurves1[loopline][loopcol] = -jacobianMatrixAllCurves.getData()[loopline][loopcol];
+      }
+    }
+    final DoubleMatrix2D sensiQuoteToParameterPreviousCurvesMat = new DoubleMatrix2D(sensiPreviousCurves1);
+    final DoubleMatrix2D sensiParameterToParameterPreviousCurvesMat = (DoubleMatrix2D) MATRIX_ALGEBRA.multiply(jacobianMatrixInverse, sensiQuoteToParameterPreviousCurvesMat);
+    final int startIndex = 0;
+    final int nbIndex = sensiParameterToParameterPreviousCurvesMat.getNumberOfColumns();
+    final double[][] arrayForeignJacobianDiscount = new double[nbIndex][nbIndex];
+    for (int loopline = 0; loopline < nbIndex; loopline++) {
+      for (int loopcol = 0; loopcol < nbIndex; loopcol++) {
+        arrayForeignJacobianDiscount[loopline][loopcol] = arrayForeignJacobian[startIndex + loopline][startIndex + loopcol];
+      }
+    }
+    final DoubleMatrix2D foreignJacobian = new DoubleMatrix2D(arrayForeignJacobianDiscount);
+    final DoubleMatrix2D foreignJacobianInverse = MATRIX_ALGEBRA.getInverse(foreignJacobian);
+    final DoubleMatrix2D fxImpliedTransitionMatrix = (DoubleMatrix2D) MATRIX_ALGEBRA.multiply(sensiParameterToParameterPreviousCurvesMat, foreignJacobianInverse);
+    final Set<ComputedValue> result = new HashSet<>();
     result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties), jacobianMatrix.getData()));
     result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, curveProperties), curve));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX, targetSpec, properties), fxImpliedTransitionMatrix.getData()));
     return result;
   }
 
@@ -220,7 +266,8 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final ValueProperties properties = getProperties();
     final ValueSpecification curve = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), curveProperties);
     final ValueSpecification jacobian = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, target.toSpecification(), properties);
-    return Sets.newHashSet(curve, jacobian);
+    final ValueSpecification fxImpliedTransitionMatrix = new ValueSpecification(ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX, target.toSpecification(), properties);
+    return Sets.newHashSet(curve, jacobian, fxImpliedTransitionMatrix);
   }
 
   @Override
@@ -321,16 +368,26 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final ValueProperties fxForwardCurveProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, domesticCurveName).get();
     final String foreignCurveName = foreignCurveConfigNames.getValue()[0];
     final ValueProperties foreignCurveProperties = getForeignCurveProperties(foreignConfig, foreignCurveName);
+    final ValueProperties foreignJacobianProperties = getForeignJacobianProperties(foreignConfig);
     final FXForwardCurveInstrumentProvider provider = fxForwardCurveSpec.getCurveInstrumentProvider();
+    final ComputationTargetSpecification currencyTarget = ComputationTargetSpecification.of(foreignCurrency);
     requirements.add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair), fxForwardCurveProperties));
     requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(foreignCurrency), foreignCurveProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currencyTarget, foreignCurveProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencyTarget, foreignJacobianProperties));
     return requirements;
   }
 
   private ValueProperties getForeignCurveProperties(final MultiCurveCalculationConfig foreignConfig, final String foreignCurveName) {
     return ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, foreignCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, foreignConfig.getCalculationConfigName())
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, foreignConfig.getCalculationMethod())
+        .get();
+  }
+
+  private ValueProperties getForeignJacobianProperties(final MultiCurveCalculationConfig foreignConfig) {
+    return ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, foreignConfig.getCalculationConfigName())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, foreignConfig.getCalculationMethod())
         .get();

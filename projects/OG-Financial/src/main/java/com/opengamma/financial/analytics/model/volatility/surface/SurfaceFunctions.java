@@ -198,6 +198,7 @@ public class SurfaceFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
     functions.add(functionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class));
     functions.add(functionConfiguration(ForexCallDeltaVolatilitySurfaceFunction.class));
+    functions.add(functionConfiguration(ForexPutDeltaVolatilitySurfaceFunction.class));
     functions.add(functionConfiguration(ForexFlatWithTermStructureVolatilitySurfaceFunction.class));
     functions.add(functionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class));
     functions.add(functionConfiguration(InterpolatedVolatilitySurfaceFunction.class));

@@ -116,6 +116,7 @@ public class ExampleGraphBuildingSpeedTest {
   public void runTimingTest(final ViewDefinition view) {
     if (view == null) {
       s_logger.warn("Skipping - passed null");
+      return;
     }
     s_logger.info("Testing view {}", view.getName());
     final Map<String, Set<ValueSpecification>> terminalOutputs = new HashMap<String, Set<ValueSpecification>>();

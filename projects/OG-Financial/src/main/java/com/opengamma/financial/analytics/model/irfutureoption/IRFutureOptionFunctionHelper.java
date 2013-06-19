@@ -25,11 +25,14 @@ public class IRFutureOptionFunctionHelper {
   public static String getFutureOptionPrefix(final ComputationTarget target) {
     ArgumentChecker.notNull(target, "target");
     final ExternalIdBundle secId = target.getTrade().getSecurity().getExternalIdBundle();
-    final String ticker = secId.getValue(ExternalSchemes.BLOOMBERG_TICKER);
+    String ticker = secId.getValue(ExternalSchemes.BLOOMBERG_TICKER);
+    if (ticker == null)  {
+      ticker = secId.getValue(ExternalSchemes.ACTIVFEED_TICKER);
+    }
     if (ticker != null) {
       final String prefix = ticker.substring(0, 2);
       return prefix;
-    }
+    } 
     throw new OpenGammaRuntimeException("Could not get ticker for option");
   }
 

@@ -14,6 +14,7 @@ import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,6 +85,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.tuple.Pair;
 
@@ -811,13 +813,13 @@ public class DbBatchWriter extends AbstractDbMaster {
       Map<String, Double> valueAsDoublesMap = resultConverter.convert(value.getSpecification().getValueName(), value.getValue());
       for (Map.Entry<String, Double> valueEntry : valueAsDoublesMap.entrySet()) {
         final String doubleValueName = valueEntry.getKey();
-        final Double doubleValue = valueEntry.getValue();
+        final Double doubleValue = ensureDatabasePrecision(valueEntry.getValue());
         marketDataValues.add(new MarketDataValue(value.getSpecification().getTargetSpecification(), doubleValue, doubleValueName));
       }
     }
     addValuesToMarketDataInTransaction(marketDataId, marketDataValues);
   }
-  
+
   public void addValuesToMarketDataInTransaction(ObjectId marketDataId, Set<MarketDataValue> values) {
     if (values == null || values.isEmpty()) {
       return;
@@ -864,11 +866,11 @@ public class DbBatchWriter extends AbstractDbMaster {
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
-  public void addJobResultsInTransaction(ObjectId runId, ViewComputationResultModel resultModel) {
+  public void addJobResultsInTransaction(TransactionStatus transactionStatus, ObjectId runId, ViewComputationResultModel resultModel) {
     ArgumentChecker.notNull(runId, "runId");
     ArgumentChecker.notNull(resultModel, "resultModel");
     
-    final Long riskRunId = extractOid(runId);
+    final long riskRunId = extractOid(runId);
     ArgumentChecker.notNull(riskRunId, "riskRunId");
 
     Map<ComputeFailureKey, ComputeFailure> computeFailureCache = _computeFailureCacheByRunId.get(riskRunId);
@@ -887,14 +889,13 @@ public class DbBatchWriter extends AbstractDbMaster {
       final Set<ComputationTargetSpecification> successfulTargets = newHashSet();
       final Set<ComputationTargetSpecification> failedTargets = newHashSet();
 
-      List<DbMapSqlParameterSource> successes = newArrayList();
-      List<DbMapSqlParameterSource> failures = newArrayList();
-      List<DbMapSqlParameterSource> failureReasons = newArrayList();
+      List<SqlParameterSource> successes = newArrayList();
+      List<SqlParameterSource> failures = newArrayList();
+      List<SqlParameterSource> failureReasons = newArrayList();
 
       Instant evalInstant = Instant.now();
 
-      Long calcConfId = _calculationConfigurations.get(calcConfigName);
-      ArgumentChecker.notNull(calcConfId, "calcConfId");
+      long calcConfId = _calculationConfigurations.get(calcConfigName);
 
       for (final ComputationTargetSpecification targetSpec : viewCalculationResultModel.getAllTargets()) {
         boolean specFailures = false;
@@ -904,70 +905,42 @@ public class DbBatchWriter extends AbstractDbMaster {
             try {
               resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(computedValue.getValue());
             } catch (IllegalArgumentException e) {
-              s_logger.error("No converter for value of type " + computedValue.getValue().getClass() + " for " + computedValue.getSpecification());
+              s_logger.info("No converter for value of type " + computedValue.getValue().getClass() + " for " + computedValue.getSpecification());
             }            
           }
           
-          final Long computationTargetId = _computationTargets.get(targetSpec);
-          ArgumentChecker.notNull(computationTargetId, "computationTargetId");
-          
+          final long computationTargetId = _computationTargets.get(targetSpec);
           final ValueSpecification specification = computedValue.getSpecification();
-          Long valueSpecificationId = _riskValueSpecifications.get(specification);
-          ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
-          
-          Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
-          Long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
-
-          ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
-          ArgumentChecker.notNull(computeNodeId, "computeNodeId");
+          if (!_riskValueSpecifications.containsKey(specification)) {
+            s_logger.error("Unexpected result specification " + specification + ". Result cannot be written. Result value was " + computedValue.getValue());
+            continue;
+          }
+          final long valueSpecificationId = _riskValueSpecifications.get(specification);
+          final long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
+          final long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
           
           if (resultConverter != null && computedValue.getInvocationResult() == InvocationResult.SUCCESS) {
             Map<String, Double> valueAsDoublesMap = resultConverter.convert(computedValue.getSpecification().getValueName(), computedValue.getValue());
             for (Map.Entry<String, Double> valueEntry : valueAsDoublesMap.entrySet()) {
-              final String doubleValueName = valueEntry.getKey();
-              final Double doubleValue = valueEntry.getValue();
-              final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
+              final String valueName = valueEntry.getKey();
+              final Double doubleValue = ensureDatabasePrecision(valueEntry.getValue());
               final long successId = nextId(RSK_SEQUENCE_NAME);
-              insertArgs.addValue("id", successId);
-              insertArgs.addValue("calculation_configuration_id", calcConfId);
-              insertArgs.addValue("name", doubleValueName);
-              insertArgs.addValue("value_specification_id", valueSpecificationId);
-              insertArgs.addValue("function_unique_id", functionUniqueId);
-              insertArgs.addValue("computation_target_id", computationTargetId);
-              insertArgs.addValue("run_id", riskRunId);
-              insertArgs.addValue("value", doubleValue);
-              insertArgs.addTimestamp("eval_instant", evalInstant);
-              insertArgs.addValue("compute_node_id", computeNodeId);
-              successes.add(insertArgs);
+              successes.add(getSuccessArgs(successId, riskRunId, evalInstant, calcConfId, computationTargetId, valueSpecificationId, functionUniqueId, computeNodeId, valueName, doubleValue));
             }
           } else {
-            s_logger.error("Writing failure for {} with invocation result {}, {} ",
+            s_logger.info("Writing failure for {} with invocation result {}, {} ",
                 newArray(computedValue.getSpecification(), computedValue.getInvocationResult(), computedValue.getAggregatedExecutionLog()));
             specFailures = true;
             
-            final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
             final long failureId = nextId(RSK_SEQUENCE_NAME);
-            insertArgs.addValue("id", failureId);
-            insertArgs.addValue("calculation_configuration_id", calcConfId);
-            insertArgs.addValue("name", specification.getValueName());
-            insertArgs.addValue("value_specification_id", valueSpecificationId);
-            insertArgs.addValue("function_unique_id", functionUniqueId);
-            insertArgs.addValue("computation_target_id", computationTargetId);
-            insertArgs.addValue("run_id", riskRunId);
-            insertArgs.addTimestamp("eval_instant", evalInstant);
-            insertArgs.addValue("compute_node_id", computeNodeId);
-            failures.add(insertArgs);
+            failures.add(getFailureArgs(failureId, riskRunId, evalInstant, calcConfId, computationTargetId, valueSpecificationId, functionUniqueId, computeNodeId, specification.getValueName()));
 
             BatchResultWriterFailure cachedFailure = errorCache.get(specification);
             if (cachedFailure != null) {
-              for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
+              for (long computeFailureId : cachedFailure.getComputeFailureIds()) {
                 ArgumentChecker.notNull(computeFailureId, "computeFailureId");
-                final DbMapSqlParameterSource failureReasonsInsertArgs = new DbMapSqlParameterSource();
                 final long failureReasonId = nextId(RSK_SEQUENCE_NAME);
-                failureReasonsInsertArgs.addValue("id", failureReasonId);
-                failureReasonsInsertArgs.addValue("rsk_failure_id", failureId);
-                failureReasonsInsertArgs.addValue("compute_failure_id", computeFailureId);
-                failureReasons.add(failureReasonsInsertArgs);
+                failureReasons.add(getFailureReasonArgs(failureReasonId, failureId, computeFailureId));
               }
             }       
           }
@@ -990,13 +963,106 @@ public class DbBatchWriter extends AbstractDbMaster {
         return;
       }
 
-      getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskSuccess"), successes.toArray(new DbMapSqlParameterSource[successes.size()]));
-      getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailure"), failures.toArray(new DbMapSqlParameterSource[failures.size()]));
-      getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailureReason"), failureReasons.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
+      Object preSuccessSavepoint = transactionStatus.createSavepoint();
+      try {
+        getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskSuccess"), successes.toArray(new DbMapSqlParameterSource[successes.size()]));
+      } catch (Exception e) {
+        s_logger.error("Failed to write successful calculations to batch database. Converting to failures.", e);
+        transactionStatus.rollbackToSavepoint(preSuccessSavepoint);
+        if (!successes.isEmpty()) {
+          String exceptionClass = e.getClass().getName();
+          String exceptionMsg = e.getMessage();
+          final StringBuilder buffer = new StringBuilder();
+          for (StackTraceElement element : e.getStackTrace()) {
+            buffer.append(element.toString()).append("\n");
+          }
+          final String stackTrace = buffer.toString();
+          for (SqlParameterSource success : successes) {
+            failures.add(convertSuccessToFailure(success));
+            final long failureId = getId(success);
+            final long functionId = getFunctionId(success);
+            ComputeFailureKey computeFailureKey = new ComputeFailureKey(String.valueOf(functionId), exceptionClass, exceptionMsg, stackTrace);
+            ComputeFailure computeFailure = getComputeFailureFromDb(computeFailureCache, computeFailureKey);
+            final long failureReasonId = nextId(RSK_SEQUENCE_NAME);
+            failureReasons.add(getFailureReasonArgs(failureReasonId, failureId, computeFailure.getId()));
+          }
+          failedTargets.addAll(successfulTargets);
+          successes.clear();
+          successfulTargets.clear();
+        }
+      }
+      Object preFailureSavepoint = transactionStatus.createSavepoint();
+      try {
+        getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailure"), failures.toArray(new DbMapSqlParameterSource[failures.size()]));
+        getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailureReason"), failureReasons.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
+      } catch (Exception e) {
+        s_logger.error("Failed to write failures to batch database", e);
+        transactionStatus.rollbackToSavepoint(preFailureSavepoint);
+      }
 
       updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
       updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
     }
+  }
+
+  private long getFunctionId(SqlParameterSource args) {
+    return (Long) args.getValue("function_unique_id");
+  }
+  
+  private long getId(SqlParameterSource args) {
+    return (Long) args.getValue("id");
+  }
+
+  private DbMapSqlParameterSource getFailureReasonArgs(long failureReasonId, long failureId, long computeFailureId) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    args.addValue("id", failureReasonId);
+    args.addValue("rsk_failure_id", failureId);
+    args.addValue("compute_failure_id", computeFailureId);
+    return args;
+  }
+
+  private SqlParameterSource getSuccessArgs(long successId, long riskRunId, Instant evalInstant, long calcConfId,
+      long computationTargetId, long valueSpecificationId, long functionUniqueId, long computeNodeId, String valueName, Double doubleValue) {
+    DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    args.addValue("id", successId);
+    args.addValue("calculation_configuration_id", calcConfId);
+    args.addValue("name", valueName);
+    args.addValue("value_specification_id", valueSpecificationId);
+    args.addValue("function_unique_id", functionUniqueId);
+    args.addValue("computation_target_id", computationTargetId);
+    args.addValue("run_id", riskRunId);
+    args.addValue("value", doubleValue);
+    args.addTimestamp("eval_instant", evalInstant);
+    args.addValue("compute_node_id", computeNodeId);
+    return args;
+  }
+
+  private SqlParameterSource getFailureArgs(long failureId, long riskRunId, Instant evalInstant, long calcConfId,
+      long computationTargetId, long valueSpecificationId, long functionUniqueId, long computeNodeId, String valueName) {
+    DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    args.addValue("id", failureId);
+    args.addValue("calculation_configuration_id", calcConfId);
+    args.addValue("name", valueName);
+    args.addValue("value_specification_id", valueSpecificationId);
+    args.addValue("function_unique_id", functionUniqueId);
+    args.addValue("computation_target_id", computationTargetId);
+    args.addValue("run_id", riskRunId);
+    args.addTimestamp("eval_instant", evalInstant);
+    args.addValue("compute_node_id", computeNodeId);
+    return args;
+  }
+  
+  private SqlParameterSource convertSuccessToFailure(SqlParameterSource successArgs) {
+    return getFailureArgs(
+        (Long) successArgs.getValue("id"),
+        (Long) successArgs.getValue("run_id"),
+        DbDateUtils.fromSqlTimestamp((Timestamp) successArgs.getValue("eval_instant")),
+        (Long) successArgs.getValue("calculation_configuration_id"),
+        (Long) successArgs.getValue("computation_target_id"),
+        (Long) successArgs.getValue("value_specification_id"),
+        (Long) getFunctionId(successArgs),
+        (Long) successArgs.getValue("compute_node_id"),
+        (String) successArgs.getValue("name"));
   }
 
   /**
@@ -1086,6 +1152,33 @@ public class DbBatchWriter extends AbstractDbMaster {
         batchArgsArray.length + " actual = " + totalCount);
     }
     return totalCount;
+  }
+  
+  /**
+   * Java has support for extended-precision doubles using 80-bits rather than 64-bits. The DOUBLE PRECISION type in
+   * SQL is a 64-bit floating point value. Attempting to write values to the database which can only be represented in
+   * the 80-bit format (e.g. 1E-350) will result in an SQL exception.
+   * <p>
+   * This method works by extracting the 64-bit precision value so that values out of the range of a SQL double will be
+   * rounded to zero. 
+   * 
+   * @param value  the input value, may be null
+   * @return the output, null if input was null, otherwise its 64-bit equivalent
+   */
+  private static Double ensureDatabasePrecision(Double value) {
+    // NOTE jonathan 2013-06-12 -- force it through a strictfp method instead?
+    if (value == null) {
+      return null;
+    }
+    final long doubleAsLongBits = Double.doubleToLongBits(value);
+    final double doubleViaLongBits = Double.longBitsToDouble(doubleAsLongBits);
+    if (Double.doubleToLongBits(doubleViaLongBits) != doubleAsLongBits) {
+      // Something went wrong in the conversion
+      s_logger.error("Attempt to restrict result " + value + " to the 64-bit precision supported by the database resulted in unexpected value "
+          + doubleViaLongBits + ". Using original value, but the database write may fail.");
+      return value;
+    }
+    return doubleViaLongBits;
   }
 
   protected StatusEntry.Status getStatus(Map<Pair<Long, Long>, StatusEntry> statusCache, String calcConfName, ComputationTargetSpecification ct) {
@@ -1269,4 +1362,5 @@ public class DbBatchWriter extends AbstractDbMaster {
       _computeFailureIds.addAll(computeFailureIds);
     }
   }
+  
 }

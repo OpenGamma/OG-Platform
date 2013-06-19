@@ -50,11 +50,18 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttribu
    * The holiday calendar associated with the floating ibor index.
    */
   private final Calendar _calendar;
-
-  // REVIEW: Do we need stubShort and stubFirst flags?
+  /**
+   * In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+   */
+  private final boolean _stubShort;
+  /**
+   * The dates in the schedule can be computed from the end date (true) or from the start date (false).
+   */
+  private final boolean _fromEnd;
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
+   * The default for stubShort is true and for fromEnd is false.
    * @param name The generator name. Not null.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
@@ -74,10 +81,13 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttribu
     _endOfMonth = iborIndex.isEndOfMonth();
     _spotLag = iborIndex.getSpotLag();
     _calendar = calendar;
+    _stubShort = true;
+    _fromEnd = false;
   }
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
+   * The default for stubShort is true and for fromEnd is false.
    * @param name The generator name. Not null.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
@@ -101,6 +111,8 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttribu
     _endOfMonth = endOfMonth;
     _spotLag = spotLag;
     _calendar = calendar;
+    _stubShort = true;
+    _fromEnd = false;
   }
 
   /**
@@ -165,6 +177,22 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttribu
    */
   public Boolean isEndOfMonth() {
     return _endOfMonth;
+  }
+
+  /**
+   * Returns the stubShort flag.
+   * @return The flag
+   */
+  public boolean isStubShort() {
+    return _stubShort;
+  }
+
+  /**
+   * Returns the fromEnd flag.
+   * @return The flag
+   */
+  public boolean isFromEnd() {
+    return _fromEnd;
   }
 
   @Override

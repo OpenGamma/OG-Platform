@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class for calculating a term structure of hazard rates calibrated to a 
@@ -63,6 +64,13 @@ public class CalibrateHazardRateTermStructureISDAMethod {
       final double[] marketSpreads,
       final ISDADateCurve yieldCurve) {
 
+    ArgumentChecker.notNull(valuationDate, "valuation date");
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(marketTenors, "marketTenors");
+    ArgumentChecker.notNull(marketSpreads, "marketSpreads");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    
+    
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a CDS whose maturity and spreads we will vary to be that of the calibration instruments

@@ -24,8 +24,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -62,7 +62,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InflationBuildingCurveSimpleTestUS {
 
-  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+  private static final Interpolator1D INTERPOLATOR_LOG_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
@@ -91,7 +91,7 @@ public class InflationBuildingCurveSimpleTestUS {
   private static final String CURVE_NAME_CPI_USD = "USD CPI";
 
   /** Market values for the CPI USD curve */
-  public static final double[] CPI_USD_MARKET_QUOTES = new double[] {0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200 };
+  public static final double[] CPI_USD_MARKET_QUOTES = new double[] {0.0200, 0.0200, 0.0250, 0.0260, 0.0200, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310, 0.0320, 0.0330, 0.0330, 0.0330, 0.0330 };
   /** Generators for the CPI USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] CPI_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
       GENERATOR_INFALTION_SWAP,
@@ -134,7 +134,7 @@ public class InflationBuildingCurveSimpleTestUS {
     }
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_CPI_USD };
 
-    final GeneratorPriceIndexCurve genIntLin = new GeneratorPriceIndexCurveInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    final GeneratorPriceIndexCurve genIntLin = new GeneratorPriceIndexCurveInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LOG_LINEAR);
     GENERATORS_UNITS[0][0] = new GeneratorPriceIndexCurve[] {genIntLin };
 
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_CPI_USD };

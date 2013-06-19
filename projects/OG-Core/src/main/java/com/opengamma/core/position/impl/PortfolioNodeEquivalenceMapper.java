@@ -91,18 +91,21 @@ public class PortfolioNodeEquivalenceMapper {
     }
     final PortfolioNode[] bsa = bs.toArray(new PortfolioNode[bs.size()]);
     int bsaLength = bsa.length;
-    for (PortfolioNode a : as) {
+    boolean allMatched = true;
+    nextA: for (PortfolioNode a : as) { //CSIGNORE
       for (int i = 0; i < bsaLength; i++) {
         final PortfolioNode b = bsa[i];
         if (isMatch(a, b)) {
           if (getEquivalentNodes(a.getChildNodes(), b.getChildNodes(), result)) {
             result.put(a.getUniqueId(), b.getUniqueId());
-            bsa[i--] = bsa[--bsaLength];
+            bsa[i] = bsa[--bsaLength];
+            continue nextA;
           }
         }
       }
+      allMatched = false;
     }
-    return bsaLength == 0;
+    return allMatched && (bsaLength == 0);
   }
 
   /**

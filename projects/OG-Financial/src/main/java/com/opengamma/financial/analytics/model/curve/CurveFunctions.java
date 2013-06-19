@@ -11,9 +11,21 @@ import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationFunction;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
+import com.opengamma.financial.analytics.curve.CurveMarketDataFunction;
+import com.opengamma.financial.analytics.curve.CurveSpecificationFunction;
+import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.impl.ConfigSearchIterator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -29,9 +41,61 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     return new CurveFunctions().getObjectCreating();
   }
 
-  @Override
-  protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    // Nothing in this package, just the sub-packages
+  public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
+    final Providers factory = new Providers();
+    factory.setConfigMaster(configMaster);
+    return factory.getObjectCreating();
+  }
+
+  /**
+   * Function repository configuration source for curve functions based on the items defined in a {@link ConfigMaster}.
+   */
+  public static class Providers extends AbstractFunctionConfigurationBean {
+    private ConfigMaster _configMaster;
+
+    public void setConfigMaster(final ConfigMaster configMaster) {
+      ArgumentChecker.notNull(configMaster, "config master");
+      _configMaster = configMaster;
+    }
+
+    public ConfigMaster getConfigMaster() {
+      return _configMaster;
+    }
+
+    protected void addCurveFunctions(final List<FunctionConfiguration> functions, final String curveName) {
+      functions.add(functionConfiguration(CurveDefinitionFunction.class, curveName));
+      functions.add(functionConfiguration(CurveSpecificationFunction.class, curveName));
+      functions.add(functionConfiguration(CurveMarketDataFunction.class, curveName));
+    }
+
+    protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions, final String curveConfigName) {
+      functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
+      functions.add(functionConfiguration(MulticurveProviderDiscountingFunction.class, curveConfigName));
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      // new curves
+      final ConfigSearchRequest<CurveDefinition> searchRequest = new ConfigSearchRequest<>();
+      final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
+      for (final Class klass : curveClasses) {
+        searchRequest.setType(klass);
+        for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
+          final String documentName = configDocument.getName();
+          addCurveFunctions(functions, documentName);
+        }
+      }
+
+      searchRequest.setType(CurveConstructionConfiguration.class);
+      final Class[] curveConstructionConfigurationClasses = new Class[] {CurveConstructionConfiguration.class};
+      for (final Class klass : curveConstructionConfigurationClasses) {
+        searchRequest.setType(klass);
+        for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
+          final String documentName = configDocument.getName();
+          addCurveBuildingFunctions(functions, documentName);
+        }
+      }
+    }
   }
 
   protected FunctionConfigurationSource forwardFunctionConfiguration() {
@@ -51,4 +115,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     return CombiningFunctionConfigurationSource.of(super.createObject(), forwardFunctionConfiguration(), futureFunctionConfiguration(), interestRateFunctionConfiguration());
   }
 
+  @Override
+  protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+  }
 }

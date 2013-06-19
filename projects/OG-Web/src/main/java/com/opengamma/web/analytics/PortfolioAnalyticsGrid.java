@@ -34,8 +34,8 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
   }
 
-  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef) {
-    PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef);
+  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
+    PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef, portfolio);
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
   }
 

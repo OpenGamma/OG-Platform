@@ -754,7 +754,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     if (rate == null) {
       throw new OpenGammaRuntimeException("No market data for " + swapIdentifier);
     }
-    final int months = resetTenor.getPeriod().getMonths();
+    final long months = resetTenor.getPeriod().toTotalMonths();
     final ConventionBundle fixedLegConvention = getFixedLegConvention(spec, strip, swapIdentifier);
     final ZonedDateTime curveDate = spec.getCurveDate().atStartOfDay(ZoneOffset.UTC);
     final String counterparty = "";

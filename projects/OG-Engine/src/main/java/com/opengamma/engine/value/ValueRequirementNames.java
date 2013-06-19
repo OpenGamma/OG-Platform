@@ -184,6 +184,11 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   /**
+   * The transition matrix between the sensitivity with respect to the new currency parameters and the initial currency market data.
+   * Used for FX swaps implied curves calibration. 
+   */
+  public static final String FX_IMPLIED_TRANSITION_MATRIX = "FXImpliedTransitionMatrix";
+  /**
    * The raw market data that is used in yield curve construction.
    */
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
@@ -224,6 +229,10 @@ public final class ValueRequirementNames {
    */
   public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
   /**
+   * Curve construction property metadata
+   */
+  public static final String CURVE_CONSTRUCTION_CONFIG = "CurveConstructionConfiguration";
+  /**
    * The raw FX forward and spot market data that is used in curve construction
    */
   public static final String FX_FORWARD_CURVE_MARKET_DATA = "FXForwardCurveMarketData";
@@ -247,6 +256,10 @@ public final class ValueRequirementNames {
    * FX forward curve specification
    */
   public static final String FX_FORWARD_CURVE_SPECIFICATION = "FXForwardCurveSpecification";
+  /**
+   * A bundle of curves
+   */
+  public static final String CURVE_BUNDLE = "CurveBundle"; 
   /**
    * Currency pairs property metadata
    */

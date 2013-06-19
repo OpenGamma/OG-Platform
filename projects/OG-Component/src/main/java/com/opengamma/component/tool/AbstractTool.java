@@ -53,11 +53,11 @@ public abstract class AbstractTool<T extends ToolContext> {
   /**
    * The command line.
    */
-  private CommandLine _commandLine;
+  private volatile CommandLine _commandLine;
   /**
    * The tool contexts.
    */
-  private T[] _toolContexts;
+  private volatile T[] _toolContexts;
 
   /**
    * Initializes the tool statically.

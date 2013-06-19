@@ -16,11 +16,20 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Class to generate the contingent integration schedules
  */
 public class ISDAContingentLegIntegrationScheduleGenerator {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
+  /**
+   * Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
+   * @param valuationDate The valuation date 
+   * @param startDate The start date 
+   * @param endDate The end date
+   * @param cds {@link CreditDefaultSwapDefinition}
+   * @param curves {@link ISDAYieldCurveAndHazardRateCurveProvider}
+   * @return The time nodes
+   */
   public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(final ZonedDateTime valuationDate, final ZonedDateTime startDate,
       final ZonedDateTime endDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves) {
     // Check input objects are not null

@@ -435,7 +435,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testWithNoExclusion() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups<String>() {
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups() {
       @Override
       protected String getKey(final FunctionDefinition function) {
         return null;
@@ -454,7 +454,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testWithExclusion() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups<String>() {
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups() {
       @Override
       protected String getKey(final FunctionDefinition function) {
         if (FUNCTION_1_TYPE_1_POSITION.equals(function.getUniqueId()) || FUNCTION_1_TYPE_1_SECURITY.equals(function.getUniqueId())) {

@@ -105,7 +105,7 @@ $.register_module({
                 if (og.api.rest) og.api.rest.clean();
                 return parsed;
             },
-            set_title: function (title) {document.title = title + ' - OpenGamma';},
+            set_title: function (title) {document.title = title;},
             title: null
         });
     }

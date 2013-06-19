@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.util.money.Currency;
@@ -41,6 +42,10 @@ public class SimpleViewStatusModelTest {
   private static final String EMPTY_STR = StringUtils.EMPTY;
   private static final String TRUE_STR = String.valueOf(true);
   private static final String FALSE_STR = String.valueOf(false);
+  private static final String USD = Currency.USD.getCode();
+  private static final String GBP = Currency.GBP.getCode();
+  private static final String EUR = Currency.EUR.getCode();
+  private static final String POSITION_TARGET = ComputationTargetType.POSITION.getName();
   
   private static final String[][] HEADERS = { {SEC_TYPE, VALUE_NAME, CURRENCY, EMPTY_STR},
       {EMPTY_STR, EMPTY_STR, Currency.USD.getCode(), Currency.GBP.getCode()} };
@@ -53,16 +58,16 @@ public class SimpleViewStatusModelTest {
   
   private static final Map<ViewStatusKey, Boolean> RESULT = Maps.newHashMap(); 
   static {
-    RESULT.put(new ViewStatusKeyBean(SWAP, PV, Currency.USD), true);
-    RESULT.put(new ViewStatusKeyBean(SWAP, PV, Currency.GBP), true);
-    RESULT.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, Currency.USD), false);
-    RESULT.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, Currency.GBP), true);
-    RESULT.put(new ViewStatusKeyBean(SWAP, VALUERHO, Currency.USD), true);
-    RESULT.put(new ViewStatusKeyBean(SWAP, VALUERHO, Currency.GBP), true);
-    RESULT.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, Currency.USD), true);
-    RESULT.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, Currency.GBP), false);
-    RESULT.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, Currency.USD), false);
-    RESULT.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, Currency.GBP), false);
+    RESULT.put(new ViewStatusKeyBean(SWAP, PV, USD, POSITION_TARGET), true);
+    RESULT.put(new ViewStatusKeyBean(SWAP, PV, GBP, POSITION_TARGET), true);
+    RESULT.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, USD, POSITION_TARGET), false);
+    RESULT.put(new ViewStatusKeyBean(SWAP, YIELD_CURVE, GBP, POSITION_TARGET), true);
+    RESULT.put(new ViewStatusKeyBean(SWAP, VALUERHO, USD, POSITION_TARGET), true);
+    RESULT.put(new ViewStatusKeyBean(SWAP, VALUERHO, GBP, POSITION_TARGET), true);
+    RESULT.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, USD, POSITION_TARGET), true);
+    RESULT.put(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, GBP, POSITION_TARGET), false);
+    RESULT.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, USD, POSITION_TARGET), false);
+    RESULT.put(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, GBP, POSITION_TARGET), false);
   }
   
   private ViewStatusModel _viewStatusModel = new SimpleViewStatusModel(HEADERS, ROWS, RESULT);
@@ -154,20 +159,20 @@ public class SimpleViewStatusModelTest {
   }
   
   public void getStatusByKey() {
-    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, PV, Currency.USD)));
-    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, PV, Currency.GBP)));
-    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, Currency.USD)));
-    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, Currency.GBP)));
-    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, VALUERHO, Currency.USD)));
-    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, VALUERHO, Currency.GBP)));
-    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, Currency.USD)));
-    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, Currency.GBP)));
-    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, Currency.USD)));
-    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, Currency.GBP)));
+    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, PV, USD, POSITION_TARGET)));
+    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, PV, GBP, POSITION_TARGET)));
+    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, USD, POSITION_TARGET)));
+    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, GBP, POSITION_TARGET)));
+    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, VALUERHO, USD, POSITION_TARGET)));
+    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, VALUERHO, GBP, POSITION_TARGET)));
+    assertTrue(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, USD, POSITION_TARGET)));
+    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, GBP, POSITION_TARGET)));
+    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, USD, POSITION_TARGET)));
+    assertFalse(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, GBP, POSITION_TARGET)));
   }
   
   public void getMissingStatusByKey() {
-    assertNull(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, PV, Currency.EUR)));
+    assertNull(_viewStatusModel.getStatus(new ViewStatusKeyBean(SWAP, PV, EUR, POSITION_TARGET)));
   }
   
   public void getValueRequirementNames() {
@@ -175,7 +180,7 @@ public class SimpleViewStatusModelTest {
   }
   
   public void getCurrencies() {
-    assertEquals(Sets.newHashSet(Currency.USD, Currency.GBP), _viewStatusModel.getCurrencies());
+    assertEquals(Sets.newHashSet(USD, GBP), _viewStatusModel.getCurrencies());
   }
   
   public void getSecurityTypes() {

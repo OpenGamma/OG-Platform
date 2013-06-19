@@ -46,7 +46,7 @@ public class HazardRateCurve {
 
   private final double _zeroDiscountFactor;
 
-  //TODO almost certainly not necessary to store the next two
+  // TODO almost certainly not necessary to store the next two
   private final double[] _times;
 
   private final double[] _rates;
@@ -59,8 +59,8 @@ public class HazardRateCurve {
     ArgumentChecker.notNull(rates, "rates");
     final int n = curveTenors.length;
     ArgumentChecker.isTrue(n > 0, "Must have at least one data point");
-    //ArgumentChecker.isTrue(times.length == n, "number of times {} must equal number of dates {}", times.length, n);
-    //ArgumentChecker.isTrue(rates.length == n, "number of rates {} must equal number of dates {}", rates.length, n);
+    // ArgumentChecker.isTrue(times.length == n, "number of times {} must equal number of dates {}", times.length, n);
+    // ArgumentChecker.isTrue(rates.length == n, "number of rates {} must equal number of dates {}", rates.length, n);
     _offset = offset;
 
     _curveTenors = new ZonedDateTime[n];
@@ -74,7 +74,7 @@ public class HazardRateCurve {
     if (length > 1) {
       _curve = InterpolatedDoublesCurve.fromSorted(times, rates, INTERPOLATOR);
     } else {
-      _curve = ConstantDoublesCurve.from(rates[0]);  // Unless the curve is flat, in which case use a constant curve
+      _curve = ConstantDoublesCurve.from(rates[0]); // Unless the curve is flat, in which case use a constant curve
     }
     _shiftedTimePoints = new double[n];
     for (int i = 0; i < n; ++i) {
@@ -135,6 +135,22 @@ public class HazardRateCurve {
 
   public double[] getRates() {
     return _rates;
+  }
+
+  /**
+   * Replace the nonzero time rates in the curve. Note the first rate is a t = 0.0 so its value (in the context of a r(t)*t interpolation) is irrelevant 
+   * @param rates
+   * @return
+   */
+  public HazardRateCurve withRates(final double[] rates) {
+    ArgumentChecker.notEmpty(rates, "null rates");
+    final int n = _rates.length-1;
+    ArgumentChecker.isTrue(n == rates.length, "rates length {}, must be {}", rates.length, n);
+
+    double[] temp = new double[n + 1];
+    System.arraycopy(rates, 0, temp, 1, n);
+    temp[0] = rates[0];
+    return new HazardRateCurve(_curveTenors, _times, temp, _offset);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

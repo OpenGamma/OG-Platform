@@ -79,6 +79,10 @@
       <artifactId>derby</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
+    </dependency>
   </dependencies>
 
   <properties>

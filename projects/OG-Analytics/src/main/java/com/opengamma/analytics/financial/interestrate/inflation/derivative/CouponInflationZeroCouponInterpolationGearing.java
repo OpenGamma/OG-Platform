@@ -31,6 +31,15 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
    * The time can be negative (when the price index for the current and last month is not yet published).
    */
   private final double[] _referenceEndTime;
+
+  /**
+   * The time for which the index at the coupon end is paid by the standard corresponding  zero coupon. 
+   * There is usually a difference of two or three month between the reference date and the natural payment date.
+   * the natural payment date is equal to the payment date when the lag is the conventional one.
+   * The time can be negative (when the price index for the current and last month is not yet published).
+   */
+  private final double _naturalPaymentTime;
+
   /**
    * The weight on the first month index in the interpolation.
    */
@@ -54,16 +63,17 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
    * @param priceIndex The price index associated to the coupon.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
+   * @param naturalPaymentTime The time for which the index at the coupon end is paid by the standard corresponding  zero coupon.
    * @param weight The weight on the first month index in the interpolation.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    */
   public CouponInflationZeroCouponInterpolationGearing(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
-      final double indexStartValue,
-      final double[] referenceEndTime, final double weight, final boolean payNotional, final double factor) {
+      final double indexStartValue, final double[] referenceEndTime, final double naturalPaymentTime, final double weight, final boolean payNotional, final double factor) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
-    this._indexStartValue = indexStartValue;
-    this._referenceEndTime = referenceEndTime;
+    _indexStartValue = indexStartValue;
+    _referenceEndTime = referenceEndTime;
+    _naturalPaymentTime = naturalPaymentTime;
     _weight = weight;
     _payNotional = payNotional;
     _factor = factor;
@@ -85,6 +95,10 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
     return _referenceEndTime;
   }
 
+  public double getNaturalPaymentTime() {
+    return _naturalPaymentTime;
+  }
+
   /**
    * Gets the weight on the first month index in the interpolation.
    * @return The weight.
@@ -104,7 +118,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   @Override
   public CouponInflationZeroCouponInterpolationGearing withNotional(final double notional) {
     return new CouponInflationZeroCouponInterpolationGearing(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
-        _weight, _payNotional, _factor);
+        _naturalPaymentTime, _weight, _payNotional, _factor);
   }
 
   @Override
@@ -134,30 +148,40 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
     final int prime = 31;
     int result = super.hashCode();
     long temp;
+    temp = Double.doubleToLongBits(_factor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_naturalPaymentTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + Arrays.hashCode(_referenceEndTime);
+    temp = Double.doubleToLongBits(_weight);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (!super.equals(obj)) {
+    if (!super.equals(obj))
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     CouponInflationZeroCouponInterpolationGearing other = (CouponInflationZeroCouponInterpolationGearing) obj;
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor))
       return false;
-    }
-    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue))
       return false;
-    }
+    if (Double.doubleToLongBits(_naturalPaymentTime) != Double.doubleToLongBits(other._naturalPaymentTime))
+      return false;
+    if (_payNotional != other._payNotional)
+      return false;
+    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime))
+      return false;
+    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight))
+      return false;
     return true;
   }
 

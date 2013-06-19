@@ -45,19 +45,23 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  @Deprecated
+  /**
+   * Calculate Business Day Adjusted (BDA) cash flow dates on a CDS premium leg 
+   * @param cds The CDS
+   * @return array-of-arrays of ZonedDateTime. This 'matrix' has 4 columns: The first is the BDA cash flow times (the first and last entries are the start and end dates - which are 
+   * Unadjusted); the second is the accrual start date (which is usually the previous cash flow time), <b>note</b> the first of these is null; 
+   * the third is the accrual end date (which is usually the same as the cash flow time), <b>note</b> the first of these is null;
+   *  the fourth is the accrual pay date (which is usually the same as the cash flow time), <b>note</b> the first of these is null; 
+   *  @deprecated is will be replaced once it is fully tested 
+   */
+  @Deprecated 
   public ZonedDateTime[][] constructISDACompliantCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
 
-    // ------------------------------------------------
-
-    // Check input CDS object is not null
-    ArgumentChecker.notNull(cds, "CDS");
-
-    // ------------------------------------------------
-
+    ArgumentChecker.notNull(cds, "CDS");    
+   
     int totalDates = 0;
-
     // NOTE : We have hacked this to have a maximum number of possible cashflows of 1000 - should sort this out
+    //TODO This should be replaced by a container 
     final ZonedDateTime[] tempCashflowSchedule = new ZonedDateTime[1000];
 
     ZonedDateTime date;
@@ -94,6 +98,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
       date = endDate;
 
+      //These are the unadjusted dates rolling back from the end date
       while (date.isAfter(startDate)) {
         tempCashflowSchedule[i] = date;
         i++;
@@ -131,6 +136,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[totalDates];
 
+    //write the unadjusted dates in acceding order 
     for (int i = 0; i < totalDates; i++) {
       cashflowSchedule[i] = tempCashflowSchedule[totalDates - 1 - i];
     }
@@ -141,12 +147,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     final ZonedDateTime[][] tempBDACashflowSchedule = new ZonedDateTime[cashflowSchedule.length][4];
 
     // Fill up the first column
+    //R White - Comment: first and last dates are not adjusted 
     tempBDACashflowSchedule[0][0] = cashflowSchedule[0];
+    tempBDACashflowSchedule[tempBDACashflowSchedule.length - 1][0] = cashflowSchedule[cashflowSchedule.length - 1];
     for (int i = 1; i < tempBDACashflowSchedule.length - 1; i++) {
       tempBDACashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
     }
-    tempBDACashflowSchedule[tempBDACashflowSchedule.length - 1][0] = cashflowSchedule[cashflowSchedule.length - 1];
-
+   
     // Now fill up the acc start/end and pay dates
 
     // This is based on the code in the ISDA model
@@ -158,6 +165,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     for (int i = 1; i < cashflowSchedule.length; i++) {
 
       ZonedDateTime nextDate = cashflowSchedule[i];
+      //R White Review: this is exactly the same adjustment as made above 
       ZonedDateTime nextDateAdj = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
 
       // accStartDate
@@ -169,7 +177,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       // payDate
       tempBDACashflowSchedule[i][3] = nextDateAdj;
 
-      prevDate = nextDate;
+      prevDate = nextDate; //this assignment is never used in the loop 
       prevDateAdj = nextDateAdj;
     }
 

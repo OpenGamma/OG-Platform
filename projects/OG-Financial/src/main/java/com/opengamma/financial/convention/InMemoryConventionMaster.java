@@ -18,12 +18,19 @@ import com.opengamma.id.UniqueId;
 public class InMemoryConventionMaster implements ConventionMaster {
   /** In-memory scheme */
   public static final ExternalScheme IN_MEMORY_UNIQUE_SCHEME = ExternalScheme.of("In-memory");
+  /** Maps from external ids to unique ids */
   private final ExternalIdBundleMapper<Convention> _mapper = new ExternalIdBundleMapper<>(IN_MEMORY_UNIQUE_SCHEME.getName());
 
+  /**
+   * 
+   */
   public InMemoryConventionMaster() {
     init();
   }
 
+  /**
+   * Initializes the convention master.
+   */
   protected void init() {
     USConventions.addFixedIncomeInstrumentConventions(this);
     ZAConventions.addFixedIncomeInstrumentConventions(this);

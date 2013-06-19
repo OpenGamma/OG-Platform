@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -66,6 +68,8 @@ public final class ViewDefinitionCompiler {
   private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
   private static final boolean OUTPUT_FAILURE_REPORTS = false;
   private static boolean s_striped;
+  private static Timer s_fullTimer = new Timer(); // timer for full graph compilation (replaced if registerMetrics called)
+  private static Timer s_deltaTimer = new Timer(); // timer for delta graph compilation (replaced if registerMetrics called)
 
   private static final Supplier<String> s_uniqueIdentifiers = new Supplier<String>() {
 
@@ -80,6 +84,11 @@ public final class ViewDefinitionCompiler {
   };
 
   private ViewDefinitionCompiler() {
+  }
+
+  public static void registerMetricsStatic(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
+    s_deltaTimer = summaryRegistry.timer(namePrefix + ".delta");
+    s_fullTimer = summaryRegistry.timer(namePrefix + ".full");
   }
 
   //-------------------------------------------------------------------------
@@ -347,7 +356,9 @@ public final class ViewDefinitionCompiler {
     @Override
     protected void compile() {
       s_logger.info("Performing full compilation");
-      super.compile();
+      try (Timer.Context context = s_fullTimer.time()) {
+        super.compile();
+      }
     }
 
   }
@@ -394,7 +405,9 @@ public final class ViewDefinitionCompiler {
     @Override
     public void compile() {
       s_logger.info("Performing incremental compilation");
-      super.compile();
+      try (Timer.Context context = s_deltaTimer.time()) {
+        super.compile();
+      }
     }
 
   }
@@ -499,6 +512,7 @@ public final class ViewDefinitionCompiler {
         traverser.traverse(portfolio.getRootNode());
         try {
           s_logger.debug("Waiting for stripe {} to complete", stripe);
+          // TODO: Waiting for a completion state causes any progress tracker to abort (it sees 100% and stops). Need to rethink how to do the progress estimates.
           builder.waitForDependencyGraphBuild();
         } catch (InterruptedException e) {
           throw new OpenGammaRuntimeException("Interrupted during striped compilation", e);

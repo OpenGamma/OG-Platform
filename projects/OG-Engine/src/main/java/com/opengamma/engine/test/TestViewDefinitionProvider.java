@@ -51,6 +51,7 @@ public final class TestViewDefinitionProvider {
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOtherOutput", allConstraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "YetAnotherOutput", noConstraints);
     calcConfig1.addPortfolioRequirement("SomeOtherSecType", "YetAnotherOutput", nearlyAllConstraints);
+    calcConfig1.setScenarioId(UniqueId.of("ScenarioDefinition", "sd1"));
 
     final ViewCalculationConfiguration calcConfig2 = new ViewCalculationConfiguration(viewDefinition, "2");
     calcConfig2.addSpecificRequirement(new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Foo")));

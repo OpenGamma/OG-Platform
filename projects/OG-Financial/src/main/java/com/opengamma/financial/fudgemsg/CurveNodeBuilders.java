@@ -11,6 +11,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Period;
 
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
@@ -25,18 +26,25 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Contains fudge builders for curve nodes.
  */
 /* package */ final class CurveNodeBuilders {
+  /** The curve node id mapper field */
   private static final String CURVE_MAPPER_ID_FIELD = "curveNodeIdMapper";
+  /** The data field field */
   private static final String DATA_FIELD_FIELD = "dataField";
 
   private CurveNodeBuilders() {
   }
 
+  /**
+   * Fudge builder for {@link CurveNodeWithIdentifier}
+   */
   @FudgeBuilderFor(CurveNodeWithIdentifier.class)
   public static class CurveNodeWithIdentifierBuilder implements FudgeBuilder<CurveNodeWithIdentifier> {
+    /** The curve strip field */
     private static final String CURVE_STRIP_FIELD = "curveStrip";
+    /** The id field */
     private static final String ID_FIELD = "id";
 
     @Override
@@ -57,18 +65,24 @@ import com.opengamma.util.time.Tenor;
 
   }
 
+  /**
+   * Fudge builder for {@link CashNode}
+   */
   @FudgeBuilderFor(CashNode.class)
   public static class CashNodeBuilder implements FudgeBuilder<CashNode> {
+    /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
+    /** The maturity tenor field */
     private static final String MATURITY_TENOR_FIELD = "maturityTenor";
+    /** The convention field */
     private static final String CONVENTION_ID_FIELD = "convention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CashNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      message.add(START_TENOR_FIELD, object.getStartTenor());
-      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor());
+      message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
+      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor().getPeriod().toString());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(DATA_FIELD_FIELD, object.getDataField());
@@ -77,8 +91,8 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public CashNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
-      final Tenor maturityTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(MATURITY_TENOR_FIELD));
+      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final String dataField = message.getString(DATA_FIELD_FIELD);
@@ -103,6 +117,7 @@ import com.opengamma.util.time.Tenor;
     @Override
     public ContinuouslyCompoundedRateNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      //TODO should just use Period string for these objects
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
       final String dataField = message.getString(DATA_FIELD_FIELD);
       final ContinuouslyCompoundedRateNode strip = new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor, dataField);
@@ -151,28 +166,34 @@ import com.opengamma.util.time.Tenor;
     @Override
     public DiscountFactorNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      //TODO should just use the period string for Tenor
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
       final String dataField = message.getString(DATA_FIELD_FIELD);
       if (dataField == null) {
         return new DiscountFactorNode(curveNodeIdMapperName, tenor);
-      } else {
-        return new DiscountFactorNode(curveNodeIdMapperName, tenor, dataField);
       }
+      return new DiscountFactorNode(curveNodeIdMapperName, tenor, dataField);
     }
   }
 
+  /**
+   * Fudge builder for {@link FRANode}
+   */
   @FudgeBuilderFor(FRANode.class)
   public static class FRANodeBuilder implements FudgeBuilder<FRANode> {
+    /** The fixing start field */
     private static final String FIXING_START_FIELD = "fixingStart";
+    /** The fixing end field */
     private static final String FIXING_END_FIELD = "fixingEnd";
+    /** The convention field */
     private static final String CONVENTION_ID_FIELD = "convention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FRANode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      message.add(FIXING_START_FIELD, object.getFixingStart());
-      message.add(FIXING_END_FIELD, object.getFixingEnd());
+      message.add(FIXING_START_FIELD, object.getFixingStart().getPeriod().toString());
+      message.add(FIXING_END_FIELD, object.getFixingEnd().getPeriod().toString());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(DATA_FIELD_FIELD, object.getDataField());
@@ -182,8 +203,8 @@ import com.opengamma.util.time.Tenor;
     @Override
     public FRANode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
-      final Tenor fixingStart = deserializer.fieldValueToObject(Tenor.class, message.getByName(FIXING_START_FIELD));
-      final Tenor fixingEnd = deserializer.fieldValueToObject(Tenor.class, message.getByName(FIXING_END_FIELD));
+      final Tenor fixingStart = new Tenor(Period.parse(message.getString(FIXING_START_FIELD)));
+      final Tenor fixingEnd = new Tenor(Period.parse(message.getString(FIXING_END_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String dataField = message.getString(DATA_FIELD_FIELD);
       return new FRANode(fixingStart, fixingEnd, conventionId, curveNodeIdMapperName, dataField);
@@ -231,19 +252,26 @@ import com.opengamma.util.time.Tenor;
 
   }
 
+  /**
+   * Fudge builder for {@link SwapNode}
+   */
   @FudgeBuilderFor(SwapNode.class)
   public static final class SwapNodeBuilder implements FudgeBuilder<SwapNode> {
+    /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
+    /** The maturity tenor field */
     private static final String MATURITY_TENOR_FIELD = "maturityTenor";
+    /** The pay leg convention field */
     private static final String PAY_LEG_CONVENTION_FIELD = "payLegConvention";
+    /** The receive leg convention field */
     private static final String RECEIVE_LEG_CONVENTION_FIELD = "receiveLegConvention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SwapNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      message.add(START_TENOR_FIELD, object.getStartTenor());
-      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor());
+      message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
+      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor().getPeriod().toString());
       message.add(PAY_LEG_CONVENTION_FIELD, object.getPayLegConvention());
       message.add(RECEIVE_LEG_CONVENTION_FIELD, object.getReceiveLegConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
@@ -253,8 +281,8 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public SwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
-      final Tenor maturityTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(MATURITY_TENOR_FIELD));
+      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
       final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
       final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
@@ -263,4 +291,5 @@ import com.opengamma.util.time.Tenor;
     }
 
   }
+
 }

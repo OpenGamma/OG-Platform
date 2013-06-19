@@ -24,12 +24,15 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
   // not be necessary for the user to pass in a generator (which, as far as I can tell, are a convenience for
   // testing), as this implies that they have to know what a swap type is - what if they just want to
   // construct the leg?
+  private final IndexON _index;
+
   /**
    * Constructor from a list of OIS coupons.
    * @param payments The coupons.
    */
-  public AnnuityCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition[] payments) {
+  public AnnuityCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition[] payments, final IndexON index) {
     super(payments);
+    _index = index;
   }
 
   /**
@@ -133,7 +136,7 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
       coupons[loopcpn] = CouponOISSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
           generator.getOvernightCalendar());
     }
-    return new AnnuityCouponOISSimplifiedDefinition(coupons);
+    return new AnnuityCouponOISSimplifiedDefinition(coupons, generator.getIndex());
   }
 
   private static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final boolean isPayer,
@@ -146,7 +149,10 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
       coupons[loopcpn] = CouponOISSimplifiedDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
           indexCalendar);
     }
-    return new AnnuityCouponOISSimplifiedDefinition(coupons);
+    return new AnnuityCouponOISSimplifiedDefinition(coupons, indexON);
   }
 
+  public IndexON getIndex() {
+    return _index;
+  }
 }

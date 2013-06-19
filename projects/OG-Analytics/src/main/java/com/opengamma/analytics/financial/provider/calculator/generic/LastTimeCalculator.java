@@ -273,38 +273,32 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
 
   @Override
   public Double visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon) {
-    return coupon.getReferenceEndTime();
-    /*return coupon.getPaymentTime();*/
+    return coupon.getPaymentTime();
   }
 
   @Override
   public Double visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon) {
-    return coupon.getReferenceEndTime();
-    /*return coupon.getPaymentTime();*/
+    return coupon.getPaymentTime();
   }
 
   @Override
   public Double visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon) {
     return coupon.getPaymentTime();
-    /*return coupon.getPaymentTime();*/
   }
 
   @Override
   public Double visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon) {
     return coupon.getPaymentTime();
-    /*return coupon.getPaymentTime();*/
   }
 
   @Override
   public Double visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon) {
     return coupon.getPaymentTime();
-    /*return coupon.getPaymentTime();*/
   }
 
   @Override
   public Double visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
-    return coupon.getPaymentTime();
-    /*return coupon.getPaymentTime();*/
+    return coupon.getReferenceEndTime()[0];
   }
 
 }

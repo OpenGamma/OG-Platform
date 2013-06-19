@@ -64,7 +64,7 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
     // Only apply when there are multiple trades; otherwise the PositionOrTradeScaling function on its own will work. Allowing this
     // into the graph creates an ambiguity otherwise as either PositionTradeScaling(POSITION) <- PositionOrTradeScaling(TRADE) <- F(SECURITY)
     // or PositionOrTradeScaling(POSITION) <- F(SECURITY) may be possible for some value requirements
-    return target.getPosition().getTrades().size() > 1;
+    return (!target.getPosition().getTrades().isEmpty());
   }
 
   @Override

@@ -31,6 +31,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -38,6 +39,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
@@ -46,9 +48,12 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceC
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.util.money.Currency;
 
 //TODO: Take account of holidays
 //TODO: Modify parent class to handle most of this logic
@@ -180,6 +185,8 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
           final Set<ValueRequirement> desiredValues) {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+        final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
+        final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
         //TODO use separate definition and specification names?
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
@@ -190,6 +197,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         final DoubleArrayList xList = new DoubleArrayList();
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
+        final ExchangeTradedInstrumentExpiryCalculator expiryCalc = futurePriceCurveProvider.getExpiryRuleCalculator();
         final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
           throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
@@ -202,7 +210,8 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              final Double ttm = getTimeToMaturity(xNum.intValue(), valDate, null);
+              LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, calendar);
+              final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
               xList.add(ttm);
               prices.add(futurePrice);
             }

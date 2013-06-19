@@ -18,28 +18,27 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for selectors. This isn't an interface because the methods need to be package scoped so they're
- * not on the public API and don't interfere with the DSL.
+ * Selector base class for data structures that will be selected by name and currency.
+ * @param <T> The type of data structure handled by this selector
  */
 /* package */ abstract class Selector<T> implements DistinctMarketDataSelector {
 
   private final Set<String> _names;
   private final Set<Currency> _currencies;
   private final Pattern _namePattern;
-  private final String _calcConfigName;
+  private final Set<String> _calcConfigNames;
   private final Class<T> _type;
   private final Set<StructureType> _structureTypes;
 
-  /* package */ Selector(String calcConfigName,
+  /* package */ Selector(Set<String> calcConfigNames,
                          Set<String> names,
                          Set<Currency> currencies,
                          Pattern namePattern,
                          Class<T> type,
                          StructureType structureType) {
-    ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(structureType, "structureType");
-    _calcConfigName = calcConfigName;
+    _calcConfigNames = calcConfigNames;
     _names = names;
     _currencies = currencies;
     _namePattern = namePattern;
@@ -59,8 +58,8 @@ import com.opengamma.util.money.Currency;
     return _namePattern;
   }
 
-  /* package */ String getCalcConfigName() {
-    return _calcConfigName;
+  /* package */ Set<String> getCalcConfigNames() {
+    return _calcConfigNames;
   }
 
   /* package */ boolean matches(String name, Currency currency) {
@@ -86,7 +85,7 @@ import com.opengamma.util.money.Currency;
 
   @Override
   public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calcConfigName) {
-    if (!_calcConfigName.equals(calcConfigName)) {
+    if (_calcConfigNames != null && !_calcConfigNames.contains(calcConfigName)) {
       return null;
     }
     Object value = structureId.getValue();
@@ -116,17 +115,24 @@ import com.opengamma.util.money.Currency;
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     Selector selector = (Selector) o;
 
-    if (!_calcConfigName.equals(selector._calcConfigName)) {
+    if (_calcConfigNames != null ? !_calcConfigNames.equals(selector._calcConfigNames) : selector._calcConfigNames != null) {
       return false;
     }
     if (_currencies != null ? !_currencies.equals(selector._currencies) : selector._currencies != null) {
       return false;
     }
-    if (_namePattern != null ? !_namePattern.equals(selector._namePattern) : selector._namePattern != null) {
-      return false;
+    String thisPattern = _namePattern == null ? null : _namePattern.pattern();
+    String thatPattern = selector._namePattern == null ? null : selector._namePattern.pattern();
+    if (thisPattern != null) {
+      if (!thisPattern.equals(thatPattern)) {
+        return false;
+      }
+    } else {
+      if (thatPattern != null) {
+        return false;
+      }
     }
     if (_names != null ? !_names.equals(selector._names) : selector._names != null) {
       return false;
@@ -145,26 +151,35 @@ import com.opengamma.util.money.Currency;
     int result = _names != null ? _names.hashCode() : 0;
     result = 31 * result + (_currencies != null ? _currencies.hashCode() : 0);
     result = 31 * result + (_namePattern != null ? _namePattern.hashCode() : 0);
-    result = 31 * result + _calcConfigName.hashCode();
+    result = 31 * result + (_calcConfigNames != null ? _calcConfigNames.hashCode() : 0);
     result = 31 * result + _type.hashCode();
     result = 31 * result + _structureTypes.hashCode();
     return result;
   }
 
+  @Override
+  public String toString() {
+    return "Selector [" +
+        "_names=" + _names +
+        ", _currencies=" + _currencies +
+        ", _namePattern=" + _namePattern +
+        ", _calcConfigNames=" + _calcConfigNames +
+        ", _type=" + _type +
+        ", _structureTypes=" + _structureTypes +
+        "]";
+  }
+
   /* package */ abstract static class Builder {
 
-    private final String _calcConfigName;
     private final Scenario _scenario;
 
     private Set<String> _names;
     private Set<Currency> _currencies;
     private Pattern _namePattern;
 
-    protected Builder(Scenario scenario, String calcConfigName) {
-      ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
+    protected Builder(Scenario scenario) {
       ArgumentChecker.notNull(scenario, "scenario");
       _scenario = scenario;
-      _calcConfigName = calcConfigName;
     }
 
     /* package */ Builder named(String... names) {
@@ -201,10 +216,6 @@ import com.opengamma.util.money.Currency;
       }
       _namePattern = Pattern.compile(regex);
       return this;
-    }
-
-    /* package */ String getCalcConfigName() {
-      return _calcConfigName;
     }
 
     /* package */ Scenario getScenario() {

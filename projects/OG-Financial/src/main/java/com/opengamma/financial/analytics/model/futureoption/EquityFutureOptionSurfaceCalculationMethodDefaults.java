@@ -117,7 +117,7 @@ public class EquityFutureOptionSurfaceCalculationMethodDefaults extends DefaultP
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_OPTION_SURFACE_CALCULATION_METHOD_DEFAULTS;
+    return OpenGammaFunctionExclusions.SURFACE_CALCULATION_METHOD_DEFAULTS;
   }
 
 }
