@@ -68,12 +68,10 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
-    UserPrincipal user = option.getUser();
-    String format = option.getFormat();
-    generateViewStatusReport(portfolioId, user, ResultFormat.of(format));
+    generateViewStatusReport(portfolioId, option.getUser(), option.getFormat(), option.getAggregateType());
   }
   
-  private void generateViewStatusReport(final UniqueId portfolioId, UserPrincipal user, ResultFormat resultFormat) {
+  private void generateViewStatusReport(final UniqueId portfolioId, UserPrincipal user, ResultFormat resultFormat, AggregateType aggregateType) {
     
     Map<String, Collection<String>> valueRequirementBySecType = scanValueRequirementBySecType(portfolioId);
     
@@ -90,7 +88,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     ViewStatusResultAggregator resultAggregator = calculationWorker.run();
     
     ViewStatusResultProducer resultProducer = new ViewStatusResultProducer();
-    String statusResult = resultProducer.statusResult(resultAggregator, resultFormat);
+    String statusResult = resultProducer.statusResult(resultAggregator, resultFormat, aggregateType);
     try {
       File filename = getFileName(resultFormat);
       s_logger.debug("Writing status report into : {}", filename.getPath());
@@ -149,6 +147,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     
     Options viewStatusOptions = ViewStatusReporterOption.createOptions();
     for (Option option : (Collection<Option>) viewStatusOptions.getOptions()) {
+      s_logger.debug("adding {} to tool options", option);
       toolOptions.addOption(option);
     }
     return toolOptions;
