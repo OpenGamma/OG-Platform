@@ -5,7 +5,8 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
-import static junit.framework.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
+
 
 import java.math.BigDecimal;
 
@@ -31,8 +32,9 @@ public class FraTradeSecurityExtractorTest {
     FraTrade fra = createBasicFra();
     FraTradeSecurityExtractor fraExtractor = new FraTradeSecurityExtractor(fra);
     ManageableSecurity[] extractSecurities = fraExtractor.extractSecurities();
-    assertEquals("One fra expected", 1, extractSecurities.length);
-    assertEquals("Expected instance of FraSecurity", FRASecurity.class, extractSecurities[0].getClass());
+    assertEquals(1, extractSecurities.length, "One fra expected");
+    assertEquals(FRASecurity.class, extractSecurities[0].getClass(), "Expected instance of FraSecurity");
+    
   }
 
   @Test(expectedExceptions={OpenGammaRuntimeException.class})
@@ -52,8 +54,8 @@ public class FraTradeSecurityExtractorTest {
     fra.setBusinessDayConvention("Actual/365");
     FraTradeSecurityExtractor fraExtractor = new FraTradeSecurityExtractor(fra);
     ManageableSecurity[] extractSecurities = fraExtractor.extractSecurities();
-    assertEquals("One fra expected", 1, extractSecurities.length);
-    assertEquals("Expected instance of FraSecurity", FRASecurity.class, extractSecurities[0].getClass());
+    assertEquals(1, extractSecurities.length, "One fra expected");
+    assertEquals(FRASecurity.class, extractSecurities[0].getClass(), "Expected instance of FraSecurity");
   }
   
   /**

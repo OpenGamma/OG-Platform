@@ -10,15 +10,15 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteT
 /**
  * 
  */
-public class ForexCallDeltaVolatilitySurfaceFunction extends ForexPutCallDeltaVolatilitySurfaceFunction {
+public class ForexPutDeltaVolatilitySurfaceFunction extends ForexPutCallDeltaVolatilitySurfaceFunction {
 
   @Override
   protected String getVolatilitySurfaceQuoteType() {
-    return SurfaceAndCubeQuoteType.CALL_DELTA;
+    return SurfaceAndCubeQuoteType.PUT_DELTA;
   }
 
   @Override
   protected double getTransformedDelta(final double delta) {
-    return delta / 100.;
+    return 1 - delta / 100.;
   }
 }

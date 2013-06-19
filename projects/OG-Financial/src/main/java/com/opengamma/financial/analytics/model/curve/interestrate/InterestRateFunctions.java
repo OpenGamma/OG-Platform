@@ -176,6 +176,7 @@ public class InterestRateFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     functions.add(functionConfiguration(MultiYieldCurveParRateMethodFunction.class));
     functions.add(functionConfiguration(MultiYieldCurvePresentValueMethodFunction.class));
+    functions.add(functionConfiguration(MultiCurveCalculationConfigFunction.class));
   }
 
 }

@@ -30,13 +30,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.id.VersionCorrectionUtils;
 import com.opengamma.id.VersionCorrectionUtils.VersionCorrectionLockListener;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.WeakInstanceCache;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A cache decorating a {@code PositionSource}.
@@ -211,7 +211,7 @@ public class EHCachingPositionSource implements PositionSource {
       if (newPosition != nodePosition) {
         if (newPositions == null) {
           newPositions = new ArrayList<Position>(nodePositions.size());
-          for (int j = 0; j < i - 1; j++) {
+          for (int j = 0; j < i; j++) {
             newPositions.add(nodePositions.get(j));
           }
         }
@@ -230,7 +230,7 @@ public class EHCachingPositionSource implements PositionSource {
       if (newChild != nodeChild) {
         if (newChildren == null) {
           newChildren = new ArrayList<PortfolioNode>(nodeChildren.size());
-          for (int j = 0; j < i - 1; j++) {
+          for (int j = 0; j < i; j++) {
             newChildren.add(nodeChildren.get(j));
           }
         }

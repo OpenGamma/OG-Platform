@@ -13,6 +13,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -27,9 +28,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
+import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
-import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -61,10 +61,11 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
 
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-        final CurveCalculationConfigSource source = OpenGammaExecutionContext.getCurveCalculationConfigSource(executionContext);
+        final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+        final ConfigDBCurveCalculationConfigSource source = new ConfigDBCurveCalculationConfigSource(configSource);
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-        final MultiCurveCalculationConfig config = source.getConfig(curveConfigName, VersionCorrection.of(atInstant, null));
+        final MultiCurveCalculationConfig config = source.getConfig(curveConfigName);
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName).get();
         return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, target.toSpecification(), properties), config));
