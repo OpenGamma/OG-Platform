@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -197,6 +196,7 @@ public class ISDACompliantScheduleGeneratorTest {
   /**
    * 
    */
+  @SuppressWarnings("deprecation")
   @Test
   void nodesAsTimesDeprecatedTest() {
     final ZonedDateTime today = ZonedDateTime.of(2013, 1, 23, 12, 0, 0, 0, ZoneId.of("Z"));
@@ -230,6 +230,7 @@ public class ISDACompliantScheduleGeneratorTest {
   /**
    * 
    */
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nodesAsTimesNullDiscountCurveDeprecatedTest() {
     final ZonedDateTime today = ZonedDateTime.of(2013, 1, 23, 12, 0, 0, 0, ZoneId.of("Z"));
@@ -246,6 +247,7 @@ public class ISDACompliantScheduleGeneratorTest {
   /**
    * 
    */
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nodesAsTimesNullSpreadCurveDeprecatedTest() {
     final ZonedDateTime today = ZonedDateTime.of(2013, 1, 23, 12, 0, 0, 0, ZoneId.of("Z"));
@@ -332,6 +334,7 @@ public class ISDACompliantScheduleGeneratorTest {
   /**
    * Deprecated methods in {@link GenerateCreditDefaultSwapIntegrationSchedule}
    */
+  @SuppressWarnings("deprecation")
   @Test
   public void regressionTest() {
     final GenerateCreditDefaultSwapIntegrationSchedule calculator = new GenerateCreditDefaultSwapIntegrationSchedule();
@@ -427,9 +430,4 @@ public class ISDACompliantScheduleGeneratorTest {
     }
   }
 
-  @Test(enabled = false)
-  public void aTest() {
-    final ZonedDateTime obj1 = DateUtils.getUTCDate(2003, 1, 6);
-    final ZonedDateTime obj2 = ZonedDateTime.of(2003, 1, 6, 12, 0, 0, 0, ZoneId.of("Z"));
-  }
 }
