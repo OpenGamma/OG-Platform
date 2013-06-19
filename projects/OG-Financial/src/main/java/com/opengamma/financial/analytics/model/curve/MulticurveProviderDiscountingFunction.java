@@ -190,6 +190,10 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
           requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
         }
+        final ValueProperties properties = ValueProperties.builder()
+            .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
+            .get();
+        requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
         return requirements;
       }
 

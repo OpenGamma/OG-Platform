@@ -22,17 +22,25 @@ import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Fudge builder for {@link CurveNodeIdMapper}
  */
 @FudgeBuilderFor(CurveNodeIdMapper.class)
 public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper> {
+  /** The name field */
   private static final String NAME_FIELD = "name";
+  /** The cash ids field */
   private static final String CASH_NODE_FIELD = "cashIds";
+  /** The continuously compounded node field */
   private static final String CONTINUOUSLY_COMPOUNDED_NODE_FIELD = "continuouslyCompoundedIds";
+  /** The credit spread node field */
   private static final String CREDIT_SPREAD_NODE_FIELD = "creditSpreadIds";
+  /** The discount factor node field */
   private static final String DISCOUNT_FACTOR_NODE_FIELD = "discountFactorIds";
+  /** The FRA node field */
   private static final String FRA_NODE_FIELD = "fraIds";
+  /** The rate future node field */
   private static final String RATE_FUTURE_FIELD = "rateFutureIds";
+  /** The swap node field */
   private static final String SWAP_NODE_FIELD = "swapIds";
 
   @Override

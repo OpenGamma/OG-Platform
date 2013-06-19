@@ -212,13 +212,22 @@ import com.opengamma.util.time.Tenor;
 
   }
 
+  /**
+   * Fudge builder for {@link RateFutureNode}
+   */
   @FudgeBuilderFor(RateFutureNode.class)
   public static class RateFutureNodeBuilder implements FudgeBuilder<RateFutureNode> {
+    /** The number of the future from the start tenor field */
     private static final String FUTURE_NUMBER_FIELD = "futureNumber";
+    /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
+    /** The future tenor field */
     private static final String FUTURE_TENOR_FIELD = "futureTenor";
+    /** The tenor of the underlying rate field */
     private static final String UNDERLYING_TENOR_FIELD = "underlyingTenor";
+    /** The future convention field */
     private static final String FUTURE_CONVENTION_FIELD = "futureConvention";
+    /** The underlying convention field */
     private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
 
     @Override
@@ -226,9 +235,9 @@ import com.opengamma.util.time.Tenor;
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(FUTURE_NUMBER_FIELD, object.getFutureNumber());
-      message.add(START_TENOR_FIELD, object.getStartTenor());
-      message.add(FUTURE_TENOR_FIELD, object.getFutureTenor());
-      message.add(UNDERLYING_TENOR_FIELD, object.getUnderlyingTenor());
+      message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
+      message.add(FUTURE_TENOR_FIELD, object.getFutureTenor().getPeriod().toString());
+      message.add(UNDERLYING_TENOR_FIELD, object.getUnderlyingTenor().getPeriod().toString());
       message.add(FUTURE_CONVENTION_FIELD, object.getFutureConvention());
       message.add(UNDERLYING_CONVENTION_FIELD, object.getUnderlyingConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
@@ -239,9 +248,9 @@ import com.opengamma.util.time.Tenor;
     @Override
     public RateFutureNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final int futureNumber = message.getInt(FUTURE_NUMBER_FIELD);
-      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
-      final Tenor futureTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(FUTURE_TENOR_FIELD));
-      final Tenor underlyingTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(UNDERLYING_TENOR_FIELD));
+      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor futureTenor = new Tenor(Period.parse(message.getString(FUTURE_TENOR_FIELD)));
+      final Tenor underlyingTenor = new Tenor(Period.parse(message.getString(UNDERLYING_TENOR_FIELD)));
       final ExternalId futureConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FUTURE_CONVENTION_FIELD));
       final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);

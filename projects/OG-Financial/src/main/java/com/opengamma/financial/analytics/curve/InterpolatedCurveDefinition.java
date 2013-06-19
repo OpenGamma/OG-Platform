@@ -32,23 +32,43 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   /** Serialization version */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The interpolator name.
+   */
   @PropertyDefinition(validate = "notNull")
   private String _interpolatorName;
 
+  /**
+   * The right extrapolator name.
+   */
   @PropertyDefinition
   private String _rightExtrapolatorName;
 
+  /**
+   * The left extrapolator name.
+   */
   @PropertyDefinition
   private String _leftExtrapolatorName;
 
   /* package*/InterpolatedCurveDefinition() {
   }
 
+  /**
+   * @param name The name of the curve, not null
+   * @param nodes The nodes of the curve, not null
+   * @param interpolatorName The interpolator name, not null
+   */
   public InterpolatedCurveDefinition(final String name, final Set<CurveNode> nodes, final String interpolatorName) {
     super(name, nodes);
     setInterpolatorName(interpolatorName);
   }
 
+  /**
+   * @param name The name of the curve, not null
+   * @param nodes The nodes of the curve, not null
+   * @param interpolatorName The interpolator name, not null
+   * @param extrapolatorName The name of the left and right extrapolators
+   */
   public InterpolatedCurveDefinition(final String name, final Set<CurveNode> nodes, final String interpolatorName, final String extrapolatorName) {
     super(name, nodes);
     setInterpolatorName(interpolatorName);
@@ -56,6 +76,13 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
     setLeftExtrapolatorName(extrapolatorName);
   }
 
+  /**
+   * @param name The name of the curve, not null
+   * @param nodes The nodes of the curve, not null
+   * @param interpolatorName The interpolator name, not null
+   * @param rightExtrapolatorName The right extrapolator name
+   * @param leftExtrapolatorName The left extrapolator name
+   */
   public InterpolatedCurveDefinition(final String name, final Set<CurveNode> nodes, final String interpolatorName, final String rightExtrapolatorName, final String leftExtrapolatorName) {
     super(name, nodes);
     setInterpolatorName(interpolatorName);
@@ -142,7 +169,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the interpolatorName.
+   * Gets the interpolator name.
    * @return the value of the property, not null
    */
   public String getInterpolatorName() {
@@ -150,7 +177,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   }
 
   /**
-   * Sets the interpolatorName.
+   * Sets the interpolator name.
    * @param interpolatorName  the new value of the property, not null
    */
   public void setInterpolatorName(String interpolatorName) {
@@ -168,7 +195,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rightExtrapolatorName.
+   * Gets the right extrapolator name.
    * @return the value of the property
    */
   public String getRightExtrapolatorName() {
@@ -176,7 +203,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   }
 
   /**
-   * Sets the rightExtrapolatorName.
+   * Sets the right extrapolator name.
    * @param rightExtrapolatorName  the new value of the property
    */
   public void setRightExtrapolatorName(String rightExtrapolatorName) {
@@ -193,7 +220,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the leftExtrapolatorName.
+   * Gets the left extrapolator name.
    * @return the value of the property
    */
   public String getLeftExtrapolatorName() {
@@ -201,7 +228,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   }
 
   /**
-   * Sets the leftExtrapolatorName.
+   * Sets the left extrapolator name.
    * @param leftExtrapolatorName  the new value of the property
    */
   public void setLeftExtrapolatorName(String leftExtrapolatorName) {
