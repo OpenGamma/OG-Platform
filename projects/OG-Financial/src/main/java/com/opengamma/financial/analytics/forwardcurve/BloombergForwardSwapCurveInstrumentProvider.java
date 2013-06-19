@@ -87,6 +87,11 @@ public class BloombergForwardSwapCurveInstrumentProvider extends ForwardSwapCurv
     throw new OpenGammaRuntimeException("Can only handle tenors of months or years; have " + period);
   }
 
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFutureFromTenor) {
+    throw new UnsupportedOperationException();
+  }
+
   private String getSwapCode(final Period period) {
     if (period.getYears() != 0) {
       final String years = Integer.toString(period.getYears());

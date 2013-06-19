@@ -274,15 +274,22 @@ public class CurveNodeIdMapper {
   /**
    * Gets the external id of the rate future node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
-   * @param tenor The tenor
+   * @param tenor The start tenor
+   * @param rateTenor The tenor of the future
+   * @param numberFuturesFromTenor The number of futures from the start tenor
    * @return The external id of the security
    * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
    */
-  public ExternalId getRateFutureNodeId(final LocalDate curveDate, final Tenor tenor) {
-    if (_swapNodeIds == null) {
+  public ExternalId getRateFutureNodeId(final LocalDate curveDate, final Tenor tenor, final Tenor rateTenor, final int numberFuturesFromTenor) {
+    if (_rateFutureNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get rate future node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_swapNodeIds, curveDate, tenor);
+    final CurveInstrumentProvider mapper = _rateFutureNodeIds.get(tenor);
+    if (mapper != null) {
+      return mapper.getInstrument(curveDate, tenor, rateTenor, numberFuturesFromTenor);
+    }
+    throw new OpenGammaRuntimeException("Can't get instrument mapper definition for rate future number " + numberFuturesFromTenor +
+        " with time to start " + tenor + " and rate tenor " + rateTenor);
   }
 
   /**

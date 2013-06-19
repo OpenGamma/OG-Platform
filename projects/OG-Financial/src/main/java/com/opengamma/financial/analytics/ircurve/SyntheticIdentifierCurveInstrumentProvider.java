@@ -57,6 +57,11 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numQuarterlyFuturesFromTenor) {
+    return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + startTenor.getPeriod().toString() + futureTenor.getPeriod().toString());
+  }
+
+  @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear, final boolean isPeriodicZeroDeposit) {
     return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + Integer.toString(periodsPerYear) + tenor.getPeriod().toString());
   }

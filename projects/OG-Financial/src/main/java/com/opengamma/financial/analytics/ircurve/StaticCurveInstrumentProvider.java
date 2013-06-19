@@ -9,15 +9,23 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
+ * Provides the external id of instruments for which the ticker does not change with time.
+ * 
  * This should be pulled from the configuration.
  */
 public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
+  /** The market data identifier */
   private final ExternalId _identifier;
 
+  /**
+   * @param identifier The market data identifier, not null
+   */
   public StaticCurveInstrumentProvider(final ExternalId identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
     _identifier = identifier;
   }
 
@@ -28,7 +36,12 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
 
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int numQuarterlyFuturesFromTenor) {
-    throw new OpenGammaRuntimeException("futures not supported by this class");
+    throw new OpenGammaRuntimeException("Futures not supported by this class");
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFutureFromTenor) {
+    throw new OpenGammaRuntimeException("Futures not supported by this class");
   }
 
   @Override
@@ -71,4 +84,5 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
   public String toString() {
     return "StaticCurveInstrumentProvider[" + _identifier.toString() + "]";
   }
+
 }
