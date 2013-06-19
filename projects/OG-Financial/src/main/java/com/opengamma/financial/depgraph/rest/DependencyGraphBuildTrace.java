@@ -14,7 +14,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.ResolutionFailure;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+
 
 /**
  * Class to hold the data collected by the dependency graph builders for debugging.

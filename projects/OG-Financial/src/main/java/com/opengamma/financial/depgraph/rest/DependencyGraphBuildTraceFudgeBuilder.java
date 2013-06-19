@@ -11,10 +11,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
@@ -27,8 +30,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Fudge builder for dep graph build trace objects
+ * Fudge builder for {@link DependencyGraphBuildTrace} objects
  */
+@FudgeBuilderFor(DependencyGraphBuildTrace.class)
 public class DependencyGraphBuildTraceFudgeBuilder implements FudgeBuilder<DependencyGraphBuildTrace> {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuildTraceFudgeBuilder.class);
   
@@ -116,19 +120,45 @@ public class DependencyGraphBuildTraceFudgeBuilder implements FudgeBuilder<Depen
   /**
    * Minimal wrapper for throwables sent over network.
    */
-  public class ThrowableWithClass extends Throwable {
+  public static class ThrowableWithClass extends Throwable {
     private static final long serialVersionUID = 1L;
     
     private Class<?> _sourceClass;
 
     public ThrowableWithClass(String message, Class<?> sourceClass) {
       super(message);
+      
       _sourceClass = sourceClass;
     }
     
     public Class<?> getSourceClass() {
       return _sourceClass;
     }
+
+    //note - hc and eq defined for purpose of unit testing fudge builder.
+    //Throwables don't normally define these.
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+                  .append(_sourceClass)
+                  .append(getMessage())
+                  .hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == null || obj.getClass() != getClass()) {
+        return false;
+      }
+      ThrowableWithClass other = (ThrowableWithClass) obj;
+      return new EqualsBuilder()
+                  .append(_sourceClass, other._sourceClass)
+                  .append(getMessage(), other.getMessage())
+                  .isEquals();
+    }
+    
+    
+    
   }
 
 }
