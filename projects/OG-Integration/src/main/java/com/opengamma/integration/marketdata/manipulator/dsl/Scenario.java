@@ -153,7 +153,10 @@ public class Scenario {
     return _calcConfigNames;
   }
 
-  /* package */ String getName() {
+  /**
+   * @return The scenario name, not null
+   */
+  public String getName() {
     return _name;
   }
 
