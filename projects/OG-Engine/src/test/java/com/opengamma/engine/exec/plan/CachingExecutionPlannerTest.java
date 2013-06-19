@@ -3,22 +3,24 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.exec;
+package com.opengamma.engine.exec.plan;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.Collections;
 
 import net.sf.ehcache.CacheManager;
 
+import org.mockito.Mockito;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -28,18 +30,15 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.exec.ExecutionPlan;
-import com.opengamma.engine.exec.ExecutionPlanCache;
-import com.opengamma.engine.exec.GraphFragmentContext;
-import com.opengamma.engine.exec.ExecutionPlanCache.DependencyGraphKey;
-import com.opengamma.engine.exec.ExecutionPlanCache.DependencyNodeKey;
-import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.exec.plan.CachingExecutionPlanner.DependencyGraphKey;
+import com.opengamma.engine.exec.plan.CachingExecutionPlanner.DependencyNodeKey;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
@@ -47,8 +46,8 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups = {TestGroup.UNIT, "ehcache"})
-public class ExecutionPlanCacheTest {
+@Test(groups = {TestGroup.UNIT, "ehcache" })
+public class CachingExecutionPlannerTest {
 
   private CacheManager _cacheManager;
 
@@ -238,63 +237,64 @@ public class ExecutionPlanCacheTest {
     assertEquals(b, a);
   }
 
-  private ExecutionPlan createExecutionPlan() {
-    return new ExecutionPlan() {
-
-      private static final long serialVersionUID = 1L;
-
+  private GraphExecutionPlanner createExecutionPlanner() {
+    return new GraphExecutionPlanner() {
       @Override
-      public Future<DependencyGraph> run(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics) {
-        return null;
+      public GraphExecutionPlan createPlan(DependencyGraph graph, ExecutionLogModeSource logModeSource, long functionInitialisationId) {
+        return new GraphExecutionPlan(graph.getCalculationConfigurationName(), 0L, Collections.<PlannedJob>emptySet(), 0, 0d, 0d, 0d);
       }
-
-      @Override
-      public ExecutionPlan withNodes(final Map<DependencyNodeKey, DependencyNode> nodes) {
-        return this;
-      }
-
-      @Override
-      /* package */boolean isTestEqual(final ExecutionPlan plan) {
-        return plan == this;
-      }
-
     };
   }
 
   //-------------------------------------------------------------------------
   public void testCache_identity() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
+    final CachingExecutionPlanner cache = new CachingExecutionPlanner(createExecutionPlanner(), _cacheManager);
     final DependencyGraph graph = createDependencyGraph();
-    final ExecutionPlan plan = createExecutionPlan();
-    cache.cachePlan(graph, 0, plan);
-    // Change the graph object so the key approach can't work. This is done as an optimization to avoid the cost of building
-    // the "key" objects. If the behavior of the view processor changes and it starts modifying graphs between cycles then
-    // a problem will occur as the previous execution plan will be used.
-    graph.addTerminalOutput(new ValueRequirement("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X"))),
-        new ValueSpecification("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X")), ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo1").get()));
-    final ExecutionPlan cached = cache.getCachedPlan(graph, 0);
-    assertEquals(cached, plan);
+    final GraphExecutionPlan plan1 = cache.createPlan(graph, Mockito.mock(ExecutionLogModeSource.class), 0);
+    final GraphExecutionPlan plan2 = cache.createPlan(graph, Mockito.mock(ExecutionLogModeSource.class), 0);
+    assertNotNull(plan1);
+    assertNotNull(plan2);
+    assertSame(plan2, plan1);
     cache.shutdown();
   }
 
-  public void testCache_key() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
-    final ExecutionPlan plan = createExecutionPlan();
-    cache.cachePlan(createDependencyGraph(), 0, plan);
-    final ExecutionPlan cached = cache.getCachedPlan(createDependencyGraph(), 0);
-    assertEquals(cached, plan);
+  public void testCache_identity_differentGraph() {
+    final CachingExecutionPlanner cache = new CachingExecutionPlanner(createExecutionPlanner(), _cacheManager);
+    final DependencyGraph graph = createDependencyGraph();
+    final GraphExecutionPlan plan1 = cache.createPlan(graph, Mockito.mock(ExecutionLogModeSource.class), 0);
+    // The caching by identity is to avoid the overhead of constructing the key. This is okay if the graph is not modified after it has been
+    // used, but will cause problems if we change that behaviour. Currently, even an incremental graph build will construct a new dependency
+    // graph object afterwards - although graph nodes may be reused and altered.
+    graph.addTerminalOutput(new ValueRequirement("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X"))),
+        new ValueSpecification("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X")), ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo1").get()));
+    final GraphExecutionPlan plan2 = cache.createPlan(graph, Mockito.mock(ExecutionLogModeSource.class), 0);
+    assertNotNull(plan1);
+    assertNotNull(plan2);
+    assertSame(plan2, plan1);
     cache.shutdown();
   }
 
-  public void testCache_identity_invalid() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
-    final DependencyGraph graph = createDependencyGraph();
-    final ExecutionPlan plan = createExecutionPlan();
-    cache.cachePlan(graph, 0, plan);
+  public void testCache_match() {
+    final CachingExecutionPlanner cache = new CachingExecutionPlanner(createExecutionPlanner(), _cacheManager);
+    final GraphExecutionPlan plan1 = cache.createPlan(createDependencyGraph(), Mockito.mock(ExecutionLogModeSource.class), 0);
+    final GraphExecutionPlan plan2 = cache.createPlan(createDependencyGraph(), Mockito.mock(ExecutionLogModeSource.class), 0);
+    assertSame(plan2, plan1);
+    assertNotNull(plan1);
+    assertNotNull(plan2);
+    cache.shutdown();
+  }
+
+  public void testCache_mismatch() {
+    final CachingExecutionPlanner cache = new CachingExecutionPlanner(createExecutionPlanner(), _cacheManager);
+    DependencyGraph graph = createDependencyGraph();
+    final GraphExecutionPlan plan1 = cache.createPlan(graph, Mockito.mock(ExecutionLogModeSource.class), 0);
+    graph = createDependencyGraph();
     graph.addTerminalOutput(new ValueRequirement("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X"))),
         new ValueSpecification("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X")), ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo1").get()));
-    final ExecutionPlan cached = cache.getCachedPlan(graph, 1);
-    assertNull(cached);
+    final GraphExecutionPlan plan2 = cache.createPlan(graph, Mockito.mock(ExecutionLogModeSource.class), 0);
+    assertNotSame(plan2, plan1);
+    assertNotNull(plan1);
+    assertNotNull(plan2);
     cache.shutdown();
   }
 

@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -132,7 +131,7 @@ public class CancelExecutionTest {
     }
   };
 
-  private Future<?> executeTestJob(final DependencyGraphExecutorFactory<?> factory) {
+  private DependencyGraphExecutionFuture executeTestJob(final DependencyGraphExecutorFactory factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
@@ -187,7 +186,7 @@ public class CancelExecutionTest {
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), vpc.getExecutionLogModeSource());
+    return factory.createExecutor(cycle).execute(graph);
   }
 
   private boolean jobFinished() {
@@ -198,7 +197,7 @@ public class CancelExecutionTest {
    * Allow the job to finish, then call {@link Future#cancel}.
    */
   @Test(dataProvider = "executors")
-  public void testJobFinish(final DependencyGraphExecutorFactory<?> factory) throws Exception {
+  public void testJobFinish(final DependencyGraphExecutorFactory factory) throws Exception {
     s_logger.info("testJobFinish");
     final Future<?> job = executeTestJob(factory);
     assertNotNull(job);
@@ -219,7 +218,7 @@ public class CancelExecutionTest {
    * Call {@link Future#cancel} before the job finishes, with interrupt enabled.
    */
   @Test(dataProvider = "executors")
-  public void testJobCancelWithInterrupt(final DependencyGraphExecutorFactory<?> factory) {
+  public void testJobCancelWithInterrupt(final DependencyGraphExecutorFactory factory) {
     s_logger.info("testJobCancelWithInterrupt");
     final Future<?> job = executeTestJob(factory);
     assertNotNull(job);
@@ -240,7 +239,7 @@ public class CancelExecutionTest {
    * Call {@link Future#cancel} before the job finishes, with no interrupt.
    */
   @Test(dataProvider = "executors")
-  public void testJobCancelWithoutInterrupt(final DependencyGraphExecutorFactory<?> factory) {
+  public void testJobCancelWithoutInterrupt(final DependencyGraphExecutorFactory factory) {
     s_logger.info("testJobCancelWithoutInterrupt");
     final Future<?> job = executeTestJob(factory);
     assertNotNull(job);

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.exec;
+package com.opengamma.engine.exec.plan;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,14 +26,18 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.impl.ExecutionLogModeSource;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * Caches meta data taken from a graph fragment graph sufficient to construct a fragment graph quickly for a recently processed graph.
+ * Caches the plans produced by other execution planners.
  */
-/* package */class ExecutionPlanCache {
+public class CachingExecutionPlanner implements GraphExecutionPlanner {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ExecutionPlanCache.class);
+  // NOTE: This class has been created for completeness, to preserve the previous behaviours of ExecutionPlanCache, even though those behaviours are unlikely to be correct.
+
+  private static final Logger s_logger = LoggerFactory.getLogger(CachingExecutionPlanner.class);
 
   private static final String CACHE_NAME = "executionPlans";
 
@@ -162,67 +166,60 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 
   }
 
+  private final GraphExecutionPlanner _underlying;
   private final Cache _cache;
 
   /**
    * Building the "key" object can be costly. If the graph is still in memory, then we can keep a previous key around. The current behavior of view processes and executors is that graphs do not get
    * modified once they are constructed and being used. If this changes then we will have a problem at execution as the older plan will match.
    */
+  // TODO: The above comment is wrong. Graph structures do change.
   private final Map<DependencyGraph, DependencyGraphKey> _identityLookup = new MapMaker().weakKeys().makeMap();
 
   /**
    * Constructs an instance.
    * 
-   * @param manager the cache manager from which to obtain the execution plan cache, null not to use caching.
+   * @param underlying the underlying execution planner, not null
+   * @param manager the cache manager from which to obtain the execution plan cache not null
    */
-  public ExecutionPlanCache(final CacheManager manager) {
-    if (manager == null) {
-      _cache = null;
-    } else {
-      EHCacheUtils.addCache(manager, CACHE_NAME);
-      _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
-    }
+  public CachingExecutionPlanner(final GraphExecutionPlanner underlying, final CacheManager manager) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(manager, "manager");
+    _underlying = underlying;
+    EHCacheUtils.addCache(manager, CACHE_NAME);
+    _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
   }
 
-  public synchronized void clear() {
+  public synchronized void invalidate() {
     if (_cache != null) {
       s_logger.info("Clearing execution plan cache of {} items", _cache.getSize());
       _cache.removeAll();
     }
   }
 
-  public ExecutionPlan getCachedPlan(final DependencyGraph graph, final long functionInitId) {
-    if (_cache != null) {
-      s_logger.debug("Searching for cached execution plan for {}/{}", graph, functionInitId);
-      DependencyGraphKey key = _identityLookup.get(graph);
-      if ((key == null) || (key._functionInitId != functionInitId)) {
-        s_logger.debug("Identity lookup miss");
-        key = new DependencyGraphKey(graph, functionInitId);
-        _identityLookup.put(graph, key);
-      }
-      final Element element = _cache.get(key);
-      if (element != null) {
-        s_logger.debug("Cache hit");
-        return ((ExecutionPlan) element.getObjectValue()).withNodes(key.getNodes());
-      } else {
-        s_logger.debug("Cache miss");
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
+  // GraphExecutionPlanner
 
-  public void cachePlan(final DependencyGraph graph, final long functionInitId, final ExecutionPlan plan) {
-    if (_cache != null) {
-      s_logger.info("Caching execution plan for {}/{}", graph, functionInitId);
-      DependencyGraphKey key = _identityLookup.get(graph);
-      if ((key == null) || (key._functionInitId != functionInitId)) {
-        s_logger.debug("Identity lookup miss");
-        key = new DependencyGraphKey(graph, functionInitId);
-        _identityLookup.put(graph, key);
+  @Override
+  public GraphExecutionPlan createPlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitId) {
+    // NOTE: The logModeSource is not used as part of the key; this is wrong as the plan contains job items which embed the logging requirements
+    s_logger.debug("Searching for cached execution plan for {}/{}", graph, functionInitId);
+    DependencyGraphKey key = _identityLookup.get(graph);
+    if ((key == null) || (key._functionInitId != functionInitId)) {
+      s_logger.debug("Identity lookup miss");
+      key = new DependencyGraphKey(graph, functionInitId);
+      _identityLookup.put(graph, key);
+    }
+    final Element element = _cache.get(key);
+    if (element != null) {
+      s_logger.debug("Cache hit");
+      return (GraphExecutionPlan) element.getObjectValue();
+    } else {
+      s_logger.debug("Cache miss");
+      final GraphExecutionPlan plan = _underlying.createPlan(graph, logModeSource, functionInitId);
+      if (plan != null) {
+        _cache.put(new Element(key, plan));
       }
-      _cache.put(new Element(key, plan));
+      return plan;
     }
   }
 

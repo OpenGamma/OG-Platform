@@ -10,70 +10,113 @@ import net.sf.ehcache.CacheManager;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.engine.calcnode.stats.FunctionCosts;
-import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.view.cycle.SingleComputationCycle;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.engine.exec.plan.CachingExecutionPlanner;
+import com.opengamma.engine.exec.plan.MultipleNodeExecutionPlanner;
 
 /**
  * 
  */
-public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFactory<DependencyGraph>, InitializingBean {
+public class MultipleNodeExecutorFactory extends PlanBasedGraphExecutorFactory implements InitializingBean {
 
+  private final MultipleNodeExecutionPlanner _basePlanner;
+  private CachingExecutionPlanner _cachingPlanner;
   private CacheManager _cacheManager;
-  private ExecutionPlanCache _executionPlanCache;
-  private int _minimumJobItems = 1;
-  private int _maximumJobItems = Integer.MAX_VALUE;
-  private long _minimumJobCost = 1;
-  private long _maximumJobCost = Long.MAX_VALUE;
-  private int _maximumConcurrency = Integer.MAX_VALUE;
-  private FunctionCosts _functionCosts;
-  
+
+  private MultipleNodeExecutorFactory(final MultipleNodeExecutionPlanner planner) {
+    super(planner);
+    _basePlanner = planner;
+  }
+
+  public MultipleNodeExecutorFactory() {
+    this(new MultipleNodeExecutionPlanner());
+  }
+
   public void setCacheManager(CacheManager cacheManager) {
     _cacheManager = cacheManager;
   }
-  
+
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
-  
-  protected ExecutionPlanCache getExecutionPlanCache() {
-    return _executionPlanCache;
-  }
-  
+
+  /**
+   * Sets the minimum number of items that the planner will attempt to put into each job.
+   * 
+   * @param minimumJobItems the number of items
+   * @see MultipleNodeExecutionPlanner#setMinimumJobItems
+   */
   public void setMinimumJobItems(final int minimumJobItems) {
-    _minimumJobItems = minimumJobItems;
-    invalidateExecutionPlanCache();
+    _basePlanner.setMininumJobItems(minimumJobItems);
   }
 
+  /**
+   * Returns the minimum number of items that the planner will attempt to put into each job.
+   * 
+   * @return the number of items
+   * @see MultipleNodeExecutionPlanner#getMinimumJobItems
+   */
   public int getMinimumJobItems() {
-    return _minimumJobItems;
+    return _basePlanner.getMinimumJobItems();
   }
 
+  /**
+   * Sets the maximum number of items that the planner will attempt to put into each job.
+   * 
+   * @param maximumJobItems the number of items
+   * @see MultipleNodeExecutionPlanner#setMaximumJobItems
+   */
   public void setMaximumJobItems(final int maximumJobItems) {
-    _maximumJobItems = maximumJobItems;
-    invalidateExecutionPlanCache();
+    _basePlanner.setMaximimJobItems(maximumJobItems);
   }
 
+  /**
+   * Returns the maximum number of items that the planner will attempt to put into each job.
+   * 
+   * @return the number of items
+   * @see MultipleNodeExecutionPlanner#getMaximumJobItems
+   */
   public int getMaximumJobItems() {
-    return _maximumJobItems;
+    return _basePlanner.getMaximumJobItems();
   }
 
+  /**
+   * Sets the minimum estimated cost of jobs that the planner will attempt to produce.
+   * 
+   * @param minimumJobCost the estimated cost
+   * @see MultipleNodeExecutionPlanner#setMinimumJobCost
+   */
   public void setMinimumJobCost(final long minimumJobCost) {
-    _minimumJobCost = minimumJobCost;
-    invalidateExecutionPlanCache();
+    _basePlanner.setMinimumJobCost(minimumJobCost);
   }
 
+  /**
+   * Returns the minimum estimated cost of jobs that the planner will attempt to produce.
+   * 
+   * @return the estimated cost
+   * @see MultipleNodeExecutionPlanner#getMinimumJobCost
+   */
   public long getMinimumJobCost() {
-    return _minimumJobCost;
+    return _basePlanner.getMinimumJobCost();
   }
 
+  /**
+   * Sets the maximum estimated cost of jobs that the planner will attempt to produce.
+   * 
+   * @param maximumJobCost the estimated cost
+   * @see MultipleNodeExecutionPlanner#setMaximumJobCost
+   */
   public void setMaximumJobCost(final long maximumJobCost) {
-    _maximumJobCost = maximumJobCost;
-    invalidateExecutionPlanCache();
+    _basePlanner.setMaximumJobCost(maximumJobCost);
   }
 
+  /**
+   * Returns the maximum estimated cost of jobs that the planner will attempt to produce.
+   * 
+   * @return the estimated cost
+   * @see MultipleNodeExecutionPlanner#getMaximumJobCost
+   */
   public long getMaximumJobCost() {
-    return _maximumJobCost;
+    return _basePlanner.getMaximumJobCost();
   }
 
   /**
@@ -82,47 +125,47 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
    * @param maximumConcurrency the number of job tails that are expected to be executing in parallel
    */
   public void setMaximumConcurrency(final int maximumConcurrency) {
-    _maximumConcurrency = maximumConcurrency;
-    invalidateExecutionPlanCache();
+    _basePlanner.setMaximumConcurrency(maximumConcurrency);
   }
 
+  /**
+   * Returns the concurrency limit for job tails that are streamed to a single node host.
+   * 
+   * @return the number of job tails that are expected to be executing in parallel
+   */
   public int getMaximumConcurrency() {
-    return _maximumConcurrency;
+    return _basePlanner.getMaximumConcurrency();
   }
 
   public void setFunctionCosts(final FunctionCosts functionCosts) {
-    ArgumentChecker.notNull(functionCosts, "functionCosts");
-    _functionCosts = functionCosts;
-    invalidateExecutionPlanCache();
+    _basePlanner.setFunctionCosts(functionCosts);
   }
 
   public FunctionCosts getFunctionCosts() {
-    return _functionCosts;
+    return _basePlanner.getFunctionCosts();
   }
 
-  @Override
-  public MultipleNodeExecutor createExecutor(final SingleComputationCycle cycle) {
-    ArgumentChecker.notNull(cycle, "cycle");
-    return new MultipleNodeExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency(), getFunctionCosts(), _executionPlanCache);
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
-
-  protected void invalidateExecutionPlanCache() {
-    if (_executionPlanCache != null) {
-      _executionPlanCache.clear();
+  /**
+   * Invalidates any cached execution plans (if caching is enabled). If any of the parameters have been changed then this should be called so that they will take effect instead of any previously
+   * cached plans being used.
+   */
+  public void invalidateCache() {
+    final CachingExecutionPlanner planner = _cachingPlanner;
+    if (planner != null) {
+      planner.invalidate();
     }
   }
+
+  // InitializingBean
 
   @Override
   public void afterPropertiesSet() {
-    if (getFunctionCosts() == null) {
-      setFunctionCosts(new FunctionCosts());
+    final CacheManager cacheManager = getCacheManager();
+    if (cacheManager != null) {
+      if (_cachingPlanner == null) {
+        _cachingPlanner = new CachingExecutionPlanner(_basePlanner, cacheManager);
+      }
+      setPlanner(_cachingPlanner);
     }
-    _executionPlanCache = new ExecutionPlanCache(getCacheManager());
   }
-
 }

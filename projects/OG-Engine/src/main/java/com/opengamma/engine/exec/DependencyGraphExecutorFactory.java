@@ -9,10 +9,9 @@ import com.opengamma.engine.view.cycle.SingleComputationCycle;
 
 /**
  *
- * @param <T> return type of the executor
  */
-public interface DependencyGraphExecutorFactory<T> {
-  
-  DependencyGraphExecutor<T> createExecutor(SingleComputationCycle cycle);
+public interface DependencyGraphExecutorFactory {
+
+  DependencyGraphExecutor createExecutor(SingleComputationCycle cycle);
 
 }
