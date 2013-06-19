@@ -227,9 +227,6 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     return Sets.newHashSet(result);
   }
 
-
-  
-  
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
@@ -244,16 +241,11 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
     requirements.add(securityValueReq);
     // TimeSeries - Closing prices 
-//    final ValueRequirement markToMarketValue = getReferencePriceRequirement(security);
-    final ValueRequirement markToMarketValue = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, 
-        ValueProperties.with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _closingPriceField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get());
-    requirements.add(markToMarketValue);
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSLatestRequirement(security, _closingPriceField, null));   
     // and Cost of Carry, if provided
     if (_costOfCarryField.length() > 0) {
-      requirements.add(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, securityTarget, ValueProperties
-          .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _costOfCarryField).with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, _resolutionKey).get()));  
+      requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSLatestRequirement(security, _costOfCarryField, null));
     }
-    
     return requirements;
   }
 
@@ -270,19 +262,6 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
       properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     }
     return properties;
-  }
-
-  /* Time Series requirements should be done via createHTSRequirement(timeSeries,...) to allow for normalisation */
-  protected ValueRequirement getReferencePriceRequirement(final Security security) {
-    final ExternalIdBundle idBundle = security.getExternalIdBundle();
-    final HistoricalTimeSeriesResolutionResult timeSeries = _timeSeriesResolver.resolve(idBundle, null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey); 
-    if (timeSeries == null) {
-      s_logger.warn("Failed to find time series for: " + idBundle.toString());
-      return null;
-    }
-    final int lookbackWindow = 100;
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(lookbackWindow)), true, DateConstraint.VALUATION_TIME, false);
   }
   
   /** The logger */
