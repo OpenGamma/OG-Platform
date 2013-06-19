@@ -53,7 +53,7 @@ public class ExampleCDSLoader extends AbstractTool<ToolContext> {
     System.exit(0);
   }
 
-  private int counter = 0;
+  private int _counter;
 
   @Override
   protected void doRun() throws Exception {
@@ -102,7 +102,7 @@ public class ExampleCDSLoader extends AbstractTool<ToolContext> {
                                              StubType.SHORT_START, 3,
                                              "US Treasury", Currency.USD, "Senior", "No Restructuring");
     cds1.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "TEST_CDS_00001--US912828KY53-A"));
-    cds1.setName("TEST CDS" + counter++);
+    cds1.setName("TEST CDS" + _counter++);
     
     return cds1;
   }

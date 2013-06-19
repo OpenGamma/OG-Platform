@@ -6,7 +6,6 @@
 package com.opengamma.examples.loader;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.financial.tool.ToolContext;

@@ -1,18 +1,19 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.examples;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentManager;
-import com.opengamma.util.ZipUtils;
 import com.opengamma.util.test.DbTool;
 
 public final class DBTestUtils {

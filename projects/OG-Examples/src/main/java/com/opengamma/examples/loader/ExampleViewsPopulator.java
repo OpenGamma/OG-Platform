@@ -65,8 +65,9 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
 
   private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
-  private static final String[] s_curveConfigNames = new String[] {"DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig",
-      "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
+  private static final String[] s_curveConfigNames = new String[] {
+    "DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig",
+    "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
 
   //-------------------------------------------------------------------------
   /**
@@ -105,8 +106,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE,
         new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
-            ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA,
-            ValueRequirementNames.TOTAL_RISK_ALPHA, ValueRequirementNames.PNL });
+          ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA,
+          ValueRequirementNames.TOTAL_RISK_ALPHA, ValueRequirementNames.PNL });
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }
