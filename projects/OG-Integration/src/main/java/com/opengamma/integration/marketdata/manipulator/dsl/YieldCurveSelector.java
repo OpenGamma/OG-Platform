@@ -37,7 +37,7 @@ public class YieldCurveSelector extends Selector<YieldCurveKey> {
     }
 
     public YieldCurveManipulatorBuilder apply() {
-      return new YieldCurveManipulatorBuilder(selector(), getScenario());
+      return new YieldCurveManipulatorBuilder(getSelector(), getScenario());
     }
 
     @Override
@@ -62,7 +62,7 @@ public class YieldCurveSelector extends Selector<YieldCurveKey> {
      * This is package scoped for testing
      * @return A selector built from this builder's data
      */
-    /* package */ YieldCurveSelector selector() {
+    /* package */ YieldCurveSelector getSelector() {
       return new YieldCurveSelector(getScenario().getCalcConfigNames(), getNames(), getCurrencies(), getNamePattern());
     }
   }

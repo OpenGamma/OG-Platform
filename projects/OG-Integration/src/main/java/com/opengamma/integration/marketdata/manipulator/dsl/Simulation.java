@@ -43,6 +43,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A collection of {@link Scenario}s, each of which modifies the market data in a single calculation cycle.
+ * TODO create base scenario with no changes by default? constructor parameter with name / boolean?
  */
 public class Simulation {
 
@@ -193,5 +194,15 @@ public class Simulation {
     } finally {
       viewClient.shutdown();
     }
+  }
+
+  @Override
+  public String toString() {
+    return "Simulation [" +
+        "_scenarios=" + _scenarios +
+        ", _calcConfigNames=" + _calcConfigNames +
+        ", _valuationTime=" + _valuationTime +
+        ", _resolverVersionCorrection=" + _resolverVersionCorrection +
+        "]";
   }
 }

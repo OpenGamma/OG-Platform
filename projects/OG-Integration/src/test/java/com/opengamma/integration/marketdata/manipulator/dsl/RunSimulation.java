@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -16,17 +15,14 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -47,10 +43,7 @@ import com.opengamma.livedata.UserPrincipal;
     try (RemoteServer server = RemoteServer.create("http://localhost:8080")) {
       ViewProcessor viewProcessor = server.getViewProcessor();
       ConfigSource configSource = server.getConfigSource();
-      String viewDefName = "AUD Swaps (3m / 6m basis) (1)";
-      Collection<ConfigItem<ViewDefinition>> viewDefs =
-          configSource.get(ViewDefinition.class, viewDefName, VersionCorrection.LATEST);
-      UniqueId viewDefId = viewDefs.iterator().next().getValue().getUniqueId();
+      UniqueId viewDefId = SimulationUtils.latestViewDefinitionId("AUD Swaps (3m / 6m basis) (1)", configSource);
       List<MarketDataSpecification> marketDataSpecs =
           ImmutableList.<MarketDataSpecification>of(new LiveMarketDataSpecification("Simulated live market data"));
 
@@ -64,6 +57,8 @@ import com.opengamma.livedata.UserPrincipal;
           // bump each spot rate in the scenario by the scale factor
           scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor);
         }
+        scenario.surface().named("foo").apply().constantMultiplicativeShift(0.1);
+        scenario.surface().named("bar").apply().singleAdditiveShift(1, 2, 3);
       }
 
       // run the simulation --------------------------------------------------------------------------------------------

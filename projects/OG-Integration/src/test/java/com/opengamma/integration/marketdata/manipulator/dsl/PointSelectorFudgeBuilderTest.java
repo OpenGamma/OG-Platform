@@ -27,4 +27,10 @@ public class PointSelectorFudgeBuilderTest extends AbstractFudgeBuilderTestCase 
                                                Pattern.compile("\\d*"));
     assertEncodeDecodeCycle(PointSelector.class, selector);
   }
+
+  @Test
+  public void roundTripWithNulls() {
+    PointSelector selector = new PointSelector(null, null, null, null);
+    assertEncodeDecodeCycle(PointSelector.class, selector);
+  }
 }
