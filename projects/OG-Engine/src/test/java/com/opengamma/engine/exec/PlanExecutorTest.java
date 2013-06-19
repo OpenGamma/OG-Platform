@@ -110,8 +110,9 @@ public class PlanExecutorTest {
 
   private GraphExecutionPlan createPlan() {
     final PlannedJob job1 = new PlannedJob(1, createJobItems(1), CacheSelectHint.allShared(), null, null);
-    final PlannedJob job2 = new PlannedJob(0, createJobItems(2), CacheSelectHint.allShared(), null, new PlannedJob[] {job1 });
-    return new GraphExecutionPlan("Default", 0, Arrays.asList(job2), 2, 1.5d, 10d, 20d);
+    final PlannedJob job2 = new PlannedJob(1, createJobItems(2), CacheSelectHint.allShared(), null, new PlannedJob[] {job1 });
+    final PlannedJob job3 = new PlannedJob(0, createJobItems(3), CacheSelectHint.allShared(), new PlannedJob[] {job2 }, null);
+    return new GraphExecutionPlan("Default", 0, Arrays.asList(job3), 3, 2d, 10d, 20d);
   }
 
   private class NormalExecutionJobDispatcher extends JobDispatcher {
@@ -124,6 +125,11 @@ public class PlanExecutorTest {
     public Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver receiver) {
       s_logger.debug("Dispatching {}", job);
       _jobs.add(Pair.of(job, receiver));
+      if (job.getTail() != null) {
+        for (CalculationJob tail : job.getTail()) {
+          dispatchJob(tail, receiver);
+        }
+      }
       return Mockito.mock(Cancelable.class);
     }
 
@@ -164,13 +170,13 @@ public class PlanExecutorTest {
     final GraphExecutionStatistics stats = ((Statistics) statsGatherer).getExecutionStatistics().get(0);
     assertEquals(stats.getCalcConfigName(), "Default");
     assertEquals(stats.getProcessedGraphs(), 1L);
-    assertEquals(stats.getAverageJobSize(), 1d);
+    assertEquals(stats.getAverageJobSize(), 2d);
     assertEquals(stats.getAverageJobCycleCost(), 10d);
     assertEquals(stats.getAverageJobDataCost(), 20d);
     dispatcher.execute(executor);
     assertEquals(stats.getExecutedGraphs(), 1L);
-    assertEquals(stats.getExecutedNodes(), 3L);
-    assertEquals(stats.getExecutionTime(), 20L);
+    assertEquals(stats.getExecutedNodes(), 6L);
+    assertEquals(stats.getExecutionTime(), 30L);
   }
 
   // Timeout is set just in case "get" blocks rather than returns immediately
@@ -184,6 +190,9 @@ public class PlanExecutorTest {
     Mockito.verify(cycle, Mockito.times(1)).jobCompleted(result.getFirst(), result.getSecond());
     result = dispatcher.pollResult();
     Mockito.verify(cycle, Mockito.times(1)).jobCompleted(result.getFirst(), result.getSecond());
+    result = dispatcher.pollResult();
+    Mockito.verify(cycle, Mockito.times(1)).jobCompleted(result.getFirst(), result.getSecond());
+    assertNull(dispatcher.pollResult());
     assertFalse(executor.isCancelled());
     assertTrue(executor.isDone());
     assertEquals(executor.get(1, TimeUnit.SECONDS), "Default");
@@ -207,6 +216,10 @@ public class PlanExecutorTest {
     result = dispatcher.pollResult();
     Mockito.verify(cycle, Mockito.times(1)).jobCompleted(result.getFirst(), result.getSecond());
     assertNotNull(dispatcher.pollResult()); // Duplicate will be discarded
+    result = dispatcher.pollResult();
+    Mockito.verify(cycle, Mockito.times(1)).jobCompleted(result.getFirst(), result.getSecond());
+    assertNotNull(dispatcher.pollResult()); // Duplicate will be discarded
+    assertNull(dispatcher.pollResult());
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
@@ -225,7 +238,7 @@ public class PlanExecutorTest {
           @Override
           public boolean cancel(final boolean mayInterruptIfRunning) {
             assertTrue(mayInterruptIfRunning);
-            assertFalse(canceled.getAndSet(true));
+            canceled.set(true);
             return true;
           }
         };
@@ -248,11 +261,13 @@ public class PlanExecutorTest {
     dispatcher.completeJobs();
     assertTrue(executor.isCancelled());
     assertTrue(executor.isDone());
-    // The first job should have attempted to complete, but the cycle not notified
+    // The first job (and its tail) should have attempted to complete, but the cycle not notified
     final SingleComputationCycle cycle = executor.getCycle();
     Pair<CalculationJob, CalculationJobResult> result = dispatcher.pollResult();
     Mockito.verify(cycle, Mockito.never()).jobCompleted(result.getFirst(), result.getSecond());
-    // No second job
+    result = dispatcher.pollResult();
+    Mockito.verify(cycle, Mockito.never()).jobCompleted(result.getFirst(), result.getSecond());
+    // No third job
     assertNull(dispatcher.pollResult());
   }
 

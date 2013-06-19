@@ -107,7 +107,28 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
     return getCycle().getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getCycle().getViewProcessId());
   }
 
-  protected void submit(CalculationJob job) {
+  protected void storeTailJobs(final CalculationJob job) {
+    for (CalculationJob tail : job.getTail()) {
+      _executing.put(tail.getSpecification(), new ExecutingJob(tail));
+      if (tail.getTail() != null) {
+        storeTailJobs(tail);
+      }
+    }
+  }
+
+  protected void cancelableTailJobs(final CalculationJob job, final Cancelable handle) {
+    for (CalculationJob tail : job.getTail()) {
+      final ExecutingJob executing = _executing.get(tail.getSpecification());
+      if (executing != null) {
+        executing.setCancel(handle);
+      }
+      if (tail.getTail() != null) {
+        cancelableTailJobs(tail, handle);
+      }
+    }
+  }
+
+  protected void submit(final CalculationJob job) {
     final ExecutingJob executing;
     synchronized (this) {
       if (_executing == null) {
@@ -118,6 +139,9 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
       s_logger.debug("Submitting {}", job);
       executing = new ExecutingJob(job);
       _executing.put(job.getSpecification(), executing);
+      if (job.getTail() != null) {
+        storeTailJobs(job);
+      }
     }
     final Cancelable handle = getCycle().getViewProcessContext().getComputationJobDispatcher().dispatchJob(job, this);
     executing.setCancel(handle);
@@ -126,6 +150,9 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
         // Completed or cancelled during the submission
         handle.cancel(true);
         return;
+      }
+      if (job.getTail() != null) {
+        cancelableTailJobs(job, handle);
       }
     }
   }
