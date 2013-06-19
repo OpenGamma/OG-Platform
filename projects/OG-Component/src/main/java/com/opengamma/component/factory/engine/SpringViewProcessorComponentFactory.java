@@ -50,6 +50,7 @@ import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
  * Component definition for the view processor defined in Spring extended to produce RESTful artifacts.
@@ -125,6 +126,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     initForDebugging(repo, appContext);
     registerSpringLifecycleStop(repo, appContext);
     ViewDefinitionCompiler.setStripedPortfolioRequirements(isCompileViewsWithRequirementStriping());
+    ViewDefinitionCompiler.registerMetricsStatic(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "ViewDefinitionCompiler");
   }
 
   /**

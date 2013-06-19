@@ -147,23 +147,31 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CouponInflationZeroCouponInterpolation other = (CouponInflationZeroCouponInterpolation) obj;
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue))
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
-    if (Double.doubleToLongBits(_naturalPaymentTime) != Double.doubleToLongBits(other._naturalPaymentTime))
+    }
+    if (Double.doubleToLongBits(_naturalPaymentTime) != Double.doubleToLongBits(other._naturalPaymentTime)) {
       return false;
-    if (_payNotional != other._payNotional)
+    }
+    if (_payNotional != other._payNotional) {
       return false;
-    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime))
+    }
+    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
       return false;
-    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight))
+    }
+    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight)) {
       return false;
+    }
     return true;
   }
 

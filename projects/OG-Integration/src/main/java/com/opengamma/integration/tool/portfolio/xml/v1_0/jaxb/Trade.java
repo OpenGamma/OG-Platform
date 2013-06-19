@@ -39,7 +39,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
 @XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class, FxForwardTrade.class,
-                SwaptionTrade.class, OtcEquityIndexOptionTrade.class, ListedSecurityTrade.class})
+                SwaptionTrade.class, OtcEquityIndexOptionTrade.class, ListedSecurityTrade.class, FraTrade.class})
 @XmlAccessorType(XmlAccessType.FIELD)
 @BeanDefinition
 public abstract class Trade extends DirectBean {

@@ -65,6 +65,7 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
     private ViewExecutionDataProvider _deferredCompilation;
     private ViewCycleMetadata _deferredCycleStarted;
 
+    // caller must hold the outer class monitor
     public AbstractViewProcessWorkerContext(final ViewExecutionOptions options) {
       _id = _nextWorkerId++;
       _sequence = options.getExecutionSequence().copy();
@@ -598,6 +599,7 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
     _primary = primary;
   }
 
+  // caller must hold the monitor
   /* package */void startSecondaryWorker(final AbstractViewProcessWorkerContext primary, final ViewCycleExecutionSequence tailSequence) {
     s_logger.info("Starting secondary worker");
     _secondary = primary.createSecondaryWorker(tailSequence);
@@ -609,12 +611,9 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
     _secondary = null;
   }
 
+  // caller must hold the monitor
   protected void checkForRecompilation(final AbstractViewProcessWorkerContext primary, CompiledViewDefinitionWithGraphs compiled) {
-    final AbstractViewProcessWorkerContext secondary;
-    synchronized (this) {
-      secondary = getSecondary();
-    }
-    final ViewCycleExecutionSequence tailSequence = (secondary == null) ? primary.getSequence().copy() : null;
+    final ViewCycleExecutionSequence tailSequence = (getSecondary() == null) ? primary.getSequence().copy() : null;
     final ViewCycleExecutionOptions nextCycle = primary.getSequence().poll(getDefaultExecutionOptions());
     if (nextCycle != null) {
       final VersionCorrection vc = nextCycle.getResolverVersionCorrection();

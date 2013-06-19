@@ -151,6 +151,19 @@ public class XmlPortfolioLoaderToolTest {
   }
 
   @Test
+  public void testSinglePortfolioSinglePositionFra() {
+
+    String fileLocation = "src/test/resources/xml_portfolios/single_fra.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
+  }
+
+  
+  @Test
   public void testSinglePortfolioSinglePositionSingleFxOption() {
 
     String fileLocation = "src/test/resources/xml_portfolios/single_fx_option.xml";

@@ -271,7 +271,7 @@ public class PresentValueCreditDefaultSwap {
 
   // Method to calculate the accrued interest between the last accrual date and the current valuation date
 
-  private double calculateAccruedInterest(final CreditDefaultSwapDefinition cds, final ZonedDateTime[][] premiumLegSchedule, final ZonedDateTime stepinDate) {
+  public double calculateAccruedInterest(final CreditDefaultSwapDefinition cds, final ZonedDateTime[][] premiumLegSchedule, final ZonedDateTime stepinDate) {
 
     // TODO : Maybe check if stepinDate is in range [startDate, maturityDate + 1] - probably not necessary since the valuation will not allow this
     // TODO : Would be useful to re-write this to make it clearer

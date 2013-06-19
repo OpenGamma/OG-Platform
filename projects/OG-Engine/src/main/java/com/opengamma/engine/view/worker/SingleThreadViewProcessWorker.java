@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
+import com.codahale.metrics.Timer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
@@ -101,6 +102,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 
@@ -267,6 +269,15 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    */
   private final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
 
+  /**
+    Timer to track delta cycle execution time.
+   */
+  private Timer _deltaCycleTimer;
+  /**
+   * Timer to track full cycle execution time.
+   */
+  private Timer _fullCycleTimer;
+
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -309,6 +320,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
+    _deltaCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.delta");
+    _fullCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.full");
     s_executor.submit(_thread);
   }
 
@@ -779,6 +792,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     }
     cycleReference.get().postExecute();
     final long durationNanos = cycleReference.get().getDuration().toNanos();
+    final Timer timer = deltaCycle != null ? _deltaCycleTimer : _fullCycleTimer;
+    if (timer != null) {
+      timer.update(durationNanos, TimeUnit.NANOSECONDS);
+    }
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
     s_logger.info("Last latency was {} ms, Average latency is {} ms",

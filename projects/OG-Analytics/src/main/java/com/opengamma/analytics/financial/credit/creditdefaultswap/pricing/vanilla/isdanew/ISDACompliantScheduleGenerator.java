@@ -3,10 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
+import static org.testng.AssertJUnit.fail;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneId;
@@ -51,6 +56,16 @@ public class ISDACompliantScheduleGenerator {
     return res;
   }
 
+  public static LocalDate[] toLocalDate(final ZonedDateTime[] dates) {
+    ArgumentChecker.noNulls(dates, "null dates");
+    final int n = dates.length;
+    final LocalDate[] res = new LocalDate[n];
+    for (int i = 0; i < n; i++) {
+      res[i] = dates[i].toLocalDate();
+    }
+    return res;
+  }
+
   /**
    * This mimics JpmcdsRiskyTimeLine from the ISDA model in c
    * @param startDate start date
@@ -66,7 +81,7 @@ public class ISDACompliantScheduleGenerator {
     ArgumentChecker.noNulls(disCurveDates, "nulls in disCurveDates");
     ArgumentChecker.noNulls(spreadCurveDates, "nulls in spreadCurveDates");
 
-    ArgumentChecker.isTrue(endDate.isAfter(startDate), "endDate of {} is not after startDate of{}", endDate.toString(), startDate.toString());
+    ArgumentChecker.isTrue(endDate.isAfter(startDate), "endDate of {} is not after startDate of {}", endDate.toString(), startDate.toString());
 
     final int nDisCurvePoints = disCurveDates.length;
     final int nSpreadCurvePoints = spreadCurveDates.length;
@@ -153,6 +168,41 @@ public class ISDACompliantScheduleGenerator {
     }
 
     return getIntegrationNodesAsTimes(today.toLocalDate(), startDate.toLocalDate(), endDate.toLocalDate(), set1, set2);
+  }
+
+  /**
+   * Truncate an sort (ascending) array of dates so the the interior values are strictly after startDate and strictly before endEnd,
+   * and startDate and endDate becomes to first and last entries 
+   * @param startDate This will be the first value in the list 
+   * @param endDate This will be the last value in the list
+   * @param dateList Must be sorted 
+   * @return dates between startDate and endDate
+   */
+  public static LocalDate[] truncateList(final LocalDate startDate, final LocalDate endDate, final LocalDate[] dateList) {
+    ArgumentChecker.notNull(startDate, "null startDate");
+    ArgumentChecker.notNull(endDate, "null endDate");
+    ArgumentChecker.noNulls(dateList, "nulls in dateList");
+    ArgumentChecker.isTrue(endDate.isAfter(startDate), "require enddate after startDate");
+    final int n = dateList.length;
+    if (n == 0) {
+      return new LocalDate[] {startDate, endDate};
+    }
+
+    List<LocalDate> temp = new ArrayList<>(n + 2);
+    for (LocalDate d : dateList) {
+      if (d.isAfter(startDate) && d.isBefore(endDate)) {
+        temp.add(d);
+      }
+    }
+
+    final int m = temp.size();
+    LocalDate[] tArray = new LocalDate[m];
+    temp.toArray(tArray);
+    LocalDate[] res = new LocalDate[m + 2];
+    res[0] = startDate;
+    System.arraycopy(tArray, 0, res, 1, m);
+    res[m + 1] = endDate;
+    return res;
   }
 
   /**
