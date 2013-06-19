@@ -37,23 +37,35 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
   private static final class ExecutingJob implements Cancelable {
 
     private final CalculationJob _job;
-    private final Cancelable _cancel;
+    private volatile Cancelable _cancel;
 
-    public ExecutingJob(final CalculationJob job, final Cancelable cancel) {
+    public ExecutingJob(final CalculationJob job) {
       _job = job;
-      _cancel = cancel;
     }
 
     public CalculationJob getJob() {
       return _job;
     }
 
+    public void setCancel(final Cancelable cancel) {
+      _cancel = cancel;
+    }
+
+    private Cancelable getCancel() {
+      return _cancel;
+    }
+
     // Cancelable
 
     @Override
     public boolean cancel(final boolean mayInterruptedIfRunning) {
-      s_logger.debug("Cancelling {} for job {}", _cancel, _job);
-      return _cancel.cancel(mayInterruptedIfRunning);
+      Cancelable cancel = getCancel();
+      if (cancel != null) {
+        s_logger.debug("Cancelling {} for job {}", _cancel, _job);
+        return cancel.cancel(mayInterruptedIfRunning);
+      } else {
+        return false;
+      }
     }
 
   }
@@ -95,13 +107,26 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
     return getCycle().getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getCycle().getViewProcessId());
   }
 
-  protected synchronized void submit(CalculationJob job) {
-    if (_executing != null) {
+  protected void submit(CalculationJob job) {
+    final ExecutingJob executing;
+    synchronized (this) {
+      if (_executing == null) {
+        // Already complete or cancelled; don't submit anything new
+        s_logger.debug("Not submitting {} - already completed or cancelled", job);
+        return;
+      }
       s_logger.debug("Submitting {}", job);
-      _executing.put(job.getSpecification(), new ExecutingJob(job, getCycle().getViewProcessContext().getComputationJobDispatcher().dispatchJob(job, this)));
-    } else {
-      // Already complete or cancelled; don't submit anything new
-      s_logger.debug("Not submitting {} - already completed or cancelled", job);
+      executing = new ExecutingJob(job);
+      _executing.put(job.getSpecification(), executing);
+    }
+    final Cancelable handle = getCycle().getViewProcessContext().getComputationJobDispatcher().dispatchJob(job, this);
+    executing.setCancel(handle);
+    synchronized (this) {
+      if (_executing == null) {
+        // Completed or cancelled during the submission
+        handle.cancel(true);
+        return;
+      }
     }
   }
 
@@ -143,9 +168,10 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
       notifyAll();
       startTime = _startTime;
       listener = _listener;
+      _listener = null;
     }
     if (listener != null) {
-      listener.graphCompleted(_graph.getCalculationConfiguration());
+      listener.graphCompleted(getGraph().getCalculationConfiguration());
     }
     return System.nanoTime() - startTime;
   }
@@ -164,15 +190,13 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
       jobs = _executing.values();
       _executing = null;
       _state = State.CANCELLED;
+      notifyAll();
     }
     s_logger.info("Cancelling current jobs of {}", this);
-    boolean result = true;
     for (ExecutingJob job : jobs) {
-      if (!job.cancel(mayInterruptIfRunning)) {
-        result = false;
-      }
+      job.cancel(mayInterruptIfRunning);
     }
-    return result;
+    return true;
   }
 
   // JobResultReceiver
@@ -227,7 +251,7 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
       s_logger.info("Cancelled {}", this);
       throw new CancellationException();
     }
-    return _graph.getCalculationConfiguration();
+    return getGraph().getCalculationConfiguration();
   }
 
   @Override
@@ -244,7 +268,7 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
       s_logger.warn("Cancelled {}", this);
       throw new CancellationException();
     }
-    return _graph.getCalculationConfiguration();
+    return getGraph().getCalculationConfiguration();
   }
 
   @Override
@@ -262,7 +286,7 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
 
   @Override
   public String toString() {
-    return _graph.toString() + " for " + _cycle.toString();
+    return getGraph().toString() + " for " + getCycle().toString();
   }
 
 }
