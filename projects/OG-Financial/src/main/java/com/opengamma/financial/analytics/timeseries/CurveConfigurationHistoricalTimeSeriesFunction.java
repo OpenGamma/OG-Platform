@@ -95,16 +95,6 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
     return ComputationTargetType.NULL;
   }
 
-
-  @Override
-  public boolean canHandleMissingRequirements() {
-    return true;
-  }
-
-  @Override
-  public boolean canHandleMissingInputs() {
-    return true;
-  }
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
