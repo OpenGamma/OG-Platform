@@ -213,7 +213,8 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
     }
     final CalculationJobResultItem other = (CalculationJobResultItem) o;
     return ObjectUtils.nullSafeEquals(other._missingOutputs, _missingOutputs)
-        && ObjectUtils.nullSafeEquals(other._missingInputs, _missingInputs);
+        && ObjectUtils.nullSafeEquals(other._missingInputs, _missingInputs)
+        && ObjectUtils.nullSafeEquals(other._executionLog, _executionLog);
   }
 
 }
