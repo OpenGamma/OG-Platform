@@ -14,7 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +56,6 @@ import com.opengamma.util.tuple.Pair;
 
   private abstract static class Event {
 
-    public abstract void run(SingleComputationCycleExecutor executorComputation, InMemoryViewComputationResultModel fragmentResultModel, InMemoryViewComputationResultModel fullResultModel);
-
     public abstract void run(SingleComputationCycleExecutor executorComputation);
 
   }
@@ -71,22 +69,20 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public void run(final SingleComputationCycleExecutor executor, final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
-      run(executor);
-    }
-
-    @Override
     public void run(final SingleComputationCycleExecutor executor) {
       s_logger.info("Execution of {} complete", _calculationConfiguration);
-      executor._executing.remove(_calculationConfiguration);
+      final ExecutingCalculationConfiguration calcConfig = executor._executing.remove(_calculationConfiguration);
+      if (calcConfig != null) {
+        calcConfig.buildResults(executor.getCycle().getResultModel());
+      }
     }
 
   }
 
   private static class CalculationJobComplete extends Event {
 
-    private CalculationJob _job;
-    private CalculationJobResult _jobResult;
+    private final CalculationJob _job;
+    private final CalculationJobResult _jobResult;
 
     public CalculationJobComplete(final CalculationJob job, final CalculationJobResult jobResult) {
       _job = job;
@@ -94,28 +90,81 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public void run(final SingleComputationCycleExecutor executor, final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
-      s_logger.debug("Execution of {} complete", _job);
-      executor.buildResults(_job, _jobResult, fragmentResultModel, fullResultModel);
-      _job = null;
-      _jobResult = null;
-    }
-
-    @Override
     public void run(final SingleComputationCycleExecutor executor) {
-      final InMemoryViewComputationResultModel fragmentResultModel = executor.getCycle().constructTemplateResultModel();
-      final InMemoryViewComputationResultModel fullResultModel = executor.getCycle().getResultModel();
-      run(executor, fragmentResultModel, fullResultModel);
-      executor.mergeResults(fragmentResultModel, fullResultModel);
-      s_logger.info("Fragment execution complete");
-      executor.fragmentCompleted(fragmentResultModel);
+      s_logger.debug("Execution of {} complete", _job);
+      executor.buildResults(_job, _jobResult);
     }
 
   }
 
-  private final BlockingQueue<Event> _events = new LinkedTransferQueue<Event>();
-  private final Map<String, Cancelable> _executing = new HashMap<String, Cancelable>();
+  private static class ExecutingCalculationConfiguration {
+
+    private final Cancelable _handle;
+    private final DependencyGraph _graph;
+    private final DependencyNodeJobExecutionResultCache _resultCache;
+    private final ViewComputationCache _computationCache;
+    private final Set<ValueSpecification> _terminalOutputs = new HashSet<ValueSpecification>();
+
+    public ExecutingCalculationConfiguration(final SingleComputationCycle cycle, final DependencyGraph graph, final Cancelable handle) {
+      _handle = handle;
+      _graph = graph;
+      _resultCache = cycle.getJobExecutionResultCache(graph.getCalculationConfigurationName());
+      _computationCache = cycle.getComputationCache(graph.getCalculationConfigurationName());
+    }
+
+    public void cancel() {
+      _handle.cancel(true);
+    }
+
+    public DependencyGraph getDependencyGraph() {
+      return _graph;
+    }
+
+    public DependencyNodeJobExecutionResultCache getResultCache() {
+      return _resultCache;
+    }
+
+    public Set<ValueSpecification> getTerminalOutputs() {
+      return _terminalOutputs;
+    }
+
+    public void buildResults(final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
+      if (_terminalOutputs.isEmpty()) {
+        return;
+      }
+      final String calculationConfiguration = _graph.getCalculationConfigurationName();
+      for (Pair<ValueSpecification, Object> value : _computationCache.getValues(_terminalOutputs, CacheSelectHint.allShared())) {
+        final ValueSpecification valueSpec = value.getFirst();
+        final Object calculatedValue = value.getSecond();
+        if (calculatedValue != null) {
+          final ComputedValueResult computedValueResult = SingleComputationCycle.createComputedValueResult(valueSpec, calculatedValue, _resultCache.get(valueSpec));
+          fragmentResultModel.addValue(calculationConfiguration, computedValueResult);
+          fullResultModel.addValue(calculationConfiguration, computedValueResult);
+        }
+      }
+    }
+
+    public void buildResults(final InMemoryViewComputationResultModel fullResultModel) {
+      if (_terminalOutputs.isEmpty()) {
+        return;
+      }
+      final String calculationConfiguration = _graph.getCalculationConfigurationName();
+      for (Pair<ValueSpecification, Object> value : _computationCache.getValues(_terminalOutputs, CacheSelectHint.allShared())) {
+        final ValueSpecification valueSpec = value.getFirst();
+        final Object calculatedValue = value.getSecond();
+        if (calculatedValue != null) {
+          final ComputedValueResult computedValueResult = SingleComputationCycle.createComputedValueResult(valueSpec, calculatedValue, _resultCache.get(valueSpec));
+          fullResultModel.addValue(calculationConfiguration, computedValueResult);
+        }
+      }
+    }
+
+  }
+
+  private final BlockingQueue<Event> _events = new LinkedBlockingQueue<Event>();
+  private final Map<String, ExecutingCalculationConfiguration> _executing = new HashMap<String, ExecutingCalculationConfiguration>();
   private final SingleComputationCycle _cycle;
+  private boolean _issueFragmentResults;
 
   public SingleComputationCycleExecutor(final SingleComputationCycle cycle) {
     _cycle = cycle;
@@ -132,28 +181,42 @@ import com.opengamma.util.tuple.Pair;
       final DependencyGraph depGraph = getCycle().createExecutableDependencyGraph(calcConfigurationName);
       s_logger.info("Submitting {} for execution by {}", depGraph, executor);
       final DependencyGraphExecutionFuture future = executor.execute(depGraph);
-      _executing.put(calcConfigurationName, future);
+      _executing.put(calcConfigurationName, new ExecutingCalculationConfiguration(getCycle(), depGraph, future));
       future.setListener(this);
     }
     try {
       while (!_executing.isEmpty()) {
+        // Block for the first event
         _events.take().run(this);
+        // Then run through any others as quickly as possible before dispatching a notification
+        Event e = _events.poll();
+        while (e != null) {
+          e.run(this);
+          e = _events.poll();
+        }
+        if (_issueFragmentResults) {
+          if (_executing.isEmpty()) {
+            s_logger.info("Discarding fragment completion message - overall execution is complete");
+          } else {
+            s_logger.debug("Building result fragment");
+            final InMemoryViewComputationResultModel fragmentResultModel = getCycle().constructTemplateResultModel();
+            final InMemoryViewComputationResultModel fullResultModel = getCycle().getResultModel();
+            for (ExecutingCalculationConfiguration calcConfig : _executing.values()) {
+              calcConfig.buildResults(fragmentResultModel, fullResultModel);
+            }
+            s_logger.info("Fragment execution complete");
+            getCycle().notifyFragmentCompleted(fragmentResultModel);
+          }
+          _issueFragmentResults = false;
+        }
       }
     } catch (final InterruptedException e) {
       Thread.interrupted();
       // Cancel all outstanding jobs to free up resources
-      for (Cancelable execution : _executing.values()) {
-        execution.cancel(true);
+      for (ExecutingCalculationConfiguration execution : _executing.values()) {
+        execution.cancel();
       }
       throw e;
-    }
-  }
-
-  private void fragmentCompleted(final InMemoryViewComputationResultModel fragmentResultModel) {
-    if (_executing.isEmpty()) {
-      s_logger.info("Discarding fragment completion message - overall execution is complete");
-    } else {
-      getCycle().notifyFragmentCompleted(fragmentResultModel);
     }
   }
 
@@ -180,16 +243,19 @@ import com.opengamma.util.tuple.Pair;
     return sb.toString();
   }
 
-  private void buildResults(final CalculationJob job, final CalculationJobResult jobResult, final InMemoryViewComputationResultModel fragmentResultModel,
-      final InMemoryViewComputationResultModel fullResultModel) {
+  private void buildResults(final CalculationJob job, final CalculationJobResult jobResult) {
     final String calculationConfiguration = jobResult.getSpecification().getCalcConfigName();
-    final DependencyGraph graph = getCycle().getDependencyGraph(calculationConfiguration);
+    final ExecutingCalculationConfiguration calcConfig = _executing.get(calculationConfiguration);
+    if (calcConfig == null) {
+      s_logger.warn("Job fragment result for already completed configuration {}", calculationConfiguration);
+      return;
+    }
+    final DependencyGraph graph = calcConfig.getDependencyGraph();
     final Iterator<CalculationJobItem> jobItemItr = job.getJobItems().iterator();
     final Iterator<CalculationJobResultItem> jobResultItr = jobResult.getResultItems().iterator();
-    final Set<ValueSpecification> terminalOutputs = new HashSet<ValueSpecification>();
     final ExecutionLogModeSource logModes = getCycle().getLogModeSource();
-    final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getCycle().getJobExecutionResultCache(calculationConfiguration);
-    final ViewComputationCache cache = getCycle().getComputationCache(calculationConfiguration);
+    final DependencyNodeJobExecutionResultCache jobExecutionResultCache = calcConfig.getResultCache();
+    final Set<ValueSpecification> terminalOutputs = calcConfig.getTerminalOutputs();
     final String computeNodeId = jobResult.getComputeNodeId();
     while (jobItemItr.hasNext()) {
       assert jobResultItr.hasNext();
@@ -257,24 +323,8 @@ import com.opengamma.util.tuple.Pair;
       for (ValueSpecification output : node.getOutputValues()) {
         jobExecutionResultCache.put(output, jobExecutionResult);
       }
-      for (Pair<ValueSpecification, Object> value : cache.getValues(terminalOutputs, CacheSelectHint.allShared())) {
-        final ValueSpecification valueSpec = value.getFirst();
-        final Object calculatedValue = value.getSecond();
-        if (calculatedValue != null) {
-          final ComputedValueResult computedValueResult = SingleComputationCycle.createComputedValueResult(valueSpec, calculatedValue, jobExecutionResult);
-          fragmentResultModel.addValue(calculationConfiguration, computedValueResult);
-          fullResultModel.addValue(calculationConfiguration, computedValueResult);
-        }
-      }
     }
-  }
-
-  private void mergeResults(final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
-    Event next = _events.poll();
-    while (next != null) {
-      next.run(this, fragmentResultModel, fullResultModel);
-      next = _events.poll();
-    }
+    _issueFragmentResults |= !terminalOutputs.isEmpty();
   }
 
   /**
