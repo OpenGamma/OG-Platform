@@ -46,6 +46,7 @@ public class SimulationUtils {
     return viewDefs.iterator().next().getValue().getUniqueId();
   }
 
+  // TODO overload to read from a Reader for running scripts stored in config
   /**
    * Runs a Groovy script that defines a {@link Simulation} using the DSL.
    * @param groovyScript The script location in the filesystem
@@ -55,6 +56,7 @@ public class SimulationUtils {
     return runGroovyDslScript(groovyScript, Simulation.class);
   }
 
+    // TODO overload to read from a Reader for running scripts stored in config
   /**
    * Runs a Groovy script that defines a {@link Scenario} using the DSL.
    * @param groovyScript The script location in the filesystem
@@ -63,6 +65,8 @@ public class SimulationUtils {
   public static Scenario createScenarioFromDsl(String groovyScript) {
     return runGroovyDslScript(groovyScript, Scenario.class);
   }
+
+  // TODO overload to read from a Reader for running scripts stored in config
   private static <T> T runGroovyDslScript(String scriptFile, Class<T> expectedType) {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(SimulationScript.class.getName());
