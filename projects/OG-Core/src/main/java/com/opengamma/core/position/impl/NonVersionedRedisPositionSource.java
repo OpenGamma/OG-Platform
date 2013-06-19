@@ -6,6 +6,8 @@
 package com.opengamma.core.position.impl;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -234,16 +236,31 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
    * @param position the new position to store and attach.
    */
   public void addPositionToPortfolio(Portfolio portfolio, Position position) {
+    addPositionsToPortfolio(portfolio, Collections.singleton(position));
+  }
+  
+  /**
+   * Store a new set of positions and attach it to the specified portfolio.
+   * @param portfolio the existing portfolio. Must already be in this source.
+   * @param positions the new positions to store and attach.
+   */
+  public void addPositionsToPortfolio(Portfolio portfolio, Collection<Position> positions) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     ArgumentChecker.notNull(portfolio.getUniqueId(), "portfolio UniqueId");
-    ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(positions, "position");
     
     try (Timer.Context context = _positionAddTimer.time()) {
       
       Jedis jedis = getJedisPool().getResource();
       try {
         
-        UniqueId uniqueId = storePosition(jedis, position);
+        String[] uniqueIdStrings = new String[positions.size()];
+        int i = 0;
+        for (Position position : positions) {
+          UniqueId uniqueId = storePosition(jedis, position);
+          uniqueIdStrings[i] = uniqueId.toString();
+          i++;
+        }
         UniqueId portfolioUniqueId = portfolio.getUniqueId();
         String portfolioPositionsKey = toPortfolioPositionsRedisKey(portfolioUniqueId);
         // NOTE kirk 2013-06-18 -- The following call is a known performance bottleneck.
@@ -251,13 +268,13 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
         // figure out what was going on, before I gave up for the time being.
         // When we're running in a far more realistic way we need to second guess
         // it, but it is a known performance issue on large portfolio loading.
-        jedis.sadd(portfolioPositionsKey, uniqueId.toString());
+        jedis.sadd(portfolioPositionsKey, uniqueIdStrings);
         
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
-        s_logger.error("Unable to store position " + position, e);
+        s_logger.error("Unable to store positions " + positions, e);
         getJedisPool().returnBrokenResource(jedis);
-        throw new OpenGammaRuntimeException("Unable to store position " + position, e);
+        throw new OpenGammaRuntimeException("Unable to store positions " + positions, e);
       }
       
     }
