@@ -8,7 +8,7 @@ package com.opengamma.financial.depgraph.rest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,11 +21,15 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
-import com.opengamma.engine.depgraph.ResolutionFailureFudgeBuilder;
+import com.opengamma.engine.depgraph.ResolutionFailure;
 import com.opengamma.engine.depgraph.ResolutionFailureGatherer;
+import com.opengamma.engine.depgraph.SimpleResolutionFailureVisitor;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
@@ -201,33 +205,25 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
     final MarketDataProviderResolver resolver = _builderContext.getMarketDataProviderResolver();
     final MarketDataProvider marketDataProvider = resolver.resolve(marketDataUser, _marketData);
     builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider(_marketData));
-    final FudgeContext fudgeContext = _fudgeContext;
-    final ResolutionFailureGatherer<MutableFudgeMsg> failures = new ResolutionFailureGatherer<MutableFudgeMsg>(new ResolutionFailureFudgeBuilder.Visitor(
-        _fudgeContext));
+    final ResolutionFailureGatherer<List<ResolutionFailure>> failures = new ResolutionFailureGatherer<>(new SimpleResolutionFailureVisitor());
     builder.setResolutionFailureVisitor(failures);
     builder.setDisableFailureReporting(false);
     for (final ValueRequirement requirement : _requirements) {
       builder.addTarget(requirement);
     }
-    final FudgeSerializer serializer = new FudgeSerializer(fudgeContext);
-    final MutableFudgeMsg result = serializer.newMessage();
-    final DependencyGraph graph = builder.getDependencyGraph();
-    serializer.addToMessage(result, "dependencyGraph", null, graph);
-    final Map<Throwable, Integer> exceptions = builder.getExceptions();
-    for (final Map.Entry<Throwable, Integer> exception : exceptions.entrySet()) {
-      final MutableFudgeMsg submessage = serializer.newMessage();
-      submessage.add("class", exception.getKey().getClass().getName());
-      submessage.add("message", exception.getKey().getMessage());
-      if (exception.getValue() > 1) {
-        submessage.add("repeat", exception.getValue());
-      }
-      result.add("exception", submessage);
-    }
-    for (final MutableFudgeMsg failure : failures.getResults()) {
-      result.add("failure", failure);
-    }
-    serializer.addToMessage(result, "mapping", null, builder.getValueRequirementMapping());
-    return new FudgeMsgEnvelope(result);
+    DependencyGraph dependencyGraph = builder.getDependencyGraph();
+    List<ResolutionFailure> resolutionFailures = ImmutableList.copyOf(Iterables.concat(failures.getResults()));
+    
+    DependencyGraphBuildTrace graphBuildTrace = DependencyGraphBuildTrace.of(
+                                      dependencyGraph, 
+                                      builder.getExceptions(), 
+                                      resolutionFailures, 
+                                      builder.getValueRequirementMapping());
+    
+    MutableFudgeMsg mutableFudgeMsg = new FudgeSerializer(getFudgeContext()).objectToFudgeMsg(graphBuildTrace);
+    
+    return new FudgeMsgEnvelope(mutableFudgeMsg);
   }
+  
 
 }
