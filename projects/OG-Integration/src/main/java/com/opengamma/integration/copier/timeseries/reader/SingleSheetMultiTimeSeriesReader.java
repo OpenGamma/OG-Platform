@@ -95,7 +95,7 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
   @Override
   public void writeTo(TimeSeriesWriter timeSeriesWriter) {
 
-    Map<String, String> rawRow;
+    Map<String, String> rawRow = null;
     do {
       Map<String, LocalDateDoubleTimeSeriesBuilder> tsData = new HashMap<String, LocalDateDoubleTimeSeriesBuilder>();
       int count = 0;
