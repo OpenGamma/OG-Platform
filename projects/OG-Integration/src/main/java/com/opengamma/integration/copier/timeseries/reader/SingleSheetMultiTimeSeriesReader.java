@@ -101,7 +101,7 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
       int count = 0;
 
       // Get the next set of rows from the sheet up to the memory buffer limit
-      while (((rawRow = _sheet.loadNextRow()) != null) && (count < BUFFER_SIZE)) { // CSIGNORE
+      while ((count < BUFFER_SIZE) && ((rawRow = _sheet.loadNextRow()) != null)) { // CSIGNORE
         try {
           String ric = getWithException(rawRow, ID);
           if (!tsData.containsKey(ric)) {
