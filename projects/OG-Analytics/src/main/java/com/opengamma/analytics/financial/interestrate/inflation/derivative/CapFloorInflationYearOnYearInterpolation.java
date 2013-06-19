@@ -217,31 +217,43 @@ public class CapFloorInflationYearOnYearInterpolation extends CouponInflation im
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CapFloorInflationYearOnYearInterpolation other = (CapFloorInflationYearOnYearInterpolation) obj;
-    if (_isCap != other._isCap)
+    if (_isCap != other._isCap) {
       return false;
-    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime))
+    }
+    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime)) {
       return false;
-    if (Double.doubleToLongBits(_naturalPaymentEndTime) != Double.doubleToLongBits(other._naturalPaymentEndTime))
+    }
+    if (Double.doubleToLongBits(_naturalPaymentEndTime) != Double.doubleToLongBits(other._naturalPaymentEndTime)) {
       return false;
-    if (Double.doubleToLongBits(_naturalPaymentStartTime) != Double.doubleToLongBits(other._naturalPaymentStartTime))
+    }
+    if (Double.doubleToLongBits(_naturalPaymentStartTime) != Double.doubleToLongBits(other._naturalPaymentStartTime)) {
       return false;
-    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime))
+    }
+    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
       return false;
-    if (!Arrays.equals(_referenceStartTime, other._referenceStartTime))
+    }
+    if (!Arrays.equals(_referenceStartTime, other._referenceStartTime)) {
       return false;
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
+    }
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
-    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd))
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
       return false;
-    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart))
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
       return false;
+    }
     return true;
   }
 
