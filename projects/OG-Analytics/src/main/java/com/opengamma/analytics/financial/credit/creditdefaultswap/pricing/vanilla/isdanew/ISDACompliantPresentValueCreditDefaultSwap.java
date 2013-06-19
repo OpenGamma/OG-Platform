@@ -31,7 +31,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *This prices a CDS using the ISDA methodology. The API of the public functions mimic as far a possible the ISDA high level ISDA c\
+ *This prices a CDS using the ISDA methodology. The API of the public functions mimic as far a possible the ISDA high level ISDA c
  *functions. However this is NOT a line-by-line translation of the ISDA code. We find agreement with ISDA to better than 1 part in 10^12
  *on a test suit of 200 example.   
  */
@@ -280,7 +280,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
 
   /**
    * Get the value of the protection leg for unit notional<p>
-   *This mimics the ISDA c function <b></b>
+   *This mimics the ISDA c function <b>JpmcdsCdsContingentLegPV</b>
    * @param today The 'current' date 
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
