@@ -176,6 +176,8 @@ public class ExecutingGraph {
         dependentsInfo[i] = dependentInfo;
       }
       _executing.put(actual.getSpecification(), dependentsInfo);
+    } else {
+      _executing.put(actual.getSpecification(), null);
     }
   }
 
@@ -241,7 +243,7 @@ public class ExecutingGraph {
    * @return true if graph execution has finished - there are no more executable jobs and all that were previously returned have been signaled as complete
    */
   public synchronized boolean isFinished() {
-    return _executable.isEmpty() && _blocked.isEmpty();
+    return _executable.isEmpty() && _executing.isEmpty() && _blocked.isEmpty();
   }
 
   /**
@@ -256,7 +258,9 @@ public class ExecutingGraph {
     if (blockedJobs != null) {
       for (BlockedJobInfo blockedJob : blockedJobs) {
         if (blockedJob.unblock()) {
-          _executable.add(blockedJob.getJob());
+          final PlannedJob job = blockedJob.getJob();
+          _executable.add(job);
+          _blocked.remove(job);
         }
       }
     }

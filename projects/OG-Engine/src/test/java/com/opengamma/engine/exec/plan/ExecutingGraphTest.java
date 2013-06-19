@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -129,5 +130,10 @@ public class ExecutingGraphTest {
     executing.jobCompleted(job7.getSpecification());
     final CalculationJob job9 = executing.nextExecutableJob();
     assertJob(job9, 9);
+    assertNull(executing.nextExecutableJob());
+    assertFalse(executing.isFinished());
+    executing.jobCompleted(job9.getSpecification());
+    assertNull(executing.nextExecutableJob());
+    assertTrue(executing.isFinished());
   }
 }
