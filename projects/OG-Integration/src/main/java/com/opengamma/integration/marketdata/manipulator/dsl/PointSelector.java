@@ -5,10 +5,12 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
 import com.opengamma.engine.marketdata.manipulator.StructureType;
@@ -185,6 +187,24 @@ public class PointSelector implements DistinctMarketDataSelector {
       return this;
     }
 
+    /**
+     * Adds a test for the market data ID value to match exactly.
+     * @param ids The external IDs to match
+     * @return This builder
+     */
+    public Builder ids(String... ids) {
+      ArgumentChecker.notEmpty(ids, "ids");
+      ArgumentChecker.notEmpty(ids, "ids");
+      if (_ids != null) {
+        throw new IllegalStateException("id() or ids() can only be called once");
+      }
+      Set<ExternalId> idSet = Sets.newHashSetWithExpectedSize(ids.length);
+      for (String id : ids) {
+        idSet.add(ExternalId.parse(id));
+      }
+      _ids = Collections.unmodifiableSet(idSet);
+      return this;
+    }
 
     /**
      * Adds a test for the market data ID value to match exactly.
