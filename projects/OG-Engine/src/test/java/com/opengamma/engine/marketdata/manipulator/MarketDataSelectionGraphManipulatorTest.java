@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
@@ -23,6 +24,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.EmptyFunctionParameters;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
@@ -83,8 +86,8 @@ public class MarketDataSelectionGraphManipulatorTest {
 
     DistinctMarketDataSelector yieldCurveSelector = createYieldCurveSelector(Currency.USD, "Forward3M");
 
-    Map<String, Set<MarketDataSelector>>  specificManipulators = new HashMap<>();
-    specificManipulators.put("graph", ImmutableSet.<MarketDataSelector>of(yieldCurveSelector));
+    Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificManipulators = new HashMap<>();
+    specificManipulators.put("graph",  createYieldCurveSelectorAndParams(Currency.USD, "Forward3M"));
 
     MarketDataSelectionGraphManipulator manipulator = new MarketDataSelectionGraphManipulator(
         NoOpMarketDataSelector.getInstance(),
@@ -106,10 +109,8 @@ public class MarketDataSelectionGraphManipulatorTest {
   @Test
   public void testSpecificYieldCurveSelectorDoesNotAlterDifferentNamedGraph() {
 
-    DistinctMarketDataSelector yieldCurveSelector = createYieldCurveSelector(Currency.USD, "Forward3M");
-
-    Map<String, Set<MarketDataSelector>>  specificManipulators = new HashMap<>();
-    specificManipulators.put("graph-to-find", ImmutableSet.<MarketDataSelector>of(yieldCurveSelector));
+    Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificManipulators = new HashMap<>();
+    specificManipulators.put("graph-to-find", createYieldCurveSelectorAndParams(Currency.USD, "Forward3M"));
 
     MarketDataSelectionGraphManipulator manipulator = new MarketDataSelectionGraphManipulator(
         NoOpMarketDataSelector.getInstance(),
@@ -123,6 +124,13 @@ public class MarketDataSelectionGraphManipulatorTest {
     assertTrue(result.isEmpty());
     assertEquals(graph.getOutputSpecifications(), originalOutputSpecifications2);
 
+  }
+
+  private ImmutableMap<DistinctMarketDataSelector, FunctionParameters> createYieldCurveSelectorAndParams(
+      Currency currency, String curveType) {
+
+    return ImmutableMap.<DistinctMarketDataSelector, FunctionParameters>of(createYieldCurveSelector(currency, curveType),
+                                                                           EmptyFunctionParameters.INSTANCE);
   }
 
   @Test
@@ -192,7 +200,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     return graph;
   }
 
-  private Map<String, Set<MarketDataSelector>> createEmptyViewCalcManipulations() {
+  private Map<String, Map<DistinctMarketDataSelector,FunctionParameters>> createEmptyViewCalcManipulations() {
     return new HashMap<>();
   }
 

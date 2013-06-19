@@ -13,6 +13,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -35,7 +36,7 @@ public class MarketDataSelectionGraphManipulator {
   /**
    * The selectors which will be applied only to named graphs.
    */
-  private final Map<String, Set<MarketDataSelector>> _specificSelectors;
+  private final Map<String, Set<MarketDataSelector>> _specificSelectors = new HashMap<>();
 
   /**
    * Constructor for the class taking the general and specific market data selectors.
@@ -44,11 +45,18 @@ public class MarketDataSelectionGraphManipulator {
    * @param specificSelectors the market data selectors which will be applied only to named graphs, not null
    */
   public MarketDataSelectionGraphManipulator(MarketDataSelector marketDataSelector,
-                                             Map<String, Set<MarketDataSelector>> specificSelectors) {
+                                             Map<String, Map<DistinctMarketDataSelector,FunctionParameters>> specificSelectors) {
     ArgumentChecker.notNull(marketDataSelector, "marketDataSelector");
     ArgumentChecker.notNull(specificSelectors, "specificSelectors");
-    _specificSelectors = specificSelectors;
     _marketDataSelector = marketDataSelector;
+    for (Map.Entry<String, Map<DistinctMarketDataSelector, FunctionParameters>> entry : specificSelectors.entrySet()) {
+      // Workaround code for Java generics
+      Set<MarketDataSelector> selectors = new HashSet<>();
+      for (MarketDataSelector selector : entry.getValue().keySet()) {
+        selectors.add(selector);
+      }
+      _specificSelectors.put(entry.getKey(), selectors);
+    }
   }
 
   /**
@@ -81,6 +89,7 @@ public class MarketDataSelectionGraphManipulator {
 
       DependencyNode node = entry.getValue();
 
+      // todo - this could match multiple but we just get one - may be problematic
       DistinctMarketDataSelector matchingSelector = combinedSelector.findMatchingSelector(entry.getKey(), configurationName);
       if (matchingSelector != null) {
 

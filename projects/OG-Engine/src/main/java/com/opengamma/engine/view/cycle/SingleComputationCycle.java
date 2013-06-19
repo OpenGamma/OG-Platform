@@ -377,7 +377,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections =
         calculationConfiguration.getMarketDataSelections();
 
-    Map<DistinctMarketDataSelector, FunctionParameters> functionParameters = _executionOptions.getFunctionParameters();
+    // Get function params configured through the view definition
+    Map<DistinctMarketDataSelector, FunctionParameters > functionParameters =
+        calculationConfiguration.getMarketDataSelectionFunctionParameters();
+
+    // Add the function params passed through the execution options which will
+    // potentially override the same functions from the view definition
+    // A future enhancement could look at merging/composing the functions if desired
+    functionParameters.putAll(_executionOptions.getFunctionParameters());
 
     for (Map.Entry<DistinctMarketDataSelector, Set<ValueSpecification>> entry : marketDataSelections.entrySet()) {
 
