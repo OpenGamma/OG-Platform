@@ -311,11 +311,23 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    */
   private MarketDataSelectionGraphManipulator createMarketDataManipulator(ViewDefinition viewDefinition) {
 
-    Collection<ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurations();
-    ConfigSource configSource = getProcessContext().getConfigSource();
+    ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
 
-    // Map of [Graph name -> Map of [MD selector -> Function params]]
-    Map<String, Set<MarketDataSelector>>  specificSelectors = new HashMap<>();
+    MarketDataSelector executionOptionsMarketDataSelector = defaultExecutionOptions != null ?
+        defaultExecutionOptions.getMarketDataSelector() :
+        NoOpMarketDataSelector.getInstance();
+
+    Map<String, Set<MarketDataSelector>> specificSelectors = extractSpecificSelectors(viewDefinition);
+
+    return new MarketDataSelectionGraphManipulator(executionOptionsMarketDataSelector, specificSelectors);
+  }
+
+  private Map<String, Set<MarketDataSelector>> extractSpecificSelectors(ViewDefinition viewDefinition) {
+
+    ConfigSource configSource = getProcessContext().getConfigSource();
+    Collection<ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurations();
+
+    Map<String, Set<MarketDataSelector>> specificSelectors = new HashMap<>();
 
     for (ViewCalculationConfiguration calcConfig : calculationConfigurations) {
 
@@ -327,13 +339,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         }
       }
     }
-
-    ViewCycleExecutionOptions defaultExecutionOptions = _executionOptions.getDefaultExecutionOptions();
-    MarketDataSelector executionOptionsMarketDataSelector = defaultExecutionOptions != null ?
-        defaultExecutionOptions.getMarketDataSelector() :
-        NoOpMarketDataSelector.getInstance();
-
-    return new MarketDataSelectionGraphManipulator(executionOptionsMarketDataSelector, new HashMap<>(specificSelectors));
+    return specificSelectors;
   }
 
   private ViewProcessWorkerContext getWorkerContext() {

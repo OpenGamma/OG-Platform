@@ -101,7 +101,6 @@ public class MarketDataSelectionGraphManipulatorTest {
 
     // Selector is the underlying, not composite
     assertEquals(result1.containsKey(yieldCurveSelector), true);
-
   }
 
   @Test
