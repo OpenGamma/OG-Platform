@@ -39,9 +39,14 @@ public final class ViewStatusReporterOption {
    */
   private static final String USER_IP_ADDRESS_OPT = "ip";
   /**
-   * Result format type
+   * Result format type flag
    */
   private static final String FORMAT_TYPE_OPT = "fm";
+  /**
+   * Aggregation type flag
+   */
+  private static final String AGGREGATION_TYPE_OPT = "a";
+  
   /**
    * Default user
    */
@@ -49,24 +54,40 @@ public final class ViewStatusReporterOption {
   
   private final String _portfolioName;
   
-  private final String _format;
+  private final ResultFormat _format;
   
   private final UserPrincipal _user;
+  
+  private final AggregateType _aggregateType;
     
-  private ViewStatusReporterOption(final String portfolioName, String format, UserPrincipal user) {
+  private ViewStatusReporterOption(final String portfolioName, String formatOption, UserPrincipal user, String aggregateType) {
     ArgumentChecker.notNull(portfolioName, "portfolioName");
     ArgumentChecker.notNull(user, "user");
-    ArgumentChecker.notNull(format, "format");
+    ArgumentChecker.notNull(formatOption, "formatOption");
     
     _portfolioName = portfolioName;
-    format = format.toLowerCase();
-    if (!SUPPORTED_FORMAT.contains(format)) {
-      throw new OpenGammaRuntimeException("Unsupported format type: " + format);
-    }
-    _format = format;
+    validateFormat(formatOption);
+    _format = ResultFormat.of(formatOption);
     _user = user;
+    if (aggregateType != null) {
+      _aggregateType = AggregateType.of(aggregateType);
+    } else {
+      _aggregateType = AggregateType.NO_AGGREGATION;
+    }
+  }
+
+  private void validateFormat(String formatOption) {
+    formatOption = formatOption.toLowerCase();
+    if (!SUPPORTED_FORMAT.contains(formatOption)) {
+      throw new OpenGammaRuntimeException("Unsupported format type: " + formatOption);
+    }
   }
   
+  /**
+   * Creates command line options
+   * 
+   * @return the command line options, not-null.
+   */
   public static Options createOptions() {
     
     Options options = new Options();
@@ -84,14 +105,24 @@ public final class ViewStatusReporterOption {
     Option formatTypeOption = new Option(FORMAT_TYPE_OPT, "format", true, "the format of status result, default is html");
     formatTypeOption.setArgName("csv, xml, html");
     
+    Option aggregationTypeOption = new Option(AGGREGATION_TYPE_OPT, "aggregation", true, "the aggregation type of result, default is no-aggregation");
+    aggregationTypeOption.setArgName("TSVC, CSVT");
+    
     options.addOption(portfolioNameOption);
     options.addOption(usernameOption);
     options.addOption(formatTypeOption);
     options.addOption(ipaddressOption);
+    options.addOption(aggregationTypeOption);
     
     return options;
   }
   
+  /**
+   * Creates a View status option instance from the options supplied from the command line
+   * 
+   * @param commandLine the command line, not-null
+   * @return the view status option, not-null
+   */
   public static ViewStatusReporterOption getViewStatusReporterOption(final CommandLine commandLine) {
     ArgumentChecker.notNull(commandLine, "commandLine");
     
@@ -112,7 +143,8 @@ public final class ViewStatusReporterOption {
     String format = StringUtils.trimToNull(commandLine.getOptionValue(FORMAT_TYPE_OPT));
     format = StringUtils.defaultString(format, DEFAULT_FORMAT);
     
-    return new ViewStatusReporterOption(portfolioName, format, user);
+    String aggregationOption = StringUtils.trimToNull(commandLine.getOptionValue(AGGREGATION_TYPE_OPT));
+    return new ViewStatusReporterOption(portfolioName, format, user, aggregationOption);
   }
 
   /**
@@ -130,16 +162,27 @@ public final class ViewStatusReporterOption {
   public UserPrincipal getUser() {
     return _user;
   }
-
+    
   /**
    * Gets the format.
    * @return the format
    */
-  public String getFormat() {
+  public ResultFormat getFormat() {
     return _format;
   }
-    
-  static enum ResultFormat {
+  
+  /**
+   * Gets the aggregationOrder.
+   * @return the aggregationOrder
+   */
+  public AggregateType getAggregationOrder() {
+    return _aggregateType;
+  }
+
+  /**
+   * View result format
+   */
+  public static enum ResultFormat {
     /**
      * CSV
      */
