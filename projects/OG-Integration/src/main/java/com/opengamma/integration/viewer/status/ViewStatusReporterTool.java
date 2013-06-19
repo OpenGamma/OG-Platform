@@ -59,10 +59,11 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
-    generateViewStatusReport(portfolioId, option.getUser(), option.getFormat(), option.getAggregateType());
+    generateViewStatusReport(portfolioId, option.getUser(), option.getFormat(), option.getAggregateType(), option.getOutputFile());
   }
   
-  private void generateViewStatusReport(final UniqueId portfolioId, UserPrincipal user, ResultFormat resultFormat, AggregateType aggregateType) {
+  private void generateViewStatusReport(final UniqueId portfolioId, final UserPrincipal user, final ResultFormat resultFormat, 
+      final AggregateType aggregateType, final File outputFile) {
     
     ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(getToolContext(), portfolioId, user);
     ViewStatusResultAggregator resultAggregator = calculationWorker.run();
@@ -70,17 +71,12 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     ViewStatusResultProducer resultProducer = new ViewStatusResultProducer();
     String statusResult = resultProducer.statusResult(resultAggregator, resultFormat, aggregateType);
     try {
-      File filename = getFileName(resultFormat);
-      s_logger.debug("Writing status report into : {}", filename.getPath());
-      FileUtils.writeStringToFile(filename, statusResult);
+      s_logger.debug("Writing status report into : {}", outputFile.getPath());
+      FileUtils.writeStringToFile(outputFile, statusResult);
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Error writing view-status report file", ex.getCause());
     }
    
-  }
-
-  private File getFileName(ResultFormat resultFormat) {
-    return new File(FileUtils.getUserDirectory(), "view-status" + "." + resultFormat.getExtension());
   }
 
   private UniqueId findPortfolioId(final String portfolioName) {
