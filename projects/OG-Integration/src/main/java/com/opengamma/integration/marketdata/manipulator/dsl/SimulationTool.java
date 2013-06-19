@@ -24,7 +24,7 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Tool for running simulations. It's probably easier to use the approach in {@code RunSimulation} instead.
