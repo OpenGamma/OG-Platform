@@ -175,27 +175,37 @@ public class CapFloorInflationZeroCouponMonthly extends CouponInflation implemen
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CapFloorInflationZeroCouponMonthly other = (CapFloorInflationZeroCouponMonthly) obj;
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue))
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
-    if (_isCap != other._isCap)
+    }
+    if (_isCap != other._isCap) {
       return false;
-    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime))
+    }
+    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime)) {
       return false;
-    if (_maturity != other._maturity)
+    }
+    if (_maturity != other._maturity) {
       return false;
-    if (Double.doubleToLongBits(_naturalPaymentTime) != Double.doubleToLongBits(other._naturalPaymentTime))
+    }
+    if (Double.doubleToLongBits(_naturalPaymentTime) != Double.doubleToLongBits(other._naturalPaymentTime)) {
       return false;
-    if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime))
+    }
+    if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime)) {
       return false;
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
+    }
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
+    }
     return true;
   }
 

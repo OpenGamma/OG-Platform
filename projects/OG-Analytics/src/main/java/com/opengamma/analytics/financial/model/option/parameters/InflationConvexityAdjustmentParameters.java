@@ -132,37 +132,50 @@ public class InflationConvexityAdjustmentParameters {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     InflationConvexityAdjustmentParameters other = (InflationConvexityAdjustmentParameters) obj;
-    if (!Arrays.equals(_atmVolatility, other._atmVolatility))
+    if (!Arrays.equals(_atmVolatility, other._atmVolatility)) {
       return false;
+    }
     if (_index == null) {
-      if (other._index != null)
+      if (other._index != null) {
         return false;
-    } else if (!_index.equals(other._index))
+      }
+    } else if (!_index.equals(other._index)) {
       return false;
-    if (!Arrays.equals(_inflationTime, other._inflationTime))
+    }
+    if (!Arrays.equals(_inflationTime, other._inflationTime)) {
       return false;
+    }
     if (_liborCorrelation == null) {
-      if (other._liborCorrelation != null)
+      if (other._liborCorrelation != null) {
         return false;
-    } else if (!_liborCorrelation.equals(other._liborCorrelation))
+      }
+    } else if (!_liborCorrelation.equals(other._liborCorrelation)) {
       return false;
+    }
     if (_priceIndexCorrelation == null) {
-      if (other._priceIndexCorrelation != null)
+      if (other._priceIndexCorrelation != null) {
         return false;
-    } else if (!_priceIndexCorrelation.equals(other._priceIndexCorrelation))
+      }
+    } else if (!_priceIndexCorrelation.equals(other._priceIndexCorrelation)) {
       return false;
+    }
     if (_priceIndexRateCorrelation == null) {
-      if (other._priceIndexRateCorrelation != null)
+      if (other._priceIndexRateCorrelation != null) {
         return false;
-    } else if (!_priceIndexRateCorrelation.equals(other._priceIndexRateCorrelation))
+      }
+    } else if (!_priceIndexRateCorrelation.equals(other._priceIndexRateCorrelation)) {
       return false;
+    }
     return true;
   }
 

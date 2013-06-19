@@ -292,33 +292,45 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CouponInflationZeroCouponMonthlyGearingDefinition other = (CouponInflationZeroCouponMonthlyGearingDefinition) obj;
-    if (_conventionalMonthLag != other._conventionalMonthLag)
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
       return false;
-    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor))
+    }
+    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
       return false;
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue))
+    }
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
-    if (_monthLag != other._monthLag)
+    }
+    if (_monthLag != other._monthLag) {
       return false;
-    if (_payNotional != other._payNotional)
+    }
+    if (_payNotional != other._payNotional) {
       return false;
+    }
     if (_referenceEndDate == null) {
-      if (other._referenceEndDate != null)
+      if (other._referenceEndDate != null) {
         return false;
-    } else if (!_referenceEndDate.equals(other._referenceEndDate))
+      }
+    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
       return false;
+    }
     if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null)
+      if (other._referenceStartDate != null) {
         return false;
-    } else if (!_referenceStartDate.equals(other._referenceStartDate))
+      }
+    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
       return false;
+    }
     return true;
   }
 
