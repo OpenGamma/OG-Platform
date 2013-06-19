@@ -60,7 +60,7 @@ public final class ViewStatusReporterOption {
   
   private final AggregateType _aggregateType;
     
-  private ViewStatusReporterOption(final String portfolioName, String formatOption, UserPrincipal user, String aggregateType) {
+  private ViewStatusReporterOption(final String portfolioName, String formatOption, UserPrincipal user, String aggregateTypeStr) {
     ArgumentChecker.notNull(portfolioName, "portfolioName");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(formatOption, "formatOption");
@@ -69,8 +69,8 @@ public final class ViewStatusReporterOption {
     validateFormat(formatOption);
     _format = ResultFormat.of(formatOption);
     _user = user;
-    if (aggregateType != null) {
-      _aggregateType = AggregateType.of(aggregateType);
+    if (aggregateTypeStr != null) {
+      _aggregateType = AggregateType.of(aggregateTypeStr);
     } else {
       _aggregateType = AggregateType.NO_AGGREGATION;
     }
@@ -172,10 +172,10 @@ public final class ViewStatusReporterOption {
   }
   
   /**
-   * Gets the aggregationOrder.
-   * @return the aggregationOrder
+   * Gets the aggregate type.
+   * @return the aggregation type
    */
-  public AggregateType getAggregationOrder() {
+  public AggregateType getAggregateType() {
     return _aggregateType;
   }
 
