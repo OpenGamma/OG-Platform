@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
@@ -85,7 +84,7 @@ public class ViewStatusCalculationWorker {
         Future<PerViewStatusResult> futureTask = completionService.take();
         PerViewStatusResult perViewStatusResult = futureTask.get();
         for (ViewStatusKey viewStatusKey : perViewStatusResult.keySet()) {
-          aggregator.put(viewStatusKey, perViewStatusResult.get(viewStatusKey));
+          aggregator.putStatus(viewStatusKey, perViewStatusResult.get(viewStatusKey));
         }
         
       } 
