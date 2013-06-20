@@ -28,12 +28,12 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
- * The view status reporter tool
+ * The view status tool
  */
 @Scriptable
-public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
+public class ViewStatusTool extends AbstractTool<ToolContext> {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusReporterTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusTool.class);
     
   /**
    * Main methog to run the tool.
@@ -41,7 +41,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
    * @param args the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new ViewStatusReporterTool().initAndRun(args, ToolContext.class);
+    new ViewStatusTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
