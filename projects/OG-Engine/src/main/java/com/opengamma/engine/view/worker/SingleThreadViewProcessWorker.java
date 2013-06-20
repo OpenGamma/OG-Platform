@@ -34,6 +34,7 @@ import org.threeten.bp.Instant;
 import com.codahale.metrics.Timer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -265,7 +266,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   /**
    * The market data selectors and function parameters which have been passed in via
-   * the ViewDefinition, which are applicable to a specific dependency graph.
+   * the ViewDefinition, which are applicable to a specific dependency graph. There
+   * will be an entry for each graph in the view, even if the only contents are
+   * an empty map.
    */
   private final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
 
@@ -359,6 +362,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       if (scenarioId != null) {
         ScenarioDefinition scenarioDefinition = configSource.getConfig(ScenarioDefinition.class, scenarioId);
         specificSelectors.put(calcConfig.getName(), new HashMap<>(scenarioDefinition.getDefinitionMap()));
+      } else {
+        // Ensure we have an entry for each graph, even if selectors are empty
+        specificSelectors.put(calcConfig.getName(), ImmutableMap.<DistinctMarketDataSelector, FunctionParameters>of());
       }
     }
     return specificSelectors;
@@ -1389,6 +1395,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     if (_marketDataSelectionGraphManipulator.hasManipulationsDefined()) {
 
+      s_logger.info("Initialising market data manipulation");
+
       Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph = new HashMap<>();
       Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> functionParamsByGraph = new HashMap<>();
 
@@ -1404,6 +1412,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           Map<DistinctMarketDataSelector, FunctionParameters> params =
               _specificMarketDataSelectors.get(graph.getCalculationConfigurationName());
 
+          // _specificMarketDataSelectors has an entry for each graph, so no null check required
           if (!params.isEmpty()) {
 
             // Filter the function params so that we only have entries for active selectors
@@ -1421,7 +1430,13 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       }
 
       if (!selectionsByGraph.isEmpty()) {
+
+        s_logger.info("Adding in market data manipulation selections: [{}] and preset function parameters: [{}]",
+                      selectionsByGraph, functionParamsByGraph);
         return compiledViewDefinition.withMarketDataManipulationSelections(selectionsByGraph, functionParamsByGraph);
+
+      } else {
+        s_logger.info("No market data manipulation selectors matched - no manipulation to be done");
       }
     }
     return compiledViewDefinition;
