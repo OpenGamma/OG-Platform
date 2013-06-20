@@ -5,36 +5,41 @@
  */
 package com.opengamma.engine.calcnode;
 
+import com.codahale.metrics.Timer;
 import com.opengamma.engine.cache.DeferredStatistics;
 import com.opengamma.engine.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
- * 
+ * Statistics for defered invocations. Some values exposed with {@code OpenGammaMetricRegistry}.
  */
-/* package */class DeferredInvocationStatistics implements DeferredStatistics {
+/* package */ class DeferredInvocationStatistics implements DeferredStatistics {
 
   private final FunctionInvocationStatisticsGatherer _gatherer;
   private final String _configuration;
   private String _functionIdentifier;
-  private long _invocationTime;
   private double _dataInputBytes;
   private int _dataOutputBytes;
   private int _dataOutputSamples;
   private int _expectedDataOutputSamples;
+  private Timer _timer;
+  private Timer.Context _context;
+  //TODO: Look at replacing (or simply exposing) IO metrics
 
-  protected DeferredInvocationStatistics(final FunctionInvocationStatisticsGatherer gatherer, final String configuration) {
+  protected DeferredInvocationStatistics(final FunctionInvocationStatisticsGatherer gatherer, final String configuration, final String functionIdentifier) {
     _gatherer = gatherer;
     _configuration = configuration;
+    _functionIdentifier = functionIdentifier;
+    _timer = OpenGammaMetricRegistry.getDetailedInstance().timer(functionIdentifier + ".invoke");
   }
 
-  protected void beginInvocation(final String functionIdentifier) {
-    _invocationTime = System.nanoTime();
-    _functionIdentifier = functionIdentifier;
+  protected void beginInvocation() {
+    _context = _timer.time();
   }
 
   protected void endInvocation() {
-    _invocationTime = System.nanoTime() - _invocationTime;
+    _context.close();
   }
 
   protected void setDataInputBytes(final int bytes, final int samples) {
@@ -57,7 +62,7 @@ import com.opengamma.engine.value.ComputedValue;
     }
     _expectedDataOutputSamples--;
     if (_expectedDataOutputSamples == 0) {
-      _gatherer.functionInvoked(_configuration, _functionIdentifier, 1, _invocationTime, _dataInputBytes, (_dataOutputSamples > 0) ? _dataOutputBytes / _dataOutputSamples : Double.NaN);
+      _gatherer.functionInvoked(_configuration, _functionIdentifier, 1, _timer.getSnapshot().getMean(), _dataInputBytes, (_dataOutputSamples > 0) ? _dataOutputBytes / _dataOutputSamples : Double.NaN);
     }
   }
 

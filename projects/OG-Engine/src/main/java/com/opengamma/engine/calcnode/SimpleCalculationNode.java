@@ -463,7 +463,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         getMaxJobItemExecution().jobExecutionStarted(jobItem);
         attachLog(executionLog);
         try {
-          invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()), resultItemBuilder);
+          invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration(), jobItem.getFunctionUniqueIdentifier()), resultItemBuilder);
         } catch (final AsynchronousExecution e) {
           s_logger.debug("Asynchronous job item invocation at {}", _nodeId);
           final AsynchronousOperation<Deferred<Void>> async = deferredOperation();
@@ -800,7 +800,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       }
     }
     // Execute
-    statistics.beginInvocation(functionUniqueId);
+    statistics.beginInvocation();
     Set<ComputedValue> result;
     try {
       result = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));
