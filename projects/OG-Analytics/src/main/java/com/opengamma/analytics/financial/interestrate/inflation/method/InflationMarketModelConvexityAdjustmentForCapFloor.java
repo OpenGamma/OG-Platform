@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Compute the convexity adjustment between two times for year on year coupons and for zero coupons (this adjustment is also used for the computation of the forward in optional inflation instruments) 
  */
-public class InflationMarketModelConvexityAdjustementForCapFloor {
+public class InflationMarketModelConvexityAdjustmentForCapFloor {
   /**
    * Computes the convexity adjustment for year on year inflation swap with a monthly index.
    * @param coupon The year on year coupon.

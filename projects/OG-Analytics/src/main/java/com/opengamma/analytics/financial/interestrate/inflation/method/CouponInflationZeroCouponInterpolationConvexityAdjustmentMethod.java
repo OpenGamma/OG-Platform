@@ -28,7 +28,7 @@ public class CouponInflationZeroCouponInterpolationConvexityAdjustmentMethod {
   /**
    * The convexity adjustment function used in the pricing.
    */
-  private static final InflationMarketModelConvexityAdjustementForCoupon CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustementForCoupon();
+  private static final InflationMarketModelConvexityAdjustmentForCoupon CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustmentForCoupon();
 
   /**
    * Computes the estimated index with the weight and the two reference end dates.

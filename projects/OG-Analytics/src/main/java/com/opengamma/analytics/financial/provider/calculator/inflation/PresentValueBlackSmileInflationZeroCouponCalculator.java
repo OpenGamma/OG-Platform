@@ -16,19 +16,19 @@ import com.opengamma.analytics.financial.provider.description.inflation.BlackSmi
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculator of the present value as a multiple currency amount.
+ * Calculator of the present value as a multiple currency amount for inflation zero coupon cap floor without convexity adjustment.
  */
-public final class PresentValueBlackInflationCalculator extends InstrumentDerivativeVisitorDelegate<BlackSmileCapInflationZeroCouponProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueBlackSmileInflationZeroCouponCalculator extends InstrumentDerivativeVisitorDelegate<BlackSmileCapInflationZeroCouponProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueBlackInflationCalculator INSTANCE = new PresentValueBlackInflationCalculator();
+  private static final PresentValueBlackSmileInflationZeroCouponCalculator INSTANCE = new PresentValueBlackSmileInflationZeroCouponCalculator();
 
   /**
    * Constructor.
    */
-  private PresentValueBlackInflationCalculator() {
+  private PresentValueBlackSmileInflationZeroCouponCalculator() {
     super(new BlackSmileCapInflationZeroCouponProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
   }
 
@@ -36,7 +36,7 @@ public final class PresentValueBlackInflationCalculator extends InstrumentDeriva
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueBlackInflationCalculator getInstance() {
+  public static PresentValueBlackSmileInflationZeroCouponCalculator getInstance() {
     return INSTANCE;
   }
 
@@ -47,7 +47,7 @@ public final class PresentValueBlackInflationCalculator extends InstrumentDeriva
   private static final CapFloorInflationZeroCouponInterpolationBlackSmileMethod METHOD_CAPFLOOR_INTERPOLATION = CapFloorInflationZeroCouponInterpolationBlackSmileMethod.getInstance();
   private static final CapFloorInflationZeroCouponMonthlyBlackSmileMethod METHOD_CAPFLOOR_YEAR_ON_YEAR_MONTHLY = CapFloorInflationZeroCouponMonthlyBlackSmileMethod.getInstance();
 
-  //-----     Caplet/Floorlet Year on Year     -----
+  //-----     Cap/Floor Zero Coupon     -----
 
   @Override
   public MultipleCurrencyAmount visitCapFloorInflationZeroCouponInterpolation(final CapFloorInflationZeroCouponInterpolation cap, final BlackSmileCapInflationZeroCouponProviderInterface black) {

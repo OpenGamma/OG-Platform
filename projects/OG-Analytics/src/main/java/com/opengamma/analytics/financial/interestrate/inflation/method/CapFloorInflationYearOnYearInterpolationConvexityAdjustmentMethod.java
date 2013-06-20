@@ -56,7 +56,7 @@ public final class CapFloorInflationYearOnYearInterpolationConvexityAdjustmentMe
   /**
    * The convexity adjustment function used in the pricing.
    */
-  private static final InflationMarketModelConvexityAdjustementForCapFloor CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustementForCapFloor();
+  private static final InflationMarketModelConvexityAdjustmentForCapFloor CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustmentForCapFloor();
 
   /**
    * Computes the net amount.

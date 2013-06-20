@@ -24,8 +24,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -58,7 +58,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *  Build of inflation curve in several blocks with relevant Jacobian matrice.
  */
 public class InflationBuildingCurveSimpleTestEUR {
 

@@ -28,7 +28,7 @@ public class CouponInflationYearOnYearInterpolationConvexityAdjustmentMethod {
   /**
    * The convexity adjustment function used in the pricing.
    */
-  private static final InflationMarketModelConvexityAdjustementForCoupon CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustementForCoupon();
+  private static final InflationMarketModelConvexityAdjustmentForCoupon CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustmentForCoupon();
 
   /**
    * Computes the net amount of the Year on Year coupon with reference index at start of the month.

@@ -51,7 +51,7 @@ public final class CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod {
   /**
    * The convexity adjustment function used in the pricing.
    */
-  private static final InflationMarketModelConvexityAdjustementForCapFloor CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustementForCapFloor();
+  private static final InflationMarketModelConvexityAdjustmentForCapFloor CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustmentForCapFloor();
 
   /**
    * The Black function used in the pricing.
