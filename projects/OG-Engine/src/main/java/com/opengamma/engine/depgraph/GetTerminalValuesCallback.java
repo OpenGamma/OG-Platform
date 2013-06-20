@@ -126,10 +126,10 @@ import com.opengamma.util.tuple.Pair;
   private final AtomicReference<Thread> _singleton = new AtomicReference<Thread>();
 
   /**
-   * Optional visitor to process failures from the graph build. This can be specified to provide additional error reporting to the user.
+   * Optional listener to process failures.
    */
-  private ResolutionFailureVisitor<?> _failureVisitor;
-
+  private ResolutionFailureListener _failureListener;
+  
   /**
    * Optional logic to collapse nodes on mutually compatible targets into a single node.
    */
@@ -155,17 +155,17 @@ import com.opengamma.util.tuple.Pair;
    */
   private final ConcurrentMap<Object, ConcurrentMap<String, Pair<?, ?>>> _targetDigestInfo = new ConcurrentHashMap<Object, ConcurrentMap<String, Pair<?, ?>>>();
 
-  public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor) {
-    _failureVisitor = failureVisitor;
+  public GetTerminalValuesCallback(final ResolutionFailureListener failureListener) {
+    _failureListener = failureListener;
     final ReadWriteLock rwl = new ReentrantReadWriteLock();
     _readLock = rwl.readLock();
     _writeLock = rwl.writeLock();
   }
 
-  public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
-    _failureVisitor = failureVisitor;
+  public void setFailureListener(ResolutionFailureListener failureListener) {
+    _failureListener = failureListener;
   }
-
+  
   public void setComputationTargetCollapser(final ComputationTargetCollapser collapser) {
     _computationTargetCollapser = collapser;
   }
@@ -293,8 +293,8 @@ import com.opengamma.util.tuple.Pair;
     s_logger.info("Couldn't resolve {}", value);
     if (failure != null) {
       final ResolutionFailure failureImpl = failure.checkFailure(value);
-      if (_failureVisitor != null) {
-        failureImpl.accept(_failureVisitor);
+      if (_failureListener != null) {
+        _failureListener.notifyFailure(failureImpl);
       }
       context.exception(new UnsatisfiableDependencyGraphException(failureImpl));
     } else {
