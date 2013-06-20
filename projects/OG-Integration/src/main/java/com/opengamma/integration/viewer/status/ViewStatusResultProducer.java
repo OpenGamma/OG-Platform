@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.integration.viewer.status.ViewStatusReporterOption.ResultFormat;
+import com.opengamma.integration.viewer.status.ViewStatusOption.ResultFormat;
 import com.opengamma.util.ArgumentChecker;
 
 import freemarker.template.Configuration;

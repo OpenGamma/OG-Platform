@@ -19,7 +19,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.viewer.status.ViewStatusReporterOption.ResultFormat;
+import com.opengamma.integration.viewer.status.ViewStatusOption.ResultFormat;
 import com.opengamma.integration.viewer.status.impl.BloombergReferencePortfolioMaker;
 import com.opengamma.integration.viewer.status.impl.ViewStatusCalculationWorker;
 import com.opengamma.livedata.UserPrincipal;
@@ -47,7 +47,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
 
   @Override
   protected void doRun() throws Exception {
-    ViewStatusReporterOption option = ViewStatusReporterOption.getViewStatusReporterOption(getCommandLine());
+    ViewStatusOption option = ViewStatusOption.getViewStatusReporterOption(getCommandLine());
     
     String portfolioName = option.getPortfolioName();
     UniqueId portfolioId = null;
@@ -102,7 +102,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
   protected Options createOptions(boolean contextProvided) {
     final Options toolOptions = super.createOptions(contextProvided);
     
-    Options viewStatusOptions = ViewStatusReporterOption.createOptions();
+    Options viewStatusOptions = ViewStatusOption.createOptions();
     for (Option option : (Collection<Option>) viewStatusOptions.getOptions()) {
       s_logger.debug("adding {} to tool options", option);
       toolOptions.addOption(option);

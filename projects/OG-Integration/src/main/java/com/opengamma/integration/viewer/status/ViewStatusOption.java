@@ -23,9 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EnumUtils;
 
 /**
- * View status reporter options
+ * View status command line options
  */
-public final class ViewStatusReporterOption {
+public final class ViewStatusOption {
   
   private static final String DEFAULT_FORMAT = "html";
   
@@ -73,7 +73,7 @@ public final class ViewStatusReporterOption {
   
   private final File _outputFile;
     
-  private ViewStatusReporterOption(final String portfolioName, final String formatOption, final UserPrincipal user, 
+  private ViewStatusOption(final String portfolioName, final String formatOption, final UserPrincipal user, 
       final AggregateType aggregateType, final File outputFile) {
     
     ArgumentChecker.notNull(portfolioName, "portfolioName");
@@ -141,7 +141,7 @@ public final class ViewStatusReporterOption {
    * @param commandLine the command line, not-null
    * @return the view status option, not-null
    */
-  public static ViewStatusReporterOption getViewStatusReporterOption(final CommandLine commandLine) {
+  public static ViewStatusOption getViewStatusReporterOption(final CommandLine commandLine) {
     ArgumentChecker.notNull(commandLine, "commandLine");
     
     String portfolioName = trimToNull(commandLine.getOptionValue(PORTFOLIO_NAME_OPT));
@@ -175,7 +175,7 @@ public final class ViewStatusReporterOption {
     } else {
       outputFile = new File(DEFAULT_OUTPUT_NAME + "." + ResultFormat.of(format).getExtension());
     }
-    return new ViewStatusReporterOption(portfolioName, format, user, aggregateType, outputFile);
+    return new ViewStatusOption(portfolioName, format, user, aggregateType, outputFile);
   }
 
   /**
