@@ -352,11 +352,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       return false;
     }
 
-    if (_executionOptions.getMarketDataSelector().hasSelectionsDefined()) {
-
-      for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
-        provideFunctionParameters(calcConfigurationName);
-      }
+    for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      provideFunctionParameters(calcConfigurationName);
     }
 
     if (previousCycle != null) {
@@ -368,46 +365,51 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void provideFunctionParameters(String calcConfigurationName) {
 
-    s_logger.info("Building function parameters for market data manipulation in calculation configuration {}", calcConfigurationName);
     CompiledViewCalculationConfiguration calculationConfiguration =
         _compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigurationName);
-
-    DependencyGraph graph = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigurationName).getWholeGraph();
 
     Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections =
         calculationConfiguration.getMarketDataSelections();
 
-    // Get function params configured through the view definition
-    Map<DistinctMarketDataSelector, FunctionParameters> functionParameters =
-        calculationConfiguration.getMarketDataSelectionFunctionParameters();
-    s_logger.info("Added in function parameters from view definition - now have {} entries", functionParameters.size());
+    if (!marketDataSelections.isEmpty()) {
 
-    // Add the function params passed through the execution options which will
-    // potentially override the same functions from the view definition
-    // A future enhancement could look at merging/composing the functions if desired
-    functionParameters.putAll(_executionOptions.getFunctionParameters());
-    s_logger.info("Added in function parameters from execution options - now have {} entries",
-                  functionParameters.size());
+      s_logger.info("Building function parameters for market data manipulation in graph [{}]", calcConfigurationName);
+      DependencyGraph graph = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigurationName).getWholeGraph();
 
-    int nodeCount = 0;
+      // Get function params configured through the view definition
+      Map<DistinctMarketDataSelector, FunctionParameters> functionParameters =
+          calculationConfiguration.getMarketDataSelectionFunctionParameters();
+      s_logger.info("Added in function parameters from view definition - now have {} entries", functionParameters.size());
 
-    for (Map.Entry<DistinctMarketDataSelector, Set<ValueSpecification>> entry : marketDataSelections.entrySet()) {
+      // Add the function params passed through the execution options which will
+      // potentially override the same functions from the view definition
+      // A future enhancement could look at merging/composing the functions if desired
+      functionParameters.putAll(_executionOptions.getFunctionParameters());
+      s_logger.info("Added in function parameters from execution options - now have {} entries",
+                    functionParameters.size());
 
-      DistinctMarketDataSelector selector = entry.getKey();
-      Set<ValueSpecification> matchingSpecifications = entry.getValue();
+      int nodeCount = 0;
 
-      for (ValueSpecification valueSpecification : matchingSpecifications) {
+      for (Map.Entry<DistinctMarketDataSelector, Set<ValueSpecification>> entry : marketDataSelections.entrySet()) {
 
-        FunctionParameters parameters = functionParameters.containsKey(selector) ?
-            functionParameters.get(selector) : new EmptyFunctionParameters();
+        DistinctMarketDataSelector selector = entry.getKey();
+        Set<ValueSpecification> matchingSpecifications = entry.getValue();
 
-        DependencyNode node = graph.getNodeProducing(valueSpecification);
-        node.setFunction(new ParameterizedFunction(node.getFunction().getFunction(), parameters));
-        nodeCount++;
+        for (ValueSpecification valueSpecification : matchingSpecifications) {
+
+          FunctionParameters parameters = functionParameters.containsKey(selector) ?
+              functionParameters.get(selector) : new EmptyFunctionParameters();
+
+          DependencyNode node = graph.getNodeProducing(valueSpecification);
+          node.setFunction(new ParameterizedFunction(node.getFunction().getFunction(), parameters));
+          nodeCount++;
+        }
       }
-    }
+      s_logger.info("Inserted manipulation functions and parameters into {} nodes", nodeCount);
 
-    s_logger.info("Inserted manipulation functions and parameters into {} nodes", nodeCount);
+    } else {
+      s_logger.info("No market data selections defined in graph [{}]", calcConfigurationName);
+    }
   }
 
   /**
