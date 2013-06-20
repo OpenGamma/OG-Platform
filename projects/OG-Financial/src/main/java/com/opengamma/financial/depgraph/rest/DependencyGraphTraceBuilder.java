@@ -12,14 +12,10 @@ import java.util.List;
 
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.ResolutionFailure;
 import com.opengamma.engine.depgraph.ResolutionFailureAccumulator;
-import com.opengamma.engine.depgraph.ResolutionFailureGatherer;
-import com.opengamma.engine.depgraph.SimpleResolutionFailureVisitor;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
