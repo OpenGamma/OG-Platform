@@ -33,12 +33,17 @@ public class NonVersionedRedisPositionSourceComponentFactory extends AbstractNon
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getRedisConnector().getJedisPool(), getRedisPrefix());
     
-    ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
-    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
-    repo.registerComponent(info, source);
+    ComponentInfo positionSourceInfo = new ComponentInfo(PositionSource.class, getClassifier());
+    positionSourceInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    positionSourceInfo.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
+    repo.registerComponent(positionSourceInfo, source);
+
+    ComponentInfo redisSourceInfo = new ComponentInfo(NonVersionedRedisPositionSource.class, getClassifier());
+    redisSourceInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    repo.registerComponent(redisSourceInfo, source);
+    
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataPositionSourceResource(source));
+      repo.getRestComponents().publish(positionSourceInfo, new DataPositionSourceResource(source));
     }
   }
 
