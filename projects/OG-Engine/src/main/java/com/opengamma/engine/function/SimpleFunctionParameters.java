@@ -78,4 +78,10 @@ public class SimpleFunctionParameters implements FunctionParameters {
     return parameters;
   }
 
+  @Override
+  public String toString() {
+    return "SimpleFunctionParameters [" +
+        "_parameters=" + _parameters +
+        "]";
+  }
 }

@@ -70,4 +70,11 @@ public class CompositeStructureManipulator<T> implements StructureManipulator<T>
     }
     return new CompositeStructureManipulator<>(expectedType, manipulators);
   }
+
+  @Override
+  public String toString() {
+    return "CompositeStructureManipulator [" +
+        "_manipulators=" + _manipulators +
+        "]";
+  }
 }

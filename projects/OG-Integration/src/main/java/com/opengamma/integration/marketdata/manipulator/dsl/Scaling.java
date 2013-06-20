@@ -52,4 +52,11 @@ public class Scaling implements StructureManipulator<Double> {
     Double scalingFactor = deserializer.fieldValueToObject(Double.class, msg.getByName(SCALING_FACTOR));
     return new Scaling(scalingFactor);
   }
+
+  @Override
+  public String toString() {
+    return "Scaling [" +
+        "_scalingFactor=" + _scalingFactor +
+        "]";
+  }
 }
