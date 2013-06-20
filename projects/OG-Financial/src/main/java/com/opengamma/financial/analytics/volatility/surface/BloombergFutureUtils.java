@@ -22,7 +22,6 @@ import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.util.OpenGammaClock;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Utility methods for building Bloomberg Tickers on IR Futures and IR Future Options (Refer to Bloomberg page: WIR)
@@ -80,15 +79,15 @@ public class BloombergFutureUtils {
     MONTH_CODE.put(Month.NOVEMBER, 'X');
     MONTH_CODE.put(Month.DECEMBER, 'Z');
   }
-
+  /** The logger */
   private static final Logger LOG = LoggerFactory.getLogger(BloombergFutureUtils.class);
 
   /**
-   * Produces the month-year string required to build ExternalId for Bloomberg ticker of IRFutureSecurity
+   * Produces the month-year string required to build the Bloomberg ticker for a <b>quarterly</b> future.
    * @param futurePrefix 2 character String of Future (eg ED, ER, IR)
    * @param nthFuture The n'th future following valuation date
    * @param curveDate Date curve is valid; valuation date
-   * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
+   * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuation date 2012/04/10
    */
   public static final String getQuarterlyExpiryCodeForFutures(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
     //Year convention for historical data is specific to the futurePrefix
@@ -100,6 +99,25 @@ public class BloombergFutureUtils {
       twoDigitYearSwitch = today.minus(Period.ofMonths(11)).minus(Period.ofDays(2));
     }
     return getQuarterlyExpiryMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
+  }
+
+  /**
+   * Produces the month-year string required to build the Bloomberg ticker for a <b>monthly</b> future.
+   * @param futurePrefix 2 character String of Future (eg ED, ER, IR)
+   * @param nthFuture The n'th future following valuation date
+   * @param curveDate Date curve is valid; valuation date
+   * @return e.g. J10 (for April 2010) or Z3 (for December 2013), both valid as of valuation date 2012/04/10
+   */
+  public static final String getMonthlyExpiryCodeForFutures(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
+    //Year convention for historical data is specific to the futurePrefix
+    final LocalDate twoDigitYearSwitch;
+    final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
+    if (futurePrefix.equals("ED")) {
+      twoDigitYearSwitch = today.minus(Period.ofDays(2));
+    } else {
+      twoDigitYearSwitch = today.minus(Period.ofMonths(11)).minus(Period.ofDays(2));
+    }
+    return getMonthlyExpiryMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
   }
 
   /**

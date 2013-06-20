@@ -10,11 +10,13 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -47,14 +49,20 @@ public class SimpleViewStatusModelTest {
   private static final String EUR = Currency.EUR.getCode();
   private static final String POSITION_TARGET = ComputationTargetType.POSITION.getName();
   
-  private static final String[][] HEADERS = { {SEC_TYPE, VALUE_NAME, CURRENCY, EMPTY_STR},
-      {EMPTY_STR, EMPTY_STR, Currency.USD.getCode(), Currency.GBP.getCode()} };
+  private static final List<List<String>> HEADERS = Lists.newArrayListWithCapacity(2);
+  static {
+    HEADERS.add(Lists.newArrayList(SEC_TYPE, VALUE_NAME, CURRENCY, EMPTY_STR));
+    HEADERS.add(Lists.newArrayList(EMPTY_STR, EMPTY_STR, USD, GBP));
+  }
 
-  private static final Object[][] ROWS = { {SWAP, PV, TRUE_STR, TRUE_STR},
-      {EMPTY_STR, YIELD_CURVE, FALSE_STR, TRUE_STR},
-      {EMPTY_STR, VALUERHO, TRUE_STR, TRUE_STR},
-      {SWAPTION, CREDIT_SPREAD_CURVE, TRUE_STR, FALSE_STR},
-      {EMPTY_STR, HAZARD_RATE_CURVE, FALSE_STR, FALSE_STR} };
+  private static final List<List<Object>> ROWS = Lists.newArrayListWithCapacity(5);
+  static {
+    ROWS.add(makeRowList(SWAP, PV, TRUE_STR, TRUE_STR));
+    ROWS.add(makeRowList(EMPTY_STR, YIELD_CURVE, FALSE_STR, TRUE_STR));
+    ROWS.add(makeRowList(EMPTY_STR, VALUERHO, TRUE_STR, TRUE_STR));
+    ROWS.add(makeRowList(SWAPTION, CREDIT_SPREAD_CURVE, TRUE_STR, FALSE_STR));
+    ROWS.add(makeRowList(EMPTY_STR, HAZARD_RATE_CURVE, FALSE_STR, FALSE_STR));
+  }
   
   private static final Map<ViewStatusKey, Boolean> RESULT = Maps.newHashMap(); 
   static {
@@ -84,6 +92,14 @@ public class SimpleViewStatusModelTest {
     assertEquals(Currency.GBP.getCode(), _viewStatusModel.getColumnNameAt(1, 3));
   }
   
+  private static List<Object> makeRowList(String... colums) {
+    List<Object> row = Lists.newArrayListWithCapacity(4);
+    for (Object column : colums) {
+      row.add(column);
+    }
+    return row;
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getColumnNameAtWithNegativeRowIndex() {
     _viewStatusModel.getColumnNameAt(-1, 0);

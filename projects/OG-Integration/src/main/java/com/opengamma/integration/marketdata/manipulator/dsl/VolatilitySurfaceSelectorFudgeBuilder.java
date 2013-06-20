@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -56,8 +55,13 @@ public class VolatilitySurfaceSelectorFudgeBuilder implements FudgeBuilder<Volat
     Set<String> instrumentTypes = buildStringSet(deserializer, msg.getMessage(INSTRUMENT_TYPES));
     Set<String> quoteTypes = buildStringSet(deserializer, msg.getMessage(QUOTE_TYPES));
     Set<String> quoteUnits = buildStringSet(deserializer, msg.getMessage(QUOTE_UNITS));
-    String nameRegex = deserializer.fieldValueToObject(String.class, msg.getByName(NAME_REGEX));
-    Pattern namePattern = Pattern.compile(nameRegex);
+    Pattern namePattern;
+    if (msg.hasField(NAME_REGEX)) {
+      String nameRegex = deserializer.fieldValueToObject(String.class, msg.getByName(NAME_REGEX));
+      namePattern = Pattern.compile(nameRegex);
+    } else {
+      namePattern = null;
+    }
     return new VolatilitySurfaceSelector(calcConfigNames, names, namePattern, instrumentTypes, quoteTypes, quoteUnits);
   }
 
@@ -74,7 +78,7 @@ public class VolatilitySurfaceSelectorFudgeBuilder implements FudgeBuilder<Volat
 
   private Set<String> buildStringSet(FudgeDeserializer deserializer, FudgeMsg msg) {
     if (msg == null) {
-      return Collections.emptySet();
+      return null;
     }
     Set<String> strs = Sets.newHashSet();
     for (FudgeField field : msg) {

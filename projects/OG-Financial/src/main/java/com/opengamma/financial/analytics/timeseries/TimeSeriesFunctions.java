@@ -28,6 +28,8 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(CreditSpreadCurveHistoricalTimeSeriesFunction.class));
+    functions.add(functionConfiguration(CurveConfigurationHistoricalTimeSeriesFunction.class));
+    functions.add(functionConfiguration(CurveHistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
     functions.add(functionConfiguration(FXForwardCurveHistoricalTimeSeriesFunction.class));
     functions.add(functionConfiguration(FXForwardCurveNodeReturnSeriesFunction.class));

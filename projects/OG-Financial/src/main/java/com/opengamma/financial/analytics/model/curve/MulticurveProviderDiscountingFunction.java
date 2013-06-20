@@ -58,6 +58,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -70,6 +71,7 @@ import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -190,6 +192,10 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
           requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
         }
+        final ValueProperties properties = ValueProperties.builder()
+            .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
+            .get();
+        requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
         return requirements;
       }
 
@@ -219,6 +225,12 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       @SuppressWarnings("synthetic-access")
       private Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
           final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder) {
+        final ValueProperties curveConstructionProperties = ValueProperties.builder()
+            .with(CURVE_CONSTRUCTION_CONFIG, constructionConfiguration.getName())
+            .get();
+        final HistoricalTimeSeriesBundle timeSeries =
+            (HistoricalTimeSeriesBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES,
+                ComputationTargetSpecification.NULL, curveConstructionProperties));
         final int nGroups = constructionConfiguration.getCurveGroups().size();
         final InstrumentDerivative[][][] definitions = new InstrumentDerivative[nGroups][][];
         final GeneratorYDCurve[][] curveGenerators = new GeneratorYDCurve[nGroups][];
@@ -241,21 +253,12 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           for (final CurveTypeConfiguration type : group.getCurveTypes()) {
             final String curveName = type.getName();
             final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();
-            final Object snapshotObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
-            if (snapshotObject == null) {
-              throw new OpenGammaRuntimeException("Could not get market data for " + curveName);
-            }
-            final Object specificationObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
-            if (specificationObject == null) {
-              throw new OpenGammaRuntimeException("Could not get curve specification for " + curveName);
-            }
-            final Object definitionObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
-            if (definitionObject == null) {
-              throw new OpenGammaRuntimeException("Could not get curve definition for " + curveName);
-            }
-            final CurveSpecification specification = (CurveSpecification) specificationObject;
-            final CurveDefinition definition = (CurveDefinition) definitionObject;
-            final SnapshotDataBundle snapshot = (SnapshotDataBundle) snapshotObject;
+            final CurveSpecification specification =
+                (CurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
+            final CurveDefinition definition =
+                (CurveDefinition) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
+            final SnapshotDataBundle snapshot =
+                (SnapshotDataBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
             final int nNodes = specification.getNodes().size();
             final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
             final double[] marketDataForCurve = new double[nNodes];
@@ -272,7 +275,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot);
               uniqueIborIndices.addAll(definitionForNode.accept(IborIndexVisitor.getInstance()));
               uniqueOvernightIndices.addAll(definitionForNode.accept(OvernightIndexVisitor.getInstance()));
-              derivativesForCurve[k++] = definitionForNode.toDerivative(now, new String[] {"", ""});
+              derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
             }
             definitions[i][j] = derivativesForCurve;
             curveGenerators[i][j] = getGenerator(definition);

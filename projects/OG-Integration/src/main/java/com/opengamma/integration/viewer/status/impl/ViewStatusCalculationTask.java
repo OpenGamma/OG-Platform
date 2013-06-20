@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -73,7 +74,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
   private final CurrenciesAggregationFunction _currenciesAggrFunction;
   private final Map<UniqueId, String> _targetCurrenciesCache = Maps.newConcurrentMap();
   
-  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, UserPrincipal user, String securityType, Set<String> valueRequirementNames) {
+  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, UserPrincipal user, String securityType, Collection<String> valueRequirementNames) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(valueRequirementNames, "valueRequirementNames");
@@ -84,7 +85,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     _portfolioId = portfolioId;
     _user = user;
     _securityType = securityType;
-    _valueRequirementNames = valueRequirementNames;
+    _valueRequirementNames = ImmutableSet.copyOf(valueRequirementNames);
     _toolContext = toolcontext;
     _currenciesAggrFunction = new CurrenciesAggregationFunction(_toolContext.getSecuritySource());
   }

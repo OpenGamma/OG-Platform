@@ -15,15 +15,20 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFutureUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Provides market data ids for quarterly or monthly futures.
  */
 public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentProvider {
-
+  /** The external scheme for the tickers */
+  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
+  /** Bloomberg month codes for futures */
   private static BiMap<Month, Character> s_monthCode;
+  /** The future prefix */
   private final String _futurePrefix;
+  /** The market sector postfix */
   private final String _marketSector;
 
   static {
@@ -42,7 +47,13 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     s_monthCode.put(Month.DECEMBER, 'Z');
   }
 
+  /**
+   * @param futurePrefix The future prefix, not null
+   * @param marketSector The market sector postfix, not null
+   */
   public BloombergFutureCurveInstrumentProvider(final String futurePrefix, final String marketSector) {
+    ArgumentChecker.notNull(futurePrefix, "future prefix");
+    ArgumentChecker.notNull(marketSector, "market sector");
     _futurePrefix = futurePrefix;
     _marketSector = marketSector;
   }
@@ -63,6 +74,17 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFuturesFromTenor) {
+    //TODO there must be a more elegant way to do this
+    if (futureTenor.equals(Tenor.THREE_MONTHS)) {
+      return createQuarterlyIRFutureStrips(curveDate, startTenor, numFuturesFromTenor, _futurePrefix, " " + _marketSector);
+    } else if (futureTenor.equals(Tenor.ONE_MONTH)) {
+      return createMonthlyIRFutureStrips(curveDate, startTenor, numFuturesFromTenor, _futurePrefix, " " + _marketSector);
+    }
+    throw new OpenGammaRuntimeException("Can only create ids for quarterly or monthly tenors");
+  }
+
+  @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor payTenor, final Tenor receiveTenor, final IndexType payIndexType,
       final IndexType receiveIndexType) {
     throw new OpenGammaRuntimeException("Only futures supported");
@@ -72,8 +94,6 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor resetTenor, final IndexType indexType) {
     throw new OpenGammaRuntimeException("Only futures supported");
   }
-
-  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
 
   private ExternalId createQuarterlyIRFutureStrips(final LocalDate curveDate, final Tenor tenor, final int numQuartlyFuturesFromTenor, final String prefix, final String postfix) {
     final StringBuilder futureCode = new StringBuilder();
@@ -85,12 +105,28 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     return ExternalId.of(SCHEME, futureCode.toString());
   }
 
-  // for serialisation only
+  private ExternalId createMonthlyIRFutureStrips(final LocalDate curveDate, final Tenor tenor, final int numMonthlyFuturesFromTenor, final String prefix, final String postfix) {
+    final StringBuilder futureCode = new StringBuilder();
+    futureCode.append(prefix);
+    final LocalDate curveFutureStartDate = curveDate.plus(tenor.getPeriod());
+    final String expiryCode = BloombergFutureUtils.getMonthlyExpiryCodeForFutures(prefix, numMonthlyFuturesFromTenor, curveFutureStartDate);
+    futureCode.append(expiryCode);
+    futureCode.append(postfix);
+    return ExternalId.of(SCHEME, futureCode.toString());
+  }
+
+  /**
+   * Gets the future prefix.
+   * @return The future prefix
+   */
   public String getFuturePrefix() {
     return _futurePrefix;
   }
 
-  // for serialisation only
+  /**
+   * Gets the market sector postfix.
+   * @return The market sector postfix
+   */
   public String getMarketSector() {
     return _marketSector;
   }

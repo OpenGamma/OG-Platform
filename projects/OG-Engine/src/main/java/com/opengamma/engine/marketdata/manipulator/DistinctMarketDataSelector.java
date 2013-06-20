@@ -6,7 +6,8 @@
 package com.opengamma.engine.marketdata.manipulator;
 
 /**
- * Marker interface which denotes a market data selector which not a composite.
+ * Marker interface which denotes a market data selector which is not a composite
+ * of other selectors.
  */
 public interface DistinctMarketDataSelector extends MarketDataSelector {
 

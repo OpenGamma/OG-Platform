@@ -5,6 +5,10 @@
  */
 package com.opengamma.integration.viewer.status;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -39,9 +43,21 @@ public final class ViewStatusReporterOption {
    */
   private static final String USER_IP_ADDRESS_OPT = "ip";
   /**
-   * Result format type
+   * Result format type flag
    */
   private static final String FORMAT_TYPE_OPT = "fm";
+  /**
+   * Aggregation type flag
+   */
+  private static final String AGGREGATION_TYPE_OPT = "a";
+  /**
+   * Output filename flag
+   */
+  private static final String OUTPUT_OPT = "o";
+  /**
+   * Default output name
+   */
+  private static final String DEFAULT_OUTPUT_NAME = "view-status";
   /**
    * Default user
    */
@@ -49,24 +65,43 @@ public final class ViewStatusReporterOption {
   
   private final String _portfolioName;
   
-  private final String _format;
+  private final ResultFormat _format;
   
   private final UserPrincipal _user;
+  
+  private final AggregateType _aggregateType;
+  
+  private final File _outputFile;
     
-  private ViewStatusReporterOption(final String portfolioName, String format, UserPrincipal user) {
+  private ViewStatusReporterOption(final String portfolioName, final String formatOption, final UserPrincipal user, 
+      final AggregateType aggregateType, final File outputFile) {
+    
     ArgumentChecker.notNull(portfolioName, "portfolioName");
     ArgumentChecker.notNull(user, "user");
-    ArgumentChecker.notNull(format, "format");
+    ArgumentChecker.notNull(formatOption, "formatOption");
+    ArgumentChecker.notNull(aggregateType, "aggregateType");
+    ArgumentChecker.notNull(outputFile, "outputFile");
     
     _portfolioName = portfolioName;
-    format = format.toLowerCase();
-    if (!SUPPORTED_FORMAT.contains(format)) {
-      throw new OpenGammaRuntimeException("Unsupported format type: " + format);
-    }
-    _format = format;
+    validateFormat(formatOption);
+    _format = ResultFormat.of(formatOption);
     _user = user;
+    _aggregateType = aggregateType;
+    _outputFile = outputFile;
+  }
+
+  private void validateFormat(String formatOption) {
+    formatOption = formatOption.toLowerCase();
+    if (!SUPPORTED_FORMAT.contains(formatOption)) {
+      throw new OpenGammaRuntimeException("Unsupported format type: " + formatOption);
+    }
   }
   
+  /**
+   * Creates command line options
+   * 
+   * @return the command line options, not-null.
+   */
   public static Options createOptions() {
     
     Options options = new Options();
@@ -84,24 +119,38 @@ public final class ViewStatusReporterOption {
     Option formatTypeOption = new Option(FORMAT_TYPE_OPT, "format", true, "the format of status result, default is html");
     formatTypeOption.setArgName("csv, xml, html");
     
+    Option aggregationTypeOption = new Option(AGGREGATION_TYPE_OPT, "aggregate", true, "the aggregation type of result, default is no-aggregation");
+    aggregationTypeOption.setArgName("TSVC, CSVT");
+    
+    Option outputOption = new Option(OUTPUT_OPT, "output", true, "the output filename");
+    outputOption.setArgName("filePath");
+    
     options.addOption(portfolioNameOption);
     options.addOption(usernameOption);
     options.addOption(formatTypeOption);
     options.addOption(ipaddressOption);
+    options.addOption(aggregationTypeOption);
+    options.addOption(outputOption);
     
     return options;
   }
   
+  /**
+   * Creates a View status option instance from the options supplied from the command line
+   * 
+   * @param commandLine the command line, not-null
+   * @return the view status option, not-null
+   */
   public static ViewStatusReporterOption getViewStatusReporterOption(final CommandLine commandLine) {
     ArgumentChecker.notNull(commandLine, "commandLine");
     
-    String portfolioName = StringUtils.trimToNull(commandLine.getOptionValue(PORTFOLIO_NAME_OPT));
-    String username = StringUtils.trimToNull(commandLine.getOptionValue(USERNAME_OPT));
+    String portfolioName = trimToNull(commandLine.getOptionValue(PORTFOLIO_NAME_OPT));
+    String username = trimToNull(commandLine.getOptionValue(USERNAME_OPT));
     UserPrincipal user = null;
     if (username == null) {
       user = DEFAULT_USER;
     } else {
-      String ipaddress = StringUtils.trimToNull(commandLine.getOptionValue(USER_IP_ADDRESS_OPT));
+      String ipaddress = trimToNull(commandLine.getOptionValue(USER_IP_ADDRESS_OPT));
       if (ipaddress == null) {
         user = DEFAULT_USER;
       } else {
@@ -109,10 +158,24 @@ public final class ViewStatusReporterOption {
       }
     }
     
-    String format = StringUtils.trimToNull(commandLine.getOptionValue(FORMAT_TYPE_OPT));
-    format = StringUtils.defaultString(format, DEFAULT_FORMAT);
+    String format = defaultString(trimToNull(commandLine.getOptionValue(FORMAT_TYPE_OPT)), DEFAULT_FORMAT);
     
-    return new ViewStatusReporterOption(portfolioName, format, user);
+    String aggregationOption = trimToNull(commandLine.getOptionValue(AGGREGATION_TYPE_OPT));
+    AggregateType aggregateType = null;
+    if (aggregationOption != null) {
+      aggregateType = AggregateType.of(aggregationOption);
+    } else {
+      aggregateType = AggregateType.NO_AGGREGATION;
+    }
+    
+    String outputOption = trimToNull(commandLine.getOptionValue(OUTPUT_OPT));
+    File outputFile = null;
+    if (outputOption != null) {
+      outputFile = new File(outputOption);
+    } else {
+      outputFile = new File(DEFAULT_OUTPUT_NAME + "." + ResultFormat.of(format).getExtension());
+    }
+    return new ViewStatusReporterOption(portfolioName, format, user, aggregateType, outputFile);
   }
 
   /**
@@ -130,16 +193,35 @@ public final class ViewStatusReporterOption {
   public UserPrincipal getUser() {
     return _user;
   }
-
+    
   /**
    * Gets the format.
    * @return the format
    */
-  public String getFormat() {
+  public ResultFormat getFormat() {
     return _format;
   }
-    
-  static enum ResultFormat {
+  
+  /**
+   * Gets the outputFile.
+   * @return the outputFile
+   */
+  public File getOutputFile() {
+    return _outputFile;
+  }
+
+  /**
+   * Gets the aggregate type.
+   * @return the aggregation type
+   */
+  public AggregateType getAggregateType() {
+    return _aggregateType;
+  }
+
+  /**
+   * View result format
+   */
+  public static enum ResultFormat {
     /**
      * CSV
      */

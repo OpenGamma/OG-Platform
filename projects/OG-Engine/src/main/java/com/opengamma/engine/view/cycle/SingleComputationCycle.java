@@ -100,8 +100,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     /**
      * Node was not executed because of function blacklist suppression.
      */
-    SUPPRESSED;
-  };
+    SUPPRESSED
+  }
 
   // Injected inputs
   private final UniqueId _cycleId;
@@ -205,7 +205,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   public Set<String> getAllCalculationConfigurationNames() {
-    return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+    return new HashSet<>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
   }
 
   //-------------------------------------------------------------------------
@@ -284,7 +284,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       return null;
     }
     final ComputationCacheResponse cacheResponse = queryComputationCaches(query);
-    final Map<ValueSpecification, ComputedValueResult> resultMap = new HashMap<ValueSpecification, ComputedValueResult>();
+    final Map<ValueSpecification, ComputedValueResult> resultMap = new HashMap<>();
     for (final Pair<ValueSpecification, Object> cacheEntry : cacheResponse.getResults()) {
       final ValueSpecification valueSpec = cacheEntry.getFirst();
       final Object cachedValue = cacheEntry.getSecond();
@@ -332,11 +332,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       return false;
     }
 
-    if (_executionOptions.getMarketDataSelector().hasSelectionsDefined()) {
-
-      for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
-        provideFunctionParameters(calcConfigurationName);
-      }
+    for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      provideFunctionParameters(calcConfigurationName);
     }
 
     if (previousCycle != null) {
@@ -348,30 +345,50 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void provideFunctionParameters(String calcConfigurationName) {
 
-    s_logger.info("Building function parameters for market data manipulation in calculation configuration {}", calcConfigurationName);
     CompiledViewCalculationConfiguration calculationConfiguration =
         _compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigurationName);
-
-    DependencyGraph graph = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigurationName).getWholeGraph();
 
     Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections =
         calculationConfiguration.getMarketDataSelections();
 
-    Map<DistinctMarketDataSelector, FunctionParameters> functionParameters = _executionOptions.getFunctionParameters();
+    if (!marketDataSelections.isEmpty()) {
 
-    for (Map.Entry<DistinctMarketDataSelector, Set<ValueSpecification>> entry : marketDataSelections.entrySet()) {
+      s_logger.info("Building function parameters for market data manipulation in graph [{}]", calcConfigurationName);
+      DependencyGraph graph = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigurationName).getWholeGraph();
 
-      DistinctMarketDataSelector selector = entry.getKey();
-      Set<ValueSpecification> matchingSpecifications = entry.getValue();
+      // Get function params configured through the view definition
+      Map<DistinctMarketDataSelector, FunctionParameters> functionParameters =
+          calculationConfiguration.getMarketDataSelectionFunctionParameters();
+      s_logger.info("Added in function parameters from view definition - now have {} entries", functionParameters.size());
 
-      for (ValueSpecification valueSpecification : matchingSpecifications) {
+      // Add the function params passed through the execution options which will
+      // potentially override the same functions from the view definition
+      // A future enhancement could look at merging/composing the functions if desired
+      functionParameters.putAll(_executionOptions.getFunctionParameters());
+      s_logger.info("Added in function parameters from execution options - now have {} entries",
+          functionParameters.size());
 
-        FunctionParameters parameters = functionParameters.containsKey(selector) ?
-            functionParameters.get(selector) : new EmptyFunctionParameters();
+      int nodeCount = 0;
 
-        DependencyNode node = graph.getNodeProducing(valueSpecification);
-        node.setFunction(new ParameterizedFunction(node.getFunction().getFunction(), parameters));
+      for (Map.Entry<DistinctMarketDataSelector, Set<ValueSpecification>> entry : marketDataSelections.entrySet()) {
+
+        DistinctMarketDataSelector selector = entry.getKey();
+        Set<ValueSpecification> matchingSpecifications = entry.getValue();
+
+        for (ValueSpecification valueSpecification : matchingSpecifications) {
+
+          FunctionParameters parameters = functionParameters.containsKey(selector) ?
+              functionParameters.get(selector) : new EmptyFunctionParameters();
+
+          DependencyNode node = graph.getNodeProducing(valueSpecification);
+          node.setFunction(new ParameterizedFunction(node.getFunction().getFunction(), parameters));
+          nodeCount++;
+        }
       }
+      s_logger.info("Inserted manipulation functions and parameters into {} nodes", nodeCount);
+
+    } else {
+      s_logger.info("No market data selections defined in graph [{}]", calcConfigurationName);
     }
   }
 
@@ -482,7 +499,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final ViewComputationCache cache = getComputationCache(calcConfig.getName());
       final Collection<ValueSpecification> marketDataRequirements = calcConfig.getMarketDataRequirements();
       final Set<ValueSpecification> terminalOutputs = calcConfig.getTerminalOutputSpecifications().keySet();
-      final Collection<ComputedValueResult> valuesToLoad = new ArrayList<ComputedValueResult>(marketDataRequirements.size());
+      final Collection<ComputedValueResult> valuesToLoad = new ArrayList<>(marketDataRequirements.size());
       for (ValueSpecification marketDataSpec : marketDataRequirements) {
         Object marketDataValue = marketDataValues.get(marketDataSpec);
         ComputedValueResult computedValueResult;
@@ -562,9 +579,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
       deltaCalculator.computeDelta();
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[] {depGraph.getCalculationConfigurationName(), deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
-      final Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
-      final Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
+          depGraph.getCalculationConfigurationName(),
+          deltaCalculator.getChangedNodes().size(),
+          depGraph.getSize());
+      final Collection<ValueSpecification> specsToCopy = new LinkedList<>();
+      final Collection<ComputedValue> errors = new LinkedList<>();
       for (final DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         if (isMarketDataNode(unchangedNode)) {
           // Market data is already in the cache, so don't need to copy it across again
@@ -594,7 +613,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         reusableResultsQuery.setValueSpecifications(specsToCopy);
         final ComputationResultsResponse reusableResultsQueryResponse = previousCycle.queryResults(reusableResultsQuery);
         final Map<ValueSpecification, ComputedValueResult> resultsToReuse = reusableResultsQueryResponse.getResults();
-        final Collection<ComputedValue> newValues = new ArrayList<ComputedValue>(resultsToReuse.size());
+        final Collection<ComputedValue> newValues = new ArrayList<>(resultsToReuse.size());
         for (final ComputedValueResult computedValueResult : resultsToReuse.values()) {
           final ValueSpecification valueSpec = computedValueResult.getSpecification();
           if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
@@ -678,7 +697,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           if (outputs.size() == 1) {
             cache.putSharedValue(new ComputedValue(outputs.iterator().next(), MissingOutput.SUPPRESSED));
           } else {
-            final Collection<ComputedValue> errors = new ArrayList<ComputedValue>(outputs.size());
+            final Collection<ComputedValue> errors = new ArrayList<>(outputs.size());
             for (final ValueSpecification output : outputs) {
               errors.add(new ComputedValue(output, MissingOutput.SUPPRESSED));
             }
@@ -709,7 +728,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
       final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
 
-      final TreeMap<String, Object> key2Value = new TreeMap<String, Object>();
+      final TreeMap<String, Object> key2Value = new TreeMap<>();
       for (final ValueSpecification outputSpec : depGraph.getOutputSpecifications()) {
         final Object value = computationCache.getValue(outputSpec);
         key2Value.put(outputSpec.toString(), value);

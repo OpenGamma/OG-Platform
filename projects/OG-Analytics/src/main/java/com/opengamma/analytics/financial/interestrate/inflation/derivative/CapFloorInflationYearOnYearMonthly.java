@@ -67,7 +67,9 @@ public class CapFloorInflationYearOnYearMonthly extends CouponInflation implemen
    * @param priceIndex The price index associated to the coupon.
    * @param lastKnownFixingTime  The fixing time of the last known fixing.
    * @param referenceStartTime The index value at the start of the coupon.
+   * @param naturalPaymentStartTime The time for which the index at the coupon start is paid by the standard corresponding  zero coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
+   * @param naturalPaymentEndTime The time for which the index at the coupon end is paid by the standard corresponding  zero coupon.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
@@ -189,27 +191,37 @@ public class CapFloorInflationYearOnYearMonthly extends CouponInflation implemen
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CapFloorInflationYearOnYearMonthly other = (CapFloorInflationYearOnYearMonthly) obj;
-    if (_isCap != other._isCap)
+    if (_isCap != other._isCap) {
       return false;
-    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime))
+    }
+    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime)) {
       return false;
-    if (Double.doubleToLongBits(_naturalPaymentEndTime) != Double.doubleToLongBits(other._naturalPaymentEndTime))
+    }
+    if (Double.doubleToLongBits(_naturalPaymentEndTime) != Double.doubleToLongBits(other._naturalPaymentEndTime)) {
       return false;
-    if (Double.doubleToLongBits(_naturalPaymentStartTime) != Double.doubleToLongBits(other._naturalPaymentStartTime))
+    }
+    if (Double.doubleToLongBits(_naturalPaymentStartTime) != Double.doubleToLongBits(other._naturalPaymentStartTime)) {
       return false;
-    if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime))
+    }
+    if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime)) {
       return false;
-    if (Double.doubleToLongBits(_referenceStartTime) != Double.doubleToLongBits(other._referenceStartTime))
+    }
+    if (Double.doubleToLongBits(_referenceStartTime) != Double.doubleToLongBits(other._referenceStartTime)) {
       return false;
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
+    }
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
+    }
     return true;
   }
 

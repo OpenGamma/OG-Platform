@@ -215,7 +215,7 @@ public class CurveNodeToDefinitionConverter {
         final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
         final DayCount dayCount = indexConvention.getDayCount();
         final boolean eom = indexConvention.isIsEOM();
-        final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom);
+        final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom, indexConvention.getName());
         final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
         final ZonedDateTime startDate = now.plus(rateFuture.getStartTenor().getPeriod());
         final LocalTime time = startDate.toLocalTime();

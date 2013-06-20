@@ -152,6 +152,14 @@ public class HazardRateCurve {
     temp[0] = rates[0];
     return new HazardRateCurve(_curveTenors, _times, temp, _offset);
   }
+  
+  public HazardRateCurve withRate(final double rate, final int index) {
+    final int n = _rates.length;
+    double[] temp = new double[n];
+    System.arraycopy(_rates, 0, temp, 0, n);
+    temp[index] = rate;
+    return new HazardRateCurve(_curveTenors, _times, temp, _offset);
+  }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

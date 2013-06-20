@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import java.io.File;
 import java.io.IOException;
