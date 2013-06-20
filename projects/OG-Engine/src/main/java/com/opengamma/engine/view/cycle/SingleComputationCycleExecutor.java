@@ -262,7 +262,7 @@ import com.opengamma.util.tuple.Pair;
       final CalculationJobItem jobItem = jobItemItr.next();
       final CalculationJobResultItem jobResultItem = jobResultItr.next();
       // Mark the node that corresponds to this item
-      final DependencyNode node = graph.getNodeProducing(jobItem.getOutputs().iterator().next());
+      final DependencyNode node = graph.getNodeProducing(jobItem.getOutputs()[0]);
       if (jobResultItem.isFailed()) {
         getCycle().markFailed(node);
       } else {

@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function.blacklist;
 
-import java.util.Set;
+import java.util.Collection;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.CalculationJobItem;
@@ -29,7 +29,13 @@ public abstract class AbstractFunctionBlacklistQuery implements FunctionBlacklis
   }
 
   @Override
-  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final Set<ValueSpecification> inputs, final Set<ValueSpecification> outputs) {
+  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final ValueSpecification[] inputs, final ValueSpecification[] outputs) {
+    return isBlacklisted(function.getFunction().getFunctionDefinition().getUniqueId(), function.getParameters(), target, inputs, outputs);
+  }
+
+  @Override
+  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final Collection<ValueSpecification> inputs,
+      final Collection<ValueSpecification> outputs) {
     return isBlacklisted(function.getFunction().getFunctionDefinition().getUniqueId(), function.getParameters(), target, inputs, outputs);
   }
 

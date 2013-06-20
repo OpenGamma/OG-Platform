@@ -6,6 +6,7 @@
 package com.opengamma.engine.function.blacklist;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import com.opengamma.engine.calcnode.CalculationJobItem;
@@ -47,10 +48,10 @@ public class DefaultFunctionBlacklistMaintainer implements FunctionBlacklistMain
       rule.setTarget(item.getComputationTargetSpecification());
     }
     if (entry.isMatchInputs()) {
-      rule.setInputs(item.getInputs());
+      rule.setInputs(Arrays.asList(item.getInputs()));
     }
     if (entry.isMatchOutputs()) {
-      rule.setOutputs(item.getOutputs());
+      rule.setOutputs(Arrays.asList(item.getOutputs()));
     }
     return rule;
   }
