@@ -23,7 +23,12 @@ public class MarketDataPointScalingManipulator implements StructureManipulator<D
 
   @Override
   public Double execute(Double structure) {
-    return structure != null ? structure * _scalingFactor : null;
+    return structure * _scalingFactor;
+  }
+
+  @Override
+  public Class<Double> getExpectedType() {
+    return Double.class;
   }
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {

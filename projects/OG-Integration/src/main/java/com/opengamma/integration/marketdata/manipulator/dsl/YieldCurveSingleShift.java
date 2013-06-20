@@ -39,6 +39,11 @@ public class YieldCurveSingleShift implements StructureManipulator<YieldAndDisco
     return structure.withSingleShift(_t, _shift);
   }
 
+  @Override
+  public Class<YieldAndDiscountCurve> getExpectedType() {
+    return YieldAndDiscountCurve.class;
+  }
+
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, TIME, null, _t);

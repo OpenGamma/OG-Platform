@@ -23,11 +23,16 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CompositeStructureManipulator<T> implements StructureManipulator<T> {
 
-  private static final String MANIPULATOR = "manipulator";
-  private final List<StructureManipulator<T>> _manipulators;
+  private static final String TYPE_FIELD = "type";
+  private static final String MANIPULATOR_FIELD = "manipulator";
 
-  public CompositeStructureManipulator(List<StructureManipulator<T>> manipulators) {
+  private final List<StructureManipulator<T>> _manipulators;
+  private final Class<T> _expectedType;
+
+  public CompositeStructureManipulator(Class<T> expectedType, List<StructureManipulator<T>> manipulators) {
+    ArgumentChecker.notNull(expectedType, "expectedType");
     ArgumentChecker.notEmpty(manipulators, "manipulators");
+    _expectedType = expectedType;
     _manipulators = ImmutableList.copyOf(manipulators);
   }
 
@@ -40,21 +45,29 @@ public class CompositeStructureManipulator<T> implements StructureManipulator<T>
     return value;
   }
 
+  @Override
+  public Class<T> getExpectedType() {
+    return _expectedType;
+  }
+
   public MutableFudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(msg, TYPE_FIELD, null, _expectedType);
     for (StructureManipulator<T> manipulator : _manipulators) {
-      serializer.addToMessageWithClassHeaders(msg, MANIPULATOR, null, manipulator);
+      serializer.addToMessageWithClassHeaders(msg, MANIPULATOR_FIELD, null, manipulator);
     }
     return msg;
   }
 
   public static <T> CompositeStructureManipulator<T> fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
     List<StructureManipulator<T>> manipulators = Lists.newArrayList();
-    for (FudgeField field : msg.getAllByName(MANIPULATOR)) {
+    @SuppressWarnings("unchecked")
+    Class<T> expectedType = (Class<T>) msg.getValue(Class.class, TYPE_FIELD);
+    for (FudgeField field : msg.getAllByName(MANIPULATOR_FIELD)) {
       @SuppressWarnings("unchecked")
       StructureManipulator<T> manipulator = deserializer.fieldValueToObject(StructureManipulator.class, field);
       manipulators.add(manipulator);
     }
-    return new CompositeStructureManipulator<>(manipulators);
+    return new CompositeStructureManipulator<>(expectedType, manipulators);
   }
 }

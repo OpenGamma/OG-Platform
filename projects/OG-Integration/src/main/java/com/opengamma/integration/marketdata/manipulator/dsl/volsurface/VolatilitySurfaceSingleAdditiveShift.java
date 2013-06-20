@@ -37,6 +37,11 @@ public class VolatilitySurfaceSingleAdditiveShift implements StructureManipulato
     return surface.withSingleAdditiveShift(_x, _y, _shift);
   }
 
+  @Override
+  public Class<VolatilitySurface> getExpectedType() {
+    return VolatilitySurface.class;
+  }
+
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, SHIFT, null, _shift);

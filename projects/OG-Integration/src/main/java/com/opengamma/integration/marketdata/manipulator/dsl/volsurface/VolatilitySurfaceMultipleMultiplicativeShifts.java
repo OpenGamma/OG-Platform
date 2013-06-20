@@ -43,6 +43,11 @@ public class VolatilitySurfaceMultipleMultiplicativeShifts implements StructureM
     return surface.withMultipleMultiplicativeShifts(_x, _y, _shifts);
   }
 
+  @Override
+  public Class<VolatilitySurface> getExpectedType() {
+    return VolatilitySurface.class;
+  }
+
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, SHIFTS, null, _shifts);

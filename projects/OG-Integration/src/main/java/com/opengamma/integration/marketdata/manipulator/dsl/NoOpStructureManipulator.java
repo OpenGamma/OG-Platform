@@ -14,12 +14,11 @@ import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator
 
 /**
  * {@link StructureManipulator} implementation that returns the data without any changes.
- * @param <T> The type of the data handled by this manipulator
  */
-public class NoOpStructureManipulator<T> implements StructureManipulator<T> {
+public class NoOpStructureManipulator implements StructureManipulator<Object> {
 
   @Override
-  public T execute(T structure) {
+  public Object execute(Object structure) {
     return structure;
   }
 
@@ -27,7 +26,12 @@ public class NoOpStructureManipulator<T> implements StructureManipulator<T> {
     return serializer.newMessage();
   }
 
-  public static <T> NoOpStructureManipulator<T> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return new NoOpStructureManipulator<>();
+  @Override
+  public Class<Object> getExpectedType() {
+    return Object.class;
+  }
+
+  public static <T> NoOpStructureManipulator fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return new NoOpStructureManipulator();
   }
 }

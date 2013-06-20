@@ -69,7 +69,7 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
     if (parameters instanceof SimpleFunctionParameters) {
 
       SimpleFunctionParameters functionParameters = (SimpleFunctionParameters) parameters;
-      StructureManipulator structureManipulator = functionParameters.getValue(EXPECTED_PARAMETER_NAME);
+      StructureManipulator<Object> structureManipulator = functionParameters.getValue(EXPECTED_PARAMETER_NAME);
 
       ImmutableSet.Builder<ComputedValue> builder = ImmutableSet.builder();
 
@@ -83,9 +83,8 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
         // appropriate input using the required output
         Object structure = inputs.getValue(stripped);
 
-        // TODO - this should be made more type-aware
-        @SuppressWarnings("unchecked")
-        Object result = structureManipulator.execute(structure);
+        Object result = canHandle(structureManipulator, structure) ?
+            structureManipulator.execute(structure) : structure;
         builder.add(createComputedValue(target, requirement, result));
       }
 
@@ -95,6 +94,10 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
     // We didn't get the parameters we require so can't do any manipulation. However, we can just pass through
     // the original Yield Curve, modifying only the value specification in line with the value requirements
     return convertOriginalInputs(inputs, target, desiredValues);
+  }
+
+  private boolean canHandle(StructureManipulator<?> structureManipulator, Object structure) {
+    return structure != null && structureManipulator.getExpectedType().isAssignableFrom(structure.getClass());
   }
 
   private Set<ComputedValue> convertOriginalInputs(FunctionInputs inputs,

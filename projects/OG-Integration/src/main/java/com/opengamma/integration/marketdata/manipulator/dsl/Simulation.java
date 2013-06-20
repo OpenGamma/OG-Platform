@@ -63,7 +63,7 @@ public class Simulation {
 
   static {
     NOOP_FUNCTION_PARAMETERS = new SimpleFunctionParameters();
-    NoOpStructureManipulator<Object> noOpManipulator = new NoOpStructureManipulator<>();
+    NoOpStructureManipulator noOpManipulator = new NoOpStructureManipulator();
     NOOP_FUNCTION_PARAMETERS.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, noOpManipulator);
   }
 
