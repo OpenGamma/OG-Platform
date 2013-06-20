@@ -10,7 +10,6 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +66,9 @@ import com.opengamma.util.test.TestGroup;
  * Tests the diagnostic REST exposure of a dependency graph builder.
  */
 @Test(groups = TestGroup.UNIT)
-public class DependencyGraphBuilderResourceTest {
+public class DependencyGraphTraceBuilderTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderResourceTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphTraceBuilderTest.class);
 
   private CompiledFunctionService createFunctionCompilationService() {
     final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
