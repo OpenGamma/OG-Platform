@@ -35,6 +35,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /*
  * REDIS DATA STRUCTURES:
+ * Key["ALL_CLASSES"] -> Set[ClassName]
  * Key[ClassName] -> Set[ConfigName]
  * Key[ClassName - ConfigName] -> Hash
  * Hash["DATA"] -> Fudge encoded configuration data
@@ -122,7 +123,7 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
 
     Jedis jedis = getJedisPool().getResource();
     try {
-      
+      jedis.sadd("ALL_CLASSES", clazz.getName());
       jedis.sadd(classKeyName, configName);
       jedis.hset(itemHashKeyName, DATA_NAME_AS_BYTES, objectAsBytes);
       
