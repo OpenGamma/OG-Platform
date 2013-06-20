@@ -10,6 +10,8 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -35,13 +37,9 @@ public final class ViewStatusOption {
    */
   private static final String PORTFOLIO_NAME_OPT = "n";
   /** 
-   * Username option flag
+   * User option flag
    */
-  private static final String USERNAME_OPT = "u";
-  /**
-   * User ip address flag
-   */
-  private static final String USER_IP_ADDRESS_OPT = "ip";
+  private static final String USER_OPT = "u";
   /**
    * Result format type flag
    */
@@ -62,6 +60,8 @@ public final class ViewStatusOption {
    * Default user
    */
   private static final UserPrincipal DEFAULT_USER = UserPrincipal.getLocalUser();
+  
+  private static final Pattern USER_PATTERN = Pattern.compile("^(.+)/(.+)$");
   
   private final String _portfolioName;
   
@@ -110,12 +110,9 @@ public final class ViewStatusOption {
     portfolioNameOption.setArgName("portfolioName");
     portfolioNameOption.setRequired(true);
    
-    Option usernameOption = new Option(USERNAME_OPT, "username", true, "the username for computing views");
-    usernameOption.setArgName("username");
-    
-    Option ipaddressOption = new Option(USER_IP_ADDRESS_OPT, "ipaddress", true, "the ip address of user for computing views");
-    ipaddressOption.setArgName("ipaddress");
-    
+    Option userOption = new Option(USER_OPT, "user", true, "the username/ipaddress for computing views");
+    userOption.setArgName("username/ipaddress");
+        
     Option formatTypeOption = new Option(FORMAT_TYPE_OPT, "format", true, "the format of status result, default is html");
     formatTypeOption.setArgName("csv, xml, html");
     
@@ -126,9 +123,8 @@ public final class ViewStatusOption {
     outputOption.setArgName("filePath");
     
     options.addOption(portfolioNameOption);
-    options.addOption(usernameOption);
+    options.addOption(userOption);
     options.addOption(formatTypeOption);
-    options.addOption(ipaddressOption);
     options.addOption(aggregationTypeOption);
     options.addOption(outputOption);
     
@@ -145,21 +141,22 @@ public final class ViewStatusOption {
     ArgumentChecker.notNull(commandLine, "commandLine");
     
     String portfolioName = trimToNull(commandLine.getOptionValue(PORTFOLIO_NAME_OPT));
-    String username = trimToNull(commandLine.getOptionValue(USERNAME_OPT));
+    String userOption = trimToNull(commandLine.getOptionValue(USER_OPT));
     UserPrincipal user = null;
-    if (username == null) {
+    if (userOption == null) {
       user = DEFAULT_USER;
     } else {
-      String ipaddress = trimToNull(commandLine.getOptionValue(USER_IP_ADDRESS_OPT));
-      if (ipaddress == null) {
-        user = DEFAULT_USER;
-      } else {
+      Matcher matcher = USER_PATTERN.matcher(userOption);
+      if (matcher.matches()) {
+        String username = matcher.group(1);
+        String ipaddress = matcher.group(2);
         user = new UserPrincipal(username, ipaddress);
+      } else {
+        throw new OpenGammaRuntimeException("Given user option [" + userOption + "] does not match expected format username/ipaddress");
       }
     }
     
     String format = defaultString(trimToNull(commandLine.getOptionValue(FORMAT_TYPE_OPT)), DEFAULT_FORMAT);
-    
     String aggregationOption = trimToNull(commandLine.getOptionValue(AGGREGATION_TYPE_OPT));
     AggregateType aggregateType = null;
     if (aggregationOption != null) {
