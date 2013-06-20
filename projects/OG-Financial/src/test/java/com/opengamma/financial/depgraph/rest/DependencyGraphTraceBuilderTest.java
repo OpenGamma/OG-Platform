@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,10 +17,6 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
@@ -59,7 +56,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -68,7 +64,6 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class DependencyGraphTraceBuilderTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphTraceBuilderTest.class);
 
   private CompiledFunctionService createFunctionCompilationService() {
     final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
@@ -246,11 +241,10 @@ public class DependencyGraphTraceBuilderTest {
     ComputationTargetRequirement ct2 = new ComputationTargetRequirement(ComputationTargetType.parse("PRIMITIVE"), ExternalId.parse("Foo~2"));
     ValueRequirement req2 = parseValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ct2);
     DependencyGraphBuildTrace obj = builder.addRequirement(req1).addRequirement(req2).build();
-    final FudgeMsg msg = new FudgeSerializer(OpenGammaFudgeContext.getInstance()).objectToFudgeMsg(obj);
-    s_logger.debug("testBuild_ok = {}", msg);
-    assertTrue(msg.hasField("dependencyGraph"));
-    assertFalse(msg.hasField("exception"));
-    assertFalse(msg.hasField("failure"));
+    
+    assertNotNull(obj.getDependencyGraph());
+    assertTrue(obj.getExceptionsWithCounts().isEmpty());
+    assertTrue(obj.getFailures().isEmpty());
   }
 
   public void testBuild_exceptions() {
@@ -262,12 +256,9 @@ public class DependencyGraphTraceBuilderTest {
     ValueRequirement req2 = parseValueRequirement(ValueRequirementNames.FAIR_VALUE, ct2);
     DependencyGraphBuildTrace obj = builder.addRequirement(req1).addRequirement(req2).build();
     
-    final FudgeMsg msg = new FudgeSerializer(OpenGammaFudgeContext.getInstance()).objectToFudgeMsg(obj);
-
-    s_logger.debug("testBuild_exceptions = {}", msg);
-    assertTrue(msg.hasField("dependencyGraph"));
-    assertEquals(msg.getAllByName("exception").size(), 2); // one from the exception, and one from not resolving
-    assertEquals(msg.getAllByName("failure").size(), 1);
+    assertNotNull(obj.getDependencyGraph());
+    assertEquals(2, obj.getExceptionsWithCounts().size());
+    assertEquals(1, obj.getFailures().size());
   }
 
   public void testBuild_failures() {
@@ -279,11 +270,9 @@ public class DependencyGraphTraceBuilderTest {
     ValueRequirement req2 = parseValueRequirement(ValueRequirementNames.PRESENT_VALUE, ct2);
     DependencyGraphBuildTrace obj = builder.addRequirement(req1).addRequirement(req2).build();
     
-    final FudgeMsg msg = new FudgeSerializer(OpenGammaFudgeContext.getInstance()).objectToFudgeMsg(obj);
-    s_logger.debug("testBuild_failures = {}", msg);
-    assertTrue(msg.hasField("dependencyGraph"));
-    assertEquals(msg.getAllByName("exception").size(), 2);
-    assertEquals(msg.getAllByName("failure").size(), 2);
+    assertNotNull(obj.getDependencyGraph());
+    assertEquals(2, obj.getExceptionsWithCounts().size());
+    assertEquals(2, obj.getFailures().size());
   }
 
   
