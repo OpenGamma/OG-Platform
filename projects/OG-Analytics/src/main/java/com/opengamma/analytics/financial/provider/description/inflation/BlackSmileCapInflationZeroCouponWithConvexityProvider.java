@@ -6,19 +6,24 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatCapFloorParameters;
+import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationZeroCouponParameters;
 import com.opengamma.analytics.financial.model.option.parameters.InflationConvexityAdjustmentParameters;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class describing a provider with inflation (which contain multicurve) and  inflation parameters needed for the convexity adjustemnts.
+ * 
  */
-public class InflationConvexityAdjustmentProvider implements InflationConvexityAdjustmentProviderInterface {
-
+public class BlackSmileCapInflationZeroCouponWithConvexityProvider implements BlackSmileCapInflationZeroCouponWithConvexityProviderInterface {
   /**
    * The inflation provider.
    */
   private final InflationProviderInterface _inflation;
+  /**
+   * The Black parameters.
+   */
+  private final BlackSmileCapInflationZeroCouponParameters _parameters;
+
   /**
    * The inflation convextity adjustment parameters.
    */
@@ -32,13 +37,15 @@ public class InflationConvexityAdjustmentProvider implements InflationConvexityA
   /**
    * Constructor.
    * @param inflation The inflation provider.
+   * @param parameters The Black parameters.
    * @param inflationConvexityAdjutmentsParameters The inflation convexity adjustment parameters.
    * @param blackSmileIborCapParameters The Black volatility cap/floor (ibor)  parameters.
    */
-  public InflationConvexityAdjustmentProvider(final InflationProviderInterface inflation, final InflationConvexityAdjustmentParameters inflationConvexityAdjutmentsParameters,
-      final BlackFlatCapFloorParameters blackSmileIborCapParameters) {
+  public BlackSmileCapInflationZeroCouponWithConvexityProvider(final InflationProviderInterface inflation, final BlackSmileCapInflationZeroCouponParameters parameters,
+      final InflationConvexityAdjustmentParameters inflationConvexityAdjutmentsParameters, final BlackFlatCapFloorParameters blackSmileIborCapParameters) {
     ArgumentChecker.notNull(inflation, "Inflation provider");
     _inflation = inflation;
+    _parameters = parameters;
     _inflationConvexityAdjutmentsParameters = inflationConvexityAdjutmentsParameters;
     _blackSmileIborCapParameters = blackSmileIborCapParameters;
   }
@@ -54,9 +61,14 @@ public class InflationConvexityAdjustmentProvider implements InflationConvexityA
   }
 
   @Override
-  public InflationConvexityAdjustmentProviderInterface copy() {
+  public BlackSmileCapInflationZeroCouponWithConvexityProvider copy() {
     InflationProviderInterface inflation = _inflation.copy();
-    return new InflationConvexityAdjustmentProvider(inflation, _inflationConvexityAdjutmentsParameters, _blackSmileIborCapParameters);
+    return new BlackSmileCapInflationZeroCouponWithConvexityProvider(inflation, _parameters, _inflationConvexityAdjutmentsParameters, _blackSmileIborCapParameters);
+  }
+
+  @Override
+  public BlackSmileCapInflationZeroCouponParameters getBlackParameters() {
+    return _parameters;
   }
 
   @Override
@@ -68,5 +80,4 @@ public class InflationConvexityAdjustmentProvider implements InflationConvexityA
   public BlackFlatCapFloorParameters getBlackSmileIborCapParameters() {
     return _blackSmileIborCapParameters;
   }
-
 }

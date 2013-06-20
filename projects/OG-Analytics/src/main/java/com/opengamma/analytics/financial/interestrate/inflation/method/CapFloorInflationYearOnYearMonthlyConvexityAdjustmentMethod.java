@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFl
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
-import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearWithConvexityProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
@@ -24,28 +24,34 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Pricing method for inflation Year on Year cap/floor. The price is computed by index estimation and discounting.
+ *  Pricing method for inflation Year on Year cap/floor. The price is computed by index estimation, discounting and using a convexity adjustment.
+ * See note "Inflation convexity adjustment" by Arroub Zine-eddine for details.
  */
-public final class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod {
+public final class CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod INSTANCE = new CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod();
+  private static final CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod INSTANCE = new CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod();
 
   /**
    * Private constructor.
    */
-  private CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod() {
+  private CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod() {
   }
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod getInstance() {
+  public static CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod getInstance() {
     return INSTANCE;
   }
+
+  /**
+   * The convexity adjustment function used in the pricing.
+   */
+  private static final InflationMarketModelConvexityAdjustementForCapFloor CONVEXITY_ADJUSTMENT_FUNCTION = new InflationMarketModelConvexityAdjustementForCapFloor();
 
   /**
    * The Black function used in the pricing.
@@ -58,14 +64,15 @@ public final class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod {
    * @param black The Black implied volatility and multi-curve provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount netAmount(final CapFloorInflationYearOnYearMonthly cap, final BlackSmileCapInflationYearOnYearProviderInterface black) {
+  public MultipleCurrencyAmount netAmount(final CapFloorInflationYearOnYearMonthly cap, final BlackSmileCapInflationYearOnYearWithConvexityProviderInterface black) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(black, "Black provider");
     final double timeToMaturity = cap.getReferenceEndTime() - cap.getLastKnownFixingTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), timeToMaturity, cap.isCap());
     final double priceIndexStart = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), cap.getReferenceStartTime());
     final double priceIndexEnd = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), cap.getReferenceEndTime());
-    final double forward = priceIndexEnd / priceIndexStart - 1;
+    final double convexityAdjustment = CONVEXITY_ADJUSTMENT_FUNCTION.getYearOnYearConvexityAdjustment(cap, black);
+    final double forward = priceIndexEnd / priceIndexStart * convexityAdjustment - 1;
     final double volatility = black.getBlackParameters().getVolatility(cap.getReferenceEndTime(), cap.getStrike());
     final NormalFunctionData dataNormaL = new NormalFunctionData(forward, 1.0, volatility);
     final Function1D<NormalFunctionData, Double> func = NORMAL_FUNCTION.getPriceFunction(option);
@@ -79,7 +86,7 @@ public final class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod {
    * @param black The Black implied volatility and multi-curve provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CapFloorInflationYearOnYearMonthly cap, final BlackSmileCapInflationYearOnYearProviderInterface black) {
+  public MultipleCurrencyAmount presentValue(final CapFloorInflationYearOnYearMonthly cap, final BlackSmileCapInflationYearOnYearWithConvexityProviderInterface black) {
     final MultipleCurrencyAmount nonDiscountedPresentValue = netAmount(cap, black);
     final double df = black.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     return nonDiscountedPresentValue.multipliedBy(df);
@@ -92,7 +99,7 @@ public final class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod {
    * @param black The Black implied volatility and multi-curve provider.
    * @return The present value curve sensitivity.
    */
-  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CapFloorInflationYearOnYearMonthly cap, final BlackSmileCapInflationYearOnYearProviderInterface black) {
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CapFloorInflationYearOnYearMonthly cap, final BlackSmileCapInflationYearOnYearWithConvexityProviderInterface black) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(black, "Black provider");
     InflationProviderInterface inflation = black.getInflationProvider();
@@ -100,12 +107,13 @@ public final class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), timeToMaturity, cap.isCap());
     final double priceIndexStart = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), cap.getReferenceStartTime());
     final double priceIndexEnd = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), cap.getReferenceEndTime());
-    final double forward = priceIndexEnd / priceIndexStart - 1;
+    final double convexityAdjustment = CONVEXITY_ADJUSTMENT_FUNCTION.getYearOnYearConvexityAdjustment(cap, black);
+    final double forward = priceIndexEnd / priceIndexStart * convexityAdjustment - 1;
     final double df = black.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
-    listPrice.add(new DoublesPair(cap.getReferenceEndTime(), 1 / priceIndexStart));
-    listPrice.add(new DoublesPair(cap.getReferenceStartTime(), -priceIndexEnd / (priceIndexStart * priceIndexStart)));
+    listPrice.add(new DoublesPair(cap.getReferenceEndTime(), 1 / priceIndexStart * convexityAdjustment));
+    listPrice.add(new DoublesPair(cap.getReferenceStartTime(), -priceIndexEnd / (priceIndexStart * priceIndexStart) * convexityAdjustment));
     resultMapPrice.put(inflation.getName(cap.getPriceIndex()), listPrice);
     final InflationSensitivity forwardDi = InflationSensitivity.ofPriceIndex(resultMapPrice);
     final double dfDr = -cap.getPaymentTime() * df;
