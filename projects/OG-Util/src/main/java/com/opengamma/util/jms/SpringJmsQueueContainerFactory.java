@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.util.jms;
@@ -12,28 +12,28 @@ import org.springframework.jms.listener.AbstractMessageListenerContainer;
 /**
  * Container used to receive JMS messages.
  */
-public class SpringJmsTopicContainerFactory extends AbstractSpringContainerFactory implements JmsTopicContainerFactory {
-
+public class SpringJmsQueueContainerFactory extends AbstractSpringContainerFactory implements JmsQueueContainerFactory {
+  
   /**
    * Creates an instance.
    * 
    * @param connectionFactory  the JMS connection factory, not null
    */
-  public SpringJmsTopicContainerFactory(ConnectionFactory connectionFactory) {
+  public SpringJmsQueueContainerFactory(ConnectionFactory connectionFactory) {
     super(connectionFactory);
   }
-
+  
   //-------------------------------------------------------------------------
   @Override
-  public JmsTopicContainer create(String topicName, Object listener) {
-    AbstractMessageListenerContainer jmsContainer = doCreate(getConnectionFactory(), topicName, true, listener);
+  public JmsQueueContainer create(String queueName, Object listener) {
+    AbstractMessageListenerContainer jmsContainer = doCreate(getConnectionFactory(), queueName, false, listener);
     return new OpenGammaSpringJmsContainer(jmsContainer);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return SpringJmsTopicContainerFactory.class.getSimpleName();
+    return SpringJmsQueueContainerFactory.class.getSimpleName();
   }
 
 }

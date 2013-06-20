@@ -45,6 +45,10 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
    */
   private JmsTopicContainerFactory _topicContainerFactory;
   /**
+   * The factory for creating containers for queues.
+   */
+  private JmsQueueContainerFactory _queueContainerFactory;
+  /**
    * The configuration needed by the client to connect to the broker.
    */
   private URI _clientBrokerUri;
@@ -72,6 +76,7 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
     setJmsTemplateTopic(base.getJmsTemplateTopic());
     setJmsTemplateQueue(base.getJmsTemplateQueue());
     setTopicContainerFactory(base.getTopicContainerFactory());
+    setQueueContainerFactory(base.getQueueContainerFactory());
     setClientBrokerUri(base.getClientBrokerUri());
     setTopicName(base.getTopicName());
   }
@@ -172,6 +177,22 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
   }
 
   /**
+   * Gets the queueContainerFactory.
+   * @return the queueContainerFactory
+   */
+  public JmsQueueContainerFactory getQueueContainerFactory() {
+    return _queueContainerFactory;
+  }
+
+  /**
+   * Sets the queueContainerFactory.
+   * @param queueContainerFactory  the queueContainerFactory
+   */
+  public void setQueueContainerFactory(JmsQueueContainerFactory queueContainerFactory) {
+    _queueContainerFactory = queueContainerFactory;
+  }
+
+  /**
    * Gets the broker configuration needed by the client to connect to the server.
    * <p>
    * The client needs some form of configuration, frequently a URI, to connect to the JMS broker.
@@ -221,14 +242,16 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
     final ConnectionFactory providedFactory = getConnectionFactory();  // store in variable to protect against change by subclass
     final JmsTemplate providedTemplateTopic = getJmsTemplateTopic();  // store in variable to protect against change by subclass
     final JmsTemplate providedTemplateQueue = getJmsTemplateQueue();  // store in variable to protect against change by subclass
-    final JmsTopicContainerFactory providedContainerfactory = getTopicContainerFactory();  // store in variable to protect against change by subclass
+    final JmsTopicContainerFactory providedTopicContainerFactory = getTopicContainerFactory();  // store in variable to protect against change by subclass
+    final JmsQueueContainerFactory providedQueueContainerFactory = getQueueContainerFactory();  // store in variable to protect against change by subclass
     
     final JmsTemplate jmsTemplateTopic = createTemplateTopic(providedFactory, providedTemplateTopic, providedTemplateQueue);
     final JmsTemplate jmsTemplateQueue = createTemplateQueue(providedFactory, providedTemplateQueue, providedTemplateTopic);
-    final JmsTopicContainerFactory containerFactory = createTopicContainerFactory(providedContainerfactory, jmsTemplateTopic.getConnectionFactory());
+    final JmsTopicContainerFactory topicContainerFactory = createTopicContainerFactory(providedTopicContainerFactory, jmsTemplateTopic.getConnectionFactory());
+    final JmsQueueContainerFactory queueContainerFactory = createQueueContainerFactory(providedQueueContainerFactory, jmsTemplateQueue.getConnectionFactory());
     final URI clientBrokerUri = getClientBrokerUri();  // store in variable to protect against change by subclass
     final String topicName = getTopicName();  // store in variable to protect against change by subclass
-    return new JmsConnector(getName(), jmsTemplateTopic, jmsTemplateQueue, containerFactory, clientBrokerUri, topicName);
+    return new JmsConnector(getName(), jmsTemplateTopic, jmsTemplateQueue, topicContainerFactory, queueContainerFactory, clientBrokerUri, topicName);
   }
 
   /**
@@ -292,6 +315,23 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
       return providedContainerfactory;
     }
     return new SpringJmsTopicContainerFactory(connectionFactory);
+  }
+
+  /**
+   * Creates a queue container factory.
+   * <p>
+   * This implementation creates a simple {@link SpringJmsQueueContainerFactory}
+   * if one is not provided.
+   * 
+   * @param providedContainerfactory  the provided factory, may be null
+   * @param connectionFactory  the JMS connection factory, not null
+   * @return the container factory, may be null
+   */
+  protected JmsQueueContainerFactory createQueueContainerFactory(JmsQueueContainerFactory providedContainerfactory, ConnectionFactory connectionFactory) {
+    if (providedContainerfactory != null) {
+      return providedContainerfactory;
+    }
+    return new SpringJmsQueueContainerFactory(connectionFactory);
   }
 
   //-------------------------------------------------------------------------
