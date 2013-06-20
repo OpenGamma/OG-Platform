@@ -19,8 +19,8 @@ import java.util.List;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
@@ -125,7 +125,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends AbstractDbTest 
     s_logger.debug("test data later: {}", _version2Instant);
     FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _exgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _exgMaster.getDbConnector().getJdbcOperations();
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UniqueId.of("DbExg", "101", "0"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));

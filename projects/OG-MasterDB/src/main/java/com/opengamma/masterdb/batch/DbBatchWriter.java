@@ -860,8 +860,11 @@ public class DbBatchWriter extends AbstractDbMaster {
       marketDataValuesInserts.toArray(new DbMapSqlParameterSource[marketDataValuesInserts.size()])
     );
 
-    getJdbcTemplate().update(getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
-    getJdbcTemplate().update("DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
+    String sqlUpdate = getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", "));
+    getJdbcTemplate().getJdbcOperations().update(sqlUpdate);
+    
+    String sqlDelete = "DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", "));
+    getJdbcTemplate().getJdbcOperations().update(sqlDelete);
   }
 
   //-------------------------------------------------------------------------
@@ -1207,8 +1210,8 @@ public class DbBatchWriter extends AbstractDbMaster {
     try {
       StatusEntry statusEntry = getJdbcTemplate().queryForObject(
         getElSqlBundle().getSql("SelectStatusEntry"),
-        StatusEntry.ROW_MAPPER,
-        args);
+        args,
+        StatusEntry.ROW_MAPPER);
 
       // status entry in db found.
       statusCache.put(key, statusEntry);
@@ -1293,7 +1296,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       return computeFailure;
     }
     try {
-      int id = getJdbcTemplate().queryForInt(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource());
+      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource(), Integer.class);
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
       computeFailure.setFunctionId(computeFailureKey.getFunctionId());

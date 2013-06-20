@@ -12,8 +12,7 @@ import java.sql.SQLException;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.threeten.bp.Clock;
@@ -159,7 +158,7 @@ public abstract class AbstractDbMaster {
    * @return the next database id
    */
   protected long nextId(String sequenceName) {
-    return getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(sequenceName));
+    return getJdbcTemplate().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(sequenceName), Long.class);
   }
 
   //-------------------------------------------------------------------------
@@ -205,7 +204,7 @@ public abstract class AbstractDbMaster {
    * 
    * @return the database template, not null if correctly initialized
    */
-  protected SimpleJdbcTemplate getJdbcTemplate() {
+  protected NamedParameterJdbcTemplate getJdbcTemplate() {
     return getDbConnector().getJdbcTemplate();
   }
 
@@ -369,9 +368,8 @@ public abstract class AbstractDbMaster {
   public Integer getSchemaVersion() {
     try {
       final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
-      final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
       final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
-      String version = namedJdbc.queryForObject(sql, args, String.class);
+      String version = getJdbcTemplate().queryForObject(sql, args, String.class);
       return Integer.parseInt(version);
     } catch (Exception e) {
       s_logger.debug("Error reading schema version from database", e);

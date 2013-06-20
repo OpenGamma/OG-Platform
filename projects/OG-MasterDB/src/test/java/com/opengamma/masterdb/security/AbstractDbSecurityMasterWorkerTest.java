@@ -12,7 +12,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -85,7 +85,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends AbstractDbSecur
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _secMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _secMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestSecurity101", "EQUITY", "D");
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",

@@ -12,7 +12,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -68,7 +68,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends Abs
     s_logger.debug("test data 2: {}", _version2Instant);
     s_logger.debug("test data 3: {}", _version3Instant);
     s_logger.debug("test data 4: {}", _version4Instant);
-    final SimpleJdbcTemplate template = _htsMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _htsMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO hts_name VALUES (?,?)",
         1, "N101");
     template.update("INSERT INTO hts_name VALUES (?,?)",

@@ -179,7 +179,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     try {
       final VersionCorrection vc = (versionCorrection.containsLatest() ? versionCorrection.withLatestFixed(now()) : versionCorrection);
       final DbMapSqlParameterSource args = argsGetByOidInstants(objectId, vc);
-      final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+      final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
       final String sql = getElSqlBundle().getSql("GetByOidInstants", args);
       final List<D> docs = namedJdbc.query(sql, args, extractor);
       if (docs.isEmpty()) {
@@ -223,7 +223,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     Timer.Context context = _getByIdTimer.time();
     try {
       final DbMapSqlParameterSource args = argsGetById(uniqueId);
-      final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+      final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
       final String sql = getElSqlBundle().getSql("GetById", args);
       final List<D> docs = namedJdbc.query(sql, args, extractor);
       if (docs.isEmpty()) {
@@ -346,13 +346,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       final ResultSetExtractor<List<T>> extractor, final AbstractDocumentsResult<T> result) {
     s_logger.debug("with args {}", args);
     
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate();
     if (pagingRequest.equals(PagingRequest.ALL)) {
       result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       result.setPaging(Paging.of(pagingRequest, result.getDocuments()));
     } else {
       s_logger.debug("executing sql {}", sql[1]);
-      final int count = namedJdbc.queryForInt(sql[1], args);
+      final int count = namedJdbc.queryForObject(sql[1], args, Integer.class);
       result.setPaging(Paging.of(pagingRequest, count));
       if (count > 0 && pagingRequest.equals(PagingRequest.NONE) == false) {
         s_logger.debug("executing sql {}", sql[0]);

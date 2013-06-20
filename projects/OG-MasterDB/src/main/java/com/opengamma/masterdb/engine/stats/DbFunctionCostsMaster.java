@@ -114,7 +114,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   //-------------------------------------------------------------------------
   public int getSchemaVersion() {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
     String version = namedJdbc.queryForObject(sql, args, String.class);
     return Integer.parseInt(version);
@@ -134,7 +134,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       .addValue("paging_offset", 0)
       .addValue("paging_fetch", 1);
     final FunctionCostsDocumentExtractor extractor = new FunctionCostsDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetCosts", args);
     final List<FunctionCostsDocument> docs = namedJdbc.query(sql, args, extractor);
     return docs.isEmpty() ? null : docs.get(0);

@@ -16,7 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -64,7 +65,7 @@ public class DbConnector implements Connector {
   /**
    * The JDBC template.
    */
-  private final SimpleJdbcTemplate _jdbcTemplate;
+  private final NamedParameterJdbcTemplate _jdbcTemplate;
   /**
    * The Hibernate template.
    */
@@ -90,7 +91,7 @@ public class DbConnector implements Connector {
    */
   public DbConnector(
       String name, DbDialect dialect, DataSource dataSource,
-      SimpleJdbcTemplate jdbcTemplate, HibernateTemplate hibernateTemplate, TransactionTemplate transactionTemplate) {
+      NamedParameterJdbcTemplate jdbcTemplate, HibernateTemplate hibernateTemplate, TransactionTemplate transactionTemplate) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(dialect, "dialect");
     ArgumentChecker.notNull(dataSource, "dataSource");
@@ -136,11 +137,24 @@ public class DbConnector implements Connector {
   }
 
   /**
-   * Gets the JDBC template.
+   * Gets the JDBC operations.
+   * <p>
+   * This is used for simple calls that do no use named parameters.
    * 
    * @return the JDBC template, not null
    */
-  public SimpleJdbcTemplate getJdbcTemplate() {
+  public JdbcOperations getJdbcOperations() {
+    return _jdbcTemplate.getJdbcOperations();
+  }
+
+  /**
+   * Gets the JDBC template.
+   * <p>
+   * This is used for named parameters.
+   * 
+   * @return the JDBC template, not null
+   */
+  public NamedParameterJdbcTemplate getJdbcTemplate() {
     return _jdbcTemplate;
   }
 
@@ -239,7 +253,7 @@ public class DbConnector implements Connector {
    * @return the current database instant, may be null
    */
   Timestamp nowDb() {
-    return getJdbcTemplate().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
+    return getJdbcOperations().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
   }
 
   /**

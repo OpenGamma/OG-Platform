@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -121,7 +121,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends AbstractDbTest {
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _usrMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _usrMaster.getDbConnector().getJdbcOperations();
     ManageableOGUser user = new ManageableOGUser("101");
     user.setUniqueId(UniqueId.of("DbUsr", "101", "0"));
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));

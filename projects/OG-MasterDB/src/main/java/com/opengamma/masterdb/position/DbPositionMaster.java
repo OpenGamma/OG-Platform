@@ -388,7 +388,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
         .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetTradeByOidInstants", args);
     final List<PositionDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
@@ -407,7 +407,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     s_logger.debug("getTradeById {}", uniqueId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("trade_id", extractRowId(uniqueId));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetTradeById", args);
     final List<PositionDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {

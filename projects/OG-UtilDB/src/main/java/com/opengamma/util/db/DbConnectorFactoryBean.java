@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
@@ -243,7 +243,7 @@ public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
     ArgumentChecker.notNull(getName(), "name");
     ArgumentChecker.notNull(getDataSource(), "dataSource");
     DbDialect dialect = createDialect();
-    SimpleJdbcTemplate jdbcTemplate = createSimpleJdbcTemplate();
+    NamedParameterJdbcTemplate jdbcTemplate = createNamedParameterJdbcTemplate();
     SessionFactory hbFactory = createSessionFactory(dialect);
     HibernateTemplate hbTemplate = createHibernateTemplate(hbFactory);
     TransactionTemplate transTemplate = createTransactionTemplate(hbFactory);
@@ -277,8 +277,8 @@ public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
    * 
    * @return the JDBC template, not null
    */
-  protected SimpleJdbcTemplate createSimpleJdbcTemplate() {
-    return new SimpleJdbcTemplate(getDataSource());
+  protected NamedParameterJdbcTemplate createNamedParameterJdbcTemplate() {
+    return new NamedParameterJdbcTemplate(getDataSource());
   }
 
   //-------------------------------------------------------------------------

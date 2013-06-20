@@ -329,13 +329,13 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
         final List<D> result = newArrayList();
         Paging paging;
         s_logger.debug("with args {}", args);
-        final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+        final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
         if (pagingRequest.equals(PagingRequest.ALL)) {
           result.addAll(namedJdbc.query(sql[0], args, extractor));
           paging = Paging.of(pagingRequest, result);
         } else {
           s_logger.debug("executing sql {}", sql[1]);
-          final int count = namedJdbc.queryForInt(sql[1], args);
+          final int count = namedJdbc.queryForObject(sql[1], args, Integer.class);
           paging = Paging.of(pagingRequest, count);
           if (count > 0 && !pagingRequest.equals(PagingRequest.NONE)) {
             s_logger.debug("executing sql {}", sql[0]);

@@ -20,8 +20,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
@@ -126,7 +126,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends AbstractDbTest {
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     String cls = ExternalId.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _cfgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _cfgMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, "TestConfig101", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
@@ -147,7 +147,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends AbstractDbTest {
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     String cls = ExternalIdBundle.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _cfgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _cfgMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         301, 301, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, "TestConfig301", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));

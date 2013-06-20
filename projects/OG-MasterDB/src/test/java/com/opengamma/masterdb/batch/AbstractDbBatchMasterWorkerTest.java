@@ -12,8 +12,8 @@ import java.sql.Types;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
@@ -44,7 +44,7 @@ public abstract class AbstractDbBatchMasterWorkerTest extends AbstractDbBatchTes
     
     Timestamp now = toSqlTimestamp(Instant.now());
 
-    final SimpleJdbcTemplate template = _batchMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _batchMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO rsk_compute_host (id, host_name) VALUES (?,?)", 1, "compute host");
     template.update("INSERT INTO rsk_compute_node (id, compute_host_id, node_name) VALUES (?,?,?)", 1, 1, "compute node");
     template.update("INSERT INTO rsk_computation_target (id, type, id_scheme, id_value, id_version) VALUES (?,?,?,?,?)", 1, "SECURITY", "DbSec", "APPL", null);

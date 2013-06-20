@@ -71,9 +71,9 @@ public class DbTimeTest extends AbstractDbTest {
     try {
       // create test table
       String drop = _elSqlBundle.getSql("DropTstTimes"); // "DROP TABLE IF EXISTS tst_times";
-      getDbConnector().getJdbcTemplate().update(drop);
+      getDbConnector().getJdbcOperations().update(drop);
       String create = _elSqlBundle.getSql("CreateTstTimes"); // "CREATE TABLE tst_times ( id bigint not null, ver timestamp without time zone not null )";
-      getDbConnector().getJdbcTemplate().update(create);
+      getDbConnector().getJdbcOperations().update(create);
       
       // insert data
       String insert = _elSqlBundle.getSql("InsertTstTimes"); // "INSERT INTO tst_times VALUES (?,?)";
@@ -81,16 +81,16 @@ public class DbTimeTest extends AbstractDbTest {
       final Timestamp tsOut2 = DbDateUtils.toSqlTimestamp(INSTANT2);
       final Timestamp tsOut3 = DbDateUtils.toSqlTimestamp(INSTANT3);
       
-      getDbConnector().getJdbcTemplate().update(insert, 1, tsOut1);
-      getDbConnector().getJdbcTemplate().update(insert, 2, tsOut2);
-      getDbConnector().getJdbcTemplate().update(insert, 3, tsOut3);
+      getDbConnector().getJdbcOperations().update(insert, 1, tsOut1);
+      getDbConnector().getJdbcOperations().update(insert, 2, tsOut2);
+      getDbConnector().getJdbcOperations().update(insert, 3, tsOut3);
       
       // pull back to check roundtripping
       String select1 = _elSqlBundle.getSql("SelectTstTimes"); // "SELECT ver FROM tst_times WHERE id = ?";
       
-      Map<String, Object> result1 = getDbConnector().getJdbcTemplate().queryForMap(select1, 1);
-      Map<String, Object> result2 = getDbConnector().getJdbcTemplate().queryForMap(select1, 2);
-      Map<String, Object> result3 = getDbConnector().getJdbcTemplate().queryForMap(select1, 3);
+      Map<String, Object> result1 = getDbConnector().getJdbcOperations().queryForMap(select1, 1);
+      Map<String, Object> result2 = getDbConnector().getJdbcOperations().queryForMap(select1, 2);
+      Map<String, Object> result3 = getDbConnector().getJdbcOperations().queryForMap(select1, 3);
       Timestamp tsIn1 = (Timestamp) result1.get("ver");
       Timestamp tsIn2 = (Timestamp) result2.get("ver");
       Timestamp tsIn3 = (Timestamp) result3.get("ver");
@@ -102,19 +102,19 @@ public class DbTimeTest extends AbstractDbTest {
       assertEquals(super.toString() + " Instant " + retrieved3, INSTANT3, retrieved3);
       
       // pull back the raw DB string form to ensure it actually stored UTC field values
-      String retrievedText1 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
+      String retrievedText1 = getDbConnector().getJdbcOperations().queryForObject(select1, new RowMapper<String>() {
         @Override
         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
           return rs.getString("ver");
         }
       }, 1);
-      String retrievedText2 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
+      String retrievedText2 = getDbConnector().getJdbcOperations().queryForObject(select1, new RowMapper<String>() {
         @Override
         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
           return rs.getString("ver");
         }
       }, 2);
-      String retrievedText3 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
+      String retrievedText3 = getDbConnector().getJdbcOperations().queryForObject(select1, new RowMapper<String>() {
         @Override
         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
           return rs.getString("ver");
@@ -125,7 +125,7 @@ public class DbTimeTest extends AbstractDbTest {
       assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT3, ZoneOffset.UTC).toString(FORMAT), retrievedText3);
       
       // tidy up
-      getDbConnector().getJdbcTemplate().update(drop);
+      getDbConnector().getJdbcOperations().update(drop);
     } catch (Exception ex) {
       fail(ex.getMessage());
     }

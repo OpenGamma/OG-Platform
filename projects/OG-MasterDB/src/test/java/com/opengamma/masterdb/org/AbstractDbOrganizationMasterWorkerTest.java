@@ -12,7 +12,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -101,7 +101,7 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends AbstractDbT
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
 
-    final SimpleJdbcTemplate template = _orgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _orgMaster.getDbConnector().getJdbcOperations();
 
 //    id bigint NOT NULL,
 //    oid bigint NOT NULL,
