@@ -109,8 +109,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     /**
      * Node was not executed because of function blacklist suppression.
      */
-    SUPPRESSED;
-  };
+    SUPPRESSED
+  }
 
   // Injected inputs
   private final UniqueId _cycleId;
@@ -128,9 +128,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private volatile Instant _startTime;
   private volatile Instant _endTime;
 
-  private final Map<DependencyNode, NodeStateFlag> _nodeStates = new ConcurrentHashMap<DependencyNode, NodeStateFlag>();
-  private final Map<String, DependencyNodeJobExecutionResultCache> _jobResultCachesByCalculationConfiguration = new ConcurrentHashMap<String, DependencyNodeJobExecutionResultCache>();
-  private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
+  private final Map<DependencyNode, NodeStateFlag> _nodeStates = new ConcurrentHashMap<>();
+  private final Map<String, DependencyNodeJobExecutionResultCache> _jobResultCachesByCalculationConfiguration = new ConcurrentHashMap<>();
+  private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<>();
 
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
@@ -225,7 +225,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   public Set<String> getAllCalculationConfigurationNames() {
-    return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+    return new HashSet<>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
   }
 
   //-------------------------------------------------------------------------
@@ -304,7 +304,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       return null;
     }
     final ComputationCacheResponse cacheResponse = queryComputationCaches(query);
-    final Map<ValueSpecification, ComputedValueResult> resultMap = new HashMap<ValueSpecification, ComputedValueResult>();
+    final Map<ValueSpecification, ComputedValueResult> resultMap = new HashMap<>();
     for (final Pair<ValueSpecification, Object> cacheEntry : cacheResponse.getResults()) {
       final ValueSpecification valueSpec = cacheEntry.getFirst();
       final Object cachedValue = cacheEntry.getSecond();
@@ -429,12 +429,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    *           must be called.
    */
   public void execute(final ExecutorService calcJobResultExecutorService) throws InterruptedException {
-    final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
+    final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<>();
     final CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
     Future<?> resultStreamConsumerJobInProgress;
     try {
       resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
-      final LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
+      final LinkedList<Future<?>> futures = new LinkedList<>();
       for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
         final DependencyGraph depGraph;
@@ -556,7 +556,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final ViewComputationCache cache = getComputationCache(calcConfig.getName());
       final Collection<ValueSpecification> marketDataRequirements = calcConfig.getMarketDataRequirements();
       final Set<ValueSpecification> terminalOutputs = calcConfig.getTerminalOutputSpecifications().keySet();
-      final Collection<ComputedValueResult> valuesToLoad = new ArrayList<ComputedValueResult>(marketDataRequirements.size());
+      final Collection<ComputedValueResult> valuesToLoad = new ArrayList<>(marketDataRequirements.size());
       for (ValueSpecification marketDataSpec : marketDataRequirements) {
         Object marketDataValue = marketDataValues.get(marketDataSpec);
         ComputedValueResult computedValueResult;
@@ -636,9 +636,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
       deltaCalculator.computeDelta();
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[] {depGraph.getCalculationConfigurationName(), deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
-      final Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
-      final Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
+                    depGraph.getCalculationConfigurationName(),
+                    deltaCalculator.getChangedNodes().size(),
+                    depGraph.getSize());
+      final Collection<ValueSpecification> specsToCopy = new LinkedList<>();
+      final Collection<ComputedValue> errors = new LinkedList<>();
       for (final DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         if (isMarketDataNode(unchangedNode)) {
           // Market data is already in the cache, so don't need to copy it across again
@@ -668,7 +670,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         reusableResultsQuery.setValueSpecifications(specsToCopy);
         final ComputationResultsResponse reusableResultsQueryResponse = previousCycle.queryResults(reusableResultsQuery);
         final Map<ValueSpecification, ComputedValueResult> resultsToReuse = reusableResultsQueryResponse.getResults();
-        final Collection<ComputedValue> newValues = new ArrayList<ComputedValue>(resultsToReuse.size());
+        final Collection<ComputedValue> newValues = new ArrayList<>(resultsToReuse.size());
         for (final ComputedValueResult computedValueResult : resultsToReuse.values()) {
           final ValueSpecification valueSpec = computedValueResult.getSpecification();
           if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
@@ -752,7 +754,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           if (outputs.size() == 1) {
             cache.putSharedValue(new ComputedValue(outputs.iterator().next(), MissingOutput.SUPPRESSED));
           } else {
-            final Collection<ComputedValue> errors = new ArrayList<ComputedValue>(outputs.size());
+            final Collection<ComputedValue> errors = new ArrayList<>(outputs.size());
             for (final ValueSpecification output : outputs) {
               errors.add(new ComputedValue(output, MissingOutput.SUPPRESSED));
             }
@@ -783,7 +785,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
       final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
 
-      final TreeMap<String, Object> key2Value = new TreeMap<String, Object>();
+      final TreeMap<String, Object> key2Value = new TreeMap<>();
       for (final ValueSpecification outputSpec : depGraph.getOutputSpecifications()) {
         final Object value = computationCache.getValue(outputSpec);
         key2Value.put(outputSpec.toString(), value);
