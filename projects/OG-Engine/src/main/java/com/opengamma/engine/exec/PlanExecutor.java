@@ -12,6 +12,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +80,7 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
 
   private final SingleComputationCycle _cycle;
   private final ExecutingGraph _graph;
+  private final AtomicInteger _notifyLock = new AtomicInteger();
   private Map<CalculationJobSpecification, ExecutingJob> _executing = new HashMap<CalculationJobSpecification, ExecutingJob>();
   private State _state;
   private int _nodeCount;
@@ -246,13 +248,16 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
       _executionTime += result.getDuration();
     }
     final ExecutingGraph graph = getGraph();
+    _notifyLock.incrementAndGet();
     graph.jobCompleted(result.getSpecification());
     s_logger.debug("{} completed for {}", result, this);
     submitExecutableJobs();
     getCycle().jobCompleted(job.getJob(), result);
-    if (graph.isFinished()) {
-      final long duration = notifyComplete();
-      getStatisticsGatherer().graphExecuted(graph.getCalculationConfiguration(), _nodeCount, _executionTime, duration);
+    if (_notifyLock.decrementAndGet() == 0) {
+      if (graph.isFinished()) {
+        final long duration = notifyComplete();
+        getStatisticsGatherer().graphExecuted(graph.getCalculationConfiguration(), _nodeCount, _executionTime, duration);
+      }
     }
   }
 
