@@ -19,10 +19,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.viewer.status.ViewStatusOption.ResultFormat;
 import com.opengamma.integration.viewer.status.impl.BloombergReferencePortfolioMaker;
 import com.opengamma.integration.viewer.status.impl.ViewStatusCalculationWorker;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -47,7 +45,7 @@ public class ViewStatusTool extends AbstractTool<ToolContext> {
 
   @Override
   protected void doRun() throws Exception {
-    ViewStatusOption option = ViewStatusOption.getViewStatusReporterOption(getCommandLine());
+    ViewStatusOption option = ViewStatusOption.getViewStatusReporterOption(getCommandLine(), getToolContext());
     
     String portfolioName = option.getPortfolioName();
     UniqueId portfolioId = null;
@@ -59,18 +57,18 @@ public class ViewStatusTool extends AbstractTool<ToolContext> {
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
-    generateViewStatusReport(portfolioId, option.getUser(), option.getFormat(), option.getAggregateType(), option.getOutputFile());
+    generateViewStatusReport(portfolioId, option);
   }
   
-  private void generateViewStatusReport(final UniqueId portfolioId, final UserPrincipal user, final ResultFormat resultFormat, 
-      final AggregateType aggregateType, final File outputFile) {
+  private void generateViewStatusReport(final UniqueId portfolioId, final ViewStatusOption option) {
     
-    ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(getToolContext(), portfolioId, user);
+    ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(getToolContext(), portfolioId, option);
     ViewStatusResultAggregator resultAggregator = calculationWorker.run();
     
     ViewStatusResultProducer resultProducer = new ViewStatusResultProducer();
-    String statusResult = resultProducer.statusResult(resultAggregator, resultFormat, aggregateType);
+    String statusResult = resultProducer.statusResult(resultAggregator, option.getFormat(), option.getAggregateType());
     try {
+      File outputFile = option.getOutputFile();
       s_logger.debug("Writing status report into : {}", outputFile.getPath());
       FileUtils.writeStringToFile(outputFile, statusResult);
     } catch (IOException ex) {

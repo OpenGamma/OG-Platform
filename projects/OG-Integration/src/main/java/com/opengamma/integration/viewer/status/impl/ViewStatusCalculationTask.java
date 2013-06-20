@@ -27,7 +27,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.MissingValue;
-import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
@@ -73,14 +73,16 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
   private final ToolContext _toolContext;
   private final CurrenciesAggregationFunction _currenciesAggrFunction;
   private final Map<UniqueId, String> _targetCurrenciesCache = Maps.newConcurrentMap();
+  private final MarketDataSpecification _marketDataSpecification;
   
-  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, UserPrincipal user, String securityType, Collection<String> valueRequirementNames) {
+  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, UserPrincipal user, String securityType, 
+      Collection<String> valueRequirementNames, MarketDataSpecification marketDataSpecification) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(valueRequirementNames, "valueRequirementNames");
-    ArgumentChecker.notEmpty(valueRequirementNames, "valueRequirementNames");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(toolcontext, "toolcontext");
+    ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
     
     _portfolioId = portfolioId;
     _user = user;
@@ -88,6 +90,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     _valueRequirementNames = ImmutableSet.copyOf(valueRequirementNames);
     _toolContext = toolcontext;
     _currenciesAggrFunction = new CurrenciesAggregationFunction(_toolContext.getSecuritySource());
+    _marketDataSpecification = marketDataSpecification;
   }
 
   @Override
@@ -95,12 +98,16 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     s_logger.debug("Start calculating result for security:{} with values{}", _securityType, Sets.newTreeSet(_valueRequirementNames).toString());
     
     final PerViewStatusResult statusResult = new PerViewStatusResult(_securityType);
+    //No need to do any work if there are no ValueRequirements to compute
+    if (_valueRequirementNames.isEmpty()) {
+      return statusResult;
+    }
     final ViewDefinition viewDefinition = createViewDefinition();
     final ViewProcessor viewProcessor = _toolContext.getViewProcessor();
     final ViewClient client = viewProcessor.createViewClient(_user);
 
     final CountDownLatch latch = new CountDownLatch(1);
-    client.attachToViewProcess(viewDefinition.getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(viewDefinition.getUniqueId(), ExecutionOptions.infinite(_marketDataSpecification));
     client.setResultListener(new AbstractViewResultListener() {
 
       private AtomicLong _count = new AtomicLong(0);
@@ -190,7 +197,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
 
   protected boolean isValidTargetType(final ComputationTargetType computationTargetType) {
     if (ComputationTargetType.POSITION.isCompatible(computationTargetType) || ComputationTargetType.PORTFOLIO.isCompatible(computationTargetType) ||
-        ComputationTargetType.PORTFOLIO_NODE.isCompatible(computationTargetType)) {
+        ComputationTargetType.PORTFOLIO_NODE.isCompatible(computationTargetType) || ComputationTargetType.TRADE.isCompatible(computationTargetType)) {
       return true;
     }
     return false;
