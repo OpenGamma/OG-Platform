@@ -62,7 +62,7 @@ public final class ViewStatusOption {
   /**
    * Default output name
    */
-  private static final String DEFAULT_OUTPUT_NAME = "view-status";
+  public static final String DEFAULT_OUTPUT_NAME = "view-status";
   /**
    * Default user
    */
