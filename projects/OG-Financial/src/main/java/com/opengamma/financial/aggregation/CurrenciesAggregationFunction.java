@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
@@ -23,7 +24,10 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class CurrenciesAggregationFunction implements AggregationFunction<String> {
 
   private static final String NAME = "Currencies";
-  private static final String NO_CURRENCY = "No currency";
+  /**
+   * Name for No currency
+   */
+  public static final String NO_CURRENCY = "No currency";
   private final Comparator<Position> _comparator = new SimplePositionComparator();
   private final SecuritySource _secSource;
 
@@ -33,8 +37,12 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
 
   @Override
   public String classifyPosition(final Position position) {
+    return classifyBasedOnSecurity(position.getSecurity(), _secSource);
+  }
+
+  public static String classifyBasedOnSecurity(final Security security, SecuritySource securitySource) {
     try {
-      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(position.getSecurity(), _secSource);
+      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, securitySource);
       if (currencies == null || currencies.size() == 0) {
         return NO_CURRENCY;
       }

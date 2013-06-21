@@ -25,6 +25,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -176,7 +177,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.debug("cycle {} completed", _count.get());
         if (_count.getAndIncrement() > 5) {
-          checkResult(fullResult, statusResult);
+          processStatusResult(fullResult, statusResult);
           latch.countDown();
         }
       }
@@ -232,7 +233,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     return config.getValue();
   }
   
-  private void checkResult(ViewComputationResultModel fullResult, PerViewStatusResult statusResult) {
+  private void processStatusResult(ViewComputationResultModel fullResult, PerViewStatusResult statusResult) {
     ViewCalculationResultModel calculationResult = fullResult.getCalculationResult(DEFAULT_CALC_CONFIG);
     Collection<ComputationTargetSpecification> allTargets = calculationResult.getAllTargets();
     for (ComputationTargetSpecification targetSpec : allTargets) {
@@ -266,10 +267,20 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
           PositionSource positionSource = _toolContext.getPositionSource();
           Position position = positionSource.getPosition(uniqueId);
           position.getSecurityLink().resolve(_toolContext.getSecuritySource());
-          currency = _currenciesAggrFunction.classifyPosition(position);
-        } else {
-          currency = "N/A";
+          if (position.getSecurity() != null) {
+            currency = _currenciesAggrFunction.classifyPosition(position);
+          } 
+        } else if (ComputationTargetType.TRADE.isCompatible(computationTargetType)) {
+          PositionSource positionSource = _toolContext.getPositionSource();
+          Trade trade = positionSource.getTrade(uniqueId);
+          trade.getSecurityLink().resolve(_toolContext.getSecuritySource());
+          if (trade.getSecurity() != null) {
+            currency = CurrenciesAggregationFunction.classifyBasedOnSecurity(trade.getSecurity(), _toolContext.getSecuritySource());
+          }
         }
+      }
+      if (currency == null) {
+        currency = CurrenciesAggregationFunction.NO_CURRENCY;
       }
       _targetCurrenciesCache.put(uniqueId, currency);
       return currency;
