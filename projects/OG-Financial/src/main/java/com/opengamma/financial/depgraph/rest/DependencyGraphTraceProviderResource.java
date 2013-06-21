@@ -19,6 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueProperties;
@@ -44,6 +45,16 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
   public DependencyGraphTraceProviderResource(final DependencyGraphTraceProvider provider, final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
     _provider = provider;
+  }
+
+  @VisibleForTesting
+  FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
+  @VisibleForTesting
+  DependencyGraphTraceProvider getProvider() {
+    return _provider;
   }
 
   @GET
