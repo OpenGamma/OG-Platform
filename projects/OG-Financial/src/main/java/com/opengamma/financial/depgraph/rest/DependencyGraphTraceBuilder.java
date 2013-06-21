@@ -31,7 +31,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Helper class for {@link DependencyGraphBuilderResource}.
+ * Helper class for {@link DependencyGraphTraceProviderResource}.
  * 
  * Implements builder pattern with defaults.
  */
