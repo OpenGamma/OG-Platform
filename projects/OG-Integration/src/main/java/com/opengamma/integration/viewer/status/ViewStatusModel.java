@@ -24,7 +24,7 @@ public interface ViewStatusModel {
    * @param key the view status key, can be null
    * @return the stored status value for a given key or null if no matching key.
    */
-  Boolean getStatus(ViewStatusKey key);
+  ViewStatus getStatus(ViewStatusKey key);
   /**
    * Gets all the supported value requirement names.
    * 

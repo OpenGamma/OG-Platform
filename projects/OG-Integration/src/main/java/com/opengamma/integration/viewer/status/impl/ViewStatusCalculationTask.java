@@ -49,6 +49,7 @@ import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.aggregation.CurrenciesAggregationFunction;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -128,7 +129,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
             UniqueId uniqueId = valueSpec.getTargetSpecification().getUniqueId();
             String currency = getCurrency(uniqueId, computationTargetType);
             if (currency != null) {
-              statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency, computationTargetType.getName()), false);
+              statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency, computationTargetType.getName()), ViewStatus.NO_VALUE);
             } else {
               s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", uniqueId, computationTargetType);
             }
@@ -245,7 +246,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
           if (currency != null) {
             ComputedValueResult computedValue = valueEntry.getValue();
             if (isGoodValue(computedValue)) {
-              statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency, targetType.getName()), true);
+              statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency, targetType.getName()), ViewStatus.VALUE);
             }
           } else {
             s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", targetSpec.getUniqueId(), targetType);

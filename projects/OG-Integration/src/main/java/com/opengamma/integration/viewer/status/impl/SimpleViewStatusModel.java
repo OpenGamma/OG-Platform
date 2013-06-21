@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.util.ArgumentChecker;
@@ -34,9 +34,9 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   /**
    * The unaggregated result.
    */
-  private final Map<ViewStatusKey, Boolean> _viewStatusResult;
+  private final Map<ViewStatusKey, ViewStatus> _viewStatusResult;
     
-  public SimpleViewStatusModel(List<List<String>> columnHeaders, List<List<Object>> rows, Map<ViewStatusKey, Boolean> viewStatusResult) {
+  public SimpleViewStatusModel(List<List<String>> columnHeaders, List<List<Object>> rows, Map<ViewStatusKey, ViewStatus> viewStatusResult) {
     ArgumentChecker.notNull(columnHeaders, "columnHeaders");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(viewStatusResult, "viewStatusResult");
@@ -63,7 +63,7 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   }
 
   @Override
-  public Boolean getStatus(ViewStatusKey entry) {
+  public ViewStatus getStatus(ViewStatusKey entry) {
     return _viewStatusResult.get(entry);
   }
   

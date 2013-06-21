@@ -29,6 +29,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.integration.viewer.status.AggregateType;
 import com.opengamma.integration.viewer.status.ViewColumnType;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.integration.viewer.status.ViewStatusResultAggregator;
@@ -63,7 +64,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
    */
   public static final String STATUS = "Status";
   
-  private Map<ViewStatusKey, Boolean> _viewStatusResult = Maps.newConcurrentMap();
+  private Map<ViewStatusKey, ViewStatus> _viewStatusResult = Maps.newConcurrentMap();
   
   private static final Map<MetaProperty<?>, String> HEADERS = Maps.newHashMap();
   static {
@@ -159,7 +160,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
       for (String col : extraColumns) {
         List<String> keyMemebers = Lists.newArrayList(row);
         keyMemebers.add(col);
-        Boolean status = getStatus(keyFromRowValues(keyMemebers, columnTypes));
+        ViewStatus status = getStatus(keyFromRowValues(keyMemebers, columnTypes));
         if (status == null) {
           processedRow.add(EMPTY_STR);
         } else {
@@ -244,7 +245,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
   }
     
   @Override
-  public void putStatus(ViewStatusKey key, boolean status) {
+  public void putStatus(ViewStatusKey key, ViewStatus status) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(status, "status");
     
@@ -252,7 +253,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
   }
   
   @Override
-  public Boolean getStatus(ViewStatusKey key) {
+  public ViewStatus getStatus(ViewStatusKey key) {
     if (key == null) {
       return null;
     } else {
@@ -272,13 +273,13 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     List<List<Object>> rowData = Lists.newArrayListWithCapacity(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       List<Object> row = Lists.newArrayList();
-      Boolean status = _viewStatusResult.get(key);
+      ViewStatus status = _viewStatusResult.get(key);
       
       row.add(key.getTargetType());
       row.add(key.getSecurityType());
       row.add(key.getValueRequirementName());
       row.add(key.getCurrency());
-      row.add(String.valueOf(status));
+      row.add(status.getValue());
       rowData.add(row);
     }    
     return new SimpleViewStatusModel(columnHeaders, rowData, _viewStatusResult);
