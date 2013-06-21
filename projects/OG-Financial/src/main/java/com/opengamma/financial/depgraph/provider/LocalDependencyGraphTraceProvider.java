@@ -30,6 +30,13 @@ public class LocalDependencyGraphTraceProvider implements DependencyGraphTracePr
   public LocalDependencyGraphTraceProvider(DependencyGraphTraceBuilder traceBuilder) {
     _traceBuilder = traceBuilder;
   }
+  
+  /**
+   * @return the configured trace builder
+   */
+  public DependencyGraphTraceBuilder getTraceBuilder() {
+    return _traceBuilder;
+  }
 
   @Override
   public DependencyGraphBuildTrace getTraceWithValuationTime(Instant valuationTime) {
