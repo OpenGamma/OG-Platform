@@ -129,7 +129,7 @@ public class Scenario {
       DistinctMarketDataSelector selector = entry.getKey();
       // ListMultimap always has Lists as entries even if the signature doesn't say so
       List<StructureManipulator<?>> manipulators = (List<StructureManipulator<?>>) entry.getValue();
-      CompositeStructureManipulator compositeManipulator = new CompositeStructureManipulator(Object.class, manipulators);
+      CompositeStructureManipulator compositeManipulator = new CompositeStructureManipulator(manipulators);
       SimpleFunctionParameters functionParameters = new SimpleFunctionParameters();
       functionParameters.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, compositeManipulator);
       params.put(selector, functionParameters);

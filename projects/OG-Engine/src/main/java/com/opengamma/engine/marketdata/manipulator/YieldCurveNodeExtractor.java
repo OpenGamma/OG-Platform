@@ -25,7 +25,7 @@ public class YieldCurveNodeExtractor extends NodeExtractor<YieldCurveKey> {
    * Constructs a yield curve extractor.
    */
   public YieldCurveNodeExtractor() {
-    super(ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
+    super(ValueRequirementNames.YIELD_CURVE);
   }
 
   @Override
