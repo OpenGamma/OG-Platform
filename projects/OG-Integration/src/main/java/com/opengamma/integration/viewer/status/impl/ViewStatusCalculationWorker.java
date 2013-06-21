@@ -69,6 +69,7 @@ public class ViewStatusCalculationWorker {
     ArgumentChecker.notNull(option.getMarketDataSpecification(), "option.marketDataSpecification");
     ArgumentChecker.notNull(executorService, "executorService");
     
+    validateComponentsInToolContext(toolContext);
     _portfolioId = portfolioId;
     _user = option.getUser();
     _marketDataSpecification = option.getMarketDataSpecification();
@@ -86,6 +87,21 @@ public class ViewStatusCalculationWorker {
     _valueRequirementBySecType = valueRequirementBySecType;
   }
   
+  private void validateComponentsInToolContext(ToolContext toolContext) {
+    if (toolContext.getViewProcessor() == null) {
+      throw new OpenGammaRuntimeException("Missing view processor in given toolcontext");
+    }
+    if (toolContext.getSecuritySource() == null) {
+      throw new OpenGammaRuntimeException("Missing security source in given toolcontext");
+    }
+    if (toolContext.getConfigMaster() == null) {
+      throw new OpenGammaRuntimeException("Missing config master in given toolcontext");
+    }
+    if (toolContext.getPositionSource() == null) {
+      throw new OpenGammaRuntimeException("Missing position source in given toolcontext");
+    }
+  }
+
   private Map<String, Collection<String>> scanValueRequirementBySecType(UniqueId portfolioId, ToolContext toolContext) {
     AvailableOutputsProvider availableOutputsProvider = toolContext.getAvaliableOutputsProvider();
     if (availableOutputsProvider == null) {
