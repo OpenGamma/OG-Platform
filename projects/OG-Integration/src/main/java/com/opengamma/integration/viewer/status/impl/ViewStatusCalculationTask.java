@@ -249,7 +249,12 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     List<Position> positions = PortfolioAggregator.flatten(portfolio);
     Set<String> currencies = Sets.newHashSet();
     for (Position position : positions) {
-      currencies.add(getCurrency(position.getUniqueId(), ComputationTargetType.POSITION));
+      if (position.getSecurity() == null) {
+        position.getSecurityLink().resolve(_toolContext.getSecuritySource());
+      }
+      if (position.getSecurity() != null && _securityType.equals(position.getSecurity().getSecurityType())) {
+        currencies.add(getCurrency(position.getUniqueId(), ComputationTargetType.POSITION));
+      }
     }
     for (String valueName : _valueRequirementNames) {
       for (String currency : currencies) {
@@ -291,14 +296,18 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
         } else if (ComputationTargetType.POSITION.isCompatible(computationTargetType)) {
           PositionSource positionSource = _toolContext.getPositionSource();
           Position position = positionSource.getPosition(uniqueId);
-          position.getSecurityLink().resolve(_toolContext.getSecuritySource());
+          if (position.getSecurity() == null) {
+            position.getSecurityLink().resolve(_toolContext.getSecuritySource());
+          }
           if (position.getSecurity() != null) {
             currency = _currenciesAggrFunction.classifyPosition(position);
           } 
         } else if (ComputationTargetType.TRADE.isCompatible(computationTargetType)) {
           PositionSource positionSource = _toolContext.getPositionSource();
           Trade trade = positionSource.getTrade(uniqueId);
-          trade.getSecurityLink().resolve(_toolContext.getSecuritySource());
+          if (trade.getSecurity() == null) {
+            trade.getSecurityLink().resolve(_toolContext.getSecuritySource());
+          }
           if (trade.getSecurity() != null) {
             currency = CurrenciesAggregationFunction.classifyBasedOnSecurity(trade.getSecurity(), _toolContext.getSecuritySource());
           }
