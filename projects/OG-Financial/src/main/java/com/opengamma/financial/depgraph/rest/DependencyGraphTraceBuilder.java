@@ -27,11 +27,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.depgraph.provider.LocalDependencyGraphTraceProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Helper class for {@link DependencyGraphTraceProviderResource}.
+ * Helper class for {@link LocalDependencyGraphTraceProvider}.
  * 
  * Implements builder pattern with defaults.
  */
@@ -46,6 +47,10 @@ public class DependencyGraphTraceBuilder {
   private final Collection<ValueRequirement> _requirements;
   private final MarketDataSpecification _marketData;
 
+  /**
+   * Constructs a builder instance with given context and default values.
+   * @param builderContext holds dependencies of the builder
+   */
   public DependencyGraphTraceBuilder(DependencyGraphBuilderResourceContextBean builderContext) {
     _builderContext = builderContext;
     _calculationConfigurationName = "Default";
@@ -56,6 +61,10 @@ public class DependencyGraphTraceBuilder {
     _marketData = MarketData.live();
   }
 
+  /**
+   * Copy constructor
+   * @param other instance to copy
+   */
   private DependencyGraphTraceBuilder(DependencyGraphTraceBuilder other) {
     _builderContext = other.getBuilderContext();
     _calculationConfigurationName = other.getCalculationConfigurationName();
@@ -66,34 +75,59 @@ public class DependencyGraphTraceBuilder {
     _marketData = other.getMarketData();
   }
   
+  /**
+   * @return configured builder context
+   */
   public DependencyGraphBuilderResourceContextBean getBuilderContext() {
     return _builderContext;
   }
 
+  /**
+   * @return configured calculation configuration name
+   */
   public String getCalculationConfigurationName() {
     return _calculationConfigurationName;
   }
 
+  /**
+   * @return configured valuation time
+   */
   public Instant getValuationTime() {
     return _valuationTime;
   }
 
+  /**
+   * @return configured resolution time
+   */
   public VersionCorrection getResolutionTime() {
     return _resolutionTime;
   }
 
+  /**
+   * @return configured default properties
+   */
   public ValueProperties getDefaultProperties() {
     return _defaultProperties;
   }
 
+  /**
+   * @return configured requirements
+   */
   public Collection<ValueRequirement> getRequirements() {
     return _requirements;
   }
 
+  /**
+   * @return configured market data
+   */
   public MarketDataSpecification getMarketData() {
     return _marketData;
   }
   
+  /**
+   * @param calculationConfigurationName calculation configuration name to set
+   * @return a newly configured instance
+   */
   public DependencyGraphTraceBuilder calculationConfigurationName(final String calculationConfigurationName) {
     return new DependencyGraphTraceBuilder(this) {
       public String getCalculationConfigurationName() {
@@ -102,6 +136,10 @@ public class DependencyGraphTraceBuilder {
     };
   }
 
+  /**
+   * @param resolutionTime resolution time to set
+   * @return a newly configured instance
+   */
   public DependencyGraphTraceBuilder resolutionTime(final VersionCorrection resolutionTime) {
     return new DependencyGraphTraceBuilder(this) {
       @Override
@@ -111,6 +149,10 @@ public class DependencyGraphTraceBuilder {
     };
   }
 
+  /**
+   * @param valuationTime valuation time to set
+   * @return a newly configured instance
+   */
   public DependencyGraphTraceBuilder valuationTime(final Instant valuationTime) {
     return new DependencyGraphTraceBuilder(this) {
       @Override
@@ -120,6 +162,10 @@ public class DependencyGraphTraceBuilder {
     };
   }
 
+  /**
+   * @param defaultProperties default properties to set
+   * @return a newly configured instance
+   */
   public DependencyGraphTraceBuilder defaultProperties(final ValueProperties defaultProperties) {
     return new DependencyGraphTraceBuilder(this) {
       public ValueProperties getDefaultProperties() {
@@ -128,6 +174,10 @@ public class DependencyGraphTraceBuilder {
     };
   }
 
+  /**
+   * @param requirement requirement to add
+   * @return a newly configured instance
+   */
   public DependencyGraphTraceBuilder addRequirement(ValueRequirement requirement) {
     final Collection<ValueRequirement> currentRequirements = new ArrayList<>(getRequirements());
     currentRequirements.add(requirement);
@@ -135,6 +185,10 @@ public class DependencyGraphTraceBuilder {
   }
 
   
+  /**
+   * @param requirements requirements to set
+   * @return a newly configured instance
+   */
   public DependencyGraphTraceBuilder requirements(final Collection<ValueRequirement> requirements) {
     return new DependencyGraphTraceBuilder(this) {
       @Override
@@ -144,6 +198,10 @@ public class DependencyGraphTraceBuilder {
     };
   }
 
+  /**
+   * @param marketData market data to set
+   * @return a newly configured instance
+   */
   public DependencyGraphTraceBuilder marketData(final MarketDataSpecification marketData) {
     return new DependencyGraphTraceBuilder(this) {
       @Override
