@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.fudgemsg.FudgeContext;
@@ -27,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.cache.BerkeleyDBIdentifierMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -240,6 +243,42 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
   @Test
   public void bulkGetPerformanceTest() {
     getPerformanceTestImpl(true);
+  }
+
+  @Test(timeOut = 30000)
+  public void interruptThread() throws Throwable {
+    final ExecutorService threads = Executors.newSingleThreadExecutor();
+    try {
+      final Thread main = Thread.currentThread();
+      final Runnable interrupter = new Runnable() {
+        @Override
+        public void run() {
+          try {
+            Thread.sleep(1000);
+            main.interrupt();
+          } catch (InterruptedException e) {
+            throw new OpenGammaRuntimeException("Interrupted", e);
+          }
+        }
+      };
+      threads.submit(interrupter);
+      int count = 0;
+      do {
+        getPerformanceTest();
+        if (Thread.interrupted()) {
+          count++;
+          if (count <= 5) {
+            threads.submit(interrupter);
+          } else {
+            break;
+          }
+        }
+      } while (true);
+    } finally {
+      threads.shutdown();
+      Thread.interrupted();
+      threads.awaitTermination(5, TimeUnit.SECONDS);
+    }
   }
 
   /**
