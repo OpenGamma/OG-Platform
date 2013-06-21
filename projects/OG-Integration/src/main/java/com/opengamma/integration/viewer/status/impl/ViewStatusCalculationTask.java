@@ -6,6 +6,7 @@
 package com.opengamma.integration.viewer.status.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -23,6 +24,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
@@ -48,8 +50,10 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.aggregation.CurrenciesAggregationFunction;
+import com.opengamma.financial.aggregation.PortfolioAggregator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
@@ -141,7 +145,11 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
       @Override
       public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
         s_logger.debug("View definition {} failed to initialize", viewDefinition);
-        latch.countDown();
+        try {
+          processGraphFailResult(statusResult);
+        } finally {
+          latch.countDown();
+        }
       }
 
       public void cycleStarted(ViewCycleMetadata cycleInfo) {
@@ -197,6 +205,8 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     return statusResult;
   }
 
+  
+
   protected boolean isValidTargetType(final ComputationTargetType computationTargetType) {
     if (ComputationTargetType.POSITION.isCompatible(computationTargetType) || ComputationTargetType.PORTFOLIO.isCompatible(computationTargetType) ||
         ComputationTargetType.PORTFOLIO_NODE.isCompatible(computationTargetType) || ComputationTargetType.TRADE.isCompatible(computationTargetType)) {
@@ -231,6 +241,21 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     ConfigItem<ViewDefinition> config = ConfigItem.of(viewDefinition, viewDefinition.getName(), ViewDefinition.class);
     config = ConfigMasterUtils.storeByName(_toolContext.getConfigMaster(), config);
     return config.getValue();
+  }
+  
+  private void processGraphFailResult(final PerViewStatusResult statusResult) {
+    PositionSource positionSource = _toolContext.getPositionSource();
+    Portfolio portfolio = positionSource.getPortfolio(_portfolioId, VersionCorrection.LATEST);
+    List<Position> positions = PortfolioAggregator.flatten(portfolio);
+    Set<String> currencies = Sets.newHashSet();
+    for (Position position : positions) {
+      currencies.add(getCurrency(position.getUniqueId(), ComputationTargetType.POSITION));
+    }
+    for (String valueName : _valueRequirementNames) {
+      for (String currency : currencies) {
+        statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency, ComputationTargetType.POSITION.getName()), ViewStatus.GRAPH_FAIL);
+      }
+    }
   }
   
   private void processStatusResult(ViewComputationResultModel fullResult, PerViewStatusResult statusResult) {
