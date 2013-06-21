@@ -5,7 +5,14 @@
  */
 package com.opengamma.engine.cache;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.value.ValueProperties;
@@ -41,18 +49,11 @@ import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 import com.sleepycat.je.TransactionConfig;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-
 /**
- * An implementation of {@link IdentifierMap} that backs all lookups in a
- * Berkeley DB table.
- * Internally, it maintains an {@link AtomicLong} to allocate the next identifier to be used.
+ * An implementation of {@link IdentifierMap} that backs all lookups in a Berkeley DB table. Internally, it maintains an {@link AtomicLong} to allocate the next identifier to be used.
  */
 public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
+
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBIdentifierMap.class);
 
   private static final String VALUE_SPECIFICATION_TO_IDENTIFIER_DATABASE = "value_specification_identifier";
@@ -90,6 +91,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
 
   /**
    * Gets the fudgeContext field.
+   * 
    * @return the fudgeContext
    */
   public FudgeContext getFudgeContext() {
@@ -217,6 +219,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
 
   /**
    * Creates a new ID for a specification and saves the ID and the spec in both databases.
+   * 
    * @param valueSpec The specification
    * @param txn A running transaction
    * @param specKeyEntry A DB entry containing the encoded specification suitable for use as a key, not as a value
@@ -278,105 +281,126 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
 }
 
 /**
- * Creates a string representation of a {@link ValueSpecification}. The same string will be produced for different
- * {@link ValueSpecification} instances if they are logically equal. This isn't necessarily true of Fudge encoding
- * which can produce a different binary encoding for equal specifications. The format produced by this
- * class isn't intended to be parsed, it's only needed to produce a unique binary key for a specification. The
- * readability is only intended to help debugging.
+ * Creates a string representation of a {@link ValueSpecification}. The same string will be produced for different {@link ValueSpecification} instances if they are logically equal. This isn't
+ * necessarily true of Fudge encoding which can produce a different binary encoding for equal specifications. The format produced by this class isn't intended to be parsed, it's only needed to produce
+ * a unique binary key for a specification. The readability is only intended to help debugging.
  */
-/* package */ class ValueSpecificationStringEncoder {
+/* package */class ValueSpecificationStringEncoder {
 
-  /* package */ static String encodeAsString(ValueSpecification valueSpec) {
-    StringBuilder builder = new StringBuilder("{");
-    builder.append("valueName=").append(valueSpec.getValueName());
-    builder.append(",");
-    builder.append("properties=").append(encodeAsString(valueSpec.getProperties()));
-    builder.append(",");
-    builder.append("targetSpecification=").append(encodeAsString(valueSpec.getTargetSpecification()));
-    builder.append("}");
+  private static final ComputationTargetTypeVisitor<StringBuilder, Void> s_typeToString = new ComputationTargetTypeVisitor<StringBuilder, Void>() {
+
+    @Override
+    public Void visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final StringBuilder builder) {
+      final String[] typeStrings = new String[types.size()];
+      final StringBuilder tmp = new StringBuilder();
+      int index = 0;
+      for (ComputationTargetType type : types) {
+        tmp.delete(0, tmp.length());
+        type.accept(this, tmp);
+        typeStrings[index++] = tmp.toString();
+      }
+      Arrays.sort(typeStrings);
+      for (int i = 0; i < typeStrings.length; i++) {
+        if (i == 0) {
+          builder.append('{');
+        } else {
+          builder.append(',');
+        }
+        builder.append(typeStrings[i]);
+      }
+      builder.append('}');
+      return null;
+    }
+
+    @Override
+    public Void visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final StringBuilder builder) {
+      builder.append('[');
+      boolean comma = false;
+      for (ComputationTargetType type : types) {
+        if (comma) {
+          builder.append(',');
+        } else {
+          comma = true;
+        }
+        type.accept(this, builder);
+      }
+      builder.append(']');
+      return null;
+    }
+
+    @Override
+    public Void visitNullComputationTargetType(final StringBuilder builder) {
+      builder.append("NULL");
+      return null;
+    }
+
+    @Override
+    public Void visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final StringBuilder builder) {
+      builder.append(type.getName());
+      return null;
+    }
+
+  };
+
+  private static final ComputationTargetReferenceVisitor<String> s_refToString = new ComputationTargetReferenceVisitor<String>() {
+
+    private String createResult(final ComputationTargetReference reference, final String toString) {
+      if (reference.getParent() != null) {
+        final StringBuilder sb = new StringBuilder(reference.getParent().accept(s_refToString));
+        return sb.append(',').append(toString).toString();
+      } else {
+        return toString;
+      }
+    }
+
+    @Override
+    public String visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+      return createResult(requirement, requirement.getIdentifiers().toString());
+    }
+
+    @Override
+    public String visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+      if (specification.getUniqueId() != null) {
+        return createResult(specification, specification.getUniqueId().toString());
+      } else {
+        return "NULL";
+      }
+    }
+
+  };
+
+  /* package */static String encodeAsString(ValueSpecification valueSpec) {
+    final StringBuilder builder = new StringBuilder(valueSpec.getValueName());
+    builder.append(',');
+    encodeAsString(builder, valueSpec.getProperties());
+    builder.append(',');
+    encodeAsString(builder, valueSpec.getTargetSpecification());
     return builder.toString();
   }
 
-  private static String encodeAsString(ValueProperties properties) {
+  private static void encodeAsString(final StringBuilder builder, final ValueProperties properties) {
     if (properties instanceof ValueProperties.InfinitePropertiesImpl) {
-      return "Infinite";
+      builder.append("INF");
     }
     if (properties instanceof ValueProperties.NearlyInfinitePropertiesImpl) {
-      StringBuilder builder = new StringBuilder("NearlyInfinite{without=");
-      // order the property names
+      builder.append("INF-{");
       builder.append(new TreeSet<>(((ValueProperties.NearlyInfinitePropertiesImpl) properties).getWithout()));
-      builder.append("}");
-      return builder.toString();
+      builder.append('}');
     } else {
-      StringBuilder builder = new StringBuilder("{");
       Map<String, Set<String>> props = Maps.newTreeMap();
       for (String propName : properties.getProperties()) {
         props.put(propName, Sets.newTreeSet(properties.getValues(propName)));
       }
       builder.append(props);
-      builder.append("}");
-      return builder.toString();
     }
   }
 
-  private static String encodeAsString(ComputationTargetSpecification targetSpec) {
-    StringBuilder builder = new StringBuilder("{");
-    builder.append("uniqueId=").append(targetSpec.getUniqueId());
-    builder.append(",");
-    builder.append("parent=").append(encodeAsString(targetSpec.getParent()));
-    builder.append(",");
-    builder.append("type=").append(encodeAsString(targetSpec.getType()));
-    builder.append("}");
-    return builder.toString();
+  private static void encodeAsString(final StringBuilder builder, final ComputationTargetSpecification targetSpec) {
+    builder.append('(');
+    builder.append(targetSpec.accept(s_refToString));
+    builder.append(',');
+    targetSpec.getType().accept(s_typeToString, builder);
+    builder.append(')');
   }
 
-  private static String encodeAsString(ComputationTargetReference ref) {
-    if (ref == null) {
-      return null;
-    }
-    StringBuilder builder = new StringBuilder("{");
-    builder.append("parent=").append(encodeAsString(ref.getParent()));
-    builder.append(",");
-    builder.append("type=").append(encodeAsString(ref.getType()));
-    builder.append("}");
-    return builder.toString();
-  }
-
-  private static String encodeAsString(ComputationTargetType type) {
-    return type.accept(new ComputationTargetTypeVisitor<Object, String>() {
-      @Override
-      public String visitMultipleComputationTargetTypes(Set<ComputationTargetType> types, Object data) {
-        StringBuilder builder = new StringBuilder("Multiple{");
-        Set<String> typeStrs = Sets.newTreeSet();
-        for (ComputationTargetType type : types) {
-          typeStrs.add(encodeAsString(type));
-        }
-        builder.append(typeStrs);
-        builder.append("}");
-        return builder.toString();
-      }
-
-      @Override
-      public String visitNestedComputationTargetTypes(List<ComputationTargetType> types, Object data) {
-        StringBuilder builder = new StringBuilder("Nested{");
-        List<String> typeStrs = Lists.newArrayList();
-        for (ComputationTargetType type : types) {
-          typeStrs.add(encodeAsString(type));
-        }
-        builder.append(typeStrs);
-        builder.append("}");
-        return builder.toString();
-      }
-
-      @Override
-      public String visitNullComputationTargetType(Object data) {
-        return "Null";
-      }
-
-      @Override
-      public String visitClassComputationTargetType(Class<? extends UniqueIdentifiable> type, Object data) {
-        return "Class{" + type.getName() + "}";
-      }
-    }, null);
-  }
 }
