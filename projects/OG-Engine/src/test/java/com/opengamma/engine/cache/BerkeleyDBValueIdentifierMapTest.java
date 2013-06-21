@@ -50,8 +50,8 @@ import com.sleepycat.je.EnvironmentConfig;
  * A simple unit test of {@link BerkeleyDBIdentifierMap}.
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class BerkeleyDBValueSpecificationIdentifierSourceTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierSourceTest.class);
+public class BerkeleyDBValueIdentifierMapTest {
+  private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueIdentifierMapTest.class);
   private static Set<File> s_dbDirsToDelete = new HashSet<File>();
 
   protected File createDbDir(String methodName) {
@@ -264,8 +264,10 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
       threads.submit(interrupter);
       int count = 0;
       do {
-        getPerformanceTest();
-        if (Thread.interrupted()) {
+        try {
+          getPerformanceTest();
+        } catch (OpenGammaRuntimeException e) {
+          assertEquals("Interrupted", e.getMessage());
           count++;
           if (count <= 5) {
             threads.submit(interrupter);

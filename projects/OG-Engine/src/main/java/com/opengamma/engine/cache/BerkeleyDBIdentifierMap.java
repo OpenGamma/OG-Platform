@@ -16,8 +16,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
@@ -47,7 +50,6 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
-import com.sleepycat.je.TransactionConfig;
 
 /**
  * An implementation of {@link IdentifierMap} that backs all lookups in a Berkeley DB table. Internally, it maintains an {@link AtomicLong} to allocate the next identifier to be used.
@@ -62,9 +64,141 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   private final FudgeContext _fudgeContext;
   private final AbstractBerkeleyDBComponent _valueSpecificationToIdentifier;
   private final AbstractBerkeleyDBComponent _identifierToValueSpecification;
-
-  // Runtime state:
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
+  private BlockingQueue<Request> _requests;
+
+  private abstract static class Request {
+
+    private boolean _done;
+
+    protected final synchronized void waitFor() {
+      try {
+        while (!_done) {
+          wait();
+        }
+      } catch (InterruptedException e) {
+        throw new OpenGammaRuntimeException("Interrupted", e);
+      }
+    }
+
+    protected final synchronized void signal() {
+      _done = true;
+      notify();
+    }
+
+    protected abstract void runInTransaction(Worker worker);
+
+  }
+
+  private static final class PoisonRequest extends Request {
+
+    @Override
+    protected void runInTransaction(final Worker worker) {
+      worker.poison(this);
+    }
+
+  }
+
+  private final class Worker implements Runnable {
+
+    private final DatabaseEntry _identifier = new DatabaseEntry();
+    private final DatabaseEntry _valueSpec = new DatabaseEntry();
+    private final BlockingQueue<Request> _requests;
+    private Transaction _transaction;
+    private PoisonRequest _poisoned;
+
+    public Worker(final BlockingQueue<Request> requests) {
+      _requests = requests;
+    }
+
+    public long getIdentifier(final ValueSpecification spec) {
+      final byte[] specAsBytes = ValueSpecificationStringEncoder.encodeAsString(spec).getBytes(Charset.forName("UTF-8"));
+      _valueSpec.setData(specAsBytes);
+      OperationStatus status = _valueSpecificationToIdentifier.getDatabase().get(_transaction, _valueSpec, _identifier, LockMode.READ_COMMITTED);
+      switch (status) {
+        case NOTFOUND:
+          return allocateNewIdentifier(spec, _transaction, _valueSpec);
+        case SUCCESS:
+          return LongBinding.entryToLong(_identifier);
+        default:
+          s_logger.warn("Unexpected operation status on load {}, assuming we have to insert a new record", status);
+          return allocateNewIdentifier(spec, _transaction, _valueSpec);
+      }
+    }
+
+    public Object2LongMap<ValueSpecification> getIdentifiers(final Collection<ValueSpecification> specs) {
+      final Object2LongMap<ValueSpecification> result = new Object2LongOpenHashMap<ValueSpecification>();
+      for (ValueSpecification spec : specs) {
+        result.put(spec, getIdentifier(spec));
+      }
+      return result;
+    }
+
+    public ValueSpecification getValueSpecification(final long identifier) {
+      LongBinding.longToEntry(identifier, _identifier);
+      final OperationStatus status = _identifierToValueSpecification.getDatabase().get(_transaction, _identifier, _valueSpec, LockMode.READ_COMMITTED);
+      if (status == OperationStatus.SUCCESS) {
+        return convertByteArrayToSpecification(_valueSpec.getData());
+      }
+      s_logger.warn("Couldn't resolve identifier {} - {}", identifier, status);
+      return null;
+    }
+
+    public Long2ObjectMap<ValueSpecification> getValueSpecifications(final long[] identifiers) {
+      final Long2ObjectMap<ValueSpecification> result = new Long2ObjectOpenHashMap<ValueSpecification>();
+      for (long identifier : identifiers) {
+        result.put(identifier, getValueSpecification(identifier));
+      }
+      return result;
+    }
+
+    public void poison(final PoisonRequest request) {
+      _poisoned = request;
+    }
+
+    @Override
+    public void run() {
+      s_logger.info("Worker started");
+      _poisoned = null;
+      do {
+        Request req = null;
+        try {
+          req = _requests.take();
+          if (req == null) {
+            s_logger.info("Worker poisoned");
+            return;
+          }
+          boolean rollback = true;
+          _transaction = getDbEnvironment().beginTransaction(null, null);
+          try {
+            do {
+              req.runInTransaction(this);
+              req.signal();
+              req = _requests.poll();
+            } while (req != null);
+            rollback = false;
+          } finally {
+            if (rollback) {
+              s_logger.error("Rolling back transaction");
+              _transaction.abort();
+            } else {
+              _transaction.commit();
+            }
+            _transaction = null;
+          }
+        } catch (Throwable t) {
+          s_logger.error("Caught exception", t);
+        } finally {
+          if (req != null) {
+            req.signal();
+          }
+        }
+      } while (_poisoned == null);
+      // If there are other workers, put the poison back in the queue for them
+      _requests.add(_poisoned);
+    }
+
+  }
 
   public BerkeleyDBIdentifierMap(final Environment dbEnvironment, final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(dbEnvironment, "dbEnvironment");
@@ -103,30 +237,58 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
     return _valueSpecificationToIdentifier.getDbEnvironment();
   }
 
+  private static final class GetIdentifierRequest extends Request {
+
+    private final ValueSpecification _spec;
+    private volatile long _result;
+
+    public GetIdentifierRequest(final ValueSpecification spec) {
+      _spec = spec;
+    }
+
+    @Override
+    protected void runInTransaction(final Worker worker) {
+      _result = worker.getIdentifier(_spec);
+    }
+
+    public long run(final Queue<Request> requests) {
+      requests.add(this);
+      waitFor();
+      return _result;
+    }
+
+  }
+
   @Override
-  public long getIdentifier(ValueSpecification spec) {
+  public long getIdentifier(final ValueSpecification spec) {
     ArgumentChecker.notNull(spec, "spec");
     if (!isRunning()) {
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();
     }
-    // Now we open the transaction.
-    TransactionConfig txnConfig = new TransactionConfig();
-    txnConfig.setSync(false);
-    Transaction txn = getDbEnvironment().beginTransaction(null, txnConfig);
-    long result;
-    boolean rollback = true;
-    try {
-      result = getIdentifierImpl(txn, spec, new DatabaseEntry());
-      txn.commit();
-      rollback = false;
-    } finally {
-      if (rollback) {
-        s_logger.error("Rolling back transaction getting identifier for {}", spec);
-        txn.abort();
-      }
+    return new GetIdentifierRequest(spec).run(_requests);
+  }
+
+  private static final class GetIdentifiersRequest extends Request {
+
+    private final Collection<ValueSpecification> _specs;
+    private Object2LongMap<ValueSpecification> _result;
+
+    public GetIdentifiersRequest(final Collection<ValueSpecification> specs) {
+      _specs = specs;
     }
-    return result;
+
+    @Override
+    protected void runInTransaction(final Worker worker) {
+      _result = worker.getIdentifiers(_specs);
+    }
+
+    public Object2LongMap<ValueSpecification> run(final Queue<Request> requests) {
+      requests.add(this);
+      waitFor();
+      return _result;
+    }
+
   }
 
   @Override
@@ -136,41 +298,29 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();
     }
-    // Now we open the transaction.
-    TransactionConfig txnConfig = new TransactionConfig();
-    txnConfig.setSync(false);
-    Transaction txn = getDbEnvironment().beginTransaction(null, txnConfig);
-    final Object2LongMap<ValueSpecification> result = new Object2LongOpenHashMap<>();
-    boolean rollback = true;
-    try {
-      final DatabaseEntry identifierEntry = new DatabaseEntry();
-      for (ValueSpecification spec : specs) {
-        result.put(spec, getIdentifierImpl(txn, spec, identifierEntry));
-      }
-      txn.commit();
-      rollback = false;
-    } finally {
-      if (rollback) {
-        s_logger.error("Rolling back transaction getting identifiers");
-        txn.abort();
-      }
-    }
-    return result;
+    return new GetIdentifiersRequest(specs).run(_requests);
   }
 
-  protected long getIdentifierImpl(final Transaction txn, final ValueSpecification spec, final DatabaseEntry identifierEntry) {
-    byte[] specAsBytes = ValueSpecificationStringEncoder.encodeAsString(spec).getBytes(Charset.forName("UTF-8"));
-    DatabaseEntry specEntry = new DatabaseEntry(specAsBytes);
-    OperationStatus status = _valueSpecificationToIdentifier.getDatabase().get(txn, specEntry, identifierEntry, LockMode.READ_COMMITTED);
-    switch (status) {
-      case NOTFOUND:
-        return allocateNewIdentifier(spec, txn, specEntry);
-      case SUCCESS:
-        return LongBinding.entryToLong(identifierEntry);
-      default:
-        s_logger.warn("Unexpected operation status on load {}, assuming we have to insert a new record", status);
-        return allocateNewIdentifier(spec, txn, specEntry);
+  private static final class GetValueSpecificationRequest extends Request {
+
+    private final long _identifier;
+    private ValueSpecification _result;
+
+    public GetValueSpecificationRequest(final long identifier) {
+      _identifier = identifier;
     }
+
+    @Override
+    protected void runInTransaction(final Worker worker) {
+      _result = worker.getValueSpecification(_identifier);
+    }
+
+    public ValueSpecification run(final Queue<Request> requests) {
+      requests.add(this);
+      waitFor();
+      return _result;
+    }
+
   }
 
   @Override
@@ -179,12 +329,29 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();
     }
-    final Transaction txn = getDbEnvironment().beginTransaction(null, null);
-    try {
-      return getValueSpecificationImpl(txn, identifier, new DatabaseEntry(), new DatabaseEntry());
-    } finally {
-      txn.commitNoSync();
+    return new GetValueSpecificationRequest(identifier).run(_requests);
+  }
+
+  private static final class GetValueSpecificationsRequest extends Request {
+
+    private final long[] _identifiers;
+    private Long2ObjectMap<ValueSpecification> _result;
+
+    public GetValueSpecificationsRequest(final long[] identifiers) {
+      _identifiers = identifiers;
     }
+
+    @Override
+    protected void runInTransaction(final Worker worker) {
+      _result = worker.getValueSpecifications(_identifiers);
+    }
+
+    public Long2ObjectMap<ValueSpecification> run(final Queue<Request> requests) {
+      requests.add(this);
+      waitFor();
+      return _result;
+    }
+
   }
 
   @Override
@@ -193,28 +360,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();
     }
-    final Transaction txn = getDbEnvironment().beginTransaction(null, null);
-    try {
-      final Long2ObjectMap<ValueSpecification> result = new Long2ObjectOpenHashMap<ValueSpecification>();
-      final DatabaseEntry identifierEntry = new DatabaseEntry();
-      final DatabaseEntry valueSpecEntry = new DatabaseEntry();
-      for (long identifier : identifiers) {
-        result.put(identifier, getValueSpecificationImpl(txn, identifier, identifierEntry, valueSpecEntry));
-      }
-      return result;
-    } finally {
-      txn.commitNoSync();
-    }
-  }
-
-  protected ValueSpecification getValueSpecificationImpl(final Transaction txn, final long identifier, final DatabaseEntry identifierEntry, final DatabaseEntry valueSpecEntry) {
-    LongBinding.longToEntry(identifier, identifierEntry);
-    OperationStatus status = _identifierToValueSpecification.getDatabase().get(txn, identifierEntry, valueSpecEntry, LockMode.READ_COMMITTED);
-    if (status == OperationStatus.SUCCESS) {
-      return convertByteArrayToSpecification(valueSpecEntry.getData());
-    }
-    s_logger.warn("Couldn't resolve identifier {} - {}", identifier, status);
-    return null;
+    return new GetValueSpecificationsRequest(identifiers.toLongArray()).run(_requests);
   }
 
   /**
@@ -262,20 +408,32 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   }
 
   @Override
-  public boolean isRunning() {
-    return _valueSpecificationToIdentifier.isRunning() && _identifierToValueSpecification.isRunning();
+  public synchronized boolean isRunning() {
+    return _requests != null;
   }
 
   @Override
-  public void start() {
-    _valueSpecificationToIdentifier.start();
-    _identifierToValueSpecification.start();
+  public synchronized void start() {
+    if (_requests == null) {
+      _requests = new LinkedBlockingQueue<Request>();
+      _valueSpecificationToIdentifier.start();
+      _identifierToValueSpecification.start();
+      // TODO: We can have multiple worker threads -- will that be good or bad?
+      final Thread worker = new Thread(new Worker(_requests));
+      worker.setName("BerkeleyDBIdentifierMap-Worker");
+      worker.setDaemon(true);
+      worker.start();
+    }
   }
 
   @Override
-  public void stop() {
-    _valueSpecificationToIdentifier.stop();
-    _identifierToValueSpecification.stop();
+  public synchronized void stop() {
+    if (_requests != null) {
+      _valueSpecificationToIdentifier.stop();
+      _identifierToValueSpecification.stop();
+      _requests.add(new PoisonRequest());
+      _requests = null;
+    }
   }
 
 }
