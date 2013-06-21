@@ -74,7 +74,13 @@ public class EquityOptionCalculationMethodDefaultFunction extends DefaultPropert
     ValueRequirementNames.THETA,
     ValueRequirementNames.DUAL_DELTA,
     ValueRequirementNames.VEGA,
-    ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
+    ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
+    ValueRequirementNames.POSITION_DELTA,
+    ValueRequirementNames.POSITION_GAMMA,
+    ValueRequirementNames.POSITION_RHO,
+    ValueRequirementNames.POSITION_THETA,
+    ValueRequirementNames.POSITION_VEGA,
+    ValueRequirementNames.POSITION_WEIGHTED_VEGA
   };
   public EquityOptionCalculationMethodDefaultFunction(final String priority,
       final String equityOptionMethod, final String equityIndexOptionMethod,
