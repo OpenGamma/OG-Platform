@@ -38,6 +38,12 @@ public interface ViewStatusModel {
    */
   Set<String> getSecurityTypes();
   /**
+   * Gets all supported computation target types.
+   * 
+   * @return the set of computation target types, empty set if none.
+   */
+  Set<String> getComputationTargetTypes();
+  /**
    * Returns the number of rows in the model.
    *
    * @return the number of rows in the model

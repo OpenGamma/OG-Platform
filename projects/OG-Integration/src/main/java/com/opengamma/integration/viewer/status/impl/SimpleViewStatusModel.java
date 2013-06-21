@@ -24,15 +24,15 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   /**
    * Column headers
    */
-  private List<List<String>> _columnHeaders;
+  private final List<List<String>> _columnHeaders;
   /**
    * The rows
    */
-  private List<List<Object>> _rows;
+  private final List<List<Object>> _rows;
   /**
-   * The unstructured underlying result set.
+   * The unaggregated result.
    */
-  private Map<ViewStatusKey, Boolean> _viewStatusResult;
+  private final Map<ViewStatusKey, Boolean> _viewStatusResult;
     
   public SimpleViewStatusModel(List<List<String>> columnHeaders, List<List<Object>> rows, Map<ViewStatusKey, Boolean> viewStatusResult) {
     ArgumentChecker.notNull(columnHeaders, "columnHeaders");
@@ -67,7 +67,7 @@ public class SimpleViewStatusModel implements ViewStatusModel {
 
   @Override
   public Set<String> getValueRequirementNames() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getValueRequirementName());
     }
@@ -76,16 +76,25 @@ public class SimpleViewStatusModel implements ViewStatusModel {
 
   @Override
   public Set<String> getCurrencies() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getCurrency());
+    }
+    return result;
+  }
+  
+  @Override
+  public Set<String> getComputationTargetTypes() {
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
+    for (ViewStatusKey key : _viewStatusResult.keySet()) {
+      result.add(key.getTargetType());
     }
     return result;
   }
 
   @Override
   public Set<String> getSecurityTypes() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getSecurityType());
     }
@@ -129,5 +138,4 @@ public class SimpleViewStatusModel implements ViewStatusModel {
     }
     return Iterables.get(Iterables.get(_columnHeaders, rowIndex), columnIndex);
   }
-  
 }

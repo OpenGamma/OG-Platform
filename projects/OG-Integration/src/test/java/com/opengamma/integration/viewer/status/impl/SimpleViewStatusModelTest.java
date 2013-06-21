@@ -203,6 +203,10 @@ public class SimpleViewStatusModelTest {
     assertEquals(Sets.newHashSet(SWAP, SWAPTION), _viewStatusModel.getSecurityTypes());
   }
   
+  public void getComputationTargetTypes() {
+    assertEquals(Sets.newHashSet(POSITION_TARGET), _viewStatusModel.getComputationTargetTypes());
+  }
+  
   public void getRowCount() {
     assertEquals(5, _viewStatusModel.getRowCount());
   }
