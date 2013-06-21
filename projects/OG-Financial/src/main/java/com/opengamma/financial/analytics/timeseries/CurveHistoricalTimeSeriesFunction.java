@@ -63,7 +63,7 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
     for (final CurveNodeWithIdentifier node : curve.getNodes()) {
       final ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
-      final String dataField = node.getCurveNode().getDataField();
+      final String dataField = node.getDataField();
       final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeries != null) {
         if (timeSeries.getTimeSeries().isEmpty()) {

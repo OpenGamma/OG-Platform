@@ -74,7 +74,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
         final HistoricalTimeSeriesBundle bundleForCurve = (HistoricalTimeSeriesBundle) inputs.getValue(bundleRequirement);
         final CurveSpecification curveSpec = (CurveSpecification) inputs.getValue(specRequirement);
         for (final CurveNodeWithIdentifier node : curveSpec.getNodes()) {
-          final String dataField = node.getCurveNode().getDataField();
+          final String dataField = node.getDataField();
           final ExternalIdBundle ids = ExternalIdBundle.of(node.getIdentifier());
           final HistoricalTimeSeries ts = bundleForCurve.get(dataField, ids);
           if (ts != null) {

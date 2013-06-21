@@ -93,8 +93,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final CurveNodeWithIdentifier id : specification.getNodes()) {
-          if (id.getCurveNode().getDataField() != null) {
-            requirements.add(new ValueRequirement(id.getCurveNode().getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          if (id.getDataField() != null) {
+            requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
           } else {
             requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
           }
