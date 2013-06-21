@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -63,6 +65,11 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   @Override
   public Boolean getStatus(ViewStatusKey entry) {
     return _viewStatusResult.get(entry);
+  }
+  
+  @Override
+  public Set<ViewStatusKey> keySet() {
+    return ImmutableSet.copyOf(_viewStatusResult.keySet());
   }
 
   @Override
@@ -138,4 +145,5 @@ public class SimpleViewStatusModel implements ViewStatusModel {
     }
     return Iterables.get(Iterables.get(_columnHeaders, rowIndex), columnIndex);
   }
+
 }

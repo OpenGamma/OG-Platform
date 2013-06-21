@@ -7,11 +7,14 @@ package com.opengamma.integration.viewer.status.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
@@ -213,5 +216,16 @@ public class SimpleViewStatusModelTest {
   
   public void getColumnCount() {
     assertEquals(4, _viewStatusModel.getColumnCount());
+  }
+  
+  public void getKeySet() {
+    Set<ViewStatusKey> keySet = _viewStatusModel.keySet();
+    assertNotNull(keySet);
+    assertEquals(RESULT.size(), keySet.size());
+    for (ViewStatusKey viewStatusKey : keySet) {
+      if (RESULT.get(viewStatusKey) == null) {
+        fail();
+      }
+    }
   }
 }

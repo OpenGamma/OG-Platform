@@ -13,6 +13,12 @@ import java.util.Set;
  */
 public interface ViewStatusModel {
   /**
+   * Gets all the view status result keys
+   * 
+   * @return the set of keys for collected view status, empty set if no result.
+   */
+  Set<ViewStatusKey> keySet();
+  /**
    * Gets the status value stored for a key
    * 
    * @param key the view status key, can be null
