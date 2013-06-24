@@ -31,7 +31,7 @@ public final class DayCountFactory {
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, DayCount> _conventionMap = new HashMap<String, DayCount>();
+  private final Map<String, DayCount> _conventionMap = new HashMap<>();
 
   /**
    * All convention instances.
@@ -43,7 +43,7 @@ public final class DayCountFactory {
    */
   private DayCountFactory() {
     final ResourceBundle conventions = ResourceBundle.getBundle(DayCount.class.getName());
-    final Map<String, DayCount> instances = new HashMap<String, DayCount>();
+    final Map<String, DayCount> instances = new HashMap<>();
     for (final String convention : conventions.keySet()) {
       final String clazz = conventions.getString(convention);
       DayCount instance = instances.get(clazz);
@@ -61,7 +61,7 @@ public final class DayCountFactory {
       }
       _conventionMap.put(convention.toLowerCase(Locale.ENGLISH), instance);
     }
-    _conventions = new ArrayList<DayCount>(instances.values());
+    _conventions = new ArrayList<>(instances.values());
   }
 
   // -------------------------------------------------------------------------

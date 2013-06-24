@@ -221,33 +221,35 @@ public class ISDAPremiumLegSchedule {
   }
 
   // TODO should call same adjustment code as used in Rates
-  private LocalDate businessDayAdjustDate(final LocalDate date, final Calendar calendar, final BusinessDayConvention businessdayAdjustmentConvention) {
+  private LocalDate businessDayAdjustDate(final LocalDate date, final Calendar calendar, final BusinessDayConvention convention) {
 
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(calendar, "Calendar");
-    ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment");
+    ArgumentChecker.notNull(convention, "Business day adjustment");
+    
+    return convention.adjustDate(calendar, date);
 
-    int deltaDays = 1;
-
-    // Set the date to be adjusted to be the input date
-    LocalDate adjustedDate = date;
-
-    // If using the 'following' convention, the adjusted date is after the input date
-    if (businessdayAdjustmentConvention.equals(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"))) {
-      deltaDays = 1;
-    }
-
-    // If using the 'preceeding' convention, the adjusted date is before the input date
-    if (businessdayAdjustmentConvention.equals(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding"))) {
-      deltaDays = -1;
-    }
-
-    // Adjust the input date until it falls on a business day
-    while (!calendar.isWorkingDay(adjustedDate)) {
-      adjustedDate = adjustedDate.plusDays(deltaDays);
-    }
-
-    return adjustedDate;
+//    int deltaDays = 1;
+//
+//    // Set the date to be adjusted to be the input date
+//    LocalDate adjustedDate = date;
+//
+//    // If using the 'following' convention, the adjusted date is after the input date
+//    if (convention.equals(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"))) {
+//      deltaDays = 1;
+//    }
+//
+//    // If using the 'preceeding' convention, the adjusted date is before the input date
+//    if (convention.equals(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding"))) {
+//      deltaDays = -1;
+//    }
+//
+//    // Adjust the input date until it falls on a business day
+//    while (!calendar.isWorkingDay(adjustedDate)) {
+//      adjustedDate = adjustedDate.plusDays(deltaDays);
+//    }
+//
+//    return adjustedDate;
   }
 
 }
