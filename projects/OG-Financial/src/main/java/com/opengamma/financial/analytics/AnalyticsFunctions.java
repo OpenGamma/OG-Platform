@@ -192,6 +192,12 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_WEIGHTED_VEGA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_DELTA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_RHO);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_THETA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_VEGA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
