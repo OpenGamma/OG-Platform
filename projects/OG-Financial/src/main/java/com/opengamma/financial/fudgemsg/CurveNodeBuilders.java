@@ -21,9 +21,11 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -203,6 +205,43 @@ import com.opengamma.util.time.Tenor;
       final Tenor fixingEnd = new Tenor(Period.parse(message.getString(FIXING_END_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       return new FRANode(fixingStart, fixingEnd, conventionId, curveNodeIdMapperName);
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link FXForwardNode}
+   */
+  @FudgeBuilderFor(FXForwardNode.class)
+  public static class FXForwardNodeBuilder implements FudgeBuilder<FXForwardNode> {
+    private static final String START_TENOR_FIELD = "startTenor";
+    private static final String MATURITY_TENOR_FIELD = "maturityTenor";
+    private static final String CONVENTION_FIELD = "convention";
+    private static final String PAY_CURRENCY_FIELD = "payCurrency";
+    private static final String RECEIVE_CURRENCY_FIELD = "receiveCurrency";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FXForwardNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
+      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor().getPeriod().toString());
+      message.add(CONVENTION_FIELD, object.getFxForwardConvention());
+      message.add(PAY_CURRENCY_FIELD, object.getPayCurrency().getCode());
+      message.add(RECEIVE_CURRENCY_FIELD, object.getReceiveCurrency().getCode());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      return message;
+    }
+
+    @Override
+    public FXForwardNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
+      final ExternalId fxForwardConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_FIELD));
+      final Currency payCurrency = Currency.of(message.getString(PAY_CURRENCY_FIELD));
+      final Currency receiveCurrency = Currency.of(message.getString(RECEIVE_CURRENCY_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      return new FXForwardNode(startTenor, maturityTenor, fxForwardConvention, payCurrency, receiveCurrency, curveNodeIdMapperName);
     }
 
   }
