@@ -12,6 +12,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.google.common.collect.Maps;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.impl.ViewStatusResultAggregatorImpl.ImmutableViewStatusKey;
 import com.opengamma.util.ArgumentChecker;
@@ -22,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 public class PerViewStatusResult {
   
   private final String _securityType;
-  private final Map<ViewStatusKey, Boolean> _viewStatusResult = Maps.newConcurrentMap();
+  private final Map<ViewStatusKey, ViewStatus> _viewStatusResult = Maps.newConcurrentMap();
   
   
   public PerViewStatusResult(String securityType) {
@@ -30,14 +31,14 @@ public class PerViewStatusResult {
     _securityType = securityType;
   }
     
-  public void put(ViewStatusKey key, boolean status) {
+  public void put(ViewStatusKey key, ViewStatus status) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(status, "status");
     
     _viewStatusResult.put(ImmutableViewStatusKey.of(key), status);
   }
   
-  public Boolean get(ViewStatusKey key) {
+  public ViewStatus get(ViewStatusKey key) {
     if (key == null) {
       return null;
     } else {

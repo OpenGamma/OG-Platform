@@ -10,9 +10,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.util.ArgumentChecker;
@@ -24,17 +26,17 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   /**
    * Column headers
    */
-  private List<List<String>> _columnHeaders;
+  private final List<List<String>> _columnHeaders;
   /**
    * The rows
    */
-  private List<List<Object>> _rows;
+  private final List<List<Object>> _rows;
   /**
-   * The unstructured underlying result set.
+   * The unaggregated result.
    */
-  private Map<ViewStatusKey, Boolean> _viewStatusResult;
+  private final Map<ViewStatusKey, ViewStatus> _viewStatusResult;
     
-  public SimpleViewStatusModel(List<List<String>> columnHeaders, List<List<Object>> rows, Map<ViewStatusKey, Boolean> viewStatusResult) {
+  public SimpleViewStatusModel(List<List<String>> columnHeaders, List<List<Object>> rows, Map<ViewStatusKey, ViewStatus> viewStatusResult) {
     ArgumentChecker.notNull(columnHeaders, "columnHeaders");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(viewStatusResult, "viewStatusResult");
@@ -61,13 +63,18 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   }
 
   @Override
-  public Boolean getStatus(ViewStatusKey entry) {
+  public ViewStatus getStatus(ViewStatusKey entry) {
     return _viewStatusResult.get(entry);
+  }
+  
+  @Override
+  public Set<ViewStatusKey> keySet() {
+    return ImmutableSet.copyOf(_viewStatusResult.keySet());
   }
 
   @Override
   public Set<String> getValueRequirementNames() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getValueRequirementName());
     }
@@ -76,16 +83,25 @@ public class SimpleViewStatusModel implements ViewStatusModel {
 
   @Override
   public Set<String> getCurrencies() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getCurrency());
+    }
+    return result;
+  }
+  
+  @Override
+  public Set<String> getComputationTargetTypes() {
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
+    for (ViewStatusKey key : _viewStatusResult.keySet()) {
+      result.add(key.getTargetType());
     }
     return result;
   }
 
   @Override
   public Set<String> getSecurityTypes() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getSecurityType());
     }
@@ -129,5 +145,5 @@ public class SimpleViewStatusModel implements ViewStatusModel {
     }
     return Iterables.get(Iterables.get(_columnHeaders, rowIndex), columnIndex);
   }
-  
+
 }

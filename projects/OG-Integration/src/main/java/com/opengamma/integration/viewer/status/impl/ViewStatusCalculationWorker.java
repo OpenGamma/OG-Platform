@@ -23,12 +23,14 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.collect.TreeMultimap;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.helper.AvailableOutput;
 import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
+import com.opengamma.integration.viewer.status.ViewStatusOption;
 import com.opengamma.integration.viewer.status.ViewStatusResultAggregator;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -53,18 +55,24 @@ public class ViewStatusCalculationWorker {
   
   private final UserPrincipal _user;
   
-  public ViewStatusCalculationWorker(final ToolContext toolContext, final UniqueId portfolioId, final UserPrincipal user) {
-    this(toolContext, portfolioId, user, DEFAULT_EXECUTOR);
+  private final MarketDataSpecification _marketDataSpecification;
+  
+  public ViewStatusCalculationWorker(final ToolContext toolContext, final UniqueId portfolioId, final ViewStatusOption option) {
+    this(toolContext, portfolioId, option, DEFAULT_EXECUTOR);
   }
   
-  public ViewStatusCalculationWorker(final ToolContext toolContext, UniqueId portfolioId, final UserPrincipal user, final ExecutorService executorService) {
+  public ViewStatusCalculationWorker(final ToolContext toolContext, UniqueId portfolioId, final ViewStatusOption option, final ExecutorService executorService) {
     ArgumentChecker.notNull(toolContext, "toolContex");
     ArgumentChecker.notNull(portfolioId, "portfolioId");
-    ArgumentChecker.notNull(user, "user");
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(option.getUser(), "option.user");
+    ArgumentChecker.notNull(option.getMarketDataSpecification(), "option.marketDataSpecification");
     ArgumentChecker.notNull(executorService, "executorService");
     
+    validateComponentsInToolContext(toolContext);
     _portfolioId = portfolioId;
-    _user = user;
+    _user = option.getUser();
+    _marketDataSpecification = option.getMarketDataSpecification();
     Map<String, Collection<String>> valueRequirementBySecType = scanValueRequirementBySecType(portfolioId, toolContext);
     if (s_logger.isDebugEnabled()) {
       StringBuilder strBuf = new StringBuilder();
@@ -79,6 +87,21 @@ public class ViewStatusCalculationWorker {
     _valueRequirementBySecType = valueRequirementBySecType;
   }
   
+  private void validateComponentsInToolContext(ToolContext toolContext) {
+    if (toolContext.getViewProcessor() == null) {
+      throw new OpenGammaRuntimeException("Missing view processor in given toolcontext");
+    }
+    if (toolContext.getSecuritySource() == null) {
+      throw new OpenGammaRuntimeException("Missing security source in given toolcontext");
+    }
+    if (toolContext.getConfigMaster() == null) {
+      throw new OpenGammaRuntimeException("Missing config master in given toolcontext");
+    }
+    if (toolContext.getPositionSource() == null) {
+      throw new OpenGammaRuntimeException("Missing position source in given toolcontext");
+    }
+  }
+
   private Map<String, Collection<String>> scanValueRequirementBySecType(UniqueId portfolioId, ToolContext toolContext) {
     AvailableOutputsProvider availableOutputsProvider = toolContext.getAvaliableOutputsProvider();
     if (availableOutputsProvider == null) {
@@ -103,7 +126,7 @@ public class ViewStatusCalculationWorker {
     //submit task to executor to run partitioned by security type
     for (String securityType : _valueRequirementBySecType.keySet()) {
       Collection<String> valueRequirements = _valueRequirementBySecType.get(securityType);
-      completionService.submit(new ViewStatusCalculationTask(_toolContext, _portfolioId, _user, securityType, valueRequirements));
+      completionService.submit(new ViewStatusCalculationTask(_toolContext, _portfolioId, _user, securityType, valueRequirements, _marketDataSpecification));
     }
     try {
       // process all completed task

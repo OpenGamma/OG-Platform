@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.integration.viewer.status.AggregateType;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.integration.viewer.status.ViewStatusResultAggregator;
 import com.opengamma.util.money.Currency;
@@ -31,6 +32,8 @@ import com.opengamma.util.test.TestGroup;
 public class ViewStatusResultAggregatorImplTest {
   
   
+  private static final ViewStatus NO_VALUE = ViewStatus.NO_VALUE;
+  private static final ViewStatus VALUE = ViewStatus.VALUE;
   private static final String SWAP = "SWAP";
   private static final String SWAPTION = "SWAPTION";
   private static final String PV = "PV";
@@ -47,8 +50,6 @@ public class ViewStatusResultAggregatorImplTest {
   private static final String MIXED_CUR = "Mixed_CUR";
 
   private static final String EMPTY_STR = StringUtils.EMPTY;
-  private static final String TRUE_STR = String.valueOf(true);
-  private static final String FALSE_STR = String.valueOf(false);
   private static final String USD = Currency.USD.getCode();
   private static final String GBP = Currency.GBP.getCode();
   private static final String EUR = Currency.EUR.getCode();
@@ -60,21 +61,21 @@ public class ViewStatusResultAggregatorImplTest {
   @BeforeMethod
   public void setUp() {
     _aggregator = new ViewStatusResultAggregatorImpl();
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, PV, USD, POSITION_TARGET), true);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, PV, GBP, POSITION_TARGET), true);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, PV, EUR, POSITION_TARGET), true);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, USD, POSITION_TARGET), false);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, GBP, POSITION_TARGET), true);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, VALUERHO, USD, POSITION_TARGET), true);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, VALUERHO, GBP, POSITION_TARGET), true);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, USD, POSITION_TARGET), true);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, GBP, POSITION_TARGET), false);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, USD, POSITION_TARGET), false);
-    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, GBP, POSITION_TARGET), false);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, PV, USD, POSITION_TARGET), VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, PV, GBP, POSITION_TARGET), VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, PV, EUR, POSITION_TARGET), VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, USD, POSITION_TARGET), NO_VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, YIELD_CURVE, GBP, POSITION_TARGET), VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, VALUERHO, USD, POSITION_TARGET), VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAP, VALUERHO, GBP, POSITION_TARGET), VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, USD, POSITION_TARGET), VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, CREDIT_SPREAD_CURVE, GBP, POSITION_TARGET), NO_VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, USD, POSITION_TARGET), NO_VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(SWAPTION, HAZARD_RATE_CURVE, GBP, POSITION_TARGET), NO_VALUE);
     
-    _aggregator.putStatus(new ViewStatusKeyBean(MIXED_SEC, QUANTITY, MIXED_CUR, NODE_TARGET), false);
-    _aggregator.putStatus(new ViewStatusKeyBean(MIXED_SEC, FAIR_VALUE, MIXED_CUR, NODE_TARGET), false);
-    _aggregator.putStatus(new ViewStatusKeyBean(MIXED_SEC, PRESENT_VALUE, MIXED_CUR, NODE_TARGET), false);
+    _aggregator.putStatus(new ViewStatusKeyBean(MIXED_SEC, QUANTITY, MIXED_CUR, NODE_TARGET), NO_VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(MIXED_SEC, FAIR_VALUE, MIXED_CUR, NODE_TARGET), NO_VALUE);
+    _aggregator.putStatus(new ViewStatusKeyBean(MIXED_SEC, PRESENT_VALUE, MIXED_CUR, NODE_TARGET), NO_VALUE);
      
   }
   
@@ -110,7 +111,7 @@ public class ViewStatusResultAggregatorImplTest {
     assertEquals(FAIR_VALUE, String.valueOf(statusModel.getRowValueAt(0, 2)));
     assertEmptyString(statusModel.getRowValueAt(0, 3));
     assertEmptyString(statusModel.getRowValueAt(0, 4));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(0, 5)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(0, 5));
     assertEmptyString(statusModel.getRowValueAt(0, 6));
     
     //check row2
@@ -119,7 +120,7 @@ public class ViewStatusResultAggregatorImplTest {
     assertEquals(PRESENT_VALUE, statusModel.getRowValueAt(1, 2));
     assertEmptyString(statusModel.getRowValueAt(1, 3));
     assertEmptyString(statusModel.getRowValueAt(1, 4));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(1, 5)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(1, 5));
     assertEmptyString(statusModel.getRowValueAt(1, 6));
     
     //check row3
@@ -128,53 +129,53 @@ public class ViewStatusResultAggregatorImplTest {
     assertEquals(QUANTITY, statusModel.getRowValueAt(2, 2));
     assertEmptyString(statusModel.getRowValueAt(2, 3));
     assertEmptyString(statusModel.getRowValueAt(2, 4));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(2, 5)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(2, 5));
     assertEmptyString(statusModel.getRowValueAt(2, 6));
   
     //check row4
     assertEquals(POSITION_TARGET, statusModel.getRowValueAt(3, 0));
     assertEquals(SWAP, statusModel.getRowValueAt(3, 1));
     assertEquals(PV, statusModel.getRowValueAt(3, 2));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(3, 3)));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(3, 4)));
+    assertEquals(VALUE, statusModel.getRowValueAt(3, 3));
+    assertEquals(VALUE, statusModel.getRowValueAt(3, 4));
     assertEmptyString(statusModel.getRowValueAt(3, 5));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(3, 6)));
+    assertEquals(VALUE, statusModel.getRowValueAt(3, 6));
    
     //check row5
     assertEmptyString(statusModel.getRowValueAt(4, 0));
     assertEmptyString(statusModel.getRowValueAt(4, 1));
     assertEquals(VALUERHO, statusModel.getRowValueAt(4, 2));
     assertEmptyString(statusModel.getRowValueAt(4, 3));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(4, 4)));
+    assertEquals(VALUE, statusModel.getRowValueAt(4, 4));
     assertEmptyString(statusModel.getRowValueAt(4, 5));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(4, 6)));
+    assertEquals(VALUE, statusModel.getRowValueAt(4, 6));
     
     //check row6
     assertEmptyString(statusModel.getRowValueAt(5, 0));
     assertEmptyString(statusModel.getRowValueAt(5, 1));
     assertEquals(YIELD_CURVE, statusModel.getRowValueAt(5, 2));
     assertEmptyString(statusModel.getRowValueAt(5, 3));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(5, 4)));
+    assertEquals(VALUE, statusModel.getRowValueAt(5, 4));
     assertEmptyString(statusModel.getRowValueAt(5, 5));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(5, 6)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(5, 6));
     
     //check row7
     assertEmptyString(statusModel.getRowValueAt(6, 0));
     assertEquals(SWAPTION, statusModel.getRowValueAt(6, 1));
     assertEquals(CREDIT_SPREAD_CURVE, statusModel.getRowValueAt(6, 2));
     assertEmptyString(statusModel.getRowValueAt(6, 3));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(6, 4)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(6, 4));
     assertEmptyString(statusModel.getRowValueAt(6, 5));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(6, 6)));
+    assertEquals(VALUE, statusModel.getRowValueAt(6, 6));
     
     //check row8
     assertEmptyString(statusModel.getRowValueAt(7, 0));
     assertEmptyString(statusModel.getRowValueAt(7, 1));
     assertEquals(HAZARD_RATE_CURVE, statusModel.getRowValueAt(7, 2));
     assertEmptyString(statusModel.getRowValueAt(7, 3));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(7, 4)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(7, 4));
     assertEmptyString(statusModel.getRowValueAt(7, 5));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(7, 6)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(7, 6));
     
   }
   
@@ -205,13 +206,13 @@ public class ViewStatusResultAggregatorImplTest {
     assertEmptyString(statusModel.getRowValueAt(6, 1));
     assertEquals(YIELD_CURVE, String.valueOf(statusModel.getRowValueAt(6, 2)));
     assertEmptyString(statusModel.getRowValueAt(6, 3));
-    assertEquals(TRUE_STR, String.valueOf(statusModel.getRowValueAt(6, 4)));
+    assertEquals(VALUE, statusModel.getRowValueAt(6, 4));
     
     //check row7
     assertEquals(MIXED_SEC, statusModel.getRowValueAt(0, 0));
     assertEquals(MIXED_CUR, statusModel.getRowValueAt(0, 1));
     assertEquals(FAIR_VALUE, String.valueOf(statusModel.getRowValueAt(0, 2)));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(0, 3)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(0, 3));
     assertEmptyString(statusModel.getRowValueAt(0, 4));
     
     //check row14
@@ -219,7 +220,7 @@ public class ViewStatusResultAggregatorImplTest {
     assertEmptyString(statusModel.getRowValueAt(13, 1));
     assertEquals(HAZARD_RATE_CURVE, statusModel.getRowValueAt(13, 2));
     assertEmptyString(statusModel.getRowValueAt(13, 3));
-    assertEquals(FALSE_STR, String.valueOf(statusModel.getRowValueAt(13, 4)));
+    assertEquals(NO_VALUE, statusModel.getRowValueAt(13, 4));
       
   }
   

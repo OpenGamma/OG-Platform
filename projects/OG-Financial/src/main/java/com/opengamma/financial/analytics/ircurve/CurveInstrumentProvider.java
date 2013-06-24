@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -33,6 +34,18 @@ public interface CurveInstrumentProvider {
    * @return The external id for the market data of the instrument
    */
   ExternalId getInstrument(LocalDate curveDate, Tenor startTenor, Tenor futureTenor, int numFutureFromTenor);
+
+  /**
+   * Gets the market data field to use for this identifier.
+   * @return The market data field
+   */
+  String getMarketDataField();
+
+  /**
+   * Gets the type of the market data field
+   * @return The data field type
+   */
+  DataFieldType getDataFieldType();
 
   /**
    * Gets the external id of the market data for a <b>quarterly</b> future given a

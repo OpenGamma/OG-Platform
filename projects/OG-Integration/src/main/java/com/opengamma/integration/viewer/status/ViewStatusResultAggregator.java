@@ -24,16 +24,16 @@ public interface ViewStatusResultAggregator {
    * @see ViewStatusKey 
    * 
    * @param key the key which is a triple of SecurityType, ValueRequirementName and Currency, not null 
-   * @param status true if the view can be calculated for the key or false otherwise
+   * @param status the status of the view calculation, i.e VALUE, NO_VALUE or GRAPH_FAIL.
    */
-  void putStatus(ViewStatusKey key, boolean status);
+  void putStatus(ViewStatusKey key, ViewStatus status);
   /**
    * Get the status for a given key
    * 
    * @param key the key in the key/status pair.
    * @return the status result or null if there is no matching key.
    */
-  Boolean getStatus(ViewStatusKey key);
+  ViewStatus getStatus(ViewStatusKey key);
   /**
    * Get the underlying keys
    * 

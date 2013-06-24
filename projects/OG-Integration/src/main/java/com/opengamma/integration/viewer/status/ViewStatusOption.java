@@ -10,58 +10,65 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EnumUtils;
 
 /**
- * View status reporter options
+ * View status command line options
  */
-public final class ViewStatusReporterOption {
+public final class ViewStatusOption {
   
   private static final String DEFAULT_FORMAT = "html";
   
   private static final List<String> SUPPORTED_FORMAT = Lists.newArrayList("html", "csv");
-  /** 
-   * Portfolio name option flag 
-   */
+  /**  Portfolio name option flag */
   private static final String PORTFOLIO_NAME_OPT = "n";
-  /** 
-   * Username option flag
-   */
-  private static final String USERNAME_OPT = "u";
-  /**
-   * User ip address flag
-   */
-  private static final String USER_IP_ADDRESS_OPT = "ip";
-  /**
-   * Result format type flag
-   */
+  /**  User option flag */
+  private static final String USER_OPT = "u";
+  /** Result format type flag */
   private static final String FORMAT_TYPE_OPT = "fm";
-  /**
-   * Aggregation type flag
-   */
+  /** Aggregation type flag */
   private static final String AGGREGATION_TYPE_OPT = "a";
-  /**
-   * Output filename flag
-   */
+  /** Output filename flag */
   private static final String OUTPUT_OPT = "o";
+  /** Live MarketData flag */
+  private static final String LIVE_MARKET_DATA_OPT = "ld";
+  /** User snapshot market data flag */
+  private static final String USER_MARKET_DATA_OPT = "ud";
+  /** Historical market data flag */
+  private static final String HISTORICAL_MARKET_DATA_OPT = "hd";
   /**
    * Default output name
    */
-  private static final String DEFAULT_OUTPUT_NAME = "view-status";
+  public static final String DEFAULT_OUTPUT_NAME = "view-status";
   /**
    * Default user
    */
   private static final UserPrincipal DEFAULT_USER = UserPrincipal.getLocalUser();
+  
+  private static final Pattern USER_OR_HISTORICAL_PATTERN = Pattern.compile("^(.+)/(.+)$");
   
   private final String _portfolioName;
   
@@ -72,15 +79,18 @@ public final class ViewStatusReporterOption {
   private final AggregateType _aggregateType;
   
   private final File _outputFile;
+  
+  private final MarketDataSpecification _marketDataSpecification;
     
-  private ViewStatusReporterOption(final String portfolioName, final String formatOption, final UserPrincipal user, 
-      final AggregateType aggregateType, final File outputFile) {
+  private ViewStatusOption(final String portfolioName, final String formatOption, final UserPrincipal user, 
+      final AggregateType aggregateType, final File outputFile, final MarketDataSpecification marketDataSpecification) {
     
     ArgumentChecker.notNull(portfolioName, "portfolioName");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(formatOption, "formatOption");
     ArgumentChecker.notNull(aggregateType, "aggregateType");
     ArgumentChecker.notNull(outputFile, "outputFile");
+    ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
     
     _portfolioName = portfolioName;
     validateFormat(formatOption);
@@ -88,6 +98,7 @@ public final class ViewStatusReporterOption {
     _user = user;
     _aggregateType = aggregateType;
     _outputFile = outputFile;
+    _marketDataSpecification = marketDataSpecification;
   }
 
   private void validateFormat(String formatOption) {
@@ -110,12 +121,9 @@ public final class ViewStatusReporterOption {
     portfolioNameOption.setArgName("portfolioName");
     portfolioNameOption.setRequired(true);
    
-    Option usernameOption = new Option(USERNAME_OPT, "username", true, "the username for computing views");
-    usernameOption.setArgName("username");
-    
-    Option ipaddressOption = new Option(USER_IP_ADDRESS_OPT, "ipaddress", true, "the ip address of user for computing views");
-    ipaddressOption.setArgName("ipaddress");
-    
+    Option userOption = new Option(USER_OPT, "user", true, "the username/ipaddress for computing views");
+    userOption.setArgName("username/ipaddress");
+        
     Option formatTypeOption = new Option(FORMAT_TYPE_OPT, "format", true, "the format of status result, default is html");
     formatTypeOption.setArgName("csv, xml, html");
     
@@ -125,12 +133,23 @@ public final class ViewStatusReporterOption {
     Option outputOption = new Option(OUTPUT_OPT, "output", true, "the output filename");
     outputOption.setArgName("filePath");
     
+    Option liveMarketDataOption = new Option(LIVE_MARKET_DATA_OPT, "live", true, "the live marketdata datasource");
+    liveMarketDataOption.setArgName("datasource");
+    
+    Option userMarketDataOption = new Option(USER_MARKET_DATA_OPT, "snapshot", true, "the user marketdata snapshot name");
+    userMarketDataOption.setArgName("snapshot name");
+    
+    Option historicalMarketDataOption = new Option(HISTORICAL_MARKET_DATA_OPT, "historical", true, "the historical marketdata specification");
+    historicalMarketDataOption.setArgName("localdate/htsKey");
+    
     options.addOption(portfolioNameOption);
-    options.addOption(usernameOption);
+    options.addOption(userOption);
     options.addOption(formatTypeOption);
-    options.addOption(ipaddressOption);
     options.addOption(aggregationTypeOption);
     options.addOption(outputOption);
+    options.addOption(liveMarketDataOption);
+    options.addOption(userMarketDataOption);
+    options.addOption(historicalMarketDataOption);
     
     return options;
   }
@@ -139,27 +158,30 @@ public final class ViewStatusReporterOption {
    * Creates a View status option instance from the options supplied from the command line
    * 
    * @param commandLine the command line, not-null
+   * @param toolContext the toolcontext to use for resolving userSnapshot name to UniqueId
    * @return the view status option, not-null
    */
-  public static ViewStatusReporterOption getViewStatusReporterOption(final CommandLine commandLine) {
+  public static ViewStatusOption getViewStatusReporterOption(final CommandLine commandLine, final ToolContext toolContext) {
     ArgumentChecker.notNull(commandLine, "commandLine");
+    ArgumentChecker.notNull(toolContext, "toolContext");
     
     String portfolioName = trimToNull(commandLine.getOptionValue(PORTFOLIO_NAME_OPT));
-    String username = trimToNull(commandLine.getOptionValue(USERNAME_OPT));
+    String userOption = trimToNull(commandLine.getOptionValue(USER_OPT));
     UserPrincipal user = null;
-    if (username == null) {
+    if (userOption == null) {
       user = DEFAULT_USER;
     } else {
-      String ipaddress = trimToNull(commandLine.getOptionValue(USER_IP_ADDRESS_OPT));
-      if (ipaddress == null) {
-        user = DEFAULT_USER;
-      } else {
+      Matcher matcher = USER_OR_HISTORICAL_PATTERN.matcher(userOption);
+      if (matcher.matches()) {
+        String username = matcher.group(1);
+        String ipaddress = matcher.group(2);
         user = new UserPrincipal(username, ipaddress);
+      } else {
+        throw new OpenGammaRuntimeException("Given user option [" + userOption + "] does not match expected format username/ipaddress");
       }
     }
     
     String format = defaultString(trimToNull(commandLine.getOptionValue(FORMAT_TYPE_OPT)), DEFAULT_FORMAT);
-    
     String aggregationOption = trimToNull(commandLine.getOptionValue(AGGREGATION_TYPE_OPT));
     AggregateType aggregateType = null;
     if (aggregationOption != null) {
@@ -175,7 +197,48 @@ public final class ViewStatusReporterOption {
     } else {
       outputFile = new File(DEFAULT_OUTPUT_NAME + "." + ResultFormat.of(format).getExtension());
     }
-    return new ViewStatusReporterOption(portfolioName, format, user, aggregateType, outputFile);
+    
+    MarketDataSpecification marketDataSpec = getMarketDataSpecification(commandLine, toolContext);
+    return new ViewStatusOption(portfolioName, format, user, aggregateType, outputFile, marketDataSpec);
+  }
+
+  private static MarketDataSpecification getMarketDataSpecification(final CommandLine commandLine, final ToolContext toolContext) {
+    String marketDataOption = trimToNull(commandLine.getOptionValue(LIVE_MARKET_DATA_OPT));
+    if (marketDataOption != null) {
+      return new LiveMarketDataSpecification(marketDataOption);
+    }
+    String snapshotOption = trimToNull(commandLine.getOptionValue(USER_MARKET_DATA_OPT));
+    if (snapshotOption != null) {
+      MarketDataSnapshotMaster snapshotMaster = toolContext.getMarketDataSnapshotMaster();
+      if (snapshotMaster == null) {
+        throw new OpenGammaRuntimeException("MarketDataSnapshotMaster is missing from given Toolcontext");
+      }
+      MarketDataSnapshotSearchRequest request = new MarketDataSnapshotSearchRequest();
+      request.setName(snapshotOption);
+      MarketDataSnapshotSearchResult searchResult = snapshotMaster.search(request);
+      if (searchResult.getDocuments().isEmpty()) {
+        throw new OpenGammaRuntimeException("No matching snapshot for given name [" + marketDataOption + "]");
+      }
+      return new UserMarketDataSpecification(searchResult.getFirstDocument().getUniqueId());
+    }
+    String historicalOption = trimToNull(commandLine.getOptionValue(HISTORICAL_MARKET_DATA_OPT));
+    if (historicalOption != null) {
+      Matcher matcher = USER_OR_HISTORICAL_PATTERN.matcher(historicalOption);
+      if (matcher.matches()) {
+        String localDateStr = matcher.group(1);
+        String htsKey = matcher.group(2);
+        LocalDate snapshotDate = null;
+        try {
+          snapshotDate = LocalDate.parse(localDateStr);
+        } catch (DateTimeParseException ex) {
+          throw new OpenGammaRuntimeException("Error parsing given snapshot date [" + snapshotDate + "]", ex.getCause());
+        }
+        return new FixedHistoricalMarketDataSpecification(htsKey, snapshotDate);
+      } else {
+        throw new OpenGammaRuntimeException("Given historical option [" + historicalOption + "] does not match expected format localdate/htskey");
+      }
+    }
+    return MarketData.live();
   }
 
   /**
@@ -216,6 +279,14 @@ public final class ViewStatusReporterOption {
    */
   public AggregateType getAggregateType() {
     return _aggregateType;
+  }
+ 
+  /**
+   * Gets the marketDataSpecification.
+   * @return the marketDataSpecification
+   */
+  public MarketDataSpecification getMarketDataSpecification() {
+    return _marketDataSpecification;
   }
 
   /**

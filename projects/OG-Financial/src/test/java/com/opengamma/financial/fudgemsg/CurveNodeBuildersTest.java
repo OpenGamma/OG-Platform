@@ -15,6 +15,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
@@ -33,7 +34,7 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testCashNodeBuilder() {
     CashNode node = new CashNode(Tenor.ONE_DAY, Tenor.ONE_YEAR, ExternalId.of("convention", "name"), "TEST");
     assertEquals(node, cycleObject(CashNode.class, node));
-    node = new CashNode(Tenor.ONE_DAY, Tenor.ONE_YEAR, ExternalId.of("convention", "name"), "TEST", "Market_Close");
+    node = new CashNode(Tenor.ONE_DAY, Tenor.ONE_YEAR, ExternalId.of("convention", "name"), "TEST");
     assertEquals(node, cycleObject(CashNode.class, node));
   }
 
@@ -41,7 +42,7 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testContinuouslyCompoundedRateNodeBuilder() {
     ContinuouslyCompoundedRateNode node = new ContinuouslyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS);
     assertEquals(node, cycleObject(ContinuouslyCompoundedRateNode.class, node));
-    node = new ContinuouslyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS, "Market_Close");
+    node = new ContinuouslyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS);
     assertEquals(node, cycleObject(ContinuouslyCompoundedRateNode.class, node));
   }
 
@@ -49,7 +50,7 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testCreditCurveNodeBuilder() {
     CreditSpreadNode node = new CreditSpreadNode("TEST", Tenor.EIGHT_MONTHS);
     assertEquals(node, cycleObject(CreditSpreadNode.class, node));
-    node = new CreditSpreadNode("TEST", Tenor.EIGHT_MONTHS, "Market_Close");
+    node = new CreditSpreadNode("TEST", Tenor.EIGHT_MONTHS);
     assertEquals(node, cycleObject(CreditSpreadNode.class, node));
   }
 
@@ -57,7 +58,7 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testDiscountFactorNodeBuilder() {
     DiscountFactorNode node = new DiscountFactorNode("TEST", Tenor.EIGHT_MONTHS);
     assertEquals(node, cycleObject(DiscountFactorNode.class, node));
-    node = new DiscountFactorNode("TEST", Tenor.EIGHT_MONTHS, "Market_Close");
+    node = new DiscountFactorNode("TEST", Tenor.EIGHT_MONTHS);
     assertEquals(node, cycleObject(DiscountFactorNode.class, node));
   }
 
@@ -65,7 +66,7 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testFRANodeBuilder() {
     FRANode node = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, ExternalId.of("convention", "name"), "TEST");
     assertEquals(node, cycleObject(FRANode.class, node));
-    node = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, ExternalId.of("convention", "name"), "TEST", "Market_Close");
+    node = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, ExternalId.of("convention", "name"), "TEST");
     assertEquals(node, cycleObject(FRANode.class, node));
   }
 
@@ -73,8 +74,7 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testRateFutureNodeBuilder() {
     RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, ExternalId.of("convention", "future"), ExternalId.of("convention", "underlying"), "TEST");
     assertEquals(node, cycleObject(RateFutureNode.class, node));
-    node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, ExternalId.of("convention", "future"), ExternalId.of("convention", "underlying"), "TEST",
-        "Market_Close");
+    node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, ExternalId.of("convention", "future"), ExternalId.of("convention", "underlying"), "TEST");
     assertEquals(node, cycleObject(RateFutureNode.class, node));
   }
 
@@ -82,14 +82,14 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testSwapNodeBuilder() {
     SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST");
     assertEquals(node, cycleObject(SwapNode.class, node));
-    node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST", "Market_Close");
+    node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST");
     assertEquals(node, cycleObject(SwapNode.class, node));
   }
 
   @Test
   public void testCurveNodeWithIdentifiers() {
     final CreditSpreadNode node = new CreditSpreadNode("TEST", Tenor.EIGHT_YEARS);
-    final CurveNodeWithIdentifier nodeWithId = new CurveNodeWithIdentifier(node, ExternalSchemes.bloombergTickerSecurityId("AAA"));
+    final CurveNodeWithIdentifier nodeWithId = new CurveNodeWithIdentifier(node, ExternalSchemes.bloombergTickerSecurityId("AAA"), "Market_Close", DataFieldType.OUTRIGHT);
     assertEquals(nodeWithId, cycleObject(CurveNodeWithIdentifier.class, nodeWithId));
   }
 

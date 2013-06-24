@@ -44,14 +44,13 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Example code to load a very simple equity portfolio.
  * <p>
- * This code is kept deliberately as simple as possible.
- * There are no checks for the securities or portfolios already existing, so if you run it
- * more than once you will get multiple copies portfolios and securities with the same names.
- * It is designed to run against the HSQLDB example database.
+ * This code is kept deliberately as simple as possible. There are no checks for the securities or portfolios already existing, so if you run it more than once you will get multiple copies portfolios
+ * and securities with the same names. It is designed to run against the HSQLDB example database.
  */
 @Scriptable
 public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
@@ -72,20 +71,30 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
     SECTORS.put("50", "50 Telecommunication");
     SECTORS.put("55", "55 Utilities");
   }
-  
+
   /**
    * The name of the portfolio.
    */
   public static final String PORTFOLIO_NAME = "Equity Portfolio";
 
+  private final LocalDate _tradeDate1;
+  private final LocalDate _tradeDate2;
+  private final LocalDate _tradeDate3;
+
+  public ExampleEquityPortfolioLoader() {
+    final LocalDate dt = LocalDate.now().minusYears(2);
+    _tradeDate1 = DateUtils.nextWeekDay(dt);
+    _tradeDate2 = DateUtils.nextWeekDay(_tradeDate1);
+    _tradeDate3 = DateUtils.nextWeekDay(_tradeDate2);
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool.
-   * No arguments are needed.
+   * Main method to run the tool. No arguments are needed.
    * 
-   * @param args  the arguments, unused
+   * @param args the arguments, unused
    */
-  public static void main(String[] args) {  // CSIGNORE
+  public static void main(String[] args) { // CSIGNORE
     new ExampleEquityPortfolioLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
@@ -95,14 +104,14 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
   protected void doRun() {
     // load all equity securities
     final Collection<EquitySecurity> securities = createAndPersistEquitySecurities();
-    
+
     // create shell portfolio
     final ManageablePortfolio portfolio = createEmptyPortfolio();
     final ManageablePortfolioNode rootNode = portfolio.getRootNode();
-    
+
     // add each security to the portfolio
     for (EquitySecurity security : securities) {
-      
+
       GICSCode gics = security.getGicsCode();
       if (gics == null || gics.getCode().length() != 2) {
         continue;
@@ -122,11 +131,11 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
       // create the position and add it to the master
       final ManageablePosition position = createPositionAndTrade(security);
       final PositionDocument addedPosition = addPosition(position);
-      
+
       // add the position reference (the unique identifier) to portfolio
       sectorNode.addPosition(addedPosition.getUniqueId());
     }
-    
+
     // adds the complete tree structure to the master
     addPortfolio(portfolio);
   }
@@ -138,6 +147,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
     equitySecurity.setName(companyName);
     return equitySecurity;
   }
+
   /**
    * Creates securities and adds them to the master.
    * 
@@ -155,14 +165,14 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
 
   private Collection<EquitySecurity> loadEquitySecurities() {
     Collection<EquitySecurity> equities = new ArrayList<EquitySecurity>();
-    InputStream inputStream = ExampleEquityPortfolioLoader.class.getResourceAsStream("example-equity.csv");  
+    InputStream inputStream = ExampleEquityPortfolioLoader.class.getResourceAsStream("example-equity.csv");
     try {
       if (inputStream != null) {
         CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
-        
+
         String[] headers = csvReader.readNext();
         normaliseHeaders(headers);
-        
+
         String[] line;
         int rowIndex = 1;
         while ((line = csvReader.readNext()) != null) {
@@ -189,14 +199,14 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
     } finally {
       IOUtils.closeQuietly(inputStream);
     }
-    
+
     StringBuilder sb = new StringBuilder();
     sb.append("Parsed ").append(equities.size()).append(" equities:\n");
     for (EquitySecurity equity : equities) {
       sb.append("\t").append(equity.getName()).append("\n");
     }
     s_logger.info(sb.toString());
-    
+
     return equities;
   }
 
@@ -209,18 +219,17 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
     String isin = getWithException(equityDetails, "isin");
     String cusip = getWithException(equityDetails, "cusip");
     String ticker = getWithException(equityDetails, "ticker");
-    
+
     return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, gicsCode,
-        ExternalId.of(ExternalSchemes.ISIN, isin), 
-        ExternalId.of(ExternalSchemes.CUSIP, cusip), 
+        ExternalId.of(ExternalSchemes.ISIN, isin),
+        ExternalId.of(ExternalSchemes.CUSIP, cusip),
         ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker));
   }
 
   /**
    * Create a empty portfolio.
    * <p>
-   * This creates the portfolio and the root of the tree structure that holds the positions.
-   * Subsequent methods then populate the tree.
+   * This creates the portfolio and the root of the tree structure that holds the positions. Subsequent methods then populate the tree.
    * 
    * @return the emoty portfolio, not null
    */
@@ -236,25 +245,25 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
    * <p>
    * This creates the position using a random number of units and create one or two trades making up the position.
    * 
-   * @param security  the security to add a position for, not null
+   * @param security the security to add a position for, not null
    * @return the position, not null
    */
   protected ManageablePosition createPositionAndTrade(EquitySecurity security) {
     s_logger.debug("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    
+
     ExternalIdBundle bundle = security.getExternalIdBundle(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
 
     ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
-    
+
     // create random trades that add up in shares to the position they're under (this is not enforced by the system)
     if (shares <= 2000) {
-      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, ExternalId.of("CPARTY", "BACS"));
+      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, _tradeDate3, null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade);
     } else {
-      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, ExternalId.of("CPARTY", "BACS"));
+      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, _tradeDate1, null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade1);
-      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, ExternalId.of("CPARTY", "BACS"));
+      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, _tradeDate2, null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade2);
     }
     return position;
@@ -263,7 +272,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
   /**
    * Adds the position to the master.
    * 
-   * @param position  the position to add, not null
+   * @param position the position to add, not null
    * @return the added document, not null
    */
   protected PositionDocument addPosition(ManageablePosition position) {
@@ -273,7 +282,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
   /**
    * Adds the portfolio to the master.
    * 
-   * @param portfolio  the portfolio to add, not null
+   * @param portfolio the portfolio to add, not null
    * @return the added document, not null
    */
   protected PortfolioDocument addPortfolio(ManageablePortfolio portfolio) {

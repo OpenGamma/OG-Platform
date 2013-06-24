@@ -19,21 +19,19 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.viewer.status.ViewStatusReporterOption.ResultFormat;
 import com.opengamma.integration.viewer.status.impl.BloombergReferencePortfolioMaker;
 import com.opengamma.integration.viewer.status.impl.ViewStatusCalculationWorker;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
- * The view status reporter tool
+ * The view status tool
  */
 @Scriptable
-public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
+public class ViewStatusTool extends AbstractTool<ToolContext> {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusReporterTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusTool.class);
     
   /**
    * Main methog to run the tool.
@@ -41,13 +39,13 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
    * @param args the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new ViewStatusReporterTool().initAndRun(args, ToolContext.class);
+    new ViewStatusTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
   @Override
   protected void doRun() throws Exception {
-    ViewStatusReporterOption option = ViewStatusReporterOption.getViewStatusReporterOption(getCommandLine());
+    ViewStatusOption option = ViewStatusOption.getViewStatusReporterOption(getCommandLine(), getToolContext());
     
     String portfolioName = option.getPortfolioName();
     UniqueId portfolioId = null;
@@ -59,18 +57,18 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
-    generateViewStatusReport(portfolioId, option.getUser(), option.getFormat(), option.getAggregateType(), option.getOutputFile());
+    generateViewStatusReport(portfolioId, option);
   }
   
-  private void generateViewStatusReport(final UniqueId portfolioId, final UserPrincipal user, final ResultFormat resultFormat, 
-      final AggregateType aggregateType, final File outputFile) {
+  private void generateViewStatusReport(final UniqueId portfolioId, final ViewStatusOption option) {
     
-    ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(getToolContext(), portfolioId, user);
+    ViewStatusCalculationWorker calculationWorker = new ViewStatusCalculationWorker(getToolContext(), portfolioId, option);
     ViewStatusResultAggregator resultAggregator = calculationWorker.run();
     
     ViewStatusResultProducer resultProducer = new ViewStatusResultProducer();
-    String statusResult = resultProducer.statusResult(resultAggregator, resultFormat, aggregateType);
+    String statusResult = resultProducer.statusResult(resultAggregator, option.getFormat(), option.getAggregateType());
     try {
+      File outputFile = option.getOutputFile();
       s_logger.debug("Writing status report into : {}", outputFile.getPath());
       FileUtils.writeStringToFile(outputFile, statusResult);
     } catch (IOException ex) {
@@ -102,7 +100,7 @@ public class ViewStatusReporterTool extends AbstractTool<ToolContext> {
   protected Options createOptions(boolean contextProvided) {
     final Options toolOptions = super.createOptions(contextProvided);
     
-    Options viewStatusOptions = ViewStatusReporterOption.createOptions();
+    Options viewStatusOptions = ViewStatusOption.createOptions();
     for (Option option : (Collection<Option>) viewStatusOptions.getOptions()) {
       s_logger.debug("adding {} to tool options", option);
       toolOptions.addOption(option);

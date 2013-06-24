@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.MapMaker;
 import com.opengamma.engine.MemoryUtils;
@@ -28,8 +27,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Caches value identifiers on top of another identifier source.
- * This class is internally synchronized.
+ * Caches value identifiers on top of another identifier source. This class is internally synchronized.
  */
 public class CachingIdentifierMap implements IdentifierMap {
   private final IdentifierMap _underlying;
@@ -39,65 +37,17 @@ public class CachingIdentifierMap implements IdentifierMap {
   // based on low GCs, and the elements are so small, EHCache doesn't actually work here.
 
   // NOTE andrew 2010-09-06 -- Don't use the Google map with weakKeys; it will do comparison by identity which isn't right!
-  private final Map<ValueSpecification, Key> _specificationToIdentifier = Collections.synchronizedMap(new WeakHashMap<ValueSpecification, Key>());
-  private final ConcurrentMap<Key, ValueSpecification> _identifierToSpecification = new MapMaker().softValues().makeMap();
-
-  private static final class Key {
-
-    private long _identifier;
-    private Key _next;
-
-    public Key(final long identifier) {
-      _identifier = identifier;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-      return ((Key) o)._identifier == _identifier;
-    }
-
-    @Override
-    public int hashCode() {
-      return (int) (_identifier ^ (_identifier >>> 32));
-    }
-
-  }
-
-  private final AtomicReference<Key> _keys = new AtomicReference<Key>();
+  private final Map<ValueSpecification, Long> _specificationToIdentifier = Collections.synchronizedMap(new WeakHashMap<ValueSpecification, Long>());
+  private final ConcurrentMap<Long, ValueSpecification> _identifierToSpecification = new MapMaker().softValues().makeMap();
 
   public CachingIdentifierMap(IdentifierMap underlying) {
     ArgumentChecker.notNull(underlying, "Underlying source");
     _underlying = underlying;
   }
 
-  private Key borrowKey(final long identifier) {
-    Key key = _keys.get();
-    if (key == null) {
-      return new Key(identifier);
-    }
-    do {
-      synchronized (key) {
-        if (_keys.compareAndSet(key, key._next)) {
-          key._identifier = identifier;
-          return key;
-        }
-      }
-      key = _keys.get();
-    } while (key != null);
-    return new Key(identifier);
-  }
-
-  private void returnKey(final Key key) {
-    synchronized (key) {
-      key._next = _keys.get();
-      while (!_keys.compareAndSet(key._next, key)) {
-        key._next = _keys.get();
-      }
-    }
-  }
-
   /**
    * Gets the underlying source.
+   * 
    * @return the underlying
    */
   public IdentifierMap getUnderlying() {
@@ -106,12 +56,12 @@ public class CachingIdentifierMap implements IdentifierMap {
 
   @Override
   public long getIdentifier(final ValueSpecification spec) {
-    Key value = _specificationToIdentifier.get(spec);
+    Long value = _specificationToIdentifier.get(spec);
     if (value != null) {
-      return value._identifier;
+      return value.longValue();
     }
     long longValue = getUnderlying().getIdentifier(spec);
-    value = new Key(longValue);
+    value = longValue;
     _specificationToIdentifier.put(spec, value);
     _identifierToSpecification.put(value, spec);
     return longValue;
@@ -122,9 +72,9 @@ public class CachingIdentifierMap implements IdentifierMap {
     final Object2LongMap<ValueSpecification> identifiers = new Object2LongOpenHashMap<ValueSpecification>();
     List<ValueSpecification> cacheMisses = null;
     for (ValueSpecification spec : specs) {
-      final Key value = _specificationToIdentifier.get(spec);
+      Long value = _specificationToIdentifier.get(spec);
       if (value != null) {
-        identifiers.put(spec, value._identifier);
+        identifiers.put(spec, value.longValue());
       } else {
         if (cacheMisses == null) {
           cacheMisses = new LinkedList<ValueSpecification>();
@@ -136,14 +86,14 @@ public class CachingIdentifierMap implements IdentifierMap {
       if (cacheMisses.size() == 1) {
         final ValueSpecification spec = cacheMisses.get(0);
         final long value = getUnderlying().getIdentifier(spec);
-        final Key keyValue = new Key(value);
+        final Long keyValue = value;
         _specificationToIdentifier.put(spec, keyValue);
         _identifierToSpecification.put(keyValue, spec);
         identifiers.put(spec, value);
       } else {
         final Object2LongMap<ValueSpecification> values = getUnderlying().getIdentifiers(cacheMisses);
         for (Object2LongMap.Entry<ValueSpecification> entry : values.object2LongEntrySet()) {
-          final Key value = new Key(entry.getLongValue());
+          final Long value = entry.getValue();
           _specificationToIdentifier.put(entry.getKey(), value);
           _identifierToSpecification.put(value, entry.getKey());
         }
@@ -155,10 +105,9 @@ public class CachingIdentifierMap implements IdentifierMap {
 
   @Override
   public ValueSpecification getValueSpecification(final long identifier) {
-    final Key key = borrowKey(identifier);
+    final Long key = identifier;
     ValueSpecification spec = _identifierToSpecification.get(key);
     if (spec != null) {
-      returnKey(key);
       return spec;
     }
     spec = getUnderlying().getValueSpecification(identifier);
@@ -172,9 +121,8 @@ public class CachingIdentifierMap implements IdentifierMap {
     final Long2ObjectMap<ValueSpecification> specifications = new Long2ObjectOpenHashMap<ValueSpecification>();
     LongList cacheMisses = null;
     for (long identifier : identifiers) {
-      final Key key = borrowKey(identifier);
+      final Long key = identifier;
       final ValueSpecification specification = _identifierToSpecification.get(key);
-      returnKey(key);
       if (specification != null) {
         specifications.put(identifier, specification);
       } else {
@@ -188,14 +136,14 @@ public class CachingIdentifierMap implements IdentifierMap {
       if (cacheMisses.size() == 1) {
         final long identifier = cacheMisses.getLong(0);
         final ValueSpecification specification = getUnderlying().getValueSpecification(identifier);
-        final Key key = new Key(identifier);
+        final Long key = identifier;
         _specificationToIdentifier.put(specification, key);
         _identifierToSpecification.put(key, specification);
         specifications.put(identifier, specification);
       } else {
         final Long2ObjectMap<ValueSpecification> values = getUnderlying().getValueSpecifications(cacheMisses);
         for (Long2ObjectMap.Entry<ValueSpecification> entry : values.long2ObjectEntrySet()) {
-          final Key value = new Key(entry.getLongKey());
+          final Long value = entry.getKey();
           _specificationToIdentifier.put(entry.getValue(), value);
           _identifierToSpecification.put(value, entry.getValue());
         }

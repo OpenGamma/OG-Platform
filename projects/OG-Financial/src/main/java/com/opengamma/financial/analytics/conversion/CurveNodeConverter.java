@@ -27,7 +27,7 @@ public class CurveNodeConverter {
       final HistoricalTimeSeriesBundle timeSeries) {
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && node.getCurveNode() instanceof RateFutureNode) {
       final ExternalId id = node.getIdentifier();
-      final DoubleTimeSeries<?> ts = timeSeries.get(node.getCurveNode().getDataField(), id).getTimeSeries();
+      final DoubleTimeSeries<?> ts = timeSeries.get(node.getDataField(), id).getTimeSeries();
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + id);
       }

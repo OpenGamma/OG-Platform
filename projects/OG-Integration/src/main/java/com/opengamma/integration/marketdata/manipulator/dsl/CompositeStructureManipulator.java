@@ -23,16 +23,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CompositeStructureManipulator<T> implements StructureManipulator<T> {
 
-  private static final String TYPE_FIELD = "type";
   private static final String MANIPULATOR_FIELD = "manipulator";
 
   private final List<StructureManipulator<T>> _manipulators;
   private final Class<T> _expectedType;
 
-  public CompositeStructureManipulator(Class<T> expectedType, List<StructureManipulator<T>> manipulators) {
-    ArgumentChecker.notNull(expectedType, "expectedType");
+  public CompositeStructureManipulator(List<StructureManipulator<T>> manipulators) {
     ArgumentChecker.notEmpty(manipulators, "manipulators");
-    _expectedType = expectedType;
+    // TODO need to check all the manipulators and get the common supertype
+    _expectedType = manipulators.get(0).getExpectedType();
     _manipulators = ImmutableList.copyOf(manipulators);
   }
 
@@ -52,7 +51,6 @@ public class CompositeStructureManipulator<T> implements StructureManipulator<T>
 
   public MutableFudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(msg, TYPE_FIELD, null, _expectedType);
     for (StructureManipulator<T> manipulator : _manipulators) {
       serializer.addToMessageWithClassHeaders(msg, MANIPULATOR_FIELD, null, manipulator);
     }
@@ -61,13 +59,18 @@ public class CompositeStructureManipulator<T> implements StructureManipulator<T>
 
   public static <T> CompositeStructureManipulator<T> fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
     List<StructureManipulator<T>> manipulators = Lists.newArrayList();
-    @SuppressWarnings("unchecked")
-    Class<T> expectedType = (Class<T>) msg.getValue(Class.class, TYPE_FIELD);
     for (FudgeField field : msg.getAllByName(MANIPULATOR_FIELD)) {
       @SuppressWarnings("unchecked")
       StructureManipulator<T> manipulator = deserializer.fieldValueToObject(StructureManipulator.class, field);
       manipulators.add(manipulator);
     }
-    return new CompositeStructureManipulator<>(expectedType, manipulators);
+    return new CompositeStructureManipulator<>(manipulators);
+  }
+
+  @Override
+  public String toString() {
+    return "CompositeStructureManipulator [" +
+        "_manipulators=" + _manipulators +
+        "]";
   }
 }

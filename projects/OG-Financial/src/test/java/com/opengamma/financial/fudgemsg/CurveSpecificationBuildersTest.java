@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
@@ -31,12 +32,15 @@ public class CurveSpecificationBuildersTest extends AnalyticsTestBase {
   private static final Set<CurveNodeWithIdentifier> NODES = new TreeSet<>();
 
   static {
-    NODES.add(new CurveNodeWithIdentifier(new CreditSpreadNode("X", Tenor.DAY), ExternalId.of("Test", "A")));
-    NODES.add(new CurveNodeWithIdentifier(new CreditSpreadNode("Y", Tenor.ONE_MONTH), ExternalId.of("Test", "B")));
-    NODES.add(new CurveNodeWithIdentifier(new CreditSpreadNode("Z", Tenor.ONE_YEAR), ExternalId.of("Test", "C")));
-    NODES.add(new CurveNodeWithIdentifier(new CashNode(Tenor.DAY, Tenor.ONE_WEEK, ExternalId.of("Test convention", "convention1"), "Z"), ExternalId.of("Test", "D")));
-    NODES.add(new CurveNodeWithIdentifier(new CashNode(Tenor.TWO_DAYS, Tenor.TWO_WEEKS, ExternalId.of("Test convention", "convention2"), "Y"), ExternalId.of("Test", "E")));
-    NODES.add(new CurveNodeWithIdentifier(new CashNode(Tenor.TWO_DAYS, Tenor.THREE_WEEKS, ExternalId.of("Test convention", "convention3"), "X"), ExternalId.of("Test", "F")));
+    NODES.add(new CurveNodeWithIdentifier(new CreditSpreadNode("X", Tenor.DAY), ExternalId.of("Test", "A"), "X", DataFieldType.OUTRIGHT));
+    NODES.add(new CurveNodeWithIdentifier(new CreditSpreadNode("Y", Tenor.ONE_MONTH), ExternalId.of("Test", "B"), "Y", DataFieldType.POINTS));
+    NODES.add(new CurveNodeWithIdentifier(new CreditSpreadNode("Z", Tenor.ONE_YEAR), ExternalId.of("Test", "C"), "Z", DataFieldType.OUTRIGHT));
+    NODES.add(new CurveNodeWithIdentifier(new CashNode(Tenor.DAY, Tenor.ONE_WEEK, ExternalId.of("Test convention", "convention1"), "Test"),
+        ExternalId.of("Test", "D"), "A", DataFieldType.OUTRIGHT));
+    NODES.add(new CurveNodeWithIdentifier(new CashNode(Tenor.TWO_DAYS, Tenor.TWO_WEEKS, ExternalId.of("Test convention", "convention2"), "Test"),
+        ExternalId.of("Test", "E"), "B", DataFieldType.POINTS));
+    NODES.add(new CurveNodeWithIdentifier(new CashNode(Tenor.TWO_DAYS, Tenor.THREE_WEEKS, ExternalId.of("Test convention", "convention3"), "Test"),
+        ExternalId.of("Test", "F"), "C", DataFieldType.OUTRIGHT));
   }
 
   @Test

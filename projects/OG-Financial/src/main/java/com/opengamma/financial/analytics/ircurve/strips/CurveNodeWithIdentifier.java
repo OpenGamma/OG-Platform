@@ -18,12 +18,17 @@ import com.opengamma.util.ArgumentChecker;
 public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifier> {
   private final CurveNode _node;
   private final ExternalId _id;
+  private final String _dataField;
+  private final DataFieldType _fieldType;
 
-  public CurveNodeWithIdentifier(final CurveNode node, final ExternalId id) {
+  public CurveNodeWithIdentifier(final CurveNode node, final ExternalId id, final String dataField, final DataFieldType fieldType) {
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(id, "id");
+    ArgumentChecker.notNull(dataField, "data field");
     _node = node;
     _id = id;
+    _dataField = dataField;
+    _fieldType = fieldType;
   }
 
   public CurveNode getCurveNode() {
@@ -34,13 +39,29 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
     return _id;
   }
 
+  public String getDataField() {
+    return _dataField;
+  }
+
+  public DataFieldType getFieldType() {
+    return _fieldType;
+  }
+
   @Override
   public int compareTo(final CurveNodeWithIdentifier o) {
-    final int result = _node.compareTo(o._node);
+    int result = _node.compareTo(o._node);
     if (result != 0) {
       return result;
     }
-    return _id.getValue().compareTo(o._id.getValue());
+    result = _id.getValue().compareTo(o._id.getValue());
+    if (result != 0) {
+      return result;
+    }
+    result = _dataField.compareTo(o._dataField);
+    if (result != 0) {
+      return result;
+    }
+    return _fieldType.compareTo(o._fieldType);
   }
 
   @Override
@@ -54,6 +75,8 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
     int result = 1;
     result = prime * result + _id.hashCode();
     result = prime * result + _node.hashCode();
+    result = prime * result + _dataField.hashCode();
+    result = prime * result + _fieldType.hashCode();
     return result;
   }
 
@@ -73,6 +96,12 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
       return false;
     }
     if (!ObjectUtils.equals(_node, other._node)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_dataField, other._dataField)) {
+      return false;
+    }
+    if (_fieldType != other._fieldType) {
       return false;
     }
     return true;
