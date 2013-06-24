@@ -4,7 +4,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -12,9 +14,15 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 public class DependencyGraphTraceBuilderPropertiesTest {
 
@@ -80,17 +88,40 @@ public class DependencyGraphTraceBuilderPropertiesTest {
 
   @Test
   public void marketData() {
-    throw new RuntimeException("Test not implemented");
+    String snapshotId = "Foo~1";
+    UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
+
+    final DependencyGraphTraceBuilderProperties builder1 = createBuilder();
+    UserMarketDataSpecification defaultMD = builder1.getMarketData();
+    final DependencyGraphTraceBuilderProperties builder2 = builder1.marketData(marketData);
+
+    assertEquals(defaultMD, builder1.getMarketData());
+    assertEquals(marketData, builder2.getMarketData());
+
   }
 
   @Test
   public void requirements() {
-    throw new RuntimeException("Test not implemented");
+    Set<ValueRequirement> requirements = Collections.singleton(new ValueRequirement("testValue", new ComputationTargetRequirement(ComputationTargetType.POSITION, ExternalId.of("GOLDMAN", "FOO1"))));
+
+    final DependencyGraphTraceBuilderProperties builder1 = createBuilder();
+    Collection<ValueRequirement> defaultRequirements = builder1.getRequirements();
+    final DependencyGraphTraceBuilderProperties builder2 = builder1.requirements(requirements);
+
+    assertEquals(defaultRequirements, builder1.getRequirements());
+    assertEquals(requirements, builder2.getRequirements());
   }
 
   @Test
   public void resolutionTime() {
-    throw new RuntimeException("Test not implemented");
-  }
+    String rtStr = "V1970-01-01T00:00:01Z.CLATEST";
+    VersionCorrection rt = VersionCorrection.parse(rtStr);
 
+    final DependencyGraphTraceBuilderProperties builder1 = createBuilder();
+    VersionCorrection defaultVC = builder1.getResolutionTime();
+    final DependencyGraphTraceBuilderProperties builder2 = builder1.resolutionTime(rt);
+
+    assertEquals(defaultVC, builder1.getResolutionTime());
+    assertEquals(rt, builder2.getResolutionTime());
+  }
 }
