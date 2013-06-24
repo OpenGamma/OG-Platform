@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.threeten.bp.Instant;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
@@ -45,6 +46,18 @@ public class RemoteDependencyGraphTraceProvider extends AbstractRemoteClient imp
 
   @Override
   public DependencyGraphBuildTrace getTrace(DependencyGraphTraceBuilderProperties properties) {
+    URI uri = buildUri(properties);
+
+    return accessRemote(uri).get(DependencyGraphBuildTrace.class);
+  }
+
+  /**
+   * Builds the url to use for the remote access.
+   * @param properties the properties to use
+   * @return a full URI
+   */
+  @VisibleForTesting
+  URI buildUri(DependencyGraphTraceBuilderProperties properties) {
     URI uri = getBaseUri();
 
     //process single value properties:
@@ -55,18 +68,21 @@ public class RemoteDependencyGraphTraceProvider extends AbstractRemoteClient imp
     uri = DependencyGraphTraceProviderResource.uriDefaultProperties(uri, defaultProperties);
 
     UserMarketDataSpecification marketData = properties.getMarketData();
-    uri = DependencyGraphTraceProviderResource.uriMarketData(uri, marketData);
+    if (marketData != null) {
+      uri = DependencyGraphTraceProviderResource.uriMarketData(uri, marketData);
+    }
 
     VersionCorrection resolutionTime = properties.getResolutionTime();
     uri = DependencyGraphTraceProviderResource.uriResolutionTime(uri, resolutionTime);
 
     Instant valuationTime = properties.getValuationTime();
-    uri = DependencyGraphTraceProviderResource.uriValuationTime(uri, valuationTime);
+    if (valuationTime != null) {
+      uri = DependencyGraphTraceProviderResource.uriValuationTime(uri, valuationTime);
+    }
 
     //process requirements:
-    processRequirements(uri, properties.getRequirements());
-
-    return accessRemote(uri).get(DependencyGraphBuildTrace.class);
+    uri = processRequirements(uri, properties.getRequirements());
+    return uri;
   }
 
   /**
@@ -74,7 +90,7 @@ public class RemoteDependencyGraphTraceProvider extends AbstractRemoteClient imp
    * @param uri the uri to append to
    * @param requirements the requirements to append
    */
-  private void processRequirements(URI uri, Collection<ValueRequirement> requirements) {
+  private URI processRequirements(URI uri, Collection<ValueRequirement> requirements) {
     for (ValueRequirement valueRequirement : requirements) {
 
       String valueName = valueRequirement.getValueName();
@@ -93,13 +109,14 @@ public class RemoteDependencyGraphTraceProvider extends AbstractRemoteClient imp
         Set<ExternalId> externalIds = requirement.getIdentifiers().getExternalIds();
         ArgumentChecker.isTrue(externalIds.size() == 1, "One (and only one) external id must be specified currently.");
         ExternalId externalId = Iterables.get(externalIds, 0);
-        DependencyGraphTraceProviderResource.uriValueRequirementByExternalId(uri, constrainedValueName, targetType, externalId);
+        uri = DependencyGraphTraceProviderResource.uriValueRequirementByExternalId(uri, constrainedValueName, targetType, externalId);
       } else if (targetReference instanceof ComputationTargetSpecification) {
         UniqueId uniqueId = ((ComputationTargetSpecification) targetReference).getUniqueId();
-        DependencyGraphTraceProviderResource.uriValueRequirementByUniqueId(uri, constrainedValueName, targetType, uniqueId);
+        uri = DependencyGraphTraceProviderResource.uriValueRequirementByUniqueId(uri, constrainedValueName, targetType, uniqueId);
       } else {
         throw new IllegalArgumentException(format("Unrecognised ValueRequirement class: %s", ValueRequirement.class.getName()));
       }
     }
+    return uri;
   }
 }
