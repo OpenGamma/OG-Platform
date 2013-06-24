@@ -246,4 +246,14 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
     return bld.build(valueName, targetType, externalIdStr);
   }
 
+  /**
+   * The build call. This must be called after all of the other parameters have been added.
+   * @param baseUri the uri with all params added
+   * @return the uri complete with build call
+   */
+  public static URI uriBuild(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("build");
+    return bld.build();
+  }
+
 }

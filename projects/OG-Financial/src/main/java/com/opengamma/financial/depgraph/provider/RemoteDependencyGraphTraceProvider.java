@@ -82,7 +82,8 @@ public class RemoteDependencyGraphTraceProvider extends AbstractRemoteClient imp
 
     //process requirements:
     uri = processRequirements(uri, properties.getRequirements());
-    return uri;
+
+    return DependencyGraphTraceProviderResource.uriBuild(uri);
   }
 
   /**
