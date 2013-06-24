@@ -6,12 +6,11 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationZeroCouponParameters;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  *  Interface for pricing inflation zero-coupon cap/floor using the Black method.
  */
-public interface BlackSmileCapInflationZeroCouponProviderInterface extends ParameterProviderInterface {
+public interface BlackSmileCapInflationZeroCouponProviderInterface extends ParameterInflationProviderInterface {
 
   /**
    * Create a new copy of the provider
@@ -25,11 +24,4 @@ public interface BlackSmileCapInflationZeroCouponProviderInterface extends Param
    * @return The parameters
    */
   BlackSmileCapInflationZeroCouponParameters getBlackParameters();
-
-  /**
-   * Returns the inflation provider.
-   * @return The inflation provider
-   */
-  InflationProviderInterface getInflationProvider();
-
 }

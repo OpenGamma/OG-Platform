@@ -58,9 +58,9 @@ public class SuccessiveLeastSquareSwaptionPhysicalLMMDDCalibrationObjectiveTest 
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
   private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
 
-  private static final int[] SWAP_TENOR_YEAR = {1, 2, 3, 4, 5};
+  private static final int[] SWAP_TENOR_YEAR = {1, 2, 3, 4, 5 };
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int EXPIRY_TENOR = 5;
   private static final ZonedDateTime EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(EXPIRY_TENOR), EURIBOR6M, TARGET);
@@ -72,7 +72,7 @@ public class SuccessiveLeastSquareSwaptionPhysicalLMMDDCalibrationObjectiveTest 
   private static final boolean IS_LONG = true;
   private static final int SWAP_TENOR = 5;
 
-  private static final double[] MONEYNESS = new double[] {-0.0150, -0.0075, -0.0025, 0.0025, 0.0075, 0.0150};
+  private static final double[] MONEYNESS = new double[] {-0.0150, -0.0075, -0.0025, 0.0025, 0.0075, 0.0150 };
   // {-0.01, 0.0, 0.01}, {-0.0100, -0.0025, 0.0025, 0.0100}, {-0.0100, -0.0025, 0.00, 0.0025, 0.0100}, {-0.0150, -0.0075, -0.0025, 0.0025, 0.0075, 0.0150}
   private static final int NB_STRIKE = MONEYNESS.length;
 

@@ -7,12 +7,11 @@ package com.opengamma.analytics.financial.provider.description.inflation;
 
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatCapFloorParameters;
 import com.opengamma.analytics.financial.model.option.parameters.InflationConvexityAdjustmentParameters;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * Interface for inflation convexity adjustments.
  */
-public interface InflationConvexityAdjustmentProviderInterface extends ParameterProviderInterface {
+public interface InflationConvexityAdjustmentProviderInterface extends ParameterInflationProviderInterface {
 
   /**
    * Create a new copy of the provider
@@ -32,11 +31,5 @@ public interface InflationConvexityAdjustmentProviderInterface extends Parameter
    * @return The parameters
    */
   BlackFlatCapFloorParameters getBlackSmileIborCapParameters();
-
-  /**
-   * Returns the inflation provider.
-   * @return The inflation provider
-   */
-  InflationProviderInterface getInflationProvider();
 
 }

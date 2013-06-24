@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 /**
  * Calculator of the present value curve sensitivity as a multiple currency amount for inflation year on year cap floor without convexity adjustment.
  */
-public class PresentValueCurveSensitivityBlackSmileInflationYearOnYearCalculator extends
+public final class PresentValueCurveSensitivityBlackSmileInflationYearOnYearCalculator extends
     InstrumentDerivativeVisitorAdapter<BlackSmileCapInflationYearOnYearProviderInterface, MultipleCurrencyInflationSensitivity> {
 
   /**

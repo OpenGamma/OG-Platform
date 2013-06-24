@@ -376,4 +376,9 @@ public class InflationProviderForward implements InflationProviderInterface {
     return result;
   }
 
+  @Override
+  public InflationProviderInterface getInflationProvider() {
+    return this;
+  }
+
 }

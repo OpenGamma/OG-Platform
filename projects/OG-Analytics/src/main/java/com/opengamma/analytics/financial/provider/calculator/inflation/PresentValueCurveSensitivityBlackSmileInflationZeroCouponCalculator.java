@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 /**
  *  Calculator of the present value curve sensitivity as a multiple currency amount for inflation zero coupon cap floor without convexity adjustment.
  */
-public class PresentValueCurveSensitivityBlackSmileInflationZeroCouponCalculator extends
+public final class PresentValueCurveSensitivityBlackSmileInflationZeroCouponCalculator extends
     InstrumentDerivativeVisitorAdapter<BlackSmileCapInflationZeroCouponProviderInterface, MultipleCurrencyInflationSensitivity> {
 
   /**

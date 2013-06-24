@@ -97,7 +97,7 @@ public final class CapFloorInflationZeroCouponInterpolationBlackSmileMethod {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(black, "Black provider");
     InflationProviderInterface inflation = black.getInflationProvider();
-    final double timeToMaturity = cap.getReferenceEndTime()[0] - cap.getLastKnownFixingTime();
+    final double timeToMaturity = cap.getReferenceEndTime()[1] - cap.getLastKnownFixingTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(Math.pow(1 + cap.getStrike(), cap.getMaturity()), timeToMaturity, cap.isCap());
     final double referenceEndTime = cap.getWeight() * cap.getReferenceEndTime()[0] + (1 - cap.getWeight()) * cap.getReferenceEndTime()[1];
     final double forward = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), referenceEndTime) / cap.getIndexStartValue();
