@@ -258,7 +258,7 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
     sb.append('-');
     sb.append(configName);
     String hashKeyName = sb.toString();
-    byte[] bytes = Charsets.UTF_8.encode(hashKeyName).array();
+    byte[] bytes = hashKeyName.getBytes(Charsets.UTF_8);
     return bytes;
   }
   
