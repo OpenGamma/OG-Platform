@@ -16,7 +16,7 @@ $.register_module({
                 children: [
                     new og.common.util.ui.Dropdown({
                         form: form, resource: 'configs', index: index, placeholder: 'Please select....',
-                        rest_options : {type:"ScenarioDefinition"}, value: data
+                        rest_options : {type:"ScenarioDefinition"}, value: data, fields: [0, 1]
                     })
                 ]
             });
