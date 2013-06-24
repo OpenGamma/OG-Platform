@@ -11,6 +11,7 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -45,6 +46,8 @@ import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculatorFactory;
+import com.opengamma.financial.convention.FXForwardAndSwapConvention;
+import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
@@ -57,6 +60,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -181,8 +185,38 @@ public class CurveNodeToDefinitionConverter {
         return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, iborIndex, rate, fixingCalendar);
       }
 
+      @SuppressWarnings("synthetic-access")
+      @Override
       public InstrumentDefinition<?> visitFXForwardNode(final FXForwardNode fxForward) {
-        return null;
+        final Double forwardRate = marketValues.getDataPoint(marketDataId);
+        final ExternalId conventionId = fxForward.getFxForwardConvention();
+        final Convention convention = _conventionSource.getConvention(conventionId);
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Could not get convention with id " + conventionId);
+        }
+        if (!(convention instanceof FXForwardAndSwapConvention)) {
+          throw new OpenGammaRuntimeException("Need a convention of type " + FXForwardAndSwapConvention.class + ", have " + convention.getClass());
+        }
+        final FXForwardAndSwapConvention forwardConvention = (FXForwardAndSwapConvention) convention;
+        final ExternalId underlyingConventionId = forwardConvention.getSpotConvention();
+        final Convention underlyingConvention = _conventionSource.getConvention(underlyingConventionId);
+        if (underlyingConvention == null) {
+          throw new OpenGammaRuntimeException("Could not get convention with id " + underlyingConventionId);
+        }
+        if (!(underlyingConvention instanceof FXSpotConvention)) {
+          throw new OpenGammaRuntimeException("Need a convention of type " + FXSpotConvention.class + ", have " + convention.getClass());
+        }
+        final FXSpotConvention spotConvention = (FXSpotConvention) underlyingConvention;
+        final Currency payCurrency = fxForward.getPayCurrency();
+        final Currency receiveCurrency = fxForward.getReceiveCurrency();
+        final Tenor forwardTenor = fxForward.getMaturityTenor();
+        final double payAmount = 1;
+        final double receiveAmount = forwardRate;
+        final int daysToSettle = spotConvention.getDaysToSettle();
+        final ExternalId settlementRegion = forwardConvention.getSettlementRegion();
+        final Calendar settlementCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, settlementRegion);
+        final ZonedDateTime exchangeDate = ScheduleCalculator.getAdjustedDate(now.plus(forwardTenor.getPeriod()), daysToSettle, settlementCalendar);
+        return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, -payAmount, receiveAmount);
       }
 
       @SuppressWarnings("synthetic-access")

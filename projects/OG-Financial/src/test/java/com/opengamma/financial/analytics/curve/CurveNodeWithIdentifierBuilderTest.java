@@ -27,6 +27,7 @@ import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
@@ -92,7 +93,7 @@ public class CurveNodeWithIdentifierBuilderTest {
 
   @Test
   public void testFXForward() {
-    final FXForwardNode fxForward = new FXForwardNode(Tenor.ONE_DAY, Tenor.TWO_MONTHS, ExternalId.of("Test1", "Test1"), ExternalId.of("Test2", "Test2"), "Test");
+    final FXForwardNode fxForward = new FXForwardNode(Tenor.ONE_DAY, Tenor.TWO_MONTHS, ExternalId.of("Test1", "Test1"), Currency.USD, Currency.JPY, "Test");
     assertEquals(new CurveNodeWithIdentifier(fxForward, ExternalId.of("Test", "FX Forward"), "FX Forward Data", DataFieldType.POINTS), fxForward.accept(BUILDER));
   }
 

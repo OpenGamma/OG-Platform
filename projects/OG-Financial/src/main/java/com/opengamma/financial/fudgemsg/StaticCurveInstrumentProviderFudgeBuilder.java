@@ -32,6 +32,7 @@ public class StaticCurveInstrumentProviderFudgeBuilder implements FudgeBuilder<S
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final StaticCurveInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();
+    message.add(null, 0, object.getClass().getName());
     serializer.addToMessage(message, INSTRUMENT_FIELD, null, object.getInstrument(null, null));
     message.add(DATA_FIELD, object.getMarketDataField());
     message.add(TYPE_FIELD, object.getDataFieldType().toString());
@@ -40,7 +41,7 @@ public class StaticCurveInstrumentProviderFudgeBuilder implements FudgeBuilder<S
 
   @Override
   public StaticCurveInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final FudgeField instrumentIdentifier = message.getByName("instrument");
+    final FudgeField instrumentIdentifier = message.getByName(INSTRUMENT_FIELD);
     final ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, instrumentIdentifier);
     if (message.hasField(DATA_FIELD) && message.hasField(TYPE_FIELD)) {
       final String dataField = message.getString(DATA_FIELD);
