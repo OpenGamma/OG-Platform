@@ -180,4 +180,10 @@ public class DependencyGraphTraceBuilderProperties {
     };
   }
 
+  @Override
+  public String toString() {
+    return "DependencyGraphTraceBuilderProperties [getCalculationConfigurationName()=" + getCalculationConfigurationName() + ", getValuationTime()=" + getValuationTime() + ", getResolutionTime()=" +
+        getResolutionTime() + ", getDefaultProperties()=" + getDefaultProperties() + ", getRequirements()=" + getRequirements() + ", getMarketData()=" + getMarketData() + "]";
+  }
+
 }
