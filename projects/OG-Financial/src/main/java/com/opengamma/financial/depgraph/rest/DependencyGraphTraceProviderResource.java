@@ -20,8 +20,6 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -45,7 +43,7 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
   private final FudgeContext _fudgeContext;
 
   private final DependencyGraphTraceProvider _provider;
-  
+
   public DependencyGraphTraceProviderResource(final DependencyGraphTraceProvider provider, final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
     _provider = provider;
@@ -65,7 +63,7 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
   public Response getHateaos(@Context UriInfo uriInfo) {
     return hateoasResponse(uriInfo);
   }
-  
+
   @Path("valuationTime/{valuationTime}")
   @GET
   public FudgeMsgEnvelope getTraceWithValuationTime(@PathParam("valuationTime") final String valuationTime) {
@@ -81,7 +79,7 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
     DependencyGraphBuildTrace trace = _provider.getTraceWithResolutionTime(parsedResolutionTime);
     return serialize(trace);
   }
-  
+
   @Path("calculationConfigurationName/{calculationConfigurationName}")
   @GET
   public FudgeMsgEnvelope getTraceWithCalculationConfigurationName(@PathParam("calculationConfigurationName") final String calculationConfigurationName) {
@@ -120,15 +118,14 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
     DependencyGraphBuildTrace trace = _provider.getTraceWithMarketData(marketData);
     return serialize(trace);
   }
-  
+
   private FudgeMsgEnvelope serialize(DependencyGraphBuildTrace trace) {
     MutableFudgeMsg fudgeMsg = new FudgeSerializer(_fudgeContext).objectToFudgeMsg(trace);
     return new FudgeMsgEnvelope(fudgeMsg);
   }
 
   // ------------------------------------------
-  
-  
+
   /**
    * Builds URI for remote access to getTraceWithCalculationConfigurationName.
    * @param baseUri the base uri
@@ -215,6 +212,5 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("requirement/{valueName}/{targetType}/{targetId}");
     return bld.build(valueName, targetType, externalIdStr);
   }
-  
 
 }

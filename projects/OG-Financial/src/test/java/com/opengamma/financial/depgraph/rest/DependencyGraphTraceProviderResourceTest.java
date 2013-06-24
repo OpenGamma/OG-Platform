@@ -16,7 +16,6 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Throwables;
 import com.opengamma.engine.marketdata.spec.MarketData;
