@@ -37,6 +37,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.Convention;
@@ -180,6 +181,10 @@ public class CurveNodeToDefinitionConverter {
         return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, iborIndex, rate, fixingCalendar);
       }
 
+      public InstrumentDefinition<?> visitFXForwardNode(final FXForwardNode fxForward) {
+        return null;
+      }
+
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinition<?> visitRateFutureNode(final RateFutureNode rateFuture) {
@@ -215,7 +220,7 @@ public class CurveNodeToDefinitionConverter {
         final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
         final DayCount dayCount = indexConvention.getDayCount();
         final boolean eom = indexConvention.isIsEOM();
-        final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom);
+        final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom, indexConvention.getName());
         final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
         final ZonedDateTime startDate = now.plus(rateFuture.getStartTenor().getPeriod());
         final LocalTime time = startDate.toLocalTime();

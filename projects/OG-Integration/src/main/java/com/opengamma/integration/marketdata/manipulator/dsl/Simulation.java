@@ -19,9 +19,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.function.SimpleFunctionParameters;
-import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.marketdata.manipulator.CompositeMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
@@ -48,7 +47,6 @@ import com.opengamma.util.ArgumentChecker;
 public class Simulation {
 
   private static final Logger s_logger = LoggerFactory.getLogger(Simulation.class);
-  private static final SimpleFunctionParameters NOOP_FUNCTION_PARAMETERS;
 
   // TODO name field
   //private final String _name;
@@ -60,12 +58,6 @@ public class Simulation {
   private final Instant _valuationTime;
   /** The default resolver version correction for scenarios. */
   private final VersionCorrection _resolverVersionCorrection;
-
-  static {
-    NOOP_FUNCTION_PARAMETERS = new SimpleFunctionParameters();
-    NoOpStructureManipulator<Object> noOpManipulator = new NoOpStructureManipulator<>();
-    NOOP_FUNCTION_PARAMETERS.setValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME, noOpManipulator);
-  }
 
   /**
    * Creates a new simulation with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
@@ -116,12 +108,11 @@ public class Simulation {
       Map<DistinctMarketDataSelector, FunctionParameters> scenarioParams = definition.getDefinitionMap();
       Map<DistinctMarketDataSelector, FunctionParameters> params = Maps.newHashMap();
       params.putAll(scenarioParams);
-      // TODO confirm this is necessary, parameters might be cleared before every cycle
       // if a selector isn't used by a particular scenario then it needs to have a no-op manipulatior. if it didn't
       // then the manipulator from the previous scenario would be used
       Set<DistinctMarketDataSelector> unusedSelectors = Sets.difference(allSelectors, params.keySet());
       for (DistinctMarketDataSelector unusedSelector : unusedSelectors) {
-        params.put(unusedSelector, NOOP_FUNCTION_PARAMETERS);
+        params.put(unusedSelector, EmptyFunctionParameters.INSTANCE);
       }
       ViewCycleExecutionOptions scenarioOptions = baseOptions.copy()
           .setFunctionParameters(params)
@@ -134,9 +125,11 @@ public class Simulation {
   }
 
   /**
-   * Adds a new scenario to this simulation, initializing it with default the simulation's default values
-   * for calculation configuration, valuation time and resolver version correction.
-   * @return The new scenario.
+   * Returns the scenario with the given name. If no scenario exists with the specified name it is created and
+   * initialized with default the simulation's default values for calculation configuration, valuation time and
+   * resolver version correction.
+   * @return The scenario.
+   * TODO check the name isn't the base scenario name and throw IAE
    */
   public Scenario scenario(String name) {
     if (_scenarios.containsKey(name)) {

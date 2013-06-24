@@ -31,6 +31,11 @@ public class VolatilitySurfaceConstantMultiplicativeShift implements StructureMa
     return surface.withConstantMultiplicativeShift(_shift);
   }
 
+  @Override
+  public Class<VolatilitySurface> getExpectedType() {
+    return VolatilitySurface.class;
+  }
+
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, SHIFT, null, _shift);

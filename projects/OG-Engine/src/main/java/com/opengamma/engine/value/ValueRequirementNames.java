@@ -164,7 +164,7 @@ public final class ValueRequirementNames {
    */
   public static final String CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES = "Credit Spread Curve Historical Time Series";
   /**
-   * The bundle of historical time series objects for instruments on a curve.
+   * The bundle of historical time series objects for instruments on a yield curve.
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
   /**
@@ -172,9 +172,17 @@ public final class ValueRequirementNames {
    */
   public static final String FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES = "FX Forward Curve Historical Time Series";
   /**
-   * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
+   * The bundle of historical time series objects for instruments on a curve.
+   */
+  public static final String CURVE_HISTORICAL_TIME_SERIES = "Curve Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a yield curve to their OG-Analytics derivative form.
    */
   public static final String YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Instrument Conversion Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
+   */
+  public static final String CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Curve Instrument Conversion Historical Time Series";
   /**
    * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
    */

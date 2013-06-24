@@ -21,6 +21,7 @@ public class PerCurrencyConventionHelper {
   public static final String VANILLA_IBOR_LEG = "Vanilla Ibor Leg";
   public static final String OIS_SWAP_LEG = "OIS Swap Leg";
   public static final String OVERNIGHT = "Overnight";
+  public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
   public static final String SCHEME_NAME = "CONVENTION";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {

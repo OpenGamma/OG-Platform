@@ -25,21 +25,6 @@ import com.opengamma.util.tuple.DoublesPair;
 public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod {
 
   /**
-   * Computes the present value of the zero-coupon coupon with reference index at start of the month and multiplicative factor.
-   * @param coupon The zero-coupon payment.
-   * @param inflation The inflation provider.
-   * @return The present value.
-   */
-  public MultipleCurrencyAmount presentValue(CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
-    double estimatedIndex = indexEstimation(coupon, inflation);
-    double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    double pv = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
-    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
-  }
-
-  /**
    * Computes the net amount of the zero-coupon coupon with reference index at start of the month and multiplicative factor.
    * @param coupon The zero-coupon payment.
    * @param inflation The inflation provider.
@@ -48,9 +33,22 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod {
   public MultipleCurrencyAmount netAmount(CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndex = indexEstimation(coupon, inflation);
-    double netAmount = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
+    final double estimatedIndex = indexEstimation(coupon, inflation);
+    final double netAmount = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), netAmount);
+  }
+
+  /**
+   * Computes the present value of the zero-coupon coupon with reference index at start of the month and multiplicative factor.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface inflation) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflation, "Inflation");
+    final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    return netAmount(coupon, inflation).multipliedBy(discountFactor);
   }
 
   /**
@@ -77,8 +75,8 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod {
     double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;
-    double discountFactorBar = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
-    double estimatedIndexBar = coupon.getFactor() / coupon.getIndexStartValue() * discountFactor * coupon.getNotional() * pvBar;
+    final double discountFactorBar = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
+    final double estimatedIndexBar = coupon.getFactor() / coupon.getIndexStartValue() * discountFactor * coupon.getNotional() * pvBar;
     final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));

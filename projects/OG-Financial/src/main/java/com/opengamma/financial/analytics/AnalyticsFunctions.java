@@ -20,7 +20,6 @@ import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.volatility.VolatilityFunctions;
-import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -45,8 +44,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   public static void addSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
     functions.add(functionConfiguration(SummingFunction.class, requirementName));
-    functions.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, MissingInputsFunction.AGGREGATION_STYLE_FULL,
-        FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
   }
 
   public static void addValueGreekAndSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
@@ -192,6 +189,12 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_WEIGHTED_VEGA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_DELTA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_RHO);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_THETA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_VEGA);
+    addUnitScalingFunction(functions, ValueRequirementNames.POSITION_WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);

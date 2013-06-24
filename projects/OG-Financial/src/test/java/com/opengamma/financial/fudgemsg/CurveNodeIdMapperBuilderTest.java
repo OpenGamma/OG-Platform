@@ -64,11 +64,16 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
     fraIds.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("j")));
     fraIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("k")));
     fraIds.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("l")));
+    final Map<Tenor, CurveInstrumentProvider> fxForwardIds = new HashMap<>();
+    fxForwardIds.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergBuidSecurityId("FX1")));
+    fxForwardIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergBuidSecurityId("FX2")));
+    fxForwardIds.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergBuidSecurityId("FX3")));
     final Map<Tenor, CurveInstrumentProvider> rateFutureIds = new HashMap<>();
     rateFutureIds.put(Tenor.ONE_YEAR, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
     rateFutureIds.put(Tenor.TWO_YEARS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
     rateFutureIds.put(Tenor.EIGHTEEN_MONTHS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
-    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(name, cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, fraIds, rateFutureIds, swapIds);
+    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(name, cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, fraIds, fxForwardIds,
+        rateFutureIds, swapIds);
     assertEquals(mapper, cycleObject(CurveNodeIdMapper.class, mapper));
   }
 }

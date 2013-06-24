@@ -84,15 +84,15 @@ public class ISDACompliantCurveCalibratorTest {
     ISDACompliantCurveCalibrator calibrator = new ISDACompliantCurveCalibrator();
     HazardRateCurve hc = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
 
-     final int m = hc.getNumberOfCurvePoints();
-     double[] t = hc.getTimes();
-     double[] fittedRates = hc.getRates();
-     for (int i = 0; i < m; i++) {
-     double df = Math.exp(-t[i] * fittedRates[i]);
-     double df2 = hc.getSurvivalProbability(t[i]);
-     System.out.println(t[i] + "\t" + fittedRates[i] + "\t" + df + "\t" + df2);
-     }
-     System.out.println();
+//    final int m = hc.getNumberOfCurvePoints();
+//    double[] t = hc.getTimes();
+//    double[] fittedRates = hc.getRates();
+//    for (int i = 0; i < m; i++) {
+//      double df = Math.exp(-t[i] * fittedRates[i]);
+//      double df2 = hc.getSurvivalProbability(t[i]);
+//      // System.out.println(t[i] + "\t" + fittedRates[i] + "\t" + df + "\t" + df2);
+//    }
+    // System.out.println();
 
     for (int i = 0; i < n; i++) {
       double rpv01 = PRICER.calculateRPV01(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, YIELD_CURVE, hc, protectionStart, PriceType.CLEAN);
@@ -103,7 +103,7 @@ public class ISDACompliantCurveCalibratorTest {
     }
 
     final int warmup = 0;
-    final int benchmark = 1;
+    final int benchmark = 0;
 
     for (int k = 0; k < warmup; k++) {
       HazardRateCurve hc2 = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
@@ -120,9 +120,9 @@ public class ISDACompliantCurveCalibratorTest {
     }
   }
 
-  @Test
+  @Test(enabled=false)
   public void oldTest() {
-System.out.println("old test");
+    System.out.println("old test");
     final ZonedDateTime today = DateUtils.getUTCDate(2013, 2, 2);
 
     final ZonedDateTime[] endDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 6, 20), DateUtils.getUTCDate(2013, 9, 20), DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2015, 3, 20),

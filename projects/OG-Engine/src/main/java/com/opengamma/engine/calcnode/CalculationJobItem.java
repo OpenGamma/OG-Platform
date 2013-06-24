@@ -9,9 +9,8 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -29,18 +28,19 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class CalculationJobItem implements IdentifierEncodedValueSpecifications {
 
-  private static final long[] EMPTY = new long[0];
+  private static final long[] EMPTY_LONG = new long[0];
+  private static final ValueSpecification[] EMPTY_VALUESPEC = new ValueSpecification[0];
 
   // should these two be combined to ParameterizedFunction ID?
   private final String _functionUniqueIdentifier;
   private final FunctionParameters _functionParameters;
 
   private final ComputationTargetSpecification _computationTargetSpecification;
-  private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
+  private ValueSpecification[] _inputSpecifications;
   private long[] _inputIdentifiers;
-  private final Set<ValueSpecification> _outputs = new HashSet<ValueSpecification>();
+  private ValueSpecification[] _outputSpecifications;
   private long[] _outputIdentifiers;
-  
+
   private final ExecutionLogMode _logMode;
 
   public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters,
@@ -50,8 +50,8 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
-    _inputs.addAll(inputs);
-    _outputs.addAll(outputs);
+    _inputSpecifications = inputs.toArray(new ValueSpecification[inputs.size()]);
+    _outputSpecifications = outputs.toArray(new ValueSpecification[outputs.size()]);
     _logMode = logMode;
   }
 
@@ -93,8 +93,8 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
    * 
    * @return the input specifications or null if they have not been resolved
    */
-  public Set<ValueSpecification> getInputs() {
-    return Collections.unmodifiableSet(_inputs);
+  public ValueSpecification[] getInputs() {
+    return _inputSpecifications;
   }
 
   /**
@@ -109,19 +109,19 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
   /**
    * Returns the function output specifications. If the item has been deserialized the specifications will only be populated after {@link #resolveIdentifiers} has been called.
    * 
-   * @return the output specifications
+   * @return the output specifications or null if they have not been converted
    */
-  public Set<ValueSpecification> getOutputs() {
-    return Collections.unmodifiableSet(_outputs);
+  public ValueSpecification[] getOutputs() {
+    return _outputSpecifications;
   }
-  
+
   /**
    * @return the computationTargetSpecification
    */
   public ComputationTargetSpecification getComputationTargetSpecification() {
     return _computationTargetSpecification;
   }
-  
+
   /**
    * Gets the execution log mode, controlling the level of detail in the {@link ExecutionLog} present in the results.
    * 
@@ -134,14 +134,24 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
   //-------------------------------------------------------------------------
   @Override
   public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
-    if (_inputs.isEmpty() && (_inputIdentifiers.length > 0)) {
-      for (long identifier : _inputIdentifiers) {
-        _inputs.add(identifiers.get(identifier));
+    if (_inputSpecifications == null) {
+      if (_inputIdentifiers.length > 0) {
+        _inputSpecifications = new ValueSpecification[_inputIdentifiers.length];
+        for (int i = 0; i < _inputIdentifiers.length; i++) {
+          _inputSpecifications[i] = identifiers.get(_inputIdentifiers[i]);
+        }
+      } else {
+        _inputSpecifications = EMPTY_VALUESPEC;
       }
     }
-    if (_outputs.isEmpty() && (_outputIdentifiers.length > 0)) {
-      for (long identifier : _outputIdentifiers) {
-        _outputs.add(identifiers.get(identifier));
+    if (_outputSpecifications == null) {
+      if (_outputIdentifiers.length > 0) {
+        _outputSpecifications = new ValueSpecification[_outputIdentifiers.length];
+        for (int i = 0; i < _outputIdentifiers.length; i++) {
+          _outputSpecifications[i] = identifiers.get(_outputIdentifiers[i]);
+        }
+      } else {
+        _outputSpecifications = EMPTY_VALUESPEC;
       }
     }
   }
@@ -159,33 +169,35 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
   @Override
   public void convertValueSpecifications(final Object2LongMap<ValueSpecification> valueSpecifications) {
     if (_inputIdentifiers == null) {
-      if (_inputs.isEmpty()) {
-        _inputIdentifiers = EMPTY;
-      } else {
-        _inputIdentifiers = new long[_inputs.size()];
-        int i = 0;
-        for (ValueSpecification input : _inputs) {
-          _inputIdentifiers[i++] = valueSpecifications.getLong(input);
+      if (_inputSpecifications.length > 0) {
+        _inputIdentifiers = new long[_inputSpecifications.length];
+        for (int i = 0; i < _inputSpecifications.length; i++) {
+          _inputIdentifiers[i] = valueSpecifications.getLong(_inputSpecifications[i]);
         }
+      } else {
+        _inputIdentifiers = EMPTY_LONG;
       }
     }
     if (_outputIdentifiers == null) {
-      if (_outputs.isEmpty()) {
-        _outputIdentifiers = EMPTY;
-      } else {
-        _outputIdentifiers = new long[_outputs.size()];
-        int i = 0;
-        for (ValueSpecification output : _outputs) {
-          _outputIdentifiers[i++] = valueSpecifications.getLong(output);
+      if (_outputSpecifications.length > 0) {
+        _outputIdentifiers = new long[_outputSpecifications.length];
+        for (int i = 0; i < _outputSpecifications.length; i++) {
+          _outputIdentifiers[i] = valueSpecifications.getLong(_outputSpecifications[i]);
         }
+      } else {
+        _outputIdentifiers = EMPTY_LONG;
       }
     }
   }
 
   @Override
   public void collectValueSpecifications(final Set<ValueSpecification> valueSpecifications) {
-    valueSpecifications.addAll(_inputs);
-    valueSpecifications.addAll(_outputs);
+    for (ValueSpecification input : _inputSpecifications) {
+      valueSpecifications.add(input);
+    }
+    for (ValueSpecification output : _outputSpecifications) {
+      valueSpecifications.add(output);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -201,8 +213,8 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
       return false;
     }
     final CalculationJobItem other = (CalculationJobItem) o;
-    return _functionUniqueIdentifier.equals(other._functionUniqueIdentifier) && _computationTargetSpecification.equals(other._computationTargetSpecification) && _inputs.equals(other._inputs) &&
-        _outputs.equals(other._outputs);
+    return _functionUniqueIdentifier.equals(other._functionUniqueIdentifier) && _computationTargetSpecification.equals(other._computationTargetSpecification) &&
+        Arrays.deepEquals(_inputSpecifications, other._inputSpecifications) && Arrays.deepEquals(_outputSpecifications, other._outputSpecifications);
   }
 
   @Override
@@ -213,9 +225,13 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
     hc *= multiplier;
     hc += _computationTargetSpecification.hashCode();
     hc *= multiplier;
-    hc += _inputs.hashCode();
+    if (_inputSpecifications != null) {
+      hc += Arrays.hashCode(_inputSpecifications);
+    }
     hc *= multiplier;
-    hc += _outputs.hashCode();
+    if (_outputSpecifications != null) {
+      hc += Arrays.hashCode(_outputSpecifications);
+    }
     hc *= multiplier;
     return hc;
   }

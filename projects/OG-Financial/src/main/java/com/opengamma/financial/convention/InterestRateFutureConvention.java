@@ -41,6 +41,13 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   public InterestRateFutureConvention() {
   }
 
+  /**
+   * @param name The convention name
+   * @param externalIdBundle The external id bundle of the convention
+   * @param expiryConvention The expiry convention
+   * @param exchangeCalendar The exchange calendar
+   * @param indexConvention The index convention
+   */
   public InterestRateFutureConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
       final ExternalId exchangeCalendar, final ExternalId indexConvention) {
     super(name, externalIdBundle, expiryConvention, exchangeCalendar);

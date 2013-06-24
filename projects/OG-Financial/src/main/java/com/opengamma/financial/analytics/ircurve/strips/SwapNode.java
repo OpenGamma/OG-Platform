@@ -58,18 +58,16 @@ public class SwapNode extends CurveNode {
     super();
   }
 
+  /**
+   * @param startTenor The start tenor, not null
+   * @param maturityTenor The maturity tenor, not null
+   * @param payLegConvention The pay leg convention, not null
+   * @param receiveLegConvention The receive leg convention, not null
+   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   */
   public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
       final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
-    setStartTenor(startTenor);
-    setMaturityTenor(maturityTenor);
-    setPayLegConvention(payLegConvention);
-    setReceiveLegConvention(receiveLegConvention);
-  }
-
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final String curveNodeIdMapperName, final String dataField) {
-    super(curveNodeIdMapperName, dataField);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);

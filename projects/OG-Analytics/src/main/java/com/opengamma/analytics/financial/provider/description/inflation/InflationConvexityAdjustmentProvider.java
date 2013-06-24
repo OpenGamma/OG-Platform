@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class describing a provider with inflation (which contian multicurve) and  inflation parameters needed for the convexity adjustemnts.
+ * Class describing a provider with inflation (which contain multicurve) and  inflation parameters needed for the convexity adjustemnts.
  */
 public class InflationConvexityAdjustmentProvider implements InflationConvexityAdjustmentProviderInterface {
 

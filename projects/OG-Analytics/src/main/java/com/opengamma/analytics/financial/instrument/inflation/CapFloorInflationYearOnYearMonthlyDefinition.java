@@ -176,7 +176,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CapFloorInflationYearOnYearMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -259,36 +259,49 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CapFloorInflationYearOnYearMonthlyDefinition other = (CapFloorInflationYearOnYearMonthlyDefinition) obj;
-    if (_conventionalMonthLag != other._conventionalMonthLag)
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
       return false;
-    if (_isCap != other._isCap)
+    }
+    if (_isCap != other._isCap) {
       return false;
+    }
     if (_lastKnownFixingDate == null) {
-      if (other._lastKnownFixingDate != null)
+      if (other._lastKnownFixingDate != null) {
         return false;
-    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate))
+      }
+    } else if (!_lastKnownFixingDate.equals(other._lastKnownFixingDate)) {
       return false;
-    if (_monthLag != other._monthLag)
+    }
+    if (_monthLag != other._monthLag) {
       return false;
+    }
     if (_referenceEndDate == null) {
-      if (other._referenceEndDate != null)
+      if (other._referenceEndDate != null) {
         return false;
-    } else if (!_referenceEndDate.equals(other._referenceEndDate))
+      }
+    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
       return false;
+    }
     if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null)
+      if (other._referenceStartDate != null) {
         return false;
-    } else if (!_referenceStartDate.equals(other._referenceStartDate))
+      }
+    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
       return false;
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
+    }
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
+    }
     return true;
   }
 

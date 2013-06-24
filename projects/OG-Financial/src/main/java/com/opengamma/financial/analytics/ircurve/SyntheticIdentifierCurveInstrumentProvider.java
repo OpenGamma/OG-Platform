@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.ircurve;
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
@@ -17,6 +19,9 @@ import com.opengamma.util.time.Tenor;
  * This should be pulled from the configuration.
  */
 public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrumentProvider {
+  //TODO remove these two
+  private static final String DATA_FIELD = MarketDataRequirementNames.MARKET_VALUE;
+  private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
   private final Currency _ccy;
   private final StripInstrumentType _type;
   private StripInstrumentType _idType;
@@ -57,6 +62,11 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numQuarterlyFuturesFromTenor) {
+    return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + startTenor.getPeriod().toString() + futureTenor.getPeriod().toString());
+  }
+
+  @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear, final boolean isPeriodicZeroDeposit) {
     return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + Integer.toString(periodsPerYear) + tenor.getPeriod().toString());
   }
@@ -83,6 +93,16 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
 
   public ExternalScheme getScheme() {
     return _scheme;
+  }
+
+  @Override
+  public String getMarketDataField() {
+    return DATA_FIELD;
+  }
+
+  @Override
+  public DataFieldType getDataFieldType() {
+    return FIELD_TYPE;
   }
 
   @Override

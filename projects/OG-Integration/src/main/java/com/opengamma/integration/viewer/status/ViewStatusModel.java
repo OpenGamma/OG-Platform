@@ -13,12 +13,18 @@ import java.util.Set;
  */
 public interface ViewStatusModel {
   /**
+   * Gets all the view status result keys
+   * 
+   * @return the set of keys for collected view status, empty set if no result.
+   */
+  Set<ViewStatusKey> keySet();
+  /**
    * Gets the status value stored for a key
    * 
    * @param key the view status key, can be null
    * @return the stored status value for a given key or null if no matching key.
    */
-  Boolean getStatus(ViewStatusKey key);
+  ViewStatus getStatus(ViewStatusKey key);
   /**
    * Gets all the supported value requirement names.
    * 
@@ -37,6 +43,12 @@ public interface ViewStatusModel {
    * @return the set of security types, empty set if none.
    */
   Set<String> getSecurityTypes();
+  /**
+   * Gets all supported computation target types.
+   * 
+   * @return the set of computation target types, empty set if none.
+   */
+  Set<String> getComputationTargetTypes();
   /**
    * Returns the number of rows in the model.
    *

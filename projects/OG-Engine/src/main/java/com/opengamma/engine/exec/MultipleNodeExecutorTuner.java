@@ -25,18 +25,20 @@ import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * <p>Continuously tunes the parameters to a {@link MultipleNodeExecutorFactory} to maintain good performance
- * while aspects of the computing cluster change. Schedule this to run periodically to update its sampling
- * and make continuous adjustments.</p>
- * 
+ * <p>
+ * Continuously tunes the parameters to a {@link MultipleNodeExecutorFactory} to maintain good performance while aspects of the computing cluster change. Schedule this to run periodically to update
+ * its sampling and make continuous adjustments.
+ * </p>
  * <h2>Tuning rules<h2>
- * 
- * <p>Set maximum concurrency to the average node count of the job invokers. Requires a {@link JobDispatcher}.</p>
- * 
- * <p>TODO: [ENG-200] Tuning of job size and cost parameters</p>
+ * <p>
+ * Set maximum concurrency to the average node count of the job invokers. Requires a {@link JobDispatcher}.
+ * </p>
+ * <p>
+ * TODO: [ENG-200] Tuning of job size and cost parameters
+ * </p>
  */
 public class MultipleNodeExecutorTuner implements Runnable {
-  
+
   // REVIEW 2010-09-09 Andrew -- Instead of running periodically and relying on other statistics gatherers, this
   // should implement the gathering interfaces and make adjustments as statistical data arrives, possibly acting
   // as a pass-through so it can sit on top of other gathering implementations
@@ -113,6 +115,7 @@ public class MultipleNodeExecutorTuner implements Runnable {
       final Map<String, Collection<Capability>> allCapabilities = getJobDispatcher().getAllCapabilities();
       int nodesPerInvokerCount = 0;
       double nodesPerInvoker = 0;
+      boolean changed = false;
       for (Map.Entry<String, Collection<Capability>> capabilities : allCapabilities.entrySet()) {
         for (Capability capability : capabilities.getValue()) {
           if (PlatformCapabilities.NODE_COUNT.equals(capability.getIdentifier())) {
@@ -128,7 +131,11 @@ public class MultipleNodeExecutorTuner implements Runnable {
         if (newMaxConcurrency != maxConcurrency) {
           s_logger.info("Changing maximum concurrency to {}", newMaxConcurrency);
           getFactory().setMaximumConcurrency(newMaxConcurrency);
+          changed = true;
         }
+      }
+      if (changed) {
+        getFactory().invalidateCache();
       }
     }
     if (getGraphExecutionStatistics() != null) {

@@ -6,10 +6,12 @@
 package com.opengamma.engine.function.exclusion;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.MapMaker;
+import com.google.common.collect.Sets;
 import com.opengamma.engine.function.FunctionDefinition;
 
 /**
@@ -86,6 +88,14 @@ public abstract class AbstractFunctionExclusionGroups implements FunctionExclusi
   @Override
   public boolean isExcluded(final FunctionExclusionGroup group, final Collection<FunctionExclusionGroup> existing) {
     return existing.contains(group);
+  }
+
+  @Override
+  public Collection<FunctionExclusionGroup> withExclusion(final Collection<FunctionExclusionGroup> existing, final FunctionExclusionGroup newGroup) {
+    final Set<FunctionExclusionGroup> result = Sets.newHashSetWithExpectedSize(existing.size() + 1);
+    result.addAll(existing);
+    result.add(newGroup);
+    return result;
   }
 
 }

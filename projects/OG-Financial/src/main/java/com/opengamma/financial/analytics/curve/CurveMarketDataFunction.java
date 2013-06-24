@@ -39,11 +39,17 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * 
+ * For a given curve name, returns a {@link SnapshotDataBundle} containing the market data for the nodes
+ * of that curve. This function does not require that any or all of the market data is available for
+ * it to return the snapshot.
  */
 public class CurveMarketDataFunction extends AbstractFunction {
+  /** The curve name */
   private final String _curveName;
 
+  /**
+   * @param curveName The curve name, not null
+   */
   public CurveMarketDataFunction(final String curveName) {
     ArgumentChecker.notNull(curveName, "curve name");
     _curveName = curveName;
@@ -67,8 +73,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
         final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(context.getComputationTargetResolver());
         for (final ComputedValue value : inputs.getAllValues()) {
           final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
-          final double rate = (Double) value.getValue();
-          marketData.setDataPoint(identifiers, rate);
+          final double data = (Double) value.getValue();
+          marketData.setDataPoint(identifiers, data);
         }
         return Collections.singleton(new ComputedValue(spec, marketData));
       }
@@ -79,15 +85,19 @@ public class CurveMarketDataFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         return Collections.singleton(spec);
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final CurveNodeWithIdentifier id : specification.getNodes()) {
-          requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          if (id.getDataField() != null) {
+            requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          } else {
+            requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          }
         }
         return requirements;
       }

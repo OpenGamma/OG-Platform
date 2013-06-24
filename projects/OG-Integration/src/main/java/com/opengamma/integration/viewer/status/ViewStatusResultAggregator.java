@@ -14,38 +14,30 @@ public interface ViewStatusResultAggregator {
   /**
    * Creates a view status result based on given column, row and sub row type.
    * 
-   * @param columnType the column type, not null
-   * @param rowType the row type, not null
-   * @param subRowType the sub row type, not null
+   * @param aggregateType the view aggregation type, not null
    * @return the view status result model, not null
    */
-  ViewStatusModel aggregate(ViewAggregationType columnType, ViewAggregationType rowType, ViewAggregationType subRowType);
+  ViewStatusModel aggregate(AggregateType aggregateType);
   /**
    * Put in the result a key/status pair
    * 
    * @see ViewStatusKey 
    * 
    * @param key the key which is a triple of SecurityType, ValueRequirementName and Currency, not null 
-   * @param status true if the view can be calculated for the key or false otherwise
+   * @param status the status of the view calculation, i.e VALUE, NO_VALUE or GRAPH_FAIL.
    */
-  void put(ViewStatusKey key, boolean status);
+  void putStatus(ViewStatusKey key, ViewStatus status);
   /**
    * Get the status for a given key
    * 
    * @param key the key in the key/status pair.
    * @return the status result or null if there is no matching key.
    */
-  Boolean get(ViewStatusKey key);
+  ViewStatus getStatus(ViewStatusKey key);
   /**
    * Get the underlying keys
    * 
    * @return the set of view status keys, not-null.
    */
   Set<ViewStatusKey> keySet();
-  /**
-   * Produce the default model, with key property as column without any aggregation
-   * 
-   * @return the no aggregation result model, not null
-   */
-  ViewStatusModel defaultModel();
 }

@@ -142,6 +142,26 @@ public class ResolutionRule {
     return results;
   }
 
+  /**
+   * Tests whether two unique identifiers are sufficiently equal. The object identifiers of each must match. Either may omit the version, but if both specify versions then the versions must also
+   * match.
+   * 
+   * @param a the first identifier to compare, not null
+   * @param b the second identifier to compare, not null
+   */
+  private boolean isUidMatch(final UniqueId a, final UniqueId b) {
+    if (!a.getScheme().equals(b.getScheme()) || !a.getValue().equals(b.getValue())) {
+      // Object identifiers don't match
+      return false;
+    }
+    if ((a.getVersion() == null) || (b.getVersion() == null)) {
+      // Loose versioning is okay
+      return true;
+    }
+    // Strict versioning
+    return a.getVersion().equals(b.getVersion());
+  }
+
   private boolean isValidResultsOnTarget(final ComputationTarget target, final Set<ValueSpecification> results) {
     if (results == null) {
       return true;
@@ -150,14 +170,14 @@ public class ResolutionRule {
     if (uid != null) {
       ComputationTargetSpecification targetSpec = target.toSpecification();
       for (ValueSpecification result : results) {
-        if (!uid.equals(result.getTargetSpecification().getUniqueId())) {
+        if (!isUidMatch(uid, result.getTargetSpecification().getUniqueId())) {
           s_logger.warn("Invalid UID for result {} on target {}", result, target);
           return false;
         }
         ComputationTargetReference a = result.getTargetSpecification().getParent();
         ComputationTargetReference b = targetSpec.getParent();
         while ((a != null) && (b != null)) {
-          if (!a.getSpecification().getUniqueId().equals(b.getSpecification().getUniqueId())) {
+          if (!isUidMatch(a.getSpecification().getUniqueId(), b.getSpecification().getUniqueId())) {
             s_logger.warn("Parent context mismatch of result {} on target {}", result, target);
             return false;
           }
@@ -199,7 +219,7 @@ public class ResolutionRule {
       for (ValueSpecification resultSpec : resultSpecs) {
         //s_logger.debug("Considering {} for {}", resultSpec, output);
         if ((valueName == resultSpec.getValueName())
-            && targetId.equals(resultSpec.getTargetSpecification().getUniqueId()) // This is not necessary if functions are well behaved or the "isValidResultsOnTarget" check was used 
+            && isUidMatch(targetId, resultSpec.getTargetSpecification().getUniqueId()) // This is not necessary if functions are well behaved or the "isValidResultsOnTarget" check was used 
             && constraints.isSatisfiedBy(resultSpec.getProperties())) {
           validSpec = resultSpec;
           break;

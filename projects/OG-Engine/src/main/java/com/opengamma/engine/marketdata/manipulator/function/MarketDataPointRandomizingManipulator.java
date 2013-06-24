@@ -57,7 +57,12 @@ public class MarketDataPointRandomizingManipulator implements StructureManipulat
 
   @Override
   public Double execute(Double structure) {
-    return structure != null ? structure * randomFactor() : null;
+    return structure * randomFactor();
+  }
+
+  @Override
+  public Class<Double> getExpectedType() {
+    return Double.class;
   }
 
   private double randomFactor() {

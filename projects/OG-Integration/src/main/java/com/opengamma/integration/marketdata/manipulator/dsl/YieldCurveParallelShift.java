@@ -33,6 +33,11 @@ public class YieldCurveParallelShift implements StructureManipulator<YieldAndDis
     return structure.withParallelShift(_shift);
   }
 
+  @Override
+  public Class<YieldAndDiscountCurve> getExpectedType() {
+    return YieldAndDiscountCurve.class;
+  }
+
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, SHIFT, null, _shift);

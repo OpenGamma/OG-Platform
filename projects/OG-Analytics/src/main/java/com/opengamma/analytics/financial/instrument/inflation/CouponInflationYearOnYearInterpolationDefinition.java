@@ -321,27 +321,37 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
-    if (_conventionalMonthLag != other._conventionalMonthLag)
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
       return false;
-    if (_monthLag != other._monthLag)
+    }
+    if (_monthLag != other._monthLag) {
       return false;
-    if (_payNotional != other._payNotional)
+    }
+    if (_payNotional != other._payNotional) {
       return false;
-    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate))
+    }
+    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
       return false;
-    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate))
+    }
+    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate)) {
       return false;
-    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd))
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
       return false;
-    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart))
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
       return false;
+    }
     return true;
   }
 

@@ -22,6 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.Config;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
@@ -48,6 +49,8 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _discountFactorNodeIds;
   /** Curve instrument providers for FRA nodes */
   private final Map<Tenor, CurveInstrumentProvider> _fraNodeIds;
+  /** Curve instrument providers for FX forward nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _fxForwardNodeIds;
   /** Curve instrument providers for rate future nodes */
   private final Map<Tenor, CurveInstrumentProvider> _rateFutureNodeIds;
   /** Curve instrument providers for swap nodes */
@@ -59,6 +62,7 @@ public class CurveNodeIdMapper {
    * @param creditSpreadNodeIds The credit spread node ids
    * @param discountFactorNodeIds The discount factor node ids
    * @param fraNodeIds The FRA node ids
+   * @param fxForwardNodeIds The FX forward node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
    */
@@ -67,9 +71,11 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
       final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
-    this(null, cashNodeIds, continuouslyCompoundedRateIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds, rateFutureNodeIds, swapNodeIds);
+    this(null, cashNodeIds, continuouslyCompoundedRateIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds, fxForwardNodeIds,
+        rateFutureNodeIds, swapNodeIds);
   }
 
   /**
@@ -79,6 +85,7 @@ public class CurveNodeIdMapper {
    * @param creditSpreadNodeIds The credit spread node ids
    * @param discountFactorNodeIds The discount factor node ids
    * @param fraNodeIds The FRA node ids
+   * @param fxForwardNodeIds The FX forward node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
    */
@@ -88,6 +95,7 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
       final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
     _name = name;
@@ -96,6 +104,7 @@ public class CurveNodeIdMapper {
     _creditSpreadNodeIds = creditSpreadNodeIds;
     _discountFactorNodeIds = discountFactorNodeIds;
     _fraNodeIds = fraNodeIds;
+    _fxForwardNodeIds = fxForwardNodeIds;
     _rateFutureNodeIds = rateFutureNodeIds;
     _swapNodeIds = swapNodeIds;
   }
@@ -180,6 +189,17 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the FX forward node ids.
+   * @return The FX forward node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getFXForwardNodeIds() {
+    if (_fxForwardNodeIds != null) {
+      return Collections.unmodifiableMap(_fxForwardNodeIds);
+    }
+    return null;
+  }
+
+  /**
    * Gets the rate future node ids.
    * @return The rate future node ids
    */
@@ -205,28 +225,80 @@ public class CurveNodeIdMapper {
    * Gets the external id of the cash node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
    * @param tenor The tenor
-   * @return The external id of the security
+   * @return The external id of the node
    * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
    */
   public ExternalId getCashNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_cashNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get cash node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_cashNodeIds, curveDate, tenor);
+    return getId(_cashNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the cash node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getCashNodeDataField(final Tenor tenor) {
+    if (_cashNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get cash node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_cashNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the cash node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getCashNodeDataFieldType(final Tenor tenor) {
+    if (_cashNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get cash node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_cashNodeIds, tenor);
   }
 
   /**
    * Gets the external id of the continuously-compounded rate node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
    * @param tenor The tenor
-   * @return The external id of the security
+   * @return The external id of the node
    * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
    */
   public ExternalId getContinuouslyCompoundedRateNodeId(final LocalDate curveDate, final Tenor tenor) {
     if (_continuouslyCompoundedRateNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get continuously-compounded rate node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_continuouslyCompoundedRateNodeIds, curveDate, tenor);
+    return getId(_continuouslyCompoundedRateNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the continuously-compounded rate node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getContinuouslyCompoundedRateNodeDataField(final Tenor tenor) {
+    if (_continuouslyCompoundedRateNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get continuously-compounded rate node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_continuouslyCompoundedRateNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the continuously-compounded rate node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getContinuouslyCompoundedRateDataFieldType(final Tenor tenor) {
+    if (_continuouslyCompoundedRateNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get continuously-compounded rate node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_continuouslyCompoundedRateNodeIds, tenor);
   }
 
   /**
@@ -240,7 +312,33 @@ public class CurveNodeIdMapper {
     if (_creditSpreadNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get credit spread node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_creditSpreadNodeIds, curveDate, tenor);
+    return getId(_creditSpreadNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the credit spread node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getCreditSpreadNodeDataField(final Tenor tenor) {
+    if (_creditSpreadNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get credit spread node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_creditSpreadNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the credit spread node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getCreditSpreadNodeDataFieldType(final Tenor tenor) {
+    if (_creditSpreadNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get credit spread node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_creditSpreadNodeIds, tenor);
   }
 
   /**
@@ -254,7 +352,33 @@ public class CurveNodeIdMapper {
     if (_discountFactorNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get discount factor node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_discountFactorNodeIds, curveDate, tenor);
+    return getId(_discountFactorNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the discount factor node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getDiscountFactorNodeDataField(final Tenor tenor) {
+    if (_discountFactorNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get discount factor node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_discountFactorNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the discount factor node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getDiscountFactorNodeDataFieldType(final Tenor tenor) {
+    if (_discountFactorNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get discount factor node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_discountFactorNodeIds, tenor);
   }
 
   /**
@@ -268,21 +392,120 @@ public class CurveNodeIdMapper {
     if (_fraNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get FRA node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_fraNodeIds, curveDate, tenor);
+    return getId(_fraNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the FRA node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getFRANodeDataField(final Tenor tenor) {
+    if (_fraNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FRA node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_fraNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the FRA node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getFRANodeDataFieldType(final Tenor tenor) {
+    if (_fraNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FRA node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_fraNodeIds, tenor);
+  }
+
+  /**
+   * Gets the external id of the FX forward node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getFXForwardNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_fxForwardNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FX forward node id provider for curve node id mapper called " + _name);
+    }
+    return getId(_fxForwardNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the FX forward node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getFXForwardNodeDataField(final Tenor tenor) {
+    if (_fxForwardNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FX forward node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_fxForwardNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the FX forward node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getFXForwardNodeDataFieldType(final Tenor tenor) {
+    if (_fxForwardNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FX forward node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_fxForwardNodeIds, tenor);
   }
 
   /**
    * Gets the external id of the rate future node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
-   * @param tenor The tenor
+   * @param tenor The start tenor
+   * @param rateTenor The tenor of the future
+   * @param numberFuturesFromTenor The number of futures from the start tenor
    * @return The external id of the security
    * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
    */
-  public ExternalId getRateFutureNodeId(final LocalDate curveDate, final Tenor tenor) {
-    if (_swapNodeIds == null) {
+  public ExternalId getRateFutureNodeId(final LocalDate curveDate, final Tenor tenor, final Tenor rateTenor, final int numberFuturesFromTenor) {
+    if (_rateFutureNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get rate future node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_swapNodeIds, curveDate, tenor);
+    final CurveInstrumentProvider mapper = _rateFutureNodeIds.get(tenor);
+    if (mapper != null) {
+      return mapper.getInstrument(curveDate, tenor, rateTenor, numberFuturesFromTenor);
+    }
+    throw new OpenGammaRuntimeException("Can't get instrument mapper definition for rate future number " + numberFuturesFromTenor +
+        " with time to start " + tenor + " and rate tenor " + rateTenor);
+  }
+
+  /**
+   * Gets the market data field of the rate future node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getRateFutureNodeDataField(final Tenor tenor) {
+    if (_rateFutureNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get rate future node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_rateFutureNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the rate future node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getRateFutureNodeDataFieldType(final Tenor tenor) {
+    if (_rateFutureNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get rate future node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_rateFutureNodeIds, tenor);
   }
 
   /**
@@ -296,7 +519,33 @@ public class CurveNodeIdMapper {
     if (_swapNodeIds == null) {
       throw new OpenGammaRuntimeException("Cannot get swap node id provider for curve node id mapper called " + _name);
     }
-    return getStaticSecurity(_swapNodeIds, curveDate, tenor);
+    return getId(_swapNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the swap node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getSwapNodeDataField(final Tenor tenor) {
+    if (_swapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get swap node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_swapNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the swap node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getSwapNodeDataFieldType(final Tenor tenor) {
+    if (_swapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get swap node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_swapNodeIds, tenor);
   }
 
   /**
@@ -320,6 +569,9 @@ public class CurveNodeIdMapper {
     if (_fraNodeIds != null) {
       allTenors.addAll(_fraNodeIds.keySet());
     }
+    if (_fxForwardNodeIds != null) {
+      allTenors.addAll(_fxForwardNodeIds.keySet());
+    }
     if (_rateFutureNodeIds != null) {
       allTenors.addAll(_rateFutureNodeIds.keySet());
     }
@@ -329,10 +581,26 @@ public class CurveNodeIdMapper {
     return allTenors;
   }
 
-  private ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> idMapper, final LocalDate curveDate, final Tenor tenor) {
+  private static ExternalId getId(final Map<Tenor, CurveInstrumentProvider> idMapper, final LocalDate curveDate, final Tenor tenor) {
     final CurveInstrumentProvider mapper = idMapper.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor);
+    }
+    throw new OpenGammaRuntimeException("Cannot get id mapper definition for " + tenor);
+  }
+
+  private static String getMarketDataField(final Map<Tenor, CurveInstrumentProvider> idMapper, final Tenor tenor) {
+    final CurveInstrumentProvider mapper = idMapper.get(tenor);
+    if (mapper != null) {
+      return mapper.getMarketDataField();
+    }
+    throw new OpenGammaRuntimeException("Cannot get id mapper definition for " + tenor);
+  }
+
+  private static DataFieldType getDataFieldType(final Map<Tenor, CurveInstrumentProvider> idMapper, final Tenor tenor) {
+    final CurveInstrumentProvider mapper = idMapper.get(tenor);
+    if (mapper != null) {
+      return mapper.getDataFieldType();
     }
     throw new OpenGammaRuntimeException("Cannot get id mapper definition for " + tenor);
   }
@@ -352,6 +620,7 @@ public class CurveNodeIdMapper {
         ObjectUtils.equals(_creditSpreadNodeIds, other._creditSpreadNodeIds) &&
         ObjectUtils.equals(_discountFactorNodeIds, other._discountFactorNodeIds) &&
         ObjectUtils.equals(_fraNodeIds, other._fraNodeIds) &&
+        ObjectUtils.equals(_fxForwardNodeIds, other._fxForwardNodeIds) &&
         ObjectUtils.equals(_rateFutureNodeIds, other._rateFutureNodeIds) &&
         ObjectUtils.equals(_swapNodeIds, other._swapNodeIds);
   }
@@ -366,6 +635,7 @@ public class CurveNodeIdMapper {
     result = prime * result + ((_creditSpreadNodeIds == null) ? 0 : _creditSpreadNodeIds.hashCode());
     result = prime * result + ((_discountFactorNodeIds == null) ? 0 : _discountFactorNodeIds.hashCode());
     result = prime * result + ((_fraNodeIds == null) ? 0 : _fraNodeIds.hashCode());
+    result = prime * result + ((_fxForwardNodeIds == null) ? 0 : _fxForwardNodeIds.hashCode());
     result = prime * result + ((_rateFutureNodeIds == null) ? 0 : _rateFutureNodeIds.hashCode());
     result = prime * result + ((_swapNodeIds == null) ? 0 : _swapNodeIds.hashCode());
     return result;

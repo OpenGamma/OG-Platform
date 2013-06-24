@@ -5,15 +5,17 @@
  */
 package com.opengamma.financial.convention;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 /**
- *
+ * Factory containing instances of {@link ExchangeTradedInstrumentExpiryCalculator}.
  */
 public class ExchangeTradedInstrumentExpiryCalculatorFactory {
-  private static final Map<String, ExchangeTradedInstrumentExpiryCalculator> s_instances = new HashMap<String, ExchangeTradedInstrumentExpiryCalculator>();
+  /** Map containing the instances */
+  private static final BiMap<String, ExchangeTradedInstrumentExpiryCalculator> s_instances = HashBiMap.create();
 
+  //TODO this should be moved out so that calculators can be added more easily (as for the daycount factory)
   static {
     s_instances.put(BondFutureOptionExpiryCalculator.NAME, BondFutureOptionExpiryCalculator.getInstance());
     s_instances.put(IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.getInstance());
@@ -22,6 +24,12 @@ public class ExchangeTradedInstrumentExpiryCalculatorFactory {
     s_instances.put(SoybeanFutureOptionExpiryCalculator.NAME, SoybeanFutureOptionExpiryCalculator.getInstance());
   }
 
+  /**
+   * Gets the named calculator.
+   * @param name The name of the expiry calculator
+   * @return The calculator
+   * @throws IllegalArgumentException if the calculator was not found in the map
+   */
   public static ExchangeTradedInstrumentExpiryCalculator getCalculator(final String name) {
     final ExchangeTradedInstrumentExpiryCalculator calculator = s_instances.get(name);
     if (calculator != null) {

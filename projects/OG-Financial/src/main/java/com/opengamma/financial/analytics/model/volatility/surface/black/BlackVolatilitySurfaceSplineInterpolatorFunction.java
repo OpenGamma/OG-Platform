@@ -44,6 +44,7 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
     final ValueProperties.Builder properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue);
     return properties.get();
   }
+  
   protected Interpolator1D getInterpolator1D(final ValueRequirement desiredValue) {
     final String interpolatorName = desiredValue.getConstraint(PROPERTY_SPLINE_INTERPOLATOR);
     final String leftExtrapolatorName = desiredValue.getConstraint(PROPERTY_SPLINE_LEFT_EXTRAPOLATOR);

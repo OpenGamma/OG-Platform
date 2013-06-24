@@ -366,30 +366,41 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CouponInflationZeroCouponInterpolationDefinition other = (CouponInflationZeroCouponInterpolationDefinition) obj;
-    if (_conventionalMonthLag != other._conventionalMonthLag)
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
       return false;
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue))
+    }
+    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
-    if (_monthLag != other._monthLag)
+    }
+    if (_monthLag != other._monthLag) {
       return false;
-    if (_payNotional != other._payNotional)
+    }
+    if (_payNotional != other._payNotional) {
       return false;
-    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate))
+    }
+    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
       return false;
+    }
     if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null)
+      if (other._referenceStartDate != null) {
         return false;
-    } else if (!_referenceStartDate.equals(other._referenceStartDate))
+      }
+    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
       return false;
-    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight))
+    }
+    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight)) {
       return false;
+    }
     return true;
   }
 

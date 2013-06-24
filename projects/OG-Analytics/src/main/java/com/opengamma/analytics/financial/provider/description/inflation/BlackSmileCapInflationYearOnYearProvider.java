@@ -10,7 +10,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *  Implementation of a provider of Black smile for year on year inflation options. The volatility is time to expiration/strike/delay dependent. 
+ * The "delay" is the time between expiration of the option and last trading date of the underlying.
  */
 public class BlackSmileCapInflationYearOnYearProvider implements BlackSmileCapInflationYearOnYearProviderInterface {
 

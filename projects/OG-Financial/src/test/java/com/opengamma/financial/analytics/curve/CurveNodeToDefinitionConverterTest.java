@@ -482,7 +482,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.98;
     marketValues.setDataPoint(marketDataId, rate);
     RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, "Mapper");
-    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 0, THIRTY_360, MODIFIED_FOLLOWING, false);
+    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 0, THIRTY_360, MODIFIED_FOLLOWING, false, "USD 3m Libor");
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
     InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(futureNode, marketDataId, now, marketValues);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
@@ -516,7 +516,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.98;
     marketValues.setDataPoint(marketDataId, rate);
     RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M_ID, LIBOR_3M_ID, "Mapper");
-    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 0, THIRTY_360, MODIFIED_FOLLOWING, false);
+    final IborIndex index = new IborIndex(USD, Tenor.THREE_MONTHS.getPeriod(), 0, THIRTY_360, MODIFIED_FOLLOWING, false, "USD 3m Libor");
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
     InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(futureNode, marketDataId, now, marketValues);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
@@ -551,7 +551,7 @@ public class CurveNodeToDefinitionConverterTest {
     marketValues.setDataPoint(marketDataId, rate);
     final double accrual = 1. / 12;
     RateFutureNode futureNode = new RateFutureNode(1, new Tenor(Period.ZERO), Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M_ID, LIBOR_1M_ID, "Mapper");
-    final IborIndex index = new IborIndex(USD, Tenor.ONE_MONTH.getPeriod(), 0, THIRTY_360, MODIFIED_FOLLOWING, false);
+    final IborIndex index = new IborIndex(USD, Tenor.ONE_MONTH.getPeriod(), 0, THIRTY_360, MODIFIED_FOLLOWING, false, "USD 1m Libor");
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
     InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(futureNode, marketDataId, now, marketValues);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;

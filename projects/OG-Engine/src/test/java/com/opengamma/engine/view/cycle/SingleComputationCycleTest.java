@@ -8,25 +8,23 @@ package com.opengamma.engine.view.cycle;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.exec.DependencyGraphExecutionFuture;
 import com.opengamma.engine.exec.DependencyGraphExecutor;
 import com.opengamma.engine.exec.DependencyGraphExecutorFactory;
-import com.opengamma.engine.exec.ExecutionResult;
-import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
@@ -71,7 +69,7 @@ public class SingleComputationCycleTest {
     assertTrue(executor.wasInterrupted());
   }
 
-  private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory<ExecutionResult> {
+  private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory {
 
     private final BlockingDependencyGraphExecutor _instance;
 
@@ -80,7 +78,7 @@ public class SingleComputationCycleTest {
     }
 
     @Override
-    public DependencyGraphExecutor<ExecutionResult> createExecutor(SingleComputationCycle cycle) {
+    public DependencyGraphExecutor createExecutor(SingleComputationCycle cycle) {
       return _instance;
     }
 
@@ -90,7 +88,7 @@ public class SingleComputationCycleTest {
 
   }
 
-  private class BlockingDependencyGraphExecutor implements DependencyGraphExecutor<ExecutionResult> {
+  private class BlockingDependencyGraphExecutor implements DependencyGraphExecutor {
 
     private final long _timeout;
     private final CountDownLatch _firstRunLatch = new CountDownLatch(1);
@@ -109,9 +107,8 @@ public class SingleComputationCycleTest {
     }
 
     @Override
-    public Future<ExecutionResult> execute(DependencyGraph graph, final Queue<ExecutionResult> calcJobResultQueue,
-        GraphExecutorStatisticsGatherer statistics, ExecutionLogModeSource logModeSource) {
-      FutureTask<ExecutionResult> future = new FutureTask<ExecutionResult>(new Runnable() {
+    public DependencyGraphExecutionFuture execute(DependencyGraph graph) {
+      final FutureTask<String> future = new FutureTask<String>(new Runnable() {
         @Override
         public void run() {
           _firstRunLatch.countDown();
@@ -121,10 +118,42 @@ public class SingleComputationCycleTest {
             _wasInterrupted.set(true);
           }
         }
-      }, null);
+      }, graph.getCalculationConfigurationName());
       // Cheat a bit - don't give the job to the dispatcher, etc, just run it.
       new Thread(future).start();
-      return future;
+      return new DependencyGraphExecutionFuture() {
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+          return future.cancel(mayInterruptIfRunning);
+        }
+
+        @Override
+        public boolean isCancelled() {
+          return future.isCancelled();
+        }
+
+        @Override
+        public boolean isDone() {
+          return future.isDone();
+        }
+
+        @Override
+        public String get() throws InterruptedException, ExecutionException {
+          return future.get();
+        }
+
+        @Override
+        public String get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+          return future.get(timeout, unit);
+        }
+
+        @Override
+        public void setListener(Listener listener) {
+          // No-op
+        }
+
+      };
     }
 
   }

@@ -170,7 +170,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent,
-      final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
+      final Collection<FunctionExclusionGroup> functionExclusion) {
     final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
@@ -226,7 +226,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask,
-      final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
+      final Collection<FunctionExclusionGroup> functionExclusion) {
     final ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
     do {
       ResolveTask task;

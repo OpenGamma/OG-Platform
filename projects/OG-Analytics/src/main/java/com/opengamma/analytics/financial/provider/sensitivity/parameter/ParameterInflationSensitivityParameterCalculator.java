@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -27,7 +26,7 @@ import com.opengamma.util.tuple.ObjectsPair;
  * The return format is ParameterSensitivity object.
  * @param <DATA_TYPE> Data type.
  */
-public class ParameterInflationSensitivityParameterCalculator<DATA_TYPE extends ParameterProviderInterface> extends ParameterInflationSensitivityParameterAbstractCalculator<DATA_TYPE> {
+public class ParameterInflationSensitivityParameterCalculator<DATA_TYPE extends ParameterInflationProviderInterface> extends ParameterInflationSensitivityParameterAbstractCalculator<DATA_TYPE> {
 
   /**
    * Constructor
@@ -65,11 +64,10 @@ public class ParameterInflationSensitivityParameterCalculator<DATA_TYPE extends 
     // IndexPrice
     for (final Currency ccySensi : sensitivity.getCurrencies()) {
       final Map<String, List<DoublesPair>> sensitivityPriceIndex = sensitivity.getSensitivity(ccySensi).getPriceCurveSensitivities();
-      final InflationProviderInterface inflationProviderInterface = (InflationProviderInterface) parameterMulticurves;
       for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityPriceIndex.entrySet()) {
         if (curvesSet.contains(entry.getKey())) {
           result = result.plus(new ObjectsPair<>(entry.getKey(), ccySensi),
-              new DoubleMatrix1D(inflationProviderInterface.parameterInflationSensitivity(entry.getKey(), entry.getValue())));
+              new DoubleMatrix1D(parameterMulticurves.getInflationProvider().parameterInflationSensitivity(entry.getKey(), entry.getValue())));
         }
       }
     }

@@ -24,7 +24,6 @@ import com.opengamma.engine.calcnode.SimpleCalculationNode;
 import com.opengamma.engine.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.exec.DependencyGraphExecutorFactory;
-import com.opengamma.engine.exec.ExecutionResult;
 import com.opengamma.engine.exec.SingleNodeExecutorFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -85,7 +84,7 @@ public class ViewProcessorTestEnvironment {
   private FunctionCompilationContext _functionCompilationContext;
   private ViewDefinition _viewDefinition;
   private FunctionRepository _functionRepository;
-  private DependencyGraphExecutorFactory<ExecutionResult> _dependencyGraphExecutorFactory;
+  private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
   private DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
 
   // Environment
@@ -107,7 +106,7 @@ public class ViewProcessorTestEnvironment {
     final InMemoryViewComputationCacheSource cacheSource = new InMemoryViewComputationCacheSource(fudgeContext);
     vpFactBean.setComputationCacheSource(cacheSource);
 
-    final DependencyGraphExecutorFactory<ExecutionResult> dependencyGraphExecutorFactory = getDependencyGraphExecutorFactory() != null ? getDependencyGraphExecutorFactory()
+    final DependencyGraphExecutorFactory dependencyGraphExecutorFactory = getDependencyGraphExecutorFactory() != null ? getDependencyGraphExecutorFactory()
         : generateDependencyGraphExecutorFactory();
     vpFactBean.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
 
@@ -257,16 +256,16 @@ public class ViewProcessorTestEnvironment {
     return factory;
   }
 
-  public DependencyGraphExecutorFactory<ExecutionResult> getDependencyGraphExecutorFactory() {
+  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
 
-  public void setDependencyGraphExecutorFactory(final DependencyGraphExecutorFactory<ExecutionResult> dependencyGraphExecutorFactory) {
+  public void setDependencyGraphExecutorFactory(final DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
 
-  private DependencyGraphExecutorFactory<ExecutionResult> generateDependencyGraphExecutorFactory() {
-    final DependencyGraphExecutorFactory<ExecutionResult> dgef = new SingleNodeExecutorFactory();
+  private DependencyGraphExecutorFactory generateDependencyGraphExecutorFactory() {
+    final DependencyGraphExecutorFactory dgef = new SingleNodeExecutorFactory();
     setDependencyGraphExecutorFactory(dgef);
     return dgef;
   }

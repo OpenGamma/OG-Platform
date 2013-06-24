@@ -29,6 +29,9 @@ public class ContinuouslyCompoundedRateNode extends CurveNode {
   /** Serialization version */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The tenor.
+   */
   @PropertyDefinition(validate = "notNull")
   private Tenor _tenor;
 
@@ -42,16 +45,6 @@ public class ContinuouslyCompoundedRateNode extends CurveNode {
    */
   public ContinuouslyCompoundedRateNode(final String curveNodeIdMapperName, final Tenor tenor) {
     super(curveNodeIdMapperName);
-    setTenor(tenor);
-  }
-
-  /**
-   * @param curveNodeIdMapperName The curve node id mapper name, not null
-   * @param tenor The tenor, not null
-   * @param dataField The data field, not null
-   */
-  public ContinuouslyCompoundedRateNode(final String curveNodeIdMapperName, final Tenor tenor, final String dataField) {
-    super(curveNodeIdMapperName, dataField);
     setTenor(tenor);
   }
 

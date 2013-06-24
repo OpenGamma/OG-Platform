@@ -6,6 +6,7 @@
 package com.opengamma.integration.viewer.status.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -18,15 +19,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.MissingValue;
-import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
@@ -46,8 +50,11 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.aggregation.CurrenciesAggregationFunction;
+import com.opengamma.financial.aggregation.PortfolioAggregator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -72,21 +79,24 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
   private final ToolContext _toolContext;
   private final CurrenciesAggregationFunction _currenciesAggrFunction;
   private final Map<UniqueId, String> _targetCurrenciesCache = Maps.newConcurrentMap();
+  private final MarketDataSpecification _marketDataSpecification;
   
-  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, UserPrincipal user, String securityType, Set<String> valueRequirementNames) {
+  public ViewStatusCalculationTask(ToolContext toolcontext, UniqueId portfolioId, UserPrincipal user, String securityType, 
+      Collection<String> valueRequirementNames, MarketDataSpecification marketDataSpecification) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(valueRequirementNames, "valueRequirementNames");
-    ArgumentChecker.notEmpty(valueRequirementNames, "valueRequirementNames");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(toolcontext, "toolcontext");
+    ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
     
     _portfolioId = portfolioId;
     _user = user;
     _securityType = securityType;
-    _valueRequirementNames = valueRequirementNames;
+    _valueRequirementNames = ImmutableSet.copyOf(valueRequirementNames);
     _toolContext = toolcontext;
     _currenciesAggrFunction = new CurrenciesAggregationFunction(_toolContext.getSecuritySource());
+    _marketDataSpecification = marketDataSpecification;
   }
 
   @Override
@@ -94,12 +104,16 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     s_logger.debug("Start calculating result for security:{} with values{}", _securityType, Sets.newTreeSet(_valueRequirementNames).toString());
     
     final PerViewStatusResult statusResult = new PerViewStatusResult(_securityType);
+    //No need to do any work if there are no ValueRequirements to compute
+    if (_valueRequirementNames.isEmpty()) {
+      return statusResult;
+    }
     final ViewDefinition viewDefinition = createViewDefinition();
     final ViewProcessor viewProcessor = _toolContext.getViewProcessor();
     final ViewClient client = viewProcessor.createViewClient(_user);
 
     final CountDownLatch latch = new CountDownLatch(1);
-    client.attachToViewProcess(viewDefinition.getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(viewDefinition.getUniqueId(), ExecutionOptions.infinite(_marketDataSpecification));
     client.setResultListener(new AbstractViewResultListener() {
 
       private AtomicLong _count = new AtomicLong(0);
@@ -120,7 +134,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
             UniqueId uniqueId = valueSpec.getTargetSpecification().getUniqueId();
             String currency = getCurrency(uniqueId, computationTargetType);
             if (currency != null) {
-              statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency, computationTargetType.getName()), false);
+              statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency, computationTargetType.getName()), ViewStatus.NO_VALUE);
             } else {
               s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", uniqueId, computationTargetType);
             }
@@ -131,7 +145,11 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
       @Override
       public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
         s_logger.debug("View definition {} failed to initialize", viewDefinition);
-        latch.countDown();
+        try {
+          processGraphFailResult(statusResult);
+        } finally {
+          latch.countDown();
+        }
       }
 
       public void cycleStarted(ViewCycleMetadata cycleInfo) {
@@ -167,7 +185,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.debug("cycle {} completed", _count.get());
         if (_count.getAndIncrement() > 5) {
-          checkResult(fullResult, statusResult);
+          processStatusResult(fullResult, statusResult);
           latch.countDown();
         }
       }
@@ -187,9 +205,11 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     return statusResult;
   }
 
+  
+
   protected boolean isValidTargetType(final ComputationTargetType computationTargetType) {
     if (ComputationTargetType.POSITION.isCompatible(computationTargetType) || ComputationTargetType.PORTFOLIO.isCompatible(computationTargetType) ||
-        ComputationTargetType.PORTFOLIO_NODE.isCompatible(computationTargetType)) {
+        ComputationTargetType.PORTFOLIO_NODE.isCompatible(computationTargetType) || ComputationTargetType.TRADE.isCompatible(computationTargetType)) {
       return true;
     }
     return false;
@@ -223,7 +243,27 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     return config.getValue();
   }
   
-  private void checkResult(ViewComputationResultModel fullResult, PerViewStatusResult statusResult) {
+  private void processGraphFailResult(final PerViewStatusResult statusResult) {
+    PositionSource positionSource = _toolContext.getPositionSource();
+    Portfolio portfolio = positionSource.getPortfolio(_portfolioId, VersionCorrection.LATEST);
+    List<Position> positions = PortfolioAggregator.flatten(portfolio);
+    Set<String> currencies = Sets.newHashSet();
+    for (Position position : positions) {
+      if (position.getSecurity() == null) {
+        position.getSecurityLink().resolve(_toolContext.getSecuritySource());
+      }
+      if (position.getSecurity() != null && _securityType.equals(position.getSecurity().getSecurityType())) {
+        currencies.add(getCurrency(position.getUniqueId(), ComputationTargetType.POSITION));
+      }
+    }
+    for (String valueName : _valueRequirementNames) {
+      for (String currency : currencies) {
+        statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency, ComputationTargetType.POSITION.getName()), ViewStatus.GRAPH_FAIL);
+      }
+    }
+  }
+  
+  private void processStatusResult(ViewComputationResultModel fullResult, PerViewStatusResult statusResult) {
     ViewCalculationResultModel calculationResult = fullResult.getCalculationResult(DEFAULT_CALC_CONFIG);
     Collection<ComputationTargetSpecification> allTargets = calculationResult.getAllTargets();
     for (ComputationTargetSpecification targetSpec : allTargets) {
@@ -237,7 +277,7 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
           if (currency != null) {
             ComputedValueResult computedValue = valueEntry.getValue();
             if (isGoodValue(computedValue)) {
-              statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency, targetType.getName()), true);
+              statusResult.put(new ViewStatusKeyBean(_securityType, valueName, currency, targetType.getName()), ViewStatus.VALUE);
             }
           } else {
             s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", targetSpec.getUniqueId(), targetType);
@@ -256,11 +296,25 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
         } else if (ComputationTargetType.POSITION.isCompatible(computationTargetType)) {
           PositionSource positionSource = _toolContext.getPositionSource();
           Position position = positionSource.getPosition(uniqueId);
-          position.getSecurityLink().resolve(_toolContext.getSecuritySource());
-          currency = _currenciesAggrFunction.classifyPosition(position);
-        } else {
-          currency = "N/A";
+          if (position.getSecurity() == null) {
+            position.getSecurityLink().resolve(_toolContext.getSecuritySource());
+          }
+          if (position.getSecurity() != null) {
+            currency = _currenciesAggrFunction.classifyPosition(position);
+          } 
+        } else if (ComputationTargetType.TRADE.isCompatible(computationTargetType)) {
+          PositionSource positionSource = _toolContext.getPositionSource();
+          Trade trade = positionSource.getTrade(uniqueId);
+          if (trade.getSecurity() == null) {
+            trade.getSecurityLink().resolve(_toolContext.getSecuritySource());
+          }
+          if (trade.getSecurity() != null) {
+            currency = CurrenciesAggregationFunction.classifyBasedOnSecurity(trade.getSecurity(), _toolContext.getSecuritySource());
+          }
         }
+      }
+      if (currency == null) {
+        currency = CurrenciesAggregationFunction.NO_CURRENCY;
       }
       _targetCurrenciesCache.put(uniqueId, currency);
       return currency;

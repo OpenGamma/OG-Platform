@@ -23,9 +23,6 @@ import com.opengamma.engine.cache.AbstractIdentifierMap;
 import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.cache.IdentifierMap;
 import com.opengamma.engine.cache.InMemoryIdentifierMap;
-import com.opengamma.engine.calcnode.CalculationJob;
-import com.opengamma.engine.calcnode.CalculationJobItem;
-import com.opengamma.engine.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -47,7 +44,7 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     final IdentifierMap identifierMap = new InMemoryIdentifierMap();
     final CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
-    final List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
+    final List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification>emptySet(), Collections
         .<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS));
     final CalculationJob inputJob = new CalculationJob(spec, 123L, VersionCorrection.LATEST, null, items, CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(identifierMap, inputJob);
@@ -55,15 +52,15 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     assertNotNull(outputJob);
     AbstractIdentifierMap.resolveIdentifiers(identifierMap, outputJob);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
-    assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
+    assertEquals(inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());
     final CalculationJobItem outputItem = outputJob.getJobItems().get(0);
     assertNotNull(outputItem);
     assertNotNull(outputItem.getInputs());
-    assertTrue(outputItem.getInputs().isEmpty());
+    assertTrue(outputItem.getInputs().length == 0);
     assertNotNull(outputItem.getOutputs());
-    assertTrue(outputItem.getOutputs().isEmpty());
+    assertTrue(outputItem.getOutputs().length == 0);
     assertEquals(targetSpec, outputItem.getComputationTargetSpecification());
     assertEquals("1", outputItem.getFunctionUniqueIdentifier());
   }
@@ -72,10 +69,12 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     final IdentifierMap identifierMap = new InMemoryIdentifierMap();
     final CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
-    final ValueSpecification outputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value2"), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
-        .get());
-    final ValueSpecification inputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value3"), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
-        .get());
+    final ValueSpecification outputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value2"),
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
+            .get());
+    final ValueSpecification inputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value3"),
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
+            .get());
     final List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(outputSpec),
         ExecutionLogMode.INDICATORS));
     final CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, VersionCorrection.LATEST, null, items, CacheSelectHint.allShared());
@@ -84,15 +83,15 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     assertNotNull(outputJob);
     AbstractIdentifierMap.resolveIdentifiers(identifierMap, outputJob);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
-    assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
+    assertEquals(inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());
     final CalculationJobItem outputItem = outputJob.getJobItems().get(0);
     assertNotNull(outputItem);
-    assertEquals(1, outputItem.getInputs().size());
-    assertTrue(outputItem.getInputs().contains(inputSpec));
-    assertEquals(1, outputItem.getOutputs().size());
-    assertTrue(outputItem.getOutputs().contains(outputSpec));
+    assertEquals(1, outputItem.getInputs().length);
+    assertEquals(inputSpec, outputItem.getInputs()[0]);
+    assertEquals(1, outputItem.getOutputs().length);
+    assertEquals(outputSpec, outputItem.getOutputs()[0]);
   }
 
   public void fudgeEncodingComputationTarget() {
@@ -102,7 +101,8 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, VersionCorrection.LATEST, null, Arrays.asList(
         new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
         new CalculationJobItem("Bar", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
-        new CalculationJobItem("Cow", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS)), CacheSelectHint.allShared());
+        new CalculationJobItem("Cow", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS)),
+        CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(new InMemoryIdentifierMap(), job);
     job = cycleObject(CalculationJob.class, job);
     assertNotNull(job);
@@ -119,7 +119,8 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, VersionCorrection.LATEST, null, Arrays.asList(
         new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
         new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
-        new CalculationJobItem("Bar", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS)), CacheSelectHint.allShared());
+        new CalculationJobItem("Bar", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS)),
+        CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(new InMemoryIdentifierMap(), job);
     job = cycleObject(CalculationJob.class, job);
     assertNotNull(job);

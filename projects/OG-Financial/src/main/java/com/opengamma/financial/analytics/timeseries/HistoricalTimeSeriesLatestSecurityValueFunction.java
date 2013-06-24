@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.timeseries;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -93,7 +94,11 @@ public class HistoricalTimeSeriesLatestSecurityValueFunction extends AbstractFun
         }
       }
     }
-    // TODO: Add the adjustment constraint
+    // Add adjuster / normalisation constraint
+    final HistoricalTimeSeriesAdjuster adjuster = resolutionResult.getAdjuster();
+    final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(resolutionResult.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
+    constraints.with(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY, adjustment);
+    
     ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, constraints.get());
     return Collections.singleton(valueRequirement);
   }

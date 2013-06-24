@@ -5,13 +5,11 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.value.ValueRequirement;
 
@@ -24,13 +22,13 @@ import com.opengamma.engine.value.ValueRequirement;
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementResolver.class);
 
   private final ResolveTask _parentTask;
-  private final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> _functionExclusion;
+  private final Collection<FunctionExclusionGroup> _functionExclusion;
   // _tasks is just used to spot the recursionDetected flag - not ref-Counted
   private ResolveTask[] _tasks;
   private ResolveTask _fallback;
   private ResolvedValue[] _coreResults;
 
-  public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
+  public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Collection<FunctionExclusionGroup> functionExclusion) {
     super(valueRequirement);
     s_logger.debug("Created requirement resolver {}/{}", valueRequirement, parentTask);
     _parentTask = parentTask;

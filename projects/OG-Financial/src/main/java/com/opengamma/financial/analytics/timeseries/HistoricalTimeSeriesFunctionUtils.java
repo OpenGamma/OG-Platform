@@ -121,6 +121,18 @@ public final class HistoricalTimeSeriesFunctionUtils {
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
         properties.get());
   }
+  
+  /** Creates a ValueRequirement for {@link ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST}. 
+   *  See {@link HistoricalTimeSeriesLatestSecurityValueFunction} which does the heavy lifting 
+   *  @param security {@link Security} for which value is required
+   *  @param dataField Name of time series value. Example "Close"
+   *  @param constraints {@link ValueProperties} 
+   *  @return The {@link ValueRequirement} "Historical Time Series (latest value)"
+   */
+  public static ValueRequirement createHTSLatestRequirement(final Security security, final String dataField, final ValueProperties constraints) {
+    final Builder properties = (constraints == null ? ValueProperties.none() : constraints).copy().with(DATA_FIELD_PROPERTY, dataField);
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetSpecification.of(security), properties.get());
+  }
 
   public static ValueRequirement createYCHTSRequirement(final Currency currency, final String curveName, final String dataField, final String resolutionKey, final DateConstraint startDate,
       final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {

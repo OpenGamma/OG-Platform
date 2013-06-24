@@ -34,7 +34,12 @@ public class Scaling implements StructureManipulator<Double> {
 
   @Override
   public Double execute(Double structure) {
-    return structure == null ? null : structure * _scalingFactor;
+    return structure * _scalingFactor;
+  }
+
+  @Override
+  public Class<Double> getExpectedType() {
+    return Double.class;
   }
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
@@ -46,5 +51,12 @@ public class Scaling implements StructureManipulator<Double> {
   public static Scaling fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     Double scalingFactor = deserializer.fieldValueToObject(Double.class, msg.getByName(SCALING_FACTOR));
     return new Scaling(scalingFactor);
+  }
+
+  @Override
+  public String toString() {
+    return "Scaling [" +
+        "_scalingFactor=" + _scalingFactor +
+        "]";
   }
 }

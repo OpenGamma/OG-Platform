@@ -5,11 +5,16 @@
  */
 package com.opengamma.integration.viewer.status.impl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.util.ArgumentChecker;
@@ -21,34 +26,55 @@ public class SimpleViewStatusModel implements ViewStatusModel {
   /**
    * Column headers
    */
-  private String[][] _columnHeaders;
+  private final List<List<String>> _columnHeaders;
   /**
    * The rows
    */
-  private Object[][] _rows;
+  private final List<List<Object>> _rows;
   /**
-   * The unstructured underlying result set.
+   * The unaggregated result.
    */
-  private Map<ViewStatusKey, Boolean> _viewStatusResult;
+  private final Map<ViewStatusKey, ViewStatus> _viewStatusResult;
     
-  public SimpleViewStatusModel(String[][] columnHeaders, Object[][] rows, Map<ViewStatusKey, Boolean> viewStatusResult) {
+  public SimpleViewStatusModel(List<List<String>> columnHeaders, List<List<Object>> rows, Map<ViewStatusKey, ViewStatus> viewStatusResult) {
     ArgumentChecker.notNull(columnHeaders, "columnHeaders");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(viewStatusResult, "viewStatusResult");
     
-    _columnHeaders = columnHeaders;
-    _rows = rows;
+    _columnHeaders = deepCopyHeaders(columnHeaders);
+    _rows = deepCopyRows(rows);
     _viewStatusResult = ImmutableMap.copyOf(viewStatusResult);
   }
 
+  private List<List<Object>> deepCopyRows(List<List<Object>> rows) {
+    List<List<Object>> result = Lists.newArrayListWithCapacity(rows.size());
+    for (List<Object> row : rows) {
+      result.add(Lists.newArrayList(row));
+    }
+    return result;
+  }
+
+  private List<List<String>> deepCopyHeaders(final List<List<String>> columnHeaders) {
+    List<List<String>> headers = Lists.newArrayListWithCapacity(columnHeaders.size());
+    for (List<String> headings : columnHeaders) {
+      headers.add(Lists.newArrayList(headings));
+    }
+    return headers;
+  }
+
   @Override
-  public Boolean getStatus(ViewStatusKey entry) {
+  public ViewStatus getStatus(ViewStatusKey entry) {
     return _viewStatusResult.get(entry);
+  }
+  
+  @Override
+  public Set<ViewStatusKey> keySet() {
+    return ImmutableSet.copyOf(_viewStatusResult.keySet());
   }
 
   @Override
   public Set<String> getValueRequirementNames() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getValueRequirementName());
     }
@@ -57,16 +83,25 @@ public class SimpleViewStatusModel implements ViewStatusModel {
 
   @Override
   public Set<String> getCurrencies() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getCurrency());
+    }
+    return result;
+  }
+  
+  @Override
+  public Set<String> getComputationTargetTypes() {
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
+    for (ViewStatusKey key : _viewStatusResult.keySet()) {
+      result.add(key.getTargetType());
     }
     return result;
   }
 
   @Override
   public Set<String> getSecurityTypes() {
-    Set<String> result = Sets.newTreeSet();
+    Set<String> result = Sets.newHashSetWithExpectedSize(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
       result.add(key.getSecurityType());
     }
@@ -75,40 +110,40 @@ public class SimpleViewStatusModel implements ViewStatusModel {
 
   @Override
   public int getRowCount() {
-    return _rows.length;
+    return _rows.size();
   }
 
   @Override
   public int getColumnCount() {
-    return _columnHeaders[0].length;
+    return Iterables.getFirst(_columnHeaders, Lists.newArrayList()).size();
   }
 
 
   @Override
   public Object getRowValueAt(int rowIndex, int columnIndex) {
-    if (rowIndex < 0 || rowIndex >= _rows.length) {
-      throw new IllegalArgumentException("RowIndex must be in range 0 >= rowIndex < " + _rows.length);
+    if (rowIndex < 0 || rowIndex >= _rows.size()) {
+      throw new IllegalArgumentException("RowIndex must be in range 0 >= rowIndex < " + _rows.size());
     }
-    if (columnIndex < 0 || columnIndex >= _rows[0].length) {
-      throw new IllegalArgumentException("ColumnIndex must be in range 0 >= columnIndex < " + _rows[0].length);
+    if (columnIndex < 0 || columnIndex >= getColumnCount()) {
+      throw new IllegalArgumentException("ColumnIndex must be in range 0 >= columnIndex < " + getColumnCount());
     }
-    return _rows[rowIndex][columnIndex];
+    return Iterables.get(Iterables.get(_rows, rowIndex), columnIndex);
   }
 
   @Override
   public int getHeaderRowCount() {
-    return _columnHeaders.length;
+    return _columnHeaders.size();
   }
 
   @Override
   public String getColumnNameAt(int rowIndex, int columnIndex) {
-    if (rowIndex < 0 || rowIndex >= _columnHeaders.length) {
-      throw new IllegalArgumentException("RowIndex must be in range 0 >= rowIndex < " + _columnHeaders.length);
+    if (rowIndex < 0 || rowIndex >= _columnHeaders.size()) {
+      throw new IllegalArgumentException("RowIndex must be in range 0 >= rowIndex < " + _columnHeaders.size());
     }
-    if (columnIndex < 0 || columnIndex >= _columnHeaders[0].length) {
-      throw new IllegalArgumentException("ColumnIndex must be in range 0 >= columnIndex < " + _columnHeaders[0].length);
+    if (columnIndex < 0 || columnIndex >= getColumnCount()) {
+      throw new IllegalArgumentException("ColumnIndex must be in range 0 >= columnIndex < " + getColumnCount());
     }
-    return _columnHeaders[rowIndex][columnIndex];
+    return Iterables.get(Iterables.get(_columnHeaders, rowIndex), columnIndex);
   }
-  
+
 }
