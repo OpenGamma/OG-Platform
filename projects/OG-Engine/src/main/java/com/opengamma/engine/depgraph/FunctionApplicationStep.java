@@ -510,9 +510,21 @@ import com.opengamma.util.tuple.Triple;
         }
 
       };
-      final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
+      String functionExclusionValueName = getValueRequirement().getValueName();
+      Collection<FunctionExclusionGroup> functionExclusion = null;
       for (ValueRequirement inputRequirement : additionalRequirements) {
-        final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+        final ResolvedValueProducer inputProducer;
+        if (inputRequirement.getValueName() == functionExclusionValueName) {
+          if (functionExclusion == null) {
+            functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
+            if (functionExclusion == null) {
+              functionExclusionValueName = null;
+            }
+          }
+          inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+        } else {
+          inputProducer = context.resolveRequirement(inputRequirement, getTask(), null);
+        }
         lock.incrementAndGet();
         if (inputProducer != null) {
           inputProducer.addCallback(context, callback);
@@ -655,9 +667,22 @@ import com.opengamma.util.tuple.Triple;
         } else {
           s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
           worker.setPumpingState(state, inputRequirements.size());
-          final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion = getFunctionExclusion(context, functionDefinition);
+
+          String functionExclusionValueName = getValueRequirement().getValueName();
+          Collection<FunctionExclusionGroup> functionExclusion = null;
           for (ValueRequirement inputRequirement : inputRequirements) {
-            final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+            final ResolvedValueProducer inputProducer;
+            if (inputRequirement.getValueName() == functionExclusionValueName) {
+              if (functionExclusion == null) {
+                functionExclusion = getFunctionExclusion(context, functionDefinition);
+                if (functionExclusion == null) {
+                  functionExclusionValueName = null;
+                }
+              }
+              inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+            } else {
+              inputProducer = context.resolveRequirement(inputRequirement, getTask(), null);
+            }
             if (inputProducer != null) {
               worker.addInput(context, inputProducer);
               inputProducer.release(context);

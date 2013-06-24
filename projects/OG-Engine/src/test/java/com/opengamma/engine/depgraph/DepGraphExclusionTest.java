@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collection;
@@ -70,6 +71,13 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
       @Override
       public boolean isExcluded(final FunctionExclusionGroup current, final Collection<FunctionExclusionGroup> existing) {
         return false;
+      }
+
+      @Override
+      public Collection<FunctionExclusionGroup> withExclusion(final Collection<FunctionExclusionGroup> existing, final FunctionExclusionGroup newGroup) {
+        // Should never be called
+        fail();
+        throw new UnsupportedOperationException();
       }
 
     });

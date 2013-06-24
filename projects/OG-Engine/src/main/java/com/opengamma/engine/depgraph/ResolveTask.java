@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -147,11 +148,11 @@ import com.opengamma.engine.value.ValueSpecification;
   private volatile State _state;
 
   /**
-   * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task for a given target.
+   * Function mutual exclusion group hints. Functions shouldn't be considered for the same value requirement name if their group hint is already present.
    */
-  private final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> _functionExclusion;
+  private final Collection<FunctionExclusionGroup> _functionExclusion;
 
-  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
+  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Collection<FunctionExclusionGroup> functionExclusion) {
     super(valueRequirement);
     final int hc;
     if (parent != null) {
@@ -271,7 +272,7 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  public Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> getFunctionExclusion() {
+  public Collection<FunctionExclusionGroup> getFunctionExclusion() {
     return _functionExclusion;
   }
 

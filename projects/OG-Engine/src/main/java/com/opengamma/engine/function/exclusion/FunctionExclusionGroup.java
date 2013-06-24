@@ -8,9 +8,9 @@ package com.opengamma.engine.function.exclusion;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A group of functions whose outputs cannot be applied as inputs directly, or indirectly, to any other functions in the group. This is to work around inefficiencies in the graph building algorithm
- * when used with, for example, the default property function pattern used in OG-Financial. Not strictly part of a function definition, the exclusion groups have been kept external in the same manner
- * that function priorities are.
+ * A group of functions whose outputs cannot be applied as inputs directly to any other functions in the group when operating on the same value requirement name. This is to work around inefficiencies
+ * in the graph building algorithm when used with, for example, the default property function pattern used in OG-Financial. Not strictly part of a function definition, the exclusion groups have been
+ * kept external in the same manner that function priorities are.
  */
 public class FunctionExclusionGroup {
 
