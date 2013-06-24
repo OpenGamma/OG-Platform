@@ -8,10 +8,11 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -73,7 +74,7 @@ public class LocalDependencyGraphTraceProviderTest {
 
   @Test
   public void getTraceWithMarketData() {
-    MarketDataSpecification mdSpec = mock(MarketDataSpecification.class);
+    UserMarketDataSpecification mdSpec = mock(UserMarketDataSpecification.class);
     when(_builder.marketData(mdSpec)).thenReturn(_builder);
     when(_builder.build()).thenReturn(_sampleResult);
     
@@ -99,7 +100,7 @@ public class LocalDependencyGraphTraceProviderTest {
 
   @Test
   public void getTraceWithValuationTime() {
-    Instant valuationTime = Instant.EPOCH;
+    Instant valuationTime = Instant.now();
     when(_builder.valuationTime(valuationTime)).thenReturn(_builder);
     when(_builder.build()).thenReturn(_sampleResult);
     

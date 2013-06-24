@@ -5,11 +5,14 @@
  */
 package com.opengamma.financial.depgraph.rest;
 
+import java.net.URI;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
@@ -18,6 +21,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -65,8 +69,8 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
   @Path("valuationTime/{valuationTime}")
   @GET
   public FudgeMsgEnvelope getTraceWithValuationTime(@PathParam("valuationTime") final String valuationTime) {
-    Instant valuationTimeInstant = ZonedDateTime.parse(valuationTime).toInstant();
-    DependencyGraphBuildTrace trace = _provider.getTraceWithValuationTime(valuationTimeInstant);
+    Instant parsedValuationTime = Instant.parse(valuationTime);
+    DependencyGraphBuildTrace trace = _provider.getTraceWithValuationTime(parsedValuationTime);
     return serialize(trace);
   }
 
@@ -122,5 +126,95 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
     return new FudgeMsgEnvelope(fudgeMsg);
   }
 
+  // ------------------------------------------
+  
+  
+  /**
+   * Builds URI for remote access to getTraceWithCalculationConfigurationName.
+   * @param baseUri the base uri
+   * @param calculationConfigurationName the calculation configuration name
+   * @return the URI
+   */
+  public static URI uriCalculationConfigurationName(URI baseUri, String calculationConfigurationName) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("calculationConfigurationName/{calculationConfigurationName}");
+    return bld.build(calculationConfigurationName);
+  }
+
+  /**
+   * Builds URI for remote access to getTraceWithValuationTime.
+   * @param baseUri the base uri
+   * @param valuationInstant the valuation time
+   * @return the URI
+   */
+  public static URI uriValuationTime(URI baseUri, Instant valuationInstant) {
+    String valuationInstantStr = valuationInstant.toString();
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("valuationTime/{valuationTime}");
+    return bld.build(valuationInstantStr);
+  }
+
+  /**
+   * Builds URI for remote access to getTraceWithResolutionTime.
+   * @param baseUri the base uri
+   * @param resolutionTime the resolution time
+   * @return the URI
+   */
+  public static URI uriResolutionTime(URI baseUri, VersionCorrection resolutionTime) {
+    String resolutionTimeStr = resolutionTime.toString();
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("resolutionTime/{resolutionTime}");
+    return bld.build(resolutionTimeStr);
+  }
+
+  /**
+   * Builds URI for remote access to getTraceWithDefaultProperties.
+   * @param baseUri the base uri
+   * @param defaultProperties the default properties
+   * @return the URI
+   */
+  public static URI uriDefaultProperties(URI baseUri, ValueProperties defaultProperties) {
+    String defaultPropertiesStr = defaultProperties.toString();
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("defaultProperties/{defaultProperties}");
+    return bld.build(defaultPropertiesStr);
+  }
+
+  /**
+   * Builds URI for remote access to getTraceWithMarketData.
+   * @param baseUri the base uri
+   * @param marketData the market data
+   * @return the URI
+   */
+  public static URI uriMarketData(URI baseUri, UserMarketDataSpecification marketData) {
+    String snapshotId = marketData.getUserSnapshotId().toString();
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("marketDataSnapshot/{snapshotId}");
+    return bld.build(snapshotId);
+  }
+
+  /**
+   * Builds URI for remote access to getTraceWithValueRequirementByUniqueId
+   * @param baseUri the base uri
+   * @param valueName the value name
+   * @param targetType the target type
+   * @param uniqueId the unique id
+   * @return the URI
+   */
+  public static URI uriValueRequirementByUniqueId(URI baseUri, String valueName, String targetType, UniqueId uniqueId) {
+    String uniqueIdStr = uniqueId.toString();
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("value/{valueName}/{targetType}/{targetId}");
+    return bld.build(valueName, targetType, uniqueIdStr);
+  }
+
+  /**
+   * Builds URI for remote access to getTraceWithValueRequirementByExternalId
+   * @param baseUri the base uri
+   * @param valueName the value name
+   * @param targetType the target type
+   * @param externalId the external id
+   * @return the URI
+   */
+  public static URI uriValueRequirementByExternalId(URI baseUri, String valueName, String targetType, ExternalId externalId) {
+    String externalIdStr = externalId.toString();
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("requirement/{valueName}/{targetType}/{targetId}");
+    return bld.build(valueName, targetType, externalIdStr);
+  }
+  
 
 }

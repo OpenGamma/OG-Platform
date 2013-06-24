@@ -8,7 +8,7 @@ package com.opengamma.financial.depgraph.provider;
 import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -59,7 +59,7 @@ public class LocalDependencyGraphTraceProvider implements DependencyGraphTracePr
   }
 
   @Override
-  public DependencyGraphBuildTrace getTraceWithMarketData(MarketDataSpecification marketData) {
+  public DependencyGraphBuildTrace getTraceWithMarketData(UserMarketDataSpecification marketData) {
     return _traceBuilder.marketData(marketData).build();
   }
 

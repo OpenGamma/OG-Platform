@@ -7,7 +7,7 @@ package com.opengamma.financial.depgraph.provider;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuildTrace;
 import com.opengamma.id.ExternalId;
@@ -69,6 +69,6 @@ public interface DependencyGraphTraceProvider {
    * @param marketData the market data to apply
    * @return a graph trace
    */
-  DependencyGraphBuildTrace getTraceWithMarketData(final MarketDataSpecification marketData);
+  DependencyGraphBuildTrace getTraceWithMarketData(final UserMarketDataSpecification marketData);
 
 }
