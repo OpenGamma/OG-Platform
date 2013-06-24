@@ -20,16 +20,16 @@ import com.opengamma.engine.value.ValueRequirement;
  * Injects the default aggregation style when omitted.
  */
 public class AggregationDefaultPropertyFunction extends StaticDefaultPropertyFunction {
-  
+
   private final Set<String> _styles;
 
   public AggregationDefaultPropertyFunction(final String valueName, final String style) {
-    super(ComputationTargetType.PORTFOLIO_NODE, ValuePropertyNames.AGGREGATION, true, valueName);
+    super(ComputationTargetType.PORTFOLIO_NODE, ValuePropertyNames.AGGREGATION, false, valueName);
     _styles = Collections.singleton(style);
   }
 
   public AggregationDefaultPropertyFunction(final String valueName, final String... styles) {
-    super(ComputationTargetType.PORTFOLIO_NODE, ValuePropertyNames.AGGREGATION, true, valueName);
+    super(ComputationTargetType.PORTFOLIO_NODE, ValuePropertyNames.AGGREGATION, false, valueName);
     _styles = new HashSet<String>(Arrays.asList(styles));
   }
 

@@ -20,7 +20,6 @@ import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.volatility.VolatilityFunctions;
-import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -45,8 +44,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   public static void addSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
     functions.add(functionConfiguration(SummingFunction.class, requirementName));
-    functions.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, MissingInputsFunction.AGGREGATION_STYLE_FULL,
-        FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
   }
 
   public static void addValueGreekAndSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
