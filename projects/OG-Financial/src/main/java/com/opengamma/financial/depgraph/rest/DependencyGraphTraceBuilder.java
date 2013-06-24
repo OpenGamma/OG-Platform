@@ -5,9 +5,7 @@
  */
 package com.opengamma.financial.depgraph.rest;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.threeten.bp.Instant;
@@ -23,12 +21,10 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.depgraph.provider.LocalDependencyGraphTraceProvider;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -39,209 +35,47 @@ import com.opengamma.livedata.UserPrincipal;
 public class DependencyGraphTraceBuilder {
 
   private final DependencyGraphBuilderResourceContextBean _builderContext;
-  
-  private final String _calculationConfigurationName;
-  private final Instant _valuationTime;
-  private final VersionCorrection _resolutionTime;
-  private final ValueProperties _defaultProperties;
-  private final Collection<ValueRequirement> _requirements;
-  private final MarketDataSpecification _marketData;
 
-  /**
-   * Constructs a builder instance with given context and default values.
-   * @param builderContext holds dependencies of the builder
-   */
   public DependencyGraphTraceBuilder(DependencyGraphBuilderResourceContextBean builderContext) {
     _builderContext = builderContext;
-    _calculationConfigurationName = "Default";
-    _valuationTime = null;
-    _resolutionTime = VersionCorrection.LATEST;
-    _defaultProperties = ValueProperties.none();
-    _requirements = Collections.emptyList();
-    _marketData = MarketData.live();
   }
 
-  /**
-   * Copy constructor
-   * @param other instance to copy
-   */
-  private DependencyGraphTraceBuilder(DependencyGraphTraceBuilder other) {
-    _builderContext = other.getBuilderContext();
-    _calculationConfigurationName = other.getCalculationConfigurationName();
-    _valuationTime = other.getValuationTime();
-    _resolutionTime = other.getResolutionTime();
-    _defaultProperties = other.getDefaultProperties();
-    _requirements = other.getRequirements();
-    _marketData = other.getMarketData();
-  }
-  
-  /**
-   * @return configured builder context
-   */
-  public DependencyGraphBuilderResourceContextBean getBuilderContext() {
-    return _builderContext;
-  }
-
-  /**
-   * @return configured calculation configuration name
-   */
-  public String getCalculationConfigurationName() {
-    return _calculationConfigurationName;
-  }
-
-  /**
-   * @return configured valuation time
-   */
-  public Instant getValuationTime() {
-    return _valuationTime;
-  }
-
-  /**
-   * @return configured resolution time
-   */
-  public VersionCorrection getResolutionTime() {
-    return _resolutionTime;
-  }
-
-  /**
-   * @return configured default properties
-   */
-  public ValueProperties getDefaultProperties() {
-    return _defaultProperties;
-  }
-
-  /**
-   * @return configured requirements
-   */
-  public Collection<ValueRequirement> getRequirements() {
-    return _requirements;
-  }
-
-  /**
-   * @return configured market data
-   */
-  public MarketDataSpecification getMarketData() {
-    return _marketData;
-  }
-  
-  /**
-   * @param calculationConfigurationName calculation configuration name to set
-   * @return a newly configured instance
-   */
-  public DependencyGraphTraceBuilder calculationConfigurationName(final String calculationConfigurationName) {
-    return new DependencyGraphTraceBuilder(this) {
-      public String getCalculationConfigurationName() {
-        return calculationConfigurationName;
-      }
-    };
-  }
-
-  /**
-   * @param resolutionTime resolution time to set
-   * @return a newly configured instance
-   */
-  public DependencyGraphTraceBuilder resolutionTime(final VersionCorrection resolutionTime) {
-    return new DependencyGraphTraceBuilder(this) {
-      @Override
-      public VersionCorrection getResolutionTime() {
-        return resolutionTime;
-      }
-    };
-  }
-
-  /**
-   * @param valuationTime valuation time to set
-   * @return a newly configured instance
-   */
-  public DependencyGraphTraceBuilder valuationTime(final Instant valuationTime) {
-    return new DependencyGraphTraceBuilder(this) {
-      @Override
-      public Instant getValuationTime() {
-        return valuationTime;
-      }
-    };
-  }
-
-  /**
-   * @param defaultProperties default properties to set
-   * @return a newly configured instance
-   */
-  public DependencyGraphTraceBuilder defaultProperties(final ValueProperties defaultProperties) {
-    return new DependencyGraphTraceBuilder(this) {
-      public ValueProperties getDefaultProperties() {
-        return defaultProperties;
-      };
-    };
-  }
-
-  /**
-   * @param requirement requirement to add
-   * @return a newly configured instance
-   */
-  public DependencyGraphTraceBuilder addRequirement(ValueRequirement requirement) {
-    final Collection<ValueRequirement> currentRequirements = new ArrayList<>(getRequirements());
-    currentRequirements.add(requirement);
-    return requirements(currentRequirements);
-  }
-
-  
-  /**
-   * @param requirements requirements to set
-   * @return a newly configured instance
-   */
-  public DependencyGraphTraceBuilder requirements(final Collection<ValueRequirement> requirements) {
-    return new DependencyGraphTraceBuilder(this) {
-      @Override
-      public Collection<ValueRequirement> getRequirements() {
-        return requirements;
-      }
-    };
-  }
-
-  /**
-   * @param marketData market data to set
-   * @return a newly configured instance
-   */
-  public DependencyGraphTraceBuilder marketData(final MarketDataSpecification marketData) {
-    return new DependencyGraphTraceBuilder(this) {
-      @Override
-      public MarketDataSpecification getMarketData() {
-        return marketData;
-      }
-    };
-  }
-  
-  
   /**
    * Builds the dependency graph trace with the configured params.
+   * @param properties the properties to use
    * @return the built trace object
    */
-  public DependencyGraphBuildTrace build() {
-    final DependencyGraphBuilder builder = getBuilderContext().getDependencyGraphBuilderFactory().newInstance();
-    builder.setCalculationConfigurationName(_calculationConfigurationName);
-    final FunctionCompilationContext context = getBuilderContext().getFunctionCompilationContext().clone();
+  public DependencyGraphBuildTrace build(DependencyGraphTraceBuilderProperties properties) {
+    final DependencyGraphBuilder builder = _builderContext.getDependencyGraphBuilderFactory().newInstance();
+    builder.setCalculationConfigurationName(properties.getCalculationConfigurationName());
+    final FunctionCompilationContext context = _builderContext.getFunctionCompilationContext().clone();
     final ViewDefinition definition = new ViewDefinition("Mock View", "Test");
-    final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(definition, getCalculationConfigurationName());
-    calcConfig.setDefaultProperties(getDefaultProperties());
+    final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(definition, properties.getCalculationConfigurationName());
+    calcConfig.setDefaultProperties(properties.getDefaultProperties());
     context.setViewCalculationConfiguration(calcConfig);
-    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(getResolutionTime()));
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(properties.getResolutionTime()));
     builder.setCompilationContext(context);
-    final Collection<ResolutionRule> rules = getBuilderContext().getFunctionResolver().compile((getValuationTime() != null) ? getValuationTime() : Instant.now()).getAllResolutionRules();
+    final Collection<ResolutionRule> rules = _builderContext.getFunctionResolver().compile((properties.getValuationTime() != null) ? properties.getValuationTime() : Instant.now())
+        .getAllResolutionRules();
     // TODO: allow transformation rules
     final DefaultCompiledFunctionResolver functions = new DefaultCompiledFunctionResolver(context, rules);
     functions.compileRules();
     builder.setFunctionResolver(functions);
-    builder.setFunctionExclusionGroups(getBuilderContext().getFunctionExclusionGroups());
+    builder.setFunctionExclusionGroups(_builderContext.getFunctionExclusionGroups());
     // TODO this isn't used. is this OK?
     // TODO it's a bit nasty to build a MarketDataProvider just to get its availability provider
     final UserPrincipal marketDataUser = UserPrincipal.getLocalUser();
-    final MarketDataProviderResolver resolver = getBuilderContext().getMarketDataProviderResolver();
-    final MarketDataProvider marketDataProvider = resolver.resolve(marketDataUser, getMarketData());
-    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider(getMarketData()));
+    final MarketDataProviderResolver resolver = _builderContext.getMarketDataProviderResolver();
+    MarketDataSpecification marketData = properties.getMarketData();
+    if (marketData == null) {
+      marketData = MarketData.live();
+    }
+    final MarketDataProvider marketDataProvider = resolver.resolve(marketDataUser, marketData);
+    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider(marketData));
     final ResolutionFailureAccumulator resolutionFailureAccumulator = new ResolutionFailureAccumulator();
     builder.setResolutionFailureListener(resolutionFailureAccumulator);
     builder.setDisableFailureReporting(false);
-    for (final ValueRequirement requirement : getRequirements()) {
+    for (final ValueRequirement requirement : properties.getRequirements()) {
       builder.addTarget(requirement);
     }
     DependencyGraph dependencyGraph = builder.getDependencyGraph();
@@ -256,5 +90,4 @@ public class DependencyGraphTraceBuilder {
     return graphBuildTrace;
 
   }
-
 }

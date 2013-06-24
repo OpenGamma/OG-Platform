@@ -5,13 +5,23 @@
  */
 package com.opengamma.financial.depgraph.provider;
 
+import static java.lang.String.format;
+
 import java.net.URI;
+import java.util.Collection;
+import java.util.Set;
 
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Iterables;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuildTrace;
+import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperties;
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceProviderResource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -34,64 +44,62 @@ public class RemoteDependencyGraphTraceProvider extends AbstractRemoteClient imp
   }
 
   @Override
-  public DependencyGraphBuildTrace getTraceWithCalculationConfigurationName(String calculationConfigurationName) {
-    ArgumentChecker.notNull(calculationConfigurationName, "calculationConfigurationName");
-    
-    URI uri = DependencyGraphTraceProviderResource.uriCalculationConfigurationName(getBaseUri(), calculationConfigurationName);
+  public DependencyGraphBuildTrace getTrace(DependencyGraphTraceBuilderProperties properties) {
+    URI uri = getBaseUri();
+
+    //process single value properties:
+    String calcConfigName = properties.getCalculationConfigurationName();
+    uri = DependencyGraphTraceProviderResource.uriCalculationConfigurationName(uri, calcConfigName);
+
+    ValueProperties defaultProperties = properties.getDefaultProperties();
+    uri = DependencyGraphTraceProviderResource.uriDefaultProperties(uri, defaultProperties);
+
+    UserMarketDataSpecification marketData = properties.getMarketData();
+    uri = DependencyGraphTraceProviderResource.uriMarketData(uri, marketData);
+
+    VersionCorrection resolutionTime = properties.getResolutionTime();
+    uri = DependencyGraphTraceProviderResource.uriResolutionTime(uri, resolutionTime);
+
+    Instant valuationTime = properties.getValuationTime();
+    uri = DependencyGraphTraceProviderResource.uriValuationTime(uri, valuationTime);
+
+    //process requirements:
+    processRequirements(uri, properties.getRequirements());
+
     return accessRemote(uri).get(DependencyGraphBuildTrace.class);
   }
 
-  @Override
-  public DependencyGraphBuildTrace getTraceWithValuationTime(Instant valuationTime) {
-    ArgumentChecker.notNull(valuationTime, "valuationTime");
-    
-    URI uri = DependencyGraphTraceProviderResource.uriValuationTime(getBaseUri(), valuationTime);
-    return accessRemote(uri).get(DependencyGraphBuildTrace.class);  
-  }
+  /**
+   * Unpacks the requirements into URI form.
+   * @param uri the uri to append to
+   * @param requirements the requirements to append
+   */
+  private void processRequirements(URI uri, Collection<ValueRequirement> requirements) {
+    for (ValueRequirement valueRequirement : requirements) {
 
-  @Override
-  public DependencyGraphBuildTrace getTraceWithResolutionTime(VersionCorrection resolutionTime) {
-    ArgumentChecker.notNull(resolutionTime, "resolutionTime");
-    
-    URI uri = DependencyGraphTraceProviderResource.uriResolutionTime(getBaseUri(), resolutionTime);
-    return accessRemote(uri).get(DependencyGraphBuildTrace.class);  
-  }
+      String valueName = valueRequirement.getValueName();
 
-  @Override
-  public DependencyGraphBuildTrace getTraceWithDefaultProperties(ValueProperties defaultProperties) {
-    ArgumentChecker.notNull(defaultProperties, "defaultProperties");
-    
-    URI uri = DependencyGraphTraceProviderResource.uriDefaultProperties(getBaseUri(), defaultProperties);
-    return accessRemote(uri).get(DependencyGraphBuildTrace.class);  
-  }
+      ValueProperties constraints = valueRequirement.getConstraints();
 
-  @Override
-  public DependencyGraphBuildTrace getTraceWithValueRequirementByUniqueId(String valueName, String targetType, UniqueId uniqueId) {
-    ArgumentChecker.notNull(valueName, "valueName");
-    ArgumentChecker.notNull(targetType, "targetType");
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
-    URI uri = DependencyGraphTraceProviderResource.uriValueRequirementByUniqueId(getBaseUri(), valueName, targetType, uniqueId);
-    return accessRemote(uri).get(DependencyGraphBuildTrace.class);  
-  }
+      String contraintStr = constraints.isEmpty() ? "" : constraints.toString();
 
-  @Override
-  public DependencyGraphBuildTrace getTraceWithValueRequirementByExternalId(String valueName, String targetType, ExternalId externalId) {
-    ArgumentChecker.notNull(valueName, "valueName");
-    ArgumentChecker.notNull(targetType, "targetType");
-    ArgumentChecker.notNull(externalId, "externalId");
-    
-    URI uri = DependencyGraphTraceProviderResource.uriValueRequirementByExternalId(getBaseUri(), valueName, targetType, externalId);
-    return accessRemote(uri).get(DependencyGraphBuildTrace.class);  
-  }
+      String constrainedValueName = valueName + contraintStr;
 
-  @Override
-  public DependencyGraphBuildTrace getTraceWithMarketData(UserMarketDataSpecification marketData) {
-    ArgumentChecker.notNull(marketData, "marketData");
-    
-    URI uri = DependencyGraphTraceProviderResource.uriMarketData(getBaseUri(), marketData);
-    return accessRemote(uri).get(DependencyGraphBuildTrace.class);  
-  }
-  
+      ComputationTargetReference targetReference = valueRequirement.getTargetReference();
+      String targetType = targetReference.getType().toString();
 
+      if (targetReference instanceof ComputationTargetRequirement) {
+        ComputationTargetRequirement requirement = (ComputationTargetRequirement) targetReference;
+        Set<ExternalId> externalIds = requirement.getIdentifiers().getExternalIds();
+        ArgumentChecker.isTrue(externalIds.size() == 1, "One (and only one) external id must be specified currently.");
+        ExternalId externalId = Iterables.get(externalIds, 0);
+        DependencyGraphTraceProviderResource.uriValueRequirementByExternalId(uri, constrainedValueName, targetType, externalId);
+      } else if (targetReference instanceof ComputationTargetSpecification) {
+        UniqueId uniqueId = ((ComputationTargetSpecification) targetReference).getUniqueId();
+        DependencyGraphTraceProviderResource.uriValueRequirementByUniqueId(uri, constrainedValueName, targetType, uniqueId);
+      } else {
+        throw new IllegalArgumentException(format("Unrecognised ValueRequirement class: %s", ValueRequirement.class.getName()));
+      }
+    }
+  }
 }

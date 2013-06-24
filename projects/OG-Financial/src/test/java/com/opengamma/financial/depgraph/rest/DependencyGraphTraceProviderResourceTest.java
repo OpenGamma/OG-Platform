@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -18,9 +19,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.google.common.base.Throwables;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.depgraph.provider.DependencyGraphTraceProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -30,15 +35,15 @@ import com.opengamma.id.VersionCorrection;
  * Test for {@link DependencyGraphTraceProviderResource}
  */
 public class DependencyGraphTraceProviderResourceTest {
-  
+
   private static final String s_testUrl = "http://testurl.com/";
-  
+
   private DependencyGraphTraceProviderResource _resource;
   private FudgeContext _fudgeContext;
   private DependencyGraphTraceProvider _provider;
   private DependencyGraphBuildTrace _sampleResult;
   private URI _baseUri;
-  
+
   @BeforeMethod
   public void beforeTest() {
     _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
@@ -48,7 +53,7 @@ public class DependencyGraphTraceProviderResourceTest {
     try {
       _baseUri = new URI(s_testUrl);
     } catch (URISyntaxException ex) {
-     Throwables.propagate(ex);
+      Throwables.propagate(ex);
     }
   }
 
@@ -61,62 +66,59 @@ public class DependencyGraphTraceProviderResourceTest {
   @Test
   public void getTraceWithCalculationConfigurationName() {
     String calcConfigName = "test";
-    
-    when(_provider.getTraceWithCalculationConfigurationName(calcConfigName)).thenReturn(_sampleResult);
-    
-    FudgeMsgEnvelope result = _resource.getTraceWithCalculationConfigurationName(calcConfigName);
-    
-    verify(_provider).getTraceWithCalculationConfigurationName(calcConfigName);
-    assertNotNull(result);
-    
+    String originalName = _resource.getProperties().getCalculationConfigurationName();
+
+    DependencyGraphTraceProviderResource newResource = _resource.setCalculationConfigurationName(calcConfigName);
+
+    assertEquals(originalName, _resource.getProperties().getCalculationConfigurationName());
+    assertEquals(calcConfigName, newResource.getProperties().getCalculationConfigurationName());
+
   }
 
   @Test
   public void getTraceWithDefaultProperties() {
     //input
     String defaultProperties = "A=[foo,bar],B=*";
-    
+
     //expected arg
     ValueProperties props = ValueProperties.parse(defaultProperties);
-    
-    when(_provider.getTraceWithDefaultProperties(props)).thenReturn(_sampleResult);
-    
-    FudgeMsgEnvelope result = _resource.getTraceWithDefaultProperties(defaultProperties);
-    
-    verify(_provider).getTraceWithDefaultProperties(props);
-    assertNotNull(result);
+    ValueProperties originalProps = _resource.getProperties().getDefaultProperties();
+
+    DependencyGraphTraceProviderResource newResource = _resource.setDefaultProperties(defaultProperties);
+
+    assertEquals(props, newResource.getProperties().getDefaultProperties());
+    assertEquals(originalProps, _resource.getProperties().getDefaultProperties());
+
   }
 
   @Test
   public void getTraceWithMarketData() {
     //input
     String snapshotId = "Foo~1";
-    
+
     //expected arg
     UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
-    
-    when(_provider.getTraceWithMarketData(marketData)).thenReturn(_sampleResult);
-    
-    FudgeMsgEnvelope result = _resource.getTraceWithMarketData(snapshotId);
-    
-    verify(_provider).getTraceWithMarketData(marketData);
-    assertNotNull(result);
+    UserMarketDataSpecification originalMD = _resource.getProperties().getMarketData();
+
+    DependencyGraphTraceProviderResource newResource = _resource.setMarketData(snapshotId);
+
+    assertEquals(marketData, newResource.getProperties().getMarketData());
+    assertEquals(originalMD, _resource.getProperties().getMarketData());
   }
 
   @Test
   public void getTraceWithResolutionTime() {
     //input
     String resolutionTime = "V1970-01-01T00:00:01Z.CLATEST";
-    
+
     //expected arg
     VersionCorrection parsed = VersionCorrection.parse(resolutionTime);
-    
-    when(_provider.getTraceWithResolutionTime(parsed)).thenReturn(_sampleResult);
-    
-    FudgeMsgEnvelope result = _resource.getTraceWithResolutionTime(resolutionTime);
-    
-    verify(_provider).getTraceWithResolutionTime(parsed);
-    assertNotNull(result);
+    VersionCorrection originalRT = _resource.getProperties().getResolutionTime();
+
+    DependencyGraphTraceProviderResource newResource = _resource.setResolutionTime(resolutionTime);
+
+    assertEquals(parsed, newResource.getProperties().getResolutionTime());
+    assertEquals(originalRT, _resource.getProperties().getResolutionTime());
   }
 
   @Test
@@ -126,55 +128,65 @@ public class DependencyGraphTraceProviderResourceTest {
 
     //expected arg
     Instant valuationTime = Instant.parse(valuationTimeStr);
-    
-    when(_provider.getTraceWithValuationTime(valuationTime)).thenReturn(_sampleResult);
-    
-    FudgeMsgEnvelope result = _resource.getTraceWithValuationTime(valuationTimeStr);
-    
-    verify(_provider).getTraceWithValuationTime(valuationTime);
-    assertNotNull(result);
+    Instant originalVT = _resource.getProperties().getValuationTime();
+
+    DependencyGraphTraceProviderResource newResource = _resource.setValuationTime(valuationTimeStr);
+
+    assertEquals(valuationTime, newResource.getProperties().getValuationTime());
+    assertEquals(originalVT, _resource.getProperties().getValuationTime());
+
   }
 
   @Test
   public void getTraceWithValueRequirementByExternalId() {
     //input
     String valueName = "name";
-    String targetType = "target";
+    String targetType = "POSITION";
     String externalId = "Foo~1";
-    
+
     //expected arg
+    ComputationTargetType expectedTargetType = ComputationTargetType.POSITION;
     ExternalId expectedExternalId = ExternalId.parse(externalId);
-    
-    when(_provider.getTraceWithValueRequirementByExternalId(valueName, targetType, expectedExternalId)).thenReturn(_sampleResult);
-    
-    FudgeMsgEnvelope result = _resource.getTraceWithValueRequirementByExternalId(valueName, targetType, externalId);
-    
-    verify(_provider).getTraceWithValueRequirementByExternalId(valueName, targetType, expectedExternalId);
-    assertNotNull(result);
+    ValueRequirement valueRequirement = new ValueRequirement(valueName, new ComputationTargetRequirement(expectedTargetType, expectedExternalId));
+
+    DependencyGraphTraceProviderResource newResource = _resource.setValueRequirementByExternalId(valueName, targetType, externalId);
+
+    assertTrue(newResource.getProperties().getRequirements().contains(valueRequirement));
+
   }
 
   @Test
   public void getTraceWithValueRequirementByUniqueId() {
     //input
     String valueName = "name";
-    String targetType = "target";
+    String targetType = "POSITION";
     String uniqueId = "Foo~1";
-    
+
     //expected arg
     UniqueId expectedUniqueId = UniqueId.parse(uniqueId);
-    
-    when(_provider.getTraceWithValueRequirementByUniqueId(valueName, targetType, expectedUniqueId)).thenReturn(_sampleResult);
-    
-    FudgeMsgEnvelope result = _resource.getTraceWithValueRequirementByUniqueId(valueName, targetType, uniqueId);
-    
-    verify(_provider).getTraceWithValueRequirementByUniqueId(valueName, targetType, expectedUniqueId);
+    ComputationTargetType expectedTargetType = ComputationTargetType.POSITION;
+    ValueRequirement valueRequirement = new ValueRequirement(valueName, new ComputationTargetSpecification(expectedTargetType, expectedUniqueId));
+
+    DependencyGraphTraceProviderResource newResource = _resource.setValueRequirementByUniqueId(valueName, targetType, uniqueId);
+
+    assertTrue(newResource.getProperties().getRequirements().contains(valueRequirement));
+  }
+
+  //-----------------------------------------------------------
+
+  @Test
+  public void build() {
+
+    when(_provider.getTrace(_resource.getProperties())).thenReturn(_sampleResult);
+
+    FudgeMsgEnvelope result = _resource.build();
+
+    verify(_provider).getTrace(_resource.getProperties());
     assertNotNull(result);
   }
 
-  
   //-----------------------------------------------------------
-  
-  
+
   @Test
   public void uriCalculationConfigurationName() throws UnsupportedEncodingException {
     String testStr = "test";
@@ -192,7 +204,6 @@ public class DependencyGraphTraceProviderResourceTest {
     assertEquals(s_testUrl + "defaultProperties/" + defaultPropertiesStr, url);
   }
 
-  
   @Test
   public void uriMarketData() throws UnsupportedEncodingException {
     String snapshotId = "Foo~1";
@@ -247,5 +258,5 @@ public class DependencyGraphTraceProviderResourceTest {
     String decoded = URLDecoder.decode(urlStr, "UTF-8");
     return decoded;
   }
-  
+
 }

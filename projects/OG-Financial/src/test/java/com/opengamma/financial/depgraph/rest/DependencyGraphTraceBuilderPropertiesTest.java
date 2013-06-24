@@ -1,0 +1,96 @@
+package com.opengamma.financial.depgraph.rest;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+
+import java.util.Collection;
+import java.util.Objects;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
+
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
+
+public class DependencyGraphTraceBuilderPropertiesTest {
+
+  @BeforeMethod
+  public void beforeMethod() {
+  }
+
+  private DependencyGraphTraceBuilderProperties createBuilder() {
+    return new DependencyGraphTraceBuilderProperties();
+  }
+
+  @Test
+  public void valuationTime() {
+    final DependencyGraphTraceBuilderProperties builder = createBuilder();
+    final Instant i1 = builder.getValuationTime();
+    Instant instant = ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]").toInstant();
+    final DependencyGraphTraceBuilderProperties prime = builder.valuationTime(instant);
+    final Instant i2 = prime.getValuationTime();
+    assertEquals(i1, builder.getValuationTime()); // original unchanged
+    assertFalse(Objects.equals(i1, i2));
+  }
+
+  @Test
+  public void calculationConfigurationName() {
+    final DependencyGraphTraceBuilderProperties builder = createBuilder();
+    final String c1 = builder.getCalculationConfigurationName();
+    final DependencyGraphTraceBuilderProperties prime = builder.calculationConfigurationName("Foo");
+    final String c2 = prime.getCalculationConfigurationName();
+    assertEquals(c1, builder.getCalculationConfigurationName()); // original unchanged
+    assertFalse(c1.equals(c2));
+  }
+
+  @Test
+  public void defaultProperties() {
+    ValueProperties valueProperties = ValueProperties.parse("A=[foo,bar],B=*");
+    final DependencyGraphTraceBuilderProperties builder = createBuilder();
+    final ValueProperties p1 = builder.getDefaultProperties();
+    final DependencyGraphTraceBuilderProperties prime = builder.defaultProperties(valueProperties);
+    final ValueProperties p2 = prime.getDefaultProperties();
+    assertEquals(p1, builder.getDefaultProperties()); // original unchanged
+    assertFalse(p1.equals(p2));
+  }
+
+  @Test
+  public void addRequirement() {
+
+    final ComputationTargetSpecification target = ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue"));
+    final ValueRequirement vr1 = new ValueRequirement("Value1", target);
+    final ValueRequirement vr2 = new ValueRequirement("Value2", target);
+
+    final DependencyGraphTraceBuilderProperties builder = createBuilder();
+    final Collection<ValueRequirement> r1 = builder.getRequirements();
+    final DependencyGraphTraceBuilderProperties prime = builder.addRequirement(vr1);
+    final Collection<ValueRequirement> r2 = prime.getRequirements();
+    final DependencyGraphTraceBuilderProperties prime2 = prime.addRequirement(vr2);
+    final Collection<ValueRequirement> r3 = prime2.getRequirements();
+    assertEquals(r1, builder.getRequirements()); // original unchanged
+    assertEquals(r2, prime.getRequirements()); // unchanged
+    assertEquals(r1.size(), 0);
+    assertEquals(r2.size(), 1);
+    assertEquals(r3.size(), 2);
+  }
+
+  @Test
+  public void marketData() {
+    throw new RuntimeException("Test not implemented");
+  }
+
+  @Test
+  public void requirements() {
+    throw new RuntimeException("Test not implemented");
+  }
+
+  @Test
+  public void resolutionTime() {
+    throw new RuntimeException("Test not implemented");
+  }
+
+}

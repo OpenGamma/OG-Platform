@@ -6,21 +6,17 @@
 package com.opengamma.financial.depgraph.rest;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -63,7 +59,6 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class DependencyGraphTraceBuilderTest {
-
 
   private CompiledFunctionService createFunctionCompilationService() {
     final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
@@ -177,71 +172,23 @@ public class DependencyGraphTraceBuilderTest {
     return bean;
   }
 
-
   private DependencyGraphTraceBuilder createBuilder() {
     return new DependencyGraphTraceBuilder(createContextBean());
   }
-  
-  public void testSetValuationTime() {
-    final DependencyGraphTraceBuilder builder = createBuilder();
-    final Instant i1 = builder.getValuationTime();
-    Instant instant = ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]").toInstant();
-    final DependencyGraphTraceBuilder prime = builder.valuationTime(instant);
-    final Instant i2 = prime.getValuationTime();
-    assertEquals(i1, builder.getValuationTime()); // original unchanged
-    assertFalse(Objects.equals(i1, i2));
-  }
-
-  // TODO: testSetResolutionTime method
-
-  public void testSetCalculationConfigurationName() {
-    final DependencyGraphTraceBuilder builder = createBuilder();
-    final String c1 = builder.getCalculationConfigurationName();
-    final DependencyGraphTraceBuilder prime = builder.calculationConfigurationName("Foo");
-    final String c2 = prime.getCalculationConfigurationName();
-    assertEquals(c1, builder.getCalculationConfigurationName()); // original unchanged
-    assertFalse(c1.equals(c2));
-  }
-
-  public void testSetDefaultProperties() {
-    ValueProperties valueProperties = ValueProperties.parse("A=[foo,bar],B=*");
-    final DependencyGraphTraceBuilder builder = createBuilder();
-    final ValueProperties p1 = builder.getDefaultProperties();
-    final DependencyGraphTraceBuilder prime = builder.defaultProperties(valueProperties);
-    final ValueProperties p2 = prime.getDefaultProperties();
-    assertEquals(p1, builder.getDefaultProperties()); // original unchanged
-    assertFalse(p1.equals(p2));
-  }
-
-  public void testAddValue() {
-    
-    final ComputationTargetSpecification target = ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue"));
-    final ValueRequirement vr1 = new ValueRequirement("Value1", target);
-    final ValueRequirement vr2 = new ValueRequirement("Value2", target);
-
-    final DependencyGraphTraceBuilder builder = createBuilder();
-    final Collection<ValueRequirement> r1 = builder.getRequirements();
-    final DependencyGraphTraceBuilder prime = builder.addRequirement(vr1);
-    final Collection<ValueRequirement> r2 = prime.getRequirements();
-    final DependencyGraphTraceBuilder prime2 = prime.addRequirement(vr2);
-    final Collection<ValueRequirement> r3 = prime2.getRequirements();
-    assertEquals(r1, builder.getRequirements()); // original unchanged
-    assertEquals(r2, prime.getRequirements()); // unchanged
-    assertEquals(r1.size(), 0);
-    assertEquals(r2.size(), 1);
-    assertEquals(r3.size(), 2);
-  }
 
   public void testBuild_ok() {
-    
+
     DependencyGraphTraceBuilder builder = createBuilder();
-    
+
     ComputationTargetRequirement ct1 = new ComputationTargetRequirement(ComputationTargetType.parse("PRIMITIVE"), ExternalId.parse("Foo~1"));
     ValueRequirement req1 = parseValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ct1);
     ComputationTargetRequirement ct2 = new ComputationTargetRequirement(ComputationTargetType.parse("PRIMITIVE"), ExternalId.parse("Foo~2"));
     ValueRequirement req2 = parseValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ct2);
-    DependencyGraphBuildTrace obj = builder.addRequirement(req1).addRequirement(req2).build();
-    
+
+    DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
+    properties = properties.addRequirement(req1).addRequirement(req2);
+    DependencyGraphBuildTrace obj = builder.build(properties);
+
     assertNotNull(obj.getDependencyGraph());
     assertTrue(obj.getExceptionsWithCounts().isEmpty());
     assertTrue(obj.getFailures().isEmpty());
@@ -249,13 +196,16 @@ public class DependencyGraphTraceBuilderTest {
 
   public void testBuild_exceptions() {
     DependencyGraphTraceBuilder builder = createBuilder();
-    
+
     ComputationTargetRequirement ct1 = new ComputationTargetRequirement(ComputationTargetType.parse("PRIMITIVE"), ExternalId.parse("Foo~1"));
     ValueRequirement req1 = parseValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ct1);
     ComputationTargetSpecification ct2 = new ComputationTargetSpecification(ComputationTargetType.parse("PRIMITIVE"), UniqueId.parse("Foo~Bar"));
     ValueRequirement req2 = parseValueRequirement(ValueRequirementNames.FAIR_VALUE, ct2);
-    DependencyGraphBuildTrace obj = builder.addRequirement(req1).addRequirement(req2).build();
-    
+
+    DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
+    properties = properties.addRequirement(req1).addRequirement(req2);
+    DependencyGraphBuildTrace obj = builder.build(properties);
+
     assertNotNull(obj.getDependencyGraph());
     assertEquals(2, obj.getExceptionsWithCounts().size());
     assertEquals(1, obj.getFailures().size());
@@ -263,19 +213,21 @@ public class DependencyGraphTraceBuilderTest {
 
   public void testBuild_failures() {
     DependencyGraphTraceBuilder builder = createBuilder();
-    
+
     ComputationTargetRequirement ct1 = new ComputationTargetRequirement(ComputationTargetType.parse("PRIMITIVE"), ExternalId.parse("Bar~1"));
     ValueRequirement req1 = parseValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ct1);
     ComputationTargetSpecification ct2 = new ComputationTargetSpecification(ComputationTargetType.parse("PRIMITIVE"), UniqueId.parse("Bar~2"));
     ValueRequirement req2 = parseValueRequirement(ValueRequirementNames.PRESENT_VALUE, ct2);
-    DependencyGraphBuildTrace obj = builder.addRequirement(req1).addRequirement(req2).build();
-    
+
+    DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
+    properties = properties.addRequirement(req1).addRequirement(req2);
+    DependencyGraphBuildTrace obj = builder.build(properties);
+
     assertNotNull(obj.getDependencyGraph());
     assertEquals(2, obj.getExceptionsWithCounts().size());
     assertEquals(2, obj.getFailures().size());
   }
 
-  
   private ValueRequirement parseValueRequirement(final String valueName, final ComputationTargetReference target) {
     final String name;
     final ValueProperties constraints;
@@ -290,5 +242,4 @@ public class DependencyGraphTraceBuilderTest {
     return new ValueRequirement(name, target, constraints);
   }
 
-  
 }
