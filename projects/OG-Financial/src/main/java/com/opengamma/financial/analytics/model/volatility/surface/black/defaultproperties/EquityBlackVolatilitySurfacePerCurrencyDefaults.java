@@ -66,6 +66,10 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
     ValueRequirementNames.THETA,
     ValueRequirementNames.VEGA,
     ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.POSITION_DELTA,
     ValueRequirementNames.POSITION_GAMMA,
     ValueRequirementNames.POSITION_RHO,

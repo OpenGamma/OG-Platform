@@ -50,6 +50,8 @@ public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunc
     ValueRequirementNames.GRID_PRESENT_VALUE,
     ValueRequirementNames.DELTA,
     ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.POSITION_DELTA,
     ValueRequirementNames.POSITION_GAMMA,
     ValueRequirementNames.POSITION_RHO,
