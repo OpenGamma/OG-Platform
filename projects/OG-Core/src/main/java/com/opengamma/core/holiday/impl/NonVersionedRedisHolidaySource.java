@@ -49,7 +49,9 @@ import com.opengamma.util.money.Currency;
  *     
  * Those give the core data, but we need search capabilities as well.
  * 
- *     Key["EXT-"ExternalId] -> Hash
+ *     Key["EXT-"ExternalId"-TYPE-"HolidayType] -> Hash
+ *        Hash[UNIQUE_ID] -> UniqueId
+ *     Key["CUR-"currencyCode] -> Hash
  *        Hash[UNIQUE_ID] -> UniqueId
  * 
  * While this data structure is more than necessary (in that you could cut out the hash for
@@ -129,7 +131,7 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
     return toRedisKey(UniqueId.of(objectId, null));
   }
   
-  protected String toRedisKey(ExternalId externalId) {
+  protected String toRedisKey(ExternalId externalId, HolidayType holidayType) {
     StringBuilder sb = new StringBuilder();
     if (!getRedisPrefix().isEmpty()) {
       sb.append(getRedisPrefix());
@@ -137,8 +139,22 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
     }
     sb.append("EXT-");
     sb.append(externalId);
+    sb.append("-");
+    sb.append(holidayType.name());
     return sb.toString();
   }
+  
+  private String toRedisKey(Currency currency) {
+    StringBuilder sb = new StringBuilder();
+    if (!getRedisPrefix().isEmpty()) {
+      sb.append(getRedisPrefix());
+      sb.append("-");
+    }
+    sb.append("CUR-");
+    sb.append(currency.getCode());
+    return sb.toString();
+  }
+  
   
   // ---------------------------------------------------------------------
   // DATA MANIPULATION
@@ -155,27 +171,26 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
     ArgumentChecker.notNull(holiday, "holiday");
     
     UniqueId uniqueId = (holiday.getUniqueId() == null) ? generateRandomId() : holiday.getUniqueId();
-
     try (Timer.Context context = _putTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       try {
         String uniqueRedisKey = toRedisKey(uniqueId);
         String daysKey = uniqueRedisKey + "-DAYS";
         jedis.del(uniqueRedisKey, daysKey);
-        jedis.hset(uniqueRedisKey, "TYPE", holiday.getType().name());
+        jedis.hset(uniqueRedisKey, "TYPE", holiday.getType().toString());
         if (holiday.getCurrency() != null) {
           jedis.hset(uniqueRedisKey, "CURRENCY", holiday.getCurrency().getCode());
-          jedis.hset(toRedisKey(ExternalId.of(Currency.OBJECT_SCHEME, holiday.getCurrency().getCode())), UNIQUE_ID, uniqueId.toString());
+          jedis.hset(toRedisKey(holiday.getCurrency()), UNIQUE_ID, uniqueId.toString());
         }
         if (holiday.getRegionExternalId() != null) {
           jedis.hset(uniqueRedisKey, REGION_SCHEME, holiday.getRegionExternalId().getScheme().getName());
           jedis.hset(uniqueRedisKey, REGION, holiday.getRegionExternalId().getValue());
-          jedis.hset(toRedisKey(holiday.getRegionExternalId()), UNIQUE_ID, uniqueId.toString());
+          jedis.hset(toRedisKey(holiday.getRegionExternalId(), holiday.getType()), UNIQUE_ID, uniqueId.toString());
         }
         if (holiday.getExchangeExternalId() != null) {
           jedis.hset(uniqueRedisKey, "EXCHANGE_SCHEME", holiday.getExchangeExternalId().getScheme().getName());
           jedis.hset(uniqueRedisKey, "EXCHANGE", holiday.getExchangeExternalId().getValue());
-          jedis.hset(toRedisKey(holiday.getExchangeExternalId()), UNIQUE_ID, uniqueId.toString());
+          jedis.hset(toRedisKey(holiday.getExchangeExternalId(), holiday.getType()), UNIQUE_ID, uniqueId.toString());
         }
         
         for (LocalDate holidayDate : holiday.getHolidayDates()) {
@@ -295,8 +310,8 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
       Jedis jedis = getJedisPool().getResource();
       try {
         
-        String externalIdKey = toRedisKey(ExternalId.of(Currency.OBJECT_SCHEME, currency.getCode()));
-        String uniqueId = jedis.hget(externalIdKey, UNIQUE_ID);
+        String currencyIdKey = toRedisKey(currency);
+        String uniqueId = jedis.hget(currencyIdKey, UNIQUE_ID);
         if (uniqueId != null) {
           String daysKey = toRedisKey(UniqueId.parse(uniqueId)) + "-DAYS";
           if (jedis.zscore(daysKey, dateToCheck.toString()) != null) {
@@ -329,7 +344,7 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
       Jedis jedis = getJedisPool().getResource();
       try {
         for (ExternalId externalId : regionOrExchangeIds) {
-          String uniqueIdText = jedis.hget(toRedisKey(externalId), UNIQUE_ID);
+          String uniqueIdText = jedis.hget(toRedisKey(externalId, holidayType), UNIQUE_ID);
           if (uniqueIdText == null) {
             continue;
           }
