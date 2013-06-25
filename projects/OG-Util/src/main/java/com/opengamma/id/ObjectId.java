@@ -9,6 +9,8 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -83,6 +85,7 @@ public final class ObjectId
    * @return the object identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
+  @FromString
   public static ObjectId parse(String str) {
     ArgumentChecker.notEmpty(str, "str");
     if (str.contains("~") == false) {
@@ -232,6 +235,7 @@ public final class ObjectId
    * @return a parsable representation of the identifier, not null
    */
   @Override
+  @ToString
   public String toString() {
     return new StrBuilder().append(_scheme).append('~').append(_value).toString();
   }

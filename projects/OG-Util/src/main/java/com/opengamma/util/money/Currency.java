@@ -7,9 +7,14 @@ package com.opengamma.util.money;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -122,6 +127,16 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
 
   //-----------------------------------------------------------------------
   /**
+   * Lists the available currencies.
+   * 
+   * @return an immutable set containing all registered currencies, not null
+   */
+  public static Set<Currency> getAvailableCurrencies() {
+    return ImmutableSet.copyOf(s_instanceMap.values());
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Obtains an instance of {@code Currency} matching the specified JDK currency.
    * <p>
    * This converts the JDK currency instance to a currency unit using the code.
@@ -145,6 +160,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * @return the singleton instance, not null
    * @throws IllegalArgumentException if the currency code is not three letters
    */
+  @FromString
   public static Currency of(String currencyCode) {
     ArgumentChecker.notNull(currencyCode, "currencyCode");
     // check cache before matching
@@ -199,6 +215,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * 
    * @return the three letter ISO code, not null
    */
+  @ToString
   public String getCode() {
     return _code;
   }

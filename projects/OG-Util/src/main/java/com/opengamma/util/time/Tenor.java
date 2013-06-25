@@ -5,8 +5,12 @@
  */
 package com.opengamma.util.time;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Period;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A tenor.
@@ -175,10 +179,41 @@ public class Tenor implements Comparable<Tenor> {
    */
   private final Period _period;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a formatted string representing the tenor.
+   * <p>
+   * The format is based on ISO-8601, such as 'P3M'.
+   * 
+   * @param period  the period to convert to a tenor, not null
+   * @return the formatted tenor, not null
+   */
+  public static Tenor of(Period period) {
+    ArgumentChecker.notNull(period, "period");
+    return new Tenor(period);
+  }
+
+  /**
+   * Parses a formatted string representing the tenor.
+   * <p>
+   * The format is based on ISO-8601, such as 'P3M'.
+   * 
+   * @param tenorStr  the string representing the tenor, not null
+   * @return the tenor, not null
+   */
+  @FromString
+  public static Tenor parse(String tenorStr) {
+    ArgumentChecker.notNull(tenorStr, "tenorStr");
+    return new Tenor(Period.parse(tenorStr));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates a tenor.
    * @param period  the period to represent
+   * @deprecated Use the static factory method {@code Tenor.of(Period)}.
    */
+  @Deprecated
   public Tenor(final Period period) {
     _period = period;
   }
@@ -207,6 +242,28 @@ public class Tenor implements Comparable<Tenor> {
     return new Tenor(Period.ofYears(years)); // TODO: what do we do here
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a formatted string representing the tenor.
+   * <p>
+   * The format is based on ISO-8601, such as 'P3M'.
+   * 
+   * @return the formatted tenor, not null
+   */
+  @ToString
+  public String toFormattedString() {
+    return getPeriod().toString();
+  }
+
+  //-------------------------------------------------------------------------
+  //TODO [PLAT-1013] not the best way to do this
+  @Override
+  public int compareTo(Tenor other) {
+    Duration thisDur = DateUtils.estimatedDuration(this._period);
+    Duration otherDur = DateUtils.estimatedDuration(other._period);
+    return thisDur.compareTo(otherDur);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null) {
@@ -233,11 +290,4 @@ public class Tenor implements Comparable<Tenor> {
     return sb.toString();
   }
 
-  //TODO [PLAT-1013] not the best way to do this
-  @Override
-  public int compareTo(Tenor other) {
-    Duration thisDur = DateUtils.estimatedDuration(this._period);
-    Duration otherDur = DateUtils.estimatedDuration(other._period);
-    return thisDur.compareTo(otherDur);
-  }
 }
