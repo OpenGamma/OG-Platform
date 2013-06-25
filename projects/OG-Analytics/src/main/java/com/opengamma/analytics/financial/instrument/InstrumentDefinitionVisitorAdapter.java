@@ -39,6 +39,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -65,7 +66,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationY
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationWithMarginDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearMonthlyDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearMonthlyWithMarginDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -703,6 +706,26 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMarginDefinition coupon, final DATA_TYPE data) {
+    return getException(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMarginDefinition coupon) {
+    return getException(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMarginDefinition coupon, final DATA_TYPE data) {
+    return getException(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMarginDefinition coupon) {
+    return getException(coupon);
+  }
+
+  @Override
   public RESULT_TYPE visitCapFloorInflationZeroCouponInterpolationDefinition(final CapFloorInflationZeroCouponInterpolationDefinition coupon, final DATA_TYPE data) {
     return getException(coupon, data);
   }
@@ -749,6 +772,16 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond) {
+    return getException(bond);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondInterestIndexedSecurity(final BondInterestIndexedSecurityDefinition<?, ?> bond, final DATA_TYPE data) {
+    return getException(bond, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondInterestIndexedSecurity(final BondInterestIndexedSecurityDefinition<?, ?> bond) {
     return getException(bond);
   }
 

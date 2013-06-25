@@ -132,7 +132,7 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION);
     final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION, MARKET.getAllNames());
-    final MultipleCurrencyParameterSensitivity difference = pvicsFD.plus(pvicsExact.multipliedBy(-1.0));
+
     AssertSensivityObjects.assertEquals("Zero-coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
 
   }
