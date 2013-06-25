@@ -142,17 +142,16 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
   private HazardRateCurve getCreditCurve(final Map<String, String> fields, final LocalDate today) {
     // load the curve dates from the inputs
     final int nCurvePoints = _parSpreadDates.length;
-    final double[] surProb = new double[nCurvePoints];
+    final double[] negLogP = new double[nCurvePoints];
     for (int i = 0; i < nCurvePoints; i++) {
-      surProb[i] = getDouble(_parSpreadDates[i].toString(DATE_TIME_PARSER), fields);
+      negLogP[i] = getDouble(_parSpreadDates[i].toString(DATE_TIME_PARSER), fields);
     }
 
     final double[] t = new double[nCurvePoints];
     final double[] r = new double[nCurvePoints];
     for (int j = 0; j < nCurvePoints; j++) {
       t[j] = ACT365.getDayCountFraction(today, _parSpreadDates[j]);
-      r[j] = -Math.log(surProb[j]) / t[j];
-
+      r[j] = negLogP[j] / t[j];
     }
     return new HazardRateCurve(_curveTenors, t, r, OFFSET);
   }

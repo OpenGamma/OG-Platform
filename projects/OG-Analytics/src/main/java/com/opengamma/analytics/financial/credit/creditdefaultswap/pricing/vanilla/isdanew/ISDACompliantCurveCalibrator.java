@@ -34,7 +34,8 @@ public class ISDACompliantCurveCalibrator {
   private static final ISDACompliantPresentValueCreditDefaultSwap PRICER = new ISDACompliantPresentValueCreditDefaultSwap();
 
   public HazardRateCurve calibrateHazardCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDADateCurve yieldCurve, final double recoveryRate) {
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart,
+      final ISDACompliantYieldCurve yieldCurve, final double recoveryRate) {
 
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
@@ -88,11 +89,12 @@ public class ISDACompliantCurveCalibrator {
     private final StubType _stubType;
     private final double _rr;
 
-    private final ISDADateCurve _yieldCurve;
+    private final ISDACompliantYieldCurve _yieldCurve;
     private final HazardRateCurve _hazardCurve;
 
     public CDSPricer(final int index, final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final double couponRate,
-        final boolean protectStart, final boolean payAccOnDefault, final Period tenor, final StubType stubType, final double rr, final ISDADateCurve yieldCurve, final HazardRateCurve hazardCurve) {
+        final boolean protectStart, final boolean payAccOnDefault, final Period tenor, final StubType stubType, final double rr, final ISDACompliantYieldCurve yieldCurve,
+        final HazardRateCurve hazardCurve) {
 
       _index = index;
       _today = today;
@@ -114,7 +116,7 @@ public class ISDACompliantCurveCalibrator {
     @Override
     public Double evaluate(Double x) {
       // TODO this direct access is unpleasant
-      final  HazardRateCurve hazardCurve = _hazardCurve.withRate(x, _index);
+      final HazardRateCurve hazardCurve = _hazardCurve.withRate(x, _index);
       final double rpv01 = PRICER.calculateRPV01(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart, PriceType.CLEAN);
       final double protectLeg = PRICER.calculateProtectionLeg(_today, _stepinDate, _valueDate, _startDate, _endDate, _yieldCurve, hazardCurve, _rr, _protectStart);
       final double pv = protectLeg - _couponRate * rpv01;

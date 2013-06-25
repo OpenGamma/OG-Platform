@@ -82,7 +82,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return unit notional RPV01
    */
   public double calculateRPV01(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, StubType stubType, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final boolean protectStart, final PriceType priceType) {
+      final Period tenor, StubType stubType, final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve, final boolean protectStart, final PriceType priceType) {
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
     ArgumentChecker.notNull(valueDate, "null valueDate");
@@ -110,7 +110,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
       return 0.0; // trade has expired
     }
 
-    final LocalDate[] yieldCurveDates = toLocalDate(yieldCurve.getCurveDates());
+    final LocalDate[] yieldCurveDates = yieldCurve.getCurveDates();
     final LocalDate[] creditCurveDates = toLocalDate(hazardRateCurve.getCurveTenors());
     // This is common to the protection leg
     final LocalDate[] integrationSchedule = payAccOnDefault ? getIntegrationNodesAsDates(globalAccStart, golobalAccEnd, yieldCurveDates, creditCurveDates) : null;
@@ -163,7 +163,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return PV
    */
   private double[] calculateSinglePeriodRPV01(final LocalDate today, final LocalDate accStartDate, final LocalDate accEndDate, final LocalDate paymentDate, final int obsOffset,
-      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
+      final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
     final double accTime = _accuralDayCount.getDayCountFraction(accStartDate, accEndDate);
     double t = _curveDayCount.getDayCountFraction(today, paymentDate);
@@ -197,7 +197,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return
    */
   private double calculateSinglePeriodAccrualOnDefault(final LocalDate today, final LocalDate offsetStepinDate, final LocalDate offsetAccStartDate, final LocalDate offsetAccEndDate,
-      final double accTime, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, LocalDate[] integrationSchedule) {
+      final double accTime, final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve, LocalDate[] integrationSchedule) {
 
     LocalDate[] truncatedDateList = truncateList(offsetAccStartDate, offsetAccEndDate, integrationSchedule);
     final int nItems = truncatedDateList.length;
@@ -294,7 +294,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return unit notional PV of protection (or contingent) leg 
    */
   public double calculateProtectionLeg(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
-      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final double recoveryRate, final boolean protectStart) {
+      final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve, final double recoveryRate, final boolean protectStart) {
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(valueDate, "null valueDate");
     ArgumentChecker.notNull(startDate, "null startDate");
@@ -316,7 +316,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
       return 0.0; // the protection has expired
     }
 
-    final LocalDate[] yieldCurveDates = toLocalDate(yieldCurve.getCurveDates());
+    final LocalDate[] yieldCurveDates = yieldCurve.getCurveDates();
     final LocalDate[] creditCurveDates = toLocalDate(hazardRateCurve.getCurveTenors());
     final double[] integrationSchedule = ISDACompliantScheduleGenerator.getIntegrationNodesAsTimes(today, effectiveStartDate, endDate, yieldCurveDates, creditCurveDates);
 
@@ -338,8 +338,14 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
       final double hazardRate = Math.log(s0 / s1) / dt;
       final double interestRate = Math.log(df0 / df1) / dt;
       pv += (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * dt)) * s0 * df0;
+
+      // dubug
+//      double pv1 = (1.0 - recoveryRate) * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * dt)) * s0 * df0;
+//      System.out.println(s1 + "\t" + df1 + "\t" + dt + "\t" + pv1);
+
     }
     pv *= 1.0 - recoveryRate;
+//    System.out.println(pv);
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
     final double t = _curveDayCount.getDayCountFraction(today, valueDate);
@@ -382,8 +388,8 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
     final LocalDate endDate = cds.getMaturityDate().toLocalDate();
 
     return cds.getNotional()
-        * calculateRPV01(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(), yieldCurve, hazardRateCurve,
-            cds.getProtectionStart(), priceType);
+        * calculateRPV01(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(),
+            ISDACompliantYieldCurve.fromISDADateCurve(yieldCurve), hazardRateCurve, cds.getProtectionStart(), priceType);
   }
 
   /**
@@ -412,32 +418,8 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
     final double rr = cds.getRecoveryRate();
     final boolean protectionStart = cds.getProtectionStart();
 
-    return cds.getNotional() * calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, yieldCurve, hazardRateCurve, rr, protectionStart);
+    return cds.getNotional() * calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, ISDACompliantYieldCurve.fromISDADateCurve(yieldCurve), hazardRateCurve, rr, protectionStart);
 
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Method to calibrate a CDS to supplied market data, and then calculate the PV
-  // TODO this is untested
-  @Deprecated
-  public double calibrateAndGetPresentValue(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors, final double[] marketSpreads,
-      final ISDADateCurve yieldCurve, final PriceType priceType) {
-
-    // Create a CDS for valuation
-    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // Call the constructor to create a CDS present value object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = CDS_CALIBRATOR.isdaCalibrateHazardRateCurve(valuationDate, valuationCDS, marketTenors, marketSpreads, yieldCurve);
-
-    // Calculate the CDS PV using the just calibrated hazard rate term structure
-    final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
-
-    return presentValue;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 }
