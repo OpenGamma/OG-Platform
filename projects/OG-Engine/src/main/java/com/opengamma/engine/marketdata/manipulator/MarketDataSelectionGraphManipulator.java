@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionParameters;
@@ -65,11 +66,14 @@ public class MarketDataSelectionGraphManipulator {
    * proxying the market data ndoes and providing the ability to perform transformations on the
    * data as required.
    *
+   *
    * @param graph the graph to be potentially modified, not null
+   * @param resolver For looking up data used in the selection criteria, e.g. securities
    * @return a map of the market data selectors which matched nodes in the graph, together with
    * the value specifications of the new proxy nodes
    */
-  public Map<DistinctMarketDataSelector, Set<ValueSpecification>> modifyDependencyGraph(DependencyGraph graph) {
+  public Map<DistinctMarketDataSelector, Set<ValueSpecification>> modifyDependencyGraph(DependencyGraph graph,
+                                                                                        ComputationTargetResolver.AtVersionCorrection resolver) {
 
     ArgumentChecker.notNull(graph, "graph");
 
@@ -90,7 +94,8 @@ public class MarketDataSelectionGraphManipulator {
       DependencyNode node = entry.getValue();
 
       // todo - this could match multiple but we just get one - may be problematic
-      DistinctMarketDataSelector matchingSelector = combinedSelector.findMatchingSelector(entry.getKey(), configurationName);
+      DistinctMarketDataSelector matchingSelector =
+          combinedSelector.findMatchingSelector(entry.getKey(), configurationName, resolver);
       if (matchingSelector != null) {
 
         // Alter the dependency graph, inserting a new node to allow manipulation of the structure data

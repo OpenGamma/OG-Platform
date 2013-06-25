@@ -7,6 +7,8 @@ package com.opengamma.engine.marketdata.manipulator;
 
 import java.util.Set;
 
+import com.opengamma.engine.ComputationTargetResolver;
+
 /**
  * Indicates a market data structure on which a shift is to be performed within the execution of a
  * view context. A specification indicates what type and item of market data it wishes to manipulate
@@ -28,11 +30,15 @@ public interface MarketDataSelector {
    * Indicates the distinct underlying selector that is applicable to the specified market data
    * structure. If one is found, then it is returned.
    *
+   *
    * @param structureId the id of the structure to test against
    * @param calculationConfigurationName the calculation configuration
+   * @param resolver For looking up data used in the selection criteria, e.g. securities
    * @return the underlying selector that matches the specified market data structure, null if there is no match
    */
-  DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName);
+  DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+                                                  String calculationConfigurationName,
+                                                  ComputationTargetResolver.AtVersionCorrection resolver);
 
   /**
    * Gets the set of structure types that a selector matches. Most selectors will match just

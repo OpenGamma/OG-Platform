@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
 import com.opengamma.engine.marketdata.manipulator.StructureType;
@@ -50,7 +51,8 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
-                                                         String calculationConfigurationName) {
+                                                         String calculationConfigurationName,
+                                                         ComputationTargetResolver.AtVersionCorrection resolver) {
     if (_calcConfigNames != null && !_calcConfigNames.contains(calculationConfigurationName)) {
       return null;
     }

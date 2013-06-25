@@ -11,11 +11,19 @@ import static org.testng.AssertJUnit.assertNull;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 public class YieldCurveSelectorTest {
+
+  private final ComputationTargetResolver.AtVersionCorrection _resolver = new DummyTargetResolver();
 
   private static final Scenario SCENARIO = new Scenario("scenario");
   private static final String CALC_CONFIG_NAME = "calcConfigName";
@@ -29,8 +37,8 @@ public class YieldCurveSelectorTest {
   public void noCriteria() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId("curveName1"), CALC_CONFIG_NAME));
-    assertEquals(selector, selector.findMatchingSelector(structureId("curveName2"), CALC_CONFIG_NAME));
+    assertEquals(selector, selector.findMatchingSelector(structureId("curveName1"), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(structureId("curveName2"), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match a single name and fail any other names */
@@ -41,8 +49,8 @@ public class YieldCurveSelectorTest {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName);
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId(curveName), calcConfigName));
-    assertNull(selector.findMatchingSelector(structureId("otherName"), calcConfigName));
+    assertEquals(selector, selector.findMatchingSelector(structureId(curveName), calcConfigName, _resolver));
+    assertNull(selector.findMatchingSelector(structureId("otherName"), calcConfigName, _resolver));
   }
 
   /** match any one of multiple curve names, fail other names */
@@ -53,9 +61,9 @@ public class YieldCurveSelectorTest {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName1, curveName2);
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId(curveName1), CALC_CONFIG_NAME));
-    assertEquals(selector, selector.findMatchingSelector(structureId(curveName2), CALC_CONFIG_NAME));
-    assertNull(selector.findMatchingSelector(structureId("otherName"), CALC_CONFIG_NAME));
+    assertEquals(selector, selector.findMatchingSelector(structureId(curveName1), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(structureId(curveName2), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(structureId("otherName"), CALC_CONFIG_NAME, _resolver));
   }
 
   /** don't match if the calc config name doesn't match */
@@ -63,7 +71,7 @@ public class YieldCurveSelectorTest {
   public void calcConfigName() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario("foo").calculationConfigurations(CALC_CONFIG_NAME));
     MarketDataSelector selector = curve.getSelector();
-    assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName"));
+    assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName", _resolver));
   }
 
   /** match if the curve name matches a regular expression */
@@ -74,8 +82,8 @@ public class YieldCurveSelectorTest {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.nameMatches(".*3M");
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME));
-    assertNull(selector.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME));
+    assertEquals(selector, selector.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve currency is specified */
@@ -87,8 +95,8 @@ public class YieldCurveSelectorTest {
     String curveName = "curveName";
     StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
     StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
-    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME));
-    assertNull(selector.findMatchingSelector(structure2, CALC_CONFIG_NAME));
+    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve currency matches any of the specified currency codes */
@@ -101,9 +109,9 @@ public class YieldCurveSelectorTest {
     StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
     StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
     StructureIdentifier structure3 = StructureIdentifier.of(new YieldCurveKey(Currency.AUD, curveName));
-    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME));
-    assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME));
-    assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME));
+    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve satisfies all criteria, fail if it fails any of them */
@@ -119,9 +127,32 @@ public class YieldCurveSelectorTest {
     StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName2));
     StructureIdentifier structure3 = StructureIdentifier.of(new YieldCurveKey(Currency.AUD, curveName1));
     StructureIdentifier structure4 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName3));
-    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME));
-    assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME));
-    assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME));
-    assertNull(selector.findMatchingSelector(structure4, CALC_CONFIG_NAME));
+    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(structure4, CALC_CONFIG_NAME, _resolver));
+  }
+
+  private static class DummyTargetResolver implements ComputationTargetResolver.AtVersionCorrection {
+
+    @Override
+    public ComputationTarget resolve(ComputationTargetSpecification specification) {
+      throw new UnsupportedOperationException("resolve not implemented");
+    }
+
+    @Override
+    public ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver() {
+      throw new UnsupportedOperationException("getSpecificationResolver not implemented");
+    }
+
+    @Override
+    public ComputationTargetType simplifyType(ComputationTargetType type) {
+      throw new UnsupportedOperationException("simplifyType not implemented");
+    }
+
+    @Override
+    public VersionCorrection getVersionCorrection() {
+      throw new UnsupportedOperationException("getVersionCorrection not implemented");
+    }
   }
 }

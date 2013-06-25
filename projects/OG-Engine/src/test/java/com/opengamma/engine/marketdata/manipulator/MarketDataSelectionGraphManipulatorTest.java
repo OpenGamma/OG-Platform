@@ -21,18 +21,24 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 public class MarketDataSelectionGraphManipulatorTest {
+
+  private final ComputationTargetResolver.AtVersionCorrection _resolver =
+      MockComputationTargetResolver.resolved().atVersionCorrection(VersionCorrection.LATEST);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSelectorConstructionFails() {
@@ -49,7 +55,7 @@ public class MarketDataSelectionGraphManipulatorTest {
 
     MarketDataSelectionGraphManipulator manipulator = createNoOpManipulator();
     Map<DistinctMarketDataSelector,Set<ValueSpecification>> result =
-        manipulator.modifyDependencyGraph(new DependencyGraph("testGraph"));
+        manipulator.modifyDependencyGraph(new DependencyGraph("testGraph"), _resolver);
     assertEquals(result.isEmpty(), true);
   }
 
@@ -60,7 +66,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
+    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph, _resolver);
 
     assertEquals(result.isEmpty(), true);
     assertEquals(graph.getOutputSpecifications(), originalOutputSpecifications);
@@ -76,7 +82,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
+    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph, _resolver);
 
     checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
   }
@@ -96,7 +102,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     DependencyGraph graph1 = createNamedDependencyGraph("graph");
     Set<ValueSpecification> originalOutputSpecifications1 = ImmutableSet.copyOf(graph1.getOutputSpecifications());
 
-    Map<DistinctMarketDataSelector, Set<ValueSpecification>> result1 = manipulator.modifyDependencyGraph(graph1);
+    Map<DistinctMarketDataSelector, Set<ValueSpecification>> result1 = manipulator.modifyDependencyGraph(graph1, _resolver);
 
     checkNodeHasBeenAddedToGraph(graph1, originalOutputSpecifications1, result1);
 
@@ -119,7 +125,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     DependencyGraph graph = createNamedDependencyGraph("not-the-graph-you-are-looking-for");
     Set<ValueSpecification> originalOutputSpecifications2 = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<DistinctMarketDataSelector, Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
+    Map<DistinctMarketDataSelector, Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph, _resolver);
 
     assertTrue(result.isEmpty());
     assertEquals(graph.getOutputSpecifications(), originalOutputSpecifications2);
@@ -143,7 +149,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
     Set<ValueSpecification> originalOutputSpecifications = ImmutableSet.copyOf(graph.getOutputSpecifications());
 
-    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph);
+    Map<DistinctMarketDataSelector,Set<ValueSpecification>> result = manipulator.modifyDependencyGraph(graph, _resolver);
 
     checkNodeHasBeenAddedToGraph(graph, originalOutputSpecifications, result);
 
@@ -192,7 +198,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     DependencyNode yieldCurveNode = new DependencyNode(targetSpecification);
     yieldCurveNode.setFunction(new MockFunction(target));
     yieldCurveNode.addOutputValue(new ValueSpecification(
-        "YieldCurveMarketData",
+        "YieldCurve",
         targetSpecification,
         ValueProperties.builder().with("Curve", "Forward3M").with("Function", "someFunction").get()));
 

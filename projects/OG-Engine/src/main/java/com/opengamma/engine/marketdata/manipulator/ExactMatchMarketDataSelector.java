@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata.manipulator;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,7 +39,9 @@ public abstract class ExactMatchMarketDataSelector<K> implements DistinctMarketD
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName) {
+  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+                                                         String calculationConfigurationName,
+                                                         ComputationTargetResolver.AtVersionCorrection resolver) {
     return _structureId.equals(structureId) ? this : null;
   }
 

@@ -17,6 +17,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -60,11 +61,13 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
 
   @Override
   public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
-                                                 String calculationConfigurationName) {
+                                                         String calculationConfigurationName,
+                                                         ComputationTargetResolver.AtVersionCorrection resolver) {
 
     for (MarketDataSelector specification : _underlyingSpecifications) {
 
-      DistinctMarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName);
+      DistinctMarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName,
+                                                                                       resolver);
       if (matchingSelector != null) {
         return matchingSelector;
       }

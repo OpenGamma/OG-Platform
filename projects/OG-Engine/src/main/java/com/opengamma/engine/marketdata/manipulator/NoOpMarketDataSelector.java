@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.engine.ComputationTargetResolver;
 
 /**
  * A market data selector which never performs an extraction operation.
@@ -34,7 +35,8 @@ public class NoOpMarketDataSelector implements MarketDataSelector {
 
   @Override
   public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
-                                                 String calculationConfigurationName) {
+                                                         String calculationConfigurationName,
+                                                         ComputationTargetResolver.AtVersionCorrection resolver) {
     return null;
   }
 
