@@ -40,14 +40,17 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-pool</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongo-java-driver</artifactId>
+      <optional>true</optional>
     </dependency>
     
     <dependency>

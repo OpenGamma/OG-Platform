@@ -164,18 +164,18 @@
       <artifactId>spring-web</artifactId>
     </dependency>
 
-    <dependency>
+    <!--dependency>  not included as embedded in jersey-core
       <groupId>javax.ws.rs</groupId>
       <artifactId>jsr311-api</artifactId>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
-    <dependency>
+    <!--dependency>  not included as embedded in jersey
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-servlet</artifactId>
@@ -216,11 +216,6 @@
     <dependency>
       <groupId>javax.jms</groupId>
       <artifactId>jms-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
