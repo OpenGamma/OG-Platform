@@ -128,15 +128,15 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final ZonedDateTime REFERENCE_DATE_2 = DateUtils.getUTCDate(2013, 6, 20);
   private static final ZonedDateTime OPTION_PAY_DATE_2 = DateUtils.getUTCDate(2013, 7, 12);
   private static final ZonedDateTime OPTION_EXP_DATE_2 = DateUtils.getUTCDate(2013, 7, 10);
-  private static final double NOTIONAL_USD = 43000000;
+  private static final double NOTIONAL_USD = 43210000;
   private static final Barrier BARRIER_USD_JPY_DO = new Barrier(KnockType.OUT, BarrierType.UP, ObservationType.CONTINUOUS, 98.25);
   private static final ForexDefinition FOREX_USD_JPY_DEFINITION = new ForexDefinition(USD, JPY, OPTION_PAY_DATE_2, NOTIONAL_USD, STRIKE_USD_JPY);
   private static final ForexOptionVanillaDefinition CALL_USD_JPY_DEFINITION = new ForexOptionVanillaDefinition(FOREX_USD_JPY_DEFINITION, OPTION_EXP_DATE_2, true, IS_LONG);
   private static final ForexOptionSingleBarrierDefinition CALL_USD_JPY_BARRIER_DEFINITION = new ForexOptionSingleBarrierDefinition(CALL_USD_JPY_DEFINITION, BARRIER_USD_JPY_DO);
   private static final ForexOptionSingleBarrier CALL_USD_JPY_BARRIER = CALL_USD_JPY_BARRIER_DEFINITION.toDerivative(REFERENCE_DATE_2, new String[] {"Discounting USD", "Discounting JPY" });
 
-  private static final double SPOT_USD_JPY = 97.31;
-  private static final double VOL_USD_JPY = 0.1714;
+  private static final double SPOT_USD_JPY = 97.25;
+  private static final double VOL_USD_JPY = 0.1765;
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT_USD_JPY = TestsDataSetsForex.smileFlat(REFERENCE_DATE_2, VOL_USD_JPY);
 
   @Test
@@ -148,7 +148,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final SmileDeltaTermStructureDataBundle curvesVol = new SmileDeltaTermStructureDataBundle(curves, SMILE_TERM_FLAT_USD_JPY, Pair.of(USD, JPY));
     final MultipleCurrencyAmount pvComputed = METHOD_BARRIER.presentValue(CALL_USD_JPY_BARRIER, curvesVol);
     final CurrencyAmount pvComputedUSD = curves.getFxRates().convert(pvComputed, USD);
-    final double pvHardCodedUSD = 13205.948;
+    final double pvHardCodedUSD = 12958.820;
     assertEquals("Forex Barrier option: present value", pvHardCodedUSD, pvComputedUSD.getAmount(), TOLERANCE_PV);
     final MultipleCurrencyAmount pvVanilla = METHOD_VANILLA.presentValue(CALL_USD_JPY_BARRIER.getUnderlyingOption(), curvesVol);
     assertTrue("Forex Barrier option: present value", pvVanilla.getAmount(JPY) > pvComputed.getAmount(JPY));
