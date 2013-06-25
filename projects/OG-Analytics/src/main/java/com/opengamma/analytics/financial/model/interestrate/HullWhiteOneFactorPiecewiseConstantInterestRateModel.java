@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -277,6 +278,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * @return The swap rate.
    */
   public double swapRate(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
+    ArgumentChecker.isTrue(discountedCashFlowFixed.length == alphaFixed.length, "Length shouyld be equal");
     double numerator = 0.0;
     for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
       numerator += discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]);
@@ -370,7 +372,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     double denominator = 0.0;
     for (int loopcf = 0; loopcf < nbDcff; loopcf++) {
       denominator += discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - 0.5 * alphaFixed[loopcf] * alphaFixed[loopcf]);
-      ;
     }
     for (int loopcf = 0; loopcf < nbDcfi; loopcf++) {
       swapRateDdcfi1[loopcf] = -Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]) / denominator;

@@ -32,6 +32,8 @@ $.register_module({
                 [[SETS, INDX, DEFP, WTHO, '*'].join('.'),                                       Form.type.STR],
                 // </constraints>
                 [[SETS, INDX, 'name'].join('.'),                                                Form.type.STR],
+                [[SETS, INDX, SCEN].join('.'),                                                  Form.type.STR],
+               /* [[SETS, SCEN].join('.'),                                                        Form.type.STR],*/
                 // <constraints>
                 [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*'].join('.'),               Form.type.IND],
                 [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', 'optional'].join('.'),   Form.type.IND],
@@ -55,7 +57,7 @@ $.register_module({
                 // <new column order stuff>
                 [[SETS, INDX, ORDS, EMPT, INDX, 'header'].join('.'),                            Form.type.STR],
                 [[SETS, INDX, ORDS, EMPT, INDX, 'valueName'].join('.'),                         Form.type.STR],
-                    // <constraints>
+                // <constraints>
                 [[SETS, INDX, ORDS, EMPT, INDX, CONS, WITH, '*'].join('.'),                     Form.type.IND],
                 [[SETS, INDX, ORDS, EMPT, INDX, CONS, WITH, '*', 'optional'].join('.'),         Form.type.IND],
                 [[SETS, INDX, ORDS, EMPT, INDX, CONS, WITH, '*', '*'].join('.'),                Form.type.STR],
@@ -94,7 +96,6 @@ $.register_module({
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler, prefix = 'viewdef',
                 master = config.data.template_data.configJSON.data,
-                column_set_tabs,
                 config_type = config.type,
                 form = new Form({
                     module: 'og.views.forms.view-definition_tash',

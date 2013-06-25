@@ -28,10 +28,11 @@ import com.opengamma.livedata.UserPrincipal;
 /**
  * Demonstration of the most straightforward way to run a simulation. Assumes the OG-Examples server is running
  * locally with the default configuration and data.
+ * TODO move to OG-Examples?
  */
-/* package */ class RunSimulation {
+/* package */ class ExampleSimulation {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(RunSimulation.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleSimulation.class);
 
   private static final Set<String> CURRENCY_PAIRS = ImmutableSet.of("GBPUSD", "EURUSD", "USDJPY", "CHFUSD");
   private static final List<Double> SCALING_FACTORS = ImmutableList.of(0.95, 1.0, 1.05);
@@ -43,7 +44,8 @@ import com.opengamma.livedata.UserPrincipal;
     try (RemoteServer server = RemoteServer.create("http://localhost:8080")) {
       ViewProcessor viewProcessor = server.getViewProcessor();
       ConfigSource configSource = server.getConfigSource();
-      UniqueId viewDefId = SimulationUtils.latestViewDefinitionId("AUD Swaps (3m / 6m basis) (1)", configSource);
+      String viewDefinitionName = "AUD Swaps (3m / 6m basis) (1)";
+      UniqueId viewDefId = SimulationUtils.latestViewDefinitionId(viewDefinitionName, configSource);
       List<MarketDataSpecification> marketDataSpecs =
           ImmutableList.<MarketDataSpecification>of(new LiveMarketDataSpecification("Simulated live market data"));
 
@@ -57,8 +59,8 @@ import com.opengamma.livedata.UserPrincipal;
           // bump each spot rate in the scenario by the scale factor
           scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor);
         }
-        scenario.surface().named("foo").apply().constantMultiplicativeShift(0.1);
-        scenario.surface().named("bar").apply().singleAdditiveShift(1, 2, 3);
+        scenario.curve().named("foo").currencies("USD").apply().parallelShift(0.1);
+        scenario.surface().named("bar").quoteTypes("CallPutStrike").apply().singleAdditiveShift(1, 2, 3);
       }
 
       // run the simulation --------------------------------------------------------------------------------------------

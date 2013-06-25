@@ -60,11 +60,13 @@ public class CompositeMarketDataSelector implements MarketDataSelector {
 
   @Override
   public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
-                                                 String calculationConfigurationName) {
+                                                         String calculationConfigurationName,
+                                                         SelectorResolver resolver) {
 
     for (MarketDataSelector specification : _underlyingSpecifications) {
 
-      DistinctMarketDataSelector matchingSelector = specification.findMatchingSelector(structureId, calculationConfigurationName);
+      DistinctMarketDataSelector matchingSelector =
+          specification.findMatchingSelector(structureId, calculationConfigurationName, resolver);
       if (matchingSelector != null) {
         return matchingSelector;
       }

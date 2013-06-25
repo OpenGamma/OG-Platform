@@ -34,7 +34,8 @@ public class NoOpMarketDataSelector implements MarketDataSelector {
 
   @Override
   public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
-                                                 String calculationConfigurationName) {
+                                                         String calculationConfigurationName,
+                                                         SelectorResolver resolver) {
     return null;
   }
 

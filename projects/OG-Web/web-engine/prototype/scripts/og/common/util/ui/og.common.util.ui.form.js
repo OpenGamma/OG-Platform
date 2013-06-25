@@ -21,6 +21,7 @@ $.register_module({
             if (results.length && !results.some(Boolean)) return false;
         };
         /** @private */
+        /** @private */
         var meta_build = function (input, type_map, find) {
             var result = {}, key, empty = '<EMPTY>', index = '<INDEX>',
                 data = input.data, path = input.path, warns = input.warns, null_path = path === null, new_path;
@@ -31,8 +32,9 @@ $.register_module({
                 if ((value === Form.type.IND) && (val !== null)) value = Form.type.STR;
                 return numbers[has](value) ? ((data[idx] = +data[idx]), value) : value;
             });
-            if (data === null || typeof data !== 'object') // no empty string keys at root level
+            if (data === null || typeof data !== 'object') {// no empty string keys at root level
                 return !(result = type_map[path] || find(path)) ? (warns.push(path), 'BADTYPE'): result;
+        }
             for (key in data) {
                 new_path = null_path ? key.replace(/\./g, '') // if a key has dots in it, drop them, it is
                     : [path, key.replace(/\./g, '') || empty].join('.'); // a wildcard anyway

@@ -9,6 +9,7 @@ import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.USD;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,6 +86,22 @@ public class TestsDataSetsForex {
     curves.setCurve(DISCOUNTING_USD, CURVE_USD);
     curves.setCurve(DISCOUNTING_GBP, CURVE_GBP);
     curves.setCurve(DISCOUNTING_KRW, CURVE_KRW);
+    return curves;
+  }
+
+  public static YieldCurveBundle createCurvesForexXXXYYY(final Currency ccy1, final Currency ccy2, final double exchangeRate) {
+    final String disc = "Discounting ";
+    final String disc1 = disc + ccy1.toString();
+    final String disc2 = disc + ccy2.toString();
+    final Map<String, Currency> map = new HashMap<String, Currency>();
+    map.put(disc1, ccy1);
+    map.put(disc2, ccy2);
+    final YieldAndDiscountCurve CURVE_1 = YieldCurve.from(ConstantDoublesCurve.from(0.0100));
+    final YieldAndDiscountCurve CURVE_2 = YieldCurve.from(ConstantDoublesCurve.from(0.0200));
+    final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, exchangeRate);
+    final YieldCurveBundle curves = new YieldCurveBundle(fxMatrix, map);
+    curves.setCurve(disc1, CURVE_1);
+    curves.setCurve(disc2, CURVE_2);
     return curves;
   }
 
@@ -188,6 +205,18 @@ public class TestsDataSetsForex {
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
     return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
+  }
+
+  public static SmileDeltaTermStructureParametersStrikeInterpolation smileFlat(final ZonedDateTime referenceDate, final double volatility) {
+    final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
+    final double[] timeToExpiry = new double[NB_EXP];
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
+      timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
+    }
+    double[] atmFlat = new double[ATM.length];
+    Arrays.fill(atmFlat, volatility);
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, atmFlat, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
   }
 
   public static FXMatrix fxMatrix() {

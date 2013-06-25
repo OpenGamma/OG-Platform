@@ -1354,7 +1354,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       try {
         if (!getJob().isTerminated()) {
           compiledViewDefinition = _compilationTask.get();
-          compiledViewDefinition = initialiseMarketDataManipulation(compiledViewDefinition);
+          ComputationTargetResolver.AtVersionCorrection resolver =
+              getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+                  .getRawComputationTargetResolver().atVersionCorrection(versionCorrection);
+          compiledViewDefinition = initialiseMarketDataManipulation(compiledViewDefinition, resolver);
           cacheCompiledViewDefinition(compiledViewDefinition);
         } else {
           return null;
@@ -1390,7 +1393,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return compiledViewDefinition;
   }
 
-  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition) {
+  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(CompiledViewDefinitionWithGraphs compiledViewDefinition,
+                                                                            ComputationTargetResolver.AtVersionCorrection resolver) {
 
     if (_marketDataSelectionGraphManipulator.hasManipulationsDefined()) {
 
@@ -1403,7 +1407,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
         DependencyGraph graph = graphExplorer.getWholeGraph();
         final Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping =
-            _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph);
+            _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph, resolver);
 
         if (!selectorMapping.isEmpty()) {
 

@@ -11,7 +11,9 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
 import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.id.ExternalId;
@@ -26,22 +28,26 @@ public class PointSelector implements DistinctMarketDataSelector {
   /** Types of structured data selected by this class. */
   private static final ImmutableSet<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.MARKET_DATA_POINT);
 
-  /** ID of the market data point to be manipulated. */
-  private final Set<ExternalId> _ids;
   /** Calc configs to which this selector will apply, null will match any config. */
   private final Set<String> _calcConfigNames;
+  /** ID of the market data point to be manipulated. */
+  private final Set<ExternalId> _ids;
   /** External ID scheme used when pattern matching ID value. */
   private final ExternalScheme _idMatchScheme;
   /** Regex pattern for matching ID value. */
   private final Pattern _idValuePattern;
+  /** Security type names - matches if the ID identifies a security of the specified type. */
+  private final Set<String> _securityTypes;
 
   /* package */ PointSelector(Set<String> calcConfigNames,
                               Set<ExternalId> ids,
                               ExternalScheme idMatchScheme,
-                              Pattern idValuePattern) {
+                              Pattern idValuePattern,
+                              Set<String> securityTypes) {
     if (idMatchScheme == null && idValuePattern != null || idMatchScheme != null && idValuePattern == null) {
       throw new IllegalArgumentException("Scheme and pattern must both be specified to pattern match on ID");
     }
+    _securityTypes = securityTypes;
     _idMatchScheme = idMatchScheme;
     _idValuePattern = idValuePattern;
     _calcConfigNames = calcConfigNames;
@@ -54,7 +60,9 @@ public class PointSelector implements DistinctMarketDataSelector {
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calcConfigName) {
+  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+                                                         String calcConfigName,
+                                                         SelectorResolver resolver) {
     if (_calcConfigNames != null && !_calcConfigNames.contains(calcConfigName)) {
       return null;
     }
@@ -62,8 +70,23 @@ public class PointSelector implements DistinctMarketDataSelector {
     if (!(value instanceof ExternalId)) {
       return null;
     }
+    ExternalId id = (ExternalId) value;
     if (_ids != null && !_ids.contains(value)) {
       return null;
+    }
+    if (_idMatchScheme != null && _idValuePattern != null) {
+      if (!_idMatchScheme.equals(id.getScheme())) {
+        return null;
+      }
+      if (!_idValuePattern.matcher(id.getValue()).matches()) {
+        return null;
+      }
+    }
+    if (_securityTypes != null) {
+      Security security = resolver.resolveSecurity(id);
+      if (!_securityTypes.contains(security.getSecurityType().toLowerCase())) {
+        return null;
+      }
     }
     return this;
   }
@@ -87,6 +110,10 @@ public class PointSelector implements DistinctMarketDataSelector {
 
   /* package */ Pattern getIdValuePattern() {
     return _idValuePattern;
+  }
+
+  /* package */ Set<String> getSecurityTypes() {
+    return _securityTypes;
   }
 
   @Override
@@ -120,15 +147,19 @@ public class PointSelector implements DistinctMarketDataSelector {
     if (_ids != null ? !_ids.equals(that._ids) : that._ids != null) {
       return false;
     }
-
+    if (_securityTypes != null ? !_securityTypes.equals(that._securityTypes) : that._securityTypes != null) {
+      return false;
+    }
     return true;
   }
+
   @Override
   public int hashCode() {
     int result = _ids != null ? _ids.hashCode() : 0;
     result = 31 * result + (_calcConfigNames != null ? _calcConfigNames.hashCode() : 0);
     result = 31 * result + (_idMatchScheme != null ? _idMatchScheme.hashCode() : 0);
-    result = 31 * result + (_idValuePattern != null ? _idValuePattern.hashCode() : 0);
+    result = 31 * result + (_idValuePattern != null ? _idValuePattern.pattern().hashCode() : 0);
+    result = 31 * result + (_securityTypes != null ? _securityTypes.hashCode() : 0);
     return result;
   }
 
@@ -155,6 +186,8 @@ public class PointSelector implements DistinctMarketDataSelector {
     private ExternalScheme _idMatchScheme;
     /** Regex pattern for matching ID value. */
     private Pattern _idValuePattern;
+    /** Security type names - matches if the ID identifies a security of the specified type. */
+    private Set<String> _securityTypes;
 
     /* package */ Builder(Scenario scenario) {
       _scenario = scenario;
@@ -168,7 +201,7 @@ public class PointSelector implements DistinctMarketDataSelector {
     }
 
     /* package */ PointSelector getSelector() {
-      return new PointSelector(_scenario.getCalcConfigNames(), _ids, _idMatchScheme, _idValuePattern);
+      return new PointSelector(_scenario.getCalcConfigNames(), _ids, _idMatchScheme, _idValuePattern, _securityTypes);
     }
 
     /**
@@ -234,6 +267,28 @@ public class PointSelector implements DistinctMarketDataSelector {
       }
       _idMatchScheme = ExternalScheme.of(scheme);
       _idValuePattern = Pattern.compile(valueRegex);
+      return this;
+    }
+
+    /**
+     * Limits the selection to the market value of IDs that identify a particular security type.
+     * @param types The security types to match, case insensitive.
+     * @return This builder
+     */
+    public Builder securityTypes(String... types) {
+      ArgumentChecker.notEmpty(types, "types");
+      if (_securityTypes != null) {
+        throw new IllegalStateException("securityTypes can only be called once");
+      }
+      Set<String> securityTypes = Sets.newHashSet();
+      for (String type : types) {
+        if (type == null) {
+          throw new IllegalArgumentException("Security type names must be non-null");
+        }
+        // downcase here and also when comparing so comparison isn't case sensitive
+        securityTypes.add(type.toLowerCase());
+      }
+      _securityTypes = Collections.unmodifiableSet(securityTypes);
       return this;
     }
 

@@ -25,20 +25,23 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Extends existing Greek Functions, reported at Security levels to sum over Positions. <p>
- * e.g. If a view asks for POSITION_DELTA, this will create a requirement for DELTA.
+ * e.g. If a view asks for POSITION_DELTA, this will create a requirement for DELTA. <p>
+ * NOTE! DELTA in the example, is the mathematical dV/dS, and does not contain any unit contract size.
+ * The POSITION_DELTA *does* include any contract multiplier. <p>
  * The properties of the position-level requirement will match those of the security level requirement.
- * TODO Review the scope of this Function. e.g. by examining its canApplyToT().
- * @author casey
- *
+ * TODO Review the scope of this Function. e.g. by creating a canApplyTo().
  */
 public class PositionGreeksFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final String _positionReqName;
   private final String _securityReqName;
+  
+  private static final PositionGreekContractMultiplier s_contractMultiplier = PositionGreekContractMultiplier.getInstance();
   
   public PositionGreeksFunction(final String positionReqName, final String securityReqName) {
     _positionReqName = positionReqName;
@@ -60,12 +63,14 @@ public class PositionGreeksFunction extends AbstractFunction.NonCompiledInvoker 
     if (inputVal != null) {
       secGreekValue = (Double) inputVal.getValue();
     } else {
-      s_logger.error("Did not satisfy requirement," + getSecurityReqName() + ", for trade" + target.getPositionOrTrade().getUniqueId());
+      s_logger.error("Did not satisfy requirement," + getSecurityReqName() + ", for trade " + target.getPositionOrTrade().getUniqueId());
     }
 
-    // 2. Scale to Position level
-    // final BigDecimal posGreekValue = target.getPositionOrTrade().getQuantity().multiply(new BigDecimal(secGreekValue));
-    final Double posGreekValue = secGreekValue * target.getPositionOrTrade().getQuantity().doubleValue();
+    // 2a. Scale to mathematical Greek by point value for a single contract (unit Notional)
+    final FinancialSecurity security = (FinancialSecurity) target.getPositionOrTrade().getSecurity();
+    final Double contractGreekValue = secGreekValue * security.accept(s_contractMultiplier);
+    // 2b. Scale by the position quantity
+    final Double posGreekValue = contractGreekValue * target.getPositionOrTrade().getQuantity().doubleValue();
     
     // 3. Create specification and return
     final ValueSpecification valueSpecification = new ValueSpecification(desiredName, target.toSpecification(), desiredValue.getConstraints());
