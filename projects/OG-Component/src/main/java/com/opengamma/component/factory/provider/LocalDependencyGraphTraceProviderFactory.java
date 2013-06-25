@@ -29,6 +29,7 @@ import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.financial.depgraph.provider.DependencyGraphTraceProvider;
 import com.opengamma.financial.depgraph.provider.LocalDependencyGraphTraceProvider;
+import com.opengamma.financial.depgraph.provider.RemoteDependencyGraphTraceProvider;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilder;
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceProviderResource;
@@ -41,13 +42,12 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @BeanDefinition
 public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentFactory {
 
-  
   /**
    * The classifier that the factory should publish under. The Spring config must create this.
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-  
+
   /**
    * The flag determining whether the component should be published by REST (default true).
    */
@@ -83,22 +83,23 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
   @PropertyDefinition(validate = "notNull")
   private MarketDataProviderResolver _marketDataProviderResolver;
 
-  
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    
+
     DependencyGraphBuilderResourceContextBean builderContext = new DependencyGraphBuilderResourceContextBean();
     builderContext.setCompiledFunctionService(getCompiledFunctionService());
     builderContext.setFunctionResolver(getFunctionResolver());
     builderContext.setFunctionExclusionGroups(getFunctionExclusionGroups());
     builderContext.setMarketDataProviderResolver(getMarketDataProviderResolver());
-    
+
     DependencyGraphTraceBuilder traceBuilder = new DependencyGraphTraceBuilder(builderContext);
     LocalDependencyGraphTraceProvider provider = new LocalDependencyGraphTraceProvider(traceBuilder);
     ComponentInfo info = new ComponentInfo(DependencyGraphTraceProvider.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteDependencyGraphTraceProvider.class);
+
     repo.registerComponent(info, provider);
-    
+
     if (isPublishRest()) {
       //final ComponentInfo infoDGB = new ComponentInfo(DependencyGraphTraceProviderResource.class, getClassifier());
       //repo.registerComponent(infoDGB, restResource);
@@ -115,6 +116,7 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
   public static LocalDependencyGraphTraceProviderFactory.Meta meta() {
     return LocalDependencyGraphTraceProviderFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LocalDependencyGraphTraceProviderFactory.Meta.INSTANCE);
   }
