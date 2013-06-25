@@ -15,15 +15,25 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Used by {@link MarketDataSelector} implementations for resolving {@link ExternalId}s into the objects
+ * they identify.
  */
 public interface SelectorResolver {
 
+  /**
+   * Resolves an ID to a security.
+   * @param id An ID
+   * @return The security identified by the ID or null if the ID is unknown or doesn't identify a security
+   */
   Security resolveSecurity(ExternalId id);
 }
 
+/**
+ * Resolver that uses a {@link ComputationTargetResolver.AtVersionCorrection} to resolve IDs to objects.
+ */
 /* package */ class DefaultSelectorResolver implements SelectorResolver {
 
+  /** Performs the resolution. */
   private final ComputationTargetResolver.AtVersionCorrection _resolver;
 
   /* package */ DefaultSelectorResolver(ComputationTargetResolver.AtVersionCorrection resolver) {
