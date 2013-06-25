@@ -30,6 +30,8 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.core.holiday.impl.NonVersionedRedisHolidaySource;
+import com.opengamma.core.holiday.impl.SimpleHoliday;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -38,6 +40,7 @@ import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 import com.opengamma.master.holiday.impl.MasterHolidaySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -130,6 +133,26 @@ public class CoppClarkHolidayFileReader {
   public static HolidaySource createPopulated(HolidayMaster holidayMaster) {
     CoppClarkHolidayFileReader fileReader = createPopulated0(holidayMaster);
     return fileReader.getHolidaySource();
+  }
+  
+  public static NonVersionedRedisHolidaySource createPopulated(NonVersionedRedisHolidaySource redisHolidaySource) {
+    ArgumentChecker.notNull(redisHolidaySource, "redisHolidaySource");
+    final InMemoryHolidayMaster inMemoryHolidayMaster = new InMemoryHolidayMaster();
+    createPopulated(inMemoryHolidayMaster);
+    
+    HolidaySearchResult holidaySearchResult = inMemoryHolidayMaster.search(new HolidaySearchRequest());
+    List<ManageableHoliday> holidays = holidaySearchResult.getHolidays();
+    
+    for (ManageableHoliday manageableHoliday : holidays) {
+      SimpleHoliday simpleHoliday = new SimpleHoliday();
+      simpleHoliday.setCurrency(manageableHoliday.getCurrency());
+      simpleHoliday.setExchangeExternalId(manageableHoliday.getExchangeExternalId());
+      simpleHoliday.setHolidayDates(manageableHoliday.getHolidayDates());
+      simpleHoliday.setRegionExternalId(manageableHoliday.getRegionExternalId());
+      simpleHoliday.setType(manageableHoliday.getType());
+      redisHolidaySource.addHoliday(simpleHoliday);
+    }
+    return redisHolidaySource;
   }
 
   /**
@@ -302,6 +325,7 @@ public class CoppClarkHolidayFileReader {
     
     for (InputStream stream : getCurrencyStreams()) {
       Map<String, HolidayDocument> fileMap = new HashMap<String, HolidayDocument>(512);
+      @SuppressWarnings("resource")
       CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(stream)));
       
       // header
@@ -351,6 +375,7 @@ public class CoppClarkHolidayFileReader {
     
     for (InputStream stream : getFinancialCentresStreams()) {
       Map<String, HolidayDocument> fileMap = new HashMap<String, HolidayDocument>(512);
+      @SuppressWarnings("resource")
       CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(stream)));
       
       // header
@@ -387,6 +412,7 @@ public class CoppClarkHolidayFileReader {
     
     for (InputStream stream : getExchangeSettlementStreams()) {
       Map<String, HolidayDocument> fileMap = new HashMap<String, HolidayDocument>(512);
+      @SuppressWarnings("resource")
       CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(stream)));
       
       // header
@@ -421,6 +447,7 @@ public class CoppClarkHolidayFileReader {
     
     for (InputStream stream : getExchangeTradingStreams()) {
       Map<String, HolidayDocument> fileMap = new HashMap<String, HolidayDocument>(512);
+      @SuppressWarnings("resource")
       CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(stream)));
       
       // header
