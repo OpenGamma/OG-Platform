@@ -125,11 +125,11 @@ public class G2ppPiecewiseConstantModel {
    * Computes the swap rate for a given value of the standard normal random
    * variables in the $P(.,\theta)$ numeraire.
    * @param x The random variable values.
-   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg. Dimensions: cash flow - factor
-   * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg. Dimensions: cash flow - factor
    * @param tau2Fixed The total zero-coupon bond volatilities for the swap fixed leg.
    * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
-   * @param alphaIbor The zero-coupon bond volatilities for each random variable for the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for each random variable for the swap Ibor leg. Dimensions: cash flow - factor
    * @param tau2Ibor The total zero-coupon bond volatilities for the swap Ibor leg.
    * @return The swap rate.
    */
