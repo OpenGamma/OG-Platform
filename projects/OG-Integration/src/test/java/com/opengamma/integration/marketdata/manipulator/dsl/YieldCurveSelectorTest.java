@@ -5,25 +5,21 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 public class YieldCurveSelectorTest {
 
-  private final ComputationTargetResolver.AtVersionCorrection _resolver = new DummyTargetResolver();
+  private final SelectorResolver _resolver = mock(SelectorResolver.class);
 
   private static final Scenario SCENARIO = new Scenario("scenario");
   private static final String CALC_CONFIG_NAME = "calcConfigName";
@@ -131,28 +127,5 @@ public class YieldCurveSelectorTest {
     assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
     assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME, _resolver));
     assertNull(selector.findMatchingSelector(structure4, CALC_CONFIG_NAME, _resolver));
-  }
-
-  private static class DummyTargetResolver implements ComputationTargetResolver.AtVersionCorrection {
-
-    @Override
-    public ComputationTarget resolve(ComputationTargetSpecification specification) {
-      throw new UnsupportedOperationException("resolve not implemented");
-    }
-
-    @Override
-    public ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver() {
-      throw new UnsupportedOperationException("getSpecificationResolver not implemented");
-    }
-
-    @Override
-    public ComputationTargetType simplifyType(ComputationTargetType type) {
-      throw new UnsupportedOperationException("simplifyType not implemented");
-    }
-
-    @Override
-    public VersionCorrection getVersionCorrection() {
-      throw new UnsupportedOperationException("getVersionCorrection not implemented");
-    }
   }
 }

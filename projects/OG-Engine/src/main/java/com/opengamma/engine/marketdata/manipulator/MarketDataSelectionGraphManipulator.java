@@ -88,6 +88,7 @@ public class MarketDataSelectionGraphManipulator {
 
     DependencyGraphStructureExtractor extractor = new DependencyGraphStructureExtractor(graph, combinedSelector.getApplicableStructureTypes());
     Map<DistinctMarketDataSelector, Set<ValueSpecification>> matches = new HashMap<>();
+    DefaultSelectorResolver selectorResolver = new DefaultSelectorResolver(resolver);
 
     for (Map.Entry<StructureIdentifier<?>, DependencyNode> entry : extractor.extractStructures().entrySet()) {
 
@@ -95,7 +96,7 @@ public class MarketDataSelectionGraphManipulator {
 
       // todo - this could match multiple but we just get one - may be problematic
       DistinctMarketDataSelector matchingSelector =
-          combinedSelector.findMatchingSelector(entry.getKey(), configurationName, resolver);
+          combinedSelector.findMatchingSelector(entry.getKey(), configurationName, selectorResolver);
       if (matchingSelector != null) {
 
         // Alter the dependency graph, inserting a new node to allow manipulation of the structure data
