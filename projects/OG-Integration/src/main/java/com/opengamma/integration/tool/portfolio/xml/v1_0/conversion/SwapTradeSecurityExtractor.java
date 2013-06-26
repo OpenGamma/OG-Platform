@@ -5,8 +5,13 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
-import java.math.BigDecimal;
+import static java.lang.String.format;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -45,27 +50,38 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
   @Override
   public ManageableSecurity[] extractSecurities() {
     SwapTrade trade = getTrade();
-    FixedLeg fixedLeg = trade.getFixedLeg();
-    FloatingLeg floatingLeg = trade.getFloatingLeg();
 
-    com.opengamma.financial.security.swap.SwapLeg payLeg = fixedLeg.getDirection() == SwapLeg.Direction.PAY ?
-        convertFixedLeg(fixedLeg) : convertFloatingLeg(floatingLeg);
-    com.opengamma.financial.security.swap.SwapLeg receiveLeg = fixedLeg.getDirection() == SwapLeg.Direction.RECEIVE ?
-        convertFixedLeg(fixedLeg) : convertFloatingLeg(floatingLeg);
+    List<SwapLeg> payLegs = Lists.newArrayList(trade.getPayLegs());
+    List<SwapLeg> recLegs = Lists.newArrayList(trade.getReceiveLegs());
 
-    if (payLeg == receiveLeg) {
-      throw new PortfolioParsingException("One leg should be Pay and one Receive");
-    }
+    Preconditions.checkState(payLegs.size() == 1, format("Swaps must have one (and only one) pay leg. Found %d", payLegs.size()));
+    Preconditions.checkState(recLegs.size() == 1, format("Swaps must have one (and only one) receive leg. Found %d", recLegs.size()));
 
     ManageableSecurity security = new SwapSecurity(
         convertLocalDate(trade.getTradeDate()),
         convertLocalDate(trade.getEffectiveDate()),
         convertLocalDate(trade.getMaturityDate()),
         trade.getCounterparty().getExternalId().getId(),
-        payLeg,
-        receiveLeg);
+        convertLeg(payLegs.get(0)),
+        convertLeg(recLegs.get(0)));
 
     return securityArray(addIdentifier(security));
+  }
+
+  /**
+   * Converts the given leg to the appropriate type of leg in security lib.
+   * @param leg the leg to convert
+   * @return the converted leg.
+   * @throws PortfolioParsingException if the leg is not of type {@link FixedLeg} or {@link FloatingLeg}.
+   */
+  private com.opengamma.financial.security.swap.SwapLeg convertLeg(SwapLeg leg) {
+    if (leg instanceof FixedLeg) {
+      return convertFixedLeg((FixedLeg) leg);
+    } else if (leg instanceof FloatingLeg) {
+      return convertFloatingLeg((FloatingLeg) leg);
+    } else {
+      throw new PortfolioParsingException(format("Unknown leg type detected: %s", leg.getClass().getName()));
+    }
   }
 
   private com.opengamma.financial.security.swap.SwapLeg convertFixedLeg(FixedLeg fixedLeg) {
@@ -79,7 +95,7 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(fixedLeg.getBusinessDayConvention());
     boolean isEndOfMonth = fixedLeg.isEndOfMonth();
     return new FixedInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth,
-                                    convertRate(fixedLeg.getRate()));
+        convertRate(fixedLeg.getRate()));
   }
 
   private com.opengamma.financial.security.swap.SwapLeg convertFloatingLeg(FloatingLeg floatingLeg) {
@@ -98,7 +114,7 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
     FloatingRateType rateType = FloatingRateType.valueOf(fixingIndex.getRateType().toString());
 
     return new FloatingInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth,
-                                       referenceRate, rateType);
+        referenceRate, rateType);
   }
 
   private Notional extractNotional(SwapLeg floatingLeg) {

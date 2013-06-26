@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.opengamma.util.money.Currency;
 
