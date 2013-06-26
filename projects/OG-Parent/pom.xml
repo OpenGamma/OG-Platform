@@ -401,16 +401,6 @@
         <version>2.6.3</version>
       </dependency>
       <dependency>
-        <groupId>de.odysseus.juel</groupId>
-        <artifactId>juel-api</artifactId>
-        <version>2.2.6</version>
-      </dependency>
-      <dependency>
-        <groupId>de.odysseus.juel</groupId>
-        <artifactId>juel-impl</artifactId>
-        <version>2.2.6</version>
-      </dependency>
-      <dependency>
         <groupId>javassist</groupId>
         <artifactId>javassist</artifactId>
         <version>3.9.0.GA</version>
@@ -615,6 +605,27 @@
         <groupId>com.sun.jersey</groupId>
         <artifactId>jersey-servlet</artifactId>
         <version>1.12</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet.jsp</groupId>
+        <artifactId>jsp-api</artifactId>
+        <version>2.1.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.el</groupId>
+            <artifactId>el-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel-api</artifactId>
+        <version>2.2.6</version>
+      </dependency>
+      <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel-impl</artifactId>
+        <version>2.2.6</version>
       </dependency>
       <dependency>
         <groupId>com.sun.jersey</groupId>
