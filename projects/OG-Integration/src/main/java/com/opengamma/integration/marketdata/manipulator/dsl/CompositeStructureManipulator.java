@@ -49,6 +49,10 @@ public class CompositeStructureManipulator<T> implements StructureManipulator<T>
     return _expectedType;
   }
 
+  /* package */ List<StructureManipulator<T>> getManipulators() {
+    return _manipulators;
+  }
+
   public MutableFudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
     for (StructureManipulator<T> manipulator : _manipulators) {

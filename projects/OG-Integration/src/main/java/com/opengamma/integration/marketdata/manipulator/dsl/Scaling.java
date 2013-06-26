@@ -59,4 +59,26 @@ public class Scaling implements StructureManipulator<Double> {
         "_scalingFactor=" + _scalingFactor +
         "]";
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Scaling scaling = (Scaling) o;
+
+    if (Double.compare(scaling._scalingFactor, _scalingFactor) != 0) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    long temp = Double.doubleToLongBits(_scalingFactor);
+    return (int) (temp ^ (temp >>> 32));
+  }
 }

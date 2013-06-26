@@ -8,6 +8,7 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 
@@ -19,6 +20,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
+import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
@@ -52,8 +54,8 @@ public class SimulationUtils {
    * @param groovyScript The script location in the filesystem
    * @return The simulation defined by the script
    */
-  public static Simulation createSimulationFromDsl(String groovyScript) {
-    return runGroovyDslScript(groovyScript, Simulation.class);
+  public static Simulation createSimulationFromDsl(String groovyScript, Map<String, Object> parameters) {
+    return runGroovyDslScript(groovyScript, Simulation.class, parameters);
   }
 
     // TODO overload to read from a Reader for running scripts stored in config
@@ -62,18 +64,18 @@ public class SimulationUtils {
    * @param groovyScript The script location in the filesystem
    * @return The scenario defined by the script
    */
-  public static Scenario createScenarioFromDsl(String groovyScript) {
-    return runGroovyDslScript(groovyScript, Scenario.class);
+  public static Scenario createScenarioFromDsl(String groovyScript, Map<String, Object> parameters) {
+    return runGroovyDslScript(groovyScript, Scenario.class, parameters);
   }
 
   // TODO overload to read from a Reader for running scripts stored in config
-  private static <T> T runGroovyDslScript(String scriptFile, Class<T> expectedType) {
+  private static <T> T runGroovyDslScript(String scriptFile, Class<T> expectedType, Map<String, Object> parameters) {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(SimulationScript.class.getName());
-    GroovyShell shell = new GroovyShell(config);
-    Script script;
+    Binding binding = new Binding(parameters);
+    GroovyShell shell = new GroovyShell(binding, config);
     try {
-      script = shell.parse(new File(scriptFile));
+      Script script = shell.parse(new File(scriptFile));
       Object scriptOutput = script.run();
       if (scriptOutput == null) {
         throw new IllegalArgumentException("Script " + scriptFile + " didn't return an object");
