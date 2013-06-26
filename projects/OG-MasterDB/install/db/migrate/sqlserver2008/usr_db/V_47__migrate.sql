@@ -5,8 +5,16 @@ BEGIN TRANSACTION;
 
   ALTER TABLE usr_oguser ALTER COLUMN password varchar(255);
 
-  CREATE INDEX ix_usr_oguser_name ON usr_oguser(name);
-  CREATE INDEX ix_usr_oguser_zone ON usr_oguser(time_zone);
-  CREATE INDEX ix_usr_oguser_email ON usr_oguser(email_address);
+  IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'ix_usr_oguser_name')
+    CREATE INDEX ix_usr_oguser_name ON usr_oguser(name);
+  go
+
+  IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'ix_usr_oguser_zone')
+    CREATE INDEX ix_usr_oguser_zone ON usr_oguser(time_zone);
+  go
+
+  IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'ix_usr_oguser_email')
+    CREATE INDEX ix_usr_oguser_email ON usr_oguser(email_address);
+  go
 
 COMMIT;
