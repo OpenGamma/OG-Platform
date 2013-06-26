@@ -84,7 +84,7 @@ public class EquityFutureDefinition implements InstrumentDefinitionWithData<Equi
   }
 
   /**
-   * Gets the _unitAmount.
+   * Gets the _unitAmount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'. 
    * @return the _unitAmount
    */
   public double getUnitAmount() {
