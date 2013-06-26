@@ -90,7 +90,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+//    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
     final InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
