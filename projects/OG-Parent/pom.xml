@@ -598,8 +598,8 @@
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.5</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.0.1</version>
       </dependency>
       <dependency>
         <groupId>de.odysseus.juel</groupId>
@@ -614,17 +614,17 @@
       <dependency>
         <groupId>com.sun.jersey</groupId>
         <artifactId>jersey-servlet</artifactId>
-        <version>1.12</version>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>com.sun.jersey</groupId>
         <artifactId>jersey-client</artifactId>
-        <version>1.12</version>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>com.sun.jersey.contribs</groupId>
         <artifactId>jersey-spring</artifactId>
-        <version>1.12</version>
+        <version>${jersey.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -651,7 +651,7 @@
       <dependency>
         <groupId>com.sun.jersey.contribs</groupId>
         <artifactId>jersey-multipart</artifactId>
-        <version>1.12</version>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>org.freemarker</groupId>
@@ -678,6 +678,12 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-webapp</artifactId>
         <version>${jetty.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.eclipse.jetty.orbit</groupId>
+            <artifactId>javax.servlet</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
@@ -958,6 +964,7 @@
     <!-- Other properties -->
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <jetty.version>8.1.11.v20130520</jetty.version>
+    <jersey.version>1.17.1</jersey.version>
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/test/warn-logback.xml</tests.testng.logback>
     <tests.testng.parallel>classes</tests.testng.parallel>
