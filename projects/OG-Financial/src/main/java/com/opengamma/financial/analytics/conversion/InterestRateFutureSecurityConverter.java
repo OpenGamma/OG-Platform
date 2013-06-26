@@ -66,7 +66,7 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
     final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), iborConvention.getDayCount(),
         iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
-    final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount for one percent
+    final double notional = security.getUnitAmount() / paymentAccrualFactor;
     return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName(), calendar);
   }
 

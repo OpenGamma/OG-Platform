@@ -55,7 +55,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
   /**
-   * The unit amount.
+   * The unit amount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'. 
    */
   @PropertyDefinition
   private double _unitAmount;
