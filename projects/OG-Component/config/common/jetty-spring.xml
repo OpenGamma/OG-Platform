@@ -27,11 +27,6 @@
     why we have this defaults file I'm commenting it out for now.
     <property name="defaultsDescriptor" value="webdefaults.xml" />
     -->
-    <property name="initParams">
-      <map>
-        <entry key="contextConfigLocation" value="${server.spring}" />
-      </map>
-    </property>
     <property name="eventListeners">
       <list>
         <bean class="org.springframework.web.context.ContextLoaderListener" />
@@ -42,6 +37,22 @@
     </property>
     <property name="errorHandler">
       <bean class="com.opengamma.component.rest.PlainTextErrorHandler" />
+    </property>
+  </bean>
+
+  <!-- Jetty now uses a two-arg method annoyingly -->
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetObject">
+      <ref local="webAppContextHandler"/>
+    </property>
+    <property name="targetMethod">
+      <value>setInitParameter</value>
+    </property>
+    <property name="arguments">
+      <list>
+        <value>contextConfigLocation</value>
+        <value>${server.spring}</value>
+      </list>
     </property>
   </bean>
 

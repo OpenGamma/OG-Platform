@@ -11,7 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cometd.Client;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerSession;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.position.Portfolio;
@@ -34,13 +35,14 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
 
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
 
-  public WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote,
-      ComputationTargetResolver computationTargetResolver) {
+  public WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache,
+      LocalSession local, ServerSession remote, ComputationTargetResolver computationTargetResolver) {
     this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, local, remote, computationTargetResolver);
   }
 
-  private WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
-                               Client local, Client remote, ComputationTargetResolver computationTargetResolver) {
+  private WebViewPortfolioGrid(
+      ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
+      LocalSession local, ServerSession remote, ComputationTargetResolver computationTargetResolver) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
         // [PLAT-2286] Hack to get PositionWeight results to show up
         ImmutableSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION)), resultConverterCache,

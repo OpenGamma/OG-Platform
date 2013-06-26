@@ -688,27 +688,22 @@
       <dependency>
         <groupId>org.cometd.java</groupId>
         <artifactId>cometd-java-server</artifactId>
-        <version>1.0.1</version>
+        <version>2.6.0</version>
       </dependency>
       <dependency>
         <groupId>org.cometd.java</groupId>
         <artifactId>cometd-java-client</artifactId>
-        <version>1.0.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-start</artifactId>
-        <version>7.0.1.v20091125</version>
+        <version>2.6.0</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-webapp</artifactId>
-        <version>7.0.1.v20091125</version>
+        <version>${jetty.version}</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-servlets</artifactId>
-        <version>7.0.1.v20091125</version>
+        <version>${jetty.version}</version>
       </dependency>
       <dependency>
         <groupId>org.mortbay.jetty</groupId>
@@ -993,6 +988,7 @@
     <excludePackageNames>javax.time.i18n;org.jodah.typetools</excludePackageNames>
     <!-- Other properties -->
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
+    <jetty.version>8.1.11.v20130520</jetty.version>
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/test/warn-logback.xml</tests.testng.logback>
     <tests.testng.parallel>classes</tests.testng.parallel>

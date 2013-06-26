@@ -8,7 +8,7 @@ package com.opengamma.web.server;
 import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletContextAttributeListener;
 
-import org.cometd.Bayeux;
+import org.cometd.bayeux.server.BayeuxServer;
 
 /**
  * Listener that binds CometD and the live results service.
@@ -22,13 +22,13 @@ public class WebAnalyticsBayeuxInitializer implements ServletContextAttributeLis
   /**
    * The bayeux instance.
    */
-  private Bayeux _bayeux;
+  private BayeuxServer _bayeux;
 
   @Override
   public void attributeAdded(ServletContextAttributeEvent event) {
     // spot attributes (created in any order) and bind them together
-    if (Bayeux.ATTRIBUTE.equals(event.getName())) {
-      _bayeux = (Bayeux) event.getValue();
+    if (BayeuxServer.ATTRIBUTE.equals(event.getName())) {
+      _bayeux = (BayeuxServer) event.getValue();
       bind();
     } else if (WebAnalyticsResource.LIVE_RESULTS_SERVICE_ATTRIBUTE.equals(event.getName())) {
       _liveResultsServiceBean = (LiveResultsServiceBean) event.getValue();
