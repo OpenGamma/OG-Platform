@@ -27,7 +27,14 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
  - Start Eclipse, ensuring that you have a brand new workspace
  - Note that the OpenGamma source code must NOT be located inside your Eclipse workspace
   
-4. Install the Eclipse plugins
+4. Install the Eclipse preferences
+ - Go to "File -> Import"
+ - Select the "General -> Preferences" option
+ - In the popup, click the "Browse..." button
+ - Choose the file `OG-Platform/eclipse/install/OpenGamma-Eclipse-Preferences.epf`
+ - Click "Finish"
+
+5. Install the Eclipse plugins
  - Go to "File -> Import"
  - Select the "Install -> Install Software Items from File" option
  - In the popup, click the "Browse..." button
@@ -36,13 +43,6 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
  - Click "Next" and accept any warnings
  - Restart Eclipse if requested to do so
   
-5. Install the Eclipse preferences
- - Go to "File -> Import"
- - Select the "General -> Preferences" option
- - In the popup, click the "Browse..." button
- - Choose the file `OG-Platform/eclipse/install/OpenGamma-Eclipse-Preferences.epf`
- - Click "Finish"
-
 6. Import the OpenGamma source code
  - Go to "File -> Import"
  - Select the "Maven -> Existing Maven Projects" option
