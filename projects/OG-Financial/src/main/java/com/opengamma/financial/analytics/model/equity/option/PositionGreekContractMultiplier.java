@@ -9,6 +9,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
@@ -49,6 +50,11 @@ public final class PositionGreekContractMultiplier extends FinancialSecurityVisi
   
   @Override
   public Double visitEquityFutureSecurity(final EquityFutureSecurity security) {
+    return 1.0;
+  }
+  
+  @Override
+  public Double visitIndexFutureSecurity(final IndexFutureSecurity security) {
     return 1.0;
   }
   
