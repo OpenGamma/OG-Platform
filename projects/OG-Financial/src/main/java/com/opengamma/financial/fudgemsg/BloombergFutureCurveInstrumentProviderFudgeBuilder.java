@@ -32,8 +32,11 @@ public class BloombergFutureCurveInstrumentProviderFudgeBuilder implements Fudge
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergFutureCurveInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();
+    message.add(null, 0, object.getClass().getName());
     message.add(PREFIX_FIELD, object.getFuturePrefix());
     message.add(MARKET_SECTOR_FIELD, object.getMarketSector());
+    message.add(DATA_FIELD, object.getMarketDataField());
+    message.add(TYPE_FIELD, object.getDataFieldType().toString());
     return message;
   }
 

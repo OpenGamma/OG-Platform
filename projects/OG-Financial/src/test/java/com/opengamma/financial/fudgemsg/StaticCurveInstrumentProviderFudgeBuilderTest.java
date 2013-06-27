@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -16,7 +16,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class StaticCurveInstrumentProviderFudgeBuilderTest extends AnalyticsTestBase {
@@ -25,7 +25,7 @@ public class StaticCurveInstrumentProviderFudgeBuilderTest extends AnalyticsTest
   public void test() {
     StaticCurveInstrumentProvider provider = new StaticCurveInstrumentProvider(ExternalSchemes.syntheticSecurityId("ABCD"));
     assertEquals(provider, cycleObject(StaticCurveInstrumentProvider.class, provider));
-    provider = new StaticCurveInstrumentProvider(ExternalSchemes.syntheticSecurityId("EFGH"), "Market_Value", DataFieldType.OUTRIGHT);
+    provider = new StaticCurveInstrumentProvider(ExternalSchemes.syntheticSecurityId("EFGH"), "LAST_CLOSE", DataFieldType.POINTS);
     assertEquals(provider, cycleObject(StaticCurveInstrumentProvider.class, provider));
   }
 }

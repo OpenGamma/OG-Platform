@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -52,7 +52,6 @@ import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
@@ -80,7 +79,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class CurveNodeToDefinitionConverterTest {
@@ -146,7 +145,7 @@ public class CurveNodeToDefinitionConverterTest {
     CONVENTIONS.put(SWAP_6M_IBOR_ID, SWAP_6M_LIBOR);
     CONVENTIONS.put(OVERNIGHT_ID, OVERNIGHT);
     CONVENTIONS.put(OIS_ID, OIS);
-    CONVERTER = new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
+    CONVERTER = new CurveNodeToDefinitionConverter(new TestConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -156,12 +155,12 @@ public class CurveNodeToDefinitionConverterTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullHolidaySource() {
-    new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), null, new MyRegionSource("US"));
+    new CurveNodeToDefinitionConverter(new TestConventionSource(CONVENTIONS), null, new MyRegionSource("US"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRegionSource() {
-    new CurveNodeToDefinitionConverter(new MyConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, "US"), null);
+    new CurveNodeToDefinitionConverter(new TestConventionSource(CONVENTIONS), new MyHolidaySource(CALENDAR, "US"), null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -388,7 +387,7 @@ public class CurveNodeToDefinitionConverterTest {
     conventions.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
     conventions.put(SWAP_6M_IBOR_ID, SWAP_6M_LIBOR);
     conventions.put(ExternalId.of(SCHEME, "Test"), iborConvention);
-    final CurveNodeToDefinitionConverter converter = new CurveNodeToDefinitionConverter(new MyConventionSource(conventions), new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
+    final CurveNodeToDefinitionConverter converter = new CurveNodeToDefinitionConverter(new TestConventionSource(conventions), new MyHolidaySource(CALENDAR, "US"), new MyRegionSource("US"));
     final SwapNode swapNode = new SwapNode(new Tenor(Period.ZERO), Tenor.TEN_YEARS, FIXED_LEG_ID, ExternalId.of(SCHEME, "Test"), "Mapper");
     converter.getDefinitionForNode(swapNode, marketDataId, DateUtils.getUTCDate(2013, 1, 1), marketValues);
   }
@@ -669,30 +668,6 @@ public class CurveNodeToDefinitionConverterTest {
     floatLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, false, index, 1,
         CALENDAR, MODIFIED_FOLLOWING, Period.ofYears(1), false);
     assertEquals(new SwapDefinition(fixedLeg, floatLeg), definition);
-  }
-
-  private static class MyConventionSource implements ConventionSource {
-    private final Map<ExternalId, Convention> _conventions;
-
-    public MyConventionSource(final Map<ExternalId, Convention> conventions) {
-      _conventions = conventions;
-    }
-
-    @Override
-    public Convention getConvention(final ExternalId identifier) {
-      return _conventions.get(identifier);
-    }
-
-    @Override
-    public Convention getConvention(final ExternalIdBundle identifiers) {
-      return null;
-    }
-
-    @Override
-    public Convention getConvention(final UniqueId identifier) {
-      return null;
-    }
-
   }
 
   private static class MyHolidaySource implements HolidaySource {
