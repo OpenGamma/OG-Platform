@@ -189,6 +189,9 @@ public class CurveNodeToDefinitionConverter {
       @Override
       public InstrumentDefinition<?> visitFXForwardNode(final FXForwardNode fxForward) {
         final Double forwardRate = marketValues.getDataPoint(marketDataId);
+        if (forwardRate == null) {
+          throw new OpenGammaRuntimeException("Could not get market data for " + marketDataId);
+        }
         final ExternalId conventionId = fxForward.getFxForwardConvention();
         final Convention convention = _conventionSource.getConvention(conventionId);
         if (convention == null) {
@@ -216,7 +219,7 @@ public class CurveNodeToDefinitionConverter {
         final ExternalId settlementRegion = forwardConvention.getSettlementRegion();
         final Calendar settlementCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, settlementRegion);
         final ZonedDateTime exchangeDate = ScheduleCalculator.getAdjustedDate(now.plus(forwardTenor.getPeriod()), daysToSettle, settlementCalendar);
-        return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, payAmount, receiveAmount);
+        return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, payAmount, -receiveAmount);
       }
 
       @SuppressWarnings("synthetic-access")
