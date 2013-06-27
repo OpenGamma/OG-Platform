@@ -37,6 +37,7 @@ public abstract class SimulationScript extends Script {
    * }
    * </pre>
    * @param body The block that defines the script's parameters
+   * TODO param values as strings - this method uses the type info to convert from string and push into the binding
    */
   public void parameters(Closure body) {
     ParametersDelegate parametersDelegate = new ParametersDelegate();
@@ -60,7 +61,7 @@ public abstract class SimulationScript extends Script {
   }
 
   /**
-   * Delegate for the
+   * Delegate for the closure that declares the script parameters and their types.
    */
   private static class ParametersDelegate extends GroovyObjectSupport {
 

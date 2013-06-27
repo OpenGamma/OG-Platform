@@ -5,8 +5,10 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.Map;
 
@@ -48,13 +50,25 @@ public class SimulationUtils {
     return viewDefs.iterator().next().getValue().getUniqueId();
   }
 
-  // TODO overload to read from a Reader for running scripts stored in config
   /**
    * Runs a Groovy script that defines a {@link Simulation} using the DSL.
    * @param groovyScript The script location in the filesystem
    * @return The simulation defined by the script
    */
   public static Simulation createSimulationFromDsl(String groovyScript, Map<String, Object> parameters) {
+    try {
+      return runGroovyDslScript(new BufferedReader(new FileReader(groovyScript)), Simulation.class, parameters);
+    } catch (FileNotFoundException e) {
+      throw new OpenGammaRuntimeException("Failed to open script file", e);
+    }
+  }
+
+  /**
+   * Runs a Groovy script that defines a {@link Simulation} using the DSL.
+   * @param groovyScript For reading the DSL script
+   * @return The simulation defined by the script
+   */
+  public static Simulation createSimulationFromDsl(Reader groovyScript, Map<String, Object> parameters) {
     return runGroovyDslScript(groovyScript, Simulation.class, parameters);
   }
 
@@ -65,31 +79,40 @@ public class SimulationUtils {
    * @return The scenario defined by the script
    */
   public static Scenario createScenarioFromDsl(String groovyScript, Map<String, Object> parameters) {
+    try {
+      return runGroovyDslScript(new FileReader(groovyScript), Scenario.class, parameters);
+    } catch (FileNotFoundException e) {
+      throw new OpenGammaRuntimeException("Failed to open script file", e);
+    }
+  }
+
+  /**
+   * Runs a Groovy script that defines a {@link Scenario} using the DSL.
+   * @param groovyScript For reading the DSL script
+   * @return The scenario defined by the script
+   */
+  public static Scenario createScenarioFromDsl(Reader groovyScript, Map<String, Object> parameters) {
     return runGroovyDslScript(groovyScript, Scenario.class, parameters);
   }
 
   // TODO overload to read from a Reader for running scripts stored in config
-  private static <T> T runGroovyDslScript(String scriptFile, Class<T> expectedType, Map<String, Object> parameters) {
+  private static <T> T runGroovyDslScript(Reader scriptReader, Class<T> expectedType, Map<String, Object> parameters) {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(SimulationScript.class.getName());
     Binding binding = new Binding(parameters);
     GroovyShell shell = new GroovyShell(binding, config);
-    try {
-      Script script = shell.parse(new File(scriptFile));
-      Object scriptOutput = script.run();
-      if (scriptOutput == null) {
-        throw new IllegalArgumentException("Script " + scriptFile + " didn't return an object");
-      }
-      if (expectedType.isInstance(scriptOutput)) {
-        return expectedType.cast(scriptOutput);
-      } else {
-        throw new IllegalArgumentException("Script '" + scriptFile + "' didn't create an object of the expected type. " +
-                                               "expected type: " + expectedType.getName() + ", " +
-                                               "actual type: " + scriptOutput.getClass().getName() + ", " +
-                                               "actual value: " + scriptOutput);
-      }
-    } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Failed to open script file", e);
+    Script script = shell.parse(scriptReader);
+    Object scriptOutput = script.run();
+    if (scriptOutput == null) {
+      throw new IllegalArgumentException("Script " + scriptReader + " didn't return an object");
+    }
+    if (expectedType.isInstance(scriptOutput)) {
+      return expectedType.cast(scriptOutput);
+    } else {
+      throw new IllegalArgumentException("Script '" + scriptReader + "' didn't create an object of the expected type. " +
+                                             "expected type: " + expectedType.getName() + ", " +
+                                             "actual type: " + scriptOutput.getClass().getName() + ", " +
+                                             "actual value: " + scriptOutput);
     }
   }
 }
