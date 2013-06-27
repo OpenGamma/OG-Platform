@@ -93,7 +93,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -109,7 +109,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
@@ -135,12 +135,12 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CurveConstructionConfiguration other = (CurveConstructionConfiguration) obj;
+      CurveConstructionConfiguration other = (CurveConstructionConfiguration) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getCurveGroups(), other.getCurveGroups()) &&
@@ -164,7 +164,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Gets the unique id.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -173,8 +172,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the unique id.
    * @param uniqueId  the new value of the property
    */
-  @Override
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -199,7 +197,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the name of this configuration.
    * @param name  the new value of the property, not null
    */
-  public void setName(final String name) {
+  public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
@@ -225,7 +223,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the curve groups.
    * @param curveGroups  the new value of the property, not null
    */
-  public void setCurveGroups(final List<CurveGroupConfiguration> curveGroups) {
+  public void setCurveGroups(List<CurveGroupConfiguration> curveGroups) {
     JodaBeanUtils.notNull(curveGroups, "curveGroups");
     this._curveGroups = curveGroups;
   }
@@ -251,7 +249,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the name(s) of any exogenous curve configurations.
    * @param exogenousConfigurations  the new value of the property
    */
-  public void setExogenousConfigurations(final List<String> exogenousConfigurations) {
+  public void setExogenousConfigurations(List<String> exogenousConfigurations) {
     this._exogenousConfigurations = exogenousConfigurations;
   }
 
@@ -312,7 +310,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
