@@ -183,8 +183,13 @@ public final class ValueRequirementNames {
    * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
    */
   public static final String CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Curve Instrument Conversion Historical Time Series";
+  /** 
+   * The FX matrix associated with a bundle of curves.
+   */
+  public static final String FX_MATRIX = "FX Matrix";
   /**
-   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
+   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
+   * ignoring the type of instrument etc.).
    */
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   /**

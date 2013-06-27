@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -74,13 +75,24 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
         final HistoricalTimeSeriesBundle bundleForCurve = (HistoricalTimeSeriesBundle) inputs.getValue(bundleRequirement);
         final CurveSpecification curveSpec = (CurveSpecification) inputs.getValue(specRequirement);
         for (final CurveNodeWithIdentifier node : curveSpec.getNodes()) {
-          final String dataField = node.getDataField();
-          final ExternalIdBundle ids = ExternalIdBundle.of(node.getIdentifier());
-          final HistoricalTimeSeries ts = bundleForCurve.get(dataField, ids);
+          String dataField = node.getDataField();
+          ExternalIdBundle ids = ExternalIdBundle.of(node.getIdentifier());
+          HistoricalTimeSeries ts = bundleForCurve.get(dataField, ids);
           if (ts != null) {
             bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
           } else {
             s_logger.warn("Could not get historical time series for " + ids);
+          }
+          if (node instanceof PointsCurveNodeWithIdentifier) {
+            final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
+            dataField = pointsNode.getUnderlyingDataField();
+            ids = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
+            ts = bundleForCurve.get(dataField, ids);
+            if (ts != null) {
+              bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
+            } else {
+              s_logger.warn("Could not get historical time series for " + ids);
+            }
           }
         }
       }

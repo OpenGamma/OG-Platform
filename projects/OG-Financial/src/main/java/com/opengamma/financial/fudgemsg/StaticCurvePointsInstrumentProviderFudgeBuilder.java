@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -40,7 +40,7 @@ public class StaticCurvePointsInstrumentProviderFudgeBuilder implements FudgeBui
     serializer.addToMessage(message, INSTRUMENT_FIELD, null, object.getInstrument(null, null));
     message.add(DATA_FIELD, object.getMarketDataField());
     message.add(TYPE_FIELD, object.getDataFieldType().toString());
-    serializer.addToMessage(message, UNDERLYING_INSTRUMENT_FIELD, null, object.getUnderlyingInstrument(null, null));
+    serializer.addToMessage(message, UNDERLYING_INSTRUMENT_FIELD, null, object.getUnderlyingInstrument());
     message.add(UNDERLYING_DATA_FIELD, object.getUnderlyingMarketDataField());
     return message;
   }

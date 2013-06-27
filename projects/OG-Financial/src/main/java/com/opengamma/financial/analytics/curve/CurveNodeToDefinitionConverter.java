@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -63,7 +63,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class CurveNodeToDefinitionConverter {
   private final ConventionSource _conventionSource;
@@ -216,7 +216,7 @@ public class CurveNodeToDefinitionConverter {
         final ExternalId settlementRegion = forwardConvention.getSettlementRegion();
         final Calendar settlementCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, settlementRegion);
         final ZonedDateTime exchangeDate = ScheduleCalculator.getAdjustedDate(now.plus(forwardTenor.getPeriod()), daysToSettle, settlementCalendar);
-        return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, -payAmount, receiveAmount);
+        return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, payAmount, receiveAmount);
       }
 
       @SuppressWarnings("synthetic-access")

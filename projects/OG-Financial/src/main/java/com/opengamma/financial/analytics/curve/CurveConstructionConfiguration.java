@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -27,7 +27,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 @Config
@@ -63,6 +63,11 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   /* package */CurveConstructionConfiguration() {
   }
 
+  /**
+   * @param name The curve construction configuration name, not null
+   * @param curveGroups The curve groups, not null
+   * @param exogenousConfigurations The exogenous configuration to be used in curve construction
+   */
   public CurveConstructionConfiguration(final String name, final List<CurveGroupConfiguration> curveGroups, final List<String> exogenousConfigurations) {
     setName(name);
     setCurveGroups(curveGroups);
@@ -88,7 +93,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -104,7 +109,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
@@ -130,12 +135,12 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveConstructionConfiguration other = (CurveConstructionConfiguration) obj;
+      final CurveConstructionConfiguration other = (CurveConstructionConfiguration) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getCurveGroups(), other.getCurveGroups()) &&
@@ -159,6 +164,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Gets the unique id.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -167,7 +173,8 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the unique id.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueId uniqueId) {
+  @Override
+  public void setUniqueId(final UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -192,7 +199,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the name of this configuration.
    * @param name  the new value of the property, not null
    */
-  public void setName(String name) {
+  public void setName(final String name) {
     JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
@@ -218,7 +225,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the curve groups.
    * @param curveGroups  the new value of the property, not null
    */
-  public void setCurveGroups(List<CurveGroupConfiguration> curveGroups) {
+  public void setCurveGroups(final List<CurveGroupConfiguration> curveGroups) {
     JodaBeanUtils.notNull(curveGroups, "curveGroups");
     this._curveGroups = curveGroups;
   }
@@ -244,7 +251,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * Sets the name(s) of any exogenous curve configurations.
    * @param exogenousConfigurations  the new value of the property
    */
-  public void setExogenousConfigurations(List<String> exogenousConfigurations) {
+  public void setExogenousConfigurations(final List<String> exogenousConfigurations) {
     this._exogenousConfigurations = exogenousConfigurations;
   }
 
@@ -305,7 +312,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;

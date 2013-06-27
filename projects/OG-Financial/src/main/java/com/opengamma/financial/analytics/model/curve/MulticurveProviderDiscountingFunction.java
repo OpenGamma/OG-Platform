@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve;
@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
@@ -80,7 +81,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class MulticurveProviderDiscountingFunction extends AbstractFunction {
   private static final String CALCULATION_METHOD = "Discounting"; //TODO move me
@@ -94,7 +95,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
     _configurationName = configurationName;
   }
 
-  //TODO need to deal with exogenous curves
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
@@ -107,6 +107,21 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
+    final Set<ValueRequirement> exogenousRequirements = new HashSet<>();
+    if (curveConstructionConfiguration.getExogenousConfigurations() != null) {
+      final List<String> exogenousConfigurations = curveConstructionConfiguration.getExogenousConfigurations();
+      for (final String name : exogenousConfigurations) {
+        //TODO deal with arbitrary depth
+        final ValueProperties properties = ValueProperties.builder()
+            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CONSTRUCTION_CONFIG, name)
+            .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
+            .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
+            .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
+          .get();
+        exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+      }
+    }
     final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
@@ -117,6 +132,12 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+        MulticurveProviderDiscount knownData;
+        if (exogenousRequirements.isEmpty()) {
+          knownData = new MulticurveProviderDiscount();
+        } else {
+          knownData = (MulticurveProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE);
+        }
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         ValueProperties bundleProperties = null;
@@ -137,7 +158,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
         final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
         final MulticurveDiscountBuildingRepository builder = new MulticurveDiscountBuildingRepository(absoluteTolerance, relativeTolerance, maxIterations);
-        final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder);
+        final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData);
         final ValueSpecification bundleSpec = new ValueSpecification(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
         final Set<ComputedValue> result = new HashSet<>();
         result.add(new ComputedValue(bundleSpec, pair.getFirst()));
@@ -149,6 +170,17 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           result.add(new ComputedValue(curveSpec, pair.getFirst().getCurve(curveName)));
         }
         return result;
+      }
+
+
+      @Override
+      public boolean canHandleMissingRequirements() {
+        return true;
+      }
+
+      @Override
+      public boolean canHandleMissingInputs() {
+        return true;
       }
 
       @Override
@@ -196,6 +228,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .get();
         requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
+        requirements.addAll(exogenousRequirements);
         return requirements;
       }
 
@@ -224,7 +257,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       private Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
-          final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder) {
+          final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder, final MulticurveProviderDiscount knownData) {
         final ValueProperties curveConstructionProperties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, constructionConfiguration.getName())
             .get();
@@ -236,7 +269,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         final GeneratorYDCurve[][] curveGenerators = new GeneratorYDCurve[nGroups][];
         final String[][] curves = new String[nGroups][];
         final double[][] parameterGuess = new double[nGroups][];
-        final MulticurveProviderDiscount knownData = new MulticurveProviderDiscount(); //TODO handle exogenous curves
         final LinkedHashMap<String, Currency> discountingMap = new LinkedHashMap<>();
         final LinkedHashMap<String, IborIndex[]> forwardIborMap = new LinkedHashMap<>();
         final LinkedHashMap<String, IndexON[]> forwardONMap = new LinkedHashMap<>();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -62,9 +63,9 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
     final CurveSpecification curve = (CurveSpecification) inputs.getAllValues().iterator().next().getValue();
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
     for (final CurveNodeWithIdentifier node : curve.getNodes()) {
-      final ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
-      final String dataField = node.getDataField();
-      final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
+      ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
+      String dataField = node.getDataField();
+      HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeries != null) {
         if (timeSeries.getTimeSeries().isEmpty()) {
           s_logger.warn("Time series for {} is empty", id);
@@ -73,6 +74,21 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
         }
       } else {
         s_logger.warn("Couldn't get time series for {}", id);
+      }
+      if (node instanceof PointsCurveNodeWithIdentifier) {
+        final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
+        id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
+        dataField = pointsNode.getUnderlyingDataField();
+        timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
+        if (timeSeries != null) {
+          if (timeSeries.getTimeSeries().isEmpty()) {
+            s_logger.warn("Time series for {} is empty", id);
+          } else {
+            bundle.add(dataField, id, timeSeries);
+          }
+        } else {
+          s_logger.warn("Couldn't get time series for {}", id);
+        }
       }
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(),

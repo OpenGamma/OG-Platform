@@ -1,17 +1,15 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Curve instrument provider for tickers that represent a spread over a base value.
@@ -38,7 +36,7 @@ public class StaticCurvePointsInstrumentProvider extends StaticCurveInstrumentPr
     _underlyingDataField = underlyingDataField;
   }
 
-  public ExternalId getUnderlyingInstrument(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getUnderlyingInstrument() {
     return _underlyingIdentifier;
   }
 
