@@ -730,7 +730,10 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_CARRY_RHO = "ValueCarryRho";
   /**
-   * The amount by which the value of a portfolio would change due to delta.
+   * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
+   * {@link Delta} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
+   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t), 
+   * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
    */
   public static final String VALUE_DELTA = "ValueDelta";
   /**
