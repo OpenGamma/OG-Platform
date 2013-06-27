@@ -34,7 +34,8 @@ public class ISDACompliantCurveCalibrator {
   private static final ISDACompliantPresentValueCreditDefaultSwap PRICER = new ISDACompliantPresentValueCreditDefaultSwap();
 
   public ISDACompliantDateCreditCurve calibrateHazardCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve, final double recoveryRate) {
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve,
+      final double recoveryRate) {
 
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
@@ -67,7 +68,7 @@ public class ISDACompliantCurveCalibrator {
       CDSPricer func = new CDSPricer(i, today, stepinDate, valueDate, startDate, endDates[i], couponRates[i], protectStart, payAccOnDefault, tenor, stubType, recoveryRate, yieldCurve, hazardCurve);
       double[] bracket = BRACKER.getBracketedPoints(func, 0.9 * guess[i], 1.1 * guess[i], 0.0, Double.POSITIVE_INFINITY);
       double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
-      hazardCurve = (ISDACompliantDateCreditCurve) hazardCurve.withRate(zeroRate, i);
+      hazardCurve = hazardCurve.withRate(zeroRate, i);
     }
 
     return hazardCurve;

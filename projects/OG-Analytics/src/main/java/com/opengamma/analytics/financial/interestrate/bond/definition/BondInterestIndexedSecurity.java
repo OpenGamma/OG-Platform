@@ -1,18 +1,17 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -20,10 +19,11 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Describes a capital inflation indexed bond issue. Both the coupon and the nominal are indexed on a price index.
+ * Describes an interest inflation indexed bond issue. Only the coupon are indexed on a price index.
+ * @param <N> Type of fixed payment.
  * @param <C> Type of inflation coupon.
  */
-public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C, C> {
+public class BondInterestIndexedSecurity<N extends Coupon, C extends Coupon> extends BondSecurity<N, C> {
 
   /**
    * The yield (to maturity) computation convention.
@@ -42,14 +42,15 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    */
   private final double _factorToNextCoupon;
   /**
-   * The description of the bond settlement. It is used only for the dates and inflation calculation. 
+   * The description of the bond settlement. It is used only for the dates. 
    * The notional is 0 if the settlement is in the past and 1 if not.
    */
-  private final CouponInflation _settlement;
+  private final PaymentFixed _settlement;
+
   /**
-   * The index value at the start of the bond.
+   * The price index associated to the bond.
    */
-  private final double _indexStartValue;
+  private final IndexPrice _priceIndex;
 
   /**
    * Constructor of the Capital inflation indexed bond.
@@ -61,11 +62,11 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param yieldConvention The bond yield convention.
    * @param couponPerYear Number of coupon per year.
    * @param settlement The description of the bond settlement.
-   * @param indexStartValue The index value at the start of the bond.
+   * @param priceIndex The price index
    * @param issuer The bond issuer name.
    */
-  public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final String issuer) {
+  public BondInterestIndexedSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
+      final YieldConvention yieldConvention, final int couponPerYear, final PaymentFixed settlement, final String issuer, final IndexPrice priceIndex) {
     super(nominal, coupon, settlementTime, "Not used", issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     Validate.notNull(settlement, "Settlement");
@@ -74,7 +75,8 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     _couponPerYear = couponPerYear;
     _factorToNextCoupon = factorToNextCoupon;
     _settlement = settlement;
-    _indexStartValue = indexStartValue;
+    _priceIndex = priceIndex;
+
   }
 
   /**
@@ -114,22 +116,14 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @return The price index.
    */
   public IndexPrice getPriceIndex() {
-    return _settlement.getPriceIndex();
+    return _priceIndex;
   }
 
   /**
    * Gets the index value at the start of the bond.
    * @return The index value.
    */
-  public double getIndexStartValue() {
-    return _indexStartValue;
-  }
-
-  /**
-   * Gets the index value at the start of the bond.
-   * @return The index value.
-   */
-  public CouponInflation getSettlement() {
+  public PaymentFixed getSettlement() {
     return _settlement;
   }
 
@@ -144,13 +138,13 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitBondCapitalIndexedSecurity(this, data);
+    return visitor.visitBondInterestIndexedSecurity(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitBondCapitalIndexedSecurity(this);
+    return visitor.visitBondInterestIndexedSecurity(this);
   }
 
   @Override
@@ -163,43 +157,36 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     result = prime * result + _couponPerYear;
     temp = Double.doubleToLongBits(_factorToNextCoupon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_indexStartValue);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _settlement.hashCode();
-    result = prime * result + _yieldConvention.hashCode();
+    result = prime * result + ((_settlement == null) ? 0 : _settlement.hashCode());
+    result = prime * result + ((_yieldConvention == null) ? 0 : _yieldConvention.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
+  public boolean equals(Object obj) {
+    if (this == obj)
       return true;
-    }
-    if (!super.equals(obj)) {
+    if (!super.equals(obj))
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
-    final BondCapitalIndexedSecurity<?> other = (BondCapitalIndexedSecurity<?>) obj;
-    if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
+    BondInterestIndexedSecurity other = (BondInterestIndexedSecurity) obj;
+    if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest))
       return false;
-    }
-    if (_couponPerYear != other._couponPerYear) {
+    if (_couponPerYear != other._couponPerYear)
       return false;
-    }
-    if (Double.doubleToLongBits(_factorToNextCoupon) != Double.doubleToLongBits(other._factorToNextCoupon)) {
+    if (Double.doubleToLongBits(_factorToNextCoupon) != Double.doubleToLongBits(other._factorToNextCoupon))
       return false;
-    }
-    if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+    if (_settlement == null) {
+      if (other._settlement != null)
+        return false;
+    } else if (!_settlement.equals(other._settlement))
       return false;
-    }
-    if (!ObjectUtils.equals(_settlement, other._settlement)) {
+    if (_yieldConvention == null) {
+      if (other._yieldConvention != null)
+        return false;
+    } else if (!_yieldConvention.equals(other._yieldConvention))
       return false;
-    }
-    if (!ObjectUtils.equals(_yieldConvention, other._yieldConvention)) {
-      return false;
-    }
     return true;
   }
 

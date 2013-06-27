@@ -93,6 +93,13 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
     System.arraycopy(_dates, 0, res, 0, getNumberOfKnots());
     return res;
   }
+  
+  @Override
+  public ISDACompliantDateCurve withRate(final double rate, final int index) {
+    ISDACompliantCurve temp = super.withRate(rate, index);
+    return new ISDACompliantDateCurve(_baseDate, _dates, _dayCount, temp);
+  }
+
 
   @Override
   public double getZeroRate(LocalDate date) {

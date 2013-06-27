@@ -6,6 +6,7 @@
         "isLong":"${security.long?string?upper_case}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
+        "paymentCurrency":"${security.paymentCurrency}",
         "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
 <#include "security-footer.ftl"> 
 </#escape>

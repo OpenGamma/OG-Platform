@@ -40,7 +40,9 @@ public class SwaptionSecurity extends FinancialSecurity {
   public static final String SECURITY_TYPE = "SWAPTION";
 
   /**
-   * The payer flag.
+   * The payer flag. 
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    */
   @PropertyDefinition
   private boolean _payer;
@@ -66,6 +68,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   private boolean _cashSettled;
   /**
    * The currency.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
@@ -92,8 +96,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {
     this(payer, underlyingIdentifier, isLong, expiry, cashSettled, currency, null, new EuropeanExerciseType(), null);
   }
-  
-  public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, 
+
+  public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong,
       Expiry expiry, boolean cashSettled, Currency currency, Double notional, ExerciseType exerciseType, ZonedDateTime settlementDate) {
     super(SECURITY_TYPE);
     setPayer(payer);
@@ -106,7 +110,7 @@ public class SwaptionSecurity extends FinancialSecurity {
     setExerciseType(exerciseType);
     setSettlementDate(settlementDate);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
@@ -258,6 +262,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the payer flag.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the value of the property
    */
   public boolean isPayer() {
@@ -266,6 +272,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the payer flag.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @param payer  the new value of the property
    */
   public void setPayer(boolean payer) {
@@ -274,6 +282,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Gets the the {@code payer} property.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the property, not null
    */
   public final Property<Boolean> payer() {
@@ -386,6 +396,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the currency.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -394,6 +406,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the currency.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @param currency  the new value of the property, not null
    */
   public void setCurrency(Currency currency) {
@@ -403,6 +417,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Gets the the {@code currency} property.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the property, not null
    */
   public final Property<Currency> currency() {

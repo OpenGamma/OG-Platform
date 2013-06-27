@@ -53,7 +53,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
     _dayCount = dayCount;
   }
 
-  private ISDACompliantDateCreditCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, ISDACompliantCreditCurve baseCurve) {
+  private ISDACompliantDateCreditCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, ISDACompliantCurve baseCurve) {
     super(baseCurve);
     _baseDate = baseDate;
     _dates = dates;
@@ -95,6 +95,12 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
     // TODO since this is only copying references anyway, do we need it
     System.arraycopy(_dates, 0, res, 0, getNumberOfKnots());
     return res;
+  }
+
+  @Override
+  public ISDACompliantDateCreditCurve withRate(final double rate, final int index) {
+    ISDACompliantCurve temp = super.withRate(rate, index);
+    return new ISDACompliantDateCreditCurve(_baseDate, _dates, _dayCount, temp);
   }
 
   @Override

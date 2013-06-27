@@ -14,7 +14,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
     super(t, r);
   }
 
-  public ISDACompliantCreditCurve(final ISDACompliantCreditCurve from) {
+  public ISDACompliantCreditCurve(final ISDACompliantCurve from) {
     super(from);
   }
 

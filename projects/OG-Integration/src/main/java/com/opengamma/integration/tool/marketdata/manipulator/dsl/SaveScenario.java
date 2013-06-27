@@ -43,7 +43,7 @@ public class SaveScenario extends AbstractTool<ToolContext> {
     ConfigSource configSource = getToolContext().getConfigSource();
     ConfigMaster configMaster = getToolContext().getConfigMaster();
 
-    Scenario scenario = SimulationUtils.createScenarioFromDsl(scriptLocation);
+    Scenario scenario = SimulationUtils.createScenarioFromDsl(scriptLocation, null);
     ConfigItem<ScenarioDefinition> configItem = ConfigItem.of(scenario.createDefinition(), scenario.getName());
     if (getCommandLine().hasOption('i')) {
       ObjectId scenarioId = ObjectId.parse(getCommandLine().getOptionValue('i'));

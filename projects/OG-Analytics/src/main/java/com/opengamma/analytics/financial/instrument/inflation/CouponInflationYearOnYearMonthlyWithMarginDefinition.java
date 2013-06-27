@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.analytics.financial.instrument.inflation;
 
 import org.threeten.bp.LocalDate;
@@ -20,12 +19,16 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a Year on Year inflation coupon were the inflation figure are the one of the reference month and are not interpolated.
+ *  Class describing a Year on Year inflation coupon were the inflation figure are the one of the reference month and are not interpolated.
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
- * The pay-off is paymentYearFraction*(Index_End / Index_Start - X) with X=0 for notional payment and X=1 for no notional payment.
+ * The pay-off is paymentYearFraction*(Index_End / Index_Start - X)+ Margin with X=0 for notional payment and X=1 for no notional payment.
  */
+public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends CouponInflationDefinition implements CouponInflationMargin {
 
-public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationDefinition {
+  /**
+   * The weight on the first month index in the interpolation of the index at the coupon start.
+   */
+  private final double _factor;
 
   /**
    * The reference date for the index at the coupon start. 
@@ -52,6 +55,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
 
   /**
    * Constructor for Year on Year inflation coupon.
+   * @param factor the additive factor
    * @param currency The coupon currency.
    * @param paymentDate The payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -65,12 +69,13 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    * @param referenceEndDate The reference date for the index at the coupon end.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationYearOnYearMonthlyDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+  public CouponInflationYearOnYearMonthlyWithMarginDefinition(final double factor, final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int conventionalMonthLag,
       int monthLag, final ZonedDateTime referenceStartDate, final ZonedDateTime referenceEndDate, final boolean payNotional) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
+    _factor = factor;
     _referenceStartDate = referenceStartDate;
     _referenceEndDate = referenceEndDate;
     _payNotional = payNotional;
@@ -80,6 +85,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
 
   /**
    * Builder for inflation Year on Yearn based on an inflation lag and index publication. The fixing date is the publication lag after the last reference month. The month lag is the conventional one.
+   * @param factor the additive factor
    * @param accrualStartDate Start date of the accrual period.
    * @param paymentDate The payment date.
    * @param notional Coupon notional.
@@ -88,19 +94,20 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationYearOnYearMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+  public static CouponInflationYearOnYearMonthlyWithMarginDefinition from(final double factor, final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int conventionalMonthLag, final boolean payNotional) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);
     referenceEndDate = referenceEndDate.withDayOfMonth(1);
 
-    return new CouponInflationYearOnYearMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
+    return new CouponInflationYearOnYearMonthlyWithMarginDefinition(factor, priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
         conventionalMonthLag, referenceStartDate, referenceEndDate, payNotional);
   }
 
   /**
    * Builder for inflation Year on Yearn based on an inflation lag and index publication. The fixing date is the publication lag after the last reference month.
+   * @param factor the additive factor
    * @param accrualStartDate Start date of the accrual period.
    * @param paymentDate The payment date.
    * @param notional Coupon notional.
@@ -110,15 +117,20 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationYearOnYearMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+  public static CouponInflationYearOnYearMonthlyWithMarginDefinition from(final double factor, final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);
     referenceEndDate = referenceEndDate.withDayOfMonth(1);
 
-    return new CouponInflationYearOnYearMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
+    return new CouponInflationYearOnYearMonthlyWithMarginDefinition(factor, priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
         monthLag, referenceStartDate, referenceEndDate, payNotional);
+  }
+
+  @Override
+  public double getFactor() {
+    return _factor;
   }
 
   /**
@@ -165,7 +177,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
     final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
     final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
-    return new CouponInflationYearOnYearMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
+    return new CouponInflationYearOnYearMonthlyWithMarginDefinition(_factor, getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
         getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), referenceEndDate, payNotional());
   }
 
@@ -220,13 +232,13 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponInflationYearOnYearFirstOfMonth(this, data);
+    return visitor.visitCouponInflationYearOnYearMonthlyWithMargin(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponInflationYearOnYearFirstOfMonth(this);
+    return visitor.visitCouponInflationYearOnYearMonthlyWithMargin(this);
   }
 
   @Override
@@ -234,6 +246,9 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _conventionalMonthLag;
+    long temp;
+    temp = Double.doubleToLongBits(_factor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _monthLag;
     result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
@@ -243,39 +258,31 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (!super.equals(obj)) {
+    if (!super.equals(obj))
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
-    CouponInflationYearOnYearMonthlyDefinition other = (CouponInflationYearOnYearMonthlyDefinition) obj;
-    if (_conventionalMonthLag != other._conventionalMonthLag) {
+    CouponInflationYearOnYearMonthlyWithMarginDefinition other = (CouponInflationYearOnYearMonthlyWithMarginDefinition) obj;
+    if (_conventionalMonthLag != other._conventionalMonthLag)
       return false;
-    }
-    if (_monthLag != other._monthLag) {
+    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor))
       return false;
-    }
-    if (_payNotional != other._payNotional) {
+    if (_monthLag != other._monthLag)
       return false;
-    }
+    if (_payNotional != other._payNotional)
+      return false;
     if (_referenceEndDate == null) {
-      if (other._referenceEndDate != null) {
+      if (other._referenceEndDate != null)
         return false;
-      }
-    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
+    } else if (!_referenceEndDate.equals(other._referenceEndDate))
       return false;
-    }
     if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null) {
+      if (other._referenceStartDate != null)
         return false;
-      }
-    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
+    } else if (!_referenceStartDate.equals(other._referenceStartDate))
       return false;
-    }
     return true;
   }
 
