@@ -5,17 +5,19 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
+import org.threeten.bp.LocalDate;
+
 /**
  * 
  */
-public class ISDACompliantYieldCurve extends ISDACompliantCurve {
+public interface ISDACompliantCurveWithDates {
 
-  /**
-   * @param t
-   * @param r
-   */
-  public ISDACompliantYieldCurve(double[] t, double[] r) {
-    super(t, r);
-  }
+  LocalDate getBaseDate();
+
+  LocalDate getCurveDate(final int index);
+
+  LocalDate[] getCurveDates();
+
+  double getZeroRate(final LocalDate date);
 
 }

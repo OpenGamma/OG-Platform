@@ -33,6 +33,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -167,7 +168,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private ConventionBundleSource _conventionBundleSource;
-
+  /**
+   * The convention source.
+   */
+  @PropertyDefinition
+  private ConventionSource _conventionSource;
   /**
    * The security provider.
    */
@@ -188,7 +193,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private HistoricalTimeSeriesLoader _historicalTimeSeriesLoader;
-  
+
   /**
    * The view processor.
    */
@@ -282,6 +287,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         return getMarketDataSnapshotSource();
       case -1281578674:  // conventionBundleSource
         return getConventionBundleSource();
+      case 225875692:  // conventionSource
+        return getConventionSource();
       case 809869649:  // securityProvider
         return getSecurityProvider();
       case -903470221:  // securityLoader
@@ -365,6 +372,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       case -1281578674:  // conventionBundleSource
         setConventionBundleSource((ConventionBundleSource) newValue);
         return;
+      case 225875692:  // conventionSource
+        setConventionSource((ConventionSource) newValue);
+        return;
       case 809869649:  // securityProvider
         setSecurityProvider((SecurityProvider) newValue);
         return;
@@ -413,6 +423,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
+          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
           JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
@@ -448,6 +459,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
@@ -1008,6 +1020,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the convention source.
+   * @return the value of the property
+   */
+  public ConventionSource getConventionSource() {
+    return _conventionSource;
+  }
+
+  /**
+   * Sets the convention source.
+   * @param conventionSource  the new value of the property
+   */
+  public void setConventionSource(ConventionSource conventionSource) {
+    this._conventionSource = conventionSource;
+  }
+
+  /**
+   * Gets the the {@code conventionSource} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionSource> conventionSource() {
+    return metaBean().conventionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the security provider.
    * @return the value of the property
    */
@@ -1252,6 +1289,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ConventionBundleSource> _conventionBundleSource = DirectMetaProperty.ofReadWrite(
         this, "conventionBundleSource", ToolContextComponentFactory.class, ConventionBundleSource.class);
     /**
+     * The meta-property for the {@code conventionSource} property.
+     */
+    private final MetaProperty<ConventionSource> _conventionSource = DirectMetaProperty.ofReadWrite(
+        this, "conventionSource", ToolContextComponentFactory.class, ConventionSource.class);
+    /**
      * The meta-property for the {@code securityProvider} property.
      */
     private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
@@ -1303,6 +1345,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesSource",
         "marketDataSnapshotSource",
         "conventionBundleSource",
+        "conventionSource",
         "securityProvider",
         "securityLoader",
         "historicalTimeSeriesProvider",
@@ -1362,6 +1405,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _marketDataSnapshotSource;
         case -1281578674:  // conventionBundleSource
           return _conventionBundleSource;
+        case 225875692:  // conventionSource
+          return _conventionSource;
         case 809869649:  // securityProvider
           return _securityProvider;
         case -903470221:  // securityLoader
@@ -1566,6 +1611,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConventionBundleSource> conventionBundleSource() {
       return _conventionBundleSource;
+    }
+
+    /**
+     * The meta-property for the {@code conventionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionSource> conventionSource() {
+      return _conventionSource;
     }
 
     /**

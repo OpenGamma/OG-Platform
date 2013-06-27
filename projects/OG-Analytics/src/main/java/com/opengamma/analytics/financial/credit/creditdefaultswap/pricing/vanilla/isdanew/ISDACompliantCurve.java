@@ -47,12 +47,28 @@ public class ISDACompliantCurve {
     }
   }
 
+  protected ISDACompliantCurve(final ISDACompliantCurve from) {
+    ArgumentChecker.notNull(from, "null from");
+    // Shallow copy
+    _n = from._n;
+    _t = from._t;
+    _r = from._r;
+    _rt = from._rt;
+    _df = from._df;
+  }
+
   private ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
     _n = t.length;
     _t = t;
     _r = r;
     _rt = rt;
     _df = df;
+  }
+
+  protected double[] getKnotTimes() {
+    double[] res = new double[_n];
+    System.arraycopy(_t, 0, res, 0, _n);
+    return res;
   }
 
   /**
@@ -107,6 +123,31 @@ public class ISDACompliantCurve {
     final int insertionPoint = -(1 + index);
     final double rt = getRT(t, insertionPoint);
     return rt / t;
+  }
+
+  /**
+   * Get the zero rate multiplied by time - this is the same as the negative log of the discount factor
+   * @param t  Time
+   * @return value
+   */
+  public double getRT(final double t) {
+    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
+
+    // short-cut doing binary search
+    if (t <= _t[0]) {
+      return _r[0] * t;
+    }
+    if (t >= _t[_n - 1]) {
+      return _r[_n - 1] * t;
+    }
+
+    final int index = Arrays.binarySearch(_t, t);
+    if (index >= 0) {
+      return _rt[index];
+    }
+
+    final int insertionPoint = -(1 + index);
+    return getRT(t, insertionPoint);
   }
 
   private double getRT(final double t, final int insertionPoint) {

@@ -9,6 +9,7 @@ import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.toLocalDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.truncateList;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -37,8 +38,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ISDACompliantPresentValueCreditDefaultSwap {
 
-  // TODO this have not been testing with non-zero yield curves
-
   @SuppressWarnings("unused")
   private static final int DEFAULT_CASH_SETTLEMENT_DAYS = 3;
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -46,9 +45,6 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-
-  // Create an object for calibrating a SNCDS
-  private static final CalibrateHazardRateTermStructureISDAMethod CDS_CALIBRATOR = new CalibrateHazardRateTermStructureISDAMethod();
 
   private final BusinessDayConvention _businessdayAdjustmentConvention;
   private final Calendar _calandar;
@@ -82,7 +78,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return unit notional RPV01
    */
   public double calculateRPV01(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, StubType stubType, final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve, final boolean protectStart, final PriceType priceType) {
+      final Period tenor, StubType stubType, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, final boolean protectStart, final PriceType priceType) {
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
     ArgumentChecker.notNull(valueDate, "null valueDate");
@@ -111,7 +107,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
     }
 
     final LocalDate[] yieldCurveDates = yieldCurve.getCurveDates();
-    final LocalDate[] creditCurveDates = toLocalDate(hazardRateCurve.getCurveTenors());
+    final LocalDate[] creditCurveDates = hazardRateCurve.getCurveDates();
     // This is common to the protection leg
     final LocalDate[] integrationSchedule = payAccOnDefault ? getIntegrationNodesAsDates(globalAccStart, golobalAccEnd, yieldCurveDates, creditCurveDates) : null;
     final int obsOffset = protectStart ? -1 : 0; // protection start at the beginning or end day
@@ -163,7 +159,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return PV
    */
   private double[] calculateSinglePeriodRPV01(final LocalDate today, final LocalDate accStartDate, final LocalDate accEndDate, final LocalDate paymentDate, final int obsOffset,
-      final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
+      final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve) {
 
     final double accTime = _accuralDayCount.getDayCountFraction(accStartDate, accEndDate);
     double t = _curveDayCount.getDayCountFraction(today, paymentDate);
@@ -197,7 +193,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return
    */
   private double calculateSinglePeriodAccrualOnDefault(final LocalDate today, final LocalDate offsetStepinDate, final LocalDate offsetAccStartDate, final LocalDate offsetAccEndDate,
-      final double accTime, final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve, LocalDate[] integrationSchedule) {
+      final double accTime, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, LocalDate[] integrationSchedule) {
 
     LocalDate[] truncatedDateList = truncateList(offsetAccStartDate, offsetAccEndDate, integrationSchedule);
     final int nItems = truncatedDateList.length;
@@ -236,6 +232,8 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
       // if (s0 == s1) {
       // continue;
       // }
+
+      // TODO this is a know bug that is fixed in ISDA v.1.8.2
 
       final double lambda = Math.log(s0 / s1) / t;
       final double fwdRate = Math.log(df0 / df1) / t;
@@ -294,7 +292,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @return unit notional PV of protection (or contingent) leg 
    */
   public double calculateProtectionLeg(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
-      final ISDACompliantYieldCurve yieldCurve, final HazardRateCurve hazardRateCurve, final double recoveryRate, final boolean protectStart) {
+      final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, final double recoveryRate, final boolean protectStart) {
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(valueDate, "null valueDate");
     ArgumentChecker.notNull(startDate, "null startDate");
@@ -317,35 +315,58 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
     }
 
     final LocalDate[] yieldCurveDates = yieldCurve.getCurveDates();
-    final LocalDate[] creditCurveDates = toLocalDate(hazardRateCurve.getCurveTenors());
+    final LocalDate[] creditCurveDates = hazardRateCurve.getCurveDates();
     final double[] integrationSchedule = ISDACompliantScheduleGenerator.getIntegrationNodesAsTimes(today, effectiveStartDate, endDate, yieldCurveDates, creditCurveDates);
 
-    double s1 = hazardRateCurve.getSurvivalProbability(integrationSchedule[0]);
-    double df1 = yieldCurve.getDiscountFactor(integrationSchedule[0]);
+    // double s1 = hazardRateCurve.getSurvivalProbability(integrationSchedule[0]);
+    // double df1 = yieldCurve.getDiscountFactor(integrationSchedule[0]);
 
+    double ht1 = hazardRateCurve.getRT(integrationSchedule[0]);
+    double rt1 = yieldCurve.getRT(integrationSchedule[0]);
+    double s1 = Math.exp(-ht1);
+    double p1 = Math.exp(-rt1);
     double pv = 0.0;
-    for (int i = 1; i < integrationSchedule.length; ++i) {
-      final double dt = integrationSchedule[i] - integrationSchedule[i - 1];
+    final int n = integrationSchedule.length;
+    for (int i = 1; i < n; ++i) {
+
+      final double ht0 = ht1;
+      final double rt0 = rt1;
+      final double p0 = p1;
       final double s0 = s1;
-      final double df0 = df1;
-      s1 = hazardRateCurve.getSurvivalProbability(integrationSchedule[i]);
-      df1 = yieldCurve.getDiscountFactor(integrationSchedule[i]);
 
-      // TODO handle abs(s0-s1) -> and dt -> 0 cases by taking proper limits
-      if (s0 == s1) {
-        continue; // there is no chance of a default over this period
+      ht1 = hazardRateCurve.getRT(integrationSchedule[i]);
+      rt1 = yieldCurve.getRT(integrationSchedule[i]);
+      s1 = Math.exp(-ht1);
+      p1 = Math.exp(-rt1);
+      final double dht = ht1 - ht0;
+      final double drt = rt1 - rt0;
+      final double dhrt = dht + drt;
+
+      // this is equivalent to the ISDA code without explicitly calculating the time step - it also handles the limit
+      double dPV;
+      if (Math.abs(dhrt) < 1e-5) {
+        dPV = dht * (1 - dhrt * (0.5 - dhrt / 6)) * p0 * s0;
+      } else {
+        dPV = dht / dhrt * (p0 * s0 - p1 * s1);
       }
-      final double hazardRate = Math.log(s0 / s1) / dt;
-      final double interestRate = Math.log(df0 / df1) / dt;
-      pv += (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * dt)) * s0 * df0;
 
-      // dubug
-//      double pv1 = (1.0 - recoveryRate) * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * dt)) * s0 * df0;
-//      System.out.println(s1 + "\t" + df1 + "\t" + dt + "\t" + pv1);
+      // *************
+      // ISDA code
+      // **************
+      // final double dt = integrationSchedule[i] - integrationSchedule[i - 1];
+      // final double s0 = s1;
+      // final double df0 = df1;
+      // s1 = hazardRateCurve.getSurvivalProbability(integrationSchedule[i]);
+      // df1 = yieldCurve.getDiscountFactor(integrationSchedule[i]);
+      // final double hazardRate = Math.log(s0 / s1) / dt;
+      // final double interestRate = Math.log(df0 / df1) / dt;
+      // pv += (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * dt)) * s0 * df0;
+
+      pv += dPV;
 
     }
     pv *= 1.0 - recoveryRate;
-//    System.out.println(pv);
+    // System.out.println(pv);
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
     final double t = _curveDayCount.getDayCountFraction(today, valueDate);
@@ -389,7 +410,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
 
     return cds.getNotional()
         * calculateRPV01(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(),
-            ISDACompliantYieldCurve.fromISDADateCurve(yieldCurve), hazardRateCurve, cds.getProtectionStart(), priceType);
+            ISDACompliantDateYieldCurve.fromISDADateCurve(yieldCurve), ISDACompliantDateCreditCurve.fromHazardRateCurve(hazardRateCurve), cds.getProtectionStart(), priceType);
   }
 
   /**
@@ -418,7 +439,9 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
     final double rr = cds.getRecoveryRate();
     final boolean protectionStart = cds.getProtectionStart();
 
-    return cds.getNotional() * calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, ISDACompliantYieldCurve.fromISDADateCurve(yieldCurve), hazardRateCurve, rr, protectionStart);
+    return cds.getNotional()
+        * calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, ISDACompliantDateYieldCurve.fromISDADateCurve(yieldCurve),
+            ISDACompliantDateCreditCurve.fromHazardRateCurve(hazardRateCurve), rr, protectionStart);
 
   }
 

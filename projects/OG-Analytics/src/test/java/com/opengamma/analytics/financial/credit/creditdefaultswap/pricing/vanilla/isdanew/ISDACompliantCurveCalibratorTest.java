@@ -43,12 +43,11 @@ public class ISDACompliantCurveCalibratorTest {
   private static final double[] YC_RATES;
   private static final double[] DISCOUNT_FACT;
   private static final double[] YC_TIMES;
-  private static final ISDACompliantYieldCurve YIELD_CURVE;
+  private static final ISDACompliantDateYieldCurve YIELD_CURVE;
   private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   static {
     final int ycPoints = YC_DATES.length;
-
     YC_RATES = new double[ycPoints];
     DISCOUNT_FACT = new double[ycPoints];
     Arrays.fill(DISCOUNT_FACT, 1.0);
@@ -56,7 +55,7 @@ public class ISDACompliantCurveCalibratorTest {
     for (int i = 0; i < ycPoints; i++) {
       YC_TIMES[i] = ACT365.getDayCountFraction(BASE_DATE, YC_DATES[i]);
     }
-    YIELD_CURVE = new ISDACompliantYieldCurve(BASE_DATE, YC_DATES, YC_RATES);
+    YIELD_CURVE = new ISDACompliantDateYieldCurve(BASE_DATE, YC_DATES, YC_RATES);
   }
 
   @Test
@@ -82,7 +81,7 @@ public class ISDACompliantCurveCalibratorTest {
     final double recovery = 0.4;
 
     ISDACompliantCurveCalibrator calibrator = new ISDACompliantCurveCalibrator();
-    HazardRateCurve hc = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
+    ISDACompliantDateCreditCurve hc = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
 
 //    final int m = hc.getNumberOfCurvePoints();
 //    double[] t = hc.getTimes();
@@ -106,13 +105,13 @@ public class ISDACompliantCurveCalibratorTest {
     final int benchmark = 1000;
 
     for (int k = 0; k < warmup; k++) {
-      HazardRateCurve hc2 = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
+      ISDACompliantDateCreditCurve hc2 = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
     }
 
     if (benchmark > 0) {
       long t0 = System.nanoTime();
       for (int k = 0; k < benchmark; k++) {
-        HazardRateCurve hc2 = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
+        ISDACompliantDateCreditCurve hc2 = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
       }
       long time = System.nanoTime() - t0;
       double timePerCalibration = ((double) time) / 1e6 / benchmark;
