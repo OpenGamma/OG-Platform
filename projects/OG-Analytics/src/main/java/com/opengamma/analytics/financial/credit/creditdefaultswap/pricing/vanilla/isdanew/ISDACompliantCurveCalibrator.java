@@ -33,9 +33,8 @@ public class ISDACompliantCurveCalibrator {
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
   private static final ISDACompliantPresentValueCreditDefaultSwap PRICER = new ISDACompliantPresentValueCreditDefaultSwap();
 
-  public HazardRateCurve calibrateHazardCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart,
-      final ISDACompliantYieldCurve yieldCurve, final double recoveryRate) {
+  public ISDACompliantDateCreditCurve calibrateHazardCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve, final double recoveryRate) {
 
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
@@ -62,12 +61,13 @@ public class ISDACompliantCurveCalibrator {
       t[i] = ACT_365.getDayCountFraction(today, endDates[i]);
     }
 
-    HazardRateCurve hazardCurve = new HazardRateCurve(toZoneDateTime(endDates), t, guess, 0.0);
+    // HazardRateCurve hazardCurve = new HazardRateCurve(toZoneDateTime(endDates), t, guess, 0.0);
+    ISDACompliantDateCreditCurve hazardCurve = new ISDACompliantDateCreditCurve(today, endDates, guess);
     for (int i = 0; i < n; i++) {
       CDSPricer func = new CDSPricer(i, today, stepinDate, valueDate, startDate, endDates[i], couponRates[i], protectStart, payAccOnDefault, tenor, stubType, recoveryRate, yieldCurve, hazardCurve);
       double[] bracket = BRACKER.getBracketedPoints(func, 0.9 * guess[i], 1.1 * guess[i], 0.0, Double.POSITIVE_INFINITY);
       double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
-      hazardCurve = hazardCurve.withRate(zeroRate, i);
+      hazardCurve = (ISDACompliantDateCreditCurve) hazardCurve.withRate(zeroRate, i);
     }
 
     return hazardCurve;
@@ -89,12 +89,12 @@ public class ISDACompliantCurveCalibrator {
     private final StubType _stubType;
     private final double _rr;
 
-    private final ISDACompliantYieldCurve _yieldCurve;
-    private final HazardRateCurve _hazardCurve;
+    private final ISDACompliantDateYieldCurve _yieldCurve;
+    private final ISDACompliantDateCreditCurve _hazardCurve;
 
     public CDSPricer(final int index, final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final double couponRate,
-        final boolean protectStart, final boolean payAccOnDefault, final Period tenor, final StubType stubType, final double rr, final ISDACompliantYieldCurve yieldCurve,
-        final HazardRateCurve hazardCurve) {
+        final boolean protectStart, final boolean payAccOnDefault, final Period tenor, final StubType stubType, final double rr, final ISDACompliantDateYieldCurve yieldCurve,
+        final ISDACompliantDateCreditCurve hazardCurve) {
 
       _index = index;
       _today = today;
@@ -116,7 +116,7 @@ public class ISDACompliantCurveCalibrator {
     @Override
     public Double evaluate(Double x) {
       // TODO this direct access is unpleasant
-      final HazardRateCurve hazardCurve = _hazardCurve.withRate(x, _index);
+      ISDACompliantDateCreditCurve hazardCurve = (ISDACompliantDateCreditCurve) _hazardCurve.withRate(x, _index);
       final double rpv01 = PRICER.calculateRPV01(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart, PriceType.CLEAN);
       final double protectLeg = PRICER.calculateProtectionLeg(_today, _stepinDate, _valueDate, _startDate, _endDate, _yieldCurve, hazardCurve, _rr, _protectStart);
       final double pv = protectLeg - _couponRate * rpv01;

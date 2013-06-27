@@ -6,7 +6,6 @@
 
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,7 +20,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.util.ArgumentChecker;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -139,7 +137,7 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
     throw new OpenGammaRuntimeException(field + " not present in sheet row, got " + fields);
   }
 
-  private HazardRateCurve getCreditCurve(final Map<String, String> fields, final LocalDate today) {
+  private ISDACompliantDateCreditCurve getCreditCurve(final Map<String, String> fields, final LocalDate today) {
     // load the curve dates from the inputs
     final int nCurvePoints = _parSpreadDates.length;
     final double[] negLogP = new double[nCurvePoints];
@@ -153,7 +151,7 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
       t[j] = ACT365.getDayCountFraction(today, _parSpreadDates[j]);
       r[j] = negLogP[j] / t[j];
     }
-    return new HazardRateCurve(_curveTenors, t, r, OFFSET);
+    return new ISDACompliantDateCreditCurve(today, _parSpreadDates, r, ACT365);
   }
 
   public ISDA_Results[] getResults() {

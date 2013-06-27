@@ -30,7 +30,7 @@ public abstract class ISDAModelDatasets {
 
   protected static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   protected static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  protected static final double OFFSET = 0.0;//1. / 365;
+  protected static final double OFFSET = 0.0;// 1. / 365;
 
   protected static class ISDA_Results {
 
@@ -40,8 +40,8 @@ public abstract class ISDAModelDatasets {
     public double recoveryRate;
 
     // curves
-    public ISDADateCurve yieldCurve;
-    public HazardRateCurve creditCurve;
+    public ISDACompliantDateYieldCurve yieldCurve;
+    public ISDACompliantDateCreditCurve creditCurve;
 
     // inputs for the CDS to be priced
     public LocalDate startDate;
@@ -54,6 +54,7 @@ public abstract class ISDAModelDatasets {
     public double defaultAcc;
     public double accruedPremium;
     public int accruedDays;
+
     @Override
     public int hashCode() {
       final int prime = 31;
@@ -81,6 +82,7 @@ public abstract class ISDAModelDatasets {
       result = prime * result + ((yieldCurve == null) ? 0 : yieldCurve.hashCode());
       return result;
     }
+
     @Override
     public boolean equals(Object obj) {
       if (this == obj)
@@ -133,8 +135,6 @@ public abstract class ISDAModelDatasets {
         return false;
       return true;
     }
-    
-    
 
   }
 
@@ -213,7 +213,8 @@ public abstract class ISDAModelDatasets {
 
       }
       // note offset is zero in keeping with ISDA code
-      temp.creditCurve = new HazardRateCurve(curveTenors, t, r, OFFSET);
+      temp.creditCurve = new ISDACompliantDateCreditCurve(temp.today, parSpreadDates, r, ACT365);
+      // temp.creditCurve = new HazardRateCurve(curveTenors, t, r, OFFSET);
 
       // cds inputs
       temp.startDate = cdsStartDate[i];
@@ -514,7 +515,7 @@ public abstract class ISDAModelDatasets {
         r[j] = -Math.log(surProb[j]) / t[j];
 
       }
-      temp.creditCurve = new HazardRateCurve(curveTenors, t, r, OFFSET);
+      temp.creditCurve = new ISDACompliantDateCreditCurve(temp.today, parSpreadDates, r, ACT365);
 
       // cds inputs
       temp.startDate = cdsStartDate[i];

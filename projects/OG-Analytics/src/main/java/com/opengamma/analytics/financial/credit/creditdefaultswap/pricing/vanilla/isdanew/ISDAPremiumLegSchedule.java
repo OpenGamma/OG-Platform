@@ -32,21 +32,45 @@ public class ISDAPremiumLegSchedule {
   private final LocalDate[] _accEndDates;
   private final LocalDate[] _paymentDates;
 
-  public ISDAPremiumLegSchedule(final LocalDate[] paymentDates, final LocalDate[] accStartDates, final LocalDate[] accEndDates) {
+  public static ISDAPremiumLegSchedule truncateSchedule(final LocalDate stepin, ISDAPremiumLegSchedule schedule) {
+    if (!schedule._accEndDates[0].isBefore(stepin)) {
+      return schedule; // nothing to truncate
+    }
+    if (stepin.isAfter(schedule._accEndDates[schedule._nPayments - 1])) {
+      throw new IllegalArgumentException("today is after last payment - i.e. all the payments are in the past");
+    }
+
+    int index = 0;
+    while (schedule._accEndDates[index].isBefore(stepin)) {
+      index++;
+    }
+
+    return new ISDAPremiumLegSchedule(schedule._paymentDates, schedule._accStartDates, schedule._accEndDates, index);
+  }
+
+  /**
+   * Truncation constructor 
+   * @param paymentDates
+   * @param accStartDates
+   * @param accEndDates
+   * @param index copy the date starting from this index
+   */
+  private ISDAPremiumLegSchedule(final LocalDate[] paymentDates, final LocalDate[] accStartDates, final LocalDate[] accEndDates, int index) {
     ArgumentChecker.noNulls(paymentDates, "null paymentDates");
     ArgumentChecker.noNulls(accStartDates, "accStartDates");
     ArgumentChecker.noNulls(accEndDates, "null accEndDates");
 
-    _nPayments = paymentDates.length;
-    ArgumentChecker.isTrue(_nPayments == accStartDates.length, "accStartDates length of {} does not match paymentDates length of {}", accStartDates.length, _nPayments);
-    ArgumentChecker.isTrue(_nPayments == accEndDates.length, "accEndDates length of {} does not match paymentDates length of {}", accEndDates.length, _nPayments);
+    final int n = paymentDates.length;
+    _nPayments = n - index;
+    ArgumentChecker.isTrue(n == accStartDates.length, "accStartDates length of {} does not match paymentDates length of {}", accStartDates.length, _nPayments);
+    ArgumentChecker.isTrue(n == accEndDates.length, "accEndDates length of {} does not match paymentDates length of {}", accEndDates.length, _nPayments);
 
     _paymentDates = new LocalDate[_nPayments];
     _accStartDates = new LocalDate[_nPayments];
     _accEndDates = new LocalDate[_nPayments];
-    System.arraycopy(paymentDates, 0, _paymentDates, 0, _nPayments);
-    System.arraycopy(accStartDates, 0, _accStartDates, 0, _nPayments);
-    System.arraycopy(accEndDates, 0, _accEndDates, 0, _nPayments);
+    System.arraycopy(paymentDates, index, _paymentDates, 0, _nPayments);
+    System.arraycopy(accStartDates, index, _accStartDates, 0, _nPayments);
+    System.arraycopy(accEndDates, index, _accEndDates, 0, _nPayments);
   }
 
   /**
@@ -175,7 +199,7 @@ public class ISDAPremiumLegSchedule {
       LocalDate tDate = endDate;
       while (tDate.isAfter(startDate)) {
         dates.add(tDate);
-        final Period tStep = step.multipliedBy(++intervals); //this mimics ISDA c code, rather than true market convention 
+        final Period tStep = step.multipliedBy(++intervals); // this mimics ISDA c code, rather than true market convention
         tDate = endDate.minus(tStep);
       }
 
@@ -203,7 +227,7 @@ public class ISDAPremiumLegSchedule {
       LocalDate tDate = startDate;
       while (tDate.isBefore(endDate)) {
         dates.add(tDate);
-        final Period tStep = step.multipliedBy(++intervals); //this mimics ISDA c code, rather than true market convention 
+        final Period tStep = step.multipliedBy(++intervals); // this mimics ISDA c code, rather than true market convention
         tDate = startDate.plus(tStep);
       }
 
@@ -225,7 +249,7 @@ public class ISDAPremiumLegSchedule {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(calendar, "Calendar");
     ArgumentChecker.notNull(convention, "Business day adjustment");
-    
+
     return convention.adjustDate(calendar, date);
   }
 
