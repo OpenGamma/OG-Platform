@@ -31,7 +31,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.pnl.MarkToMarketPnLFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 /** 
  * Calculates the implied volatility of an equity index or equity option using the {@link BjerksundStenslandModel} */
