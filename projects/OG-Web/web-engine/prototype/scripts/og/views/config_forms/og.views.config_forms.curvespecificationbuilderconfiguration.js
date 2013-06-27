@@ -63,8 +63,10 @@ $.register_module({
                             if (!tenor) return true; // i.e. continue;
                             $row.find('input[type=hidden]').each(function (idx, val) {
                                 var value = JSON.parse($(val).val());
-                                if (!value) return true; // i.e. continue;
-                                value[0] = data_types[value.type.toLowerCase()];
+                                if (!value)
+                                    return true; // i.e. continue;
+                                if(value.type)
+                                    value[0] = data_types[value.type.toLowerCase()];
                                 (data[field_names[idx]] || (data[field_names[idx]] = {}))[tenor] = value;
                             });
                         });
@@ -184,7 +186,9 @@ $.register_module({
                             $popup.find('.og-js-prefix').val(data[PRFX]);
                             $popup.find('.og-js-market-sector').val(data[MKTS]).focus().select();
                         },
-                        'synthetic': function () {$popup.find('.og-js-currency').val(data[CURR]).focus().select();}
+                        'synthetic': function () {
+                            $popup.find('.og-js-currency').val(data[CURR]).focus().select();
+                        }
                     })[data_type]();
                 }).on('change', form_id + ' .og-js-type', function (event) {
                     var $popup = $(form_id + ' .og-js-popup'), data_type = $(event.target).val().toLowerCase();
