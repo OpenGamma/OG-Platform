@@ -9,7 +9,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -36,7 +36,7 @@ public class DeliverableSwapFutureSecurityConverter extends FinancialSecurityVis
   }
 
   @Override
-  public SwapFuturesDeliverableSecurityDefinition visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+  public SwapFuturesPriceDeliverableSecurityDefinition visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId swapIdentifer = security.getUnderlyingSwapId();
     final SwapSecurity underlyingSwapSecurity = (SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(swapIdentifer)); //TODO see note in InterestRateFutureOptionSecurityConverter
@@ -49,6 +49,6 @@ public class DeliverableSwapFutureSecurityConverter extends FinancialSecurityVis
     }
     final ZonedDateTime lastTradingDate = security.getExpiry().getExpiry();
     final double notional = security.getNotional();
-    return new SwapFuturesDeliverableSecurityDefinition(lastTradingDate, (SwapFixedIborDefinition) underlyingSwap, notional);
+    return new SwapFuturesPriceDeliverableSecurityDefinition(lastTradingDate, (SwapFixedIborDefinition) underlyingSwap, notional);
   }
 }

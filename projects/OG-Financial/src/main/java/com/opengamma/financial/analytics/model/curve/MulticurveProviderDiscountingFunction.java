@@ -241,8 +241,8 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         final LinkedHashMap<String, IborIndex[]> forwardIborMap = new LinkedHashMap<>();
         final LinkedHashMap<String, IndexON[]> forwardONMap = new LinkedHashMap<>();
         //TODO comparator to sort groups by order
-        int i = 0;
-        for (final CurveGroupConfiguration group : constructionConfiguration.getCurveGroups()) {
+        int i = 0; // Implementation Note: loop on the groups
+        for (final CurveGroupConfiguration group : constructionConfiguration.getCurveGroups()) { // Group - start
           int j = 0;
           final int nCurves = group.getCurveTypes().size();
           definitions[i] = new InstrumentDerivative[nCurves][];
@@ -250,7 +250,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           curves[i] = new String[nCurves];
           parameterGuess[i] = new double[nCurves];
           final DoubleArrayList parameterGuessForCurves = new DoubleArrayList();
-          for (final CurveTypeConfiguration type : group.getCurveTypes()) {
+          for (final CurveTypeConfiguration type : group.getCurveTypes()) { // Type - start
             final String curveName = type.getName();
             final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();
             final CurveSpecification specification =
@@ -265,7 +265,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
             int k = 0;
             final Set<IborIndex> uniqueIborIndices = new HashSet<>();
             final Set<IndexON> uniqueOvernightIndices = new HashSet<>();
-            for (final CurveNodeWithIdentifier node : specification.getNodes()) {
+            for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
               final Double marketData = snapshot.getDataPoint(node.getIdentifier());
               if (marketData == null) {
                 throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
@@ -276,7 +276,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               uniqueIborIndices.addAll(definitionForNode.accept(IborIndexVisitor.getInstance()));
               uniqueOvernightIndices.addAll(definitionForNode.accept(OvernightIndexVisitor.getInstance()));
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
-            }
+            } // Node points - end
             definitions[i][j] = derivativesForCurve;
             curveGenerators[i][j] = getGenerator(definition);
             curves[i][j] = curveName;
@@ -289,9 +289,9 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               discountingMap.put(curveName, Currency.of(((DiscountingCurveTypeConfiguration) type).getCode()));
             }
             j++;
-          }
+          } // type - end
           i++;
-        }
+        } // Group - end
         return builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess, knownData, discountingMap, forwardIborMap, forwardONMap, PSMQC, PSMQCSC);
       }
 
@@ -308,6 +308,5 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       }
     };
   }
-
 
 }

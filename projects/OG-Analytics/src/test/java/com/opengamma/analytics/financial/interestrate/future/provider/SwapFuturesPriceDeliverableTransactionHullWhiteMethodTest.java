@@ -11,8 +11,8 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -51,12 +51,12 @@ public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
   private static final double NOTIONAL = 100000;
   private static final double RATE = 0.0175;
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, false);
-  private static final SwapFuturesDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION = new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION = new SwapFuturesPriceDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
   private static final ZonedDateTime TRAN_DATE = DateUtils.getUTCDate(2013, 3, 28);
   private static final double TRAN_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final int QUANTITY = 1234;
-  private static final SwapFuturesDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
-      new SwapFuturesDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
+  private static final SwapFuturesPriceDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
+      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 3, 28);
   private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0; // price quoted in 32nd of 1%

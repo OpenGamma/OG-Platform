@@ -24,8 +24,8 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositIbor;
@@ -103,16 +103,16 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
       .fromFixingPeriodStartDate(EDH4_START_PERIOD, USDLIBOR3M, NOTIONAL, 0.25, "EDH4", NYC);
   private static final Period CTPM3_TENOR = Period.ofYears(2);
   private static final double CTPM3_RATE = 0.0050;
-  private static final SwapFuturesDeliverableSecurityDefinition CTPM3_DEFINITION = SwapFuturesDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CTPM3_TENOR, NOTIONAL, CTPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CTPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CTPM3_TENOR, NOTIONAL, CTPM3_RATE);
   private static final Period CFPM3_TENOR = Period.ofYears(5);
   private static final double CFPM3_RATE = 0.0100;
-  private static final SwapFuturesDeliverableSecurityDefinition CFPM3_DEFINITION = SwapFuturesDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CFPM3_TENOR, NOTIONAL, CFPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CFPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CFPM3_TENOR, NOTIONAL, CFPM3_RATE);
   private static final Period CNPM3_TENOR = Period.ofYears(10);
   private static final double CNPM3_RATE = 0.0200;
-  private static final SwapFuturesDeliverableSecurityDefinition CNPM3_DEFINITION = SwapFuturesDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CNPM3_TENOR, NOTIONAL, CNPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CNPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CNPM3_TENOR, NOTIONAL, CNPM3_RATE);
   private static final Period CBPM3_TENOR = Period.ofYears(30);
   private static final double CBPM3_RATE = 0.0275;
-  private static final SwapFuturesDeliverableSecurityDefinition CBPM3_DEFINITION = SwapFuturesDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CBPM3_TENOR, NOTIONAL, CBPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CBPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CBPM3_TENOR, NOTIONAL, CBPM3_RATE);
   private static final GeneratorInterestRateFutures GENERATOR_EDM3 = new GeneratorInterestRateFutures("EDM3", EDM3_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_EDU3 = new GeneratorInterestRateFutures("EDU3", EDU3_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_EDZ3 = new GeneratorInterestRateFutures("EDZ3", EDZ3_DEFINITION);
@@ -342,8 +342,8 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
           if (instrument instanceof InterestRateFutureTransactionDefinition) {
             ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
           } else {
-            if (instrument instanceof SwapFuturesDeliverableTransactionDefinition) {
-              ird = ((SwapFuturesDeliverableTransactionDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
+            if (instrument instanceof SwapFuturesPriceDeliverableTransactionDefinition) {
+              ird = ((SwapFuturesPriceDeliverableTransactionDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
             } else {
               ird = instrument.toDerivative(NOW, NOT_USED_2);
             }

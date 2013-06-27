@@ -59,8 +59,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -193,13 +193,13 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(SwapFuturesDeliverableSecurityDefinition futures, DATA_TYPE data);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(SwapFuturesPriceDeliverableSecurityDefinition futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(SwapFuturesDeliverableSecurityDefinition futures);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(SwapFuturesPriceDeliverableSecurityDefinition futures);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures, DATA_TYPE data);
+  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesPriceDeliverableTransactionDefinition futures, DATA_TYPE data);
 
-  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesDeliverableTransactionDefinition futures);
+  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesPriceDeliverableTransactionDefinition futures);
 
   // -----     Futures options    -----
 

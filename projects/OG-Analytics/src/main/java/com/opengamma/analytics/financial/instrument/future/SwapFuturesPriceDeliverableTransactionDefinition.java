@@ -20,12 +20,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Description of an interest rate future security.
  */
-public class SwapFuturesDeliverableTransactionDefinition implements InstrumentDefinitionWithData<InstrumentDerivative, Double> {
+public class SwapFuturesPriceDeliverableTransactionDefinition implements InstrumentDefinitionWithData<InstrumentDerivative, Double> {
 
   /**
    * The underlying swap futures security.
    */
-  private final SwapFuturesDeliverableSecurityDefinition _underlying;
+  private final SwapFuturesPriceDeliverableSecurityDefinition _underlying;
   /**
    * The date at which the transaction was done.
    */
@@ -46,7 +46,7 @@ public class SwapFuturesDeliverableTransactionDefinition implements InstrumentDe
    * @param transactionPrice The price at which the transaction was done.
    * @param quantity The quantity/number of contract.
    */
-  public SwapFuturesDeliverableTransactionDefinition(final SwapFuturesDeliverableSecurityDefinition underlying, final ZonedDateTime transactionDate,
+  public SwapFuturesPriceDeliverableTransactionDefinition(final SwapFuturesPriceDeliverableSecurityDefinition underlying, final ZonedDateTime transactionDate,
       final double transactionPrice, final int quantity) {
     ArgumentChecker.notNull(underlying, "Underlying");
     ArgumentChecker.notNull(transactionDate, "Transaction date");
@@ -60,7 +60,7 @@ public class SwapFuturesDeliverableTransactionDefinition implements InstrumentDe
    * Returns the underlying futures security.
    * @return The underlying.
    */
-  public SwapFuturesDeliverableSecurityDefinition getUnderlying() {
+  public SwapFuturesPriceDeliverableSecurityDefinition getUnderlying() {
     return _underlying;
   }
 
@@ -159,7 +159,7 @@ public class SwapFuturesDeliverableTransactionDefinition implements InstrumentDe
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwapFuturesDeliverableTransactionDefinition other = (SwapFuturesDeliverableTransactionDefinition) obj;
+    SwapFuturesPriceDeliverableTransactionDefinition other = (SwapFuturesPriceDeliverableTransactionDefinition) obj;
     if (_quantity != other._quantity) {
       return false;
     }

@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.instrument.index;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,14 +20,14 @@ public class GeneratorSwapFuturesDeliverable extends GeneratorInstrument<Generat
   /**
    * The underlying Deliverable swap futures security.
    */
-  private final SwapFuturesDeliverableSecurityDefinition _security;
+  private final SwapFuturesPriceDeliverableSecurityDefinition _security;
 
   /**
    * Constructor.
    * @param name The generator name.
    * @param security The underlying deliverable swap futures security.
    */
-  public GeneratorSwapFuturesDeliverable(String name, final SwapFuturesDeliverableSecurityDefinition security) {
+  public GeneratorSwapFuturesDeliverable(String name, final SwapFuturesPriceDeliverableSecurityDefinition security) {
     super(name);
     ArgumentChecker.notNull(security, "STIR futures security");
     _security = security;
@@ -37,7 +37,7 @@ public class GeneratorSwapFuturesDeliverable extends GeneratorInstrument<Generat
    * Gets the deliverable swap futures security.
    * @return The futures.
    */
-  public SwapFuturesDeliverableSecurityDefinition getFutures() {
+  public SwapFuturesPriceDeliverableSecurityDefinition getFutures() {
     return _security;
   }
 
@@ -45,9 +45,9 @@ public class GeneratorSwapFuturesDeliverable extends GeneratorInstrument<Generat
   /**
    * The quantity is selected to be in line with the required nominal.
    */
-  public SwapFuturesDeliverableTransactionDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
+  public SwapFuturesPriceDeliverableTransactionDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
     int quantity = (int) Math.ceil(notional / _security.getNotional());
-    return new SwapFuturesDeliverableTransactionDefinition(_security, date, marketQuote, quantity);
+    return new SwapFuturesPriceDeliverableTransactionDefinition(_security, date, marketQuote, quantity);
   }
 
   @Override
