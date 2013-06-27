@@ -89,7 +89,7 @@ public class FXMatrixFunction extends AbstractFunction {
         }
         final FXMatrix matrix = new FXMatrix();
         final Iterator<Currency> iter = currencies.iterator();
-        final Currency initialCurrency = currencies.iterator().next();
+        final Currency initialCurrency = iter.next();
         while (iter.hasNext()) {
           final Currency otherCurrency = iter.next();
           final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
@@ -116,7 +116,7 @@ public class FXMatrixFunction extends AbstractFunction {
         }
         final Set<ValueRequirement> requirements = new HashSet<>();
         final Iterator<Currency> iter = currencies.iterator();
-        final Currency initialCurrency = currencies.iterator().next();
+        final Currency initialCurrency = iter.next();
         while (iter.hasNext()) {
           requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(initialCurrency, iter.next()))));
         }

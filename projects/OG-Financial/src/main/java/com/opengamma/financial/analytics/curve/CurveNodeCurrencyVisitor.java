@@ -26,6 +26,7 @@ import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.SwapConvention;
@@ -83,14 +84,14 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitRateFutureNode(final RateFutureNode node) {
-    final Set<Currency> currencies = getCurrencies(_conventionSource.getConvention(node.getFutureConvention()));
+    final Set<Currency> currencies = new HashSet<>(getCurrencies(_conventionSource.getConvention(node.getFutureConvention())));
     currencies.addAll(getCurrencies(_conventionSource.getConvention(node.getUnderlyingConvention())));
     return currencies;
   }
 
   @Override
   public Set<Currency> visitSwapNode(final SwapNode node) {
-    final Set<Currency> currencies = getCurrencies(_conventionSource.getConvention(node.getPayLegConvention()));
+    final Set<Currency> currencies = new HashSet<>(getCurrencies(_conventionSource.getConvention(node.getPayLegConvention())));
     currencies.addAll(getCurrencies(_conventionSource.getConvention(node.getReceiveLegConvention())));
     return currencies;
   }
@@ -108,6 +109,9 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     }
     if (convention instanceof IborIndexConvention) {
       return Collections.singleton(((IborIndexConvention) convention).getCurrency());
+    }
+    if (convention instanceof InterestRateFutureConvention) {
+      return getCurrencies(_conventionSource.getConvention(((InterestRateFutureConvention) convention).getIndexConvention()));
     }
     if (convention instanceof OISLegConvention) {
       return getCurrencies(_conventionSource.getConvention(((OISLegConvention) convention).getOvernightIndexConvention()));
