@@ -50,7 +50,7 @@ public class SimulationScriptTest {
 
   @Test
   public void parameters() {
-    Map<String, Object> params = ImmutableMap.<String, Object>of("foo", "FOO", "bar", 123);
+    Map<String, Object> params = ImmutableMap.<String, Object>of("foo", "FOO", "bar", 123d);
     Scenario scenario = SimulationUtils.createScenarioFromDsl("src/test/resources/scenarios/ParametersTest.groovy", params);
     assertNotNull(scenario);
     ScenarioDefinition scenarioDefinition = scenario.createDefinition();
