@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.timeseries;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -62,11 +63,10 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
     final List<CurveGroupConfiguration> groups = constructionConfig.getCurveGroups();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final CurveGroupConfiguration group : groups) {
-      final List<CurveTypeConfiguration> types = group.getCurveTypes();
       //TODO do we want to put information in about whether or not to use fixing time series?
       //TODO do we want to exclude node types that definitely don't need fixing data?
-      for (final CurveTypeConfiguration type : types) {
-        final String curveName = type.getName();
+      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        final String curveName = entry.getKey();
         final ValueProperties properties = ValueProperties.builder()
             .with(ValuePropertyNames.CURVE, curveName)
             .get();
@@ -129,11 +129,10 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
     final List<CurveGroupConfiguration> groups = constructionConfig.getCurveGroups();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final CurveGroupConfiguration group : groups) {
-      final List<CurveTypeConfiguration> types = group.getCurveTypes();
       //TODO do we want to put information in about whether or not to use fixing time series?
       //TODO do we want to exclude node types that definitely don't need fixing data?
-      for (final CurveTypeConfiguration type : types) {
-        final String curveName = type.getName();
+      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        final String curveName = entry.getKey();
         final ValueProperties properties = ValueProperties.builder()
             .with(ValuePropertyNames.CURVE, curveName)
             .get();

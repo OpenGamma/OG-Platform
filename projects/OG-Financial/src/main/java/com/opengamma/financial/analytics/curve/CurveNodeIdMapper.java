@@ -67,7 +67,7 @@ public class CurveNodeIdMapper {
    * @param fxForwardNodeIds The FX forward node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
-   * @param zeroCouponInflationNodeIds;
+   * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
   public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
       final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
@@ -92,7 +92,7 @@ public class CurveNodeIdMapper {
    * @param fxForwardNodeIds The FX forward node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
-   * @param zeroCouponInflationNodeIds;
+   * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
   public CurveNodeIdMapper(final String name,
       final Map<Tenor, CurveInstrumentProvider> cashNodeIds,

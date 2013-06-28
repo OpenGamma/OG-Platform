@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
@@ -64,8 +65,8 @@ public class CurveUtils {
     ArgumentChecker.notNull(configuration, "configuration");
     final List<String> names = new ArrayList<>();
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
-      for (final CurveTypeConfiguration type : group.getCurveTypes()) {
-        names.add(type.getName());
+      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        names.add(entry.getKey());
       }
     }
     return names.toArray(new String[names.size()]);
@@ -91,8 +92,8 @@ public class CurveUtils {
     final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
     final Set<Currency> currencies = new HashSet<>();
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
-      for (final CurveTypeConfiguration type : group.getCurveTypes()) {
-        final String curveName = type.getName();
+      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        final String curveName = entry.getKey();
         final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(curveName, VersionCorrection.of(versionTime, versionTime));
         if (curveDefinition == null) {
           throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
