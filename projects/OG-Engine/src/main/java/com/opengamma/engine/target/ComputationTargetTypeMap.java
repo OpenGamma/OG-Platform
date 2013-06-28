@@ -397,22 +397,39 @@ public class ComputationTargetTypeMap<V> {
       public Iterator<V> iterator() {
         return new Iterator<V>() {
 
-          private V _nullValue = getNullValue();
           private final Iterator<V> _itr = getUnderlying().values().iterator();
+          private V _nullValue = getNullValue();
+          private V _nextValue = _nullValue;
+
+          private V nextValue() {
+            _nullValue = null;
+            while (_itr.hasNext()) {
+              final V value = _itr.next();
+              if (value != NULL) {
+                return value;
+              }
+            }
+            return null;
+          }
 
           @Override
           public boolean hasNext() {
-            return (_nullValue != null) || _itr.hasNext();
+            if (_nextValue == null) {
+              _nextValue = nextValue();
+              return _nextValue != null;
+            } else {
+              return true;
+            }
           }
 
           @Override
           public V next() {
-            if (_nullValue != null) {
-              final V nullValue = _nullValue;
-              _nullValue = null;
-              return nullValue;
+            if (_nextValue == null) {
+              return nextValue();
             } else {
-              return _itr.next();
+              final V value = _nextValue;
+              _nextValue = null;
+              return value;
             }
           }
 
@@ -422,6 +439,7 @@ public class ComputationTargetTypeMap<V> {
               if (!replaceNullValue(_nullValue, null)) {
                 throw new ConcurrentModificationException();
               }
+              _nullValue = null;
             } else {
               _itr.remove();
             }
@@ -438,67 +456,98 @@ public class ComputationTargetTypeMap<V> {
       public Iterator<Entry<ComputationTargetType, V>> iterator() {
         return new Iterator<Entry<ComputationTargetType, V>>() {
 
-          private V _nullValue = getNullValue();
           private final Iterator<Entry<Class<? extends UniqueIdentifiable>, V>> _itr = getUnderlying().entrySet().iterator();
+          private Entry<ComputationTargetType, V> _nextEntry = makeNullEntry();
+          private Entry<ComputationTargetType, V> _currentEntry;
+
+          private Entry<ComputationTargetType, V> makeNullEntry() {
+            final V nullValue = getNullValue();
+            if (nullValue == null) {
+              return null;
+            }
+            return new Entry<ComputationTargetType, V>() {
+
+              @Override
+              public ComputationTargetType getKey() {
+                return ComputationTargetType.NULL;
+              }
+
+              @Override
+              public V getValue() {
+                return nullValue;
+              }
+
+              @Override
+              public V setValue(final V value) {
+                if (replaceNullValue(nullValue, value)) {
+                  return nullValue;
+                } else {
+                  throw new ConcurrentModificationException();
+                }
+              }
+
+            };
+          }
+
+          private Entry<ComputationTargetType, V> nextEntry() {
+            while (_itr.hasNext()) {
+              final Entry<Class<? extends UniqueIdentifiable>, V> entry = _itr.next();
+              if (entry.getValue() != NULL) {
+                return new Entry<ComputationTargetType, V>() {
+
+                  @Override
+                  public ComputationTargetType getKey() {
+                    return ComputationTargetType.of(entry.getKey());
+                  }
+
+                  @Override
+                  public V getValue() {
+                    return entry.getValue();
+                  }
+
+                  @Override
+                  public V setValue(V value) {
+                    if (value == null) {
+                      final V previous = entry.getValue();
+                      _itr.remove();
+                      return previous;
+                    } else {
+                      return entry.setValue(value);
+                    }
+                  }
+
+                };
+              }
+            }
+            return null;
+          }
 
           @Override
           public boolean hasNext() {
-            return (_nullValue != null) || _itr.hasNext();
+            if (_nextEntry == null) {
+              _nextEntry = nextEntry();
+              return _nextEntry != null;
+            } else {
+              return true;
+            }
           }
 
           @Override
           public Entry<ComputationTargetType, V> next() {
-            if (_nullValue != null) {
-              final V nullValue = _nullValue;
-              _nullValue = null;
-              return new Entry<ComputationTargetType, V>() {
-
-                @Override
-                public ComputationTargetType getKey() {
-                  return ComputationTargetType.NULL;
-                }
-
-                @Override
-                public V getValue() {
-                  return nullValue;
-                }
-
-                @Override
-                public V setValue(final V value) {
-                  if (replaceNullValue(nullValue, value)) {
-                    return nullValue;
-                  } else {
-                    throw new ConcurrentModificationException();
-                  }
-                }
-
-              };
+            if (_nextEntry == null) {
+              _currentEntry = nextEntry();
+              return _currentEntry;
             } else {
-              final Entry<Class<? extends UniqueIdentifiable>, V> entry = _itr.next();
-              return new Entry<ComputationTargetType, V>() {
-
-                @Override
-                public ComputationTargetType getKey() {
-                  return ComputationTargetType.of(entry.getKey());
-                }
-
-                @Override
-                public V getValue() {
-                  return entry.getValue();
-                }
-
-                @Override
-                public V setValue(V value) {
-                  return entry.setValue(value);
-                }
-
-              };
+              _currentEntry = _nextEntry;
+              _nextEntry = null;
+              return _currentEntry;
             }
           }
 
           @Override
           public void remove() {
-            _itr.remove();
+            _currentEntry.setValue(null);
+            _currentEntry = null;
           }
 
         };
