@@ -90,11 +90,11 @@ public abstract class AbstractSocketProcess implements Lifecycle, EndPointDescri
    */
   public void setServer(final FudgeMsg endPoint) {
     ArgumentChecker.notNull(endPoint, "endPoint");
-    if (!AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
+    if (!SocketEndPointDescriptionProvider.TYPE_VALUE.equals(endPoint.getString(SocketEndPointDescriptionProvider.TYPE_KEY))) {
       throw new IllegalArgumentException("End point is not a ServerSocket - " + endPoint);
     }
     final Collection<InetAddress> addresses = new HashSet<InetAddress>();
-    for (FudgeField addr : endPoint.getAllByName(AbstractServerSocketProcess.ADDRESS_KEY)) {
+    for (FudgeField addr : endPoint.getAllByName(SocketEndPointDescriptionProvider.ADDRESS_KEY)) {
       final String host = endPoint.getFieldValue(String.class, addr);
       try {
         addresses.addAll(Arrays.asList(InetAddress.getAllByName(host)));
@@ -102,9 +102,9 @@ public abstract class AbstractSocketProcess implements Lifecycle, EndPointDescri
         s_logger.warn("Unknown host {}", host);
       }
     }
-    setPortNumber(endPoint.getInt(AbstractServerSocketProcess.PORT_KEY));
+    setPortNumber(endPoint.getInt(SocketEndPointDescriptionProvider.PORT_KEY));
     setInetAddresses(addresses);
-    s_logger.debug("End point {} resolved to {}:{}", new Object[] {endPoint, getInetAddresses(), getPortNumber()});
+    s_logger.debug("End point {} resolved to {}:{}", new Object[] {endPoint, getInetAddresses(), getPortNumber() });
   }
 
   protected Socket getSocket() {
@@ -175,7 +175,7 @@ public abstract class AbstractSocketProcess implements Lifecycle, EndPointDescri
           try {
             _socket.close();
           } catch (IOException e) {
-            s_logger.warn("Unable to close connected socket to {}", new Object[] {_socket.getRemoteSocketAddress()}, e);
+            s_logger.warn("Unable to close connected socket to {}", new Object[] {_socket.getRemoteSocketAddress() }, e);
           }
         }
         _socket = null;
@@ -199,13 +199,13 @@ public abstract class AbstractSocketProcess implements Lifecycle, EndPointDescri
   @Override
   public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
     final MutableFudgeMsg desc = fudgeContext.newMessage();
-    desc.add(AbstractServerSocketProcess.TYPE_KEY, AbstractServerSocketProcess.TYPE_VALUE);
+    desc.add(SocketEndPointDescriptionProvider.TYPE_KEY, SocketEndPointDescriptionProvider.TYPE_VALUE);
     if (getInetAddresses() != null) {
       for (InetAddress addr : getInetAddresses()) {
-        desc.add(AbstractServerSocketProcess.ADDRESS_KEY, addr.getHostAddress());
+        desc.add(SocketEndPointDescriptionProvider.ADDRESS_KEY, addr.getHostAddress());
       }
     }
-    desc.add(AbstractServerSocketProcess.PORT_KEY, getPortNumber());
+    desc.add(SocketEndPointDescriptionProvider.PORT_KEY, getPortNumber());
     return desc;
   }
 

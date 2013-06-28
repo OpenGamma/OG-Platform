@@ -10,14 +10,13 @@ import java.util.concurrent.ExecutorService;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.transport.socket.AbstractServerSocketProcess;
+import com.opengamma.transport.socket.SocketEndPointDescriptionProvider;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
- * Creates a {@link FudgeConnection} based on an end-point description. Typically an end-point is
- * determined by a REST query to the host.
+ * Creates a {@link FudgeConnection} based on an end-point description. Typically an end-point is determined by a REST query to the host.
  */
 public class FudgeConnectionFactoryBean extends SingletonFactoryBean<FudgeConnection> {
 
@@ -62,7 +61,7 @@ public class FudgeConnectionFactoryBean extends SingletonFactoryBean<FudgeConnec
   protected FudgeConnection createObject() {
     final FudgeMsg endPoint = resolveEndPointDescription();
     ArgumentChecker.notNull(endPoint, "endPointDescription");
-    if (AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
+    if (SocketEndPointDescriptionProvider.TYPE_VALUE.equals(endPoint.getString(SocketEndPointDescriptionProvider.TYPE_KEY))) {
       final SocketFudgeConnection connection = (getExecutorService() != null) ? new SocketFudgeConnection(getFudgeContext(), getExecutorService()) : new SocketFudgeConnection(getFudgeContext());
       connection.setServer(endPoint);
       return connection;
