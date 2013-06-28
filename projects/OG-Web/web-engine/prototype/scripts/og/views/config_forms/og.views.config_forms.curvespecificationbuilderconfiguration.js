@@ -45,7 +45,6 @@ $.register_module({
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];},
             form_builder, constructor;
         form_builder = function (config) {
-            console.log(config);
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, config_type = config.type,
@@ -75,7 +74,6 @@ $.register_module({
                                 (data[field_names[idx]] || (data[field_names[idx]] = {}))[tenor] = value;
                             });
                         });
-                        console.log(data);
                     }
                 }),
                 form_id = '#' + form.id,
