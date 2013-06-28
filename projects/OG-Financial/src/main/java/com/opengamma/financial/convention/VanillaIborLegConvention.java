@@ -22,7 +22,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Convention for a vanilla ibor swap leg.
  */
 @BeanDefinition
 public class VanillaIborLegConvention extends Convention {
@@ -63,10 +63,19 @@ public class VanillaIborLegConvention extends Convention {
   /**
    * For the builder
    */
-  public VanillaIborLegConvention() {
+  /* package */ VanillaIborLegConvention() {
     super();
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param iborIndexConvention The underlying ibor index convention, not null
+   * @param isAdvanceFixing True if fixing is in advance
+   * @param stubType The stub type, not null
+   * @param interpolationMethod The interpolation method for broken periods, not null
+   * @param resetTenor The reset tenor, not null
+   */
   public VanillaIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention, final boolean isAdvanceFixing,
       final StubType stubType, final String interpolationMethod, final Tenor resetTenor) {
     super(name, externalIdBundle);

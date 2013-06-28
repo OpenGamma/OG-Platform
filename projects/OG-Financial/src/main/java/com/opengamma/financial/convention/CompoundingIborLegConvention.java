@@ -23,7 +23,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Conventions for a compounding ibor swap leg.
  */
 @BeanDefinition
 public class CompoundingIborLegConvention extends Convention {
@@ -52,9 +52,16 @@ public class CompoundingIborLegConvention extends Convention {
   /**
    * For the builder
    */
-  public CompoundingIborLegConvention() {
+  /* package */ CompoundingIborLegConvention() {
   }
 
+  /**
+   * @param name The name of the convention, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param iborIndexConvention The id of the underlying ibor index convention, not null
+   * @param paymentTenor The payment tenor, not null
+   * @param compoundingType The compounding type, not null
+   */
   public CompoundingIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention, final Tenor paymentTenor,
       final CompoundingType compoundingType) {
     super(name, externalIdBundle);

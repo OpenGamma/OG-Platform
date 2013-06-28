@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -20,7 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ * Convention for equities.
  */
 @BeanDefinition
 public class EquityConvention extends Convention {
@@ -35,11 +35,16 @@ public class EquityConvention extends Convention {
   private int _exDividendPeriod;
 
   /**
-   * 
+   * For the builder.
    */
-  public EquityConvention() {
+  /* package */ EquityConvention() {
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param exDividendPeriod The ex-dividend period
+   */
   public EquityConvention(final String name, final ExternalIdBundle externalIdBundle, final int exDividendPeriod) {
     super(name, externalIdBundle);
     setExDividendPeriod(exDividendPeriod);

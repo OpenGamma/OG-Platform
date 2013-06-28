@@ -22,7 +22,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- *
+ * Convention for FX forwards and FX swaps.
  */
 @BeanDefinition
 public class FXForwardAndSwapConvention extends Convention {

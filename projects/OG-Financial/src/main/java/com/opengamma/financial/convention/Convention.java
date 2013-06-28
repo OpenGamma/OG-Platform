@@ -25,7 +25,7 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 
 /**
- *
+ * Base class for market conventions that are used in curve and security construction.
  */
 @BeanDefinition
 public class Convention extends DirectBean implements Serializable, MutableUniqueIdentifiable {
@@ -46,14 +46,21 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
   private UniqueId _uniqueId;
 
   /**
-   * The bundle of external identifiers for which this convention applies.
+   * The bundle of external identifiers for this convention.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
 
-  public Convention() {
+  /**
+   * For the builder.
+   */
+  /* package */Convention() {
   }
 
+  /**
+   * @param name The name of the convention, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   */
   public Convention(final String name, final ExternalIdBundle externalIdBundle) {
     setName(name);
     setExternalIdBundle(externalIdBundle);
@@ -189,7 +196,7 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the bundle of external identifiers for which this convention applies.
+   * Gets the bundle of external identifiers for this convention.
    * @return the value of the property, not null
    */
   public ExternalIdBundle getExternalIdBundle() {
@@ -197,7 +204,7 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
   }
 
   /**
-   * Sets the bundle of external identifiers for which this convention applies.
+   * Sets the bundle of external identifiers for this convention.
    * @param externalIdBundle  the new value of the property, not null
    */
   public void setExternalIdBundle(ExternalIdBundle externalIdBundle) {

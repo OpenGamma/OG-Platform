@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- *
+ * Convention for swaps.
  */
 @BeanDefinition
 public class SwapConvention extends Convention {
@@ -44,10 +44,16 @@ public class SwapConvention extends Convention {
   /**
    * For the builder
    */
-  public SwapConvention() {
+  /* package */ SwapConvention() {
     super();
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param payLegConvention The pay leg convention, not null
+   * @param receiveLegConvention The receive leg convention, not null
+   */
   public SwapConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId payLegConvention, final ExternalId receiveLegConvention) {
     super(name, externalIdBundle);
     setPayLegConvention(payLegConvention);
