@@ -25,6 +25,7 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -460,6 +461,42 @@ public final class ConventionBuilders {
       convention.setUniqueId(uniqueId);
       return convention;
     }
+  }
+
+  /**
+   * Fudge builder for price index conventions.
+   */
+  @FudgeBuilderFor(PriceIndexConvention.class)
+  public static class PriceIndexConventionBuilder implements FudgeBuilder<PriceIndexConvention> {
+    /** The currency field */
+    private static final String CURRENCY_FIELD = "currency";
+    /** The region field */
+    private static final String REGION_FIELD = "region";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final PriceIndexConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, PriceIndexConvention.class);
+      message.add(CURRENCY_FIELD, object.getCurrency().getCode());
+      serializer.addToMessage(message, REGION_FIELD, null, object.getRegion());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public PriceIndexConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
+      final ExternalId region = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final PriceIndexConvention convention = new PriceIndexConvention(name, externalIdBundle, currency, region);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+
   }
 
   /**

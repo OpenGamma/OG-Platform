@@ -23,6 +23,7 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -116,6 +117,13 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
         DayCountFactory.INSTANCE.getDayCount("Act/360"), 2, Currency.EUR, ExternalId.of("Test", "EU"));
     convention.setUniqueId(UniqueId.of("Test", "1234"));
     assertEquals(convention, cycleObject(OvernightIndexConvention.class, convention));
+  }
+
+  @Test
+  public void testPriceIndexConvention() {
+    final PriceIndexConvention convention = new PriceIndexConvention("CPI", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("CPI")), Currency.USD, ExternalId.of("Region", "US"));
+    convention.setUniqueId(UniqueId.of("Test", "9385"));
+    assertEquals(convention, cycleObject(PriceIndexConvention.class, convention));
   }
 
   @Test
