@@ -16,6 +16,8 @@ $.register_module({
             SCHM = 'scheme',
             STTY = 'stripType',
             INST = 'instrument',
+            TYFI = 'typeField',
+            DAFI = 'dataField',
             PRFX = 'prefix',
             INDX = '<INDEX>',
             INSP = /InstrumentProviders$/,
@@ -32,6 +34,8 @@ $.register_module({
                 [['*', '*', '0'].join('.'),     Form.type.STR],
                 [['*', '*', CURR].join('.'),    Form.type.STR],
                 [['*', '*', INST].join('.'),    Form.type.STR],
+                [['*', '*', TYFI].join('.'),    Form.type.STR],
+                [['*', '*', DAFI].join('.'),    Form.type.STR],
                 [['*', '*', MKTS].join('.'),    Form.type.STR],
                 [['*', '*', PRFX].join('.'),    Form.type.STR],
                 [['*', '*', SCHM].join('.'),    Form.type.STR],
@@ -41,6 +45,7 @@ $.register_module({
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];},
             form_builder, constructor;
         form_builder = function (config) {
+            console.log(config);
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, config_type = config.type,
@@ -70,6 +75,7 @@ $.register_module({
                                 (data[field_names[idx]] || (data[field_names[idx]] = {}))[tenor] = value;
                             });
                         });
+                        console.log(data);
                     }
                 }),
                 form_id = '#' + form.id,
