@@ -27,7 +27,7 @@ public class SyntheticIdentifierCurveInstrumentProviderFudgeBuilder implements F
   private static final String STRIP_TYPE_FIELD = "stripType";
   private static final String SCHEME_FIELD = "scheme";
   private static final String DATA_FIELD = "dataField";
-  private static final String TYPE_FIELD = "fieldType";
+  private static final String TYPE_FIELD = "typeField";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SyntheticIdentifierCurveInstrumentProvider object) {
