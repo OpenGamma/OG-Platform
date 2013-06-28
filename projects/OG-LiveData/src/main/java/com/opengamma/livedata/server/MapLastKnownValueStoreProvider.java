@@ -27,7 +27,7 @@ public class MapLastKnownValueStoreProvider implements LastKnownValueStoreProvid
 
   @Override
   public boolean isAvailable(ExternalId security, String normalizationRuleSetId) {
-    return false;
+    return true;
   }
 
 }
