@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve.strips;
@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class FXForwardNode extends CurveNode {
@@ -76,6 +76,25 @@ public class FXForwardNode extends CurveNode {
    */
   public FXForwardNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId fxForwardConvention, final Currency payCurrency,
       final Currency receiveCurrency, final String curveNodeIdMapperName) {
+    super(curveNodeIdMapperName);
+    setStartTenor(startTenor);
+    setMaturityTenor(maturityTenor);
+    setFxForwardConvention(fxForwardConvention);
+    setPayCurrency(payCurrency);
+    setReceiveCurrency(receiveCurrency);
+  }
+
+  /**
+   * @param startTenor The start tenor, not null
+   * @param maturityTenor The maturity tenor, not null
+   * @param fxForwardConvention The FX forward convention, not null
+   * @param payCurrency The pay currency, not null
+   * @param receiveCurrency The receive currency, not null
+   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   * @param name The name
+   */
+  public FXForwardNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId fxForwardConvention, final Currency payCurrency,
+      final Currency receiveCurrency, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);

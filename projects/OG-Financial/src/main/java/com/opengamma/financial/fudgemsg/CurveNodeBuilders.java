@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -34,6 +34,8 @@ import com.opengamma.util.time.Tenor;
 /* package */ final class CurveNodeBuilders {
   /** The curve node id mapper field */
   private static final String CURVE_MAPPER_ID_FIELD = "curveNodeIdMapper";
+  /** The curve name field */
+  private static final String NAME_FIELD = "name";
 
   private CurveNodeBuilders() {
   }
@@ -94,6 +96,9 @@ import com.opengamma.util.time.Tenor;
       message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor().getPeriod().toString());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -103,6 +108,10 @@ import com.opengamma.util.time.Tenor;
       final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new CashNode(startTenor, maturityTenor, conventionId, curveNodeIdMapperName, name);
+      }
       return new CashNode(startTenor, maturityTenor, conventionId, curveNodeIdMapperName);
     }
   }
@@ -117,6 +126,9 @@ import com.opengamma.util.time.Tenor;
       message.add(null, 0, object.getClass().getName());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(TENOR_FIELD, object.getTenor());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -125,8 +137,11 @@ import com.opengamma.util.time.Tenor;
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       //TODO should just use Period string for these objects
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
-      final ContinuouslyCompoundedRateNode strip = new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor);
-      return strip;
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor, name);
+      }
+      return new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor);
     }
   }
 
@@ -141,6 +156,9 @@ import com.opengamma.util.time.Tenor;
       //TODO should just use the period string for Tenor
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(TENOR_FIELD, object.getTenor());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -148,8 +166,11 @@ import com.opengamma.util.time.Tenor;
     public CreditSpreadNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
-      final CreditSpreadNode strip = new CreditSpreadNode(curveNodeIdMapperName, tenor);
-      return strip;
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new CreditSpreadNode(curveNodeIdMapperName, tenor, name);
+      }
+      return new CreditSpreadNode(curveNodeIdMapperName, tenor);
     }
   }
 
@@ -163,6 +184,9 @@ import com.opengamma.util.time.Tenor;
       message.add(null, 0, object.getClass().getName());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(TENOR_FIELD, object.getTenor());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -171,6 +195,10 @@ import com.opengamma.util.time.Tenor;
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       //TODO should just use the period string for Tenor
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new DiscountFactorNode(curveNodeIdMapperName, tenor, name);
+      }
       return new DiscountFactorNode(curveNodeIdMapperName, tenor);
     }
   }
@@ -195,6 +223,9 @@ import com.opengamma.util.time.Tenor;
       message.add(FIXING_END_FIELD, object.getFixingEnd().getPeriod().toString());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -204,6 +235,10 @@ import com.opengamma.util.time.Tenor;
       final Tenor fixingStart = new Tenor(Period.parse(message.getString(FIXING_START_FIELD)));
       final Tenor fixingEnd = new Tenor(Period.parse(message.getString(FIXING_END_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new FRANode(fixingStart, fixingEnd, conventionId, curveNodeIdMapperName, name);
+      }
       return new FRANode(fixingStart, fixingEnd, conventionId, curveNodeIdMapperName);
     }
 
@@ -230,6 +265,9 @@ import com.opengamma.util.time.Tenor;
       message.add(PAY_CURRENCY_FIELD, object.getPayCurrency().getCode());
       message.add(RECEIVE_CURRENCY_FIELD, object.getReceiveCurrency().getCode());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -241,6 +279,10 @@ import com.opengamma.util.time.Tenor;
       final Currency payCurrency = Currency.of(message.getString(PAY_CURRENCY_FIELD));
       final Currency receiveCurrency = Currency.of(message.getString(RECEIVE_CURRENCY_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new FXForwardNode(startTenor, maturityTenor, fxForwardConvention, payCurrency, receiveCurrency, curveNodeIdMapperName, name);
+      }
       return new FXForwardNode(startTenor, maturityTenor, fxForwardConvention, payCurrency, receiveCurrency, curveNodeIdMapperName);
     }
 
@@ -275,6 +317,9 @@ import com.opengamma.util.time.Tenor;
       message.add(FUTURE_CONVENTION_FIELD, object.getFutureConvention());
       message.add(UNDERLYING_CONVENTION_FIELD, object.getUnderlyingConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -287,6 +332,10 @@ import com.opengamma.util.time.Tenor;
       final ExternalId futureConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FUTURE_CONVENTION_FIELD));
       final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName, name);
+      }
       return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName);
     }
 
@@ -315,6 +364,9 @@ import com.opengamma.util.time.Tenor;
       message.add(PAY_LEG_CONVENTION_FIELD, object.getPayLegConvention());
       message.add(RECEIVE_LEG_CONVENTION_FIELD, object.getReceiveLegConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
       return message;
     }
 
@@ -325,6 +377,10 @@ import com.opengamma.util.time.Tenor;
       final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
       final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName, name);
+      }
       return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName);
     }
 
