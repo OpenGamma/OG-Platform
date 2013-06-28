@@ -95,7 +95,7 @@ public class FXForwardNode extends CurveNode {
    */
   public FXForwardNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId fxForwardConvention, final Currency payCurrency,
       final Currency receiveCurrency, final String curveNodeIdMapperName, final String name) {
-    super(curveNodeIdMapperName);
+    super(curveNodeIdMapperName, name);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setFxForwardConvention(fxForwardConvention);
