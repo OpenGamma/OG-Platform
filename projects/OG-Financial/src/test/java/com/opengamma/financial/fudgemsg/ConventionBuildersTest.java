@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -28,6 +28,7 @@ import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
+import com.opengamma.financial.convention.ZeroCouponInflationConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -38,7 +39,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class ConventionBuildersTest extends AnalyticsTestBase {
@@ -150,4 +151,11 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
     assertEquals(convention, cycleObject(VanillaIborLegConvention.class, convention));
   }
 
+  @Test
+  public void testZeroCouponInflationConvention() {
+    final ZeroCouponInflationConvention convention = new ZeroCouponInflationConvention("CPI", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("CPI")),
+        ExternalId.of("Test", "Index"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), DayCountFactory.INSTANCE.getDayCount("Act/360"), true, 3, 1, "Linear");
+    convention.setUniqueId(UniqueId.of("Test", "98657"));
+    assertEquals(convention, cycleObject(ZeroCouponInflationConvention.class, convention));
+  }
 }
