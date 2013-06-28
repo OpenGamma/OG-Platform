@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.SyntheticIdentifierCurveInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
 
@@ -22,21 +23,33 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(SyntheticIdentifierCurveInstrumentProvider.class)
 public class SyntheticIdentifierCurveInstrumentProviderFudgeBuilder implements FudgeBuilder<SyntheticIdentifierCurveInstrumentProvider> {
+  private static final String CURRENCY_FIELD = "ccy";
+  private static final String STRIP_TYPE_FIELD = "stripType";
+  private static final String SCHEME_FIELD = "scheme";
+  private static final String DATA_FIELD = "dataField";
+  private static final String TYPE_FIELD = "fieldType";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SyntheticIdentifierCurveInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    message.add("ccy", object.getCurrency().getCode());
-    message.add("stripType", object.getType().name());
-    message.add("scheme", object.getScheme().getName());
+    message.add(CURRENCY_FIELD, object.getCurrency().getCode());
+    message.add(STRIP_TYPE_FIELD, object.getType().name());
+    message.add(SCHEME_FIELD, object.getScheme().getName());
+    message.add(DATA_FIELD, object.getMarketDataField());
+    message.add(TYPE_FIELD, object.getDataFieldType().name());
     return message;
   }
 
   @Override
   public SyntheticIdentifierCurveInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final Currency ccy = Currency.of(message.getString("ccy"));
-    final StripInstrumentType stripType = StripInstrumentType.valueOf(message.getString("stripType"));
-    final ExternalScheme scheme = ExternalScheme.of(message.getString("scheme"));
+    final Currency ccy = Currency.of(message.getString(CURRENCY_FIELD));
+    final StripInstrumentType stripType = StripInstrumentType.valueOf(message.getString(STRIP_TYPE_FIELD));
+    final ExternalScheme scheme = ExternalScheme.of(message.getString(SCHEME_FIELD));
+    if (message.hasField(DATA_FIELD) && message.hasField(TYPE_FIELD)) {
+      final String dataField = message.getString(DATA_FIELD);
+      final DataFieldType fieldType = DataFieldType.valueOf(message.getString(TYPE_FIELD));
+      return new SyntheticIdentifierCurveInstrumentProvider(ccy, stripType, scheme, dataField, fieldType);
+    }
     return new SyntheticIdentifierCurveInstrumentProvider(ccy, stripType, scheme);
   }
 
