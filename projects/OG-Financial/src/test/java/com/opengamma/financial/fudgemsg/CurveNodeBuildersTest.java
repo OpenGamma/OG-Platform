@@ -117,11 +117,11 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testZeroCouponInflationNodeBuilder() {
-    ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), "TEST");
+    ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), "TEST");
     assertEquals(node, cycleObject(ZeroCouponInflationNode.class, node));
-    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), "TEST", null);
+    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), "TEST", null);
     assertEquals(node, cycleObject(ZeroCouponInflationNode.class, node));
-    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), "TEST", "Name");
+    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), "TEST", "Name");
     assertEquals(node, cycleObject(ZeroCouponInflationNode.class, node));
   }
 

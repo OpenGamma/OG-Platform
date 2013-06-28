@@ -115,7 +115,7 @@ public class CurveNodeWithIdentifierBuilderTest {
 
   @Test
   public void testZeroCouponInflation() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), "Test");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), "Test");
     assertEquals(new CurveNodeWithIdentifier(node, ExternalId.of("Test", "ZCI"), "ZC Data", DataFieldType.OUTRIGHT), node.accept(BUILDER));
   }
 

@@ -411,15 +411,18 @@ import com.opengamma.util.time.Tenor;
   public static final class ZeroCouponInflationNodeBuilder implements FudgeBuilder<ZeroCouponInflationNode> {
     /** The tenor field */
     private static final String TENOR_FIELD = "tenor";
-    /** The convention field */
-    private static final String CONVENTION_FIELD = "convention";
+    /** The inflation convention field */
+    private static final String INFLATION_CONVENTION_FIELD = "inflationConvention";
+    /** The fixed convention field */
+    private static final String FIXED_CONVENTION_FIELD = "fixedConvention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ZeroCouponInflationNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(TENOR_FIELD, object.getTenor().getPeriod().toString());
-      message.add(CONVENTION_FIELD, object.getZeroCouponConvention());
+      message.add(INFLATION_CONVENTION_FIELD, object.getZeroCouponConvention());
+      message.add(FIXED_CONVENTION_FIELD, object.getFixedLegConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -430,13 +433,14 @@ import com.opengamma.util.time.Tenor;
     @Override
     public ZeroCouponInflationNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
-      final ExternalId convention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_FIELD));
+      final ExternalId inflationConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INFLATION_CONVENTION_FIELD));
+      final ExternalId fixedConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXED_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
-        return new ZeroCouponInflationNode(tenor, convention, curveNodeIdMapperName, name);
+        return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, curveNodeIdMapperName, name);
       }
-      return new ZeroCouponInflationNode(tenor, convention, curveNodeIdMapperName);
+      return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, curveNodeIdMapperName);
     }
 
   }

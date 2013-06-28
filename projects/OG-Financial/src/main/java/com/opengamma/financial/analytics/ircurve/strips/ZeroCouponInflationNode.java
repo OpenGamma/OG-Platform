@@ -5,20 +5,21 @@
  */
 package com.opengamma.financial.analytics.ircurve.strips;
 
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Zero-coupon inflation curve node.
@@ -42,6 +43,12 @@ public class ZeroCouponInflationNode extends CurveNode {
   private ExternalId _zeroCouponConvention;
 
   /**
+   * The fixed leg convention.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _fixedLegConvention;
+
+  /**
    * For the builder.
    */
   /* package */ ZeroCouponInflationNode() {
@@ -51,25 +58,29 @@ public class ZeroCouponInflationNode extends CurveNode {
   /**
    * @param tenor The tenor, not null
    * @param zeroCouponConvention The zero coupon convention id, not null
+   * @param fixedLegConvention The fixed leg convention id, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId zeroCouponConvention, final String curveNodeIdMapperName) {
+  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId zeroCouponConvention, final ExternalId fixedLegConvention, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     setTenor(tenor);
     setZeroCouponConvention(zeroCouponConvention);
+    setFixedLegConvention(fixedLegConvention);
   }
 
   /**
    * @param tenor The tenor, not null
    * @param zeroCouponConvention The zero coupon convention id, not null
+   * @param fixedLegConvention The fixed leg convention id, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The name, not null
    */
-  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId zeroCouponConvention, final String curveNodeIdMapperName,
+  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId zeroCouponConvention, final ExternalId fixedLegConvention, final String curveNodeIdMapperName,
       final String name) {
     super(curveNodeIdMapperName, name);
     setTenor(tenor);
     setZeroCouponConvention(zeroCouponConvention);
+    setFixedLegConvention(fixedLegConvention);
   }
 
   @Override
@@ -108,6 +119,8 @@ public class ZeroCouponInflationNode extends CurveNode {
         return getTenor();
       case -576353537:  // zeroCouponConvention
         return getZeroCouponConvention();
+      case -2101140213:  // fixedLegConvention
+        return getFixedLegConvention();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -121,6 +134,9 @@ public class ZeroCouponInflationNode extends CurveNode {
       case -576353537:  // zeroCouponConvention
         setZeroCouponConvention((ExternalId) newValue);
         return;
+      case -2101140213:  // fixedLegConvention
+        setFixedLegConvention((ExternalId) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -129,6 +145,7 @@ public class ZeroCouponInflationNode extends CurveNode {
   protected void validate() {
     JodaBeanUtils.notNull(_tenor, "tenor");
     JodaBeanUtils.notNull(_zeroCouponConvention, "zeroCouponConvention");
+    JodaBeanUtils.notNull(_fixedLegConvention, "fixedLegConvention");
     super.validate();
   }
 
@@ -141,6 +158,7 @@ public class ZeroCouponInflationNode extends CurveNode {
       ZeroCouponInflationNode other = (ZeroCouponInflationNode) obj;
       return JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           JodaBeanUtils.equal(getZeroCouponConvention(), other.getZeroCouponConvention()) &&
+          JodaBeanUtils.equal(getFixedLegConvention(), other.getFixedLegConvention()) &&
           super.equals(obj);
     }
     return false;
@@ -151,6 +169,7 @@ public class ZeroCouponInflationNode extends CurveNode {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getZeroCouponConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedLegConvention());
     return hash ^ super.hashCode();
   }
 
@@ -208,6 +227,32 @@ public class ZeroCouponInflationNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the fixed leg convention.
+   * @return the value of the property, not null
+   */
+  public ExternalId getFixedLegConvention() {
+    return _fixedLegConvention;
+  }
+
+  /**
+   * Sets the fixed leg convention.
+   * @param fixedLegConvention  the new value of the property, not null
+   */
+  public void setFixedLegConvention(ExternalId fixedLegConvention) {
+    JodaBeanUtils.notNull(fixedLegConvention, "fixedLegConvention");
+    this._fixedLegConvention = fixedLegConvention;
+  }
+
+  /**
+   * Gets the the {@code fixedLegConvention} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> fixedLegConvention() {
+    return metaBean().fixedLegConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ZeroCouponInflationNode}.
    */
   public static class Meta extends CurveNode.Meta {
@@ -227,12 +272,18 @@ public class ZeroCouponInflationNode extends CurveNode {
     private final MetaProperty<ExternalId> _zeroCouponConvention = DirectMetaProperty.ofReadWrite(
         this, "zeroCouponConvention", ZeroCouponInflationNode.class, ExternalId.class);
     /**
+     * The meta-property for the {@code fixedLegConvention} property.
+     */
+    private final MetaProperty<ExternalId> _fixedLegConvention = DirectMetaProperty.ofReadWrite(
+        this, "fixedLegConvention", ZeroCouponInflationNode.class, ExternalId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "tenor",
-        "zeroCouponConvention");
+        "zeroCouponConvention",
+        "fixedLegConvention");
 
     /**
      * Restricted constructor.
@@ -247,6 +298,8 @@ public class ZeroCouponInflationNode extends CurveNode {
           return _tenor;
         case -576353537:  // zeroCouponConvention
           return _zeroCouponConvention;
+        case -2101140213:  // fixedLegConvention
+          return _fixedLegConvention;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -281,6 +334,14 @@ public class ZeroCouponInflationNode extends CurveNode {
      */
     public final MetaProperty<ExternalId> zeroCouponConvention() {
       return _zeroCouponConvention;
+    }
+
+    /**
+     * The meta-property for the {@code fixedLegConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> fixedLegConvention() {
+      return _fixedLegConvention;
     }
 
   }

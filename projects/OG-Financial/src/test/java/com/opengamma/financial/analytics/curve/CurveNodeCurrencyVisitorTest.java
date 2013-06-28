@@ -253,7 +253,7 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullZeroCouponInflationConvention() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, "TEST");
     node.accept(EMPTY_CONVENTIONS);
   }
 
@@ -262,13 +262,13 @@ public class CurveNodeCurrencyVisitorTest {
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(ZERO_COUPON_INFLATION_ID, ZERO_COUPON_INFLATION);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, "TEST");
     node.accept(visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testWrongTypeZeroCouponInflationConvention() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, SWAP_3M_IBOR_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, SWAP_3M_IBOR_ID, FIXED_LEG_ID, "TEST");
     node.accept(VISITOR);
   }
 
@@ -359,7 +359,7 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test
   public void testZeroCouponInflationNode() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, "TEST");
     final Set<Currency> currencies = node.accept(VISITOR);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
