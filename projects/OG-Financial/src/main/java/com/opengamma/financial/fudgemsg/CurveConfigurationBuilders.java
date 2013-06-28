@@ -27,6 +27,7 @@ import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdFudgeBuilder;
@@ -74,9 +75,9 @@ import com.opengamma.util.time.Tenor;
    * Fudge builder for {@link IborCurveTypeConfiguration}
    */
   @FudgeBuilderFor(IborCurveTypeConfiguration.class)
-  public static class OverngithCurveTypeConfigurationBuilder implements FudgeBuilder<IborCurveTypeConfiguration> {
+  public static class IborCurveTypeConfigurationBuilder implements FudgeBuilder<IborCurveTypeConfiguration> {
     /** The convention name field */
-    private static final String CONVENTION_NAME_FIELD = "conventionName";
+    private static final String CONVENTION_FIELD = "convention";
     /** The index type field */
     private static final String TENOR_FIELD = "indexTenor";
 
@@ -84,17 +85,16 @@ import com.opengamma.util.time.Tenor;
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IborCurveTypeConfiguration object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      serializer.addToMessage(message, CONVENTION_NAME_FIELD, null, object.getConventionName());
+      serializer.addToMessage(message, CONVENTION_FIELD, null, object.getConvention());
       serializer.addToMessage(message, TENOR_FIELD, null, object.getTenor().getPeriod().toString());
       return message;
     }
 
     @Override
     public IborCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final String conventionName = message.getString(CONVENTION_NAME_FIELD);
+      final ExternalId convention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_FIELD));
       final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
-      final IborCurveTypeConfiguration configuration = new IborCurveTypeConfiguration(conventionName, tenor);
-      return configuration;
+      return new IborCurveTypeConfiguration(convention, tenor);
     }
 
   }
@@ -105,20 +105,20 @@ import com.opengamma.util.time.Tenor;
   @FudgeBuilderFor(OvernightCurveTypeConfiguration.class)
   public static class OvernightCurveTypeConfigurationBuilder implements FudgeBuilder<OvernightCurveTypeConfiguration> {
     /** The convention name field */
-    private static final String CONVENTION_NAME_FIELD = "conventionName";
+    private static final String CONVENTION_FIELD = "convention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final OvernightCurveTypeConfiguration object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      serializer.addToMessage(message, CONVENTION_NAME_FIELD, null, object.getConventionName());
+      serializer.addToMessage(message, CONVENTION_FIELD, null, object.getConvention());
       return message;
     }
 
     @Override
     public OvernightCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final String conventionName = message.getString(CONVENTION_NAME_FIELD);
-      final OvernightCurveTypeConfiguration configuration = new OvernightCurveTypeConfiguration(conventionName);
+      final ExternalId convention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_FIELD));
+      final OvernightCurveTypeConfiguration configuration = new OvernightCurveTypeConfiguration(convention);
       return configuration;
     }
 

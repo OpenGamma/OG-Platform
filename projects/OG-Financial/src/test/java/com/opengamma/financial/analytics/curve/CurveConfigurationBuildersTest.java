@@ -15,6 +15,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Tenor;
 
@@ -26,17 +27,17 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   private static final String DISCOUNTING_CODE = "USD";
   private static final DiscountingCurveTypeConfiguration DISCOUNTING_CONFIG = new DiscountingCurveTypeConfiguration(DISCOUNTING_CODE);
   private static final String LIBOR_3M_NAME = "USD Forward3M";
-  private static final String LIBOR_3M_CONVENTION_NAME = "USD 3m Libor";
-  private static final IborCurveTypeConfiguration LIBOR_3M_CONFIG = new IborCurveTypeConfiguration(LIBOR_3M_CONVENTION_NAME, Tenor.THREE_MONTHS);
+  private static final ExternalId LIBOR_3M_CONVENTION = ExternalId.of("Test", "USD 3m Libor");
+  private static final IborCurveTypeConfiguration LIBOR_3M_CONFIG = new IborCurveTypeConfiguration(LIBOR_3M_CONVENTION, Tenor.THREE_MONTHS);
   private static final String LIBOR_6M_NAME = "USD Forward3M";
-  private static final String LIBOR_6M_CONVENTION_NAME = "USD 6m Libor";
-  private static final IborCurveTypeConfiguration LIBOR_6M_CONFIG = new IborCurveTypeConfiguration(LIBOR_6M_CONVENTION_NAME, Tenor.SIX_MONTHS);
+  private static final ExternalId LIBOR_6M_CONVENTION = ExternalId.of("Test", "USD 6m Libor");
+  private static final IborCurveTypeConfiguration LIBOR_6M_CONFIG = new IborCurveTypeConfiguration(LIBOR_6M_CONVENTION, Tenor.SIX_MONTHS);
   private static final String BOND_CURVE_NAME = "OG Bond Curve";
   private static final String BOND_ISSUER_NAME = "OG";
   private static final String BOND_CODE = "USD";
   private static final IssuerCurveTypeConfiguration ISSUER_CONFIG = new IssuerCurveTypeConfiguration(BOND_ISSUER_NAME, BOND_CODE);
-  private static final String OVERNIGHT_CONVENTION_NAME = "USD Overnight";
-  private static final OvernightCurveTypeConfiguration OVERNIGHT_CONFIG = new OvernightCurveTypeConfiguration(OVERNIGHT_CONVENTION_NAME);
+  private static final ExternalId OVERNIGHT_CONVENTION = ExternalId.of("Test", "USD Overnight");
+  private static final OvernightCurveTypeConfiguration OVERNIGHT_CONFIG = new OvernightCurveTypeConfiguration(OVERNIGHT_CONVENTION);
   private static final CurveGroupConfiguration GROUP1;
   private static final CurveGroupConfiguration GROUP2;
   private static final CurveGroupConfiguration GROUP3;

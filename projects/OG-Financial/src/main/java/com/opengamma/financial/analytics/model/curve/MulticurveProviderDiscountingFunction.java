@@ -13,9 +13,11 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
@@ -71,10 +73,15 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -269,14 +276,16 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         int i = 0; // Implementation Note: loop on the groups
         for (final CurveGroupConfiguration group : constructionConfiguration.getCurveGroups()) { // Group - start
           int j = 0;
-          final int nCurves = group.getCurveTypes().size();
+          final int nCurves = group.getTypesForCurves().size();
           definitions[i] = new InstrumentDerivative[nCurves][];
           curveGenerators[i] = new GeneratorYDCurve[nCurves];
           curves[i] = new String[nCurves];
           parameterGuess[i] = new double[nCurves];
           final DoubleArrayList parameterGuessForCurves = new DoubleArrayList();
-          for (final CurveTypeConfiguration type : group.getCurveTypes()) { // Type - start
-            final String curveName = type.getName();
+          for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+            final List<IborIndex> iborIndex = new ArrayList<>();
+            final List<IndexON> overnightIndex = new ArrayList<>();
+            final String curveName = entry.getKey();
             final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();
             final CurveSpecification specification =
                 (CurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
@@ -288,8 +297,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
             final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
             final double[] marketDataForCurve = new double[nNodes];
             int k = 0;
-            final Set<IborIndex> uniqueIborIndices = new HashSet<>();
-            final Set<IndexON> uniqueOvernightIndices = new HashSet<>();
             for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
               final Double marketData = snapshot.getDataPoint(node.getIdentifier());
               if (marketData == null) {
@@ -298,23 +305,52 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               marketDataForCurve[k] = marketData;
               parameterGuessForCurves.add(marketData);
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot);
-              uniqueIborIndices.addAll(definitionForNode.accept(IborIndexVisitor.getInstance()));
-              uniqueOvernightIndices.addAll(definitionForNode.accept(OvernightIndexVisitor.getInstance()));
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
             } // Node points - end
+            for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
+              if (type instanceof DiscountingCurveTypeConfiguration) {
+                final String reference = ((DiscountingCurveTypeConfiguration) type).getReference();
+                try {
+                  final Currency currency = Currency.of(reference);
+                  //should this map check that the curve name has not already been entered?
+                  discountingMap.put(curveName, currency);
+                } catch (final IllegalArgumentException e) {
+                  throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for discounting curves");
+                }
+              } else if (type instanceof IborCurveTypeConfiguration) {
+                final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
+                final Convention convention = conventionSource.getConvention(ibor.getConvention());
+                if (!(convention instanceof IborIndexConvention)) {
+                  throw new OpenGammaRuntimeException("Expecting convention of type IborIndexConvention; have " + convention.getClass());
+                }
+                final IborIndexConvention iborIndexConvention = (IborIndexConvention) convention;
+                final int spotLag = 0; //TODO
+                iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
+                    iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
+              } else if (type instanceof OvernightCurveTypeConfiguration) {
+                final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
+                final Convention convention = conventionSource.getConvention(overnight.getConvention());
+                if (!(convention instanceof OvernightIndexConvention)) {
+                  throw new OpenGammaRuntimeException("Expecting convention of type OvernightIndexConvention; have " + convention.getClass());
+                }
+                final OvernightIndexConvention overnightConvention = (OvernightIndexConvention) convention;
+                overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
+              } else {
+                throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
+              }
+            } // type - end
+            if (!iborIndex.isEmpty()) {
+              forwardIborMap.put(curveName, iborIndex.toArray(new IborIndex[iborIndex.size()]));
+            }
+            if (!overnightIndex.isEmpty()) {
+              forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
+            }
             definitions[i][j] = derivativesForCurve;
             curveGenerators[i][j] = getGenerator(definition);
             curves[i][j] = curveName;
             parameterGuess[i] = parameterGuessForCurves.toDoubleArray();
-            final IborIndex[] iborIndex = uniqueIborIndices.toArray(new IborIndex[uniqueIborIndices.size()]);
-            final IndexON[] overnightIndex = uniqueOvernightIndices.toArray(new IndexON[uniqueOvernightIndices.size()]);
-            forwardIborMap.put(curveName, iborIndex);
-            forwardONMap.put(curveName, overnightIndex);
-            if (type instanceof DiscountingCurveTypeConfiguration) {
-              discountingMap.put(curveName, Currency.of(((DiscountingCurveTypeConfiguration) type).getCode()));
-            }
             j++;
-          } // type - end
+          }
           i++;
         } // Group - end
         return builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess, knownData, discountingMap, forwardIborMap, forwardONMap, PSMQC, PSMQCSC);

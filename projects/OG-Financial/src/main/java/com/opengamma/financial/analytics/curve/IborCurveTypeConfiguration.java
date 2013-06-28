@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -29,10 +30,10 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The convention name of the index.
+   * The convention of the index.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _conventionName;
+  private ExternalId _convention;
 
   /**
    * The tenor of the index.
@@ -48,12 +49,12 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   }
 
   /**
-   * @param conventionName The name of the index convention, not null
+   * @param convention The id of the index convention, not null
    * @param tenor The tenor of the index, not null
    */
-  public IborCurveTypeConfiguration(final String conventionName, final Tenor tenor) {
+  public IborCurveTypeConfiguration(final ExternalId convention, final Tenor tenor) {
     super();
-    setConventionName(conventionName);
+    setConvention(convention);
     setTenor(tenor);
   }
 
@@ -78,8 +79,8 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1372137884:  // conventionName
-        return getConventionName();
+      case 2039569265:  // convention
+        return getConvention();
       case 110246592:  // tenor
         return getTenor();
     }
@@ -89,8 +90,8 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1372137884:  // conventionName
-        setConventionName((String) newValue);
+      case 2039569265:  // convention
+        setConvention((ExternalId) newValue);
         return;
       case 110246592:  // tenor
         setTenor((Tenor) newValue);
@@ -101,7 +102,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_conventionName, "conventionName");
+    JodaBeanUtils.notNull(_convention, "convention");
     JodaBeanUtils.notNull(_tenor, "tenor");
     super.validate();
   }
@@ -113,7 +114,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborCurveTypeConfiguration other = (IborCurveTypeConfiguration) obj;
-      return JodaBeanUtils.equal(getConventionName(), other.getConventionName()) &&
+      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
           JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           super.equals(obj);
     }
@@ -123,35 +124,35 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
     return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the convention name of the index.
+   * Gets the convention of the index.
    * @return the value of the property, not null
    */
-  public String getConventionName() {
-    return _conventionName;
+  public ExternalId getConvention() {
+    return _convention;
   }
 
   /**
-   * Sets the convention name of the index.
-   * @param conventionName  the new value of the property, not null
+   * Sets the convention of the index.
+   * @param convention  the new value of the property, not null
    */
-  public void setConventionName(String conventionName) {
-    JodaBeanUtils.notNull(conventionName, "conventionName");
-    this._conventionName = conventionName;
+  public void setConvention(ExternalId convention) {
+    JodaBeanUtils.notNull(convention, "convention");
+    this._convention = convention;
   }
 
   /**
-   * Gets the the {@code conventionName} property.
+   * Gets the the {@code convention} property.
    * @return the property, not null
    */
-  public final Property<String> conventionName() {
-    return metaBean().conventionName().createProperty(this);
+  public final Property<ExternalId> convention() {
+    return metaBean().convention().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -191,10 +192,10 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code conventionName} property.
+     * The meta-property for the {@code convention} property.
      */
-    private final MetaProperty<String> _conventionName = DirectMetaProperty.ofReadWrite(
-        this, "conventionName", IborCurveTypeConfiguration.class, String.class);
+    private final MetaProperty<ExternalId> _convention = DirectMetaProperty.ofReadWrite(
+        this, "convention", IborCurveTypeConfiguration.class, ExternalId.class);
     /**
      * The meta-property for the {@code tenor} property.
      */
@@ -205,7 +206,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "conventionName",
+        "convention",
         "tenor");
 
     /**
@@ -217,8 +218,8 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1372137884:  // conventionName
-          return _conventionName;
+        case 2039569265:  // convention
+          return _convention;
         case 110246592:  // tenor
           return _tenor;
       }
@@ -242,11 +243,11 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code conventionName} property.
+     * The meta-property for the {@code convention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> conventionName() {
-      return _conventionName;
+    public final MetaProperty<ExternalId> convention() {
+      return _convention;
     }
 
     /**
