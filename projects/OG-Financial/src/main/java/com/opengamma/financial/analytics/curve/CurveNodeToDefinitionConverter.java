@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -41,6 +42,7 @@ import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
@@ -310,6 +312,11 @@ public class CurveNodeToDefinitionConverter {
         return new SwapDefinition(payLeg, receiveLeg);
       }
 
+      @Override
+      public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
+        throw new NotImplementedException();
+      }
+
       @SuppressWarnings("synthetic-access")
       private AnnuityCouponFixedDefinition getFixedLeg(final SwapFixedLegConvention convention, final SwapNode swapNode, final double rate, final boolean isPayer) {
         final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getRegionCalendar());
@@ -367,6 +374,7 @@ public class CurveNodeToDefinitionConverter {
         return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention,
             paymentPeriod, isEOM);
       }
+
     };
     return node.accept(nodeVisitor);
   }
