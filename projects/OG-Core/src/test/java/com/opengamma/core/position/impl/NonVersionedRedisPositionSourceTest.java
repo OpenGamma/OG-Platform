@@ -25,7 +25,7 @@ import com.opengamma.util.redis.AbstractRedisTestCase;
 /**
  * 
  */
-@Test(enabled=true)
+@Test(enabled=false)
 public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
   
   public void empty() {
@@ -91,6 +91,24 @@ public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
     assertNotNull(result.getRootNode());
     assertTrue((result.getRootNode().getChildNodes() == null) || result.getRootNode().getChildNodes().isEmpty());
     assertEquals(nPositions, result.getRootNode().getPositions().size());
+  }
+  
+  public void portfolioAddGetByName() {
+    NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
+    
+    SimplePortfolio portfolio = new SimplePortfolio("Fibble");
+    portfolio.setRootNode(new SimplePortfolioNode());
+    int nPositions = 5;
+    for (int i = 0; i < nPositions; i++) {
+      portfolio.getRootNode().addPosition(addPosition(i));
+    }
+    
+    UniqueId uniqueId = source.storePortfolio(portfolio);
+    
+    Portfolio result = source.getByName("Fibble");
+    assertNotNull(result);
+    assertEquals("Fibble", result.getName());
+    assertEquals(uniqueId, result.getUniqueId());
   }
   
   protected SimplePosition addPosition(int quantity) {

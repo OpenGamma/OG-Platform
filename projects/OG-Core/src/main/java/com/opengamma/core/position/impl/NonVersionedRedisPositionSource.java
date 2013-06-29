@@ -347,6 +347,37 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   }
   
   // ---------------------------------------------------------------------------------------
+  // QUERIES OUTSIDE OF POSITION SOURCE INTERFACE
+  // ---------------------------------------------------------------------------------------
+  
+  public Portfolio getByName(String portfolioName) {
+    ArgumentChecker.notNull(portfolioName, "portfolioName");
+    
+    Portfolio portfolio = null;
+    
+    try (Timer.Context context = _getPortfolioTimer.time()) {
+      
+      Jedis jedis = getJedisPool().getResource();
+      try {
+        String uniqueIdString = jedis.hget("NAME-" + portfolioName, "UNIQUE_ID");
+        
+        if (uniqueIdString != null) {
+          UniqueId uniqueId = UniqueId.parse(uniqueIdString);
+          portfolio = getPortfolioWithJedis(jedis, uniqueId);
+        }
+
+        getJedisPool().returnResource(jedis);
+      } catch (Exception e) {
+        s_logger.error("Unable to get portfolio by name " + portfolioName, e);
+        getJedisPool().returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to get portfolio by name " + portfolioName, e);
+      }
+      
+    }
+    return portfolio;
+  }
+
+  // ---------------------------------------------------------------------------------------
   // IMPLEMENTATION OF POSITION SOURCE
   // ---------------------------------------------------------------------------------------
   
@@ -365,36 +396,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       
       Jedis jedis = getJedisPool().getResource();
       try {
-        
-        String redisKey = toPortfolioRedisKey(uniqueId);
-        if (jedis.exists(redisKey)) {
-          Map<String, String> hashFields = jedis.hgetAll(redisKey);
-          
-          portfolio = new SimplePortfolio(hashFields.get("NAME"));
-          portfolio.setUniqueId(uniqueId);
-
-          for (Map.Entry<String, String> field : hashFields.entrySet()) {
-            if (!field.getKey().startsWith("ATT-")) {
-              continue;
-            }
-            String attributeName = field.getKey().substring(4);
-            portfolio.addAttribute(attributeName, field.getValue());
-          }
-          
-          SimplePortfolioNode portfolioNode = new SimplePortfolioNode();
-          portfolioNode.setName(portfolio.getName());
-
-          String portfolioPositionsKey = toPortfolioPositionsRedisKey(portfolio.getUniqueId());
-          Set<String> positionUniqueIds = jedis.smembers(portfolioPositionsKey);
-          for (String positionUniqueId : positionUniqueIds) {
-            Position position = getPosition(jedis, UniqueId.parse(positionUniqueId));
-            if (position != null) {
-              portfolioNode.addPosition(position);
-            }
-          }
-          portfolio.setRootNode(portfolioNode);
-        }
-        
+        portfolio = getPortfolioWithJedis(jedis, uniqueId);
         
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
@@ -405,6 +407,39 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       
     }
     
+    return portfolio;
+  }
+  
+  protected SimplePortfolio getPortfolioWithJedis(Jedis jedis, UniqueId uniqueId) {
+    SimplePortfolio portfolio = null;
+    String redisKey = toPortfolioRedisKey(uniqueId);
+    if (jedis.exists(redisKey)) {
+      Map<String, String> hashFields = jedis.hgetAll(redisKey);
+      
+      portfolio = new SimplePortfolio(hashFields.get("NAME"));
+      portfolio.setUniqueId(uniqueId);
+
+      for (Map.Entry<String, String> field : hashFields.entrySet()) {
+        if (!field.getKey().startsWith("ATT-")) {
+          continue;
+        }
+        String attributeName = field.getKey().substring(4);
+        portfolio.addAttribute(attributeName, field.getValue());
+      }
+      
+      SimplePortfolioNode portfolioNode = new SimplePortfolioNode();
+      portfolioNode.setName(portfolio.getName());
+
+      String portfolioPositionsKey = toPortfolioPositionsRedisKey(portfolio.getUniqueId());
+      Set<String> positionUniqueIds = jedis.smembers(portfolioPositionsKey);
+      for (String positionUniqueId : positionUniqueIds) {
+        Position position = getPosition(jedis, UniqueId.parse(positionUniqueId));
+        if (position != null) {
+          portfolioNode.addPosition(position);
+        }
+      }
+      portfolio.setRootNode(portfolioNode);
+    }
     return portfolio;
   }
 
