@@ -29,9 +29,9 @@ import com.opengamma.engine.value.ValueSpecification;
 public class ListedEquityOptionBlackImpliedVolFunction extends ListedEquityOptionBlackFunction {
   /** Implied volatility calculator */
   private static final InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackImpliedVolatilityCalculator.getInstance();
-  
+
   /**
-   * @param valueRequirementName
+   * Sets the result to {@link ValueRequirementNames#IMPLIED_VOLATILITY}
    */
   public ListedEquityOptionBlackImpliedVolFunction() {
     super(ValueRequirementNames.IMPLIED_VOLATILITY);

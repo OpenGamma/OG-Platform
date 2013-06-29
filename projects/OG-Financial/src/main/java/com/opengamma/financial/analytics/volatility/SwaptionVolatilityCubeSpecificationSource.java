@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility;
@@ -23,7 +23,7 @@ public interface SwaptionVolatilityCubeSpecificationSource {
   /**
    * Gets a swaption volatility cube specification for a name and version
    * @param name The name of the swaption volatility cube specification, not null
-   * @param version The version instant, not null 
+   * @param versionCorrection The version correction, not null
    * @return The specification, null if not found
    */
   SwaptionVolatilityCubeSpecification getSpecification(String name, VersionCorrection versionCorrection);

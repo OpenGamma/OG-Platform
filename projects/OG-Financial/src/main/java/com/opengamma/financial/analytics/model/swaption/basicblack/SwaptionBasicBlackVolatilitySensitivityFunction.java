@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.basicblack;
@@ -20,11 +20,18 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Calculates the value vega of a swaption using the Black method with no volatility modelling assumptions.
+ * The implied volatility is read directly from the market data system.
+ * <p>
+ * Produces a result for {@link ValueRequirementNames#VALUE_VEGA} using {@link PresentValueBlackSwaptionSensitivityBlackCalculator}.
  */
 public class SwaptionBasicBlackVolatilitySensitivityFunction extends SwaptionBasicBlackFunction {
+  /** The calculator */
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
 
+  /**
+   * Sets {@link ValueRequirementNames#VALUE_VEGA} as the result.
+   */
   public SwaptionBasicBlackVolatilitySensitivityFunction() {
     super(ValueRequirementNames.VALUE_VEGA);
   }

@@ -31,7 +31,7 @@ public class EquityOptionBlackImpliedVolFunction extends EquityOptionBlackFuncti
   private static final InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackImpliedVolatilityCalculator.getInstance();
 
   /**
-   * @param valueRequirementName
+   * Sets the result to {@link ValueRequirementNames#IMPLIED_VOLATILITY}
    */
   public EquityOptionBlackImpliedVolFunction() {
     super(ValueRequirementNames.IMPLIED_VOLATILITY);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.basicblack;
@@ -57,13 +57,20 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for functions that return values for swaptions using the basic Black model
+ * (i.e. using a security-specific volatility and not interpolating volatilities).
  */
 public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackFunction.class);
+  /** The value requirement that can be produced */
   private final String _valueRequirementName;
+  /** Converter from {@link SwaptionSecurity} to an analytics object */
   private SwaptionSecurityConverter _visitor;
 
+  /**
+   * @param valueRequirementName The value requirement name, not null
+   */
   public SwaptionBasicBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
@@ -156,6 +163,13 @@ public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCom
     return requirements;
   }
 
+  /**
+   * Calculates the results.
+   * @param swaption The swaption
+   * @param data The market data bundle
+   * @param spec The result specification
+   * @return A set of results
+   */
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec);
 
   private ValueProperties getResultProperties(final String currency) {

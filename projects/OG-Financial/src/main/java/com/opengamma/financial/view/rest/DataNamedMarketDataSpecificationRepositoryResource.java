@@ -17,16 +17,16 @@ import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for {@link LiveMarketDataSourceRegistry}
+ * RESTful resource for {@link NamedMarketDataSpecificationRepository}
  */
 public class DataNamedMarketDataSpecificationRepositoryResource extends AbstractDataResource {
 
   private static final String PATH_NAMES = "names";
   private static final String PATH_SPECIFICATION = "specification";
-  
+
   private final NamedMarketDataSpecificationRepository _repository;
 
-  public DataNamedMarketDataSpecificationRepositoryResource(NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository) {
+  public DataNamedMarketDataSpecificationRepositoryResource(final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository) {
     _repository = namedMarketDataSpecificationRepository;
   }
 
@@ -35,22 +35,22 @@ public class DataNamedMarketDataSpecificationRepositoryResource extends Abstract
   public Response getProviderNames() {
     return responseOkFudge(getNamedMarketDataSpecificationRepository().getNames());
   }
-  
+
   @GET
   @Path(PATH_SPECIFICATION + "/{name}")
-  public Response getSpecification(@PathParam("name") String name) {
+  public Response getSpecification(@PathParam("name") final String name) {
     return responseOkFudge(getNamedMarketDataSpecificationRepository().getSpecification(name));
   }
-  
+
   //-------------------------------------------------------------------------
-  public static URI uriNames(URI baseUri) {
+  public static URI uriNames(final URI baseUri) {
     return UriBuilder.fromUri(baseUri).path(PATH_NAMES).build();
   }
-  
-  public static URI uriSpecification(URI baseUri, String name) {
+
+  public static URI uriSpecification(final URI baseUri, final String name) {
     return UriBuilder.fromUri(baseUri).path(PATH_SPECIFICATION).path(name).build();
   }
-  
+
   //-------------------------------------------------------------------------
   private NamedMarketDataSpecificationRepository getNamedMarketDataSpecificationRepository() {
     return _repository;

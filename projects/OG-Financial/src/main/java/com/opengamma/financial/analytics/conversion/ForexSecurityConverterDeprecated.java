@@ -32,7 +32,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 
 /**
- * @deprecated Use the version that uses CurrencyPairs {@see ForexSecurityConverter}
+ * @deprecated Use the version that uses CurrencyPairs {@link ForexSecurityConverter}
  */
 @Deprecated
 public class ForexSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {

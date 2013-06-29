@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -33,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * For a curve name, pulls the {@CurveSpecification} from the database.
+ * For a curve name, pulls the {@link CurveSpecification} from the database.
  */
 public class CurveSpecificationFunction extends AbstractFunction {
   /** The curve name */

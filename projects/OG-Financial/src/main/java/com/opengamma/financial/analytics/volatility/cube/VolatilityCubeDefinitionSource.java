@@ -28,7 +28,7 @@ public interface VolatilityCubeDefinitionSource {
    * Gets a cube definition for a currency, name and version.
    * @param currency  the currency, not null
    * @param name  the name, not null
-   * @param version  the version instant, not null
+   * @param versionCorrection  the version correction, not null
    * @return the definition, null if not found
    */
   VolatilityCubeDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection);

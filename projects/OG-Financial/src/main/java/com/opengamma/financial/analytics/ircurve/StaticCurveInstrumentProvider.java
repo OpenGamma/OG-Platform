@@ -17,7 +17,7 @@ import com.opengamma.util.time.Tenor;
 
 /**
  * Provides the external id of instruments for which the ticker does not change with time.
- * 
+ *
  * This should be pulled from the configuration.
  */
 public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
@@ -29,7 +29,7 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
   private final DataFieldType _fieldType;
 
   /**
-   * Sets the data field for market data to {@link MarketDataRequirementNames#Market_Value}
+   * Sets the data field for market data to {@link MarketDataRequirementNames#MARKET_VALUE}
    * @param identifier The market data identifier, not null
    */
   public StaticCurveInstrumentProvider(final ExternalId identifier) {
