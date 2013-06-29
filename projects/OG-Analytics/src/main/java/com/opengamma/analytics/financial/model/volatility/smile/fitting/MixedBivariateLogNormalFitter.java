@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * As model constraints are eventually violated starting with some initial guess parameters,
  * the LM algorithm is modified such that model parameters satisfy all of the constraints in every step of the fitting iteration.
  * X,Y should have the same number of normal distributions and share all of the weights.
- * 
+ *
  * For a mixture of N log-normal distributions, a mixed log-normal model contains 3 * N -2 free parameters.
  * Because sets of weights of X,Y are identical, total number of free parameters of X,Y is 5 * N -3.
  */
@@ -53,7 +53,7 @@ public class MixedBivariateLogNormalFitter {
 
   /**
    * Find a set of parameters such that sum ( (_dataStrikes - exactFunctionValue)^2 ) is minimum
-   * 
+   *
    * @param paramsGuess  Initial (unconstrained) guess parameters of X,Y to be chosen randomly
    * @param dataStrikes  Strike (market data). All the data of X should be before those of Y
    * @param dataVolatilities  Volatility (market data). all the data of X should be before those of Y
@@ -63,7 +63,7 @@ public class MixedBivariateLogNormalFitter {
    * @param nNormals  The number of normal distributions (X,Y have the same number of log-normal distributions)
    * @param nDataX  The number of sets of data (strike, vol) of X
    * @param paramsGuessCorrection  Set to be larger value for long expiry
-   * 
+   *
    */
   public void doFit(final double[] paramsGuess, final double[] dataStrikes, final double[] dataVolatilities, final double timeToExpiry, final double forwardX, final double forwardY,
       final int nNormals,
@@ -367,7 +367,7 @@ public class MixedBivariateLogNormalFitter {
    * @param option
    * @param forward
    * @param data
-   * @return
+   * @return The volatility
    */
   private double getVolatility(final EuropeanVanillaOption option, final double forward, final MixedLogNormalModelData data) {
 
