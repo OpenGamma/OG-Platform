@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
@@ -430,10 +431,11 @@ import com.opengamma.util.tuple.Triple;
     private boolean getAdditionalRequirementsAndPushResults(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker,
         final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
       // the substituteWorker is not ref-counted from here
+      final ComputationTarget target = getComputationTarget(context);
       Set<ValueRequirement> additionalRequirements = null;
       try {
         //DebugUtils.getAdditionalRequirements_enter();
-        additionalRequirements = getFunction().getFunction().getAdditionalRequirements(context.getCompilationContext(), getComputationTarget(context), inputs.keySet(), resolvedOutputs);
+        additionalRequirements = getFunction().getFunction().getAdditionalRequirements(context.getCompilationContext(), target, inputs.keySet(), resolvedOutputs);
         //DebugUtils.getAdditionalRequirements_leave();
       } catch (Throwable t) {
         //DebugUtils.getAdditionalRequirements_leave();
@@ -514,7 +516,7 @@ import com.opengamma.util.tuple.Triple;
       Collection<FunctionExclusionGroup> functionExclusion = null;
       for (ValueRequirement inputRequirement : additionalRequirements) {
         final ResolvedValueProducer inputProducer;
-        if (inputRequirement.getValueName() == functionExclusionValueName) {
+        if ((inputRequirement.getValueName() == functionExclusionValueName) && inputRequirement.getTargetReference().equals(target.toSpecification())) {
           if (functionExclusion == null) {
             functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
             if (functionExclusion == null) {
@@ -618,10 +620,11 @@ import com.opengamma.util.tuple.Triple;
       // Populate the worker and position this task in the chain for pumping alternative resolutions to dependents
       s_logger.debug("Registered worker {} for {} production", worker, getResolvedOutput());
       final CompiledFunctionDefinition functionDefinition = getFunction().getFunction();
+      final ComputationTarget target = getComputationTarget(context);
       Set<ValueRequirement> inputRequirements = null;
       try {
         //DebugUtils.getRequirements_enter();
-        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(context), getIterationBase().getDesiredValue());
+        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), target, getIterationBase().getDesiredValue());
         //DebugUtils.getRequirements_leave();
       } catch (Throwable t) {
         //DebugUtils.getRequirements_leave();
@@ -672,7 +675,7 @@ import com.opengamma.util.tuple.Triple;
           Collection<FunctionExclusionGroup> functionExclusion = null;
           for (ValueRequirement inputRequirement : inputRequirements) {
             final ResolvedValueProducer inputProducer;
-            if (inputRequirement.getValueName() == functionExclusionValueName) {
+            if ((inputRequirement.getValueName() == functionExclusionValueName) && inputRequirement.getTargetReference().equals(target.toSpecification())) {
               if (functionExclusion == null) {
                 functionExclusion = getFunctionExclusion(context, functionDefinition);
                 if (functionExclusion == null) {
