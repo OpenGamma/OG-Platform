@@ -5,57 +5,86 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.io.StringReader;
 import java.util.Map;
 
-import org.fudgemsg.FudgeField;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.opengamma.core.config.Config;
 import com.opengamma.util.ArgumentChecker;
 
+import groovy.lang.GroovyShell;
+import groovy.lang.Script;
+
 /**
- * Config object for storing parameters required to build a scenario.
- * TODO should parameters be defined by another groovy script that stores values in its bindings, e.g.
- *   foo = [1, 2, 3]
- * the bindings from the parameters script can be used as (or to populate) the bindings in the scenario script
+ * Config object for storing parameters required to build a scenario. This object stores a Groovy script which is
+ * executed to populate the parameter values. The script should be of the form:
+ * <pre>
+ * aString = "FOO"
+ * aList = [1, 2, 3]
+ * aMap = [key1: "val1", key2: "val2"]
+ * </pre>
  */
 @Config
 public class ScenarioParameters {
 
-  /** The parameters, keyed by name. */
-  private final Map<String, String> _parameters;
+  /** Field name for Fudge message */
+  private static final String SCRIPT = "script";
 
-  private ScenarioParameters(Map<String, String> parameters) {
-    ArgumentChecker.notNull(parameters, "parameters");
-    _parameters = ImmutableMap.copyOf(parameters);
+  /** The script that populates the parameters. */
+  private final String _script;
+
+  /* package */ ScenarioParameters(String script) {
+    ArgumentChecker.notEmpty(script, "script");
+    _script = script;
   }
 
   /**
    * @return The parameters, keyed by name
    */
-  public Map<String, String> getParameters() {
-    return _parameters;
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> getParameters() {
+    CompilerConfiguration config = new CompilerConfiguration();
+    config.setScriptBaseClass(SimulationScript.class.getName());
+    GroovyShell shell = new GroovyShell(config);
+    Script script = shell.parse(new StringReader(_script));
+    script.run();
+    return script.getBinding().getVariables();
   }
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
-    for (Map.Entry<String, String> entry : _parameters.entrySet()) {
-      serializer.addToMessage(msg, entry.getKey(), null, entry.getValue());
-    }
+    serializer.addToMessage(msg, SCRIPT, null, _script);
     return msg;
   }
 
   public static ScenarioParameters fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    Map<String, String> parameters = Maps.newHashMap();
-    for (FudgeField field : msg) {
-      parameters.put(field.getName(), deserializer.fieldValueToObject(String.class, field));
-    }
-    return new ScenarioParameters(parameters);
+    String script = deserializer.fieldValueToObject(String.class, msg.getByName(SCRIPT));
+    return new ScenarioParameters(script);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ScenarioParameters that = (ScenarioParameters) o;
+
+    if (!_script.equals(that._script)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return _script.hashCode();
+  }
 }

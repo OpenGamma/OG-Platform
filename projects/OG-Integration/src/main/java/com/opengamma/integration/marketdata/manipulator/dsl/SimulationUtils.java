@@ -27,7 +27,7 @@ import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
 /**
- * Utilities for creating and running {@link Simulation}s.
+ * Utilities for creating and running {@link Simulation}s and {@link Scenario}s.
  */
 public class SimulationUtils {
 
@@ -72,7 +72,6 @@ public class SimulationUtils {
     return runGroovyDslScript(groovyScript, Simulation.class, parameters);
   }
 
-    // TODO overload to read from a Reader for running scripts stored in config
   /**
    * Runs a Groovy script that defines a {@link Scenario} using the DSL.
    * @param groovyScript The script location in the filesystem
@@ -80,7 +79,7 @@ public class SimulationUtils {
    */
   public static Scenario createScenarioFromDsl(String groovyScript, Map<String, Object> parameters) {
     try {
-      return runGroovyDslScript(new FileReader(groovyScript), Scenario.class, parameters);
+      return runGroovyDslScript(new BufferedReader(new FileReader(groovyScript)), Scenario.class, parameters);
     } catch (FileNotFoundException e) {
       throw new OpenGammaRuntimeException("Failed to open script file", e);
     }
@@ -95,7 +94,6 @@ public class SimulationUtils {
     return runGroovyDslScript(groovyScript, Scenario.class, parameters);
   }
 
-  // TODO overload to read from a Reader for running scripts stored in config
   private static <T> T runGroovyDslScript(Reader scriptReader, Class<T> expectedType, Map<String, Object> parameters) {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(SimulationScript.class.getName());
