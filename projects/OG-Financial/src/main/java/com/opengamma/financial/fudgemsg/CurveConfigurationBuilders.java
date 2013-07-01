@@ -93,7 +93,7 @@ import com.opengamma.util.time.Tenor;
     @Override
     public IborCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final ExternalId convention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_FIELD));
-      final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
+      final Tenor tenor = Tenor.of(Period.parse(message.getString(TENOR_FIELD)));
       return new IborCurveTypeConfiguration(convention, tenor);
     }
 

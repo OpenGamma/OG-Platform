@@ -275,7 +275,7 @@ final class LabelledMatrix1DBuilder {
             labelTypes.add((String) field.getValue());
             break;
           case KEY_ORDINAL:
-            keys.add(new Tenor(Period.parse((String) field.getValue())));
+            keys.add(Tenor.of(Period.parse((String) field.getValue())));
             break;
           case LABEL_ORDINAL:
             labelValues.add(field);
@@ -493,7 +493,7 @@ final class LabelledMatrix1DBuilder {
             labelTypes.add((String) field.getValue());
             break;
           case KEY_ORDINAL:
-            keys.add(new Tenor(Period.parse((String) field.getValue())));
+            keys.add(Tenor.of(Period.parse((String) field.getValue())));
             break;
           case LABEL_ORDINAL:
             labelValues.add(field);

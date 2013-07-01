@@ -105,8 +105,8 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public CashNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
-      final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
+      final Tenor startTenor = Tenor.of(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor maturityTenor = Tenor.of(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
@@ -245,8 +245,8 @@ import com.opengamma.util.time.Tenor;
     @Override
     public FRANode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
-      final Tenor fixingStart = new Tenor(Period.parse(message.getString(FIXING_START_FIELD)));
-      final Tenor fixingEnd = new Tenor(Period.parse(message.getString(FIXING_END_FIELD)));
+      final Tenor fixingStart = Tenor.of(Period.parse(message.getString(FIXING_START_FIELD)));
+      final Tenor fixingEnd = Tenor.of(Period.parse(message.getString(FIXING_END_FIELD)));
       final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
@@ -291,8 +291,8 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public FXForwardNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
-      final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
+      final Tenor startTenor = Tenor.of(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor maturityTenor = Tenor.of(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
       final ExternalId fxForwardConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_FIELD));
       final Currency payCurrency = Currency.of(message.getString(PAY_CURRENCY_FIELD));
       final Currency receiveCurrency = Currency.of(message.getString(RECEIVE_CURRENCY_FIELD));
@@ -344,9 +344,9 @@ import com.opengamma.util.time.Tenor;
     @Override
     public RateFutureNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final int futureNumber = message.getInt(FUTURE_NUMBER_FIELD);
-      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
-      final Tenor futureTenor = new Tenor(Period.parse(message.getString(FUTURE_TENOR_FIELD)));
-      final Tenor underlyingTenor = new Tenor(Period.parse(message.getString(UNDERLYING_TENOR_FIELD)));
+      final Tenor startTenor = Tenor.of(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor futureTenor = Tenor.of(Period.parse(message.getString(FUTURE_TENOR_FIELD)));
+      final Tenor underlyingTenor = Tenor.of(Period.parse(message.getString(UNDERLYING_TENOR_FIELD)));
       final ExternalId futureConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FUTURE_CONVENTION_FIELD));
       final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
@@ -390,8 +390,8 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public SwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Tenor startTenor = new Tenor(Period.parse(message.getString(START_TENOR_FIELD)));
-      final Tenor maturityTenor = new Tenor(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
+      final Tenor startTenor = Tenor.of(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor maturityTenor = Tenor.of(Period.parse(message.getString(MATURITY_TENOR_FIELD)));
       final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
       final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
@@ -432,7 +432,7 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public ZeroCouponInflationNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
+      final Tenor tenor = Tenor.of(Period.parse(message.getString(TENOR_FIELD)));
       final ExternalId inflationConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INFLATION_CONVENTION_FIELD));
       final ExternalId fixedConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXED_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);

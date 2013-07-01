@@ -53,15 +53,11 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.time.Tenor;
 
-
+/**
+ * CDS strike fixer.
+ */
 @Scriptable
 public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
-
-  /**
-   * Logger.
-   */
-  private static Logger s_logger = LoggerFactory.getLogger(CDSStrikeFixer.class);
-
 
   /**
    * The name of the portfolio.
@@ -157,7 +153,7 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
           ZonedDateTime start = cds.getStartDate();
           ZonedDateTime maturity = cds.getMaturityDate();
           Period period = Period.between(start.toLocalDate(), maturity.toLocalDate());
-          Tenor tenor = new Tenor(period);
+          Tenor tenor = Tenor.of(period);
 
 
           final CurveNodeIdMapper curveNodeIdMapper = configSource.getSingle(CurveNodeIdMapper.class,
@@ -166,7 +162,7 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
 
 
           try {
-            tenor = new Tenor(Period.ofYears(5));
+            tenor = Tenor.of(Period.ofYears(5));
             ExternalId timeSeriesId = curveNodeIdMapper.getCreditSpreadNodeId(null /* magic null - ask Elaine */, tenor);
 
 

@@ -280,7 +280,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    * @return The effective tenor of the strip
    */
   public Tenor getEffectiveTenor() {
-    return new Tenor(getInstrumentType() == StripInstrumentType.FUTURE ?
+    return Tenor.of(getInstrumentType() == StripInstrumentType.FUTURE ?
         getCurveNodePointTime().getPeriod().plusMonths(3 * getNumberOfFuturesAfterTenor()) : getCurveNodePointTime().getPeriod());
   }
 

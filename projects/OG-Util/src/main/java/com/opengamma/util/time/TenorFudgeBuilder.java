@@ -36,7 +36,7 @@ public class TenorFudgeBuilder implements FudgeBuilder<Tenor> {
     if (tenorStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Tenor - field 'tenor' is not present");
     }
-    return new Tenor(DateUtils.toPeriod(tenorStr));
+    return Tenor.of(DateUtils.toPeriod(tenorStr));
   }
 
 }

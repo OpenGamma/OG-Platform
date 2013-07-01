@@ -117,8 +117,8 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
 
         if (ticker != null) {
           final Currency currency = Currency.of(currencyIso);
-          final Tenor swapTenor = new Tenor(Period.parse("P" + swapPeriod + swapPeriodUnit));
-          final Tenor optionExpiry = new Tenor(Period.parse("P" + expiry + expiryUnit));
+          final Tenor swapTenor = Tenor.parse("P" + swapPeriod + swapPeriodUnit);
+          final Tenor optionExpiry = Tenor.parse("P" + expiry + expiryUnit);
           double sign;
           if ("PY".equals(payOrReceive)) {
             sign = -1;
