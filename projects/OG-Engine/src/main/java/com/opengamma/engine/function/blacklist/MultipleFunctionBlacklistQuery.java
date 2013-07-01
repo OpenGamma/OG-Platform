@@ -7,7 +7,6 @@ package com.opengamma.engine.function.blacklist;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.CalculationJobItem;
@@ -94,8 +93,8 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
   }
 
   @Override
-  public boolean isBlacklisted(final String functionIdentifier, final FunctionParameters functionParameters, final ComputationTargetSpecification target, final Set<ValueSpecification> inputs,
-      final Set<ValueSpecification> outputs) {
+  public boolean isBlacklisted(final String functionIdentifier, final FunctionParameters functionParameters, final ComputationTargetSpecification target, final ValueSpecification[] inputs,
+      final ValueSpecification[] outputs) {
     for (FunctionBlacklistQuery underlying : getUnderlying()) {
       if (underlying.isBlacklisted(functionIdentifier, functionParameters, target, inputs, outputs)) {
         return true;
@@ -105,7 +104,29 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
   }
 
   @Override
-  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final Set<ValueSpecification> inputs, final Set<ValueSpecification> outputs) {
+  public boolean isBlacklisted(final String functionIdentifier, final FunctionParameters functionParameters, final ComputationTargetSpecification target, final Collection<ValueSpecification> inputs,
+      final Collection<ValueSpecification> outputs) {
+    for (FunctionBlacklistQuery underlying : getUnderlying()) {
+      if (underlying.isBlacklisted(functionIdentifier, functionParameters, target, inputs, outputs)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final ValueSpecification[] inputs, final ValueSpecification[] outputs) {
+    for (FunctionBlacklistQuery underlying : getUnderlying()) {
+      if (underlying.isBlacklisted(function, target, inputs, outputs)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final Collection<ValueSpecification> inputs,
+      final Collection<ValueSpecification> outputs) {
     for (FunctionBlacklistQuery underlying : getUnderlying()) {
       if (underlying.isBlacklisted(function, target, inputs, outputs)) {
         return true;

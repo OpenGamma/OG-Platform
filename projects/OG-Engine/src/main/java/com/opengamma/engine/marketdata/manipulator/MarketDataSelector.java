@@ -28,11 +28,16 @@ public interface MarketDataSelector {
    * Indicates the distinct underlying selector that is applicable to the specified market data
    * structure. If one is found, then it is returned.
    *
+   *
+   *
    * @param structureId the id of the structure to test against
    * @param calculationConfigurationName the calculation configuration
+   * @param resolver For looking up data used in the selection criteria, e.g. securities
    * @return the underlying selector that matches the specified market data structure, null if there is no match
    */
-  DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName);
+  DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+                                                  String calculationConfigurationName,
+                                                  SelectorResolver resolver);
 
   /**
    * Gets the set of structure types that a selector matches. Most selectors will match just

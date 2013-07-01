@@ -23,7 +23,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Conventions for overnight swap legs.
  */
 @BeanDefinition
 public class OISLegConvention extends Convention {
@@ -70,10 +70,20 @@ public class OISLegConvention extends Convention {
   /**
    * For the builder.
    */
-  public OISLegConvention() {
+  /* package */ OISLegConvention() {
     super();
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param overnightIndexConvention The id of the overnight index, not null
+   * @param paymentTenor The payment tenor, not null
+   * @param paymentDelay The payment delay
+   * @param settlementDays The number of settlement days
+   * @param businessDayConvention The business-day convention, not null
+   * @param isEOM True if dates follow the end-of-month rule
+   */
   public OISLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId overnightIndexConvention, final Tenor paymentTenor,
       final int paymentDelay, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     super(name, externalIdBundle);

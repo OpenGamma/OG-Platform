@@ -8,8 +8,10 @@ package com.opengamma.engine.target;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -33,8 +35,8 @@ public class ComputationTargetTypeMapTest {
     assertNull(map.get(ComputationTargetType.SECURITY));
   }
 
-  public void testSimple () {
-    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String> ();
+  public void testSimple() {
+    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
     map.put(ComputationTargetType.POSITION, "Pos");
     map.put(ComputationTargetType.SECURITY, "Sec");
     assertNull(map.getDirect(ComputationTargetType.NULL));
@@ -156,6 +158,8 @@ public class ComputationTargetTypeMapTest {
     final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
     map.put(ComputationTargetType.POSITION, "Pos");
     map.put(ComputationTargetType.SECURITY, "Sec");
+    map.get(ComputationTargetType.SECURITY);
+    map.get(ComputationTargetType.PORTFOLIO_NODE);
     int flags = 0;
     for (String str : map.values()) {
       if ("Pos".equals(str) && ((flags & 1) == 0)) {
@@ -173,6 +177,8 @@ public class ComputationTargetTypeMapTest {
     final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
     map.put(ComputationTargetType.NULL, "Null");
     map.put(ComputationTargetType.POSITION, "Pos");
+    map.get(ComputationTargetType.SECURITY);
+    map.get(ComputationTargetType.PORTFOLIO_NODE);
     int flags = 0;
     for (String str : map.values()) {
       if ("Pos".equals(str) && ((flags & 1) == 0)) {
@@ -186,10 +192,30 @@ public class ComputationTargetTypeMapTest {
     assertEquals(flags, 3);
   }
 
+  public void testValues_withRemove() {
+    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
+    map.put(ComputationTargetType.NULL, "Null");
+    map.put(ComputationTargetType.SECURITY, "Sec");
+    map.get(ComputationTargetType.POSITION);
+    map.get(ComputationTargetType.PORTFOLIO_NODE);
+    int count = 0;
+    final Iterator<String> itr = map.values().iterator();
+    while (itr.hasNext()) {
+      final String str = itr.next();
+      assertTrue(str.equals("Null") || str.equals("Sec"));
+      count++;
+      itr.remove();
+    }
+    assertEquals(count, 2);
+    assertEquals(map.get(ComputationTargetType.NULL), null);
+    assertEquals(map.get(ComputationTargetType.SECURITY), null);
+  }
+
   public void testEntries_noNull() {
     final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
     map.put(ComputationTargetType.POSITION, "Pos");
     map.put(ComputationTargetType.SECURITY, "Sec");
+    map.get(ComputationTargetType.PORTFOLIO_NODE);
     int flags = 0;
     for (Map.Entry<ComputationTargetType, String> e : map.entries()) {
       if ("Pos".equals(e.getValue()) && ((flags & 1) == 0)) {
@@ -213,6 +239,8 @@ public class ComputationTargetTypeMapTest {
     final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
     map.put(ComputationTargetType.NULL, "Null");
     map.put(ComputationTargetType.POSITION, "Pos");
+    map.get(ComputationTargetType.SECURITY);
+    map.get(ComputationTargetType.PORTFOLIO_NODE);
     int flags = 0;
     for (Map.Entry<ComputationTargetType, String> e : map.entries()) {
       if ("Pos".equals(e.getValue()) && ((flags & 1) == 0)) {
@@ -222,13 +250,33 @@ public class ComputationTargetTypeMapTest {
       } else if ("Null".equals(e.getValue()) && ((flags & 2) == 0)) {
         assertEquals(e.getKey(), ComputationTargetType.NULL);
         flags |= 2;
+        e.setValue("Bar");
       } else {
         fail("e = " + e + ", flags = " + flags);
       }
     }
     assertEquals(flags, 3);
-    assertEquals(map.get(ComputationTargetType.NULL), "Null");
+    assertEquals(map.get(ComputationTargetType.NULL), "Bar");
     assertEquals(map.get(ComputationTargetType.POSITION), "Foo");
+  }
+
+  public void testEntries_withRemove() {
+    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
+    map.put(ComputationTargetType.NULL, "Null");
+    map.put(ComputationTargetType.SECURITY, "Sec");
+    map.get(ComputationTargetType.POSITION);
+    map.get(ComputationTargetType.PORTFOLIO_NODE);
+    int count = 0;
+    final Iterator<Map.Entry<ComputationTargetType, String>> itr = map.entries().iterator();
+    while (itr.hasNext()) {
+      final Map.Entry<ComputationTargetType, String> str = itr.next();
+      assertTrue(str.getValue().equals("Null") || str.getValue().equals("Sec"));
+      count++;
+      itr.remove();
+    }
+    assertEquals(count, 2);
+    assertEquals(map.get(ComputationTargetType.NULL), null);
+    assertEquals(map.get(ComputationTargetType.SECURITY), null);
   }
 
 }

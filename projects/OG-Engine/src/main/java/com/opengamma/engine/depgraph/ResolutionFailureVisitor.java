@@ -20,9 +20,15 @@ import com.opengamma.engine.value.ValueSpecification;
  * 
  * @param <T> return type of the visit methods
  */
-public abstract class ResolutionFailureVisitor<T> {
+public abstract class ResolutionFailureVisitor<T> implements ResolutionFailureListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolutionFailureVisitor.class);
+  
+  
+  @Override
+  public final void notifyFailure(ResolutionFailure resolutionFailure) {
+    resolutionFailure.accept(this);
+  }
 
   /**
    * A default instance for writing messages to a logger.

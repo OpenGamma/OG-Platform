@@ -176,7 +176,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CapFloorInflationYearOnYearMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");

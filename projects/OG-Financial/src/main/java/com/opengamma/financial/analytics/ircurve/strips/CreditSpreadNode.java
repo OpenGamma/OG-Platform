@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve.strips;
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class CreditSpreadNode extends CurveNode {
@@ -36,7 +36,7 @@ public class CreditSpreadNode extends CurveNode {
   private Tenor _tenor;
 
   /**
-   * 
+   * For the fudge builder
    */
   public CreditSpreadNode() {
   }
@@ -51,12 +51,12 @@ public class CreditSpreadNode extends CurveNode {
   }
 
   /**
-   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   * @param curveNodeIdMapperName The curve node id mapper name name, not null
    * @param tenor The tenor, not null
-   * @param dataField The data field, not null
+   * @param name The name
    */
-  public CreditSpreadNode(final String curveNodeIdMapperName, final Tenor tenor, final String dataField) {
-    super(curveNodeIdMapperName, dataField);
+  public CreditSpreadNode(final String curveNodeIdMapperName, final Tenor tenor, final String name) {
+    super(curveNodeIdMapperName, name);
     setTenor(tenor);
   }
 

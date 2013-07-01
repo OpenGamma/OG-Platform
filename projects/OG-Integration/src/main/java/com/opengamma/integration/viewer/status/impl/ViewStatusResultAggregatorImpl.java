@@ -5,8 +5,10 @@
  */
 package com.opengamma.integration.viewer.status.impl;
 
-import static com.opengamma.integration.viewer.status.impl.ViewStatusKeyBean.getMetaProperty;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,12 +19,17 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.integration.viewer.status.ViewAggregationType;
+import com.opengamma.integration.viewer.status.AggregateType;
+import com.opengamma.integration.viewer.status.ViewColumnType;
+import com.opengamma.integration.viewer.status.ViewStatus;
 import com.opengamma.integration.viewer.status.ViewStatusKey;
 import com.opengamma.integration.viewer.status.ViewStatusModel;
 import com.opengamma.integration.viewer.status.ViewStatusResultAggregator;
@@ -34,7 +41,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregator {
   
-  private static final Map<MetaProperty<?>, String> HEADERS = Maps.newHashMap();
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusResultAggregatorImpl.class);
   
   /**
    * Header for Security Type
@@ -52,9 +59,14 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
    * Header for Target type
    */
   public static final String TARGET_TYPE_HEADER = "Target Type";
+  /**
+   * Header for status
+   */
+  public static final String STATUS = "Status";
   
-  private Map<ViewStatusKey, Boolean> _viewStatusResult = Maps.newConcurrentMap();
+  private Map<ViewStatusKey, ViewStatus> _viewStatusResult = Maps.newConcurrentMap();
   
+  private static final Map<MetaProperty<?>, String> HEADERS = Maps.newHashMap();
   static {
     Meta statusKeyMeta = ViewStatusKeyBean.meta();
     HEADERS.put(statusKeyMeta.securityType(), SECURITY_HEADER);
@@ -63,199 +75,177 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     HEADERS.put(statusKeyMeta.targetType(), TARGET_TYPE_HEADER);
   }
   
-  private static final String[] DEFAULT_HEADERS = {TARGET_TYPE_HEADER, SECURITY_HEADER, VALUE_REQUIREMENT_NAME_HEADER, CURRENCY_HEADER, "Status"};
-
-  public ViewStatusModel aggregate(final ViewAggregationType columnType, final ViewAggregationType rowType, final ViewAggregationType subRowType) {
-    ArgumentChecker.notNull(columnType, "columnType");
-    ArgumentChecker.notNull(rowType, "rowType");
-    ArgumentChecker.notNull(subRowType, "rowType");
-    
-    validateAggregationParameters(columnType, rowType, subRowType);
-    
-    final MetaProperty<String> colPropertyMeta = getMetaProperty(columnType);
-    final MetaProperty<String> rowPropertyMeta = getMetaProperty(rowType);
-    final MetaProperty<String> subRowPropertyMeta = getMetaProperty(subRowType);
-    String[][] columnHeaders = buildColumnHeaders(colPropertyMeta, rowPropertyMeta, subRowPropertyMeta);
-    Object[][] rowData = buildRowValues(columnHeaders[0].length, colPropertyMeta, rowPropertyMeta, subRowPropertyMeta);
-    
-    return new SimpleViewStatusModel(columnHeaders, rowData, ImmutableMap.copyOf(_viewStatusResult));
-  }
-
-  private Object[][] buildRowValues(int colSize, final MetaProperty<String> colPropertyMeta, final MetaProperty<String> rowPropertyMeta, final MetaProperty<String> subRowPropertyMeta) {
-    List<List<Object>> results = Lists.newArrayList();
-    
-    Set<String> rows = Sets.newTreeSet(getKeyComponentEntries(rowPropertyMeta));
-    Set<String> subRows = Sets.newTreeSet(getKeyComponentEntries(subRowPropertyMeta));
-    Set<String> cols = Sets.newTreeSet(getKeyComponentEntries(colPropertyMeta));
-    
-    for (String row : rows) {
-      int count = 0;
-      for (String subRow : subRows) {
-        if (includeRow(rowPropertyMeta, row, subRowPropertyMeta, subRow, colPropertyMeta, cols)) {
-          List<Object> rowData = Lists.newArrayList();
-          if (count == 0) {
-            rowData.add(row);
-          } else {
-            rowData.add(StringUtils.EMPTY);
-          }
-          count++;
-          rowData.add(subRow);
-          for (String col : cols) {
-            Object columnValue = getColumnValue(rowPropertyMeta, row, subRowPropertyMeta, subRow, colPropertyMeta, col);
-            columnValue = columnValue == null ? StringUtils.EMPTY : columnValue;
-            rowData.add(columnValue);
-          }
-          results.add(rowData);
-        }
-      }
-    }
-    return rowValuesToArray(results);
-  }
-
-  private Object[][] rowValuesToArray(final List<List<Object>> rowsAsList) {
-    Object[][] rows = new Object[rowsAsList.size()][];
-    int rowCounter = 0;
-    for (List<Object> rowList : rowsAsList) {
-      Object[] row = new Object[rowList.size()];
-      int colCounter = 0;
-      for (Object col : rowList) {
-        row[colCounter++] = col;
-      }
-      rows[rowCounter++] = row; 
-    }
-    return rows;
-  }
-
-  private Object getColumnValue(MetaProperty<?> rowPropertyMeta, String row, MetaProperty<?> subRowPropertyMeta, String subRow, MetaProperty<?> colPropertyMeta, String col) {
-    Meta keyMeta = ViewStatusKeyBean.meta();
-    BeanBuilder<? extends ViewStatusKeyBean> beanBuilder = keyMeta.builder();
-    beanBuilder.set(rowPropertyMeta, row);
-    beanBuilder.set(subRowPropertyMeta, subRow);
-    beanBuilder.set(colPropertyMeta, col);
-    ViewStatusKeyBean key = beanBuilder.build();    
-    return _viewStatusResult.get(ImmutableViewStatusKey.of(key));
-  }
-
-  private boolean includeRow(MetaProperty<?> rowPropertyMeta, String row, MetaProperty<?> subRowPropertyMeta, String subRow, MetaProperty<?> colPropertyMeta, Set<String> cols) {
-    if (cols.isEmpty()) {
-      return false;
-    }
-    Meta keyMeta = ViewStatusKeyBean.meta();
-    BeanBuilder<? extends ViewStatusKeyBean> beanBuilder = keyMeta.builder();
-    beanBuilder.set(rowPropertyMeta, row);
-    beanBuilder.set(subRowPropertyMeta, subRow);
-    
-    for (String col : cols) {
-      beanBuilder.set(colPropertyMeta, col);
-      ViewStatusKeyBean key = beanBuilder.build();
-      if (_viewStatusResult.get(ImmutableViewStatusKey.of(key)) != null) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-
-  private void validateAggregationParameters(final ViewAggregationType columnType, final ViewAggregationType rowType, final ViewAggregationType subRowType) {
-    
-    if (getMetaProperty(columnType) == null) {
-      throw new IllegalArgumentException(columnType + " does not exists in view status key");
-    }
-    if (getMetaProperty(rowType) == null) {
-      throw new IllegalArgumentException(rowType + " does not exists in view status key");
-    }
-    if (getMetaProperty(subRowType) == null) {
-      throw new IllegalArgumentException(subRowType + " does not exists in view status key");
-    }
-    
-    Set<ViewAggregationType> dimensions = Sets.newHashSet();
-    dimensions.add(columnType);
-    dimensions.add(rowType);
-    dimensions.add(subRowType);
-    
-    if (dimensions.size() != 3) {
-      throw new IllegalArgumentException(String.format("ColumnType:%s  RowType:%s SubRowType:%s names must all be unique", columnType, rowType, subRowType));
-    }
-    
-  }
-
-  private String[][] buildColumnHeaders(MetaProperty<?> columnProperty, MetaProperty<?> rowProperty, MetaProperty<?> rowSubProperty) {
-    String[][] result = new String[2][];
-    
-    Set<String> subColumnHeaders = Sets.newTreeSet(getKeyComponentEntries(columnProperty));
-    
-    int columnSize = 2 + subColumnHeaders.size();
-    
-    String[] topHeader = new String[columnSize];
-    topHeader[0] = HEADERS.get(rowProperty);
-    topHeader[1] = HEADERS.get(rowSubProperty);
-    topHeader[2] = HEADERS.get(columnProperty);
-    for (int i = 3; i < columnSize; i++) {
-      topHeader[i] = StringUtils.EMPTY;
-    }
-    
-    result[0] = topHeader;
-    
-    String[] subHeader = new String[columnSize];
-    subHeader[0] = StringUtils.EMPTY;
-    subHeader[1] = StringUtils.EMPTY;
-    int counter = 2;
-    for (String subColumn : subColumnHeaders) {
-      subHeader[counter++] = subColumn;
-    }
-    
-    result[1] = subHeader;
-    
-    return result;
-  }
+  private static final String[] DEFAULT_HEADERS = {TARGET_TYPE_HEADER, SECURITY_HEADER, VALUE_REQUIREMENT_NAME_HEADER, CURRENCY_HEADER, STATUS};
   
-  private Set<String> getKeyComponentEntries(final MetaProperty<?> statusKey) {
-    Meta meta = ViewStatusKeyBean.meta();
-    if (meta.securityType().equals(statusKey)) {
-      return getSecurityTypes();
-    } else if (meta.valueRequirementName().equals(statusKey)) {
-      return getValueNames();
-    } else if (meta.currency().equals(statusKey)) {
-      return getCurrencies();
-    } else {
-      return Sets.newHashSet();
-    }
-  }
-  
-  private Set<String> getSecurityTypes() {
-    Set<String> result = Sets.newTreeSet();
-    for (ViewStatusKey key : _viewStatusResult.keySet()) {
-      result.add(key.getSecurityType());
-    }
-    return result;
-  }
-
-  private Set<String> getValueNames() {
-    Set<String> result = Sets.newTreeSet();
-    for (ViewStatusKey key : _viewStatusResult.keySet()) {
-      result.add(key.getValueRequirementName());
-    }
-    return result;
-  }
-
-  private Set<String> getCurrencies() {
-    Set<String> result = Sets.newTreeSet();
-    for (ViewStatusKey key : _viewStatusResult.keySet()) {
-      result.add(key.getCurrency());
-    }
-    return result;
-  }
-  
-  private Set<String> getTargetTypes() {
-    Set<String> result = Sets.newTreeSet();
-    for (ViewStatusKey key : _viewStatusResult.keySet()) {
-      result.add(key.getTargetType());
-    }
-    return result;
-  }
+  private static final String EMPTY_STR = StringUtils.EMPTY;
   
   @Override
-  public void put(ViewStatusKey key, boolean status) {
+  public ViewStatusModel aggregate(AggregateType aggregateType) {
+    ArgumentChecker.notNull(aggregateType, "aggregateType");
+    if (aggregateType == AggregateType.NO_AGGREGATION) {
+      return defaultModel();
+    }
+    return aggregate(aggregateType.getColumnTypes());
+  }
+
+  private ViewStatusModel aggregate(final List<ViewColumnType> columnTypes) {
+    ArgumentChecker.notNull(columnTypes, "aggregations");
+ 
+    if (columnTypes.isEmpty()) {
+      return defaultModel();
+    }
+    
+    Iterable<ViewColumnType> fixedColumnTypes = Iterables.limit(columnTypes, columnTypes.size() - 1);
+    final Map<List<String>, Set<String>> fixedRow2Columns = Maps.newHashMap();
+    
+    for (ViewStatusKey viewStatusKey : _viewStatusResult.keySet()) {
+      ViewStatusKeyBean viewStatusKeyBean = new ViewStatusKeyBean(viewStatusKey.getSecurityType(), viewStatusKey.getValueRequirementName(), 
+          viewStatusKey.getCurrency(), viewStatusKey.getTargetType());
+      List<String> key = viewStatusKey(viewStatusKeyBean, fixedColumnTypes);
+      
+      Set<String> columnValues = fixedRow2Columns.get(key);
+      if (columnValues == null) {
+        columnValues = Sets.newHashSet();
+        fixedRow2Columns.put(key, columnValues);
+      }
+      columnValues.addAll(viewStatusKey(viewStatusKeyBean, Collections.singletonList(Iterables.getLast(columnTypes))));
+    }
+    
+    Set<String> extraColumns = getExtraColumns(fixedRow2Columns);
+       
+    List<List<String>> columnHeaders = makeHeaders(columnTypes, extraColumns);
+    List<List<Object>> rowData = createRowData(fixedRow2Columns, extraColumns, columnTypes);
+    
+    return new SimpleViewStatusModel(columnHeaders, rowData, _viewStatusResult);
+  }
+
+  private List<List<Object>> createRowData(final Map<List<String>, Set<String>> fixedRow2Columns, final Set<String> extraColumns, List<ViewColumnType> columnTypes) {
+    
+    List<List<String>> rows = Lists.newArrayList(fixedRow2Columns.keySet());
+    Comparator<List<String>> rowComparator = new Comparator<List<String>>() {
+
+      @Override
+      public int compare(List<String> left, List<String> right) {
+        int compare = 0;
+        for (int i = 0; i < left.size(); i++) {
+          compare = left.get(i).compareTo(right.get(i));
+          if (compare != 0) {
+            return compare;
+          }
+        }
+        return compare;
+      }
+    };
+
+    Collections.sort(rows, rowComparator);
+    
+    List<List<Object>> processedRows = Lists.newArrayListWithCapacity(rows.size());
+
+    String[] currentRow = new String[Iterables.getFirst(rows, Lists.newArrayList()).size()];
+    for (List<String> row : rows) {
+      List<Object> processedRow = Lists.newArrayList();
+      Iterable<String> columns = Iterables.limit(row, row.size() - 1);
+      int count = 0;
+      for (String col : columns) {
+        if (currentRow[count] == null || !col.equals(currentRow[count])) {
+          currentRow[count] = col;
+          processedRow.add(col);
+        } else {
+          processedRow.add(EMPTY_STR);
+        }
+        count++;
+      }
+      processedRow.add(Iterables.getLast(row));
+            
+      for (String col : extraColumns) {
+        List<String> keyMemebers = Lists.newArrayList(row);
+        keyMemebers.add(col);
+        ViewStatus status = getStatus(keyFromRowValues(keyMemebers, columnTypes));
+        if (status == null) {
+          processedRow.add(EMPTY_STR);
+        } else {
+          processedRow.add(status);
+        }
+      }
+      processedRows.add(processedRow);
+    }
+    return processedRows;
+  }
+
+  private ViewStatusKey keyFromRowValues(List<String> keyValues, List<ViewColumnType> columnTypes) {
+
+    Meta keyMeta = ViewStatusKeyBean.meta();
+    BeanBuilder<? extends ViewStatusKeyBean> beanBuilder = keyMeta.builder();
+    Iterator<String> keyItr = keyValues.iterator();
+    Iterator<ViewColumnType> colTypeItr = columnTypes.iterator();
+    
+    while (keyItr.hasNext() && colTypeItr.hasNext()) {
+      beanBuilder.set(colTypeItr.next().getMetaProperty(), keyItr.next());
+    }
+    ViewStatusKeyBean result = beanBuilder.build();
+    s_logger.debug("{} built from properties: {} and types: {}", result, keyValues, columnTypes);
+    return result;
+  }
+
+  private Set<String> getExtraColumns(Map<List<String>, Set<String>> fixedRow2Columns) {
+    Set<String> extraColumns = Sets.newTreeSet();
+    Iterables.addAll(extraColumns, Iterables.concat(fixedRow2Columns.values()));
+    return extraColumns;
+  }
+
+  private List<List<String>> makeHeaders(List<ViewColumnType> columnTypes, Set<String> extraColumns) {
+    List<List<String>> headers = Lists.newArrayListWithCapacity(2);
+    int colSize = columnTypes.size() + extraColumns.size() - 1;
+    headers.add(topColumnHeaders(columnTypes, colSize));
+    headers.add(subColumnHeaders(extraColumns, colSize)); 
+    return headers;
+  }
+
+  private List<String> viewStatusKey(ViewStatusKeyBean viewStatusKeyBean, Iterable<ViewColumnType> fixedColumnTypes) {
+    
+    List<String> result = Lists.newArrayList();
+    for (ViewColumnType keyType : fixedColumnTypes) {
+      MetaProperty<String> metaProperty = keyType.getMetaProperty();
+      
+      if (ViewStatusKeyBean.meta().currency().equals(metaProperty)) {
+        result.add(viewStatusKeyBean.getCurrency());
+      } else if (ViewStatusKeyBean.meta().securityType().equals(metaProperty)) {
+        result.add(viewStatusKeyBean.getSecurityType());
+      } else if (ViewStatusKeyBean.meta().targetType().equals(metaProperty)) {
+        result.add(viewStatusKeyBean.getTargetType());
+      } else if (ViewStatusKeyBean.meta().valueRequirementName().equals(metaProperty)) {
+        result.add(viewStatusKeyBean.getValueRequirementName());
+      }
+    }
+    return ImmutableList.copyOf(result);
+  }
+
+
+
+  private List<String> subColumnHeaders(Set<String> extraColumnHeaders, int colsize) {
+    List<String> subHeader = Lists.newArrayListWithCapacity(colsize);
+    int emptySize = colsize - extraColumnHeaders.size();
+    for (int i = 0; i < emptySize; i++) {
+      subHeader.add(StringUtils.EMPTY);
+    }
+    Iterables.addAll(subHeader, extraColumnHeaders);
+    return subHeader;
+  }
+
+  private List<String> topColumnHeaders(List<ViewColumnType> columnTypes, int colsize) {
+    List<String> topHeader = Lists.newArrayListWithCapacity(colsize);
+    for (ViewColumnType columnType : columnTypes) {
+      topHeader.add(HEADERS.get(columnType.getMetaProperty()));
+    }
+    int emptySize = colsize - columnTypes.size();
+    for (int i = 0; i < emptySize; i++) {
+      topHeader.add(StringUtils.EMPTY);
+    }
+    return topHeader;
+  }
+    
+  @Override
+  public void putStatus(ViewStatusKey key, ViewStatus status) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(status, "status");
     
@@ -263,7 +253,7 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
   }
   
   @Override
-  public Boolean get(ViewStatusKey key) {
+  public ViewStatus getStatus(ViewStatusKey key) {
     if (key == null) {
       return null;
     } else {
@@ -276,21 +266,23 @@ public class ViewStatusResultAggregatorImpl implements ViewStatusResultAggregato
     return Sets.newHashSet(_viewStatusResult.keySet());
   }
   
-  @Override
-  public ViewStatusModel defaultModel() {
+  private ViewStatusModel defaultModel() {
+    List<List<String>> columnHeaders = Lists.newArrayListWithCapacity(1);
+    columnHeaders.add(Arrays.asList(DEFAULT_HEADERS));
     
-    String[][] columnHeaders = new String[1][DEFAULT_HEADERS.length];
-    columnHeaders[0] = DEFAULT_HEADERS;
-    
-    Object[][] rowData = new Object[_viewStatusResult.size()][DEFAULT_HEADERS.length];
-    
-    int count = 0;
+    List<List<Object>> rowData = Lists.newArrayListWithCapacity(_viewStatusResult.size());
     for (ViewStatusKey key : _viewStatusResult.keySet()) {
-      Boolean status = _viewStatusResult.get(key);
-      String[] row = {key.getTargetType(), key.getSecurityType(), key.getValueRequirementName(), key.getCurrency(), String.valueOf(status)};
-      rowData[count++] = row;
+      List<Object> row = Lists.newArrayList();
+      ViewStatus status = _viewStatusResult.get(key);
+      
+      row.add(key.getTargetType());
+      row.add(key.getSecurityType());
+      row.add(key.getValueRequirementName());
+      row.add(key.getCurrency());
+      row.add(status.getValue());
+      rowData.add(row);
     }    
-    return new SimpleViewStatusModel(columnHeaders, rowData, ImmutableMap.copyOf(_viewStatusResult));
+    return new SimpleViewStatusModel(columnHeaders, rowData, _viewStatusResult);
   }
   
   /**

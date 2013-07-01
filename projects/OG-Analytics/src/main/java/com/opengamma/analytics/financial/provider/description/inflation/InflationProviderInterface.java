@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -22,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Interface specific to inflation curves.
  * Compose the MulticurveProviderInterface.
  */
-public interface InflationProviderInterface extends ParameterProviderInterface {
+public interface InflationProviderInterface extends ParameterInflationProviderInterface {
 
   /**
    * Create a new copy of the provider.

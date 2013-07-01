@@ -12,6 +12,7 @@ import java.util.Set;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
@@ -35,11 +36,14 @@ public interface CompiledViewDefinitionWithGraphs extends CompiledViewDefinition
   /**
    * Returns a copy of this object with updated market data manipulation selections.
    *
+   *
    * @param selectionsByGraph the market data selections that have been identified for each graph, not null
+   * @param paramsByGraph the function parameters that have been defined for each graph, not null
    * @return the copy
    */
   CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
-      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph);
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph);
 
   /**
    * Gets all of the dependefncy graph explorers.

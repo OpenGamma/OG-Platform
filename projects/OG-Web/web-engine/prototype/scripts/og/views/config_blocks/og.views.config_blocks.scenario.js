@@ -8,17 +8,16 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var Scenario = function (config) {
-            console.log(config);
-            var block = this, id = og.common.id('scenario'),
-                form = config.form,
-                extras = {id : id};
+            var block = this, id = og.common.id('scenario'), form = config.form, data = config.data,
+                index = config.index, extras = {id : id};
             form.Block.call(block, {
                 extras: extras,
                 module: 'og.views.forms.view-definition-scenario_tash',
                 children: [
                     new og.common.util.ui.Dropdown({
-                        form: form, resource: 'configs', index: 'scenarioId',
-                        placeholder: 'Please select...,', rest_options : {type:"ScenarioDefinition"}})
+                        form: form, resource: 'configs', index: index, placeholder: 'Please select....',
+                        rest_options : {type:"ScenarioDefinition"}, value: data, fields: [0, 1]
+                    })
                 ]
             });
         };

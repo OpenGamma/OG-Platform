@@ -83,9 +83,9 @@ public class SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator
             hwcurves.getHullWhiteParameters(), hwcurves.getHullWhiteCurrency());
         final double valueBumpedMinus = instrument.accept(_valueCalculator, marketDscBumpedMinus);
         sensitivity[loopnode] = (valueBumpedPlus - valueBumpedMinus) / (2 * _shift);
-        final String name = hwcurves.getMulticurveProvider().getName(ccy);
-        result = result.plus(name, new DoubleMatrix1D(sensitivity));
       }
+      final String name = hwcurves.getMulticurveProvider().getName(ccy);
+      result = result.plus(name, new DoubleMatrix1D(sensitivity));
     }
     // Forward ON
     final Set<IndexON> indexON = hwcurves.getMulticurveProvider().getIndexesON();

@@ -23,9 +23,12 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.types.IndicatorType;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -44,6 +47,8 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
   private static final String TERMINAL_OUTPUT_SPECIFICATIONS_FIELD = "terminalOutputSpecifications";
   private static final String MARKET_DATA_REQUIREMENTS_FIELD = "marketDataRequirements";
   private static final String MARKET_DATA_ALIASES_FIELD = "marketDataAliases";
+  private static final String MARKET_DATA_SELECTIONS_FIELD = "marketDataSelections";
+  private static final String MARKET_DATA_SELECTION_FUNCTION_FIELD = "marketDataSelectionFunctionParameters";
 
   private static final Integer MAP_KEY = 1;
   private static final Integer MAP_VALUE = 2;
@@ -199,6 +204,34 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
     return result;
   }
 
+  // TODO - implement
+  private void encodeMarketDataSelections(FudgeSerializer serializer,
+                                          MutableFudgeMsg msg,
+                                          Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections) {
+
+
+  }
+
+  // TODO - implement
+  private Map<DistinctMarketDataSelector, Set<ValueSpecification>> decodeMarketDataSelections(FudgeDeserializer deserializer,
+                                                                                              FudgeMsg msg) {
+    return ImmutableMap.of();
+  }
+
+  // TODO - implement
+  private void encodeMarketDataFunctionParams(FudgeSerializer serializer,
+                                              MutableFudgeMsg msg,
+                                              Map<DistinctMarketDataSelector, FunctionParameters> marketDataSelectionFunctionParameters) {
+
+
+  }
+
+  // TODO - implement
+  private Map<DistinctMarketDataSelector, FunctionParameters> decodeMarketDataFunctionParams(FudgeDeserializer deserializer,
+                                                                                             FudgeMsg msg) {
+    return ImmutableMap.of();
+  }
+
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CompiledViewCalculationConfiguration object) {
     final MutableFudgeMsg msg = serializer.newMessage();
@@ -206,6 +239,8 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
     encodeComputationTargets(serializer, msg, object.getComputationTargets());
     encodeTerminalOutputSpecifications(serializer, msg, object.getTerminalOutputSpecifications());
     encodeMarketDataAliases(serializer, msg, object.getMarketDataAliases());
+    encodeMarketDataSelections(serializer, msg, object.getMarketDataSelections());
+    encodeMarketDataFunctionParams(serializer, msg, object.getMarketDataSelectionFunctionParameters());
     return msg;
   }
 
@@ -213,9 +248,16 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
   public CompiledViewCalculationConfigurationImpl buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String name = message.getString(NAME_FIELD);
     final Set<ComputationTargetSpecification> computationTargets = decodeComputationTargets(deserializer, message);
-    final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications = decodeTerminalOutputSpecifications(deserializer, message);
-    final Map<ValueSpecification, Collection<ValueSpecification>> marketDataAliases = decodeMarketDataAliases(deserializer, message);
-    return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, marketDataAliases);
+    final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications =
+        decodeTerminalOutputSpecifications(deserializer, message);
+    final Map<ValueSpecification, Collection<ValueSpecification>> marketDataAliases =
+        decodeMarketDataAliases(deserializer, message);
+    final Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections =
+        decodeMarketDataSelections(deserializer, message);
+    final Map<DistinctMarketDataSelector, FunctionParameters> marketDataFunctionParams =
+        decodeMarketDataFunctionParams(deserializer, message);
+    return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications,
+                                                        marketDataAliases, marketDataSelections, marketDataFunctionParams);
   }
 
 }

@@ -67,7 +67,9 @@ public class CapFloorInflationYearOnYearMonthly extends CouponInflation implemen
    * @param priceIndex The price index associated to the coupon.
    * @param lastKnownFixingTime  The fixing time of the last known fixing.
    * @param referenceStartTime The index value at the start of the coupon.
+   * @param naturalPaymentStartTime The time for which the index at the coupon start is paid by the standard corresponding  zero coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
+   * @param naturalPaymentEndTime The time for which the index at the coupon end is paid by the standard corresponding  zero coupon.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */

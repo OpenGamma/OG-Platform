@@ -13,7 +13,33 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="OG-Integration" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../OG-Web/config" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../OG-Component/config" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/config" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module" module-name="OG-Component" />
     <orderEntry type="module" module-name="OG-Web" />
     <orderEntry type="module" module-name="OG-Financial" />
@@ -136,6 +162,7 @@
     <orderEntry type="library" name="Maven: com.yahoo.platform.yui:yuicompressor:2.4.2" level="project" />
     <orderEntry type="library" name="Maven: rhino:js:1.6R7" level="project" />
     <orderEntry type="module" module-name="OG-MasterDB" />
+    <orderEntry type="module" module-name="OG-Integration" />
     <orderEntry type="module" module-name="OG-Bloomberg" />
     <orderEntry type="library" name="Maven: com.opengamma.external.blpapi:blpapi:3.4.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.quartz-scheduler:quartz:1.8.1" level="project" />
@@ -144,7 +171,9 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.beust:jcommander:1.12" level="project" />
     <orderEntry type="library" name="Maven: org.apache.activemq:activemq-pool:5.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.groovy:groovy-all:2.1.5" level="project" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.2.9" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xbean:xbean-spring:3.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-all:1.9.0" level="project" />
   </component>

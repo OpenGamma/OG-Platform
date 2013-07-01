@@ -41,7 +41,7 @@ import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
-import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResource;
+import com.opengamma.financial.depgraph.rest.DependencyGraphTraceProviderResource;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
@@ -217,16 +217,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     repo.registerComponent(new ComponentInfo(FunctionResolver.class, getClassifier()), functionResolver);
     if (isPublishRest()) {
       repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
-      final DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
-      bean.setCompiledFunctionService(compiledFunctionService);
-      bean.setFunctionResolver(functionResolver);
-      bean.setFunctionExclusionGroups(functionExclusionGroups);
-      bean.setMarketDataProviderResolver(getMarketDataProviderResolver());
-      final DependencyGraphBuilderResource resource = new DependencyGraphBuilderResource(bean, getFudgeContext());
-      // TODO: not really designed as a "component"
-      final ComponentInfo infoDGB = new ComponentInfo(DependencyGraphBuilderResource.class, getClassifier());
-      repo.registerComponent(infoDGB, resource);
-      repo.getRestComponents().publish(infoDGB, resource);
     }
   }
 

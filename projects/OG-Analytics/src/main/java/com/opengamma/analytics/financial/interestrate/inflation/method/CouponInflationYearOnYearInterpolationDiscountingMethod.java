@@ -34,10 +34,10 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
   public MultipleCurrencyAmount presentValue(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndexStart = indexEstimationStart(coupon, inflation);
-    double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
-    double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    double pv = coupon.getPaymentYearFraction() * (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
+    final double estimatedIndexStart = indexEstimationStart(coupon, inflation);
+    final double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
+    final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double pv = coupon.getPaymentYearFraction() * (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
@@ -51,9 +51,9 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
   public MultipleCurrencyAmount netAmount(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndexStart = indexEstimationStart(coupon, inflation);
-    double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
-    double na = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
+    final double estimatedIndexStart = indexEstimationStart(coupon, inflation);
+    final double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
+    final double na = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), na);
   }
 
@@ -91,22 +91,22 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
   public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndexStartMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[0]);
-    double estimatedIndexStartMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[1]);
-    double estimatedIndexEndMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
-    double estimatedIndexEndMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
-    double estimatedIndexStart = coupon.getWeightStart() * estimatedIndexStartMonth0 + (1 - coupon.getWeightStart()) * estimatedIndexStartMonth1;
-    double estimatedIndexEnd = coupon.getWeightEnd() * estimatedIndexEndMonth0 + (1 - coupon.getWeightEnd()) * estimatedIndexEndMonth1;
-    double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double estimatedIndexStartMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[0]);
+    final double estimatedIndexStartMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[1]);
+    final double estimatedIndexEndMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
+    final double estimatedIndexEndMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
+    final double estimatedIndexStart = coupon.getWeightStart() * estimatedIndexStartMonth0 + (1 - coupon.getWeightStart()) * estimatedIndexStartMonth1;
+    final double estimatedIndexEnd = coupon.getWeightEnd() * estimatedIndexEndMonth0 + (1 - coupon.getWeightEnd()) * estimatedIndexEndMonth1;
+    final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;
-    double discountFactorBar = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
-    double estimatedIndexEndBar = 1.0 / estimatedIndexStart * discountFactor * coupon.getNotional() * pvBar;
-    double estimatedIndexStartBar = -estimatedIndexEnd / (estimatedIndexStart * estimatedIndexStart) * discountFactor * coupon.getNotional() * pvBar;
-    double estimatedIndexEndMonth1bar = (1 - coupon.getWeightEnd()) * estimatedIndexEndBar;
-    double estimatedIndexEndMonth0bar = coupon.getWeightEnd() * estimatedIndexEndBar;
-    double estimatedIndexStartMonth1bar = (1 - coupon.getWeightStart()) * estimatedIndexStartBar;
-    double estimatedIndexStartMonth0bar = coupon.getWeightStart() * estimatedIndexStartBar;
+    final double discountFactorBar = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
+    final double estimatedIndexEndBar = 1.0 / estimatedIndexStart * discountFactor * coupon.getNotional() * pvBar;
+    final double estimatedIndexStartBar = -estimatedIndexEnd / (estimatedIndexStart * estimatedIndexStart) * discountFactor * coupon.getNotional() * pvBar;
+    final double estimatedIndexEndMonth1bar = (1 - coupon.getWeightEnd()) * estimatedIndexEndBar;
+    final double estimatedIndexEndMonth0bar = coupon.getWeightEnd() * estimatedIndexEndBar;
+    final double estimatedIndexStartMonth1bar = (1 - coupon.getWeightStart()) * estimatedIndexStartBar;
+    final double estimatedIndexStartMonth0bar = coupon.getWeightStart() * estimatedIndexStartBar;
     final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));

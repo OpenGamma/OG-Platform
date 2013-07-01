@@ -45,7 +45,7 @@ import com.opengamma.util.tuple.Triple;
     }
     final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolvedFunction = getFunctions().next();
     if (getTask().getFunctionExclusion() != null) {
-      final Set<FunctionExclusionGroup> groups = getTask().getFunctionExclusion().get(getTargetSpecification(context));
+      final Collection<FunctionExclusionGroup> groups = getTask().getFunctionExclusion();
       if (groups != null) {
         final FunctionExclusionGroups util = context.getFunctionExclusionGroups();
         final FunctionExclusionGroup exclusion = util.getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());

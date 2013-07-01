@@ -106,7 +106,7 @@ public class DependencyGraphBuildTraceFudgeBuilderTest extends AbstractFudgeBuil
   
   /**
    * A very simple graph. Testing of (de)serializing more complicated graphs done in 
-   * {@link DependencyGraphBuilderResourceTest}.
+   * {@link DependencyGraphTraceBuilderTest}.
    * @return
    */
   private DependencyGraph createGraph() {

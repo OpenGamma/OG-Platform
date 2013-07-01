@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -74,8 +75,17 @@ public interface CompiledViewCalculationConfiguration {
    * The map contains any selector that matched a market data structure in the dependency graph which are mapped to the
    * value specifications of the new nodes that have been added to the graph to allow manipulation.
    *
-   * @return the mapping active market data selectors to the value specs that allow manipulation, not null
+   * @return the mapping of active market data selectors to the value specs that allow manipulation, not null
    */
   Map<DistinctMarketDataSelector, Set<ValueSpecification>> getMarketDataSelections();
+
+  /**
+   * Gets any function parameters that have been defined for market data selections. The keys of this map
+   * should be a subset of the keys from the {@link #getMarketDataSelections()} map. There may be
+   * fewer keys in this map as function parameters can also be introduced through ViewCycleExecutionOptions.
+   *
+   * @return the mapping of active market data selectors to the function parameters that perform manipulation, not null
+   */
+  Map<DistinctMarketDataSelector, FunctionParameters> getMarketDataSelectionFunctionParameters();
 
 }

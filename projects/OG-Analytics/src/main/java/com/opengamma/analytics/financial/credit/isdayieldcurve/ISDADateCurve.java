@@ -48,7 +48,9 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
 
   private final String _name;
 
-  //TODO what is this?
+  private final ZonedDateTime _baseDates; // RW added to aid conversion
+
+  // TODO what is this?
   private final double _offset;
   private final ZonedDateTime[] _curveDates;
   private final DoublesCurve _curve;
@@ -90,6 +92,8 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
     ArgumentChecker.isTrue(_n != 0, "Data arrays were empty");
     // TODO why is this test commented out?
     // ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
+
+    _baseDates = baseDate;
 
     _name = name;
     _offset = offset;
@@ -135,9 +139,11 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
     ArgumentChecker.notEmpty(rates, "rates");
     _n = curveDates.length;
     ArgumentChecker.isTrue(_n != 0, "Data arrays were empty");
-    //TODO why commented out?
+    // TODO why commented out?
     // ArgumentChecker.isTrue(_n == times.length, "Have {} times for {} dates", times.length, _n);
     // ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
+
+    _baseDates = null;
 
     _name = name;
     _offset = offset;
@@ -166,6 +172,10 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
    */
   public ZonedDateTime[] getCurveDates() {
     return _curveDates;
+  }
+  
+  public ZonedDateTime getBaseDate() {
+    return _baseDates;
   }
 
   @Override

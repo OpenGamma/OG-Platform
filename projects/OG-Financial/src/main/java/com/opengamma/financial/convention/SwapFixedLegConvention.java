@@ -16,7 +16,6 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -26,7 +25,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Convention for a fixed swap leg.
  */
 @BeanDefinition
 public class SwapFixedLegConvention extends Convention {
@@ -85,10 +84,22 @@ public class SwapFixedLegConvention extends Convention {
   /**
    * For the builder
    */
-  public SwapFixedLegConvention() {
+  /* package */ SwapFixedLegConvention() {
     super();
   }
 
+  /**
+   * @param name The name of the convention, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param paymentTenor The payment tenor, not null
+   * @param dayCount The day-count, not null
+   * @param businessDayConvention The business-day convention, not null
+   * @param daysToSettle The number of days to settle
+   * @param isEOM True if dates follow the end-of-month rule
+   * @param currency The currency, not null
+   * @param regionCalendar The region calendar, not null
+   * @param stubType The stub type, not null
+   */
   public SwapFixedLegConvention(final String name, final ExternalIdBundle externalIdBundle, final Tenor paymentTenor, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final int daysToSettle, final boolean isEOM, final Currency currency, final ExternalId regionCalendar,
       final StubType stubType) {

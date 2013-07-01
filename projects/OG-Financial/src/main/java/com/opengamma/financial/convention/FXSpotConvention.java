@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ * Convention for FX spot.
  */
 @BeanDefinition
 public class FXSpotConvention extends Convention {
@@ -44,9 +44,15 @@ public class FXSpotConvention extends Convention {
   /**
    * For the builder.
    */
-  public FXSpotConvention() {
+  /* package */ FXSpotConvention() {
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param daysToSettle The number of days to settle
+   * @param settlementRegion The settlement region, not null
+   */
   public FXSpotConvention(final String name, final ExternalIdBundle externalIdBundle, final int daysToSettle, final ExternalId settlementRegion) {
     super(name, externalIdBundle);
     setDaysToSettle(daysToSettle);

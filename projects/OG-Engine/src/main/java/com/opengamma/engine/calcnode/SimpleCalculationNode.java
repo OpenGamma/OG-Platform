@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.calcnode;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -69,6 +70,40 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SimpleCalculationNode extends SimpleCalculationNodeState implements CalculationNode {
 
+  private static final class InputSpecificationsWrapper extends AbstractCollection<ValueSpecification> {
+
+    private ValueSpecification[] _inputs;
+
+    @Override
+    public Iterator<ValueSpecification> iterator() {
+      return new Iterator<ValueSpecification>() {
+        private int _index;
+
+        @Override
+        public boolean hasNext() {
+          return _index < _inputs.length;
+        }
+
+        @Override
+        public ValueSpecification next() {
+          return _inputs[_index++];
+        }
+
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException();
+        }
+
+      };
+    }
+
+    @Override
+    public int size() {
+      return _inputs.length;
+    }
+
+  };
+
   /**
    * Interface used by deferred executions. Any {@link AsynchronousExecution} exceptions thrown by this class will supply either an instance of {@code Deferred} on the original method type, or the
    * original method type. Instances of {@code Deferred} are not bound (tightly) to their original calculation node instance allowing them to run on another (for example if the original node is now
@@ -102,6 +137,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private final String _nodeId;
   private final ExecutorService _executorService;
   private final CalculationNodeLogEventListener _logListener;
+  private final InputSpecificationsWrapper _inputs = new InputSpecificationsWrapper();
   private boolean _writeBehindSharedCache;
   private boolean _writeBehindPrivateCache;
   private boolean _asynchronousTargetResolve;
@@ -376,8 +412,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   }
 
-  private void postEvaluationErrors(final Set<ValueSpecification> outputs, final MissingOutput type) {
-    final Collection<ComputedValue> results = new ArrayList<ComputedValue>(outputs.size());
+  private void postEvaluationErrors(final ValueSpecification[] outputs, final MissingOutput type) {
+    final Collection<ComputedValue> results = new ArrayList<ComputedValue>(outputs.length);
     for (final ValueSpecification output : outputs) {
       results.add(new ComputedValue(output, type));
     }
@@ -385,16 +421,14 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   private void invocationBlacklisted(final CalculationJobItem jobItem, final CalculationJobResultItemBuilder resultItemBuilder) {
-    final Set<ValueSpecification> outputs = jobItem.getOutputs();
-    postEvaluationErrors(outputs, MissingOutput.SUPPRESSED);
+    postEvaluationErrors(jobItem.getOutputs(), MissingOutput.SUPPRESSED);
     resultItemBuilder.withSuppression();
   }
 
   private void invocationFailure(final Throwable t, final CalculationJobItem jobItem, final CalculationJobResultItemBuilder resultItemBuilder) {
     s_logger.error("Caught exception", t);
     getFunctionBlacklistUpdate().failedJobItem(jobItem);
-    final Set<ValueSpecification> outputs = jobItem.getOutputs();
-    postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
+    postEvaluationErrors(jobItem.getOutputs(), MissingOutput.EVALUATION_ERROR);
     resultItemBuilder.withException(t);
   }
 
@@ -429,7 +463,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         getMaxJobItemExecution().jobExecutionStarted(jobItem);
         attachLog(executionLog);
         try {
-          invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()), resultItemBuilder);
+          invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration(), jobItem.getFunctionUniqueIdentifier()), resultItemBuilder);
         } catch (final AsynchronousExecution e) {
           s_logger.debug("Asynchronous job item invocation at {}", _nodeId);
           final AsynchronousOperation<Deferred<Void>> async = deferredOperation();
@@ -613,8 +647,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return cache;
   }
 
-  private static Set<ValueRequirement> plat2290(final Set<ValueSpecification> outputs) {
-    final Set<ValueRequirement> result = Sets.newHashSetWithExpectedSize(outputs.size());
+  private static Set<ValueRequirement> plat2290(final ValueSpecification[] outputs) {
+    final Set<ValueRequirement> result = Sets.newHashSetWithExpectedSize(outputs.length);
     for (final ValueSpecification output : outputs) {
       result.add(output.toRequirementSpecification());
     }
@@ -622,7 +656,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   private void invokeResult(final FunctionInvoker invoker, final DeferredInvocationStatistics statistics,
-      final Set<ValueSpecification> missing, final Set<ValueSpecification> outputs, final Collection<ComputedValue> results, final CalculationJobResultItemBuilder resultItemBuilder) {
+      final Set<ValueSpecification> missing, final ValueSpecification[] outputs, final Collection<ComputedValue> results, final CalculationJobResultItemBuilder resultItemBuilder) {
     if (results == null) {
       postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
       resultItemBuilder.withException(ERROR_INVOKING, "No results returned by invoker " + invoker);
@@ -632,8 +666,10 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     statistics.setExpectedDataOutputSamples(results.size());
     // store results
     missing.clear();
-    missing.addAll(outputs);
-    final Collection<ComputedValue> newResults = new ArrayList<ComputedValue>(outputs.size());
+    for (ValueSpecification output : outputs) {
+      missing.add(output);
+    }
+    final Collection<ComputedValue> newResults = new ArrayList<ComputedValue>(outputs.length);
     for (ComputedValue result : results) {
       ValueSpecification resultSpec = result.getSpecification();
       final ComputationTargetSpecification targetSpec = ComputationTargetResolverUtils.simplifyType(resultSpec.getTargetSpecification(), getRawTargetResolver());
@@ -657,7 +693,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     getCache().putValues(newResults, getJob().getCacheSelectHint(), statistics);
   }
 
-  private void invokeException(final Set<ValueSpecification> outputs, final Throwable t, final CalculationJobResultItemBuilder resultItemBuilder) {
+  private void invokeException(final ValueSpecification[] outputs, final Throwable t, final CalculationJobResultItemBuilder resultItemBuilder) {
     s_logger.error("Invocation error: {}", t.getMessage());
     s_logger.warn("Caught exception", t);
     postEvaluationErrors(outputs, MissingOutput.EVALUATION_ERROR);
@@ -665,7 +701,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   private void invoke(final CalculationJobItem jobItem, final DeferredInvocationStatistics statistics, final CalculationJobResultItemBuilder resultItemBuilder) throws AsynchronousExecution {
-    final Set<ValueSpecification> outputs = jobItem.getOutputs();
+    final ValueSpecification[] outputs = jobItem.getOutputs();
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     Future<ComputationTarget> targetFuture = null;
     ComputationTarget target = null;
@@ -688,8 +724,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     // set parameters
     getFunctionExecutionContext().setFunctionParameters(jobItem.getFunctionParameters());
     // assemble inputs
-    final Collection<ValueSpecification> inputValueSpecs = jobItem.getInputs();
-    final Set<ValueSpecification> missing = Sets.newHashSetWithExpectedSize(inputValueSpecs.size());
+    final ValueSpecification[] inputValueSpecs = jobItem.getInputs();
+    final Set<ValueSpecification> missing = Sets.newHashSetWithExpectedSize(inputValueSpecs.length);
     if (!isUseAsynchronousTargetResolve() && (target == null)) {
       if (invoker.canHandleMissingInputs()) {
         // A missing target is just a special case of missing input
@@ -700,11 +736,12 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         return;
       }
     }
-    final Collection<ComputedValue> inputs = new ArrayList<ComputedValue>(inputValueSpecs.size());
+    final Collection<ComputedValue> inputs = new ArrayList<ComputedValue>(inputValueSpecs.length);
     int inputBytes = 0;
     int inputSamples = 0;
     final DeferredViewComputationCache cache = getCache();
-    for (final Pair<ValueSpecification, Object> input : cache.getValues(inputValueSpecs, getJob().getCacheSelectHint())) {
+    _inputs._inputs = inputValueSpecs;
+    for (final Pair<ValueSpecification, Object> input : cache.getValues(_inputs, getJob().getCacheSelectHint())) {
       if ((input.getSecond() == null) || (input.getSecond() instanceof MissingValue)) {
         missing.add(input.getFirst());
       } else {
@@ -763,7 +800,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       }
     }
     // Execute
-    statistics.beginInvocation(functionUniqueId);
+    statistics.beginInvocation();
     Set<ComputedValue> result;
     try {
       result = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));

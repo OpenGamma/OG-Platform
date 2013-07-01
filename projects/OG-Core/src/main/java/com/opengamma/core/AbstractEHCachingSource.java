@@ -31,9 +31,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A cache decorating a {@code FinancialSecuritySource}.
- * <p>
- * The cache is implemented using {@code EHCache}.
+ * Partial implementation of a cache on top of another source implementation using {@code EHCache}.
  * 
  * @param <V> the type returned by the source
  * @param <S> the source

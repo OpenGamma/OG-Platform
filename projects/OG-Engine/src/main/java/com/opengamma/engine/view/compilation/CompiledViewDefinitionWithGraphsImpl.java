@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
@@ -21,8 +22,8 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyGraphExplorerImpl;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
-import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -79,9 +80,10 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
   }
 
   private CompiledViewDefinitionWithGraphsImpl(final CompiledViewDefinitionWithGraphsImpl copyFrom,
-                                              final Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+                                              final Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+                                              Map<DependencyGraph, Map<DistinctMarketDataSelector,FunctionParameters>> paramsByGraph) {
     super(copyFrom.getResolverVersionCorrection(), copyFrom.getCompilationIdentifier(), copyFrom.getViewDefinition(), copyFrom.getPortfolio(),
-          processCompiledCalculationConfigurations(copyFrom.getCompiledCalculationConfigurationsMap(), copyFrom._graphsByConfiguration, selectionsByGraph),
+          processCompiledCalculationConfigurations(copyFrom.getCompiledCalculationConfigurationsMap(), copyFrom._graphsByConfiguration, selectionsByGraph, paramsByGraph),
           copyFrom.getValidFrom(), copyFrom.getValidTo());
     _graphsByConfiguration = copyFrom._graphsByConfiguration;
     _functionInitId = copyFrom._functionInitId;
@@ -95,8 +97,9 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   @Override
   public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
-      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
-    return new CompiledViewDefinitionWithGraphsImpl(this, selectionsByGraph);
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
+    return new CompiledViewDefinitionWithGraphsImpl(this, selectionsByGraph, paramsByGraph);
   }
 
   @Override
@@ -171,9 +174,12 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     return Pair.of(earliest, latest);
   }
 
-  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-                                                                                                           Map<String, DependencyGraphExplorer> graphsByConfiguration,
-                                                                                                           Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph) {
+  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(
+      Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
+      Map<String, DependencyGraphExplorer> graphsByConfiguration, Map<DependencyGraph,
+      Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph, Map<DependencyGraph,
+      Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
+
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
     ArgumentChecker.notNull(selectionsByGraph, "selectionsByGraph");
 
@@ -183,21 +189,32 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
       String configName = entry.getKey();
       DependencyGraph graph = entry.getValue().getWholeGraph();
-      CompiledViewCalculationConfiguration cvcc = createCalculationConfiguration(configName, graph, selectionsByGraph, compiledCalculationConfigurations);
+      CompiledViewCalculationConfiguration cvcc = createCalculationConfiguration(configName, graph, selectionsByGraph, paramsByGraph, compiledCalculationConfigurations);
       compiledViewCalculationConfigurations.add(cvcc);
     }
 
     return compiledViewCalculationConfigurations;
   }
 
-  private static CompiledViewCalculationConfiguration createCalculationConfiguration(String configName,
-                                                                                     DependencyGraph graph,
-                                                                                     Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
-                                                                                     Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations) {
+  private static CompiledViewCalculationConfiguration createCalculationConfiguration(
+      String configName,
+      DependencyGraph graph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph,
+      Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations) {
 
+    // There is a market data selection in place, create a new configuration with it
     if (selectionsByGraph.containsKey(graph)) {
-      // There is a market data selection in place, create a new configuration with it
-      return new CompiledViewCalculationConfigurationImpl(graph, selectionsByGraph.get(graph));
+
+      // Function params will be a subset of the selections, so it is possible we have no entry
+      Map<DistinctMarketDataSelector, FunctionParameters> marketDataSelectionFunctionParameters =
+          paramsByGraph.containsKey(graph) ?
+              paramsByGraph.get(graph) :
+              ImmutableMap.<DistinctMarketDataSelector, FunctionParameters>of();
+
+      return new CompiledViewCalculationConfigurationImpl(
+          graph, selectionsByGraph.get(graph), marketDataSelectionFunctionParameters);
+
     } else if (compiledCalculationConfigurations.containsKey(configName)) {
       // No market data selection, but we have a compiled one already so use it
       return compiledCalculationConfigurations.get(configName);

@@ -373,14 +373,15 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Sets the visitor to receive resolution failures. If not set, a synthetic exception is created for each failure in the miscellaneous exception set.
+   * Sets the listener to receive resolution failures. ResolutionFailureVisitors can also be registered here.
+   * If not set, a synthetic exception is created for each failure in the miscellaneous exception set.
    * 
-   * @param failureVisitor the visitor to use, or null to create synthetic exceptions
+   * @param failureListener the listener to use, or null to create synthetic exceptions
    */
-  public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
-    getTerminalValuesCallback().setResolutionFailureVisitor(failureVisitor);
+  public void setResolutionFailureListener(final ResolutionFailureListener failureListener) {
+    getTerminalValuesCallback().setFailureListener(failureListener);
   }
-
+  
   /**
    * Check that the market data availability provider, the function resolver and the calc config name are non-null
    */

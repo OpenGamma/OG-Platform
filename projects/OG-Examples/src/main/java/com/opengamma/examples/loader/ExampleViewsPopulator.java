@@ -11,19 +11,27 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
+import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
+import static com.opengamma.engine.value.ValueRequirementNames.VEGA_QUOTE_MATRIX;
+import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_SURFACE_DATA;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOBIAN;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.AUD_SWAP_PORFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.SWAPTION_PORTFOLIO_NAME;
+import static com.opengamma.examples.tool.ExampleDatabasePopulator.VANILLA_FX_OPTION_PORTFOLIO_NAME;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +46,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
@@ -51,6 +61,7 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * Example code to create a set of example views.
@@ -64,15 +75,34 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
 
-  private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
+  private static final Currency[] s_swapCurrencies = new Currency[] {
+    Currency.USD,
+    Currency.GBP,
+    Currency.EUR,
+    Currency.JPY,
+    Currency.CHF,
+  };
   private static final String[] s_curveConfigNames = new String[] {
-    "DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig",
-    "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
+    "DefaultTwoCurveUSDConfig",
+    "DefaultTwoCurveGBPConfig",
+    "DefaultTwoCurveEURConfig",
+    "DefaultTwoCurveJPYConfig",
+    "DefaultTwoCurveCHFConfig",
+  };
+  private static final UnorderedCurrencyPair[] s_crossCcys = new UnorderedCurrencyPair[] {
+    UnorderedCurrencyPair.of(Currency.USD, Currency.EUR),
+    UnorderedCurrencyPair.of(Currency.USD, Currency.CHF),
+    UnorderedCurrencyPair.of(Currency.USD, Currency.AUD),
+    UnorderedCurrencyPair.of(Currency.USD, Currency.GBP),
+    UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
+    UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR),
+    UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY),
+  };
 
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
-   * 
+   *
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -90,6 +120,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     storeViewDefinition(getAUDSwapView2Definition(AUD_SWAP_PORFOLIO_NAME));
     storeViewDefinition(getAUDSwapView3Definition(AUD_SWAP_PORFOLIO_NAME));
     storeViewDefinition(getSwaptionParityViewDefinition(SWAPTION_PORTFOLIO_NAME));
+    storeViewDefinition(getFXOptionViewDefinition(VANILLA_FX_OPTION_PORTFOLIO_NAME, "FX Option Greeks View"));
     //storeViewDefinition(getSABRExtrapolationViewDefinition(MIXED_CMS_PORTFOLIO_NAME));
     //storeViewDefinition(getFXLocalVolatilityViewDefinition(VANILLA_FX_OPTION_PORTFOLIO_NAME));
   }
@@ -105,9 +136,16 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE,
-        new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
-          ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA,
-          ValueRequirementNames.TOTAL_RISK_ALPHA, ValueRequirementNames.PNL });
+        new String[] {
+          ValueRequirementNames.FAIR_VALUE,
+          ValueRequirementNames.CAPM_BETA,
+          ValueRequirementNames.HISTORICAL_VAR,
+          ValueRequirementNames.SHARPE_RATIO,
+          ValueRequirementNames.TREYNOR_RATIO,
+          ValueRequirementNames.JENSENS_ALPHA,
+          ValueRequirementNames.TOTAL_RISK_ALPHA,
+          ValueRequirementNames.PNL,
+        });
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }
@@ -176,6 +214,48 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
       }
     }
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
+    return viewDefinition;
+  }
+
+  private ViewDefinition getFXOptionViewDefinition(final String portfolioName, final String viewName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    final Set<Currency> ccysAdded = new HashSet<>();
+    for (final UnorderedCurrencyPair pair : s_crossCcys) {
+      final ComputationTargetSpecification target = ComputationTargetSpecification.of(pair.getUniqueId());
+      final ValueProperties properties = ValueProperties.builder()
+          .with(SURFACE, "DEFAULT")
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
+          .get();
+      defaultCalculationConfig.addSpecificRequirement(new ValueRequirement(VOLATILITY_SURFACE_DATA, target, properties));
+      defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VEGA_QUOTE_MATRIX, properties);
+      if (!ccysAdded.contains(pair.getFirstCurrency())) {
+        final String ccy = pair.getFirstCurrency().getCode();
+        final ValueProperties curveProperties = ValueProperties.builder()
+            .with(CURVE, "Discounting")
+            .with(CURVE_CURRENCY, ccy)
+            .get();
+        defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES, curveProperties);
+        ccysAdded.add(pair.getFirstCurrency());
+      }
+      if (!ccysAdded.contains(pair.getSecondCurrency())) {
+        final String ccy = pair.getSecondCurrency().getCode();
+        final ValueProperties curveProperties = ValueProperties.builder()
+            .with(CURVE, "Discounting")
+            .with(CURVE_CURRENCY, ccy)
+            .get();
+        defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES, curveProperties);
+        ccysAdded.add(pair.getSecondCurrency());
+      }
+    }
+    defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.builder().get());
+    defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, FX_CURRENCY_EXPOSURE, ValueProperties.builder().get());
     return viewDefinition;
   }
 

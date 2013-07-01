@@ -51,7 +51,7 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR3M);
 
   private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   // Swaption description
@@ -66,7 +66,7 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
   //  Ibor leg: quarterly money
   private static final int SWAP_TENOR_YEAR = 9;
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR3M, Period.ofYears(SWAP_TENOR_YEAR), CALENDAR);
-  private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5};
+  private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5 };
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
   private static final ZonedDateTime[] SETTLEMENT_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
   private static final SwapFixedIborDefinition[] SWAP_PAYER_DEFINITION = new SwapFixedIborDefinition[EXPIRY_TENOR.length];
@@ -96,10 +96,10 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
    * Tests the correctness of G2++ calibration to swaptions with SABR price.
    */
   public void calibration() {
-    final double[] meanReversion = new double[] {0.01, 0.30};
+    final double[] meanReversion = new double[] {0.01, 0.30 };
     final double ratio = 4.0;
     final double correlation = -0.50;
-    final G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01}, {0.01 / ratio}}, new double[0], correlation);
+    final G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01 }, {0.01 / ratio } }, new double[0], correlation);
     final SuccessiveRootFinderG2ppCalibrationObjective objective = new SuccessiveRootFinderG2ppCalibrationObjective(g2Parameters, EUR, ratio);
     final SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderG2ppCalibrationEngine<>(objective);
 
@@ -121,7 +121,7 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
    * Test of performance. In normal testing, "enabled = false".
    */
   public void performance() {
-    final double[] meanReversion = new double[] {0.01, 0.30};
+    final double[] meanReversion = new double[] {0.01, 0.30 };
     final double ratio = 4.0;
     final double correlation = -0.50;
     long startTime, endTime;
@@ -130,7 +130,7 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      final G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01}, {0.01 / ratio}}, new double[0], correlation);
+      final G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01 }, {0.01 / ratio } }, new double[0], correlation);
       final SuccessiveRootFinderG2ppCalibrationObjective objective = new SuccessiveRootFinderG2ppCalibrationObjective(g2Parameters, EUR, ratio);
       final SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderG2ppCalibrationEngine<>(objective);
       for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
@@ -141,7 +141,7 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " G2++ calibration to swaption (5 swaptions) + price: " + (endTime - startTime) + " ms");
-    // Performance note: calibration: !@-Dec-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 550 ms for 100 calibration with 5 swaptions.
+    // Performance note: calibration: 12-Dec-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 550 ms for 100 calibration with 5 swaptions.
     // TODO: Why is the time 4x the one with "CurveBundle"?
   }
 

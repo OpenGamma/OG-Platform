@@ -138,6 +138,11 @@ public abstract class AbstractDataResource {
 
   private void buildHateoas(final UriInfo uriInfo, final Class<?> cls, final StringBuilder buf, final String basePath) {
     try {
+      //trim any trailing slashes
+      String uriPath = uriInfo.getRequestUri().getPath();
+      if (uriPath.endsWith("/")) {
+        uriPath = uriPath.substring(0, uriPath.length() - 1);
+      }
       Method[] methods = cls.getMethods();
       for (Method method : methods) {
         String path = basePath;
@@ -146,17 +151,21 @@ public abstract class AbstractDataResource {
         }
         if (method.isAnnotationPresent(GET.class)) {
           if (path.length() > 0) {
-            buf.append("<p>GET ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
+            buf.append("<p>GET ").append(uriPath + path).append(" => \"").append(method.getName()).append("\"</p>");
           }
         } else if (method.isAnnotationPresent(POST.class)) {
-          buf.append("<p>POST ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
+          buf.append("<p>POST ").append(uriPath + path).append(" => \"").append(method.getName()).append("\"</p>");
         } else if (method.isAnnotationPresent(PUT.class)) {
-          buf.append("<p>PUT ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
+          buf.append("<p>PUT ").append(uriPath + path).append(" => \"").append(method.getName()).append("\"</p>");
         } else if (method.isAnnotationPresent(DELETE.class)) {
-          buf.append("<p>DELETE ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
-        } else if (AbstractDataResource.class.isAssignableFrom(method.getReturnType()) &&
-            method.getReturnType() != cls && method.isAnnotationPresent(Path.class)) {
-          buildHateoas(uriInfo, method.getReturnType(), buf, path);
+          buf.append("<p>DELETE ").append(uriPath + path).append(" => \"").append(method.getName()).append("\"</p>");
+        } else if (method.isAnnotationPresent(Path.class) && AbstractDataResource.class.isAssignableFrom(method.getReturnType())) {
+          //this is a sub-resource:
+          if (method.getReturnType() == cls) {
+            buf.append("<p>[SUB_RESOURCE] ").append("...").append(path).append(" => \"").append(method.getName()).append("\"</p>");
+          } else {
+            buildHateoas(uriInfo, method.getReturnType(), buf, path);
+          }
         }
       }
     } catch (Exception ex) {

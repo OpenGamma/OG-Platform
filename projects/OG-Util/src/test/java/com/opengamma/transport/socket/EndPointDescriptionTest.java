@@ -58,8 +58,8 @@ public class EndPointDescriptionTest {
     final FudgeMsg clientEndPoint = client.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
     assertNotNull(clientEndPoint);
     s_logger.info("Client end point {} ", clientEndPoint);
-    assertEquals(serverEndPoint.getString(AbstractServerSocketProcess.TYPE_KEY), clientEndPoint.getString(AbstractServerSocketProcess.TYPE_KEY));
-    assertEquals(serverEndPoint.getInt(AbstractServerSocketProcess.PORT_KEY), clientEndPoint.getInt(AbstractServerSocketProcess.PORT_KEY));
+    assertEquals(serverEndPoint.getString(SocketEndPointDescriptionProvider.TYPE_KEY), clientEndPoint.getString(SocketEndPointDescriptionProvider.TYPE_KEY));
+    assertEquals(serverEndPoint.getInt(SocketEndPointDescriptionProvider.PORT_KEY), clientEndPoint.getInt(SocketEndPointDescriptionProvider.PORT_KEY));
     client.stop();
     server.stop();
   }
@@ -82,6 +82,37 @@ public class EndPointDescriptionTest {
     };
     server.start();
     final FudgeMsg serverEndPoint = server.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
+    assertNotNull(serverEndPoint);
+    s_logger.info("Server end point {}", serverEndPoint);
+    final AbstractSocketProcess client = new AbstractSocketProcess() {
+
+      @Override
+      protected void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is) {
+      }
+
+    };
+    client.setServer(serverEndPoint);
+    client.start();
+    final FudgeMsg clientEndPoint = client.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
+    assertNotNull(clientEndPoint);
+    s_logger.info("Client end point {} ", clientEndPoint);
+    client.stop();
+    server.stop();
+  }
+
+  public void testConnectToStaticEndPoint() throws IOException {
+    final AbstractServerSocketProcess server = new AbstractServerSocketProcess() {
+
+      @Override
+      protected void socketOpened(Socket socket) {
+      }
+
+    };
+    server.start();
+    final SocketEndPointDescriptionProvider serverEndPointDescriptor = new SocketEndPointDescriptionProvider();
+    serverEndPointDescriptor.setAddress("localhost");
+    serverEndPointDescriptor.setPort(server.getPortNumber());
+    final FudgeMsg serverEndPoint = serverEndPointDescriptor.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
     assertNotNull(serverEndPoint);
     s_logger.info("Server end point {}", serverEndPoint);
     final AbstractSocketProcess client = new AbstractSocketProcess() {

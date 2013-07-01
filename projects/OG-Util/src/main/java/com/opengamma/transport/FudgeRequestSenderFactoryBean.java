@@ -10,17 +10,15 @@ import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
 import com.opengamma.transport.jms.JmsEndPointDescriptionProvider;
-import com.opengamma.transport.socket.AbstractServerSocketProcess;
+import com.opengamma.transport.socket.SocketEndPointDescriptionProvider;
 import com.opengamma.transport.socket.SocketFudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
- * Creates a {@link FudgeRequestSender} based on an end-point description. An end-point
- * could be a determined at runtime by a REST request to another host, or specified
- * statically. Examples of end points include TCP/IP host/socket pairs, REST URLs, and JMS
- * topic names.
+ * Creates a {@link FudgeRequestSender} based on an end-point description. An end-point could be a determined at runtime by a REST request to another host, or specified statically. Examples of end
+ * points include TCP/IP host/socket pairs, REST URLs, and JMS topic names.
  */
 public class FudgeRequestSenderFactoryBean extends SingletonFactoryBean<FudgeRequestSender> {
 
@@ -77,7 +75,7 @@ public class FudgeRequestSenderFactoryBean extends SingletonFactoryBean<FudgeReq
   protected FudgeRequestSender createObject() {
     final FudgeMsg endPoint = resolveEndPointDescription();
     ArgumentChecker.notNullInjected(endPoint, "endPointDescription");
-    if (AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
+    if (SocketEndPointDescriptionProvider.TYPE_VALUE.equals(endPoint.getString(SocketEndPointDescriptionProvider.TYPE_KEY))) {
       return createSocketFudgeRequestSender(endPoint);
     }
     if (JmsEndPointDescriptionProvider.TYPE_VALUE.equals(endPoint.getString(JmsEndPointDescriptionProvider.TYPE_KEY))) {

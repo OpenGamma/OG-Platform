@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -27,7 +27,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 @Config
@@ -63,6 +63,11 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   /* package */CurveConstructionConfiguration() {
   }
 
+  /**
+   * @param name The curve construction configuration name, not null
+   * @param curveGroups The curve groups, not null
+   * @param exogenousConfigurations The exogenous configuration to be used in curve construction
+   */
   public CurveConstructionConfiguration(final String name, final List<CurveGroupConfiguration> curveGroups, final List<String> exogenousConfigurations) {
     setName(name);
     setCurveGroups(curveGroups);

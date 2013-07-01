@@ -125,8 +125,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
    */
   public static CapFloorInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate, final int conventionalMonthLag, final int monthLag, final ZonedDateTime[] referenceStartDate,
-      final ZonedDateTime[] referenceEndDate,
-      final double strike, final boolean isCap) {
+      final ZonedDateTime[] referenceEndDate, final double strike, final boolean isCap) {
     Validate.notNull(priceIndex, "Price index");
     final double weightStart;
     final double weightEnd;
@@ -267,7 +266,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CapFloorInflationYearOnYearInterpolation toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");

@@ -24,7 +24,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Pricing method for inflation Year on Year cap\floor. The price is computed by index estimation and discounting.
  */
 public final class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod {
   /**
@@ -127,8 +127,8 @@ public final class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMetho
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(inflation.getName(cap.getCurrency()), list);
     InflationSensitivity result = InflationSensitivity.ofYieldDiscounting(resultMap);
-    result = result.multipliedBy(priceDerivatives[0]);
-    result = result.plus(forwardDi.multipliedBy(df * priceDerivatives[1]));
+    result = result.multipliedBy(bsAdjoint);
+    result = result.plus(forwardDi.multipliedBy(df * priceDerivatives[0]));
     result = result.multipliedBy(cap.getNotional() * cap.getPaymentYearFraction());
     return MultipleCurrencyInflationSensitivity.of(cap.getCurrency(), result);
   }

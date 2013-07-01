@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -93,7 +94,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
   public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(BLOOMBERG_INTEREST_RATE_TYPE);
 
   /**
-   * Creates an instance.
+   * Creates an instance. See {@link FutureSecurity}
    * @param referenceDataProvider  the provider, not null
    */
   public InterestRateFutureLoader(ReferenceDataProvider referenceDataProvider) {
@@ -114,10 +115,11 @@ public class InterestRateFutureLoader extends SecurityLoader {
     try {
       unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
     } catch (NumberFormatException e) {
-      if (!currencyStr.equals("AUD")) {
+      if (!currencyStr.equals("AUD")) { // Review: In AUD, you don't really have IR Futures, you have futures on Bank Bills..
         throw e;
       }
     }
+    unitAmount *= 100.0; // Scale unitAmount as we quote prices without units, while Bloomberg's is in percent, ie. Bbg's 99.5 is our 0.995
 
     if (!isValidField(bbgUnique)) {
       s_logger.warn("bbgUnique is null. Cannot construct interest rate future security.");

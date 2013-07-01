@@ -38,7 +38,9 @@ public abstract class ExactMatchMarketDataSelector<K> implements DistinctMarketD
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId, String calculationConfigurationName) {
+  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+                                                         String calculationConfigurationName,
+                                                         SelectorResolver resolver) {
     return _structureId.equals(structureId) ? this : null;
   }
 

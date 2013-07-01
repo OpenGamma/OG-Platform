@@ -10,7 +10,9 @@ import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.IndexType;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -20,6 +22,8 @@ import com.opengamma.util.time.Tenor;
  *
  */
 public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurveInstrumentProvider {
+  private static final String DATA_FIELD = MarketDataRequirementNames.MARKET_VALUE;
+  private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
   private final String _prefix;
   private final String _postfix;
@@ -65,6 +69,16 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
   @Override
   public ExternalId getSpotInstrument() {
     return _spotId;
+  }
+
+  @Override
+  public String getMarketDataField() {
+    return DATA_FIELD;
+  }
+
+  @Override
+  public DataFieldType getDataFieldType() {
+    return FIELD_TYPE;
   }
 
   @Override
@@ -121,6 +135,11 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFutureFromTenor) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int hashCode() {
     return getPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
   }
@@ -139,4 +158,5 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
         getSpotPrefix().equals(other.getSpotPrefix()) &&
         getDataFieldName().equals(other.getDataFieldName());
   }
+
 }

@@ -17,7 +17,7 @@ public class PointManipulatorBuilder {
   /** The scenario to which the manipulators are added */
   private final Scenario _scenario;
 
-  /* package */ PointManipulatorBuilder(PointSelector selector, Scenario scenario) {
+  /* package */ PointManipulatorBuilder(Scenario scenario, PointSelector selector) {
     ArgumentChecker.notNull(selector, "selector");
     ArgumentChecker.notNull(scenario, "scenario");
     _selector = selector;
@@ -28,9 +28,14 @@ public class PointManipulatorBuilder {
    * Adds an action to scale the raw value.
    * @param scalingFactor The scaling factor
    * @return This builder
+   * TODO should this be named multiplicativeShift?
    */
   public PointManipulatorBuilder scaling(double scalingFactor) {
     _scenario.add(_selector, new Scaling(scalingFactor));
     return this;
   }
+
+  // TODO method / manipulator that does an additive shift (just called shift?)
+
+  // TODO method / manipulator that replaces the input with a specified value (called value? replace? replacement?)
 }

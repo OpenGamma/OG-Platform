@@ -50,7 +50,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private JobDispatcher _computationJobDispatcher;
   private ViewProcessWorkerFactory _viewProcessWorkerFactory = new SingleThreadViewProcessWorkerFactory();
   private DependencyGraphBuilderFactory _dependencyGraphBuilderFactory = new DependencyGraphBuilderFactory();
-  private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory = new SingleNodeExecutorFactory();
+  private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory = new SingleNodeExecutorFactory();
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProvider _viewPermissionProvider;
   private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
@@ -138,11 +138,11 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _viewProcessWorkerFactory = viewProcessWorkerFactory;
   }
 
-  public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
+  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
 
-  public void setDependencyGraphExecutorFactory(final DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory) {
+  public void setDependencyGraphExecutorFactory(final DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
 

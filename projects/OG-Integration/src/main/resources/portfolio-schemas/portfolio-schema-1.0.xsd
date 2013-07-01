@@ -62,6 +62,9 @@
   <xs:element name="optionSecurity" type="optionSecurityDefinition"/>
   <xs:element name="futureSecurity" type="futureSecurityDefinition"/>
   <xs:element name="futureOptionSecurity" type="futureOptionSecurityDefinition"/>
+  <xs:element name="fixedLeg" type="fixedLeg"/>
+  <xs:element name="floatingLeg" type="floatingLeg"/>
+  
 
   <xs:complexType name="ogPortfolio">
     <xs:all>
@@ -594,23 +597,16 @@
               </xs:documentation>
             </xs:annotation>
           </xs:element>
-
-          <xs:element name="fixedLeg" type="fixedLeg">
-            <xs:annotation>
-              <xs:documentation>
-                The fixed leg of the swap trade.
-              </xs:documentation>
-            </xs:annotation>
+          <xs:element minOccurs="1" name="legs">
+              <xs:complexType>
+                  <xs:sequence>
+                    <xs:choice maxOccurs="unbounded" minOccurs="2">
+                      <xs:element ref="fixedLeg"/>
+                      <xs:element ref="floatingLeg"/>
+                    </xs:choice>
+                  </xs:sequence>
+              </xs:complexType>
           </xs:element>
-
-          <xs:element name="floatingLeg" type="floatingLeg">
-            <xs:annotation>
-              <xs:documentation>
-                The floating leg of the swap trade.
-              </xs:documentation>
-            </xs:annotation>
-          </xs:element>
-
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

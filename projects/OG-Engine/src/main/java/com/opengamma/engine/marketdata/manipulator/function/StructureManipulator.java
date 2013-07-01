@@ -19,8 +19,17 @@ public interface StructureManipulator<T> {
    *
    * For example, take a YieldCurve and shift it by 10%.
    *
-   * @param structure the structured object to transform
+   * @param structure the structured object to transform, not null
    * @return a transformed structure
    */
   T execute(T structure);
+
+  /**
+   * Indicates the type of structure that this class can handle. This method should be called before
+   * a call to execute is made to ensure the value is compatible. If this is not done, the results
+   * from the execute method are undetermined.
+   *
+   * @return the type of structure that can be handled, not null
+   */
+  Class<T> getExpectedType();
 }

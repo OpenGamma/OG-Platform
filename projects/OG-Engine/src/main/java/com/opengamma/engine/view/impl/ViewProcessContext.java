@@ -43,7 +43,7 @@ public class ViewProcessContext {
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessWorkerFactory _viewProcessWorkerFactory;
   private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
-  private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
+  private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
 
   // TODO: Need to rethink this for distribution if the workers for the process are remote so they receive injections from the original process. The
@@ -79,7 +79,7 @@ public class ViewProcessContext {
       final JobDispatcher computationJobDispatcher,
       final ViewProcessWorkerFactory viewProcessWorkerFactory,
       final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
-      final DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
+      final DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
       final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
       final OverrideOperationCompiler overrideOperationCompiler,
       final EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
@@ -210,7 +210,7 @@ public class ViewProcessContext {
    * 
    * @return the dependency graph executor factory, not null
    */
-  public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
+  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
 

@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  * @param <DATA_TYPE> Data type.
  */
-public abstract class ParameterInflationSensitivityParameterAbstractCalculator<DATA_TYPE extends ParameterProviderInterface> {
+public abstract class ParameterInflationSensitivityParameterAbstractCalculator<DATA_TYPE extends ParameterInflationProviderInterface> {
 
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times (discounting) or forward rates.

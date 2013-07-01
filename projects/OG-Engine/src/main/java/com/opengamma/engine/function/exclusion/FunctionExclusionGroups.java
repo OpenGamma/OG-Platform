@@ -32,4 +32,12 @@ public interface FunctionExclusionGroups {
    */
   boolean isExcluded(FunctionExclusionGroup current, Collection<FunctionExclusionGroup> existing);
 
+  /**
+   * Creates a function exclusion group collection.
+   * 
+   * @param existing the previous exclusion groups, not null
+   * @param newGroup the group to also include in the new collection, not null
+   */
+  Collection<FunctionExclusionGroup> withExclusion(Collection<FunctionExclusionGroup> existing, FunctionExclusionGroup newGroup);
+
 }

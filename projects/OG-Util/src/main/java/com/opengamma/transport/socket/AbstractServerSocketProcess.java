@@ -81,14 +81,14 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
   public void setBindAddress(InetAddress bindAddress) {
     _bindAddress = bindAddress;
   }
-  
+
   /**
-   * @param isDaemon  true if the socket accept thread should be run as a daemon thread, false otherwise
+   * @param isDaemon true if the socket accept thread should be run as a daemon thread, false otherwise
    */
   public void setDaemon(final boolean isDaemon) {
     _isDaemon = isDaemon;
   }
-  
+
   /**
    * @return true if the socket accept thread should be run as a daemon thread, false otherwise
    */
@@ -174,23 +174,6 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
 
   protected abstract void socketOpened(Socket socket);
 
-  /**
-   * Type of connection. Always {@link #TYPE_VALUE}.
-   */
-  public static final String TYPE_KEY = "type";
-  /**
-   * Value of the type of connection.
-   */
-  public static final String TYPE_VALUE = "Socket";
-  /**
-   * Connection address.
-   */
-  public static final String ADDRESS_KEY = "address";
-  /**
-   * Connection port.
-   */
-  public static final String PORT_KEY = "port";
-
   private void loadInterfaceAddress(final NetworkInterface iface, final MutableFudgeMsg message) {
     final Enumeration<NetworkInterface> ni = iface.getSubInterfaces();
     while (ni.hasMoreElements()) {
@@ -203,7 +186,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
         continue;
       }
       final String hostAddress = a.getHostAddress();
-      message.add(ADDRESS_KEY, hostAddress);
+      message.add(SocketEndPointDescriptionProvider.ADDRESS_KEY, hostAddress);
       s_logger.debug("Address {}/{}", iface.getName(), hostAddress);
     }
   }
@@ -211,7 +194,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
   @Override
   public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
     final MutableFudgeMsg desc = fudgeContext.newMessage();
-    desc.add(TYPE_KEY, TYPE_VALUE);
+    desc.add(SocketEndPointDescriptionProvider.TYPE_KEY, SocketEndPointDescriptionProvider.TYPE_VALUE);
     final InetAddress addr = _serverSocket.getInetAddress();
     if (addr != null) {
       if (addr.isAnyLocalAddress()) {
@@ -224,10 +207,10 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
           s_logger.warn("Error resolving local addresses", e);
         }
       } else {
-        desc.add(ADDRESS_KEY, addr.getHostAddress());
+        desc.add(SocketEndPointDescriptionProvider.ADDRESS_KEY, addr.getHostAddress());
       }
     }
-    desc.add(PORT_KEY, _serverSocket.getLocalPort());
+    desc.add(SocketEndPointDescriptionProvider.PORT_KEY, _serverSocket.getLocalPort());
     return desc;
   }
 

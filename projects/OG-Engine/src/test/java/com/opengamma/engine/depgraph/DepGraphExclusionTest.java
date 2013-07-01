@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collection;
@@ -72,6 +73,13 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         return false;
       }
 
+      @Override
+      public Collection<FunctionExclusionGroup> withExclusion(final Collection<FunctionExclusionGroup> existing, final FunctionExclusionGroup newGroup) {
+        // Should never be called
+        fail();
+        throw new UnsupportedOperationException();
+      }
+
     });
     assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
   }
@@ -104,15 +112,15 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
     assertEquals(2, graph.getDependencyNodes().size()); // 4 -> 0
   }
 
-  public void group0group12() {
+  public void group0group26() {
     final DependencyGraph graph = test(new Group() {
       @Override
       protected String getKey(final int function) {
         switch (function) {
           case 0:
             return "A";
-          case 1:
           case 2:
+          case 6:
             return "B";
           default:
             return null;
@@ -135,7 +143,24 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(3, graph.getDependencyNodes().size()); // 5 -> 1 -> 0
+    assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
+  }
+
+  public void group014() {
+    final DependencyGraph graph = test(new Group() {
+      @Override
+      protected String getKey(final int function) {
+        switch (function) {
+          case 0:
+          case 1:
+          case 4:
+            return "A";
+          default:
+            return null;
+        }
+      }
+    });
+    assertEquals(1, graph.getDependencyNodes().size()); // 3
   }
 
 }

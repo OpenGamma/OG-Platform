@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- *
+ * Convention for exchange-traded futures and future options.
  */
 @BeanDefinition
 public class ExchangeTradedFutureAndOptionConvention extends Convention {
@@ -42,11 +42,17 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
   private ExternalId _exchangeCalendar;
 
   /**
-   *
+   * For the builder.
    */
-  public ExchangeTradedFutureAndOptionConvention() {
+  /* package */ ExchangeTradedFutureAndOptionConvention() {
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param expiryConvention The expiry convention, not null
+   * @param exchangeCalendar The exchange calendar, not null
+   */
   public ExchangeTradedFutureAndOptionConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
       final ExternalId exchangeCalendar) {
     super(name, externalIdBundle);

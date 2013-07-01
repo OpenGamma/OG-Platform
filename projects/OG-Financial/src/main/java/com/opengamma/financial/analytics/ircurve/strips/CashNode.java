@@ -17,13 +17,12 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Cash node for use in curves containing sufficient information to construct a {@link CashSecurity}
+ *
  */
 @BeanDefinition
 public class CashNode extends CurveNode {
@@ -71,11 +70,11 @@ public class CashNode extends CurveNode {
    * @param maturityTenor The maturity tenor, not null
    * @param convention The convention, not null
    * @param curveNodeIdMapperName The name of the curve node id mapper, not null
-   * @param dataField The name of the data field, not null
+   * @param name The name
    */
   public CashNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId convention, final String curveNodeIdMapperName,
-      final String dataField) {
-    super(curveNodeIdMapperName, dataField);
+     final String name) {
+    super(curveNodeIdMapperName, name);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setConvention(convention);

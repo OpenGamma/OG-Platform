@@ -441,4 +441,9 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     return result;
   }
 
+  @Override
+  public InflationProviderInterface getInflationProvider() {
+    return this;
+  }
+
 }

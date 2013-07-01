@@ -11,18 +11,18 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class BatchExecutorFactory implements DependencyGraphExecutorFactory<Object> {
+public class BatchExecutorFactory implements DependencyGraphExecutorFactory {
 
-  private DependencyGraphExecutorFactory<?> _delegate;
+  private DependencyGraphExecutorFactory _delegate;
 
-  public BatchExecutorFactory(DependencyGraphExecutorFactory<?> delegate) {
+  public BatchExecutorFactory(DependencyGraphExecutorFactory delegate) {
     ArgumentChecker.notNull(delegate, "Delegate executor factory");
     _delegate = delegate;
   }
 
   @Override
   public BatchExecutor createExecutor(SingleComputationCycle cycle) {
-    DependencyGraphExecutor<?> delegate = _delegate.createExecutor(cycle);
+    DependencyGraphExecutor delegate = _delegate.createExecutor(cycle);
     return new BatchExecutor(delegate);
   }
 

@@ -34,26 +34,26 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
   private static final double NOTIONAL = 100000;
   private static final double RATE = 0.0200;
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, false);
-  private static final SwapFuturesDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION =
-      new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION =
+      new SwapFuturesPriceDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
 
   private static final ZonedDateTime TRAN_DATE = DateUtils.getUTCDate(2013, 3, 28);
   private static final double TRAN_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final int QUANTITY = 1234;
-  private static final SwapFuturesDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
-      new SwapFuturesDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
+  private static final SwapFuturesPriceDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
+      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
 
   private static final String NOT_USED = "NOT USED";
   private static final String[] NOT_USED_A = new String[] {NOT_USED, NOT_USED };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullUnderlying() {
-    new SwapFuturesDeliverableTransactionDefinition(null, TRAN_DATE, TRAN_PRICE, QUANTITY);
+    new SwapFuturesPriceDeliverableTransactionDefinition(null, TRAN_DATE, TRAN_PRICE, QUANTITY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullTrDate() {
-    new SwapFuturesDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, null, TRAN_PRICE, QUANTITY);
+    new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, null, TRAN_PRICE, QUANTITY);
   }
 
   @Test

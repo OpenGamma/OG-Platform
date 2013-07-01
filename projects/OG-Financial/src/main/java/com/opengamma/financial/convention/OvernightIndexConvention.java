@@ -23,7 +23,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Convention for overnight indices.
  */
 @BeanDefinition
 public class OvernightIndexConvention extends Convention {
@@ -58,10 +58,18 @@ public class OvernightIndexConvention extends Convention {
   /**
    * For the builder
    */
-  public OvernightIndexConvention() {
+  /* package */ OvernightIndexConvention() {
     super();
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param dayCount The day-count, not null
+   * @param publicationLag The publication lag
+   * @param currency The currency, not null
+   * @param regionCalendar The region calendar, not null
+   */
   public OvernightIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final int publicationLag, final Currency currency,
       final ExternalId regionCalendar) {
     super(name, externalIdBundle);

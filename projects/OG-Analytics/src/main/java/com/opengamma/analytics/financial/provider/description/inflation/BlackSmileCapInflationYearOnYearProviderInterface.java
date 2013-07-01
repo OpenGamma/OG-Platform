@@ -6,12 +6,11 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationYearOnYearParameters;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  *  Interface for pricing inflation zero-coupon cap/floor using the Black method.
  */
-public interface BlackSmileCapInflationYearOnYearProviderInterface extends ParameterProviderInterface {
+public interface BlackSmileCapInflationYearOnYearProviderInterface extends ParameterInflationProviderInterface {
   /**
    * Create a new copy of the provider
    * @return The bundle
@@ -24,11 +23,4 @@ public interface BlackSmileCapInflationYearOnYearProviderInterface extends Param
    * @return The parameters
    */
   BlackSmileCapInflationYearOnYearParameters getBlackParameters();
-
-  /**
-   * Returns the inflation provider.
-   * @return The inflation provider
-   */
-  InflationProviderInterface getInflationProvider();
-
 }

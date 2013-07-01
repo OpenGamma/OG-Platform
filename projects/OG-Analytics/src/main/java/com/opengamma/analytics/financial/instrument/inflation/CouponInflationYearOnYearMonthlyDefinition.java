@@ -71,8 +71,8 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
-    this._referenceStartDate = referenceStartDate;
-    this._referenceEndDate = referenceEndDate;
+    _referenceStartDate = referenceStartDate;
+    _referenceEndDate = referenceEndDate;
     _payNotional = payNotional;
     _conventionalMonthLag = conventionalMonthLag;
     _monthLag = conventionalMonthLag;

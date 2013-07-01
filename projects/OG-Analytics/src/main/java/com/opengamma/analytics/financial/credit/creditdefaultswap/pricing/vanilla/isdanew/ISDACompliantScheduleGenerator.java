@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
-import static org.testng.AssertJUnit.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -81,7 +79,7 @@ public class ISDACompliantScheduleGenerator {
     ArgumentChecker.noNulls(disCurveDates, "nulls in disCurveDates");
     ArgumentChecker.noNulls(spreadCurveDates, "nulls in spreadCurveDates");
 
-    ArgumentChecker.isTrue(endDate.isAfter(startDate), "endDate of {} is not after startDate of{}", endDate.toString(), startDate.toString());
+    ArgumentChecker.isTrue(endDate.isAfter(startDate), "endDate of {} is not after startDate of {}", endDate.toString(), startDate.toString());
 
     final int nDisCurvePoints = disCurveDates.length;
     final int nSpreadCurvePoints = spreadCurveDates.length;

@@ -56,7 +56,26 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
     ValueRequirementNames.GRID_FORWARD_VANNA,
     ValueRequirementNames.GRID_FORWARD_VOMMA,
     ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
-    ValueRequirementNames.GRID_PRESENT_VALUE
+    ValueRequirementNames.GRID_PRESENT_VALUE,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.VOMMA,
+    ValueRequirementNames.VANNA,
+    ValueRequirementNames.RHO,
+    ValueRequirementNames.CARRY_RHO,
+    ValueRequirementNames.THETA,
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.POSITION_DELTA,
+    ValueRequirementNames.POSITION_GAMMA,
+    ValueRequirementNames.POSITION_RHO,
+    ValueRequirementNames.POSITION_THETA,
+    ValueRequirementNames.POSITION_VEGA,
+    ValueRequirementNames.POSITION_WEIGHTED_VEGA
   };
   /** Ids to forward curve names */
   private final Map<String, String> _forwardCurveNames;

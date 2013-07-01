@@ -32,10 +32,13 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.VEGA,
     ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.IMPLIED_VOLATILITY,
     ValueRequirementNames.SECURITY_MODEL_PRICE,
     ValueRequirementNames.UNDERLYING_MODEL_PRICE,

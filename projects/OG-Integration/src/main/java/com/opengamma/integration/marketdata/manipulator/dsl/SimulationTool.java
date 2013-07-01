@@ -28,6 +28,7 @@ import com.opengamma.scripts.Scriptable;
 
 /**
  * Tool for running simulations. It's probably easier to use the approach in {@code RunSimulation} instead.
+ * @deprecated This can probably be deleted
  */
 @Scriptable
 public class SimulationTool extends AbstractTool<ToolContext> {

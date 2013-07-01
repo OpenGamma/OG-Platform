@@ -5,7 +5,9 @@
  */
 package com.opengamma.web.spring;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,6 +89,14 @@ public class DemoFunctionExclusionGroupsFactoryBean extends SingletonFactoryBean
           }
         }
         return false;
+      }
+
+      @Override
+      public Collection<FunctionExclusionGroup> withExclusion(final Collection<FunctionExclusionGroup> existing, final FunctionExclusionGroup newGroup) {
+        final List<FunctionExclusionGroup> result = new ArrayList<FunctionExclusionGroup>(existing.size());
+        result.addAll(existing);
+        result.add(newGroup);
+        return result;
       }
 
     };

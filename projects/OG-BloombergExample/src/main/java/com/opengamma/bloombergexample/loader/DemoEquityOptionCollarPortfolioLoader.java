@@ -172,7 +172,9 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
         continue;
       }
       final Double marketCap = fieldData.getDouble(BloombergFields.CURRENT_MARKET_CAP_FIELD);
-      equityByMarketCap.put(marketCap, equity);
+      if (marketCap != null) {
+        equityByMarketCap.put(marketCap, equity);
+      }
     }
 
     // Add a given number of symbols (MEMBERS_DEPTH) to the portfolio and store in a List

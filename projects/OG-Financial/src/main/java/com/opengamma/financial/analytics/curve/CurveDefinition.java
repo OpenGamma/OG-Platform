@@ -59,11 +59,15 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   private SortedSet<CurveNode> _nodes = new TreeSet<>();
 
   /**
-   *
+   * For the builder
    */
   public CurveDefinition() {
   }
 
+  /**
+   * @param name The name of the curve definition, not null
+   * @param nodes The curve nodes, not null
+   */
   public CurveDefinition(final String name, final Set<CurveNode> nodes) {
     setName(name);
     setNodes(new TreeSet<>(nodes));

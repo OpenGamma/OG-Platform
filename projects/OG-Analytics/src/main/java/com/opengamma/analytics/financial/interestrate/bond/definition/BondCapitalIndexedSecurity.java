@@ -65,8 +65,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention,
-      final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final String issuer) {
+      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final String issuer) {
     super(nominal, coupon, settlementTime, "Not used", issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     Validate.notNull(settlement, "Settlement");

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -25,11 +25,13 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
+import com.opengamma.financial.convention.ZeroCouponInflationConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -44,8 +46,11 @@ import com.opengamma.util.time.Tenor;
  * Fudge builders for {@link Convention} classes
  */
 public final class ConventionBuilders {
+  /** The name field */
   private static final String NAME_FIELD = "name";
+  /** The external id bundle field */
   private static final String EXTERNAL_ID_BUNDLE_FIELD = "externalIdBundles";
+  /** The unique id field */
   private static final String UNIQUE_ID_FIELD = "uniqueId";
 
   private ConventionBuilders() {
@@ -56,8 +61,11 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(CMSLegConvention.class)
   public static class CMSLegConventionBuilder implements FudgeBuilder<CMSLegConvention> {
+    /** The swap index convention field */
     private static final String SWAP_INDEX_ID_FIELD = "swapIndexConvention";
+    /** The payment tenor field */
     private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
+    /** The advance fixing field */
     private static final String ADVANCE_FIXING_FIELD = "advanceFixing";
 
     @Override
@@ -65,7 +73,7 @@ public final class ConventionBuilders {
       final MutableFudgeMsg message = serializer.newMessage();
       FudgeSerializer.addClassHeader(message, CMSLegConvention.class);
       serializer.addToMessage(message, SWAP_INDEX_ID_FIELD, null, object.getSwapIndexConvention());
-      message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor());
+      message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor().getPeriod().toString());
       message.add(ADVANCE_FIXING_FIELD, object.isIsAdvanceFixing());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
@@ -93,15 +101,18 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(CompoundingIborLegConvention.class)
   public static class CompoundingIborLegConventionBuilder implements FudgeBuilder<CompoundingIborLegConvention> {
-    private static final String SWAP_INDEX_ID_FIELD = "swapIndexConvention";
+    /** The ibor index convention field */
+    private static final String IBOR_INDEX_ID_FIELD = "iborIndexConvention";
+    /** The payment tenor field */
     private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
+    /** The compounding type field */
     private static final String COMPOUNDING_TYPE_FIELD = "compoundingType";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CompoundingIborLegConvention object) {
       final MutableFudgeMsg message = serializer.newMessage();
       FudgeSerializer.addClassHeader(message, CompoundingIborLegConvention.class);
-      serializer.addToMessage(message, SWAP_INDEX_ID_FIELD, null, object.getIborIndexConvention());
+      serializer.addToMessage(message, IBOR_INDEX_ID_FIELD, null, object.getIborIndexConvention());
       message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor().getPeriod().toString());
       message.add(COMPOUNDING_TYPE_FIELD, object.getCompoundingType().name());
       message.add(NAME_FIELD, object.getName());
@@ -114,7 +125,7 @@ public final class ConventionBuilders {
     public CompoundingIborLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
-      final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_INDEX_ID_FIELD));
+      final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IBOR_INDEX_ID_FIELD));
       final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
@@ -129,11 +140,17 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(DepositConvention.class)
   public static class DepositConventionBuilder implements FudgeBuilder<DepositConvention> {
+    /** The day-count field */
     private static final String DAY_COUNT_FIELD = "dayCount";
+    /** The business day convention field */
     private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    /** The settlement days field */
     private static final String DAYS_TO_SETTLE_FIELD = "daysToSettle";
+    /** The EOM field */
     private static final String IS_EOM_FIELD = "isEOM";
+    /** The currency field */
     private static final String CURRENCY_FIELD = "currency";
+    /** The region field */
     private static final String REGION_FIELD = "region";
 
     @Override
@@ -175,9 +192,13 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(FXForwardAndSwapConvention.class)
   public static class FXForwardAndSwapConventionBuilder implements FudgeBuilder<FXForwardAndSwapConvention> {
+    /** The spot convention field */
     private static final String SPOT_CONVENTION_FIELD = "spotConvention";
+    /** The business day convention field */
     private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    /** The EOM field */
     private static final String IS_EOM_FIELD = "isEOM";
+    /** The settlement region field */
     private static final String SETTLEMENT_REGION_FIELD = "settlementRegion";
 
     @Override
@@ -214,7 +235,9 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(FXSpotConvention.class)
   public static class FXSpotConventionBuilder implements FudgeBuilder<FXSpotConvention> {
+    /** The settlement days field */
     private static final String DAYS_TO_SETTLE_FIELD = "daysToSettle";
+    /** The settlement region field */
     private static final String SETTLEMENT_REGION_FIELD = "settlementRegion";
 
     @Override
@@ -247,14 +270,23 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(IborIndexConvention.class)
   public static class IborIndexConventionBuilder implements FudgeBuilder<IborIndexConvention> {
+    /** The day-count field */
     private static final String DAY_COUNT_FIELD = "dayCount";
+    /** The business day convention field */
     private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    /** The settlement days field */
     private static final String DAYS_TO_SETTLE_FIELD = "daysToSettle";
+    /** The EOM field */
     private static final String IS_EOM_FIELD = "isEOM";
+    /** The currency field */
     private static final String CURRENCY_FIELD = "currency";
+    /** The fixing time field */
     private static final String FIXING_TIME_FIELD = "fixingTime";
+    /** The fixing calendar field */
     private static final String FIXING_CALENDAR_FIELD = "fixingCalendar";
+    /** The region field */
     private static final String REGION_FIELD = "region";
+    /** The fixing page field */
     private static final String FIXING_PAGE_FIELD = "fixingPage";
 
     @Override
@@ -302,8 +334,11 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(InterestRateFutureConvention.class)
   public static class InterestRateFutureConventionBuilder implements FudgeBuilder<InterestRateFutureConvention> {
+    /** The expiry convention field */
     private static final String EXPIRY_CONVENTION_FIELD = "expiryConvention";
+    /** The exchange calendar field */
     private static final String EXCHANGE_CALENDAR_FIELD = "exchangeCalendar";
+    /** The index convention field */
     private static final String INDEX_CONVENTION_FIELD = "indexConvention";
 
     @Override
@@ -338,11 +373,17 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(OISLegConvention.class)
   public static class OISLegConventionBuilder implements FudgeBuilder<OISLegConvention> {
+    /** The overnight index convention field */
     private static final String OVERNIGHT_INDEX_CONVENTION_FIELD = "oisIndexConvention";
+    /** The payment tenor field */
     private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
+    /** The payment delay field */
     private static final String PAYMENT_DELAY_FIELD = "paymentDelay";
+    /** The settlement days field */
     private static final String SETTLEMENT_DAYS_FIELD = "settlementDays";
+    /** The business day convention field */
     private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    /** The EOM field */
     private static final String IS_EOM_FIELD = "isEOM";
 
     @Override
@@ -384,9 +425,13 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(OvernightIndexConvention.class)
   public static class OvernightIndexConventionBuilder implements FudgeBuilder<OvernightIndexConvention> {
+    /** The day-count field */
     private static final String DAY_COUNT_FIELD = "dayCount";
+    /** The publication lag field */
     private static final String PUBLICATION_LAG_FIELD = "publicationLag";
+    /** The currency tield */
     private static final String CURRENCY_FIELD = "currency";
+    /** The region field */
     private static final String REGION_FIELD = "region";
 
     @Override
@@ -419,11 +464,49 @@ public final class ConventionBuilders {
   }
 
   /**
+   * Fudge builder for price index conventions.
+   */
+  @FudgeBuilderFor(PriceIndexConvention.class)
+  public static class PriceIndexConventionBuilder implements FudgeBuilder<PriceIndexConvention> {
+    /** The currency field */
+    private static final String CURRENCY_FIELD = "currency";
+    /** The region field */
+    private static final String REGION_FIELD = "region";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final PriceIndexConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, PriceIndexConvention.class);
+      message.add(CURRENCY_FIELD, object.getCurrency().getCode());
+      serializer.addToMessage(message, REGION_FIELD, null, object.getRegion());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public PriceIndexConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
+      final ExternalId region = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final PriceIndexConvention convention = new PriceIndexConvention(name, externalIdBundle, currency, region);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+
+  }
+
+  /**
    * Fudge builder for swap conventions.
    */
   @FudgeBuilderFor(SwapConvention.class)
   public static class SwapConventionBuilder implements FudgeBuilder<SwapConvention> {
+    /** The pay leg field */
     private static final String PAY_LEG_FIELD = "payLeg";
+    /** The receive leg field */
     private static final String RECEIVE_LEG_FIELD = "receiveLeg";
 
     @Override
@@ -456,13 +539,21 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(SwapFixedLegConvention.class)
   public static class SwapFixedLegConventionBuilder implements FudgeBuilder<SwapFixedLegConvention> {
+    /** The payment tenor field */
     private static final String PAYMENT_TENOR = "paymentTenor";
+    /** The day-count field */
     private static final String DAY_COUNT_FIELD = "dayCount";
+    /** The business day convention field */
     private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    /** The settlement days field */
     private static final String DAYS_TO_SETTLE_FIELD = "daysToSettle";
+    /** The EOM field */
     private static final String IS_EOM_FIELD = "isEOM";
+    /** The currency field */
     private static final String CURRENCY_FIELD = "currency";
+    /** The region field */
     private static final String REGION_FIELD = "region";
+    /** The stub type field */
     private static final String STUB_TYPE_FIELD = "stubType";
 
     @Override
@@ -508,7 +599,9 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(SwapIndexConvention.class)
   public static class SwapIndexConventionBuilder implements FudgeBuilder<SwapIndexConvention> {
+    /** The fixing time field */
     private static final String FIXING_TIME_FIELD = "fixingTime";
+    /** The swap convention field */
     private static final String SWAP_CONVENTION_FIELD = "swapConvention";
 
     @Override
@@ -541,10 +634,15 @@ public final class ConventionBuilders {
    */
   @FudgeBuilderFor(VanillaIborLegConvention.class)
   public static class VanillaIborLegConventionBuilder implements FudgeBuilder<VanillaIborLegConvention> {
+    /** The ibor index convention field */
     private static final String IBOR_INDEX_CONVENTION_FIELD = "iborIndexConvention";
+    /** The advance fixing field */
     private static final String ADVANCE_FIXING_FIELD = "advanceFixing";
+    /** The stub type field */
     private static final String STUB_TYPE_FIELD = "stubType";
+    /** The interpolator name field */
     private static final String INTERPOLATOR_NAME_FIELD = "interpolatorName";
+    /** The reset tenor field */
     private static final String RESET_TENOR_FIELD = "resetTenor";
 
     @Override
@@ -579,4 +677,60 @@ public final class ConventionBuilders {
     }
   }
 
+  /**
+   * Fudge builder for zero coupon inflation conventions.
+   */
+  @FudgeBuilderFor(ZeroCouponInflationConvention.class)
+  public static class ZeroCouponInflationConventionBuilder implements FudgeBuilder<ZeroCouponInflationConvention> {
+    /** The price index field */
+    private static final String PRICE_INDEX_FIELD = "priceIndex";
+    /** The business day convention field */
+    private static final String BUSINESS_DAY_CONVENTION_FIELD = "businessDayConvention";
+    /** The day-count field */
+    private static final String DAYCOUNT_FIELD = "dayCount";
+    /** The EOM field */
+    private static final String IS_EOM_FIELD = "isEOM";
+    /** The month lag field */
+    private static final String MONTH_LAG_FIELD = "monthLag";
+    /** The spot lag field */
+    private static final String SPOT_LAG_FIELD = "spotLag";
+    /** The interpolation method field */
+    private static final String INTERPOLATION_METHOD_FIELD = "interpolation";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ZeroCouponInflationConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, ZeroCouponInflationConvention.class);
+      serializer.addToMessage(message, PRICE_INDEX_FIELD, null, object.getPriceIndex());
+      message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getConventionName());
+      message.add(DAYCOUNT_FIELD, object.getDayCount().getConventionName());
+      message.add(IS_EOM_FIELD, object.isIsEOM());
+      message.add(MONTH_LAG_FIELD, object.getMonthLag());
+      message.add(SPOT_LAG_FIELD, object.getSpotLag());
+      message.add(INTERPOLATION_METHOD_FIELD, object.getInterpolationMethod());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public ZeroCouponInflationConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
+      final ExternalId priceIndex = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PRICE_INDEX_FIELD));
+      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
+      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAYCOUNT_FIELD));
+      final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
+      final int monthLag = message.getInt(MONTH_LAG_FIELD);
+      final int spotLag = message.getInt(SPOT_LAG_FIELD);
+      final String interpolationMethod = message.getString(INTERPOLATION_METHOD_FIELD);
+      final ZeroCouponInflationConvention convention = new ZeroCouponInflationConvention(name, externalIdBundle, priceIndex, businessDayConvention, dayCount,
+          isEOM, monthLag, spotLag, interpolationMethod);
+      convention.setUniqueId(uniqueId);
+      return convention;
+    }
+
+  }
 }

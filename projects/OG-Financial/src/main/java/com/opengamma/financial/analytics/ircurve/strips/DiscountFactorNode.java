@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve.strips;
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class DiscountFactorNode extends CurveNode {
@@ -29,6 +29,9 @@ public class DiscountFactorNode extends CurveNode {
   /** Serialization version */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The tenor.
+   */
   @PropertyDefinition(validate = "notNull")
   private Tenor _tenor;
 
@@ -45,13 +48,13 @@ public class DiscountFactorNode extends CurveNode {
     setTenor(tenor);
   }
 
-  /**
-   * @param curveNodeIdMapperName The curve node id mapper name, not null
-   * @param tenor The tenor, not null
-   * @param dataField The data field, not null
-   */
-  public DiscountFactorNode(final String curveNodeIdMapperName, final Tenor tenor, final String dataField) {
-    super(curveNodeIdMapperName, dataField);
+    /**
+     * @param curveNodeIdMapperName The curve node id mapper name, not null
+     * @param tenor The tenor, not null
+     * @param name The name
+     */
+  public DiscountFactorNode(final String curveNodeIdMapperName, final Tenor tenor, final String name) {
+    super(curveNodeIdMapperName, name);
     setTenor(tenor);
   }
 

@@ -33,11 +33,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * 
+ * For a curve name, pulls the {@CurveSpecification} from the database.
  */
 public class CurveSpecificationFunction extends AbstractFunction {
+  /** The curve name */
   private final String _curveName;
 
+  /**
+   * @param curveName The curve name, not null
+   */
   public CurveSpecificationFunction(final String curveName) {
     ArgumentChecker.notNull(curveName, "curve name");
     _curveName = curveName;
@@ -67,12 +71,12 @@ public class CurveSpecificationFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         return Collections.singleton(spec);
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         return Collections.emptySet();
       }
 

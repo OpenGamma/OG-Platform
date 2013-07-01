@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -64,11 +64,21 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
     fraIds.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("j")));
     fraIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("k")));
     fraIds.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("l")));
+    final Map<Tenor, CurveInstrumentProvider> fxForwardIds = new HashMap<>();
+    fxForwardIds.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergBuidSecurityId("FX1")));
+    fxForwardIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergBuidSecurityId("FX2")));
+    fxForwardIds.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergBuidSecurityId("FX3")));
     final Map<Tenor, CurveInstrumentProvider> rateFutureIds = new HashMap<>();
     rateFutureIds.put(Tenor.ONE_YEAR, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
     rateFutureIds.put(Tenor.TWO_YEARS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
     rateFutureIds.put(Tenor.EIGHTEEN_MONTHS, new BloombergFutureCurveInstrumentProvider("ED", "RATE"));
-    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(name, cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, fraIds, rateFutureIds, swapIds);
+    final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationIds = new HashMap<>();
+    zeroCouponInflationIds.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("CPI1")));
+    zeroCouponInflationIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("CPI2")));
+    zeroCouponInflationIds.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("CPI3")));
+    zeroCouponInflationIds.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("CPI4")));
+    final CurveNodeIdMapper mapper = new CurveNodeIdMapper(name, cashIds, continuouslyCompoundedRateIds, creditSpreadIds, discountFactorIds, fraIds, fxForwardIds,
+        rateFutureIds, swapIds, zeroCouponInflationIds);
     assertEquals(mapper, cycleObject(CurveNodeIdMapper.class, mapper));
   }
 }
