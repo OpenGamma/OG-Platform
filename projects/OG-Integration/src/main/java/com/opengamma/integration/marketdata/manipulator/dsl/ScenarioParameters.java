@@ -20,6 +20,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Config object for storing parameters required to build a scenario.
+ * TODO should parameters be defined by another groovy script that stores values in its bindings, e.g.
+ *   foo = [1, 2, 3]
+ * the bindings from the parameters script can be used as (or to populate) the bindings in the scenario script
  */
 @Config
 public class ScenarioParameters {
