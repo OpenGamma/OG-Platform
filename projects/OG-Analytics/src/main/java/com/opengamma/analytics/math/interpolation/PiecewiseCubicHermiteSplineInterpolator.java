@@ -115,7 +115,12 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
     }
 
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+  }
 
+  @Override
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+    final PiecewiseCubicHermiteSplineInterpolatorWithSensitivity interp = new PiecewiseCubicHermiteSplineInterpolatorWithSensitivity();
+    return interp.interpolateWithSensitivity(xValues, yValues);
   }
 
   /**
@@ -182,7 +187,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
     if (Math.signum(val) != Math.signum(grads1)) {
       return 0.;
     } else if (Math.signum(grads1) != Math.signum(grads2) && Math.abs(val) > 3. * Math.abs(grads1)) {
-        return 3. * grads1;
+      return 3. * grads1;
     }
     return val;
   }

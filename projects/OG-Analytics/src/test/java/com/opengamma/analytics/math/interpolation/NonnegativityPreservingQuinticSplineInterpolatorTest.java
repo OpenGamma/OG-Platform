@@ -46,6 +46,7 @@ public class NonnegativityPreservingQuinticSplineInterpolatorTest {
     for (int i = 0; i < 101; ++i) {
       final double key = 1. + 4. / (nPts - 1) * i;
       assertTrue(function.evaluate(resultPos, key).getData()[0] >= 0.);
+      //      assertTrue(interpPos.interpolate(xValues, yValues, key) >= 0.);
     }
 
     final int nData = xValues.length;

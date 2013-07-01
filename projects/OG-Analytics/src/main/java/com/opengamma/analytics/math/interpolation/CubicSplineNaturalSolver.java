@@ -14,10 +14,18 @@ public class CubicSplineNaturalSolver extends CubicSplineSolver {
 
   @Override
   public DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
-
     final double[] intervals = getDiffs(xValues);
-
     return getCommonSplineCoeffs(xValues, yValues, intervals, matrixEqnSolver(getMatrix(intervals), getCommonVectorElements(yValues, intervals)));
+  }
+
+  @Override
+  public DoubleMatrix2D[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
+    final double[] intervals = getDiffs(xValues);
+    final double[][] toBeInv = getMatrix(intervals);
+    final double[] commonVector = getCommonVectorElements(yValues, intervals);
+    final double[][] commonVecSensitivity = getCommonVectorSensitivity(intervals);
+
+    return getCommonCoefficientWithSensitivity(xValues, yValues, intervals, toBeInv, commonVector, commonVecSensitivity);
   }
 
   @Override

@@ -7,6 +7,8 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -66,7 +68,6 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     for (int i = 1; i < nDataPts; ++i) {
       ArgumentChecker.isFalse(xValuesSrt[i - 1] == xValuesSrt[i], "xValues should be distinct");
     }
-    
 
     final double[] intervals = _solver.intervalsCalculator(xValuesSrt);
     final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
@@ -160,6 +161,12 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     }
 
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+  }
+
+  @Override
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+    throw new NotImplementedException();
+    //TODO Implement sensitivity calculator
   }
 
   /**

@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ParallelArrayBinarySort;
@@ -170,7 +171,61 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
     }
 
     return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
-
   }
 
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+    ArgumentChecker.notNull(xValues, "xValues");
+    ArgumentChecker.notNull(yValues, "yValues");
+
+    ArgumentChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgumentChecker.isTrue(xValues.length > 1, "Data points should be more than 1");
+
+    final int nDataPts = xValues.length;
+    final int nYdata = yValues.length;
+
+    for (int i = 0; i < nDataPts; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(xValues[i]), "xData containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(xValues[i]), "xData containing Infinity");
+    }
+    for (int i = 0; i < nYdata; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(yValues[i]), "yData containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
+    }
+
+    for (int i = 0; i < nDataPts; ++i) {
+      for (int j = i + 1; j < nDataPts; ++j) {
+        ArgumentChecker.isFalse(xValues[i] == xValues[j], "Data should be distinct");
+      }
+    }
+
+    double[] yValuesSrt = new double[nDataPts];
+
+    if (xValues.length + 2 == yValues.length) {
+      _solver = new CubicSplineClampedSolver(yValues[0], yValues[nDataPts + 1]);
+      yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
+    } else {
+      _solver = new CubicSplineNakSolver();
+      yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    }
+
+    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(xValues, yValuesSrt);
+    final int len = resMatrix.length;
+    for (int k = 0; k < len; k++) {
+      DoubleMatrix2D m = resMatrix[k];
+      final int rows = m.getNumberOfRows();
+      final int cols = m.getNumberOfColumns();
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          ArgumentChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+        }
+      }
+    }
+
+    final DoubleMatrix2D coefMatrix = resMatrix[0];
+    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[len - 1];
+    System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, len - 1);
+    final int nCoefs = coefMatrix.getNumberOfColumns();
+
+    return new PiecewisePolynomialResultsWithSensitivity(_solver.getKnotsMat1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+  }
 }
