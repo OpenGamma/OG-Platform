@@ -32,23 +32,23 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurity;
-/** 
+/**
  * Calculates the implied volatility of an equity index or equity option using the {@link BjerksundStenslandModel} */
 public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOptionBjerksundStenslandFunction {
 
   /** The BjerksundStensland present value calculator */
   private static final EqyOptBjerksundStenslandPresentValueCalculator s_pvCalculator = EqyOptBjerksundStenslandPresentValueCalculator.getInstance();
-  
+
   /** Default constructor */
   public EquityOptionBjerksundStenslandImpliedVolFunction() {
     super(ValueRequirementNames.IMPLIED_VOLATILITY);
   }
-  
-  
+
+
   @Override
-  protected Set<ComputedValue> computeValues(InstrumentDerivative derivative, StaticReplicationDataBundle market, FunctionInputs inputs, Set<ValueRequirement> desiredValues,
-      ComputationTargetSpecification targetSpec, ValueProperties resultProperties) {
-    
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs, final Set<ValueRequirement> desiredValues,
+      final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+
     // Get market price
     Double marketPrice = null;
     final ComputedValue mktPriceObj = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
@@ -68,7 +68,7 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
       strike = option.getStrike();
       timeToExpiry = option.getTimeToExpiry();
       isCall = option.isCall();
-      if (marketPrice == null) { 
+      if (marketPrice == null) {
         optionPrice = derivative.accept(s_pvCalculator, market) / option.getUnitAmount();
       } else {
         optionPrice = marketPrice;
@@ -78,7 +78,7 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
       strike = option.getStrike();
       timeToExpiry = option.getTimeToExpiry();
       isCall = option.isCall();
-      if (marketPrice == null) { 
+      if (marketPrice == null) {
         optionPrice = derivative.accept(s_pvCalculator, market) / option.getUnitAmount();
       } else {
         optionPrice = marketPrice;
@@ -88,12 +88,12 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
       strike = option.getStrike();
       timeToExpiry = option.getExpiry();
       isCall = option.isCall();
-      if (marketPrice == null) { 
+      if (marketPrice == null) {
         optionPrice = derivative.accept(s_pvCalculator, market) / option.getPointValue();
       } else {
         optionPrice = marketPrice;
       }
-      
+
     } else {
       throw new OpenGammaRuntimeException("Unexpected InstrumentDerivative type");
     }
@@ -101,20 +101,23 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
     final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
     final double costOfCarry = discountRate - Math.log(market.getForwardCurve().getForward(timeToExpiry) / spot) / timeToExpiry;
     final double impliedVol = (new BjerksundStenslandModel()).impliedVolatility(optionPrice, spot, strike, discountRate, costOfCarry, timeToExpiry, isCall);
-    
+
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
   }
-  
+
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+    if (requirements == null) {
+      return null;
+    }
     // Add live market_value of the option
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ComputationTargetReference securityTarget = new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId());
     final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
     requirements.add(securityValueReq);
-    
+
     return requirements;
   }
 
