@@ -56,7 +56,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
    * prefix to append to redis keys when stored
    */
   @PropertyDefinition
-  private String _redisPrefix;
+  private String _redisPrefix = "";
   /**
    * The redis database to connect to
    */
@@ -91,6 +91,9 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     infoSource.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     infoSource.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesSource.class);
     repo.registerComponent(infoSource, instance);
+    ComponentInfo infoRedis = new ComponentInfo(RedisSimulationSeriesSource.class, getClassifier());
+    infoRedis.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    repo.registerComponent(infoRedis, instance);
 
     // Is caching needed? assume no for now
     if (_publishRest) {
