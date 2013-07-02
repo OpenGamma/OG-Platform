@@ -15,16 +15,17 @@ Visit the developer website at http://developers.opengamma.com for more informat
 
 The Examples server
 -------------------
-This download package is intended to just contain what you need to get our example system up and running. If 
-you're interested in looking at the source code, you should look at one of the source download packages.
+This download package contains only what is needed to run our example system.
+It relies on access to Bloomberg. Please use a different download if you do not have Bloomberg.
+If you're interested in looking at the source code, you should look at one of the source download packages.
 
 Pre-requisites
 --------------
 All you should need is the latest Java 1.6 JRE/JDK.  You'll need at least 2GB RAM and a dual-core processor,
 although you might get by with 1GB in a pinch.  Production systems will generally have higher requirements.
 
-Running the server
-------------------
+Initializing the database
+-------------------------
 To do the initial database setup, you should run:
 
   scripts/init-og-bloombergexample-db.sh
@@ -33,8 +34,13 @@ on Linux and MacOS X, and
 
   scripts\init-og-bloombergexample-db.bat
 
-on Windows.  You only need to do this the first time you run the server, or if you want to reset the databases
+on Windows.
+
+You only need to do this the first time you run the server, or if you want to reset the databases
 to the original configurations.
+
+Running the server
+------------------
 
 To start the server itself, you should run:
 
@@ -44,8 +50,24 @@ on Linux and MacOS X or
 
   scripts\og-bloombergexample.bat
 
-on Windows.  This particular script sends debugging output to the console.  It is normal to see some Exceptions
+on Windows.
+
+This particular script sends debugging output to the console.  It is normal to see some Exceptions
 thrown when starting a view in this mode.
+
+Using the server
+----------------
+
+Once the service is up and running, just point your browser at:
+
+    http://localhost:8080
+
+to access OpenGamma's web user interface.  Alternatively, visit: 
+
+    http://localhost:8080/jax/components
+
+to get a sense of the underlying power of the system available via REST.
+
 
 More information
 ----------------

@@ -15,17 +15,17 @@ Visit the developer website at http://developers.opengamma.com for more informat
 
 The Examples server
 -------------------
-This package is intended to contain only what is needed to run our example system if you do not have access to
-the Bloomberg data API.  If you are interested in looking at the source code, you should look at the source packages
-distributed separately.
+This download package contains only what is needed to run our example system.
+It uses generated market data so there is no need to connect to Bloomberg or similar.
+If you're interested in looking at the source code, you should look at one of the source download packages.
 
 Pre-requisites
 --------------
 All you should need is the latest Java 1.6 JRE/JDK.  You'll need at least 2GB RAM and a dual-core processor,
 although you might get by with 1GB in a pinch.  Production systems will generally have higher requirements.
 
-Initializing the Examples database
-----------------------------------
+Initializing the database
+-------------------------
 To do the initial database setup, you should run:
 
   scripts/init-og-examples-db.sh 
@@ -34,13 +34,13 @@ on Linux and MacOS X, and
 
   scripts\init-og-examples-db.bat 
 
-on Windows.  
+on Windows.
 
 You only need to do this the first time you run the server, or if you want to reset the databases
 to the original configurations.
 
-Running the Examples server
----------------------------
+Running the server
+------------------
 
 To start the server itself, you should run:
 
@@ -50,7 +50,7 @@ on Linux and MacOS X or
 
   scripts\og-examples.bat
 
-on Windows.  
+on Windows.
 
 This particular script sends debugging output to the console.  It is normal to see some Exceptions
 thrown when starting a view in this mode.
@@ -72,8 +72,8 @@ normal to see some exceptions in the console output while running a view.
 The service may take up to a minute to start up. 
 
 
-Using the Examples server
--------------------------
+Using the server
+----------------
 
 Once the service is up and running, just point your browser at:
 
@@ -98,12 +98,6 @@ The 'scripts/' directory also contains the following utility scripts:
 
 as well as equivalent .bat files for Windows.  Instructions for using these tools may be found in the OpenGamma
 documentation.
-
-
-More information
-----------------
-
-For more information go to http://developers.opengamma.com
 
 
 More information
