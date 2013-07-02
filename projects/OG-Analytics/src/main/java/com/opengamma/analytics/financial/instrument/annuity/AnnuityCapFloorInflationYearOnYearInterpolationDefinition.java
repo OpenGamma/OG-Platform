@@ -10,22 +10,22 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- *  A wrapper class for a AnnuityDefinition containing CouponInflationYearOnYearInterpolationDefinition.
+ *  A wrapper class for a AnnuityDefinition containing CapFloorInflationYearOnYearInterpolationDefinition.
  */
-public class AnnuityCouponInflationYearOnYearInterpolationDefinition extends AnnuityCouponDefinition<CouponInflationYearOnYearInterpolationDefinition> {
+public class AnnuityCapFloorInflationYearOnYearInterpolationDefinition extends AnnuityCouponDefinition<CapFloorInflationYearOnYearInterpolationDefinition> {
 
   /**
-   * Constructor from a list of inflation year on year coupons.
+   * Constructor from a list of inflation year on year cap/floor.
    * @param payments The InflationYearOnYearMonthly coupons.
   
    */
-  public AnnuityCouponInflationYearOnYearInterpolationDefinition(final CouponInflationYearOnYearInterpolationDefinition[] payments) {
+  public AnnuityCapFloorInflationYearOnYearInterpolationDefinition(final CapFloorInflationYearOnYearInterpolationDefinition[] payments) {
     super(payments);
   }
 
@@ -41,26 +41,32 @@ public class AnnuityCouponInflationYearOnYearInterpolationDefinition extends Ann
    * @param calendar the calendar.
    * @param endOfMonth The end-of-month flag.
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The day count of the coupons.
    * @param payNotional Payer (true) / receiver (false) flag.
    * @param weightStart The weight on the first month index in the interpolation of the index at the denominator.
    * @param weightEnd The weight on the first month index in the interpolation of the index at the numerator.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
    * @return The Year on year coupon leg.
    */
-  public static AnnuityCouponInflationYearOnYearInterpolationDefinition from(final IndexPrice priceIndex, final ZonedDateTime settlementDate,
+  public static AnnuityCapFloorInflationYearOnYearInterpolationDefinition from(final IndexPrice priceIndex, final ZonedDateTime settlementDate,
       final double notional, final Period totalPeriod, final Period paymentPeriod, final BusinessDayConvention businessDayConvention, final Calendar calendar,
-      final boolean endOfMonth, final int conventionalMonthLag, final boolean payNotional, final double weightStart, final double weightEnd) {
+      final boolean endOfMonth, final int conventionalMonthLag, final int monthLag, final boolean payNotional, final double weightStart, final double weightEnd,
+      final ZonedDateTime lastKnownFixingDate, final double strike, final boolean isCap) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.isTrue(notional > 0, "notional <= 0");
     Validate.notNull(paymentPeriod, "Payment period");
     ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, paymentPeriod, totalPeriod, true, false, businessDayConvention, calendar, endOfMonth);
 
-    final CouponInflationYearOnYearInterpolationDefinition[] coupons = new CouponInflationYearOnYearInterpolationDefinition[paymentDates.length];
-    coupons[0] = CouponInflationYearOnYearInterpolationDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, conventionalMonthLag, payNotional, weightStart, weightEnd);
+    final CapFloorInflationYearOnYearInterpolationDefinition[] coupons = new CapFloorInflationYearOnYearInterpolationDefinition[paymentDates.length];
+    coupons[0] = CapFloorInflationYearOnYearInterpolationDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, lastKnownFixingDate, conventionalMonthLag, monthLag, weightStart,
+        weightEnd, strike, isCap);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = CouponInflationYearOnYearInterpolationDefinition.from(paymentDates[loopcpn - 1], paymentDates[loopcpn], notional, priceIndex, conventionalMonthLag, payNotional,
-          weightStart, weightEnd);
+      coupons[loopcpn] = CapFloorInflationYearOnYearInterpolationDefinition.from(paymentDates[loopcpn - 1], paymentDates[loopcpn], notional, priceIndex, lastKnownFixingDate, conventionalMonthLag,
+          monthLag, weightStart, weightEnd, strike, isCap);
     }
-    return new AnnuityCouponInflationYearOnYearInterpolationDefinition(coupons);
+    return new AnnuityCapFloorInflationYearOnYearInterpolationDefinition(coupons);
   }
 
   /**
@@ -76,23 +82,29 @@ public class AnnuityCouponInflationYearOnYearInterpolationDefinition extends Ann
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
    * @param monthLag The day count of the coupons.
    * @param payNotional Payer (true) / receiver (false) flag.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
    * @return The Year on year coupon leg.
    */
-  public static AnnuityCouponInflationYearOnYearInterpolationDefinition from(final IndexPrice priceIndex, final ZonedDateTime settlementDate,
+  public static AnnuityCapFloorInflationYearOnYearInterpolationDefinition from(final IndexPrice priceIndex, final ZonedDateTime settlementDate,
       final double notional, final Period totalPeriod, final Period paymentPeriod, final BusinessDayConvention businessDayConvention, final Calendar calendar,
-      final boolean endOfMonth, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
+      final boolean endOfMonth, final int conventionalMonthLag, final int monthLag, final boolean payNotional, final ZonedDateTime lastKnownFixingDate,
+      final double strike, final boolean isCap) {
     Validate.notNull(settlementDate, "settlement date");
 
     Validate.isTrue(notional > 0, "notional <= 0");
     Validate.notNull(paymentPeriod, "Payment period");
     ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, paymentPeriod, totalPeriod, true, false, businessDayConvention, calendar, endOfMonth);
 
-    final CouponInflationYearOnYearInterpolationDefinition[] coupons = new CouponInflationYearOnYearInterpolationDefinition[paymentDates.length];
-    coupons[0] = CouponInflationYearOnYearInterpolationDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, conventionalMonthLag, monthLag, payNotional);
+    final CapFloorInflationYearOnYearInterpolationDefinition[] coupons = new CapFloorInflationYearOnYearInterpolationDefinition[paymentDates.length];
+    coupons[0] = CapFloorInflationYearOnYearInterpolationDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, conventionalMonthLag, monthLag, lastKnownFixingDate,
+        strike, isCap);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = CouponInflationYearOnYearInterpolationDefinition.from(paymentDates[loopcpn - 1], paymentDates[loopcpn], notional, priceIndex, conventionalMonthLag, monthLag, payNotional);
+      coupons[loopcpn] = CapFloorInflationYearOnYearInterpolationDefinition.from(paymentDates[loopcpn - 1], paymentDates[loopcpn], notional, priceIndex, conventionalMonthLag, monthLag,
+          lastKnownFixingDate,
+          strike, isCap);
     }
-    return new AnnuityCouponInflationYearOnYearInterpolationDefinition(coupons);
+    return new AnnuityCapFloorInflationYearOnYearInterpolationDefinition(coupons);
   }
-
 }
