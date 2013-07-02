@@ -563,7 +563,7 @@ public class DbTool extends Task {
     options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it (including tables). " +
       "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
       "to specify server, user, or password.");
-    options.addOption("createtables", "createtables", true, "Runs {dbscriptbasedir}/db/create/{dbtype}/<for-all-masters>/<latest version>__create-<master>.sql.");
+    options.addOption("createtables", "createtables", true, "Creates database tables for all masters.");
     options.addOption("targetversion", "targetversion", true,
         "Version number for the end result database. 0 means latest. 1 means last but one etc. Optional. If not specified, assumes latest version.");
     options.addOption("createversion", "createversion", true,
