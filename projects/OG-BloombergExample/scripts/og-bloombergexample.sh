@@ -48,11 +48,9 @@ MEM_OPTS="-Xms768m -Xmx1280m -XX:MaxPermSize=256m"
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}
 
-CLASSPATH=$(build_classpath)
-if [ -f ${PROJECTJAR} ]; then
-  CLASSPATH=${PROJECTJAR}:${CLASSPATH}
-else
-  CLASSPATH=build/${PROJECTJAR}:${CLASSPATH}
+CLASSPATH=lib/${PROJECTJAR}
+if [ -d lib/override ]; then
+  CLASSPATH=$(build_classpath lib/override):${CLASSPATH}
 fi
 CLASSPATH=config:${CLASSPATH}
 
