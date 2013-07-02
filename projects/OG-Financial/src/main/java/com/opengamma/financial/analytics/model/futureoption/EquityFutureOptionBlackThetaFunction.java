@@ -36,6 +36,6 @@ public class EquityFutureOptionBlackThetaFunction extends EquityFutureOptionBlac
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final double theta = derivative.accept(EquityOptionBlackThetaCalculator.getInstance(), market);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    return Collections.singleton(new ComputedValue(spec, theta));
+    return Collections.singleton(new ComputedValue(spec, -theta / 365));
   }
 }

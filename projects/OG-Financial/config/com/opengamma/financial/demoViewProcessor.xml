@@ -461,6 +461,12 @@
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg value="false" />
         </bean>
+        <bean class="com.opengamma.financial.aggregation.StrikeAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.ExpiryAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+        </bean>
       </list>
      </property>
     </bean>

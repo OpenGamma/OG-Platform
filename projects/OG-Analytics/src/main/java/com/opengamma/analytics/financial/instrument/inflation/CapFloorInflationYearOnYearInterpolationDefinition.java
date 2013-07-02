@@ -181,6 +181,60 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
   }
 
   /**
+   * Builder for inflation Year on Yearn based on an inflation lag and index publication. The fixing date is the publication lag after the last reference month. 
+   * @param accrualStartDate Start date of the accrual period.
+   * @param paymentDate The payment date.
+   * @param notional Coupon notional.
+   * @param priceIndex The price index associated to the coupon.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
+   * @param weightStart The weight on the first month index in the interpolation of the index at the _referenceStartDate.
+   * @param weightEnd The weight on the first month index in the interpolation of the index at the _referenceEndDate.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   * @return The inflation zero-coupon.
+   */
+  public static CapFloorInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final ZonedDateTime lastKnownFixingDate, final int conventionalMonthLag, final int monthLag, final double weightStart, final double weightEnd,
+      final double strike, final boolean isCap) {
+    final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
+    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
+    referenceStartDate[0] = accrualStartDate.minusMonths(monthLag).withDayOfMonth(1);
+    referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
+    referenceEndDate[0] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
+
+    return new CapFloorInflationYearOnYearInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
+        lastKnownFixingDate, conventionalMonthLag, monthLag, referenceStartDate, referenceEndDate, weightStart, weightEnd, strike, isCap);
+  }
+
+  /**
+   * Builder for inflation year on year coupon based on an inflation lag and the index publication lag. The fixing date is the publication lag after the last reference month.
+   * The index start value is calculated from a time series. The index value required for the coupon should be in the time series.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param paymentDate The payment date.
+   * @param notional Coupon notional.
+   * @param priceIndex The price index associated to the coupon.
+   * @param conventionalmonthLag The lag in month between the index validity and the coupon dates for the standard product.
+   * @param monthLag The lag in month between the index validity and the coupon dates for the actual product.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   * @return The inflation zero-coupon.
+   */
+  public static CapFloorInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final int conventionalmonthLag, final int monthLag, final ZonedDateTime lastKnownFixingDate, final double strike, final boolean isCap) {
+    final ZonedDateTime refInterpolatedDateStart = accrualStartDate;
+    final ZonedDateTime refInterpolatedDateEnd = paymentDate;
+
+    final double weightStart = 1.0 - (refInterpolatedDateStart.getDayOfMonth() - 1.0) / refInterpolatedDateStart.toLocalDate().lengthOfMonth();
+    final double weightEnd = 1.0 - (refInterpolatedDateEnd.getDayOfMonth() - 1.0) / refInterpolatedDateEnd.toLocalDate().lengthOfMonth();
+
+    return from(accrualStartDate, paymentDate, notional, priceIndex, lastKnownFixingDate, conventionalmonthLag, monthLag, weightStart, weightEnd, strike, isCap);
+  }
+
+  /**
    * Gets the fixing date (always the first of a month) of the last known fixing..
    * @return the last known fixing date.
    */
