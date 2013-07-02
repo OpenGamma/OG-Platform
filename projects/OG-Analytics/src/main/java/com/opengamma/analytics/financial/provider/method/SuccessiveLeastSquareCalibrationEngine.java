@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Param
  * Calibration engine calibrating successively the instruments in the basket trough a root-finding process.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public abstract class SuccessiveLeastSquareCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngine<DATA_TYPE> {
+public abstract class SuccessiveLeastSquareCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
    * The calibration objective.
