@@ -13,12 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.threeten.bp.Period;
-
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -54,33 +51,33 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
   
 //  private final Set<Currency> _currencies = ImmutableSet.of(Currency.CHF, 
 //      Currency.JPY, Currency.EUR, Currency.CZK, Currency.USD, Currency.GBP, Currency.NOK, Currency.DKK, Currency.SEK);
-  
-  private final Set<Currency> _currencies = ImmutableSet.of(Currency.USD);
-  
-  private final Set<Tenor> _swapTenors = ImmutableSet.of(Tenor.ofMonths(3), 
-      Tenor.ofYears(1), 
-      Tenor.ofYears(2), 
-      Tenor.ofYears(3), 
-      Tenor.ofYears(5), 
-      Tenor.ofYears(10), 
-      Tenor.ofYears(15), 
-      Tenor.ofYears(20), 
-      Tenor.ofYears(30));
- 
-  private final Set<Tenor> _optionTenors = ImmutableSet.of(Tenor.ofMonths(1), 
-      Tenor.ofMonths(3),
-      Tenor.ofMonths(6),
-      Tenor.ofYears(1), 
-      Tenor.ofYears(2), 
-      Tenor.ofYears(3), 
-      Tenor.ofYears(4),
-      Tenor.ofYears(5), 
-      Tenor.ofYears(10), 
-      Tenor.ofYears(15), 
-      Tenor.ofYears(20), 
-      Tenor.ofYears(30));
-  
-  private final Set<Double> _relativeStrikes = ImmutableSet.of(20.0, 25.0, 50.0, 70.0, 75.0, 100.0, 200.0, 500.0);
+//  
+//  private final Set<Currency> _currencies = ImmutableSet.of(Currency.USD);
+//  
+//  private final Set<Tenor> _swapTenors = ImmutableSet.of(Tenor.ofMonths(3), 
+//      Tenor.ofYears(1), 
+//      Tenor.ofYears(2), 
+//      Tenor.ofYears(3), 
+//      Tenor.ofYears(5), 
+//      Tenor.ofYears(10), 
+//      Tenor.ofYears(15), 
+//      Tenor.ofYears(20), 
+//      Tenor.ofYears(30));
+// 
+//  private final Set<Tenor> _optionTenors = ImmutableSet.of(Tenor.ofMonths(1), 
+//      Tenor.ofMonths(3),
+//      Tenor.ofMonths(6),
+//      Tenor.ofYears(1), 
+//      Tenor.ofYears(2), 
+//      Tenor.ofYears(3), 
+//      Tenor.ofYears(4),
+//      Tenor.ofYears(5), 
+//      Tenor.ofYears(10), 
+//      Tenor.ofYears(15), 
+//      Tenor.ofYears(20), 
+//      Tenor.ofYears(30));
+//  
+//  private final Set<Double> _relativeStrikes = ImmutableSet.of(20.0, 25.0, 50.0, 70.0, 75.0, 100.0, 200.0, 500.0);
   
   private final Map<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint = Maps.newHashMap();
 
@@ -153,13 +150,13 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
     }
   }
 
-  private void addPoint(Currency ccy, Tenor optionExpiry, Tenor swapTenor, Double relativeStrike, String format) {
-    final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrike);
-    String ticker = String.format(format, ccy.getCode(), optionExpiry.getPeriod().toString().substring(1), swapTenor.getPeriod().toString().substring(1), Math.abs(relativeStrike));
-    final ExternalId identifier = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
-    final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(ccy, point);
-    _idsByPoint.put(key, Sets.newHashSet(identifier));
-  }
+//  private void addPoint(Currency ccy, Tenor optionExpiry, Tenor swapTenor, Double relativeStrike, String format) {
+//    final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrike);
+//    String ticker = String.format(format, ccy.getCode(), optionExpiry.getPeriod().toString().substring(1), swapTenor.getPeriod().toString().substring(1), Math.abs(relativeStrike));
+//    final ExternalId identifier = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
+//    final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(ccy, point);
+//    _idsByPoint.put(key, Sets.newHashSet(identifier));
+//  }
 
   private ExternalId getIdentifier(final String ticker) {
     return ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
