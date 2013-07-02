@@ -23,6 +23,7 @@ import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -388,7 +389,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   
   @Override
   public ChangeManager changeManager() {
-    throw new UnsupportedOperationException("Change manager not supported.");
+    return DummyChangeManager.INSTANCE;
   }
 
   @Override

@@ -24,6 +24,7 @@ import com.codahale.metrics.Timer;
 import com.google.common.base.Charsets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
@@ -339,7 +340,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
 
   @Override
   public ChangeManager changeManager() {
-    throw new UnsupportedOperationException("Change manager not supported.");
+    return DummyChangeManager.INSTANCE;
   }
   
   protected Security getInJedis(Jedis jedis, UniqueId uniqueId) {
