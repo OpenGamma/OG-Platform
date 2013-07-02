@@ -15,5 +15,5 @@ The key difference is the properties file that is invoked:
       Scripts - /OG Examples/config/fullstack/fullstack-bloombergexample-bin.properties
   Development - /OG Examples/config/fullstack/fullstack-bloombergexample-dev.properties
 
-For Eclipse, run the main method in ExampleComponentServerDev
+For Eclipse, run the main method in BloombergExampleComponentServerDev
 For Ant, run the ant command "jetty" or "jetty-debug"

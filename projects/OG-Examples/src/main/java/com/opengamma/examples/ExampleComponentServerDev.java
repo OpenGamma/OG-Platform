@@ -13,7 +13,7 @@ import com.opengamma.component.OpenGammaComponentServer;
  * <p>
  * This file is intended for use with an IDE and a checked out source code tree.
  * It relies on the OG-Web directory being alongside OG-Examples in the file system.
- * The server will not start correctly if you have obtained a distribution built using Ant "dist".
+ * The server will not start correctly if you have obtained a bundle in distribution format.
  * <p>
  * Before running this class, you must have setup the example HSQL database.
  * To do this, run the Ant tasks "new-hsqldb" and "init-database".
