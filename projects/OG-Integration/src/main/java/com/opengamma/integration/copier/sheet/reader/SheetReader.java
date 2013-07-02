@@ -13,6 +13,8 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
+import com.opengamma.integration.tool.portfolio.xml.XmlFileReader;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -26,12 +28,14 @@ public abstract class SheetReader {
     
     ArgumentChecker.notNull(sheetFormat, "sheetFormat");
     ArgumentChecker.notNull(inputStream, "outputStream");
-    
+
     switch (sheetFormat) {
       case CSV:
         return new CsvSheetReader(inputStream);
       case XLS:
         return new SimpleXlsSheetReader(inputStream, 0);
+      case XML:
+        return new XmlFileReader(inputStream, new SchemaRegister());
       default:
         throw new OpenGammaRuntimeException("Could not create a reader for the sheet input format " + sheetFormat.toString());
     }
