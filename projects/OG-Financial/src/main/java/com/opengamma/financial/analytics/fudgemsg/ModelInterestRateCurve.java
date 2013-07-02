@@ -76,6 +76,7 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DiscountCurve object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), DoublesCurve.class);
+      serializer.addToMessage(message, NAME_FIELD_NAME, null, object.getName());
     }
   }
 
