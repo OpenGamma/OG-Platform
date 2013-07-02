@@ -27,7 +27,7 @@ echo "### Creating empty database"
 
 $JAVA  -cp "$CLASSPATH" \
   com.opengamma.util.test.DbTool \
-  -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/bloombergexample-db \
+  -jdbcUrl jdbc:hsqldb:file:data/db/hsqldb/bloombergexample-db \
   -database og-financial \
   -user "OpenGamma" \
   -password "OpenGamma" \
@@ -38,7 +38,7 @@ $JAVA  -cp "$CLASSPATH" \
 
 $JAVA  -cp "$CLASSPATH" \
   com.opengamma.util.test.DbTool \
-  -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user \
+  -jdbcUrl jdbc:hsqldb:file:data/hsqldb/og-fin-user \
   -database og-financial \
   -user "OpenGamma" \
   -password "OpenGamma" \
