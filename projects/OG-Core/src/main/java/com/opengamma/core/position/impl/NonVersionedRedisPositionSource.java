@@ -20,6 +20,7 @@ import redis.clients.jedis.JedisPool;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
@@ -234,21 +235,24 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
    * Store a new position and attach it to the specified portfolio.
    * @param portfolio the existing portfolio. Must already be in this source.
    * @param position the new position to store and attach.
+   * @return map of id to position, not-null.
    */
-  public void addPositionToPortfolio(Portfolio portfolio, Position position) {
-    addPositionsToPortfolio(portfolio, Collections.singleton(position));
+  public Map<String, Position> addPositionToPortfolio(Portfolio portfolio, Position position) {
+    return addPositionsToPortfolio(portfolio, Collections.singleton(position));
   }
   
   /**
    * Store a new set of positions and attach it to the specified portfolio.
    * @param portfolio the existing portfolio. Must already be in this source.
    * @param positions the new positions to store and attach.
+   * @return map of id to position, not-null.
    */
-  public void addPositionsToPortfolio(Portfolio portfolio, Collection<Position> positions) {
+  public Map<String, Position> addPositionsToPortfolio(Portfolio portfolio, Collection<Position> positions) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     ArgumentChecker.notNull(portfolio.getUniqueId(), "portfolio UniqueId");
     ArgumentChecker.notNull(positions, "position");
     
+    Map<String, Position> id2position = Maps.newLinkedHashMap();
     try (Timer.Context context = _positionAddTimer.time()) {
       
       Jedis jedis = getJedisPool().getResource();
@@ -257,9 +261,10 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
         String[] uniqueIdStrings = new String[positions.size()];
         int i = 0;
         for (Position position : positions) {
-          UniqueId uniqueId = storePosition(jedis, position);
-          uniqueIdStrings[i] = uniqueId.toString();
+          String uniqueId = storePosition(jedis, position).toString();
+          uniqueIdStrings[i] = uniqueId;
           i++;
+          id2position.put(uniqueId, position);
         }
         UniqueId portfolioUniqueId = portfolio.getUniqueId();
         String portfolioPositionsKey = toPortfolioPositionsRedisKey(portfolioUniqueId);
@@ -276,8 +281,8 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
         getJedisPool().returnBrokenResource(jedis);
         throw new OpenGammaRuntimeException("Unable to store positions " + positions, e);
       }
-      
     }
+    return id2position;
     
   }
   
