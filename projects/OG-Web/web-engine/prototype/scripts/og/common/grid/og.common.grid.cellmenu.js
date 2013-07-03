@@ -40,7 +40,6 @@ $.register_module({
             cellmenu.setdrag(false);
             cellmenu.grid = grid;
             cellmenu.busy = (function (busy) {
-                console.log('busy');
                 return function (value) {
                     busy = value !== 'undefined' ? value : busy;
                     return busy;
