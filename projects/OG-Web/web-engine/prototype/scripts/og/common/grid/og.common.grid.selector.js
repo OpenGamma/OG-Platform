@@ -33,7 +33,7 @@ $.register_module({
                     selector.fire('select', selection);
                     grid.elements.selector_style.empty();
                     css = selection.rows.map(function (row) {return grid.id + ' .OG-g-' + row + ' .c0';})
-                        .join(', ') + ' {font-weight: bold;}';
+                        .join(', ') + ' {color:#000000;}';
                     if ((sheet = grid.elements.selector_style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
                     else sheet.appendChild(document.createTextNode(css));
                 }
