@@ -201,5 +201,4 @@ public class SubscriptionHandle {
     _ticksOnHold.clear();
     _snapshotOnHold = null;
   }
-
 }
