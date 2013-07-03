@@ -81,7 +81,7 @@ This will provide an enhanced set of Eclipse plugins.
 In addition, follow these steps:
 
 8. Add additional plugins
- - Redo step 4 above using the file `OpenGamma-Eclipse-Plugins-Developer.p2f`
+ - Redo step 5 above using the file `OpenGamma-Eclipse-Plugins-Developer.p2f`
 
 9. Load the code formatter
  - Go to the Eclipse Preferences.
