@@ -17,7 +17,7 @@ SET CLASSPATH="config;%PROJECTJAR%;lib\*
  )
 set CLASSPATH=!CLASSPATH!"
 
-IF NOT EXIST %BASEDIR%\install\db\hsqldb\example-db.properties goto :nodb 
+IF NOT EXIST %BASEDIR%\data\masterdb\hsqldb\example-db.properties goto :nodb 
 
 IF "%JAVA_HOME%" == "" (
   ECHO Warning: JAVA_HOME is not set
