@@ -21,8 +21,7 @@ echo ### Creating empty database
   -password "OpenGamma" ^
   -drop true ^
   -create true ^
-  -createtables true ^
-  -dbscriptbasedir .
+  -createtables true
   
 "%JAVACMD%" -cp "og-examples.jar;lib\*" ^
   -Dlogback.configurationFile=jetty-logback.xml ^
@@ -33,8 +32,7 @@ echo ### Creating empty database
   -password "OpenGamma" ^
   -drop true ^
   -create true ^
-  -createtables true ^
-  -dbscriptbasedir .
+  -createtables true
   
 echo ### Adding example data
 

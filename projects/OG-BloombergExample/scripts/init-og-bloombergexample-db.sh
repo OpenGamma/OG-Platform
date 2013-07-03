@@ -33,8 +33,7 @@ $JAVA  -cp "$CLASSPATH" \
   -password "OpenGamma" \
   -drop true \
   -create true \
-  -createtables true \
-  -dbscriptbasedir .
+  -createtables true
 
 $JAVA  -cp "$CLASSPATH" \
   com.opengamma.util.test.DbTool \
@@ -44,8 +43,7 @@ $JAVA  -cp "$CLASSPATH" \
   -password "OpenGamma" \
   -drop true \
   -create true \
-  -createtables true \
-  -dbscriptbasedir .
+  -createtables true
 
 echo "### Adding Bloomberg example data"
 

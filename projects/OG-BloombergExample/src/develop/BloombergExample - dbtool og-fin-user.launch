@@ -8,7 +8,7 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.util.test.DbTool"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="com.opengamma.util.test.DbTool -jdbcUrl jdbc:hsqldb:file:data/hsqldb/og-fin-user -database og-financial -user &quot;OpenGamma&quot; -password &quot;OpenGamma&quot; -drop true -create true -createtables true -dbscriptbasedir ../OG-MasterDB"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="com.opengamma.util.test.DbTool -jdbcUrl jdbc:hsqldb:file:data/hsqldb/og-fin-user -database og-financial -user &quot;OpenGamma&quot; -password &quot;OpenGamma&quot; -drop true -create true -createtables true"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="og-bloombergexample"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms1200m -Xmx1200m -XX:MaxPermSize=150m  -Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Dcommandmonitor.secret=OpenGamma"/>

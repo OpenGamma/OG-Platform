@@ -20,8 +20,7 @@ echo ### Creating empty database
   -password "OpenGamma" ^
   -drop true ^
   -create true ^
-  -createtables true ^
-  -dbscriptbasedir .
+  -createtables true
   
 "%JAVACMD%" -cp "og-bloombergexample.jar;lib\*" ^
   com.opengamma.util.test.DbTool ^
@@ -31,8 +30,7 @@ echo ### Creating empty database
   -password "OpenGamma" ^
   -drop true ^
   -create true ^
-  -createtables true ^
-  -dbscriptbasedir .
+  -createtables true
   
 echo ### Adding example data
 

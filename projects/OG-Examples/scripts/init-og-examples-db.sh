@@ -34,8 +34,7 @@ $JAVA  -cp "$CLASSPATH" \
   -password "OpenGamma" \
   -drop true \
   -create true \
-  -createtables true \
-  -dbscriptbasedir .
+  -createtables true
 
 $JAVA  -cp "$CLASSPATH" \
   -Dlogback.configurationFile=jetty-logback.xml \
@@ -46,8 +45,7 @@ $JAVA  -cp "$CLASSPATH" \
   -password "OpenGamma" \
   -drop true \
   -create true \
-  -createtables true \
-  -dbscriptbasedir .
+  -createtables true
 
 echo "### Adding example data"
 
