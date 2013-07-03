@@ -1,31 +1,9 @@
 #!/bin/sh
-
-if [ ! -z "$JAVA_HOME" ]; then
-  JAVA=$JAVA_HOME/bin/java
-elif [ -x /opt/jdk1.6.0_16/bin/java ]; then
-  JAVA=/opt/jdk1.6.0_16/bin/java
-else
-  # No JAVA_HOME, try to find java in the path
-  JAVA=`which java 2>/dev/null`
-  if [ ! -x "$JAVA" ]; then
-    # No java executable in the path either
-    echo "Error: Cannot find a JRE or JDK. Please set JAVA_HOME"
-    exit 1
-  fi
-fi
-
-if [ "`basename $0`" = "init-og-examples-db.sh" ] ; then
-  cd `dirname $0`/.. #PLAT-1527
-fi
-
-CLASSPATH=config:og-examples.jar
-for FILE in `ls -1 lib/*` ; do
-  CLASSPATH=$CLASSPATH:$FILE
-done
+SCRIPTDIR="$(dirname "$0")"
 
 echo "### Creating empty database"
 
-$JAVA  -cp "$CLASSPATH" \
+${SCRIPTDIR}/run-tool.sh --chdirtoinstallation \
   -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.util.test.DbTool \
   -jdbcUrl jdbc:hsqldb:file:data/masterdb/hsqldb/example-db \
@@ -36,7 +14,7 @@ $JAVA  -cp "$CLASSPATH" \
   -create true \
   -createtables true
 
-$JAVA  -cp "$CLASSPATH" \
+${SCRIPTDIR}/run-tool.sh --chdirtoinstallation \
   -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.util.test.DbTool \
   -jdbcUrl jdbc:hsqldb:file:data/userdb/hsqldb/og-fin-user \
