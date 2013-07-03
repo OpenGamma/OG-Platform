@@ -21,14 +21,14 @@ canonicalize() {
 BASENAME=${0##*/}
 COMPONENT=${BASENAME%.sh}
 BASEDIR="$(dirname "$(dirname "$(canonicalize "$0")")")"
-SCRIPTDIR=${BASEDIR}/scripts
+SCRIPTDIR="${BASEDIR}/scripts"
 cd "${BASEDIR}" || exit 1
 
 . ${SCRIPTDIR}/project-utils.sh
 . ${SCRIPTDIR}/java-utils.sh
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 
-if [ ! -f ${BASEDIR}/data/db/hsqldb/example-db.properties ]; then
+if [ ! -f "${BASEDIR}"/data/db/hsqldb/example-db.properties ]; then
   if [ -x ${SCRIPTDIR}/init-${PROJECT}-db.sh ]; then
     ${SCRIPTDIR}/init-${PROJECT}-db.sh || exit 1
   else
@@ -51,11 +51,11 @@ MEM_OPTS="-Xms512m -Xmx1024m -XX:MaxPermSize=256m"
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}
 
-CLASSPATH=lib/${PROJECTJAR}
+CLASSPATH="lib/${PROJECTJAR}"
 if [ -d lib/override ]; then
-  CLASSPATH=$(build_classpath lib/override):${CLASSPATH}
+  CLASSPATH="$(build_classpath lib/override):${CLASSPATH}"
 fi
-CLASSPATH=config:${CLASSPATH}
+CLASSPATH="config:${CLASSPATH}"
 
 RETVAL=0
 case "$1" in

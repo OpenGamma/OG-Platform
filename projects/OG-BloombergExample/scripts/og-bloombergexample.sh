@@ -23,14 +23,14 @@ PROJECT=og-bloombergexample
 BASENAME=${0##*/}
 COMPONENT=${BASENAME%.sh}
 BASEDIR="$(dirname "$(dirname "$(canonicalize "$0")")")"
-SCRIPTDIR=${BASEDIR}/scripts
+SCRIPTDIR="${BASEDIR}/scripts"
 cd "${BASEDIR}" || exit 1
 
 . ${SCRIPTDIR}/project-utils.sh
 . ${SCRIPTDIR}/java-utils.sh
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 
-if [ ! -f ${BASEDIR}/install/db/hsqldb/bloombergexample-db.properties ]; then
+if [ ! -f "${BASEDIR}"/data/masterdb/hsqldb/bloombergexample-db.properties ]; then
   echo The ${PROJECT} database could not be found.
   echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
   echo Exiting immediately...
@@ -48,11 +48,11 @@ MEM_OPTS="-Xms768m -Xmx1280m -XX:MaxPermSize=256m"
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}
 
-CLASSPATH=lib/${PROJECTJAR}
+CLASSPATH="lib/${PROJECTJAR}"
 if [ -d lib/override ]; then
-  CLASSPATH=$(build_classpath lib/override):${CLASSPATH}
+  CLASSPATH="$(build_classpath lib/override):${CLASSPATH}"
 fi
-CLASSPATH=config:${CLASSPATH}
+CLASSPATH="config:${CLASSPATH}"
 
 RETVAL=0
 case "$1" in
