@@ -57,12 +57,6 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-component</artifactId>
-      <version>${project.version}</version>
-      <classifier>config</classifier>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
