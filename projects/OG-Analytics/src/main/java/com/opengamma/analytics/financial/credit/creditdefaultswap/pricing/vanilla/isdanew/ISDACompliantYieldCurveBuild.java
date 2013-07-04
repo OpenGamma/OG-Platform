@@ -14,9 +14,7 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
-import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -27,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class ISDACompliantYieldCurveBuild {
-  
+
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
   // private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
@@ -61,8 +59,8 @@ public class ISDACompliantYieldCurveBuild {
     // loop over the instruments and adjust the curve to price each in turn
     for (int i = 0; i < n; i++) {
       if (instrumentTypes[i] == ISDAInstrumentTypes.MoneyMarket) {
-      //TODO in ISDA  code money market instruments of less than 21 days have special treatment 
-        final double dt = moneyMarketDCC.getDayCountFraction(spotDate, adjMatDates[i]); 
+        //TODO in ISDA  code money market instruments of less than 21 days have special treatment 
+        final double dt = moneyMarketDCC.getDayCountFraction(spotDate, adjMatDates[i]);
         final double z = 1.0 / (1 + rates[i] * dt);
         curve = curve.withDiscountFactor(z, i);
       } else {
@@ -178,7 +176,7 @@ public class ISDACompliantYieldCurveBuild {
       for (int i = 0; i < _nPayments; i++, j--) {
         final LocalDate current = list.get(j);
         final LocalDate adjCurr = convention.adjustDate(DEFAULT_CALENDAR, current);
-        _paymentAmounts[i] = rate * swapDCC.getDayCountFraction(prev, adjCurr);       
+        _paymentAmounts[i] = rate * swapDCC.getDayCountFraction(prev, adjCurr);
         _swapPaymentTimes[i] = curveDCC.getDayCountFraction(spotDate, adjCurr); //Payment times always good business days 
         prev = adjCurr;
       }

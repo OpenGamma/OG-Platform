@@ -7,8 +7,6 @@ package com.opengamma.analytics.math.interpolation;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.Arrays;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -16,19 +14,18 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class NonnegativityPreservingCubicSplineInterpolator1DTest {
+public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
 
-  private static final NonnegativityPreservingCubicSplineInterpolator INTERP_NAT = new NonnegativityPreservingCubicSplineInterpolator(new NaturalSplineInterpolator());
-  private static final NonnegativityPreservingCubicSplineInterpolator1D INTERP1D_NAT = new NonnegativityPreservingCubicSplineInterpolator1D(new NaturalSplineInterpolator());
-  private static final NonnegativityPreservingCubicSplineInterpolator INTERP_NAK = new NonnegativityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
-  private static final NonnegativityPreservingCubicSplineInterpolator1D INTERP1D_NAK = new NonnegativityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
-  private static final NonnegativityPreservingCubicSplineInterpolator INTERP_AKIMA = new NonnegativityPreservingCubicSplineInterpolator(new SemiLocalCubicSplineInterpolator());
-  private static final NonnegativityPreservingCubicSplineInterpolator1D INTERP1D_AKIMA = new NonnegativityPreservingCubicSplineInterpolator1D(new SemiLocalCubicSplineInterpolator());
+  private static final NonnegativityPreservingQuinticSplineInterpolator INTERP_NAT = new NonnegativityPreservingQuinticSplineInterpolator(new NaturalSplineInterpolator());
+  private static final NonnegativityPreservingQuinticSplineInterpolator1D INTERP1D_NAT = new NonnegativityPreservingQuinticSplineInterpolator1D(new NaturalSplineInterpolator());
+  private static final NonnegativityPreservingQuinticSplineInterpolator INTERP_NAK = new NonnegativityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
+  private static final NonnegativityPreservingQuinticSplineInterpolator1D INTERP1D_NAK = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
 
   private static final double EPS = 1.e-7;
 
   /**
    * Recovery test on polynomial, rational, exponential functions, and node sensitivity test by finite difference method
+   * Note that interpolations producing a C1 curve is not appropriate in this case. Matching with the finite difference approximation requires smooth second derivative
    */
   @Test
   public void sampleFunctionTest() {
@@ -67,8 +64,8 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final NonnegativityPreservingCubicSplineInterpolator[] bareInterp = new NonnegativityPreservingCubicSplineInterpolator[] {INTERP_NAT, INTERP_NAK, INTERP_AKIMA };
-    final NonnegativityPreservingCubicSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK, INTERP1D_AKIMA };
+    final NonnegativityPreservingQuinticSplineInterpolator[] bareInterp = new NonnegativityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
+    final NonnegativityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
@@ -83,9 +80,9 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
         final double ref1 = resPrim1[i];
         final double ref2 = resPrim2[i];
         final double ref3 = resPrim3[i];
-        assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-        assertEquals(ref2, wrappedInterp[k].interpolate(dataBund2, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref2), 1.));
-        assertEquals(ref3, wrappedInterp[k].interpolate(dataBund3, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref3), 1.));
+        assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref1), 1.));
+        assertEquals(ref2, wrappedInterp[k].interpolate(dataBund2, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref2), 1.));
+        assertEquals(ref3, wrappedInterp[k].interpolate(dataBund3, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref3), 1.));
       }
 
       for (int j = 0; j < nData; ++j) {
@@ -159,8 +156,8 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final NonnegativityPreservingCubicSplineInterpolator[] bareInterp = new NonnegativityPreservingCubicSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
-    final NonnegativityPreservingCubicSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
+    final NonnegativityPreservingQuinticSplineInterpolator[] bareInterp = new NonnegativityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
+    final NonnegativityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
@@ -175,9 +172,9 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
         final double ref1 = resPrim1[i];
         final double ref2 = resPrim2[i];
         final double ref3 = resPrim3[i];
-        assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-        assertEquals(ref2, wrappedInterp[k].interpolate(dataBund2, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref2), 1.));
-        assertEquals(ref3, wrappedInterp[k].interpolate(dataBund3, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref3), 1.));
+        assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref1), 1.));
+        assertEquals(ref2, wrappedInterp[k].interpolate(dataBund2, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref2), 1.));
+        assertEquals(ref3, wrappedInterp[k].interpolate(dataBund3, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref3), 1.));
       }
 
       for (int j = 0; j < nData; ++j) {
@@ -206,7 +203,7 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
           //          INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i]);
           assertEquals(res1, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 10.);
           assertEquals(res2, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j], Math.max(Math.abs(yValues2[j]) * EPS, EPS) * 10.);
-          assertEquals(res3, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j], Math.max(Math.abs(yValues3[j]) * EPS, EPS) * 10.);
+          assertEquals(res3, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j], Math.max(Math.abs(yValues3[j]) * EPS, EPS) * 100.);
           //          if (j == 1) {
           //            System.out.println(xKeys[i] + "\t" + wrappedInterp[k].interpolate(dataBund2, xKeys[i]) + "\t" + wrappedInterp[k].interpolate(dataBund2Up, xKeys[i]) + "\t" +
           //                wrappedInterp[k].interpolate(dataBund2Dw, xKeys[i]));
@@ -221,40 +218,4 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
       }
     }
   }
-
-  @Test
-  public void linearDataTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8. };
-    //    final double[] yValues = new double[] {1., 3., 5., 7., 9., 11., 13., 15. };
-    final double[] yValues = new double[] {1., 1., 1., 1., 1., 1., 1., 1. };
-    final int nData = xValues.length;
-    double[] yValuesUp = Arrays.copyOf(yValues, nData);
-    double[] yValuesDw = Arrays.copyOf(yValues, nData);
-    final double[] xKeys = new double[10 * nData];
-    final double xMin = xValues[0];
-    final double xMax = xValues[nData - 1];
-    for (int i = 0; i < 10 * nData; ++i) {
-      xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-    }
-
-    Interpolator1DDataBundle dataBund = INTERP1D_NAT.getDataBundleFromSortedArrays(xValues, yValues);
-
-    for (int j = 1; j < nData; ++j) {
-      yValuesUp[j] = yValues[j] * (1. + EPS);
-      yValuesDw[j] = yValues[j] * (1. - EPS);
-      Interpolator1DDataBundle dataBundUp = INTERP1D_NAT.getDataBundle(xValues, yValuesUp);
-      Interpolator1DDataBundle dataBundDw = INTERP1D_NAT.getDataBundle(xValues, yValuesDw);
-      for (int i = 0; i < 10 * nData; ++i) {
-        double res0 = 0.5 * (INTERP1D_NAT.interpolate(dataBundUp, xKeys[i]) - INTERP1D_NAT.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        double res1 = (INTERP1D_NAT.interpolate(dataBundUp, xKeys[i]) - INTERP1D_NAT.interpolate(dataBund, xKeys[i])) / EPS / yValues[j];
-        double res2 = (INTERP1D_NAT.interpolate(dataBund, xKeys[i]) - INTERP1D_NAT.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        //        System.out.println(res0 + "\t" + res1 + "\t" + res2 + "\t" + INTERP1D_NAT.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j]);
-        assertEquals(res0, INTERP1D_NAT.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[j]) * EPS, EPS));
-      }
-      yValuesUp[j] = yValues[j];
-      yValuesDw[j] = yValues[j];
-      //      System.out.println("\n");
-    }
-  }
-
 }

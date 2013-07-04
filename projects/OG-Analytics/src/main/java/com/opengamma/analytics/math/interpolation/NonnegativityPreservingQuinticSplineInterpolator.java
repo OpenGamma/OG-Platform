@@ -7,9 +7,8 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.NotImplementedException;
-
-import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
+import com.google.common.primitives.Doubles;
+import com.opengamma.analytics.math.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -26,7 +25,7 @@ import com.opengamma.util.ParallelArrayBinarySort;
 public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewisePolynomialInterpolator {
 
   private final HermiteCoefficientsProvider _solver = new HermiteCoefficientsProvider();
-  private final PiecewisePolynomialFunction1D _function = new PiecewisePolynomialFunction1D();
+  private final PiecewisePolynomialWithSensitivityFunction1D _function = new PiecewisePolynomialWithSensitivityFunction1D();
   private PiecewisePolynomialInterpolator _method;
 
   /**
@@ -173,8 +172,70 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
 
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
-    throw new NotImplementedException();
-    //TODO Implement sensitivity calculator
+    ArgumentChecker.notNull(xValues, "xValues");
+    ArgumentChecker.notNull(yValues, "yValues");
+
+    ArgumentChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgumentChecker.isTrue(xValues.length > 2, "Data points should be more than 2");
+
+    final int nDataPts = xValues.length;
+    final int yValuesLen = yValues.length;
+
+    for (int i = 0; i < nDataPts; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(xValues[i]), "xValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(xValues[i]), "xValues containing Infinity");
+    }
+    for (int i = 0; i < yValuesLen; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(yValues[i]), "yValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
+    }
+
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = i + 1; j < nDataPts; ++j) {
+        ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
+      }
+    }
+
+    double[] yValuesSrt = new double[nDataPts];
+    if (nDataPts == yValuesLen) {
+      yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    } else {
+      yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
+    }
+
+    final double[] intervals = _solver.intervalsCalculator(xValues);
+    final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
+    final PiecewisePolynomialResultsWithSensitivity resultWithSensitivity = _method.interpolateWithSensitivity(xValues, yValues);
+
+    ArgumentChecker.isTrue(resultWithSensitivity.getOrder() == 4, "Primary interpolant is not cubic");
+
+    final double[] initialFirst = _function.differentiate(resultWithSensitivity, xValues).getData()[0];
+    final double[] initialSecond = _function.differentiateTwice(resultWithSensitivity, xValues).getData()[0];
+    final double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
+    final DoubleMatrix1D[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
+    final DoubleMatrix1D[] initialSecondSense = _function.differentiateTwiceNodeSensitivity(resultWithSensitivity, xValues);
+    //    final double[] first = firstDerivativeCalculator(yValuesSrt, intervals, slopes, initialFirst);
+    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(yValuesSrt, intervals, initialFirst, initialFirstSense);
+    final DoubleMatrix1D[] secondWithSensitivity = secondDerivativeWithSensitivityCalculator(yValues, intervals, firstWithSensitivity, initialSecond, initialSecondSense);
+    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValues, intervals, slopes, slopeSensitivity, firstWithSensitivity, secondWithSensitivity);
+
+    for (int k = 0; k < nDataPts; k++) {
+      DoubleMatrix2D m = resMatrix[k];
+      final int rows = m.getNumberOfRows();
+      final int cols = m.getNumberOfColumns();
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          ArgumentChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+        }
+      }
+    }
+
+    final DoubleMatrix2D coefMatrix = resMatrix[0];
+    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
+    System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
+    final int nCoefs = coefMatrix.getNumberOfColumns();
+
+    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 
   /**
@@ -191,12 +252,12 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
 
     for (int i = 1; i < nDataPts - 1; ++i) {
       final double tau = Math.signum(yValues[i]);
-      res[i] = tau == 0. ? 0. : Math.min(5. * tau * yValues[i] / intervals[i - 1], Math.max(-5. * tau * yValues[i] / intervals[i], tau * initialFirst[i])) / tau;
+      res[i] = tau == 0. ? initialFirst[i] : Math.min(5. * tau * yValues[i] / intervals[i - 1], Math.max(-5. * tau * yValues[i] / intervals[i], tau * initialFirst[i])) / tau;
     }
     final double tauIni = Math.signum(yValues[0]);
     final double tauFin = Math.signum(yValues[nDataPts - 1]);
-    res[0] = tauIni == 0. ? 0. : Math.min(5. * tauIni * yValues[0] / intervals[0], Math.max(-5. * tauIni * yValues[0] / intervals[0], tauIni * initialFirst[0])) / tauIni;
-    res[nDataPts - 1] = tauFin == 0. ? 0. : Math.min(5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2],
+    res[0] = tauIni == 0. ? initialFirst[0] : Math.min(5. * tauIni * yValues[0] / intervals[0], Math.max(-5. * tauIni * yValues[0] / intervals[0], tauIni * initialFirst[0])) / tauIni;
+    res[nDataPts - 1] = tauFin == 0. ? initialFirst[nDataPts - 1] : Math.min(5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2],
         Math.max(-5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2], tauFin * initialFirst[nDataPts - 1])) /
         tauFin;
 
@@ -209,22 +270,232 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
 
     for (int i = 1; i < nDataPts - 1; ++i) {
       final double tau = Math.signum(yValues[i]);
-      res[i] = tau == 0. ? 0. : Math.max(initialSecond[i] * tau,
+      res[i] = tau == 0. ? initialSecond[i] : Math.max(initialSecond[i] * tau,
           tau * Math.max(8. * first[i] / intervals[i - 1] - 20. * yValues[i] / intervals[i - 1] / intervals[i - 1], -8. * first[i] / intervals[i] - 20. * yValues[i] / intervals[i] / intervals[i])) /
           tau;
     }
     final double tauIni = Math.signum(yValues[0]);
     final double tauFin = Math.signum(yValues[nDataPts - 1]);
-    res[0] = tauIni == 0. ? 0. : Math.max(initialSecond[0] * tauIni,
+    res[0] = tauIni == 0. ? initialSecond[0] : Math.max(initialSecond[0] * tauIni,
         tauIni * Math.max(8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0], -8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0])) /
         tauIni;
-    res[nDataPts - 1] = tauFin == 0. ? 0. : Math.max(
-        initialSecond[0] * tauFin,
+    res[nDataPts - 1] = tauFin == 0. ? initialSecond[nDataPts - 1] : Math.max(
+        initialSecond[nDataPts - 1] * tauFin,
         tauFin *
             Math.max(8. * first[nDataPts - 1] / intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2], -8. * first[nDataPts - 1] /
                 intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2])) / tauFin;
-    ;
 
+    return res;
+  }
+
+  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] yValues, final double[] intervals, final double[] initialFirst,
+      final DoubleMatrix1D[] initialFirstSense) {
+    final int nDataPts = yValues.length;
+    final DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
+    final double[] newFirst = new double[nDataPts];
+
+    for (int i = 1; i < nDataPts - 1; ++i) {
+      final double tau = Math.signum(yValues[i]);
+      final double[] tmp = new double[nDataPts];
+      if (tau == 0.) {
+        newFirst[i] = initialFirst[i];
+        System.arraycopy(initialFirstSense[i].getData(), 0, tmp, 0, nDataPts);
+      } else {
+        final double lower = -5. * tau * yValues[i] / intervals[i];
+        final double upper = 5. * tau * yValues[i] / intervals[i - 1];
+        final double ref = tau * initialFirst[i];
+        Arrays.fill(tmp, 0.);
+        if (ref < lower) {
+          newFirst[i] = lower / tau;
+          tmp[i] = -5. / intervals[i];
+        } else {
+          if (ref > upper) {
+            newFirst[i] = upper / tau;
+            tmp[i] = 5. / intervals[i - 1];
+          } else {
+            newFirst[i] = initialFirst[i];
+            System.arraycopy(initialFirstSense[i].getData(), 0, tmp, 0, nDataPts);
+          }
+        }
+      }
+      res[i + 1] = new DoubleMatrix1D(tmp);
+    }
+    final double tauIni = Math.signum(yValues[0]);
+    final double[] tmpIni = new double[nDataPts];
+    if (tauIni == 0.) {
+      newFirst[0] = initialFirst[0];
+      System.arraycopy(initialFirstSense[0].getData(), 0, tmpIni, 0, nDataPts);
+    } else {
+      final double lowerIni = -5. * tauIni * yValues[0] / intervals[0];
+      final double upperIni = 5. * tauIni * yValues[0] / intervals[0];
+      final double refIni = tauIni * initialFirst[0];
+      Arrays.fill(tmpIni, 0.);
+      if (refIni < lowerIni) {
+        newFirst[0] = lowerIni / tauIni;
+        tmpIni[0] = -5. / intervals[0];
+      } else {
+        if (refIni > upperIni) {
+          newFirst[0] = upperIni / tauIni;
+          tmpIni[0] = 5. / intervals[0];
+        } else {
+          newFirst[0] = initialFirst[0];
+          System.arraycopy(initialFirstSense[0].getData(), 0, tmpIni, 0, nDataPts);
+        }
+      }
+    }
+    res[1] = new DoubleMatrix1D(tmpIni);
+    final double[] tmpFin = new double[nDataPts];
+    final double tauFin = Math.signum(yValues[nDataPts - 1]);
+    if (tauFin == 0.) {
+      newFirst[nDataPts - 1] = initialFirst[nDataPts - 1];
+      System.arraycopy(initialFirstSense[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
+    } else {
+      final double lowerFin = -5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
+      final double upperFin = 5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
+      final double refFin = tauFin * initialFirst[nDataPts - 1];
+      Arrays.fill(tmpFin, 0.);
+      if (refFin < lowerFin) {
+        newFirst[nDataPts - 1] = lowerFin / tauFin;
+        tmpFin[nDataPts - 1] = -5. / intervals[nDataPts - 2];
+      } else {
+        if (refFin > upperFin) {
+          newFirst[nDataPts - 1] = upperFin / tauFin;
+          tmpFin[nDataPts - 1] = 5. / intervals[nDataPts - 2];
+        } else {
+          newFirst[nDataPts - 1] = initialFirst[nDataPts - 1];
+          System.arraycopy(initialFirstSense[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
+        }
+      }
+    }
+    res[nDataPts] = new DoubleMatrix1D(tmpFin);
+    res[0] = new DoubleMatrix1D(newFirst);
+
+    return res;
+  }
+
+  private DoubleMatrix1D[] secondDerivativeWithSensitivityCalculator(final double[] yValues, final double[] intervals, final DoubleMatrix1D[] firstWithSensitivity, final double[] initialSecond,
+      final DoubleMatrix1D[] secondSensitivity) {
+    final int nDataPts = yValues.length;
+    final double[] first = firstWithSensitivity[0].getData();
+    DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
+    final double[] newSecond = new double[nDataPts];
+
+    for (int i = 1; i < nDataPts - 1; ++i) {
+      final double tau = Math.signum(yValues[i]);
+      final double[] tmp = new double[nDataPts];
+      Arrays.fill(tmp, 0.);
+      if (tau == 0.) {
+        newSecond[i] = initialSecond[i];
+        System.arraycopy(secondSensitivity[i].getData(), 0, tmp, 0, nDataPts);
+      } else {
+        final double ref1 = 8. * first[i] / intervals[i - 1] - 20. * yValues[i] / intervals[i - 1] / intervals[i - 1];
+        final double ref2 = -8. * first[i] / intervals[i] - 20. * yValues[i] / intervals[i] / intervals[i];
+        if (ref1 == ref2 && ref1 * tau > tau * initialSecond[i]) {
+          newSecond[i] = ref1;
+          for (int k = 0; k < nDataPts; ++k) {
+            tmp[k] = 4. * firstWithSensitivity[i + 1].getEntry(k) * (1. / intervals[i - 1] - 1. / intervals[i]);
+          }
+          tmp[i] -= 10. * (1. / intervals[i - 1] / intervals[i - 1] + 1. / intervals[i] / intervals[i]);
+        } else {
+          if (ref1 > ref2 && ref1 * tau > tau * initialSecond[i]) {
+            newSecond[i] = ref1;
+            for (int k = 0; k < nDataPts; ++k) {
+              tmp[k] = 8. * firstWithSensitivity[i + 1].getEntry(k) / intervals[i - 1];
+            }
+            tmp[i] -= 20. / intervals[i - 1] / intervals[i - 1];
+          } else {
+            if (ref1 < ref2 && ref2 * tau > tau * initialSecond[i]) {
+              newSecond[i] = ref2;
+              for (int k = 0; k < nDataPts; ++k) {
+                tmp[k] = -8. * firstWithSensitivity[i + 1].getEntry(k) / intervals[i];
+              }
+              tmp[i] -= 20. / intervals[i] / intervals[i];
+            } else {
+              newSecond[i] = initialSecond[i];
+              System.arraycopy(secondSensitivity[i].getData(), 0, tmp, 0, nDataPts);
+            }
+          }
+        }
+      }
+      res[i + 1] = new DoubleMatrix1D(tmp);
+    }
+    final double tauIni = Math.signum(yValues[0]);
+    final double[] tmpIni = new double[nDataPts];
+    Arrays.fill(tmpIni, 0.);
+    if (tauIni == 0.) {
+      newSecond[0] = initialSecond[0];
+      System.arraycopy(secondSensitivity[0].getData(), 0, tmpIni, 0, nDataPts);
+    } else {
+      final double ref1 = 8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0];
+      final double ref2 = -8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0];
+      if (ref1 == ref2 && ref1 * tauIni > tauIni * initialSecond[0]) {
+        newSecond[0] = ref1;
+        tmpIni[0] -= 20. / intervals[0] / intervals[0];
+      } else {
+        if (ref1 > ref2 && ref1 * tauIni > tauIni * initialSecond[0]) {
+          newSecond[0] = ref1;
+          for (int k = 0; k < nDataPts; ++k) {
+            tmpIni[k] = 8. * firstWithSensitivity[1].getEntry(k) / intervals[0];
+          }
+          tmpIni[0] -= 20. / intervals[0] / intervals[0];
+        } else {
+          if (ref1 < ref2 && ref2 * tauIni > tauIni * initialSecond[0]) {
+            newSecond[0] = ref2;
+            for (int k = 0; k < nDataPts; ++k) {
+              tmpIni[k] = -8. * firstWithSensitivity[1].getEntry(k) / intervals[0];
+            }
+            tmpIni[0] -= 20. / intervals[0] / intervals[0];
+          } else {
+            newSecond[0] = initialSecond[0];
+            System.arraycopy(secondSensitivity[0].getData(), 0, tmpIni, 0, nDataPts);
+          }
+        }
+      }
+    }
+    res[1] = new DoubleMatrix1D(tmpIni);
+    final double tauFin = Math.signum(yValues[nDataPts - 1]);
+    final double[] tmpFin = new double[nDataPts];
+    Arrays.fill(tmpFin, 0.);
+    if (tauFin == 0.) {
+      newSecond[nDataPts - 1] = initialSecond[nDataPts - 1];
+      System.arraycopy(secondSensitivity[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
+    } else {
+      final double ref1 = 8. * first[nDataPts - 1] / intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2];
+      final double ref2 = -8. * first[nDataPts - 1] / intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2];
+      if (ref1 == ref2 && ref1 * tauFin > tauFin * initialSecond[nDataPts - 1]) {
+        newSecond[nDataPts - 1] = ref1;
+        tmpFin[nDataPts - 1] -= 20. / intervals[nDataPts - 2] / intervals[nDataPts - 2];
+      } else {
+        if (ref1 > ref2 && ref1 * tauFin > tauFin * initialSecond[nDataPts - 1]) {
+          newSecond[nDataPts - 1] = ref1;
+          for (int k = 0; k < nDataPts; ++k) {
+            tmpFin[k] = 8. * firstWithSensitivity[nDataPts].getEntry(k) / intervals[nDataPts - 2];
+          }
+          tmpFin[nDataPts - 1] -= 20. / intervals[nDataPts - 2] / intervals[nDataPts - 2];
+        } else {
+          if (ref1 < ref2 && ref2 * tauFin > tauFin * initialSecond[nDataPts - 1]) {
+            newSecond[nDataPts - 1] = ref2;
+            for (int k = 0; k < nDataPts; ++k) {
+              tmpFin[k] = -8. * firstWithSensitivity[nDataPts].getEntry(k) / intervals[nDataPts - 2];
+            }
+            tmpFin[nDataPts - 1] -= 20. / intervals[nDataPts - 2] / intervals[nDataPts - 2];
+          } else {
+            newSecond[nDataPts - 1] = initialSecond[nDataPts - 1];
+            System.arraycopy(secondSensitivity[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
+          }
+        }
+      }
+    }
+    res[nDataPts] = new DoubleMatrix1D(tmpFin);
+    //    newSecond[0] = tauIni == 0. ? 0. : Math.max(initialSecond[0] * tauIni,
+    //        tauIni * Math.max(8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0], -8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0])) /
+    //        tauIni;
+    //    newSecond[nDataPts - 1] = tauFin == 0. ? 0. : Math.max(
+    //        initialSecond[0] * tauFin,
+    //        tauFin *
+    //            Math.max(8. * first[nDataPts - 1] / intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2], -8. * first[nDataPts - 1] /
+    //                intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2])) / tauFin;
+    res[0] = new DoubleMatrix1D(newSecond);
     return res;
   }
 }
