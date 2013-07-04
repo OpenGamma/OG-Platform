@@ -25,6 +25,7 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.id.ExternalId;
@@ -148,6 +149,31 @@ import com.opengamma.util.time.Tenor;
       final String issuerName = message.getString(ISSUER_NAME_FIELD);
       final String underlyingReference = message.getString(UNDERLYING_REFERENCE_FIELD);
       final IssuerCurveTypeConfiguration configuration = new IssuerCurveTypeConfiguration(issuerName, underlyingReference);
+      return configuration;
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link InflationCurveTypeConfiguration}
+   */
+  @FudgeBuilderFor(InflationCurveTypeConfiguration.class)
+  public static class InflationCurveTypeConfigurationBuilder implements FudgeBuilder<InflationCurveTypeConfiguration> {
+    /** The reference field */
+    private static final String REFERENCE_FIELD = "reference";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InflationCurveTypeConfiguration object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      serializer.addToMessage(message, REFERENCE_FIELD, null, object.getReference());
+      return message;
+    }
+
+    @Override
+    public InflationCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String reference = message.getString(REFERENCE_FIELD);
+      final InflationCurveTypeConfiguration configuration = new InflationCurveTypeConfiguration(reference);
       return configuration;
     }
 
