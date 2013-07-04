@@ -55,9 +55,6 @@ public class HermiteCoefficientsProvider {
 
     double[][] coef = solve(values, intervals, slopes, first);
     res[0] = new DoubleMatrix2D(coef);
-    for (int i = 0; i < nData - 1; ++i) {
-      Arrays.fill(coef[i], 0.);
-    }
 
     for (int i = 0; i < nData - 1; ++i) {
       final double[][] coefSense = new double[4][nData];
@@ -122,22 +119,19 @@ public class HermiteCoefficientsProvider {
 
     double[][] coef = solve(values, intervals, slopes, first, second);
     res[0] = new DoubleMatrix2D(coef);
-    for (int i = 0; i < nData - 1; ++i) {
-      Arrays.fill(coef[i], 0.);
-    }
 
     for (int i = 0; i < nData - 1; ++i) {
-      final double[][] coefSense = new double[4][nData];
-      coefSense[0][i] = 1.;
+      final double[][] coefSense = new double[6][nData];
+      coefSense[5][i] = 1.;
       for (int k = 0; k < nData; ++k) {
-        coefSense[5][k] = 0.5 * (secondWithSensitivity[i + 1].getData()[k] - secondWithSensitivity[i].getData()[k]) / intervals[i] / intervals[i] / intervals[i] + 3. *
-            (2. * slopeSensitivity[i][k] - firstWithSensitivity[i + 1].getData()[k] - firstWithSensitivity[i].getData()[k]) / intervals[i] / intervals[i] / intervals[i] / intervals[i];
-        coefSense[4][k] = 0.5 * (3. * secondWithSensitivity[i].getData()[k] - 2. * secondWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i] +
-            (8. * firstWithSensitivity[i].getData()[k] + 7. * firstWithSensitivity[i + 1].getData()[k] - 15. * slopeSensitivity[i][k]) / intervals[i] / intervals[i] / intervals[i];
-        coefSense[3][k] = 0.5 * (secondWithSensitivity[i + 1].getData()[k] - 3. * secondWithSensitivity[i].getData()[k]) / intervals[i] + 2. *
-            (5. * slopeSensitivity[i][k] - 3. * firstWithSensitivity[i].getData()[k] - 2. * firstWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i];
-        coefSense[2][k] = 0.5 * secondWithSensitivity[i + 1].getData()[k];
-        coefSense[1][k] = firstWithSensitivity[i + 1].getData()[k];
+        coefSense[0][k] = 0.5 * (secondWithSensitivity[i + 2].getData()[k] - secondWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i] / intervals[i] + 3. *
+            (2. * slopeSensitivity[i][k] - firstWithSensitivity[i + 2].getData()[k] - firstWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i] / intervals[i] / intervals[i];
+        coefSense[1][k] = 0.5 * (3. * secondWithSensitivity[i + 1].getData()[k] - 2. * secondWithSensitivity[i + 2].getData()[k]) / intervals[i] / intervals[i] +
+            (8. * firstWithSensitivity[i + 1].getData()[k] + 7. * firstWithSensitivity[i + 2].getData()[k] - 15. * slopeSensitivity[i][k]) / intervals[i] / intervals[i] / intervals[i];
+        coefSense[2][k] = 0.5 * (secondWithSensitivity[i + 2].getData()[k] - 3. * secondWithSensitivity[i + 1].getData()[k]) / intervals[i] + 2. *
+            (5. * slopeSensitivity[i][k] - 3. * firstWithSensitivity[i + 1].getData()[k] - 2. * firstWithSensitivity[i + 2].getData()[k]) / intervals[i] / intervals[i];
+        coefSense[3][k] = 0.5 * secondWithSensitivity[i + 1].getData()[k];
+        coefSense[4][k] = firstWithSensitivity[i + 1].getData()[k];
       }
       res[i + 1] = new DoubleMatrix2D(coefSense);
     }

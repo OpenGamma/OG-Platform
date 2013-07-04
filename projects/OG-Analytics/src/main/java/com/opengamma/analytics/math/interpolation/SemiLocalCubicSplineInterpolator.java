@@ -162,7 +162,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     final double[] intervals = _solver.intervalsCalculator(xValues);
     final double[] slopes = _solver.slopesCalculator(yValues, intervals);
     final double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
-    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(slopes, slopeSensitivity);
+    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(intervals, slopes, slopeSensitivity);
     final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValues, intervals, slopes, slopeSensitivity, firstWithSensitivity);
 
     for (int k = 0; k < nDataPts; k++) {
@@ -217,8 +217,9 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     return res;
   }
 
-  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] slopes, final double[][] slopeSensitivity) {
+  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] intervals, final double[] slopes, final double[][] slopeSensitivity) {
     final int nData = slopes.length + 1;
+    final double[] intervalsExt = getExtraPoints(intervals);
     final double[] slopesExt = getExtraPoints(slopes);
     final double[][] slopeSensitivityExtTransp = new double[nData][nData + 3];
     final DoubleMatrix1D[] res = new DoubleMatrix1D[nData + 1];
@@ -242,7 +243,8 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
         for (int k = 0; k < i; ++k) {
           tmp[k] = slopeSensitivityExtTransp[k][i + 2];
         }
-        tmp[i] = 0.5 * (slopeSensitivityExtTransp[i][i + 1] + slopeSensitivityExtTransp[i][i + 2]);
+        tmp[i] = 0.5 * (intervalsExt[i + 1] * slopeSensitivityExtTransp[i][i + 1] + intervalsExt[i + 2] * slopeSensitivityExtTransp[i][i + 2]) /
+            (intervalsExt[i + 2] + intervalsExt[i + 1]);
         for (int k = i + 1; k < nData; ++k) {
           tmp[k] = slopeSensitivityExtTransp[k][i + 1];
         }

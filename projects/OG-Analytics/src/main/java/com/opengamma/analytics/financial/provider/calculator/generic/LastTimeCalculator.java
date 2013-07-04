@@ -304,7 +304,7 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
 
   @Override
   public Double visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
-    return coupon.getReferenceEndTime()[0];
+    return coupon.getPaymentTime();
   }
 
 }

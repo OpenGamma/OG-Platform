@@ -75,7 +75,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     DoubleMatrix2D[] coefMatrixSense = new DoubleMatrix2D[n - 1];
     System.arraycopy(temp, 1, coefMatrixSense, 0, n - 1);
 
-    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValuesSrt), coefMatrix, nDataPts, 1, coefMatrixSense);
+    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValuesSrt), coefMatrix, 4, 1, coefMatrixSense);
   }
 
   /**
