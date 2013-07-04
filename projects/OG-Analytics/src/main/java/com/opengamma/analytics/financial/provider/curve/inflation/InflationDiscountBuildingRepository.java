@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.inflation;
@@ -37,8 +37,8 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Functions to build inflation curves.
- * TODO: REVIEW: Embed in a better object.
  */
+// TODO: REVIEW: Embed in a better object.
 public class InflationDiscountBuildingRepository {
 
   /**
@@ -100,11 +100,9 @@ public class InflationDiscountBuildingRepository {
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new InflationDiscountFinderFunction(calculator, data);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new InflationDiscountFinderJacobian(new ParameterSensitivityInflationMatrixCalculator(sensitivityCalculator),
         data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
-    //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<InflationProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
+    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -116,7 +114,7 @@ public class InflationDiscountBuildingRepository {
    * @param forwardIborMap The forward curves names map.
    * @param forwardONMap The forward curves names map.
    * @param generatorsMap The generators map.
-   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadMarketQuoteCalculator (recommended) or converted present value).
+   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return The new curves and the calibrated parameters.
    */
@@ -130,11 +128,9 @@ public class InflationDiscountBuildingRepository {
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new InflationDiscountFinderFunction(calculator, data);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new InflationDiscountFinderJacobian(new ParameterSensitivityInflationMatrixCalculator(sensitivityCalculator),
         data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
-    //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<InflationProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
+    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -149,11 +145,11 @@ public class InflationDiscountBuildingRepository {
    * @param forwardONMap The forward curves names map.
    * @param generatorsMap The generators map.
    * @param sensitivityCalculator The parameter sensitivity calculator for the value on which the calibration is done
-  (usually ParSpreadMarketQuoteDiscountingProviderCalculator (recommended) or converted present value).
+  (usually ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator (recommended) or converted present value).
    * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
-   * TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
    */
+  // TODO: Currently only for the ParSpreadInflationMarketQuoteDiscountingCalculator.
   private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters,
       final InflationProviderDiscount knownData,
       final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
@@ -162,8 +158,6 @@ public class InflationDiscountBuildingRepository {
     final InflationDiscountBuildingData data = new InflationDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new InflationDiscountFinderJacobian(new ParameterSensitivityInflationMatrixCalculator(sensitivityCalculator),
         data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator =
-    //                new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
     final double[][] matrixTotal = inverseJacobian.getData();
@@ -192,10 +186,9 @@ public class InflationDiscountBuildingRepository {
    * @param forwardONMap The forward curves names map.
    * @param generatorsMap The generators map.
    * @param sensitivityCalculator The parameter sensitivity calculator for the value on which the calibration is done
-  (usually ParSpreadMarketQuoteDiscountingProviderCalculator (recommended) or converted present value).
+  (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
    * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
-   * TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
    */
   private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters,
       final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
@@ -205,8 +198,6 @@ public class InflationDiscountBuildingRepository {
     final InflationDiscountBuildingData data = new InflationDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new InflationDiscountFinderJacobian(new ParameterSensitivityInflationMatrixCalculator(sensitivityCalculator),
         data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator =
-    //                new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
     final double[][] matrixTotal = inverseJacobian.getData();
@@ -231,7 +222,7 @@ public class InflationDiscountBuildingRepository {
    * @param parametersGuess The initial guess for the parameters. As an array of arrays, representing the units and the parameters for one unit (all the curves of the unit concatenated).
    * @param knownData The known data (fx rates, other curves, model parameters, ...)
    * @param inflationMap The inflation curves names map.
-   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadMarketQuoteCalculator (recommended) or converted present value).
+   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
@@ -298,7 +289,7 @@ public class InflationDiscountBuildingRepository {
    * @param discountingMap The discount curves names map.
    * @param forwardONMap The ON curves names map.
    * @param inflationMap The inflation curves names map.
-   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadMarketQuoteCalculator (recommended) or converted present value).
+   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */

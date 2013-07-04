@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fudgemsg;
@@ -21,6 +21,7 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -114,6 +115,31 @@ public final class AnalyticsParameterProviderBuilders {
       message.add(NAME_FIELD, object.getName());
       message.add(DAY_COUNT_FIELD, object.getDayCount().getConventionName());
       message.add(PUBLICATION_LAG_FIELD, object.getPublicationLag());
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link IndexPrice}
+   */
+  @FudgeBuilderFor(IndexPrice.class)
+  public static class IndexPriceBuilder extends AbstractFudgeBuilder<IndexPrice> {
+    /** Name field */
+    private static final String NAME_FIELD = "name";
+    /** Currencies field */
+    private static final String CURRENCY_FIELD = "currency";
+
+    @Override
+    public IndexPrice buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
+      return new IndexPrice(name, currency);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IndexPrice object) {
+      message.add(NAME_FIELD, object.getName());
+      message.add(CURRENCY_FIELD, object.getCurrency().getCode());
     }
 
   }
