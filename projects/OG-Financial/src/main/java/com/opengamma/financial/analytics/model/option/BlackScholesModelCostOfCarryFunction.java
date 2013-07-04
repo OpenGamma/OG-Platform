@@ -33,6 +33,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
  */
+@Deprecated
 public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
