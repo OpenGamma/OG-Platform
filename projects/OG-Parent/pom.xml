@@ -928,6 +928,20 @@
   </dependencies>
 
   <!-- ==================================================================== -->
+  <distributionManagement>
+    <repository>
+      <id>og-public-release</id>
+      <name>OpenGamma public maven repository</name>
+      <url>${og-public-release.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>og-public-snapshot</id>
+      <name>OpenGamma public snapshot maven repository</name>
+      <url>${og-public-snapshot.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
   <profiles>
     <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
     <profile>
