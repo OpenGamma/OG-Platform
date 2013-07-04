@@ -97,7 +97,7 @@
             <configuration>
               <descriptors>
                 <descriptor>src/main/assembly/assembly-server.xml</descriptor>
-                <descriptor>src/main/assembly/assembly-server-win.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-server-windows.xml</descriptor>
               </descriptors>
               <tarLongFileMode>gnu</tarLongFileMode>
               <attach>false</attach>
