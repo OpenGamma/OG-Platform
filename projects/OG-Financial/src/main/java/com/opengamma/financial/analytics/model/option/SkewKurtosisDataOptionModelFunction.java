@@ -22,8 +22,9 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
 
 /**
- * 
+ *
  */
+@Deprecated
 public abstract class SkewKurtosisDataOptionModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
 
   @Override

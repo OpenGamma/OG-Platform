@@ -24,6 +24,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Zero-coupon inflation curve node.
  */
+//TODO do we need a start tenor and maturity tenor?
 @BeanDefinition
 public class ZeroCouponInflationNode extends CurveNode {
 
@@ -40,7 +41,7 @@ public class ZeroCouponInflationNode extends CurveNode {
    * The zero-coupon convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _zeroCouponConvention;
+  private ExternalId _inflationLegConvention;
 
   /**
    * The fixed leg convention.
@@ -49,38 +50,49 @@ public class ZeroCouponInflationNode extends CurveNode {
   private ExternalId _fixedLegConvention;
 
   /**
+   * Flag indicating the inflation node type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private InflationNodeType _inflationNodeType;
+
+  /**
    * For the builder.
    */
   /* package */ ZeroCouponInflationNode() {
-
+    super();
   }
 
   /**
    * @param tenor The tenor, not null
-   * @param zeroCouponConvention The zero coupon convention id, not null
+   * @param inflationLegConvention The inflation leg convention id, not null
    * @param fixedLegConvention The fixed leg convention id, not null
+   * @param inflationNodeType The inflation node type, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId zeroCouponConvention, final ExternalId fixedLegConvention, final String curveNodeIdMapperName) {
+  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId inflationLegConvention, final ExternalId fixedLegConvention,
+      final InflationNodeType inflationNodeType, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     setTenor(tenor);
-    setZeroCouponConvention(zeroCouponConvention);
+    setInflationLegConvention(inflationLegConvention);
     setFixedLegConvention(fixedLegConvention);
+    setInflationNodeType(inflationNodeType);
   }
 
   /**
    * @param tenor The tenor, not null
-   * @param zeroCouponConvention The zero coupon convention id, not null
+   * @param inflationLegConvention The zero coupon convention id, not null
    * @param fixedLegConvention The fixed leg convention id, not null
+   * @param inflationNodeType The inflation node type, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The name, not null
    */
-  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId zeroCouponConvention, final ExternalId fixedLegConvention, final String curveNodeIdMapperName,
-      final String name) {
+  public ZeroCouponInflationNode(final Tenor tenor, final ExternalId inflationLegConvention, final ExternalId fixedLegConvention,
+      final InflationNodeType inflationNodeType, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
     setTenor(tenor);
-    setZeroCouponConvention(zeroCouponConvention);
+    setInflationLegConvention(inflationLegConvention);
     setFixedLegConvention(fixedLegConvention);
+    setInflationNodeType(inflationNodeType);
   }
 
   @Override
@@ -117,10 +129,12 @@ public class ZeroCouponInflationNode extends CurveNode {
     switch (propertyName.hashCode()) {
       case 110246592:  // tenor
         return getTenor();
-      case -576353537:  // zeroCouponConvention
-        return getZeroCouponConvention();
+      case -438961387:  // inflationLegConvention
+        return getInflationLegConvention();
       case -2101140213:  // fixedLegConvention
         return getFixedLegConvention();
+      case -279739482:  // inflationNodeType
+        return getInflationNodeType();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -131,11 +145,14 @@ public class ZeroCouponInflationNode extends CurveNode {
       case 110246592:  // tenor
         setTenor((Tenor) newValue);
         return;
-      case -576353537:  // zeroCouponConvention
-        setZeroCouponConvention((ExternalId) newValue);
+      case -438961387:  // inflationLegConvention
+        setInflationLegConvention((ExternalId) newValue);
         return;
       case -2101140213:  // fixedLegConvention
         setFixedLegConvention((ExternalId) newValue);
+        return;
+      case -279739482:  // inflationNodeType
+        setInflationNodeType((InflationNodeType) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -144,8 +161,9 @@ public class ZeroCouponInflationNode extends CurveNode {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_tenor, "tenor");
-    JodaBeanUtils.notNull(_zeroCouponConvention, "zeroCouponConvention");
+    JodaBeanUtils.notNull(_inflationLegConvention, "inflationLegConvention");
     JodaBeanUtils.notNull(_fixedLegConvention, "fixedLegConvention");
+    JodaBeanUtils.notNull(_inflationNodeType, "inflationNodeType");
     super.validate();
   }
 
@@ -157,8 +175,9 @@ public class ZeroCouponInflationNode extends CurveNode {
     if (obj != null && obj.getClass() == this.getClass()) {
       ZeroCouponInflationNode other = (ZeroCouponInflationNode) obj;
       return JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
-          JodaBeanUtils.equal(getZeroCouponConvention(), other.getZeroCouponConvention()) &&
+          JodaBeanUtils.equal(getInflationLegConvention(), other.getInflationLegConvention()) &&
           JodaBeanUtils.equal(getFixedLegConvention(), other.getFixedLegConvention()) &&
+          JodaBeanUtils.equal(getInflationNodeType(), other.getInflationNodeType()) &&
           super.equals(obj);
     }
     return false;
@@ -168,8 +187,9 @@ public class ZeroCouponInflationNode extends CurveNode {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZeroCouponConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationLegConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixedLegConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationNodeType());
     return hash ^ super.hashCode();
   }
 
@@ -204,25 +224,25 @@ public class ZeroCouponInflationNode extends CurveNode {
    * Gets the zero-coupon convention.
    * @return the value of the property, not null
    */
-  public ExternalId getZeroCouponConvention() {
-    return _zeroCouponConvention;
+  public ExternalId getInflationLegConvention() {
+    return _inflationLegConvention;
   }
 
   /**
    * Sets the zero-coupon convention.
-   * @param zeroCouponConvention  the new value of the property, not null
+   * @param inflationLegConvention  the new value of the property, not null
    */
-  public void setZeroCouponConvention(ExternalId zeroCouponConvention) {
-    JodaBeanUtils.notNull(zeroCouponConvention, "zeroCouponConvention");
-    this._zeroCouponConvention = zeroCouponConvention;
+  public void setInflationLegConvention(ExternalId inflationLegConvention) {
+    JodaBeanUtils.notNull(inflationLegConvention, "inflationLegConvention");
+    this._inflationLegConvention = inflationLegConvention;
   }
 
   /**
-   * Gets the the {@code zeroCouponConvention} property.
+   * Gets the the {@code inflationLegConvention} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> zeroCouponConvention() {
-    return metaBean().zeroCouponConvention().createProperty(this);
+  public final Property<ExternalId> inflationLegConvention() {
+    return metaBean().inflationLegConvention().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -253,6 +273,32 @@ public class ZeroCouponInflationNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets flag indicating the inflation node type.
+   * @return the value of the property, not null
+   */
+  public InflationNodeType getInflationNodeType() {
+    return _inflationNodeType;
+  }
+
+  /**
+   * Sets flag indicating the inflation node type.
+   * @param inflationNodeType  the new value of the property, not null
+   */
+  public void setInflationNodeType(InflationNodeType inflationNodeType) {
+    JodaBeanUtils.notNull(inflationNodeType, "inflationNodeType");
+    this._inflationNodeType = inflationNodeType;
+  }
+
+  /**
+   * Gets the the {@code inflationNodeType} property.
+   * @return the property, not null
+   */
+  public final Property<InflationNodeType> inflationNodeType() {
+    return metaBean().inflationNodeType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ZeroCouponInflationNode}.
    */
   public static class Meta extends CurveNode.Meta {
@@ -267,23 +313,29 @@ public class ZeroCouponInflationNode extends CurveNode {
     private final MetaProperty<Tenor> _tenor = DirectMetaProperty.ofReadWrite(
         this, "tenor", ZeroCouponInflationNode.class, Tenor.class);
     /**
-     * The meta-property for the {@code zeroCouponConvention} property.
+     * The meta-property for the {@code inflationLegConvention} property.
      */
-    private final MetaProperty<ExternalId> _zeroCouponConvention = DirectMetaProperty.ofReadWrite(
-        this, "zeroCouponConvention", ZeroCouponInflationNode.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _inflationLegConvention = DirectMetaProperty.ofReadWrite(
+        this, "inflationLegConvention", ZeroCouponInflationNode.class, ExternalId.class);
     /**
      * The meta-property for the {@code fixedLegConvention} property.
      */
     private final MetaProperty<ExternalId> _fixedLegConvention = DirectMetaProperty.ofReadWrite(
         this, "fixedLegConvention", ZeroCouponInflationNode.class, ExternalId.class);
     /**
+     * The meta-property for the {@code inflationNodeType} property.
+     */
+    private final MetaProperty<InflationNodeType> _inflationNodeType = DirectMetaProperty.ofReadWrite(
+        this, "inflationNodeType", ZeroCouponInflationNode.class, InflationNodeType.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "tenor",
-        "zeroCouponConvention",
-        "fixedLegConvention");
+        "inflationLegConvention",
+        "fixedLegConvention",
+        "inflationNodeType");
 
     /**
      * Restricted constructor.
@@ -296,10 +348,12 @@ public class ZeroCouponInflationNode extends CurveNode {
       switch (propertyName.hashCode()) {
         case 110246592:  // tenor
           return _tenor;
-        case -576353537:  // zeroCouponConvention
-          return _zeroCouponConvention;
+        case -438961387:  // inflationLegConvention
+          return _inflationLegConvention;
         case -2101140213:  // fixedLegConvention
           return _fixedLegConvention;
+        case -279739482:  // inflationNodeType
+          return _inflationNodeType;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -329,11 +383,11 @@ public class ZeroCouponInflationNode extends CurveNode {
     }
 
     /**
-     * The meta-property for the {@code zeroCouponConvention} property.
+     * The meta-property for the {@code inflationLegConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> zeroCouponConvention() {
-      return _zeroCouponConvention;
+    public final MetaProperty<ExternalId> inflationLegConvention() {
+      return _inflationLegConvention;
     }
 
     /**
@@ -342,6 +396,14 @@ public class ZeroCouponInflationNode extends CurveNode {
      */
     public final MetaProperty<ExternalId> fixedLegConvention() {
       return _fixedLegConvention;
+    }
+
+    /**
+     * The meta-property for the {@code inflationNodeType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<InflationNodeType> inflationNodeType() {
+      return _inflationNodeType;
     }
 
   }

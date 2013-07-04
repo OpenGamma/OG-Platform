@@ -18,7 +18,9 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
+ * @Deprecated
  */
+@Deprecated
 public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction {
 
   private final String _curveName;

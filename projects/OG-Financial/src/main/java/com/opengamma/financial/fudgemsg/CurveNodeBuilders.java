@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -412,17 +413,20 @@ import com.opengamma.util.time.Tenor;
     /** The tenor field */
     private static final String TENOR_FIELD = "tenor";
     /** The inflation convention field */
-    private static final String INFLATION_CONVENTION_FIELD = "inflationConvention";
+    private static final String INFLATION_CONVENTION_FIELD = "inflationLegConvention";
     /** The fixed convention field */
-    private static final String FIXED_CONVENTION_FIELD = "fixedConvention";
+    private static final String FIXED_CONVENTION_FIELD = "fixedLegConvention";
+    /** The inflation node type field */
+    private static final String INFLATION_NODE_TYPE_FIELD = "inflationNodeType";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ZeroCouponInflationNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(TENOR_FIELD, object.getTenor().getPeriod().toString());
-      message.add(INFLATION_CONVENTION_FIELD, object.getZeroCouponConvention());
+      message.add(INFLATION_CONVENTION_FIELD, object.getInflationLegConvention());
       message.add(FIXED_CONVENTION_FIELD, object.getFixedLegConvention());
+      message.add(INFLATION_NODE_TYPE_FIELD, object.getInflationNodeType().name());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -435,12 +439,13 @@ import com.opengamma.util.time.Tenor;
       final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
       final ExternalId inflationConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INFLATION_CONVENTION_FIELD));
       final ExternalId fixedConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXED_CONVENTION_FIELD));
+      final InflationNodeType inflationNodeType = InflationNodeType.valueOf(message.getString(INFLATION_NODE_TYPE_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
-        return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, curveNodeIdMapperName, name);
+        return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, inflationNodeType, curveNodeIdMapperName, name);
       }
-      return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, curveNodeIdMapperName);
+      return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, inflationNodeType, curveNodeIdMapperName);
     }
 
   }

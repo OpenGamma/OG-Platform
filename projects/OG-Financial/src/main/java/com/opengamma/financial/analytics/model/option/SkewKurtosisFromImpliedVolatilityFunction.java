@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -37,9 +36,10 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  *
  */
+@Deprecated
 public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final Function2D<Double, Double> SKEW_CALCULATOR = new LognormalSkewnessFromVolatilityCalculator();

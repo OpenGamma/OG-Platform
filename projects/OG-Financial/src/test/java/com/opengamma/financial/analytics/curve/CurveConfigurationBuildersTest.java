@@ -38,6 +38,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   private static final IssuerCurveTypeConfiguration ISSUER_CONFIG = new IssuerCurveTypeConfiguration(BOND_ISSUER_NAME, BOND_CODE);
   private static final ExternalId OVERNIGHT_CONVENTION = ExternalId.of("Test", "USD Overnight");
   private static final OvernightCurveTypeConfiguration OVERNIGHT_CONFIG = new OvernightCurveTypeConfiguration(OVERNIGHT_CONVENTION);
+  private static final InflationCurveTypeConfiguration INFLATION_CONFIG = new InflationCurveTypeConfiguration("US");
   private static final CurveGroupConfiguration GROUP1;
   private static final CurveGroupConfiguration GROUP2;
   private static final CurveGroupConfiguration GROUP3;
@@ -76,6 +77,11 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   @Test
   public void testIssuerCurveTypeConfiguration() {
     assertEquals(ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, ISSUER_CONFIG));
+  }
+
+  @Test
+  public void testInflationCurveTypeConfiguration() {
+    assertEquals(INFLATION_CONFIG, cycleObject(InflationCurveTypeConfiguration.class, INFLATION_CONFIG));
   }
 
   @Test

@@ -17,8 +17,9 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
- * 
+ *
  */
+@Deprecated
 public class PoweredOptionModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
   private final AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> _model = new PoweredOptionModel();
 

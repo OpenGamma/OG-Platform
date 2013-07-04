@@ -28,9 +28,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
- * 
+ *
  */
 //TODO urgently needs a rename
+@Deprecated
 public abstract class StandardOptionDataAnalyticOptionModelFunction extends AnalyticOptionModelFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(StandardOptionDataAnalyticOptionModelFunction.class);
 
