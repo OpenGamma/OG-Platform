@@ -67,6 +67,12 @@ import com.opengamma.util.metric.MetricProducer;
  */
 public class NonVersionedRedisPositionSource implements PositionSource, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisSecuritySource.class);
+  
+  /**
+   * The default scheme for unique identifiers.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "RedisPos";
+  
   private final JedisPool _jedisPool;
   private final String _redisPrefix;
   private Timer _getPortfolioTimer = new Timer();
@@ -115,7 +121,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   }
   
   protected static UniqueId generateUniqueId() {
-    return UniqueId.of("UUID", GUIDGenerator.generate().toString());
+    return UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
   }
 
 

@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.metric.MetricProducer;
 import com.opengamma.util.money.Currency;
 
@@ -75,6 +75,11 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
   private static final String UNIQUE_ID = "UNIQUE_ID";
   private static final String REGION = "REGION";
   private static final String REGION_SCHEME = "REGION_SCHEME";
+  
+  /**
+   * The default scheme for unique identifiers.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "RedisHol";
   
   public NonVersionedRedisHolidaySource(JedisPool jedisPool) {
     this(jedisPool, "");
@@ -170,7 +175,7 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
   public void addHoliday(Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
     
-    UniqueId uniqueId = (holiday.getUniqueId() == null) ? generateRandomId() : holiday.getUniqueId();
+    UniqueId uniqueId = (holiday.getUniqueId() == null) ? generateUniqueId() : holiday.getUniqueId();
     try (Timer.Context context = _putTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       try {
@@ -205,9 +210,8 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
     }
   }
   
-  private UniqueId generateRandomId() {
-    String uuid = UUID.randomUUID().toString();
-    return UniqueId.of("UUID", uuid);
+  private UniqueId generateUniqueId() {
+    return UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
   }
 
   // ---------------------------------------------------------------------

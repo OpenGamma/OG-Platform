@@ -67,6 +67,11 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
   private static final byte[] DATA_NAME_AS_BYTES = "DATA".getBytes(Charsets.UTF_8);
   private static final byte[] CLASS_NAME_AS_BYTES = "CLASS".getBytes(Charsets.UTF_8);
   
+  /**
+   * The default scheme for unique identifiers.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "RedisSec";
+  
   public NonVersionedRedisSecuritySource(JedisPool jedisPool) {
     this(jedisPool, "");
   }
@@ -159,7 +164,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
     
     UniqueId uniqueId = security.getUniqueId();
     if (uniqueId == null) {
-      uniqueId = UniqueId.of("UUID", GUIDGenerator.generate().toString());
+      uniqueId = UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
     }
     if (uniqueId.getVersion() != null) {
       uniqueId = UniqueId.of(uniqueId.getObjectId(), null);
