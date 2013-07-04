@@ -41,8 +41,8 @@
             </goals>
             <configuration>
               <target>
-                <mkdir dir="data"/>
-                <mkdir dir="logs"/>
+                <mkdir dir="${project.build.directory}/assembly/data"/>
+                <mkdir dir="${project.build.directory}/assembly/logs"/>
               </target>
             </configuration>
           </execution>
@@ -57,6 +57,31 @@
             <goals>
               <goal>generate-scripts</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- unpack web zips -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.opengamma</groupId>
+                  <artifactId>og-web</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <classifier>web-engine</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/assembly/web-engine</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -88,16 +113,6 @@
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-integration</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <!-- resources for unpacking -->
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-web</artifactId>
-      <version>${project.version}</version>
-      <type>zip</type>
-      <classifier>web-engine</classifier>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
