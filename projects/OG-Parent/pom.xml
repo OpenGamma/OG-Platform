@@ -66,6 +66,22 @@
           <excludedGroups>${tests.testng.excludedgroups}</excludedGroups>
         </configuration>
       </plugin>
+      <!--  obtain git commit -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
+        </configuration>
+      </plugin>      
       <!-- create and publish test jar files -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -89,6 +105,17 @@
             <exclude>tests.properties</exclude>
           </excludes>
           <skipIfEmpty>true</skipIfEmpty>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+            </manifest>
+            <manifestEntries>
+              <Implementation-Build>${buildNumber}</Implementation-Build>
+              <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+            </manifestEntries>
+          </archive>
         </configuration>
       </plugin>
       <!-- generate source jar file when packaging -->
