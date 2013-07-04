@@ -102,12 +102,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-web</artifactId>
-      <version>${project.version}</version>
-      <classifier>resources</classifier>
-    </dependency>
-    <dependency>
       <groupId>com.opengamma</groupId>
       <artifactId>og-region-data</artifactId>
       <version>1.0.0.v20110908a</version>
