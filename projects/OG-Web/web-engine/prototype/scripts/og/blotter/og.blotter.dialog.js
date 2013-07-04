@@ -17,19 +17,6 @@ $.register_module({
              */
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
                 blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
-            /** validation_handler is passed to each form via thier submit or submit_new, 
-             *  The form api's submit listener in each form attempts to sumbit the form
-             *  If an error exists the message is displayed otherwise the form is closed
-             */
-            var validation_handler = function (result) {
-                if (result.error) {
-                    og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
-                        location: '.OG-blotter-error-block', message: result.message});
-                    return;
-                }
-                blotter.close();
-                complete(result);
-            };
             constructor.load = function () {
                 // security type specifies which form to create
                 if (config.details) {
@@ -56,6 +43,22 @@ $.register_module({
                     });
                 }
             };
+            /** validation_handler is passed to each form via thier submit or submit_new,
+             *  The form api's submit listener in each form attempts to sumbit the form
+             *  If an error exists the message is displayed otherwise the form is closed
+             */
+            var validation_handler = function (result) {
+                if (result.error) {
+                    display_error(result.message);
+                    return;
+                }
+                blotter.close();
+                complete(result);
+            };
+            var display_error = function (message) {
+                og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
+                    location: '.OG-blotter-error-block', message: message});
+            };
             var setup_existing = function () {
                 $('#OG-blotter-existing-trade').autocomplete({
                     source: function (obj, handler) {
@@ -75,34 +78,43 @@ $.register_module({
                     },
                     minLength: 1,
                     select: function (e, data) {
-                        add_existing(e, data);
+                        get_portfolio(e, data);
                     }
                 });
             };
-            var add_existing = function (e, data) {
-                og.api.rest.configs.get({id: og.analytics.url.last.main.viewdefinition}).pipe(function (result) {
-                    var portfolio = result.data.template_data.configJSON.data.identifier;
-                    og.api.rest.portfolios.put({
-                        position: data ? data.item.value : $('#OG-blotter-existing-trade').val(),
-                        id: portfolio,
-                        node: config.node.id
-                    }).pipe(function (result) {
-                        validation_handler(result);
+            var get_portfolio = function (e, data) {
+                if (og.analytics) {
+                    og.api.rest.configs.get({id: og.analytics.url.last.main.viewdefinition}).pipe(function (result) {
+                        add_existing(result.data.template_data.configJSON.data.identifier, data);
                     });
+                } else if (config.node && config.node.portfolio) {
+                    add_existing(config.node.portfolio, data);
+                } else {
+                    display_error('Unable to add position/trade. Portfolio ID is not available');
+                }
+
+            };
+            var add_existing = function (portfolio, data) {
+                og.api.rest.portfolios.put({
+                    position: data ? data.item.value : $('#OG-blotter-existing-trade').val(),
+                    id: portfolio,
+                    node: config.node.id
+                }).pipe(function (result) {
+                    validation_handler(result);
                 });
             };
             constructor.populate = function (suffix, config) {
-                var str, inner;
+                var str, Inner;
                 str = 'og.blotter.forms.' + suffix;
-                inner = str.split('.').reduce(function (acc, val) {
+                Inner = str.split('.').reduce(function (acc, val) {
                     if (acc[val] === 'undefined') {
                         constructor.clear();
                     } else {
                         return acc[val];
                     }
                 }, window);
-                if (inner) {
-                    form_wrapper = new inner(config);
+                if (Inner) {
+                    form_wrapper = new Inner(config);
                     $('.OG-blotter-trade-save').show();
                     $('.ui-dialog-title').html(form_wrapper.title);
                 } else {
@@ -127,7 +139,9 @@ $.register_module({
                         click: function () {$(this).dialog('close'); }
                     }
                 };
-                if (!config.save_as) delete buttons['Save as new'];
+                if (!config.save_as) {
+                    delete buttons['Save as new'];
+                }
                 blotter = new og.common.util.ui.dialog({
                     type: 'input',
                     title: title,

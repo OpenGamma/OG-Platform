@@ -36,6 +36,6 @@ public class EquityFutureOptionBlackVegaFunction extends EquityFutureOptionBlack
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final double vega = derivative.accept(EquityOptionBlackVegaCalculator.getInstance(), market);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    return Collections.singleton(new ComputedValue(spec, vega));
+    return Collections.singleton(new ComputedValue(spec, vega / 100.));
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.basicblack;
@@ -15,10 +15,17 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * Function that returns the implied volatility of a swaption. There are no volatility modelling
+ * assumptions made for basic Black functions - the implied volatility is read directly from the
+ * market data system.
+ * <p>
+ * Produces a result for {@link ValueRequirementNames#SECURITY_IMPLIED_VOLATILITY}.
  */
 public class SwaptionBasicBlackImpliedVolatilityFunction extends SwaptionBasicBlackFunction {
 
+  /**
+   * Sets {@link ValueRequirementNames#SECURITY_IMPLIED_VOLATILITY} as the result.
+   */
   public SwaptionBasicBlackImpliedVolatilityFunction() {
     super(ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
   }

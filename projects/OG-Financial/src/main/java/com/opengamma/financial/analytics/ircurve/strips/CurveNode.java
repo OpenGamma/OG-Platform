@@ -19,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -37,6 +36,12 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @PropertyDefinition(validate = "notNull")
   private String _curveNodeIdMapperName;
 
+  /**
+   * The name, can be null
+   */
+  @PropertyDefinition
+  private String _name;
+
   /* package */CurveNode() {
     super();
   }
@@ -46,6 +51,15 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
    */
   public CurveNode(final String curveNodeIdMapperName) {
     setCurveNodeIdMapperName(curveNodeIdMapperName);
+  }
+
+  /**
+   * @param curveNodeIdMapperName The name of the id mapper, not null
+   * @param name The name of the node, not null
+   */
+  public CurveNode(final String curveNodeIdMapperName, final String name) {
+    setCurveNodeIdMapperName(curveNodeIdMapperName);
+    setName(name);
   }
 
   /**
@@ -94,6 +108,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     switch (propertyName.hashCode()) {
       case 305053208:  // curveNodeIdMapperName
         return getCurveNodeIdMapperName();
+      case 3373707:  // name
+        return getName();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -103,6 +119,9 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     switch (propertyName.hashCode()) {
       case 305053208:  // curveNodeIdMapperName
         setCurveNodeIdMapperName((String) newValue);
+        return;
+      case 3373707:  // name
+        setName((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -121,7 +140,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveNode other = (CurveNode) obj;
-      return JodaBeanUtils.equal(getCurveNodeIdMapperName(), other.getCurveNodeIdMapperName());
+      return JodaBeanUtils.equal(getCurveNodeIdMapperName(), other.getCurveNodeIdMapperName()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
     }
     return false;
   }
@@ -130,6 +150,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIdMapperName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash;
   }
 
@@ -161,6 +182,31 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the name, can be null
+   * @return the value of the property
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name, can be null
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code CurveNode}.
    */
   public static class Meta extends DirectMetaBean {
@@ -175,11 +221,17 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     private final MetaProperty<String> _curveNodeIdMapperName = DirectMetaProperty.ofReadWrite(
         this, "curveNodeIdMapperName", CurveNode.class, String.class);
     /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", CurveNode.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curveNodeIdMapperName");
+        "curveNodeIdMapperName",
+        "name");
 
     /**
      * Restricted constructor.
@@ -192,6 +244,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
       switch (propertyName.hashCode()) {
         case 305053208:  // curveNodeIdMapperName
           return _curveNodeIdMapperName;
+        case 3373707:  // name
+          return _name;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -218,6 +272,14 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
      */
     public final MetaProperty<String> curveNodeIdMapperName() {
       return _curveNodeIdMapperName;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
     }
 
   }

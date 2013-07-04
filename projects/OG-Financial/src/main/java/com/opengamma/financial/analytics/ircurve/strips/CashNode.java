@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class CashNode extends CurveNode {
@@ -60,6 +60,21 @@ public class CashNode extends CurveNode {
    */
   public CashNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId convention, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
+    setStartTenor(startTenor);
+    setMaturityTenor(maturityTenor);
+    setConvention(convention);
+  }
+
+  /**
+   * @param startTenor The start tenor, not null
+   * @param maturityTenor The maturity tenor, not null
+   * @param convention The convention, not null
+   * @param curveNodeIdMapperName The name of the curve node id mapper, not null
+   * @param name The name
+   */
+  public CashNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId convention, final String curveNodeIdMapperName,
+     final String name) {
+    super(curveNodeIdMapperName, name);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setConvention(convention);

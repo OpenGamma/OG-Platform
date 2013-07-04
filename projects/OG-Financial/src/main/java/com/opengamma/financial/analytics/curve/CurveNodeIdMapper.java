@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -55,6 +55,8 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _rateFutureNodeIds;
   /** Curve instrument providers for swap nodes */
   private final Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
+  /** Curve instrument providers for zero coupon inflation nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _zeroCouponInflationNodeIds;
 
   /**
    * @param cashNodeIds The cash node ids
@@ -65,6 +67,7 @@ public class CurveNodeIdMapper {
    * @param fxForwardNodeIds The FX forward node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
+   * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
   public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
       final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
@@ -73,9 +76,10 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
+      final Map<Tenor, CurveInstrumentProvider> swapNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
     this(null, cashNodeIds, continuouslyCompoundedRateIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds, fxForwardNodeIds,
-        rateFutureNodeIds, swapNodeIds);
+        rateFutureNodeIds, swapNodeIds, zeroCouponInflationNodeIds);
   }
 
   /**
@@ -88,6 +92,7 @@ public class CurveNodeIdMapper {
    * @param fxForwardNodeIds The FX forward node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
+   * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
   public CurveNodeIdMapper(final String name,
       final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
@@ -97,7 +102,8 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
+      final Map<Tenor, CurveInstrumentProvider> swapNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
     _name = name;
     _cashNodeIds = cashNodeIds;
     _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateIds;
@@ -107,6 +113,7 @@ public class CurveNodeIdMapper {
     _fxForwardNodeIds = fxForwardNodeIds;
     _rateFutureNodeIds = rateFutureNodeIds;
     _swapNodeIds = swapNodeIds;
+    _zeroCouponInflationNodeIds = zeroCouponInflationNodeIds;
   }
 
   private static List<String> getCurveIdMapperNames() {
@@ -217,6 +224,17 @@ public class CurveNodeIdMapper {
   public Map<Tenor, CurveInstrumentProvider> getSwapNodeIds() {
     if (_swapNodeIds != null) {
       return Collections.unmodifiableMap(_swapNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the zero coupon inflation node ids.
+   * @return The zero coupon inflation node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getZeroCouponInflationNodeIds() {
+    if (_zeroCouponInflationNodeIds != null) {
+      return Collections.unmodifiableMap(_zeroCouponInflationNodeIds);
     }
     return null;
   }
@@ -549,6 +567,46 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the external id of the zero coupon inflation node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id of the security
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getZeroCouponInflationNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_zeroCouponInflationNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get zero coupon inflation node id provider for curve node id mapper called " + _name);
+    }
+    return getId(_zeroCouponInflationNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the zero coupon inflation node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getZeroCouponInflationNodeDataField(final Tenor tenor) {
+    if (_zeroCouponInflationNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get zero coupon inflation node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_zeroCouponInflationNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the zero coupon inflation node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getZeroCouponInflationNodeDataFieldType(final Tenor tenor) {
+    if (_zeroCouponInflationNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get zero coupon inflation node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_zeroCouponInflationNodeIds, tenor);
+  }
+
+  /**
    * Gets the unique tenors for all curve node types sorted by period.
    * @return All unique tenors
    */
@@ -577,6 +635,9 @@ public class CurveNodeIdMapper {
     }
     if (_swapNodeIds != null) {
       allTenors.addAll(_swapNodeIds.keySet());
+    }
+    if (_zeroCouponInflationNodeIds != null) {
+      allTenors.addAll(_zeroCouponInflationNodeIds.keySet());
     }
     return allTenors;
   }
@@ -622,7 +683,8 @@ public class CurveNodeIdMapper {
         ObjectUtils.equals(_fraNodeIds, other._fraNodeIds) &&
         ObjectUtils.equals(_fxForwardNodeIds, other._fxForwardNodeIds) &&
         ObjectUtils.equals(_rateFutureNodeIds, other._rateFutureNodeIds) &&
-        ObjectUtils.equals(_swapNodeIds, other._swapNodeIds);
+        ObjectUtils.equals(_swapNodeIds, other._swapNodeIds) &&
+        ObjectUtils.equals(_zeroCouponInflationNodeIds, other._zeroCouponInflationNodeIds);
   }
 
   @Override
@@ -638,6 +700,7 @@ public class CurveNodeIdMapper {
     result = prime * result + ((_fxForwardNodeIds == null) ? 0 : _fxForwardNodeIds.hashCode());
     result = prime * result + ((_rateFutureNodeIds == null) ? 0 : _rateFutureNodeIds.hashCode());
     result = prime * result + ((_swapNodeIds == null) ? 0 : _swapNodeIds.hashCode());
+    result = prime * result + ((_zeroCouponInflationNodeIds == null) ? 0 : _zeroCouponInflationNodeIds.hashCode());
     return result;
   }
 

@@ -45,7 +45,16 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
     final double[] intervals = getDiffs(xValues);
 
     return getCommonSplineCoeffs(xValues, yValues, intervals, matrixEqnSolver(getMatrix(intervals), getVector(yValues, intervals)));
+  }
 
+  @Override
+  public DoubleMatrix2D[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
+    final double[] intervals = getDiffs(xValues);
+    final double[][] toBeInv = getMatrix(intervals);
+    final double[] vector = getVector(yValues, intervals);
+    final double[][] vecSensitivity = getVectorSensitivity(intervals);
+
+    return getCommonCoefficientWithSensitivity(xValues, yValues, intervals, toBeInv, vector, vecSensitivity);
   }
 
   @Override
@@ -106,4 +115,17 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
     return res;
   }
 
+  private double[][] getVectorSensitivity(final double[] intervals) {
+
+    final int nData = intervals.length + 1;
+    double[][] res = new double[nData][nData];
+    res = getCommonVectorSensitivity(intervals);
+
+    res[0][0] = -6. / intervals[0];
+    res[0][1] = 6. / intervals[0];
+    res[nData - 1][nData - 1] = -6. / intervals[nData - 2];
+    res[nData - 1][nData - 2] = 6. / intervals[nData - 2];
+
+    return res;
+  }
 }

@@ -152,6 +152,14 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   public IborIndex getIborIndex() {
     return _iborIndex;
   }
+  
+  /**
+   * Gets the _unitAmount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'. 
+   * @return the _unitAmount
+   */
+  public double getUnitAmount() {
+    return _notional * _paymentAccrualFactor;
+  }
 
   /**
    * Gets the fixing period of the reference Ibor starting date.
@@ -214,13 +222,13 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+//    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }
     final String discountingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[1];
+    final String forwardCurveName = yieldCurveNames[yieldCurveNames.length > 1 ? 1 : 0];
     final double lastTradingTime = TimeCalculator.getTimeBetween(dateTime, getLastTradingDate());
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());

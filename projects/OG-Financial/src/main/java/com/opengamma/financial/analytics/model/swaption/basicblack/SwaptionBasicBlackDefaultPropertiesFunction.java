@@ -26,10 +26,12 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Default properties function for swaptions that are to be priced using the basic Black method.
  */
 public class SwaptionBasicBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackDefaultPropertiesFunction.class);
+  /** The requirements for which these defaults apply */
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
@@ -37,8 +39,12 @@ public class SwaptionBasicBlackDefaultPropertiesFunction extends DefaultProperty
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
   };
+  /** A map of currency to default curve calculation configuration names */
   private final Map<String, String> _currencyAndCurveConfigNames;
 
+  /**
+   * @param currencyAndCurveConfigNames A list of alternating currency and curve calculation configuration names, not null
+   */
   public SwaptionBasicBlackDefaultPropertiesFunction(final String... currencyAndCurveConfigNames) {
     super(FinancialSecurityTypes.SWAPTION_SECURITY, true);
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");

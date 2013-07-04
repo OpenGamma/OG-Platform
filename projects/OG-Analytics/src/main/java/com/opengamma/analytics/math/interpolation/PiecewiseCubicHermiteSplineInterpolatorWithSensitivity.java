@@ -22,11 +22,13 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * "Monotone Piecewise Cubic Interpolation", SIAM Journal on Numerical Analysis 17 (2): 238–246. 
  * Fritsch, F. N. and Butland, J. (1984)
  * "A method for constructing local monotone piecewise cubic interpolants", SIAM Journal on Scientific and Statistical Computing 5 (2): 300-304.
+ * 
+ * For interpolation without node sensitivity, use {@link PiecewiseCubicHermiteSplineInterpolator}
  */
 public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends PiecewisePolynomialInterpolator {
 
   @Override
-  public PiecewisePolynomialResultsWithSensitivity interpolate(final double[] xValues, final double[] yValues) {
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
 
     ArgumentChecker.notNull(xValues, "xValues");
     ArgumentChecker.notNull(yValues, "yValues");
@@ -73,7 +75,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     DoubleMatrix2D[] coefMatrixSense = new DoubleMatrix2D[n - 1];
     System.arraycopy(temp, 1, coefMatrixSense, 0, n - 1);
 
-    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValuesSrt), coefMatrix, nDataPts, 1, coefMatrixSense);
+    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValuesSrt), coefMatrix, 4, 1, coefMatrixSense);
   }
 
   /**
@@ -299,6 +301,11 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       }
     }
     return res;
+  }
+
+  @Override
+  public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
+    throw new NotImplementedException();
   }
 
   @Override

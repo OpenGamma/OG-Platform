@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefinition<SwapFuturesPriceDeliverableSecurity> {
+public class SwapFuturesPriceDeliverableSecurityDefinition implements InstrumentDefinition<SwapFuturesPriceDeliverableSecurity> {
 
   /**
    * The futures last trading date. The date for which the delivery date is the spot date.
@@ -48,7 +48,7 @@ public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefin
    * @param underlyingSwap The futures underlying swap.
    * @param notional The notional of the future.
    */
-  public SwapFuturesDeliverableSecurityDefinition(final ZonedDateTime lastTradingDate, final SwapFixedIborDefinition underlyingSwap, final double notional) {
+  public SwapFuturesPriceDeliverableSecurityDefinition(final ZonedDateTime lastTradingDate, final SwapFixedIborDefinition underlyingSwap, final double notional) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(underlyingSwap, "Swap");
     ArgumentChecker.isTrue(Math.abs(underlyingSwap.getFixedLeg().getNthPayment(0).getNotional() - 1.0) < 1.0E-10, "Swap should be receiver of notional 1");
@@ -67,12 +67,12 @@ public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefin
    * @param rate The underlying swap rate.
    * @return The futures.
    */
-  public static SwapFuturesDeliverableSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor, final double notional, final double rate) {
+  public static SwapFuturesPriceDeliverableSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor, final double notional, final double rate) {
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(effectiveDate, -generator.getSpotLag(), generator.getCalendar());
     final SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, tenor, generator, 1.0, rate, false);
-    return new SwapFuturesDeliverableSecurityDefinition(lastTradingDate, swap, notional);
+    return new SwapFuturesPriceDeliverableSecurityDefinition(lastTradingDate, swap, notional);
   }
 
   /**
@@ -151,7 +151,7 @@ public class SwapFuturesDeliverableSecurityDefinition implements InstrumentDefin
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SwapFuturesDeliverableSecurityDefinition other = (SwapFuturesDeliverableSecurityDefinition) obj;
+    final SwapFuturesPriceDeliverableSecurityDefinition other = (SwapFuturesPriceDeliverableSecurityDefinition) obj;
     if (!ObjectUtils.equals(_deliveryDate, other._deliveryDate)) {
       return false;
     }

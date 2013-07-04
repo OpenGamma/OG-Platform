@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.future;
@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureD
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivativeVisitorAdapter<SimpleFutureDataBundle, Double> {
 
@@ -67,7 +67,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final SimpleFutureDataBundle dataBundle) {
     ArgumentChecker.notNull(future, "future");
     ArgumentChecker.notNull(dataBundle, "data bundle");
-    return Double.valueOf(getResult(dataBundle, future.getReferencePrice(), future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity(), future.getLastTradingTime()));
+    return Double.valueOf(getResult(dataBundle, future.getReferencePrice(), future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity(), future.getLastTradingTime())); // TODO Confirm we want to multiply my accrualFactor
   }
 
   @Override
@@ -128,7 +128,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   }
 
   /**
-   * Calculates the spot delta
+   * Calculates the spot delta. The 'Delta', dV/dS for a linear future is simply the unitAmount.
    */
   public static final class SpotDeltaCalculator extends MarkToMarketFuturesCalculator {
     private static final SpotDeltaCalculator INSTANCE = new SpotDeltaCalculator();
@@ -143,6 +143,30 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
     @Override
     double getResult(final SimpleFutureDataBundle dataBundle, final double strike, final double unitAmount, final double t) {
       return unitAmount;
+    }
+  }
+
+  /**
+   * Calculates the value delta of a Future.<p>
+   * ValueDelta is defined as S(t) * dV/dS, hence it should be equal to unitAmount * market_price. <p>
+   * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
+   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t),
+   * thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t),
+   * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
+   */
+  public static final class ValueDeltaCalculator extends MarkToMarketFuturesCalculator {
+    private static final ValueDeltaCalculator INSTANCE = new ValueDeltaCalculator();
+
+    public static ValueDeltaCalculator getInstance() {
+      return INSTANCE;
+    }
+
+    private ValueDeltaCalculator() {
+    }
+
+    @Override
+    double getResult(final SimpleFutureDataBundle dataBundle, final double strike, final double unitAmount, final double t) {
+      return unitAmount * dataBundle.getMarketPrice().doubleValue();
     }
   }
 

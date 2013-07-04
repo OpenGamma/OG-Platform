@@ -44,6 +44,7 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
+import com.opengamma.financial.analytics.model.forex.forward.FXForwardYCNSFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -52,7 +53,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexForwardYieldCurveNodeSensitivitiesFunction
+ * @see FXForwardYCNSFunction
  */
 @Deprecated
 public class FXForwardYCNSFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {

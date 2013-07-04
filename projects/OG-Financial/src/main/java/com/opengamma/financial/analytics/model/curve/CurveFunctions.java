@@ -14,10 +14,6 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationFunction;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
-import com.opengamma.financial.analytics.curve.CurveMarketDataFunction;
-import com.opengamma.financial.analytics.curve.CurveSpecificationFunction;
-import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
@@ -62,30 +58,15 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       return _configMaster;
     }
 
-    protected void addCurveFunctions(final List<FunctionConfiguration> functions, final String curveName) {
-      functions.add(functionConfiguration(CurveDefinitionFunction.class, curveName));
-      functions.add(functionConfiguration(CurveSpecificationFunction.class, curveName));
-      functions.add(functionConfiguration(CurveMarketDataFunction.class, curveName));
-    }
-
     protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions, final String curveConfigName) {
+      functions.add(functionConfiguration(FXMatrixFunction.class, curveConfigName));
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
       functions.add(functionConfiguration(MulticurveProviderDiscountingFunction.class, curveConfigName));
     }
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      // new curves
       final ConfigSearchRequest<CurveDefinition> searchRequest = new ConfigSearchRequest<>();
-      final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
-      for (final Class klass : curveClasses) {
-        searchRequest.setType(klass);
-        for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
-          final String documentName = configDocument.getName();
-          addCurveFunctions(functions, documentName);
-        }
-      }
-
       searchRequest.setType(CurveConstructionConfiguration.class);
       final Class[] curveConstructionConfigurationClasses = new Class[] {CurveConstructionConfiguration.class};
       for (final Class klass : curveConstructionConfigurationClasses) {

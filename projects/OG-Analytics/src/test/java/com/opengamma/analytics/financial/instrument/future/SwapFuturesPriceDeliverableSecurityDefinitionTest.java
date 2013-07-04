@@ -36,26 +36,26 @@ public class SwapFuturesPriceDeliverableSecurityDefinitionTest {
   private static final double NOTIONAL = 100000;
   private static final double RATE = 0.0175;
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, false);
-  private static final SwapFuturesDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION = new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION = new SwapFuturesPriceDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullLastTrading() {
-    new SwapFuturesDeliverableSecurityDefinition(null, SWAP_DEFINITION, NOTIONAL);
+    new SwapFuturesPriceDeliverableSecurityDefinition(null, SWAP_DEFINITION, NOTIONAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSwap() {
-    new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, null, NOTIONAL);
+    new SwapFuturesPriceDeliverableSecurityDefinition(LAST_TRADING_DATE, null, NOTIONAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongSwap1() {
-    new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 2.0, RATE, false), NOTIONAL);
+    new SwapFuturesPriceDeliverableSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 2.0, RATE, false), NOTIONAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongSwap2() {
-    new SwapFuturesDeliverableSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, true), NOTIONAL);
+    new SwapFuturesPriceDeliverableSecurityDefinition(LAST_TRADING_DATE, SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, true), NOTIONAL);
   }
 
   @Test
@@ -74,7 +74,7 @@ public class SwapFuturesPriceDeliverableSecurityDefinitionTest {
    * Tests the from builder.
    */
   public void from() {
-    SwapFuturesDeliverableSecurityDefinition futuresDefinition = SwapFuturesDeliverableSecurityDefinition.from(EFFECTIVE_DATE, USD6MLIBOR3M, TENOR, NOTIONAL, RATE);
+    SwapFuturesPriceDeliverableSecurityDefinition futuresDefinition = SwapFuturesPriceDeliverableSecurityDefinition.from(EFFECTIVE_DATE, USD6MLIBOR3M, TENOR, NOTIONAL, RATE);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: from", SWAP_FUTURES_SECURITY_DEFINITION, futuresDefinition);
   }
 

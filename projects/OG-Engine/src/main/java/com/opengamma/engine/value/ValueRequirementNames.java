@@ -183,8 +183,13 @@ public final class ValueRequirementNames {
    * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
    */
   public static final String CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Curve Instrument Conversion Historical Time Series";
+  /** 
+   * The FX matrix associated with a bundle of curves.
+   */
+  public static final String FX_MATRIX = "FX Matrix";
   /**
-   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
+   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
+   * ignoring the type of instrument etc.).
    */
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   /**
@@ -730,7 +735,10 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_CARRY_RHO = "ValueCarryRho";
   /**
-   * The amount by which the value of a portfolio would change due to delta.
+   * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
+   * {@link Delta} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
+   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t), 
+   * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
    */
   public static final String VALUE_DELTA = "ValueDelta";
   /**

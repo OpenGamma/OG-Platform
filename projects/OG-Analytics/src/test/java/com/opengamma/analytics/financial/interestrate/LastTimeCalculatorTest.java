@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
+import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
@@ -26,7 +27,7 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class LastTimeCalculatorTest {
   private static LastTimeCalculator LDC = LastTimeCalculator.getInstance();
@@ -91,5 +92,12 @@ public class LastTimeCalculatorTest {
     final double endTime = 0.03;
     final DepositZero deposit = new DepositZero(Currency.USD, 0, endTime, 100, 100, 0.25, new ContinuousInterestRate(0.03), 2, "FUNDING");
     assertEquals(deposit.accept(LDC), endTime, 0);
+  }
+
+  @Test
+  public void testForex() {
+    final double t = 0.124;
+    final Forex fx = new Forex(new PaymentFixed(Currency.AUD, t, -100, "X"), new PaymentFixed(Currency.USD, t, 100, "X"));
+    assertEquals(fx.accept(LDC), t, 0);
   }
 }

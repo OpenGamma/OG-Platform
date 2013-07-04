@@ -23,10 +23,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Convention for ibor indices.
  */
 @BeanDefinition
 public class IborIndexConvention extends Convention {
@@ -91,10 +90,23 @@ public class IborIndexConvention extends Convention {
   /**
    * For the builder
    */
-  public IborIndexConvention() {
+  /* package */ IborIndexConvention() {
     super();
   }
 
+  /**
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param dayCount The day-count, not null
+   * @param businessDayConvention The business-day convention, not null
+   * @param daysToSettle The number of days to settle, not null
+   * @param isEOM True if dates follow the end-of-month rule
+   * @param currency The currency, not null
+   * @param fixingTime The fixing time, not null
+   * @param fixingCalendar The fixing calendar, not null
+   * @param regionCalendar The region calendar, not null
+   * @param fixingPage The fixing page name, not null
+   */
   public IborIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int daysToSettle, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final ExternalId fixingCalendar,
       final ExternalId regionCalendar, final String fixingPage) {

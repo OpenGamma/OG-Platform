@@ -12,20 +12,14 @@ import java.util.List;
 
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentDefaultCurveNameFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationVegaDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaultsDeprecated;
@@ -52,10 +46,24 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   }
 
   @Override
+  protected CurrencyInfo audCurrencyInfo() {
+    final CurrencyInfo i = super.audCurrencyInfo();
+    i.setCurveConfiguration(null, "DefaultThreeCurveAUDConfig");
+    i.setCurveConfiguration("model/forex", "DefaultThreeCurveAUDConfig");
+    i.setCurveName(null, "Discounting");
+    i.setCurveName("model/forex/discounting", "Discounting");
+    return i;
+  }
+
+  @Override
   protected CurrencyInfo chfCurrencyInfo() {
     final CurrencyInfo i = super.chfCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveCHFConfig");
+    i.setCurveConfiguration("model/forex", "DefaultTwoCurveCHFConfig");
+    i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveCHFConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setSurfaceName("model/swaption/black", "PROVIDER2");
     return i;
   }
 
@@ -63,7 +71,11 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo eurCurrencyInfo() {
     final CurrencyInfo i = super.eurCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
+    i.setCurveConfiguration("model/forex", "DefaultTwoCurveEURConfig");
+    i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveEURConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setSurfaceName("model/swaption/black", "PROVIDER2");
     return i;
   }
 
@@ -71,7 +83,11 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo gbpCurrencyInfo() {
     final CurrencyInfo i = super.gbpCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveGBPConfig");
+    i.setCurveConfiguration("model/forex", "DefaultTwoCurveGBPConfig");
+    i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveGBPConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setSurfaceName("model/swaption/black", "PROVIDER1");
     return i;
   }
 
@@ -79,7 +95,11 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo jpyCurrencyInfo() {
     final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
+    i.setCurveConfiguration("model/forex", "DefaultTwoCurveJPYConfig");
+    i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveJPYConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setSurfaceName("model/swaption/black", "PROVIDER3");
     return i;
   }
 
@@ -87,18 +107,63 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo usdCurrencyInfo() {
     final CurrencyInfo i = super.usdCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
+    i.setCurveConfiguration("model/forex", "DefaultTwoCurveUSDConfig");
+    i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveUSDConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/forex/discounting", "Discounting");
     i.setCubeName(null, "SECONDARY");
     i.setForwardCurveName(null, "Forward3M");
     i.setSurfaceName(null, "SECONDARY");
+    i.setSurfaceName("model/swaption/black", "PROVIDER1");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
-    i.setCurveName(null, "DiscountingImplied");
-    i.setSurfaceName(null, "SECONDARY");
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+
+  @Override
+  protected CurrencyPairInfo usdJpyCurrencyPairInfo() {
+    final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+
+  @Override
+  protected CurrencyPairInfo usdChfCurrencyPairInfo() {
+    final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+
+  @Override
+  protected CurrencyPairInfo usdAudCurrencyPairInfo() {
+    final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+
+  @Override
+  protected CurrencyPairInfo usdGbpCurrencyPairInfo() {
+    final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+
+  @Override
+  protected CurrencyPairInfo eurGbpCurrencyPairInfo() {
+    final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
+    return i;
+  }
+
+  @Override
+  protected CurrencyPairInfo chfJpyCurrencyPairInfo() {
+    final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
+    i.setSurfaceName("model/forex", "DEFAULT");
     return i;
   }
 
@@ -135,48 +200,6 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
   }
 
-  protected void addForexForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "USD", "EUR"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "EUR", "USD"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "USD", "GBP"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "GBP", "USD"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "USD", "JPY"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "JPY", "USD"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "USD", "CHF"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "CHF", "USD"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "EUR", "GBP"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "GBP", "EUR"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "EUR", "JPY"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "JPY", "EUR"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "EUR", "CHF"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "GBP", "CHF"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "JPY", "CHF"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
-        PAR_RATE_STRING, "CHF", "JPY"));
-  }
-
-  protected void addForexOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(FXOptionBlackDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY",
-        "SECONDARY", PAR_RATE_STRING, "SECONDARY", "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "USD", "EUR"));
-    functionConfigs.add(functionConfiguration(FXOptionBlackDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY",
-        "SECONDARY", PAR_RATE_STRING, "SECONDARY", "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "EUR", "USD"));
-  }
-
   protected void addInterestRateFutureDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "USD", "EUR"));
   }
@@ -194,8 +217,6 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     addSABRDefaults(functions);
     addPNLDefaults(functions);
     addExternallyProvidedSensitivitiesDefaults(functions);
-    addForexForwardDefaults(functions);
-    addForexOptionDefaults(functions);
     addInterestRateFutureDefaults(functions);
     addSurfaceDefaults(functions);
     functions.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "SECONDARY"));
@@ -205,9 +226,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
 
   @Override
   protected FunctionConfigurationSource deprecatedFunctions() {
-    return CombiningFunctionConfigurationSource.of(super.deprecatedFunctions(), FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
-        com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.deprecated(),
-        FutureFunctions.deprecated(), PNLFunctions.deprecated());
+    return null;
   }
 
   @Override

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -12,18 +12,15 @@ import java.util.List;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.temporal.JulianFields;
-import org.threeten.bp.temporal.TemporalUnit;
 
-import com.kenai.jffi.Array;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * For a CDS with set set of payments on the fixed leg, this holds the payments dates and the accrual start and end dates. It does not
- * hold the payment amounts with depends on the day-count (normally ACT/360) and the spread.  
+ * hold the payment amounts with depends on the day-count (normally ACT/360) and the spread.
  */
 public class ISDAPremiumLegSchedule {
 
@@ -32,7 +29,7 @@ public class ISDAPremiumLegSchedule {
   private final LocalDate[] _accEndDates;
   private final LocalDate[] _paymentDates;
 
-  public static ISDAPremiumLegSchedule truncateSchedule(final LocalDate stepin, ISDAPremiumLegSchedule schedule) {
+  public static ISDAPremiumLegSchedule truncateSchedule(final LocalDate stepin, final ISDAPremiumLegSchedule schedule) {
     if (!schedule._accEndDates[0].isBefore(stepin)) {
       return schedule; // nothing to truncate
     }
@@ -49,13 +46,13 @@ public class ISDAPremiumLegSchedule {
   }
 
   /**
-   * Truncation constructor 
+   * Truncation constructor
    * @param paymentDates
    * @param accStartDates
    * @param accEndDates
    * @param index copy the date starting from this index
    */
-  private ISDAPremiumLegSchedule(final LocalDate[] paymentDates, final LocalDate[] accStartDates, final LocalDate[] accEndDates, int index) {
+  private ISDAPremiumLegSchedule(final LocalDate[] paymentDates, final LocalDate[] accStartDates, final LocalDate[] accEndDates, final int index) {
     ArgumentChecker.noNulls(paymentDates, "null paymentDates");
     ArgumentChecker.noNulls(accStartDates, "accStartDates");
     ArgumentChecker.noNulls(accEndDates, "null accEndDates");
@@ -78,13 +75,13 @@ public class ISDAPremiumLegSchedule {
    * @param startDate The protection start date
    * @param endDate The protection end date
    * @param step The period or frequency at which payments are made (e.g. every three months)
-   * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE - <b>Note</b> in this code NONE is not allowed 
-   * @param businessdayAdjustmentConvention options are 'following' or 'proceeding' 
-   * @param calandar A holiday calendar 
-   * @param protectionStart If true, protection starts are the beginning rather than end of day (protection still ends at end of day). 
+   * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE - <b>Note</b> in this code NONE is not allowed
+   * @param businessdayAdjustmentConvention options are 'following' or 'proceeding'
+   * @param calandar A holiday calendar
+   * @param protectionStart If true, protection starts are the beginning rather than end of day (protection still ends at end of day).
    */
   public ISDAPremiumLegSchedule(final LocalDate startDate, final LocalDate endDate, final Period step, final StubType stubType, final BusinessDayConvention businessdayAdjustmentConvention,
-      final Calendar calandar, boolean protectionStart) {
+      final Calendar calandar, final boolean protectionStart) {
     ArgumentChecker.notNull(startDate, "null startDate");
     ArgumentChecker.notNull(endDate, "null endDate");
     ArgumentChecker.notNull(stubType, "null stubType");
@@ -112,8 +109,8 @@ public class ISDAPremiumLegSchedule {
     LocalDate dPrev = tempDates[0];
     LocalDate dPrevAdj = dPrev; // first date is never adjusted
     for (int i = 0; i < _nPayments; i++) {
-      LocalDate dNext = tempDates[i + 1];
-      LocalDate dNextAdj = businessDayAdjustDate(dNext, calandar, businessdayAdjustmentConvention);
+      final LocalDate dNext = tempDates[i + 1];
+      final LocalDate dNextAdj = businessDayAdjustDate(dNext, calandar, businessdayAdjustmentConvention);
       _accStartDates[i] = dPrevAdj;
       _accEndDates[i] = dNextAdj;
       _paymentDates[i] = dNextAdj;
@@ -147,16 +144,16 @@ public class ISDAPremiumLegSchedule {
 
   /**
    * finds the index in accStartDate that matches the given date, or if date is not a member of accStartDate returns (-insertionPoint -1)
-   * @see  Arrays.binarySearch
-   * @param date The date to find 
-   * @return index or code giving insertion point 
+   * @see Arrays#binarySearch
+   * @param date The date to find
+   * @return index or code giving insertion point
    */
   public int getAccStartDateIndex(final LocalDate date) {
     return Arrays.binarySearch(_accStartDates, date, null);
   }
 
   /**
-   * The accrual start date, end date and payment date at the given index 
+   * The accrual start date, end date and payment date at the given index
    * @param index the index (from zero)
    * @return array of LocalDate
    */
@@ -167,19 +164,19 @@ public class ISDAPremiumLegSchedule {
   /**
    * This mimics JpmcdsDateListMakeRegular. Produces a set of ascending dates by following the rules:<p>
    * If the stub is at the front end, we role backwards from the endDate at an integer multiple of the specified step size (e.g. 3M),
-   * adding these date until we pass the startDate(this date is not added). If the stub type is short, the startDate is added (as the first date), hence the first period 
+   * adding these date until we pass the startDate(this date is not added). If the stub type is short, the startDate is added (as the first date), hence the first period
    * will be less than (or equal to) the remaining periods. If the stub type is long, the startDate is also added, but the date immediately
-   * after that is removed, so the first period is longer than the remaining.<p>   
+   * after that is removed, so the first period is longer than the remaining.<p>
    * If the stub is at the back end, we role forward from the startDate at an integer multiple of the specified step size (e.g. 3M),
-   * adding these date until we pass the endDate(this date is not added). If the stub type is short, the endDate is added (as the last date), hence the last period 
+   * adding these date until we pass the endDate(this date is not added). If the stub type is short, the endDate is added (as the last date), hence the last period
    * will be less than (or equal to) the other periods. If the stub type is long, the endDate is also added, but the date immediately
    * before that is removed, so the last period is longer than the others.
-   * 
-   * @param startDate The start date - this will be the first entry in the list 
+   *
+   * @param startDate The start date - this will be the first entry in the list
    * @param endDate The end date - this will be the last entry in the list
    * @param step the step period (e.g. 3M - will produce dates every 3 months, with adjustments at the beginning or end based on stub type)
-   * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE - <b>Note</b> in this code NONE is not allowed 
-   * @return an array of LocalDate 
+   * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE - <b>Note</b> in this code NONE is not allowed
+   * @return an array of LocalDate
    */
   private LocalDate[] getUnadjustedDates(final LocalDate startDate, final LocalDate endDate, final Period step, final StubType stubType) {
     // TODO remove NONE fromStubType enumeration
@@ -187,10 +184,10 @@ public class ISDAPremiumLegSchedule {
 
     final long firstJulianDate = startDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     final long secondJulianDate = endDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
-    double days = step.getDays() + 365.0 * (step.getMonths() / 12. + step.getYears());
-    int nApprox = 3 + (int) ((secondJulianDate - firstJulianDate) / days);
+    final double days = step.getDays() + 365.0 * (step.getMonths() / 12. + step.getYears());
+    final int nApprox = 3 + (int) ((secondJulianDate - firstJulianDate) / days);
 
-    List<LocalDate> dates = new ArrayList<>(nApprox);
+    final List<LocalDate> dates = new ArrayList<>(nApprox);
 
     // stub at front end, so start at endDate and work backwards
     if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {
@@ -213,7 +210,7 @@ public class ISDAPremiumLegSchedule {
       }
 
       final int m = dates.size();
-      LocalDate[] res = new LocalDate[m];
+      final LocalDate[] res = new LocalDate[m];
       // want to output in ascending chronological order, so need to reverse the list
       int j = m - 1;
       for (int i = 0; i < m; i++, j--) {
@@ -239,7 +236,7 @@ public class ISDAPremiumLegSchedule {
         dates.remove(n - 1);
         dates.add(endDate);
       }
-      LocalDate[] res = new LocalDate[dates.size()];
+      final LocalDate[] res = new LocalDate[dates.size()];
       return dates.toArray(res);
     }
   }

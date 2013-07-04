@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -41,6 +41,9 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    * The cash flow equivalent calculator used in computations.
    */
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
+  /**
+   * The cash flow equivalent sensitivity calculator used in computations.
+   */
   private static final CashFlowEquivalentCurveSensitivityCalculator CFECSC = CashFlowEquivalentCurveSensitivityCalculator.getInstance();
   /**
    * The normal distribution implementation.
@@ -397,7 +400,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     swapRateAdjointDiscountedCF(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, rateBar, derivativesRateBar, derivativesRate, discountedCashFlowFixedBar,
         discountedCashFlowIborBar);
     final double[] dfFixedBar = new double[nbFixed];
-    final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDf = new ArrayList<>();
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
       dfFixedBar[loopcf] = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction() * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getNotional()
           * discountedCashFlowFixedBar[loopcf];
@@ -415,7 +418,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
       listDf.add(dfSensi);
       cfeAmountIborBar[loopcf] = dfIbor[loopcf] * discountedCashFlowIborBar[loopcf];
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(fundingCurveName, listDf);
     InterestRateCurveSensitivity sensitivity = new InterestRateCurveSensitivity(pvsDF);
     final Map<Double, InterestRateCurveSensitivity> cfeIborCurveSensi = swaption.getUnderlyingSwap().getSecondLeg().accept(CFECSC, hwData);
@@ -435,11 +438,12 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    * @param alphaFixed The bond volatilities.
    * @param discountedCashFlowIbor The discounted cash flows.
    * @param alphaIbor The bond volatilities.
-   * @param derivatives Array used to return the derivatives of the swap rate with respect to the random variable. The array is changed by the method. 
+   * @param derivatives Array used to return the derivatives of the swap rate with respect to the random variable. The array is changed by the method.
    * The values are [0] the first order derivative and [1] the second order derivative.
    * @return The swap rate.
    */
-  private double swapRate(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, final double[] derivatives) {
+  private double swapRate(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor,
+      final double[] alphaIbor, final double[] derivatives) {
     final double[] f = new double[3];
     double y1;
     for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
@@ -471,7 +475,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    * @param alphaIbor The bond volatilities.
    * @param swapRateBar The sensitivity to the swap rate in the rest of the computation.
    * @param derivativesBar The sensitivity to the swap rate derivatives in the rest of the computation.
-   * @param derivatives Array used to return the derivatives of the swap rate with respect to the random variable. The array is changed by the method. 
+   * @param derivatives Array used to return the derivatives of the swap rate with respect to the random variable. The array is changed by the method.
    * The values are [0] the first order derivative and [1] the second order derivative.
    * @param alphaFixedBar Array used to return the derivatives of the result with respect to the alphaFixed variables.
    * @param alphaIborBar Array used to return the derivatives of the result with respect to the alphaIbor variables.
@@ -568,7 +572,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    * @param swapRate The swap rate.
    * @param nbFixedPaymentYear The number of fixed payment per year.
    * @param nbFixedPeriod The total number of payments.
-   * @param derivatives Array used to return the derivatives of the annuity with respect to the swap rate. The array is changed by the method. 
+   * @param derivatives Array used to return the derivatives of the annuity with respect to the swap rate. The array is changed by the method.
    * The values are [0] the first order derivative, [1] the second order derivative and [2] the third order derivative.
    * @return The cash annuity
    */

@@ -54,7 +54,6 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunction
  */
 @Deprecated
 public class FXDigitalCallSpreadBlackYCNSFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {

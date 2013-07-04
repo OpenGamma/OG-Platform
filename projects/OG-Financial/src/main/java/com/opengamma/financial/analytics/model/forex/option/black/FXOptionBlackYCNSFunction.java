@@ -190,11 +190,13 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         if (constraints.getProperties().contains(PUT_CURVE)) {
           putCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
           putCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
-          ValuePropertiesUtils.withAllOptional(optionalProperties, constraints);
+          final ValueProperties properties = ValuePropertiesUtils.removeAll(constraints.copy().get(), ValuePropertyNames.CURVE, ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
+          ValuePropertiesUtils.withAllOptional(optionalProperties, properties);
         } else if (constraints.getProperties().contains(CALL_CURVE)) {
           callCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
           callCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
-          ValuePropertiesUtils.withAllOptional(optionalProperties, constraints);
+          final ValueProperties properties = ValuePropertiesUtils.removeAll(constraints.copy().get(), ValuePropertyNames.CURVE, ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
+          ValuePropertiesUtils.withAllOptional(optionalProperties, properties);
         }
       } else if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
         currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -20,7 +20,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Method to computes the present value and sensitivities of physical delivery European swaptions with the Hull-White one factor model through efficient approximation.
  * The method does not require the solution of a non-linear equation.
- * Reference: Henrard, M. Efficient swaptions price in Hull-White one factor model. arXiv, 2009. {@linktourl http://arxiv.org/abs/0901.1776}
+ * Reference: Henrard, M. Efficient swaptions price in Hull-White one factor model. arXiv, 2009. http://arxiv.org/abs/0901.1776
  */
 public final class SwaptionPhysicalFixedIborHullWhiteApproximationMethod {
 

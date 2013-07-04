@@ -1,9 +1,16 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.generator;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.LeafPortfolioNodeGenerator;
@@ -18,41 +25,78 @@ import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
-  private static final FXOptionSecurity[] FX_OPTION = new FXOptionSecurity[4];
+  /** The list of options */
+  private static final List<FXOptionSecurity> FX_OPTIONS = new ArrayList<>();
+  /** The spot rates for a currency pair */
+  private static final List<Pair<UnorderedCurrencyPair, Double>> SPOT_RATES = new ArrayList<>();
+  /** The strike formatter */
+  private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("###.###");
 
   static {
+    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), 1.328));
+    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.CHF), 0.84));
+    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), 1.1));
+    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), 1.588));
+    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.JPY), 80.));
+    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), 1.2));
+    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY), 100.));
     final ExerciseType european = new EuropeanExerciseType();
-    final FXOptionSecurity fxOption1 = new FXOptionSecurity(Currency.USD, Currency.EUR, 1, 0.8, new Expiry(DateUtils.getUTCDate(2014, 1, 13)), DateUtils.getUTCDate(2014, 1, 13),
-        true, european);
-    fxOption1.setName("Long 1.25 USD/EUR expiring 2014-1-13");
-    FX_OPTION[0] = fxOption1;
-    final FXOptionSecurity fxOption2 = new FXOptionSecurity(Currency.EUR, Currency.USD, 1, 1, new Expiry(DateUtils.getUTCDate(2020, 1, 13)), DateUtils.getUTCDate(2020, 1, 13),
-        true, european);
-    fxOption2.setName("Long 1 EUR/USD expiring 2020-1-13");
-    FX_OPTION[1] = fxOption2;
-    final FXOptionSecurity fxOption3 = new FXOptionSecurity(Currency.USD, Currency.EUR, 1, 1.5, new Expiry(DateUtils.getUTCDate(2016, 1, 13)), DateUtils.getUTCDate(2016, 1, 13),
-        true, european);
-    fxOption3.setName("Long 1.5 EUR/USD expiring 2016-1-13");
-    FX_OPTION[2] = fxOption3;
-    final FXOptionSecurity fxOption4 = new FXOptionSecurity(Currency.EUR, Currency.USD, 1, 2, new Expiry(DateUtils.getUTCDate(2019, 1, 13)), DateUtils.getUTCDate(2019, 1, 13),
-        true, european);
-    fxOption4.setName("Long 2 USD/EUR  expiring 2019-1-13");
-    FX_OPTION[3] = fxOption4;
+    final Random rng = new Random();
+    final ZonedDateTime date = DateUtils.getUTCDate(2015, 2, 1);
+    for (int i = 0; i < 100; i++) {
+      final int n = rng.nextInt(6);
+      final Pair<UnorderedCurrencyPair, Double> pair = SPOT_RATES.get(n);
+      final UnorderedCurrencyPair ccys = pair.getFirst();
+      final double spot = pair.getSecond();
+      final Currency putCurrency, callCurrency;
+      final double putAmount, callAmount;
+      double strike;
+      if (rng.nextBoolean()) {
+        putCurrency = ccys.getFirstCurrency();
+        putAmount = 100000 * (1 + rng.nextInt(10)) / 100.;
+        callCurrency = ccys.getSecondCurrency();
+        callAmount = putAmount * spot * (1 + rng.nextDouble() / 20);
+        strike = putAmount / callAmount;
+      } else {
+        callCurrency = ccys.getFirstCurrency();
+        callAmount = 100000 * (1 + rng.nextInt(10)) / 100.;
+        putCurrency = ccys.getSecondCurrency();
+        putAmount = callAmount * spot * (1 + rng.nextDouble() / 20);
+        strike = putAmount / callAmount;
+      }
+      final boolean isLong = rng.nextBoolean() ? true : false;
+      final Expiry expiry = new Expiry(date.plusMonths(rng.nextInt(20)));
+      final ZonedDateTime settlementDate = expiry.getExpiry().plusDays(2);
+      final FXOptionSecurity option = new FXOptionSecurity(putCurrency, callCurrency, putAmount, callAmount, expiry, settlementDate, isLong, european);
+      final StringBuilder sb = new StringBuilder();
+      sb.append(isLong ? "Long " : "Short ");
+      sb.append(expiry.getExpiry().toLocalDate());
+      sb.append(" ");
+      sb.append(putCurrency);
+      sb.append("/");
+      sb.append(callCurrency);
+      sb.append(" @ ");
+      sb.append(STRIKE_FORMATTER.format(strike));
+      option.setName(sb.toString());
+      FX_OPTIONS.add(option);
+    }
   }
 
   @Override
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
     final SecurityGenerator<FXOptionSecurity> securities = createFXOptionSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<FXOptionSecurity>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("EUR / USD FX Option"), positions, 4);
+    final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
+    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("FX Options"), positions, FX_OPTIONS.size());
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }
 
@@ -60,8 +104,8 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
     final SecurityGenerator<FXOptionSecurity> securities = createFXOptionSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<FXOptionSecurity>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("EUR / USD FX Option"), positions, 4);
+    final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("FX Options"), positions, FX_OPTIONS.size());
   }
 
   private SecurityGenerator<FXOptionSecurity> createFXOptionSecurityGenerator() {
@@ -70,10 +114,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
 
       @Override
       public FXOptionSecurity createSecurity() {
-        if (_count > 3) {
-          throw new IllegalStateException("Should not ask for more than 4 securities");
-        }
-        final FXOptionSecurity fxOption = FX_OPTION[_count++];
+        final FXOptionSecurity fxOption = FX_OPTIONS.get(_count++);
         return fxOption;
       }
 

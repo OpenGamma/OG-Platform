@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -41,7 +42,7 @@ public class MultipleCurrencyParameterSensitivity {
   }
 
   /**
-   * Constructor taking a map.
+   * Constructor taking a map. A new map is created.
    * @param sensitivity The map with the sensitivities, not null. The map is copied.
    */
   public MultipleCurrencyParameterSensitivity(final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity) {
@@ -50,13 +51,27 @@ public class MultipleCurrencyParameterSensitivity {
   }
 
   /**
-   * Static constructor from a map. The map is copied.
+   * Static constructor from a map. A new map is created.
    * @param sensitivity A map of name / currency pairs to vector of sensitivities, not null
-   * @return An instance of ParameterSensitivity
+   * @return An new instance of ParameterSensitivity
    */
   public static MultipleCurrencyParameterSensitivity of(final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
     return new MultipleCurrencyParameterSensitivity(sensitivity);
+  }
+
+  /**
+   * Constructor from a simple sensitivity and a currency.
+   * @param single The Simple parameter sensitivity
+   * @param ccy The currency.
+   * @return The multiple currency sensitivity.
+   */
+  public static MultipleCurrencyParameterSensitivity of(final SimpleParameterSensitivity single, final Currency ccy) {
+    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensi = new LinkedHashMap<>();
+    for (String name : single.getAllNames()) {
+      sensi.put(new ObjectsPair<String, Currency>(name, ccy), single.getSensitivity(name));
+    }
+    return MultipleCurrencyParameterSensitivity.of(sensi);
   }
 
   /**

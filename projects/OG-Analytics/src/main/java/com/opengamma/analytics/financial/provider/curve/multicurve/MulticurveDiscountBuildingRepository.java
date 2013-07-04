@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.multicurve;
@@ -30,6 +30,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -166,6 +167,16 @@ public class MulticurveDiscountBuildingRepository {
       final String[][] curveNames, final double[][] parametersGuess, final MulticurveProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+    ArgumentChecker.notNull(instruments, "instruments");
+    ArgumentChecker.notNull(curveGenerators, "curve generators");
+    ArgumentChecker.notNull(curveNames, "curve names");
+    ArgumentChecker.notNull(parametersGuess, "parameters guess");
+    ArgumentChecker.notNull(knownData, "known data");
+    ArgumentChecker.notNull(discountingMap, "discounting map");
+    ArgumentChecker.notNull(forwardIborMap, "forward ibor map");
+    ArgumentChecker.notNull(forwardONMap, "forward overnight map");
+    ArgumentChecker.notNull(calculator, "calculator");
+    ArgumentChecker.notNull(sensitivityCalculator, "sensitivity calculator");
     final int nbUnits = curveGenerators.length;
     final MulticurveProviderDiscount knownSoFarData = knownData.copy();
     final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();

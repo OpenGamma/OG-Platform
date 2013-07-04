@@ -55,7 +55,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_STIR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
   //     -----     Deposit     -----
@@ -103,7 +103,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_IR_FUT.price(futures.getUnderlying(), multicurves) - futures.getReferencePrice();
+    return METHOD_STIR_FUT.price(futures.getUnderlying(), multicurves) - futures.getReferencePrice();
   }
 
   //     -----     Forex     -----

@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -19,22 +19,29 @@ import com.opengamma.util.time.Tenor;
  * This should be pulled from the configuration.
  */
 public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrumentProvider {
-  //TODO remove these two
-  private static final String DATA_FIELD = MarketDataRequirementNames.MARKET_VALUE;
-  private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
   private final Currency _ccy;
   private final StripInstrumentType _type;
   private StripInstrumentType _idType;
   private final ExternalScheme _scheme;
+  private final String _dataField;
+  private final DataFieldType _fieldType;
 
   public SyntheticIdentifierCurveInstrumentProvider(final Currency ccy, final StripInstrumentType type, final ExternalScheme scheme) {
-    Validate.notNull(ccy, "currency");
-    Validate.notNull(type, "instrument type");
-    Validate.notNull(scheme, "generated identifier scheme");
+    this(ccy, type, scheme, MarketDataRequirementNames.MARKET_VALUE, DataFieldType.OUTRIGHT);
+  }
+
+  public SyntheticIdentifierCurveInstrumentProvider(final Currency ccy, final StripInstrumentType type, final ExternalScheme scheme,
+      final String dataField, final DataFieldType fieldType) {
+    ArgumentChecker.notNull(ccy, "currency");
+    ArgumentChecker.notNull(type, "instrument type");
+    ArgumentChecker.notNull(scheme, "generated identifier scheme");
+    ArgumentChecker.notNull(dataField, "data field");
+    ArgumentChecker.notNull(fieldType, "field type");
     _ccy = ccy;
     _type = type;
     _scheme = scheme;
-
+    _dataField = dataField;
+    _fieldType = fieldType;
     switch (type) {
       case SWAP_3M:
       case SWAP_6M:
@@ -97,12 +104,12 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
 
   @Override
   public String getMarketDataField() {
-    return DATA_FIELD;
+    return _dataField;
   }
 
   @Override
   public DataFieldType getDataFieldType() {
-    return FIELD_TYPE;
+    return _fieldType;
   }
 
   @Override
@@ -116,7 +123,9 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
     final SyntheticIdentifierCurveInstrumentProvider other = (SyntheticIdentifierCurveInstrumentProvider) o;
     return _ccy.equals(other._ccy) &&
         _type.equals(other._type) &&
-        _scheme.equals(other._scheme);
+        _scheme.equals(other._scheme) &&
+        _dataField.equals(other._dataField) &&
+        _fieldType.equals(other._fieldType);
   }
 
   @Override

@@ -6,17 +6,8 @@
 package com.opengamma.financial.analytics.curve;
 
 /**
- * Index types that are supported by the OG-Financial.
+ * 
  */
-public enum IndexType {
-
-  /**
-   * Represents an ibor index.
-   */
-  IBOR,
-  /**
-   * Represents an overnight index.
-   */
-  OVERNIGHT
+public class CurveTypeConfigurationToIndexConverter {
 
 }

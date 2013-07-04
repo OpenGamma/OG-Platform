@@ -33,6 +33,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
@@ -52,15 +53,13 @@ import com.opengamma.util.ReflectionUtils;
 /**
  * A standard context that is used to provide components to tools.
  * <p>
- * This is populated and passed to tools that need component services.
- * Each component is optional, although typically all are provided.
+ * This is populated and passed to tools that need component services. Each component is optional, although typically all are provided.
  */
 @BeanDefinition
 public class ToolContext extends DirectBean implements Closeable {
 
   /**
-   * The manager that created this context.
-   * This is used by the {@link #close()} method.
+   * The manager that created this context. This is used by the {@link #close()} method.
    */
   @PropertyDefinition(set = "manual")
   private Object _contextManager;
@@ -171,7 +170,11 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private ConventionBundleSource _conventionBundleSource;
-
+  /**
+   * The convention source.
+   */
+  @PropertyDefinition
+  private ConventionSource _conventionSource;
   /**
    * The security provider.
    */
@@ -192,13 +195,13 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private HistoricalTimeSeriesLoader _historicalTimeSeriesLoader;
-  
+
   /**
    * The view processor.
    */
   @PropertyDefinition
   private ViewProcessor _viewProcessor;
-  
+
   /**
    * The available outputs provider.
    */
@@ -213,8 +216,7 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-------------------------------------------------------------------------
   /**
-   * Closes the context, freeing any underlying resources.
-   * This calls the manager instance if present.
+   * Closes the context, freeing any underlying resources. This calls the manager instance if present.
    */
   @Override
   public void close() {
@@ -226,10 +228,9 @@ public class ToolContext extends DirectBean implements Closeable {
   /**
    * Sets the tool context, used to free any underlying resources.
    * <p>
-   * The method {@link ReflectionUtils#isCloseable(Class)} must return true for the object.
-   * Call {@link #close()} to close the manager.
+   * The method {@link ReflectionUtils#isCloseable(Class)} must return true for the object. Call {@link #close()} to close the manager.
    * 
-   * @param contextManager  the context manager.
+   * @param contextManager the context manager.
    */
   public void setContextManager(Object contextManager) {
     if (ReflectionUtils.isCloseable(contextManager.getClass()) == false) {
@@ -303,6 +304,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getMarketDataSnapshotSource();
       case -1281578674:  // conventionBundleSource
         return getConventionBundleSource();
+      case 225875692:  // conventionSource
+        return getConventionSource();
       case 809869649:  // securityProvider
         return getSecurityProvider();
       case -903470221:  // securityLoader
@@ -388,6 +391,9 @@ public class ToolContext extends DirectBean implements Closeable {
       case -1281578674:  // conventionBundleSource
         setConventionBundleSource((ConventionBundleSource) newValue);
         return;
+      case 225875692:  // conventionSource
+        setConventionSource((ConventionSource) newValue);
+        return;
       case 809869649:  // securityProvider
         setSecurityProvider((SecurityProvider) newValue);
         return;
@@ -439,6 +445,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
+          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
           JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
@@ -474,6 +481,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
@@ -485,8 +493,7 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the manager that created this context.
-   * This is used by the {@link #close()} method.
+   * Gets the manager that created this context. This is used by the {@link #close()} method.
    * @return the value of the property
    */
   public Object getContextManager() {
@@ -495,7 +502,6 @@ public class ToolContext extends DirectBean implements Closeable {
 
   /**
    * Gets the the {@code contextManager} property.
-   * This is used by the {@link #close()} method.
    * @return the property, not null
    */
   public final Property<Object> contextManager() {
@@ -1029,6 +1035,31 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the convention source.
+   * @return the value of the property
+   */
+  public ConventionSource getConventionSource() {
+    return _conventionSource;
+  }
+
+  /**
+   * Sets the convention source.
+   * @param conventionSource  the new value of the property
+   */
+  public void setConventionSource(ConventionSource conventionSource) {
+    this._conventionSource = conventionSource;
+  }
+
+  /**
+   * Gets the the {@code conventionSource} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionSource> conventionSource() {
+    return metaBean().conventionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the security provider.
    * @return the value of the property
    */
@@ -1298,6 +1329,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<ConventionBundleSource> _conventionBundleSource = DirectMetaProperty.ofReadWrite(
         this, "conventionBundleSource", ToolContext.class, ConventionBundleSource.class);
     /**
+     * The meta-property for the {@code conventionSource} property.
+     */
+    private final MetaProperty<ConventionSource> _conventionSource = DirectMetaProperty.ofReadWrite(
+        this, "conventionSource", ToolContext.class, ConventionSource.class);
+    /**
      * The meta-property for the {@code securityProvider} property.
      */
     private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
@@ -1354,6 +1390,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "historicalTimeSeriesSource",
         "marketDataSnapshotSource",
         "conventionBundleSource",
+        "conventionSource",
         "securityProvider",
         "securityLoader",
         "historicalTimeSeriesProvider",
@@ -1414,6 +1451,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _marketDataSnapshotSource;
         case -1281578674:  // conventionBundleSource
           return _conventionBundleSource;
+        case 225875692:  // conventionSource
+          return _conventionSource;
         case 809869649:  // securityProvider
           return _securityProvider;
         case -903470221:  // securityLoader
@@ -1620,6 +1659,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<ConventionBundleSource> conventionBundleSource() {
       return _conventionBundleSource;
+    }
+
+    /**
+     * The meta-property for the {@code conventionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionSource> conventionSource() {
+      return _conventionSource;
     }
 
     /**

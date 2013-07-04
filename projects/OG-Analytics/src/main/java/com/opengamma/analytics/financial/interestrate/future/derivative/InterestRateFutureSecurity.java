@@ -148,6 +148,14 @@ public class InterestRateFutureSecurity implements InstrumentDerivative {
   }
 
   /**
+   * Gets the unit Amount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'.
+   * @return the point value
+   */
+  public double getUnitAmount() {
+    return _notional * _paymentAccrualFactor;
+  }
+  
+  /**
    * Gets the discounting curve name.
    * @return The name.
    */

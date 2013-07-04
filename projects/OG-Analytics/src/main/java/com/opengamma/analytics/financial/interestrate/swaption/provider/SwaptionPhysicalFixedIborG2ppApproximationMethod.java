@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -21,7 +21,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Method to computes the present value of physical delivery European swaptions with the G2++ model through efficient approximation.
  * <p>Reference: Henrard, M. Swaptions in Libor Market Model with local volatility. Wilmott Journal, 2010, 2, 135-154.
- * Preprint available at {@linktourl http://ssrn.com/abstract=1098420}
+ * Preprint available at http://ssrn.com/abstract=1098420
  */
 public final class SwaptionPhysicalFixedIborG2ppApproximationMethod {
 

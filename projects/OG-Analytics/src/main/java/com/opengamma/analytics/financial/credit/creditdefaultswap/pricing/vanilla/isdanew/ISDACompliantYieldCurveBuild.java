@@ -14,9 +14,7 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
-import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -27,7 +25,6 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class ISDACompliantYieldCurveBuild {
-
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
   // private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();

@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- *
+ * Convention for exchange-traded interest rate futures.
  */
 @BeanDefinition
 public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionConvention {
@@ -38,15 +38,15 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   /**
    * For the builder.
    */
-  public InterestRateFutureConvention() {
+  /* package */ InterestRateFutureConvention() {
   }
 
   /**
-   * @param name The convention name
-   * @param externalIdBundle The external id bundle of the convention
-   * @param expiryConvention The expiry convention
-   * @param exchangeCalendar The exchange calendar
-   * @param indexConvention The index convention
+   * @param name The convention name, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param expiryConvention The expiry convention, not null
+   * @param exchangeCalendar The exchange calendar, not null
+   * @param indexConvention The index convention, not null
    */
   public InterestRateFutureConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
       final ExternalId exchangeCalendar, final ExternalId indexConvention) {

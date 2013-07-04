@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.index;
@@ -41,7 +41,7 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    */
   private final boolean _endOfMonth;
   /**
-   * The price index fixing lag in months(usually 3).
+   * The price index fixing lag in months (usually 3).
    */
   private final int _monthLag;
   /**
@@ -63,7 +63,7 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    * @param endOfMonth The end-of-month flag.
    * @param monthLag The price index fixing lag in months(usually 3).
    * @param spotLag Lag between today and the spot date.
-   * @param isLinear TODO
+   * @param isLinear True if the price index is interpolated linearly.
    */
   public GeneratorSwapFixedInflationZeroCoupon(final String name, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
       final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean isLinear) {

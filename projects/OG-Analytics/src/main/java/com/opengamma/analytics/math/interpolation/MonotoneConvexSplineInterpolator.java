@@ -8,6 +8,8 @@ package com.opengamma.analytics.math.interpolation;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -202,6 +204,11 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
     }
 
     return new DoubleMatrix2D(res);
+  }
+
+  @Override
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+    throw new NotImplementedException();
   }
 
   /**

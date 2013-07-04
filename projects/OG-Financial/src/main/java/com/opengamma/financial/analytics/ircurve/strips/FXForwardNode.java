@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve.strips;
@@ -19,10 +19,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class FXForwardNode extends CurveNode {
@@ -43,17 +44,22 @@ public class FXForwardNode extends CurveNode {
   private Tenor _maturityTenor;
 
   /**
-   * The pay convention.
+   * The FX forward convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _payConvention;
+  private ExternalId _fxForwardConvention;
 
   /**
-   * The receive convention.
+   * The pay currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _receiveConvention;
+  private Currency _payCurrency;
 
+  /**
+   * The receive currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _receiveCurrency;
   /**
    * Used by the fudge builder.
    */
@@ -63,17 +69,38 @@ public class FXForwardNode extends CurveNode {
   /**
    * @param startTenor The start tenor, not null
    * @param maturityTenor The maturity tenor, not null
-   * @param payConvention The pay convention, not null
-   * @param receiveConvention The receive convention, not null
+   * @param fxForwardConvention The FX forward convention, not null
+   * @param payCurrency The pay currency, not null
+   * @param receiveCurrency The receive currency, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public FXForwardNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payConvention, final ExternalId receiveConvention,
-      final String curveNodeIdMapperName) {
+  public FXForwardNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId fxForwardConvention, final Currency payCurrency,
+      final Currency receiveCurrency, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
-    setPayConvention(payConvention);
-    setReceiveConvention(receiveConvention);
+    setFxForwardConvention(fxForwardConvention);
+    setPayCurrency(payCurrency);
+    setReceiveCurrency(receiveCurrency);
+  }
+
+  /**
+   * @param startTenor The start tenor, not null
+   * @param maturityTenor The maturity tenor, not null
+   * @param fxForwardConvention The FX forward convention, not null
+   * @param payCurrency The pay currency, not null
+   * @param receiveCurrency The receive currency, not null
+   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   * @param name The name
+   */
+  public FXForwardNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId fxForwardConvention, final Currency payCurrency,
+      final Currency receiveCurrency, final String curveNodeIdMapperName, final String name) {
+    super(curveNodeIdMapperName, name);
+    setStartTenor(startTenor);
+    setMaturityTenor(maturityTenor);
+    setFxForwardConvention(fxForwardConvention);
+    setPayCurrency(payCurrency);
+    setReceiveCurrency(receiveCurrency);
   }
 
   @Override
@@ -112,10 +139,12 @@ public class FXForwardNode extends CurveNode {
         return getStartTenor();
       case 45907375:  // maturityTenor
         return getMaturityTenor();
-      case -1809959367:  // payConvention
-        return getPayConvention();
-      case -724981068:  // receiveConvention
-        return getReceiveConvention();
+      case -616625820:  // fxForwardConvention
+        return getFxForwardConvention();
+      case -295641895:  // payCurrency
+        return getPayCurrency();
+      case -1228590060:  // receiveCurrency
+        return getReceiveCurrency();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -129,11 +158,14 @@ public class FXForwardNode extends CurveNode {
       case 45907375:  // maturityTenor
         setMaturityTenor((Tenor) newValue);
         return;
-      case -1809959367:  // payConvention
-        setPayConvention((ExternalId) newValue);
+      case -616625820:  // fxForwardConvention
+        setFxForwardConvention((ExternalId) newValue);
         return;
-      case -724981068:  // receiveConvention
-        setReceiveConvention((ExternalId) newValue);
+      case -295641895:  // payCurrency
+        setPayCurrency((Currency) newValue);
+        return;
+      case -1228590060:  // receiveCurrency
+        setReceiveCurrency((Currency) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -143,8 +175,9 @@ public class FXForwardNode extends CurveNode {
   protected void validate() {
     JodaBeanUtils.notNull(_startTenor, "startTenor");
     JodaBeanUtils.notNull(_maturityTenor, "maturityTenor");
-    JodaBeanUtils.notNull(_payConvention, "payConvention");
-    JodaBeanUtils.notNull(_receiveConvention, "receiveConvention");
+    JodaBeanUtils.notNull(_fxForwardConvention, "fxForwardConvention");
+    JodaBeanUtils.notNull(_payCurrency, "payCurrency");
+    JodaBeanUtils.notNull(_receiveCurrency, "receiveCurrency");
     super.validate();
   }
 
@@ -157,8 +190,9 @@ public class FXForwardNode extends CurveNode {
       FXForwardNode other = (FXForwardNode) obj;
       return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
           JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
-          JodaBeanUtils.equal(getPayConvention(), other.getPayConvention()) &&
-          JodaBeanUtils.equal(getReceiveConvention(), other.getReceiveConvention()) &&
+          JodaBeanUtils.equal(getFxForwardConvention(), other.getFxForwardConvention()) &&
+          JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
+          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
           super.equals(obj);
     }
     return false;
@@ -169,8 +203,9 @@ public class FXForwardNode extends CurveNode {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFxForwardConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
     return hash ^ super.hashCode();
   }
 
@@ -228,54 +263,80 @@ public class FXForwardNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the pay convention.
+   * Gets the FX forward convention.
    * @return the value of the property, not null
    */
-  public ExternalId getPayConvention() {
-    return _payConvention;
+  public ExternalId getFxForwardConvention() {
+    return _fxForwardConvention;
   }
 
   /**
-   * Sets the pay convention.
-   * @param payConvention  the new value of the property, not null
+   * Sets the FX forward convention.
+   * @param fxForwardConvention  the new value of the property, not null
    */
-  public void setPayConvention(ExternalId payConvention) {
-    JodaBeanUtils.notNull(payConvention, "payConvention");
-    this._payConvention = payConvention;
+  public void setFxForwardConvention(ExternalId fxForwardConvention) {
+    JodaBeanUtils.notNull(fxForwardConvention, "fxForwardConvention");
+    this._fxForwardConvention = fxForwardConvention;
   }
 
   /**
-   * Gets the the {@code payConvention} property.
+   * Gets the the {@code fxForwardConvention} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> payConvention() {
-    return metaBean().payConvention().createProperty(this);
+  public final Property<ExternalId> fxForwardConvention() {
+    return metaBean().fxForwardConvention().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the receive convention.
+   * Gets the pay currency.
    * @return the value of the property, not null
    */
-  public ExternalId getReceiveConvention() {
-    return _receiveConvention;
+  public Currency getPayCurrency() {
+    return _payCurrency;
   }
 
   /**
-   * Sets the receive convention.
-   * @param receiveConvention  the new value of the property, not null
+   * Sets the pay currency.
+   * @param payCurrency  the new value of the property, not null
    */
-  public void setReceiveConvention(ExternalId receiveConvention) {
-    JodaBeanUtils.notNull(receiveConvention, "receiveConvention");
-    this._receiveConvention = receiveConvention;
+  public void setPayCurrency(Currency payCurrency) {
+    JodaBeanUtils.notNull(payCurrency, "payCurrency");
+    this._payCurrency = payCurrency;
   }
 
   /**
-   * Gets the the {@code receiveConvention} property.
+   * Gets the the {@code payCurrency} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> receiveConvention() {
-    return metaBean().receiveConvention().createProperty(this);
+  public final Property<Currency> payCurrency() {
+    return metaBean().payCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receive currency.
+   * @return the value of the property, not null
+   */
+  public Currency getReceiveCurrency() {
+    return _receiveCurrency;
+  }
+
+  /**
+   * Sets the receive currency.
+   * @param receiveCurrency  the new value of the property, not null
+   */
+  public void setReceiveCurrency(Currency receiveCurrency) {
+    JodaBeanUtils.notNull(receiveCurrency, "receiveCurrency");
+    this._receiveCurrency = receiveCurrency;
+  }
+
+  /**
+   * Gets the the {@code receiveCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> receiveCurrency() {
+    return metaBean().receiveCurrency().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -299,15 +360,20 @@ public class FXForwardNode extends CurveNode {
     private final MetaProperty<Tenor> _maturityTenor = DirectMetaProperty.ofReadWrite(
         this, "maturityTenor", FXForwardNode.class, Tenor.class);
     /**
-     * The meta-property for the {@code payConvention} property.
+     * The meta-property for the {@code fxForwardConvention} property.
      */
-    private final MetaProperty<ExternalId> _payConvention = DirectMetaProperty.ofReadWrite(
-        this, "payConvention", FXForwardNode.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _fxForwardConvention = DirectMetaProperty.ofReadWrite(
+        this, "fxForwardConvention", FXForwardNode.class, ExternalId.class);
     /**
-     * The meta-property for the {@code receiveConvention} property.
+     * The meta-property for the {@code payCurrency} property.
      */
-    private final MetaProperty<ExternalId> _receiveConvention = DirectMetaProperty.ofReadWrite(
-        this, "receiveConvention", FXForwardNode.class, ExternalId.class);
+    private final MetaProperty<Currency> _payCurrency = DirectMetaProperty.ofReadWrite(
+        this, "payCurrency", FXForwardNode.class, Currency.class);
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     */
+    private final MetaProperty<Currency> _receiveCurrency = DirectMetaProperty.ofReadWrite(
+        this, "receiveCurrency", FXForwardNode.class, Currency.class);
     /**
      * The meta-properties.
      */
@@ -315,8 +381,9 @@ public class FXForwardNode extends CurveNode {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "startTenor",
         "maturityTenor",
-        "payConvention",
-        "receiveConvention");
+        "fxForwardConvention",
+        "payCurrency",
+        "receiveCurrency");
 
     /**
      * Restricted constructor.
@@ -331,10 +398,12 @@ public class FXForwardNode extends CurveNode {
           return _startTenor;
         case 45907375:  // maturityTenor
           return _maturityTenor;
-        case -1809959367:  // payConvention
-          return _payConvention;
-        case -724981068:  // receiveConvention
-          return _receiveConvention;
+        case -616625820:  // fxForwardConvention
+          return _fxForwardConvention;
+        case -295641895:  // payCurrency
+          return _payCurrency;
+        case -1228590060:  // receiveCurrency
+          return _receiveCurrency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -372,19 +441,27 @@ public class FXForwardNode extends CurveNode {
     }
 
     /**
-     * The meta-property for the {@code payConvention} property.
+     * The meta-property for the {@code fxForwardConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> payConvention() {
-      return _payConvention;
+    public final MetaProperty<ExternalId> fxForwardConvention() {
+      return _fxForwardConvention;
     }
 
     /**
-     * The meta-property for the {@code receiveConvention} property.
+     * The meta-property for the {@code payCurrency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> receiveConvention() {
-      return _receiveConvention;
+    public final MetaProperty<Currency> payCurrency() {
+      return _payCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> receiveCurrency() {
+      return _receiveCurrency;
     }
 
   }

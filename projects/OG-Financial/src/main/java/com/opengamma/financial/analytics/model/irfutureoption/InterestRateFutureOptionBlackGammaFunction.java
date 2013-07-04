@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -16,8 +16,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Function computes the gamma, second order derivative of position price with respect to the futures rate,
- * for InterestRateFutureOptions in the Black world.
+ * Function computes the {@link ValueRequirementNames#GAMMA}, second order derivative of position price with respect to the futures rate,
+ * for interest rate future options in the Black world.
  */
 public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutureOptionBlackFunction {
 
@@ -27,7 +27,7 @@ public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutu
   private static final PresentValueBlackGammaCalculator CALCULATOR = PresentValueBlackGammaCalculator.getInstance();
 
   public InterestRateFutureOptionBlackGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+    super(ValueRequirementNames.GAMMA);
   }
 
   @Override

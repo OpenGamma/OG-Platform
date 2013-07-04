@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
@@ -34,6 +36,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -44,6 +47,8 @@ import com.opengamma.util.async.AsynchronousExecution;
  * it to return the snapshot.
  */
 public class CurveMarketDataFunction extends AbstractFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(CurveMarketDataFunction.class);
   /** The curve name */
   private final String _curveName;
 
@@ -71,10 +76,39 @@ public class CurveMarketDataFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         final SnapshotDataBundle marketData = new SnapshotDataBundle();
         final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(context.getComputationTargetResolver());
-        for (final ComputedValue value : inputs.getAllValues()) {
-          final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
-          final double data = (Double) value.getValue();
-          marketData.setDataPoint(identifiers, data);
+        for (final CurveNodeWithIdentifier id : specification.getNodes()) {
+          if (id.getDataField() != null) {
+            final ComputedValue value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+            if (value != null) {
+              final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+              if (id instanceof PointsCurveNodeWithIdentifier) {
+                final PointsCurveNodeWithIdentifier pointsId = (PointsCurveNodeWithIdentifier) id;
+                final ComputedValue base = inputs.getComputedValue(new ValueRequirement(pointsId.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, pointsId.getUnderlyingIdentifier()));
+                if (base != null) {
+                  final ExternalIdBundle spreadIdentifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+                  if (value.getValue() == null || base.getValue() == null) {
+                    marketData.setDataPoint(spreadIdentifiers, null);
+                  } else {
+                    marketData.setDataPoint(spreadIdentifiers, (Double) value.getValue() + (Double) base.getValue());
+                  }
+                } else {
+                  s_logger.warn("Could not get market data for {}" + pointsId.getUnderlyingIdentifier());
+                }
+              } else {
+                marketData.setDataPoint(identifiers, (Double) value.getValue());
+              }
+            } else {
+              s_logger.warn("Could not get market data for {}" + id.getIdentifier());
+            }
+          } else {
+            final ComputedValue value = inputs.getComputedValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+            if (value != null) {
+              final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+              marketData.setDataPoint(identifiers, (Double) value.getValue());
+            } else {
+              s_logger.warn("Could not get market data for {}" + id.getIdentifier());
+            }
+          }
         }
         return Collections.singleton(new ComputedValue(spec, marketData));
       }
@@ -95,6 +129,10 @@ public class CurveMarketDataFunction extends AbstractFunction {
         for (final CurveNodeWithIdentifier id : specification.getNodes()) {
           if (id.getDataField() != null) {
             requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+            if (id instanceof PointsCurveNodeWithIdentifier) {
+              final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+              requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+            }
           } else {
             requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
           }

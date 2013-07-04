@@ -22,10 +22,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Convention for deposit rates.
  */
 @BeanDefinition
 public class DepositConvention extends Convention {
@@ -72,10 +71,20 @@ public class DepositConvention extends Convention {
   /**
    * For the builder.
    */
-  public DepositConvention() {
+  /* package */ DepositConvention() {
     super();
   }
 
+  /**
+   * @param name The name of the convention, not null
+   * @param externalIdBundle The external identifiers for this convention, not null
+   * @param dayCount The day-count, not null
+   * @param businessDayConvention The businessDayConvention, not null
+   * @param daysToSettle The number of days to settle
+   * @param isEOM True if the dates follow the end-of-month rule
+   * @param currency The currency, not null
+   * @param regionCalendar The identifier for the region calendar, not null
+   */
   public DepositConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int daysToSettle, final boolean isEOM, final Currency currency, final ExternalId regionCalendar) {
     super(name, externalIdBundle);

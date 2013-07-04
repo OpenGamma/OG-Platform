@@ -7,7 +7,8 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
+import com.google.common.primitives.Doubles;
+import com.opengamma.analytics.math.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -24,7 +25,7 @@ import com.opengamma.util.ParallelArrayBinarySort;
 public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePolynomialInterpolator {
 
   private final HermiteCoefficientsProvider _solver = new HermiteCoefficientsProvider();
-  private final PiecewisePolynomialFunction1D _function = new PiecewisePolynomialFunction1D();
+  private final PiecewisePolynomialWithSensitivityFunction1D _function = new PiecewisePolynomialWithSensitivityFunction1D();
   private PiecewisePolynomialInterpolator _method;
 
   /**
@@ -37,7 +38,6 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
-
     ArgumentChecker.notNull(xValues, "xValues");
     ArgumentChecker.notNull(yValues, "yValues");
 
@@ -165,6 +165,69 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+    ArgumentChecker.notNull(xValues, "xValues");
+    ArgumentChecker.notNull(yValues, "yValues");
+
+    ArgumentChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgumentChecker.isTrue(xValues.length > 2, "Data points should be more than 2");
+
+    final int nDataPts = xValues.length;
+    final int yValuesLen = yValues.length;
+
+    for (int i = 0; i < nDataPts; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(xValues[i]), "xValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(xValues[i]), "xValues containing Infinity");
+    }
+    for (int i = 0; i < yValuesLen; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(yValues[i]), "yValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
+    }
+
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = i + 1; j < nDataPts; ++j) {
+        ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
+      }
+    }
+
+    double[] yValuesSrt = new double[nDataPts];
+    if (nDataPts == yValuesLen) {
+      yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    } else {
+      yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
+    }
+
+    final double[] intervals = _solver.intervalsCalculator(xValues);
+    final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
+    final PiecewisePolynomialResultsWithSensitivity resultWithSensitivity = _method.interpolateWithSensitivity(xValues, yValues);
+
+    ArgumentChecker.isTrue(resultWithSensitivity.getOrder() == 4, "Primary interpolant is not cubic");
+
+    final double[] initialFirst = _function.differentiate(resultWithSensitivity, xValues).getData()[0];
+    final double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
+    final DoubleMatrix1D[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
+    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(yValuesSrt, intervals, initialFirst, initialFirstSense);
+    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValues, intervals, slopes, slopeSensitivity, firstWithSensitivity);
+
+    for (int k = 0; k < nDataPts; k++) {
+      DoubleMatrix2D m = resMatrix[k];
+      final int rows = m.getNumberOfRows();
+      final int cols = m.getNumberOfColumns();
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          ArgumentChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+        }
+      }
+    }
+
+    final DoubleMatrix2D coefMatrix = resMatrix[0];
+    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
+    System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
+    final int nCoefs = coefMatrix.getNumberOfColumns();
+
+    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+  }
+
   /**
    * First derivatives are modified such that cubic interpolant has the same sign as linear interpolator 
    * @param yValues 
@@ -187,6 +250,76 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     res[nDataPts - 1] = tauFin == 0. ? 0. : Math.min(5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2],
         Math.max(-5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2], tauFin * initialFirst[nDataPts - 1])) /
         tauFin;
+
+    return res;
+  }
+
+  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] yValues, final double[] intervals, final double[] initialFirst,
+      final DoubleMatrix1D[] initialFirstSense) {
+    final int nDataPts = yValues.length;
+    final DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
+    final double[] newFirst = new double[nDataPts];
+
+    for (int i = 1; i < nDataPts - 1; ++i) {
+      final double tau = Math.signum(yValues[i]);
+      final double lower = -3. * tau * yValues[i] / intervals[i];
+      final double upper = 3. * tau * yValues[i] / intervals[i - 1];
+      final double ref = tau * initialFirst[i];
+      final double[] tmp = new double[nDataPts];
+      Arrays.fill(tmp, 0.);
+      if (ref < lower) {
+        newFirst[i] = lower / tau;
+        tmp[i] = -3. / intervals[i];
+      } else {
+        if (ref > upper) {
+          newFirst[i] = upper / tau;
+          tmp[i] = 3. / intervals[i - 1];
+        } else {
+          newFirst[i] = initialFirst[i];
+          System.arraycopy(initialFirstSense[i].getData(), 0, tmp, 0, nDataPts);
+        }
+      }
+      res[i + 1] = new DoubleMatrix1D(tmp);
+    }
+    final double tauIni = Math.signum(yValues[0]);
+    final double lowerIni = -3. * tauIni * yValues[0] / intervals[0];
+    final double upperIni = 3. * tauIni * yValues[0] / intervals[0];
+    final double refIni = tauIni * initialFirst[0];
+    final double[] tmpIni = new double[nDataPts];
+    Arrays.fill(tmpIni, 0.);
+    if (refIni < lowerIni) {
+      newFirst[0] = lowerIni / tauIni;
+      tmpIni[0] = -3. / intervals[0];
+    } else {
+      if (refIni > upperIni) {
+        newFirst[0] = upperIni / tauIni;
+        tmpIni[0] = 3. / intervals[0];
+      } else {
+        newFirst[0] = initialFirst[0];
+        System.arraycopy(initialFirstSense[0].getData(), 0, tmpIni, 0, nDataPts);
+      }
+    }
+    res[1] = new DoubleMatrix1D(tmpIni);
+    final double tauFin = Math.signum(yValues[nDataPts - 1]);
+    final double lowerFin = -3. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
+    final double upperFin = 3. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
+    final double refFin = tauFin * initialFirst[nDataPts - 1];
+    final double[] tmpFin = new double[nDataPts];
+    Arrays.fill(tmpFin, 0.);
+    if (refFin < lowerFin) {
+      newFirst[nDataPts - 1] = lowerFin / tauFin;
+      tmpFin[nDataPts - 1] = -3. / intervals[nDataPts - 2];
+    } else {
+      if (refFin > upperFin) {
+        newFirst[nDataPts - 1] = upperFin / tauFin;
+        tmpFin[nDataPts - 1] = 3. / intervals[nDataPts - 2];
+      } else {
+        newFirst[nDataPts - 1] = initialFirst[nDataPts - 1];
+        System.arraycopy(initialFirstSense[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
+      }
+    }
+    res[nDataPts] = new DoubleMatrix1D(tmpFin);
+    res[0] = new DoubleMatrix1D(newFirst);
 
     return res;
   }

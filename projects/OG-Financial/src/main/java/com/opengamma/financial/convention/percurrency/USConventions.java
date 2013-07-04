@@ -65,7 +65,7 @@ public class USConventions {
     final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(Currency.USD, DEPOSIT), ACT_360, MODIFIED_FOLLOWING, 0, false, Currency.USD, US);
     final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(Currency.USD, LIBOR), ACT_360, MODIFIED_FOLLOWING, 2, false, Currency.USD,
         LocalTime.of(11, 00), NYLON, US, "");
-    final Convention overnightConvention = new OvernightIndexConvention(overnightConventionName, getIds(Currency.USD, OVERNIGHT), ACT_360, 1, Currency.USD, NYLON);
+    final Convention overnightConvention = new OvernightIndexConvention(overnightConventionName, getIds(Currency.USD, OVERNIGHT), ACT_360, 1, Currency.USD, US);
     final Convention fixedLegConvention = new SwapFixedLegConvention(fixedSwapLegConventionName, getIds(Currency.USD, FIXED_SWAP_LEG),
         Tenor.THREE_MONTHS, THIRTY_360, MODIFIED_FOLLOWING, 2, false, Currency.USD, NYLON, StubType.NONE);
     final Convention vanillaIborLegConvention = new VanillaIborLegConvention(vanillaIborLegConventionName, getIds(Currency.USD, tenorString, VANILLA_IBOR_LEG),

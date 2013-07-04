@@ -9,7 +9,12 @@ $.register_module({
         var module = this, row_height = 21, title_height = 31, set_height = 24, logging = 'logLevel',
             templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = og.common.util.scrollbar_size,
             do_not_expand = {
-                DOUBLE: null, FUNGIBLE_TRADE: null, NODE: null, OTC_TRADE: null, POSITION: null, STRING: null
+                DOUBLE: null,
+                FUNGIBLE_TRADE: null,
+                NODE: null,
+                OTC_TRADE: null,
+                POSITION: null,
+                STRING: null
             }, has = 'hasOwnProperty';
         var available = (function () {
             var nodes;
@@ -467,7 +472,7 @@ $.register_module({
                         prefix = fixed && col === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
                             state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
-                        if(data[index] !== undefined) { //catch any histogram and timeseries resize lags
+                        if (data[index] !== undefined) { //catch any histogram and timeseries resize lags
                             cells.push({
                                 column: column, value: prefix + value, type: data[index].t || type,
                                 highlight: highlight && highlight.row === data_row && highlight.col === data_col

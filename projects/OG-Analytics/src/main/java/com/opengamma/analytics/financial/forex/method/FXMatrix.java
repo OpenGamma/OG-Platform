@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -193,7 +193,7 @@ public class FXMatrix {
 
   /**
    * Reset the exchange rate of a given currency.
-   * @param ccyToUpdate The currency for which the exchange rats should be updated. Should be in the FX matrix already.
+   * @param ccyToUpdate The currency for which the exchange rates should be updated. Should be in the FX matrix already.
    * @param ccyReference The reference currency used to compute the cross rates with the new currency. Should already be in the matrix.
    * @param fxRate TheFX rate between the new currency and the reference currency. It is 1.0 * ccyToAdd = fxrate * ccyReference. The FX matrix will be changed for currency1
    * using cross rate coherent with the data provided.

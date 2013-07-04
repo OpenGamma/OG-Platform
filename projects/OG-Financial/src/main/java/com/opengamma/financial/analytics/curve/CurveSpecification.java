@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -21,15 +21,18 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class CurveSpecification implements Serializable {
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
 
+  /** The curve date */
   private final LocalDate _curveDate;
+  /** The curve name */
   private final String _name;
+  /** The curve nodes */
   private final SortedSet<CurveNodeWithIdentifier> _nodes;
 
   public CurveSpecification(final LocalDate curveDate, final String name, final Collection<CurveNodeWithIdentifier> nodes) {

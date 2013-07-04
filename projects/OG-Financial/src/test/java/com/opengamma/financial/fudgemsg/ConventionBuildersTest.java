@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -23,11 +23,13 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
+import com.opengamma.financial.convention.ZeroCouponInflationConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -38,7 +40,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class ConventionBuildersTest extends AnalyticsTestBase {
@@ -118,6 +120,13 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
   }
 
   @Test
+  public void testPriceIndexConvention() {
+    final PriceIndexConvention convention = new PriceIndexConvention("CPI", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("CPI")), Currency.USD, ExternalId.of("Region", "US"));
+    convention.setUniqueId(UniqueId.of("Test", "9385"));
+    assertEquals(convention, cycleObject(PriceIndexConvention.class, convention));
+  }
+
+  @Test
   public void testSwapConvention() {
     final SwapConvention convention = new SwapConvention("EUR Swap", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Swap")),
         ExternalId.of("Test", "EUR Pay Leg"), ExternalId.of("Test", "EUR Receive Leg"));
@@ -150,4 +159,11 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
     assertEquals(convention, cycleObject(VanillaIborLegConvention.class, convention));
   }
 
+  @Test
+  public void testZeroCouponInflationConvention() {
+    final ZeroCouponInflationConvention convention = new ZeroCouponInflationConvention("CPI", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("CPI")),
+        ExternalId.of("Test", "Index"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), DayCountFactory.INSTANCE.getDayCount("Act/360"), true, 3, 1, "Linear");
+    convention.setUniqueId(UniqueId.of("Test", "98657"));
+    assertEquals(convention, cycleObject(ZeroCouponInflationConvention.class, convention));
+  }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.generic;
@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -210,6 +211,11 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   }
 
   @Override
+  public Double visitForex(final Forex fx) {
+    return fx.getPaymentTime();
+  }
+
+  @Override
   public Double visitAgricultureFutureOption(final AgricultureFutureOption option) {
     return option.getExpiry();
   }
@@ -298,7 +304,7 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
 
   @Override
   public Double visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
-    return coupon.getReferenceEndTime()[0];
+    return coupon.getPaymentTime();
   }
 
 }

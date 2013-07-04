@@ -14,6 +14,8 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscount
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -57,39 +59,40 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_STIR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
   //     -----     Deposit     -----
 
   @Override
-  public MulticurveSensitivity visitCash(final Cash deposit, final MulticurveProviderInterface multicurve) {
-    return METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, multicurve);
+  public MulticurveSensitivity visitCash(final Cash deposit, final MulticurveProviderInterface multicurves) {
+    return METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, multicurves);
   }
 
   @Override
-  public MulticurveSensitivity visitDepositIbor(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
-    return METHOD_DEPOSIT_IBOR.parSpreadCurveSensitivity(deposit, multicurve);
+  public MulticurveSensitivity visitDepositIbor(final DepositIbor deposit, final MulticurveProviderInterface multicurves) {
+    return METHOD_DEPOSIT_IBOR.parSpreadCurveSensitivity(deposit, multicurves);
   }
 
   // -----     Payment/Coupon     ------
 
   @Override
-  public MulticurveSensitivity visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
-    return METHOD_FRA.parSpreadCurveSensitivity(fra, multicurve);
+  public MulticurveSensitivity visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurves) {
+    return METHOD_FRA.parSpreadCurveSensitivity(fra, multicurves);
   }
 
   //     -----     Swaps     -----
 
   @Override
-  public MulticurveSensitivity visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
-    ArgumentChecker.notNull(multicurve, "multicurve");
+  public MulticurveSensitivity visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
+    ArgumentChecker.notNull(multicurves, "multicurve");
     ArgumentChecker.notNull(swap, "Swap");
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
-    final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, multicurve);
-    final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, multicurve.getFxRates()).getSensitivity(ccy1);
-    final MulticurveSensitivity pvmqscs = swap.getFirstLeg().accept(PVMQSCSMC, multicurve);
-    final double pvmqs = swap.getFirstLeg().accept(PVMQSMC, multicurve);
-    final double pv = multicurve.getFxRates().convert(swap.accept(PVMC, multicurve), ccy1).getAmount();
+    final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, multicurves);
+    final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, multicurves.getFxRates()).getSensitivity(ccy1);
+    final MulticurveSensitivity pvmqscs = swap.getFirstLeg().accept(PVMQSCSMC, multicurves);
+    final double pvmqs = swap.getFirstLeg().accept(PVMQSMC, multicurves);
+    final double pv = multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), ccy1).getAmount();
     // Implementation note: Total pv in currency 1.
     return pvcs1.multipliedBy(-1.0 / pvmqs).plus(pvmqscs.multipliedBy(pv / (pvmqs * pvmqs)));
   }
@@ -97,6 +100,13 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
   @Override
   public MulticurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurve) {
     return visitSwap(swap, multicurve);
+  }
+
+  //     -----     Futures     -----
+
+  @Override
+  public MulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
+    return METHOD_STIR_FUT.priceCurveSensitivity(futures.getUnderlying(), multicurves);
   }
 
   //     -----     Forex     -----
