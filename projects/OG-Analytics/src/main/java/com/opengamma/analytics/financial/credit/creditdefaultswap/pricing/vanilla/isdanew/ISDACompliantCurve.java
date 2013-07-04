@@ -71,6 +71,12 @@ public class ISDACompliantCurve {
     return res;
   }
 
+  protected double[] getKnotZeroRates() {
+    double[] res = new double[_n];
+    System.arraycopy(_r, 0, res, 0, _n);
+    return res;
+  }
+
   /**
    * The discount factor or survival probability 
    * @param t Time 
@@ -172,6 +178,12 @@ public class ISDACompliantCurve {
     return _n;
   }
 
+  /**
+   * get the sensitivity of the interpolated rate at time t to the curve node. Note, since the interpolator is highly local, most
+   * of the returned values will be zero, so it maybe more efficient to call getSingleNodeSensitivity
+   * @param t The time
+   * @return sensitivity to the nodes 
+   */
   public double[] getNodeSensitivity(final double t) {
 
     double[] res = new double[_n];
@@ -202,7 +214,8 @@ public class ISDACompliantCurve {
   }
 
   /**
-   * get the sensitivity of the interpolated rate at time t to a specified node 
+   * get the sensitivity of the interpolated zero rate at time t to the value of the zero rate at a given node (knot).  For a
+   * given index, i, this is zero unless $$t_{i-1} < t < t_{i+1}$$ since the interpolation is highly local.    
    * @param t The time
    * @param nodeIndex The node index 
    * @return sensitivity to a single node 
@@ -238,6 +251,13 @@ public class ISDACompliantCurve {
     return t1 * (t2 - t) / dt / t;
   }
 
+  /**
+   * The sensitivity of the discount factor at some time, t, to the value of the zero rate at a given node (knot). For a
+   * given index, i, this is zero unless $$t_{i-1} < t < t_{i+1}$$ since the interpolation is highly local.    
+   * @param t time value of the discount factor 
+   * @param nodeIndex node index 
+   * @return sensitivity of a discount factor to a single node 
+   */
   public double getSingleNodeDiscountFactorSensitivity(final double t, final int nodeIndex) {
     ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
     ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < _n, "index out of range");
@@ -275,7 +295,7 @@ public class ISDACompliantCurve {
   }
 
   /**
-   * Update are rates in curve 
+   * Update are rates in curve. 
    * @param r Set of rates
    * @return a new curve 
    */

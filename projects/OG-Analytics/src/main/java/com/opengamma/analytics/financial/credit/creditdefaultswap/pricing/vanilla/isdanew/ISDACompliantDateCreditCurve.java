@@ -53,7 +53,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
     _dayCount = dayCount;
   }
 
-  private ISDACompliantDateCreditCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, ISDACompliantCurve baseCurve) {
+  private ISDACompliantDateCreditCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, ISDACompliantCreditCurve baseCurve) {
     super(baseCurve);
     _baseDate = baseDate;
     _dates = dates;
@@ -99,7 +99,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
 
   @Override
   public ISDACompliantDateCreditCurve withRate(final double rate, final int index) {
-    ISDACompliantCurve temp = super.withRate(rate, index);
+    ISDACompliantCreditCurve temp = super.withRate(rate, index);
     return new ISDACompliantDateCreditCurve(_baseDate, _dates, _dayCount, temp);
   }
 

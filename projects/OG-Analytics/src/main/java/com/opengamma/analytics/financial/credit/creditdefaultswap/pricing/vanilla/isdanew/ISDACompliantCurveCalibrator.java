@@ -22,8 +22,12 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
+
 /**
- * 
+ * This should be viewed as "proof of concept" code, since it used the code that has date logic mixed with the analytics (this was to
+ * mimic the structure of the ISDA c code). This should <b>not</b> be used for production credit (hazard) curve calibration/bootstrapping,
+ * ISDACompliantCreditCurveCalibrator should be used.
+ *   
  */
 public class ISDACompliantCurveCalibrator {
 

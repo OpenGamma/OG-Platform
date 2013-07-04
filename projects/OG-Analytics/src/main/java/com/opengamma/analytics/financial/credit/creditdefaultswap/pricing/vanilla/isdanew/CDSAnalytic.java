@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * This converts and stores all the date logic as doubles for CDS pricing on a particular date 
  */
 public class CDSAnalytic {
 
