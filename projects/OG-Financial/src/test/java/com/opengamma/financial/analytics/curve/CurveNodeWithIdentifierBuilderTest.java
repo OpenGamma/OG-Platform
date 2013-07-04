@@ -24,6 +24,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -115,7 +116,7 @@ public class CurveNodeWithIdentifierBuilderTest {
 
   @Test
   public void testZeroCouponInflation() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), "Test");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), InflationNodeType.MONTHLY, "Test");
     assertEquals(new CurveNodeWithIdentifier(node, ExternalId.of("Test", "ZCI"), "ZC Data", DataFieldType.OUTRIGHT), node.accept(BUILDER));
   }
 
