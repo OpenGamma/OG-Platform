@@ -21,7 +21,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
 
+/**
+ * Example annuity.
+ */
 public class AnnuityExample {
+
+  // CSOFF
   public static final double[] FUNDING_CURVE_TIMES = new double[] {1, 2, 5, 10, 20, 31 };
   public static final double[] LIBOR_CURVE_TIMES = new double[] {0.5, 1, 2, 5, 10, 20, 31 };
   public static final double[] FUNDING_YIELDS = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044 };
@@ -36,6 +41,7 @@ public class AnnuityExample {
   public static final String LIBOR_CURVE_NAME = "Libor Curve";
 
   public static final int MATURITY = 5;
+  // CSON
 
   public static YieldCurveBundle getBundle() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
@@ -91,4 +97,5 @@ public class AnnuityExample {
     final double[] paymentTimes = floatingPaymentTimes(MATURITY);
     out.println(Arrays.toString(paymentTimes));
   }
+
 }
