@@ -31,6 +31,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.StartupUtils;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -39,6 +40,10 @@ public class BatchRunner {
 
   /** The spring configuration. */
   public static final String CONTEXT_CONFIGURATION_PATH = "/com/opengamma/masterdb/batch/cmd/batch-context.xml";
+  
+  static {
+    StartupUtils.init();
+  }
 
   /**
    * @see RunCreationMode

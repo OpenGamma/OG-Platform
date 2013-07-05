@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ReflectionUtils;
+import com.opengamma.util.StartupUtils;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
 import com.opengamma.util.db.script.DbSchemaGroupMetadata;
@@ -47,6 +48,10 @@ public class DbTool extends Task {
    * During installation, INFO level messages will be reported to the user as progress.
    */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
+  
+  static {
+    StartupUtils.init();
+  }
 
   /**
    */

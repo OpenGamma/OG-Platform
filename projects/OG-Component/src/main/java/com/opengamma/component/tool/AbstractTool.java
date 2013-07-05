@@ -20,6 +20,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.StartupUtils;
 
 /**
  * Abstract class for command line tools.
@@ -49,6 +50,10 @@ public abstract class AbstractTool<T extends ToolContext> {
    * Logging command line option.
    */
   private static final String LOGBACK_RESOURCE_OPTION = "l";
+  
+  static {
+    StartupUtils.init();
+  }
 
   /**
    * The command line.
