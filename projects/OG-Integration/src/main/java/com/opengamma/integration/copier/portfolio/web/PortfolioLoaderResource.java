@@ -32,6 +32,8 @@ import com.opengamma.integration.copier.portfolio.rowparser.RowParser;
 import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
+import com.opengamma.integration.tool.portfolio.xml.XmlFileReader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -104,6 +106,7 @@ public class PortfolioLoaderResource {
                                   //@FormDataParam("dataField") String dataField
                                   //@FormDataParam("dataProvider") String dataProvider
   ) throws IOException {
+
     String dataField = getString(formData, "dataField");
     String dataProvider = getString(formData, "dataProvider");
     String portfolioName = getString(formData, "portfolioName");
@@ -115,18 +118,25 @@ public class PortfolioLoaderResource {
     if (!(fileEntity instanceof BodyPartEntity)) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
+
     InputStream fileStream = new WorkaroundInputStream(((BodyPartEntity) fileEntity).getInputStream());
     //String fileContent = IOUtils.toString(fileStream);
     s_logger.info("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, dataProvider: {}",
                   new Object[]{fileName, portfolioName, dataField, dataProvider});
+
+    final PortfolioReader portfolioReader;
     final ResolvingPortfolioCopier copier = new ResolvingPortfolioCopier(_historicalTimeSeriesMaster,
-                                                                         _historicalTimeSeriesProvider,
-                                                                         _referenceDataProvider,
-                                                                         dataProvider,
-                                                                         dataFields);
-    RowParser rowParser = new ExchangeTradedRowParser(_securityProvider);
-    SheetFormat format = getFormatForFileName(fileName);
-    final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
+                                                                   _historicalTimeSeriesProvider,
+                                                                   _referenceDataProvider,
+                                                                   dataProvider,
+                                                                   dataFields);
+    if(fileName.toLowerCase().endsWith("xml")) {
+      portfolioReader = returnPorfolioReader(fileStream).iterator().next();
+    } else {
+      SheetFormat format = getFormatForFileName(fileName);
+      RowParser rowParser = new ExchangeTradedRowParser(_securityProvider);
+      portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
+    }
     final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster,
         _securityMaster, false, false, false, true);
     StreamingOutput streamingOutput = new StreamingOutput() {
@@ -138,6 +148,10 @@ public class PortfolioLoaderResource {
       }
     };
     return Response.ok(streamingOutput).build();
+  }
+
+  private Iterable<? extends PortfolioReader> returnPorfolioReader(InputStream fileStream) {
+    return new XmlFileReader(fileStream, new SchemaRegister());
   }
 
   private static FormDataBodyPart getBodyPart(FormDataMultiPart formData, String fieldName) {
@@ -167,8 +181,6 @@ public class PortfolioLoaderResource {
       return SheetFormat.XLS;
     } else if (fileName.toLowerCase().endsWith("xlsx")) {
       return SheetFormat.XLSX;
-    } else if (fileName.toLowerCase().endsWith("xml")) {
-      return SheetFormat.XML;
   }
 
     Response response = Response.status(Response.Status.BAD_REQUEST).entity("Portfolio upload only supports CSV " +

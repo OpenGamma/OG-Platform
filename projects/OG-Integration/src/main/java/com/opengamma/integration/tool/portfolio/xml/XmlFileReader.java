@@ -24,7 +24,7 @@ import com.opengamma.integration.copier.sheet.reader.SheetReader;
  * of Portfolio readers (one for each portfolio in the file). Note that
  * as the class implements Iterable, it is stateful and not thread safe.
  */
-public class XmlFileReader extends SheetReader implements Iterable<PortfolioReader> {
+public class XmlFileReader implements Iterable<PortfolioReader> {
 
   /**
    * The portfolio readers available after the file has been successfully parsed.
@@ -84,13 +84,4 @@ public class XmlFileReader extends SheetReader implements Iterable<PortfolioRead
     return new SchemaVersionParser(new InputStreamReader(inputStream)).parseSchemaVersion();
   }
 
-  @Override
-  public Map<String, String> loadNextRow() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  @Override
-  public void close() {
-    //To change body of implemented methods use File | Settings | File Templates.
-  }
 }
