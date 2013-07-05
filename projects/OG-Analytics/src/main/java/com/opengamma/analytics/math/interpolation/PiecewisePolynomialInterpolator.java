@@ -199,6 +199,14 @@ public abstract class PiecewisePolynomialInterpolator {
   }
 
   /**
+   * Derive interpolant on {xValues_i, yValues_i} and (yValues) node sensitivity 
+   * @param xValues X values of data
+   * @param yValues Y values of data
+   * @return {@link PiecewisePolynomialResultsWithSensitivity}
+   */
+  public abstract PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues);
+
+  /**
    * @param coefs {a_n,a_{n-1},...} of f(x) = a_n x^{n} + a_{n-1} x^{n-1} + ....
    * @param x 
    * @param leftknot Knot specifying underlying interpolation function
@@ -208,13 +216,59 @@ public abstract class PiecewisePolynomialInterpolator {
 
     final int nCoefs = coefs.length;
 
-    double res = 0.;
-    for (int i = 0; i < nCoefs; ++i) {
-      res += coefs[nCoefs - 1 - i] * Math.pow((x - leftknot), i);
+    final double s = x - leftknot;
+    double res = coefs[0];
+    for (int i = 1; i < nCoefs; i++) {
+      res *= s;
+      res += coefs[i];
     }
 
     return res;
-
   }
 
+  //  protected DoubleMatrix2D [] getSensitivityByFiniteDifference(final double [] xValues, final double [] yValues, final double eps) {
+  //    final int nData = yValues.length;
+  //    final double [][] yValuesUp = getUpValues(yValues, eps);
+  //    final double [][] yValuesDw = getUpValues(yValues, eps);
+  //    final DoubleMatrix2D [] res = new DoubleMatrix2D[nData-1];
+  //    
+  //    for (int i= 0;i<nData;++i) {
+  //    final DoubleMatrix2D coefUp = this.interpolate(xValues, yValuesUp[i]).getCoefMatrix();
+  //    final DoubleMatrix2D coefDw = this.interpolate(xValues, yValuesDw[i]).getCoefMatrix();
+  //    
+  //    final int nIntervals = coefUp.getNumberOfRows();
+  //    final int nCoefs = coefUp.getNumberOfColumns();
+  //    final double [][] tmp = new double[nIntervals][nCoefs];
+  //    
+  //    for (int j=0;j<nIntervals;++j) {
+  //      for(int k =0;k<nCoefs;++k) {
+  //        tmp[k][j]
+  //      }
+  //    }
+  //    }
+  //  }
+  //  
+  //  private double[][] getUpValues(final double[] values, final double eps) {
+  //    final int nData = values.length;
+  //    final double[][] res = new double[nData][nData];
+  //
+  //    for (int i = 0; i < nData; ++i) {
+  //      System.arraycopy(values, 0, res[i], 0, nData);
+  //      final double ref = values[i];
+  //      res[i][i] = ref == 0. ? eps : ref * (1. + eps);
+  //    }
+  //    return res;
+  //  }
+  //
+  //  private double[][] getDownValues(final double[] values, final double eps) {
+  //    final int nData = values.length;
+  //    final double[][] res = new double[nData][nData];
+  //
+  //    for (int i = 0; i < nData; ++i) {
+  //      System.arraycopy(values, 0, res[i], 0, nData);
+  //      final double ref = values[i];
+  //      res[i][i] = ref == 0. ? eps : ref * (1. - eps);
+  //    }
+  //    return res;
+  //  }
 }

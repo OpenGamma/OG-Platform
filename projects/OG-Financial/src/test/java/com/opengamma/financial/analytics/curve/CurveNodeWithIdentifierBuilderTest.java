@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -24,15 +24,17 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class CurveNodeWithIdentifierBuilderTest {
@@ -48,6 +50,7 @@ public class CurveNodeWithIdentifierBuilderTest {
     final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = new HashMap<>();
     final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = new HashMap<>();
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = new HashMap<>();
+    final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = new HashMap<>();
     cashNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "Cash"), "Cash Data", DataFieldType.OUTRIGHT));
     continuouslyCompoundedRateIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "Rate"), "CC Rate Data", DataFieldType.POINTS));
     creditSpreadNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "Credit spread"), "Credit Data", DataFieldType.OUTRIGHT));
@@ -56,8 +59,9 @@ public class CurveNodeWithIdentifierBuilderTest {
     fxForwardNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "FX Forward"), "FX Forward Data", DataFieldType.POINTS));
     rateFutureNodeIds.put(Tenor.TWO_MONTHS, new TestCurveInstrumentProvider(ExternalId.of("Test", "Future"), "Market_Value", DataFieldType.OUTRIGHT));
     swapNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "Swap"), "Swap Data", DataFieldType.POINTS));
+    zeroCouponInflationNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "ZCI"), "ZC Data", DataFieldType.OUTRIGHT));
     MAPPER = new CurveNodeIdMapper(cashNodeIds, continuouslyCompoundedRateIds, creditSpreadNodeIds,
-        discountFactorIds, fraNodeIds, fxForwardNodeIds, rateFutureNodeIds, swapNodeIds);
+        discountFactorIds, fraNodeIds, fxForwardNodeIds, rateFutureNodeIds, swapNodeIds, zeroCouponInflationNodeIds);
     BUILDER = new CurveNodeWithIdentifierBuilder(LocalDate.of(2013, 1, 1), MAPPER);
   }
 
@@ -108,6 +112,12 @@ public class CurveNodeWithIdentifierBuilderTest {
   public void testSwap() {
     final SwapNode swap = new SwapNode(Tenor.ONE_DAY, Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), "Test");
     assertEquals(new CurveNodeWithIdentifier(swap, ExternalId.of("Test", "Swap"), "Swap Data", DataFieldType.POINTS), swap.accept(BUILDER));
+  }
+
+  @Test
+  public void testZeroCouponInflation() {
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), InflationNodeType.MONTHLY, "Test");
+    assertEquals(new CurveNodeWithIdentifier(node, ExternalId.of("Test", "ZCI"), "ZC Data", DataFieldType.OUTRIGHT), node.accept(BUILDER));
   }
 
   private static class TestCurveInstrumentProvider implements CurveInstrumentProvider {

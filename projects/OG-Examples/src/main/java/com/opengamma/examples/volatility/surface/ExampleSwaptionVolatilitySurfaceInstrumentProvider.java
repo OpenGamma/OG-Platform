@@ -25,6 +25,8 @@ public class ExampleSwaptionVolatilitySurfaceInstrumentProvider implements Surfa
   private final boolean _zeroPadSwapMaturityTenor;
   private final boolean _zeroPadSwaptionExpiryTenor;
   private final String _dataFieldName; // expecting MarketDataRequirementNames.MARKET_VALUE or PX_LAST
+  private static final String[] MONTHS_TABLE = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "1A", "1B", "1C",
+    "1D", "1E", "1F", "1G", "1H", "1I", "1J", "1K", "1L"};
 
   public ExampleSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadSwapMaturityTenor, final boolean zeroPadSwaptionExpiryTenor,
       final String postfix) {
@@ -64,9 +66,8 @@ public class ExampleSwaptionVolatilitySurfaceInstrumentProvider implements Surfa
     if (tenor.getPeriod().getYears() == 0) {
       final int months = tenor.getPeriod().getMonths();
       if (months > 0) {
-        final String[] monthsTable = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "1A", "1B", "1C", "1D", "1E", "1F", "1G", "1H", "1I", "1J", "1K", "1L"};
 
-        final String result = monthsTable[months - 1];
+        final String result = MONTHS_TABLE[months - 1];
         if (result.length() == 1 && prepadWithZero) {
           return "0" + result;
         }

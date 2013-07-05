@@ -213,7 +213,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
           assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
           assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
 
-          // tests date free vs date-faull code
+          // tests date free vs date-full code
           assertEquals("Premium Leg:", premLeg_clean_ISDA, premLeg_clean_new, 1e-13 * NOTIONAL);
           assertEquals("Protection Leg:", contLeg_ISDA, protectionLeg_new, 1e-16 * NOTIONAL);
         } catch (AssertionError e) {
@@ -227,7 +227,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
         assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
         assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
 
-        // tests date free vs date-faull code
+        // tests date free vs date-full code
         assertEquals("Premium Leg:", premLeg_clean_ISDA, premLeg_clean_new, 1e-13 * NOTIONAL);
         assertEquals("Protection Leg:", contLeg_ISDA, protectionLeg_new, 1e-16 * NOTIONAL);
       }

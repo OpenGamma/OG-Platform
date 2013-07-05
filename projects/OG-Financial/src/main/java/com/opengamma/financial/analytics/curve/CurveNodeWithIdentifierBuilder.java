@@ -23,6 +23,7 @@ import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
@@ -30,6 +31,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Class that constructs a {@link CurveNodeWithIdentifier} given a curve node and node id mapper.
  */
+//TODO make every node type work like FXForwardNode
 public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNodeWithIdentifier> {
   /** The curve construction date */
   private final LocalDate _curveDate;
@@ -126,6 +128,15 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     final ExternalId identifier = _nodeIdMapper.getSwapNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getSwapNodeDataField(tenor);
     final DataFieldType fieldType = _nodeIdMapper.getSwapNodeDataFieldType(tenor);
+    return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
+  }
+
+  @Override
+  public CurveNodeWithIdentifier visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
+    final Tenor tenor = node.getTenor();
+    final ExternalId identifier = _nodeIdMapper.getZeroCouponInflationNodeId(_curveDate, tenor);
+    final String dataField = _nodeIdMapper.getZeroCouponInflationNodeDataField(tenor);
+    final DataFieldType fieldType = _nodeIdMapper.getZeroCouponInflationNodeDataFieldType(tenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 

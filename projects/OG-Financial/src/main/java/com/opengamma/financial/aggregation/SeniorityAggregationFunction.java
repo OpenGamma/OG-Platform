@@ -10,20 +10,13 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.core.organization.Organization;
-import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -42,16 +35,17 @@ public class SeniorityAggregationFunction implements AggregationFunction<String>
    */
   private final SecuritySource _securitySource;
 
+  /**
+   * The name of this aggregation.
+   */
   private static final String NAME = "Seniority";
 
   /**
    * Creates the aggregation function.
    *
-   * @param name the name to be used for this aggregation, not null
    * @param securitySource the security source used for resolution of the CDS security, not null
-   * @param extractor the extractor which will process the cds option and return the required type, not null
    */
-  public SeniorityAggregationFunction(SecuritySource securitySource) {
+  public SeniorityAggregationFunction(final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "securitySource");
     _securitySource = securitySource;
   }
@@ -62,29 +56,33 @@ public class SeniorityAggregationFunction implements AggregationFunction<String>
   }
 
   @Override
-  public String classifyPosition(Position position) {
+  public String classifyPosition(final Position position) {
 
-    Security security = resolveSecurity(position);
+    final Security security = resolveSecurity(position);
 
     if (security instanceof CreditDefaultSwapOptionSecurity) {
-      CreditDefaultSwapOptionSecurity cdsOption = (CreditDefaultSwapOptionSecurity) security;
-      ExternalId underlyingId = cdsOption.getUnderlyingId();
-      Security underlying = _securitySource.getSingle(underlyingId.toBundle());
+      final CreditDefaultSwapOptionSecurity cdsOption = (CreditDefaultSwapOptionSecurity) security;
+      final ExternalId underlyingId = cdsOption.getUnderlyingId();
+      final Security underlying = _securitySource.getSingle(underlyingId.toBundle());
       return  ((CreditDefaultSwapSecurity) underlying).getDebtSeniority().toString();
     } else if (security instanceof CreditDefaultSwapSecurity) {
-      CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
+      final CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
       return cds.getDebtSeniority().toString();
     }
     return NOT_APPLICABLE;
   }
 
+  /**
+   * Gets the security source.
+   * @return The security source
+   */
   public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
-  private Security resolveSecurity(Position position) {
+  private Security resolveSecurity(final Position position) {
 
-    Security security = position.getSecurityLink().getTarget();
+    final Security security = position.getSecurityLink().getTarget();
     return security != null ? security : position.getSecurityLink().resolveQuiet(_securitySource);
   }
 
@@ -99,7 +97,7 @@ public class SeniorityAggregationFunction implements AggregationFunction<String>
   }
 
   @Override
-  public int compare(String sector1, String sector2) {
+  public int compare(final String sector1, final String sector2) {
     return sector1.compareTo(sector2);
   }
 }

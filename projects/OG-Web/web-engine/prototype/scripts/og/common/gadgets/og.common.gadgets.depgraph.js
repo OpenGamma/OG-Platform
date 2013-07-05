@@ -7,17 +7,19 @@ $.register_module({
     dependencies: ['og.common.gadgets.Grid'],
     obj: function () {
         var Grid = og.common.gadgets.Grid, Depgraph = function (config) {
-            var depgraph = this, highlight, containers;
-            Grid.call(depgraph, {
-                selector: config.selector, child: config.child, cellmenu: !~config.selector.indexOf('inplace'),
-                show_sets: false, show_views: false, collapse_level: 1,
+            var depgraph = this, containers;
+            Grid.call(depgraph, {selector: config.selector, child: config.child,
+                cellmenu: !~config.selector.indexOf('inplace'), show_sets: false, show_views: false, collapse_level: 1,
                 source: $.extend({depgraph: true, row: config.row, col: config.col}, config.source)
-            });
+                });
             if (!og.analytics.containers) return; // highlighting only works in analytics view (for now)
             containers = og.analytics.containers;
             var highlight = function (parent, row, col, event_type) {
-                if (Object.equals(parent, depgraph.source)) depgraph.highlight(row, col, event_type);
-                else depgraph.highlight();
+                if (Object.equals(parent, depgraph.source)) {
+                    depgraph.highlight(row, col, event_type);
+                } else {
+                    depgraph.highlight();
+                }
             };
             containers.on('cellhighlight', highlight);
             containers.on('cellhighlightinplace', highlight);

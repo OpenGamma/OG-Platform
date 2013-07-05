@@ -54,7 +54,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * The name of the multi-currency swap portfolio.
    */
-  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Swap Portfolio";
   /**
    * The name of Cap/Floor portfolio
    */
@@ -70,11 +70,15 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * The name of the mixed CMS portfolio
    */
-  public static final String MIXED_CMS_PORTFOLIO_NAME = "Mixed CM Portfolio";
+  public static final String MIXED_CMS_PORTFOLIO_NAME = "Constant Maturity Swap Portfolio";
   /**
    * The name of a vanilla FX option portfolio
    */
   public static final String VANILLA_FX_OPTION_PORTFOLIO_NAME = "Vanilla FX Option Portfolio";
+  /**
+   * Mixed currency swaption portfolio
+   */
+  public static final String MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME = "Swaption Portfolio";
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
@@ -121,6 +125,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadEquityOptionPortfolio();
     loadBondPortfolio();
     loadLiborRawSecurities();
+    loadSwaptionPortfolio();
     loadViews();
     loadFunctionConfigurations();
   }
@@ -310,6 +315,16 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       portfolioGeneratorTool().run(getToolContext(), VANILLA_FX_OPTION_PORTFOLIO_NAME, "VanillaFXOption", true, null);
       log.done();
     } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadSwaptionPortfolio() {
+    final Log log = new Log("Creating example swaption portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME, "Swaption", true, null);
+      log.done();
+    } catch(final RuntimeException t) {
       log.fail(t);
     }
   }

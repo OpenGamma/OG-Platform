@@ -173,7 +173,7 @@ public class InflationMarketModelConvexityAdjustmentForCoupon {
     ArgumentChecker.isTrue(startTime <= endTime, null);
     final IborIndex iborIndex = inflationConvexity.getBlackSmileIborCapParameters().getIndex();
     final int liborTenorInMonth = iborIndex.getTenor().getMonths();
-    final int numberOfperiod = (int) Math.round((endTime - startTime) / liborTenorInMonth);
+    final int numberOfperiod = (int) Math.round((endTime - startTime) * 12 / liborTenorInMonth);
 
     if (numberOfperiod == 0) {
       return 0.0;

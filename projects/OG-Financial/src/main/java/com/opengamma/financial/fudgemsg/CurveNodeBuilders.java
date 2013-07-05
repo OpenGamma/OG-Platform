@@ -22,8 +22,10 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -116,8 +118,12 @@ import com.opengamma.util.time.Tenor;
     }
   }
 
+  /**
+   * Fudge builder for {@link ContinuouslyCompoundedRateNode}
+   */
   @FudgeBuilderFor(ContinuouslyCompoundedRateNode.class)
   public static class ContinuouslyCompoundedRateNodeBuilder implements FudgeBuilder<ContinuouslyCompoundedRateNode> {
+    /** The tenor field */
     private static final String TENOR_FIELD = "tenor";
 
     @Override
@@ -145,8 +151,12 @@ import com.opengamma.util.time.Tenor;
     }
   }
 
+  /**
+   * Fudge builder for {@link CreditSpreadNode}
+   */
   @FudgeBuilderFor(CreditSpreadNode.class)
   public static class CreditSpreadNodeBuilder implements FudgeBuilder<CreditSpreadNode> {
+    /** The tenor field */
     private static final String TENOR_FIELD = "tenor";
 
     @Override
@@ -174,8 +184,12 @@ import com.opengamma.util.time.Tenor;
     }
   }
 
+  /**
+   * Fudge builder for {@link DiscountFactorNode}
+   */
   @FudgeBuilderFor(DiscountFactorNode.class)
   public static class DiscountFactorNodeBuilder implements FudgeBuilder<DiscountFactorNode> {
+    /** The tenor field */
     private static final String TENOR_FIELD = "tenor";
 
     @Override
@@ -249,10 +263,15 @@ import com.opengamma.util.time.Tenor;
    */
   @FudgeBuilderFor(FXForwardNode.class)
   public static class FXForwardNodeBuilder implements FudgeBuilder<FXForwardNode> {
+    /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
+    /** The maturity tenor field */
     private static final String MATURITY_TENOR_FIELD = "maturityTenor";
+    /** The convention field */
     private static final String CONVENTION_FIELD = "convention";
+    /** The pay currency field */
     private static final String PAY_CURRENCY_FIELD = "payCurrency";
+    /** The receive currency field */
     private static final String RECEIVE_CURRENCY_FIELD = "receiveCurrency";
 
     @Override
@@ -386,4 +405,48 @@ import com.opengamma.util.time.Tenor;
 
   }
 
+  /**
+   * Fudge builder for {@link ZeroCouponInflationNode}
+   */
+  @FudgeBuilderFor(ZeroCouponInflationNode.class)
+  public static final class ZeroCouponInflationNodeBuilder implements FudgeBuilder<ZeroCouponInflationNode> {
+    /** The tenor field */
+    private static final String TENOR_FIELD = "tenor";
+    /** The inflation convention field */
+    private static final String INFLATION_CONVENTION_FIELD = "inflationLegConvention";
+    /** The fixed convention field */
+    private static final String FIXED_CONVENTION_FIELD = "fixedLegConvention";
+    /** The inflation node type field */
+    private static final String INFLATION_NODE_TYPE_FIELD = "inflationNodeType";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ZeroCouponInflationNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(TENOR_FIELD, object.getTenor().getPeriod().toString());
+      message.add(INFLATION_CONVENTION_FIELD, object.getInflationLegConvention());
+      message.add(FIXED_CONVENTION_FIELD, object.getFixedLegConvention());
+      message.add(INFLATION_NODE_TYPE_FIELD, object.getInflationNodeType().name());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
+      return message;
+    }
+
+    @Override
+    public ZeroCouponInflationNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Tenor tenor = new Tenor(Period.parse(message.getString(TENOR_FIELD)));
+      final ExternalId inflationConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INFLATION_CONVENTION_FIELD));
+      final ExternalId fixedConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXED_CONVENTION_FIELD));
+      final InflationNodeType inflationNodeType = InflationNodeType.valueOf(message.getString(INFLATION_NODE_TYPE_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, inflationNodeType, curveNodeIdMapperName, name);
+      }
+      return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, inflationNodeType, curveNodeIdMapperName);
+    }
+
+  }
 }

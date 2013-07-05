@@ -26,6 +26,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
  */
+@Deprecated
 public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonModelFunction {
 
   @Override

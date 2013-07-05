@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.defaultproperties;
@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexForwardDefaultPropertiesFunction
+ * @see FXForwardDefaults
  */
 @Deprecated
 public class FXForwardDefaultsDeprecated extends DefaultPropertyFunction {

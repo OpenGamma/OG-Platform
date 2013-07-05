@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -44,6 +44,8 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   private static final String RATE_FUTURE_FIELD = "rateFutureIds";
   /** The swap node field */
   private static final String SWAP_NODE_FIELD = "swapIds";
+  /** The zero coupon inflation node field */
+  private static final String ZERO_COUPON_INFLATION_NODE_FIELD = "zeroCouponInflationIds";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveNodeIdMapper object) {
@@ -74,6 +76,9 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     if (object.getSwapNodeIds() != null) {
       message.add(SWAP_NODE_FIELD, getMessageForField(serializer, object.getSwapNodeIds()));
     }
+    if (object.getZeroCouponInflationNodeIds() != null) {
+      message.add(ZERO_COUPON_INFLATION_NODE_FIELD, getMessageForField(serializer, object.getZeroCouponInflationNodeIds()));
+    }
     return message;
   }
 
@@ -93,8 +98,9 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = getMapForField(FX_FORWARD_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = getMapForField(RATE_FUTURE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = getMapForField(SWAP_NODE_FIELD, deserializer, message);
+    final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = getMapForField(ZERO_COUPON_INFLATION_NODE_FIELD, deserializer, message);
     return new CurveNodeIdMapper(name, cashNodeIds, continuouslyCompoundedRateNodeIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds,
-        fxForwardNodeIds, rateFutureNodeIds, swapNodeIds);
+        fxForwardNodeIds, rateFutureNodeIds, swapNodeIds, zeroCouponInflationNodeIds);
   }
 
   private FudgeMsg getMessageForField(final FudgeSerializer serializer, final Map<Tenor, CurveInstrumentProvider> idMap) {

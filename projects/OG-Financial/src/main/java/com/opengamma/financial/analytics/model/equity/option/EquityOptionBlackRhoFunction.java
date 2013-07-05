@@ -42,7 +42,7 @@ public class EquityOptionBlackRhoFunction extends EquityOptionBlackFunction {
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final double rho = derivative.accept(CALCULATOR, market);
-    return Collections.singleton(new ComputedValue(resultSpec, rho));
+    return Collections.singleton(new ComputedValue(resultSpec, rho / 100.));
   }
 
   @Override

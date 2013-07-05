@@ -187,4 +187,5 @@ public class FXOptionBlackValuePhiFunction extends AbstractFunction.NonCompiledI
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }
+
 }

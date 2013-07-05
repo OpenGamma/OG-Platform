@@ -89,7 +89,8 @@ public final class NonLoadedSecurityTypes {
    */
   public static final Set<String> VALID_RATE_TYPES = ImmutableSet.of(
       BLOOMBERG_DEPOSIT_TYPE,
-      BLOOMBERG_INDEX_TYPE);
+      BLOOMBERG_INDEX_TYPE,
+      BloombergConstants.BLOOMBERG_PHYSICAL_INDEX_FUTURE_TYPE);
 
   // Equity Indices
   /**

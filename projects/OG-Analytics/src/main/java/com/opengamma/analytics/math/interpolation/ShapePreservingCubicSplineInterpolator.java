@@ -7,6 +7,8 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -98,6 +100,12 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[][] yValuesMatrix) {
     throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
+  }
+
+  @Override
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+    throw new NotImplementedException();
+    //TODO Implement sensitivity calculator
   }
 
   /**

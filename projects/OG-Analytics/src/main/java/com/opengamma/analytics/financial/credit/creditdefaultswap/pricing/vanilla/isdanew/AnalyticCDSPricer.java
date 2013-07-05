@@ -5,7 +5,10 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
-import java.util.Arrays;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.getIntegrationsPoints;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.truncateSetInclusive;
+
+import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
@@ -15,14 +18,41 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class AnalyticCDSPricer {
 
-  private static final double TOL = 1. / 730;
+  private static final double[] COEFF1 = new double[] {1 / 24., 1 / 6., 0.5, 1};
+  private static final double[] COEFF2 = new double[] {1 / 30., 1 / 8., 1 / 3., 0.5};
+  private static final double[] COEFF3 = new double[] {1 / 48., 1 / 10., 1 / 4., 1 / 3.};
+
+  private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
+
+  private final boolean _useCorrectAccOnDefaultFormula;
+
+  public AnalyticCDSPricer() {
+    _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
+  }
+
+  public AnalyticCDSPricer(final boolean useCorrectAccOnDefaultFormula) {
+    _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  }
+
+  /**
+   * Present value for the payer of premiums (i.e. the buyer of protection) 
+  * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param fractionalSpread The <b>fraction</b> spread 
+   * @return The PV 
+   */
+  public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread) {
+    // TODO check for any repeat calculations
+    final double rpv01 = rpv01(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
+    return proLeg - fractionalSpread * rpv01;
+  }
 
   public double rpv01(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
-
-    final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
 
     final int n = cds.getNumPayments();
     double pv = 0.0;
@@ -30,10 +60,10 @@ public class AnalyticCDSPricer {
       final double q = creditCurve.getDiscountFactor(cds.getCreditObservationTime(i));
       final double p = yieldCurve.getDiscountFactor(cds.getPaymentTime(i));
       pv += cds.getAccrualFraction(i) * p * q;
-
     }
 
     if (cds.isPayAccOnDefault()) {
+      final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
       final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(n - 1), yieldCurve, creditCurve);
       final double offsetStepin = cds.getStepin() + offset;
 
@@ -56,6 +86,49 @@ public class AnalyticCDSPricer {
     return pv;
   }
 
+  /**
+   * The sensitivity of the RPV01 to the zero hazard rate of a given node (knot) of the credit curve. 
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param creditCurveNode The credit curve node 
+   * @return  sensitivity (on a unit notional) 
+   * @deprecated not tested 
+   */
+  @Deprecated
+  public double rpv01CreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+    ArgumentChecker.notNull(cds, "null cds");
+    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
+    ArgumentChecker.notNull(creditCurve, "null creditCurve");
+
+    final int n = cds.getNumPayments();
+    double pvSense = 0.0;
+    for (int i = 0; i < n; i++) {
+      final double dqdh = creditCurve.getSingleNodeDiscountFactorSensitivity(cds.getCreditObservationTime(i), creditCurveNode);
+      final double p = yieldCurve.getDiscountFactor(cds.getPaymentTime(i));
+      pvSense += cds.getAccrualFraction(i) * p * dqdh;
+    }
+
+    if (cds.isPayAccOnDefault()) {
+      final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
+      final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(n - 1), yieldCurve, creditCurve);
+      final double offsetStepin = cds.getStepin() + offset;
+
+      double accPVSense = 0.0;
+      for (int i = 0; i < n; i++) {
+        double offsetAccStart = cds.getAccStart(i) + offset;
+        double offsetAccEnd = cds.getAccEnd(i) + offset;
+        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
+        accPVSense += calculateSinglePeriodAccrualOnDefaultSensitivity(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve, creditCurveNode);
+      }
+      pvSense += accPVSense;
+    }
+
+    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    pvSense /= df;
+    return pvSense;
+  }
+
   private double calculateSinglePeriodAccrualOnDefault(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
       final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
 
@@ -66,31 +139,146 @@ public class AnalyticCDSPricer {
     double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
 
     double t = knots[0];
-    double s0 = creditCurve.getDiscountFactor(t);
-    double df0 = yieldCurve.getDiscountFactor(t);
-    double t0 = t - accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double ht0 = creditCurve.getRT(t);
+    double rt0 = yieldCurve.getRT(t);
+    double b0 = Math.exp(-rt0 - ht0); // this is the risky discount factor
+
+    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
     double pv = 0.0;
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
       t = knots[j];
-      final double s1 = creditCurve.getDiscountFactor(t);
-      final double df1 = yieldCurve.getDiscountFactor(t);
-      final double t1 = t - accStart + 1 / 730.0;
+      double ht1 = creditCurve.getRT(t);
+      double rt1 = yieldCurve.getRT(t);
+      double b1 = Math.exp(-rt1 - ht1);
+
       final double dt = knots[j] - knots[j - 1];
 
-      // TODO this is a know bug that is fixed in ISDA v.1.8.2
-      final double lambda = Math.log(s0 / s1) / dt;
-      final double fwdRate = Math.log(df0 / df1) / dt;
-      final double lambdafwdRate = lambda + fwdRate + 1.0e-50;
-      final double tPV = lambda * accRate * s0 * df0 * ((t0 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) - (t1 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) * s1 / s0 * df1 / df0);
+      final double dht = ht1 - ht0;
+      final double drt = rt1 - rt0;
+      final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
+
+      double tPV;
+      if (_useCorrectAccOnDefaultFormula) {
+        if (Math.abs(dhrt) < 1e-5) {
+          tPV = dht * dt * b0 * epsilonP(-dhrt);
+        } else {
+          tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
+        }
+      } else {
+        // This is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
+        // This is the correct term plus dht*t0/dhrt*(b0-b1) which is an error
+        final double t1 = t - accStart + 1 / 730.0;
+        if (Math.abs(dhrt) < 1e-5) {
+          tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
+        } else {
+          tPV = dht / dhrt * ((t0 + dt / dhrt) * b0 - (t1 + dt / dhrt) * b1);
+        }
+        t0 = t1;
+      }
+      // TODO the Taylor expansions
+
       pv += tPV;
-      s0 = s1;
-      df0 = df1;
-      t0 = t1;
+      ht0 = ht1;
+      rt0 = rt1;
+      b0 = b1;
     }
-    return pv;
+    return accRate * pv;
   }
 
+  private double calculateSinglePeriodAccrualOnDefaultSensitivity(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
+      final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+
+    double start = Math.max(accStart, stepin);
+    if (start >= accEnd) {
+      return 0.0;
+    }
+    double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
+
+    double t = knots[0];
+    double ht0 = creditCurve.getRT(t);
+    double rt0 = yieldCurve.getRT(t);
+    double p0 = Math.exp(-rt0);
+    double q0 = Math.exp(-ht0);
+    double b0 = p0 * q0; // this is the risky discount factor
+    double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
+
+    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double pvSense = 0.0;
+    final int nItems = knots.length;
+    for (int j = 1; j < nItems; ++j) {
+      t = knots[j];
+      final double ht1 = creditCurve.getRT(t);
+      final double rt1 = yieldCurve.getRT(t);
+      final double p1 = Math.exp(-rt1);
+      final double q1 = Math.exp(-ht1);
+      final double b1 = p1 * q1;
+      final double dqdr1 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
+
+      final double dt = knots[j] - knots[j - 1];
+
+      final double dht = ht1 - ht0;
+      final double drt = rt1 - rt0;
+      final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
+
+      double tPV;
+      double tPvSense;
+      // TODO once the maths is written up in a white paper, check these formula again, since tests again finite difference
+      // could miss some subtle error
+      if (_useCorrectAccOnDefaultFormula) {
+        if (Math.abs(dhrt) < 1e-5) {
+          final double eP = epsilonP(-dhrt);
+          final double ePP = epsilonPP(-dhrt);
+          final double dPVdq0 = dht * p0 * dt * (eP - ePP);
+          final double dPVdq1 = dht * b0 * dt / q1 * ePP;
+          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+        } else {
+          tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
+          final double dPVdq0 = tPV / q0 * (1 / dht - 1 / dhrt) + dht * dt / dhrt / dhrt * (p0 - (p0 - b1 / q0) / dhrt);
+          final double dPVdq1 = tPV / q1 * (-1 / dht + 1 / dhrt) + dht * dt / dhrt * ((b0 - b1) / q1 / dhrt / dhrt - p1 * (1 + 1 / dhrt));
+          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+        }
+      } else {
+        // this is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
+        final double t1 = t - accStart + 1 / 730.0;
+        if (Math.abs(dhrt) < 1e-5) {
+    //       final double e1 = epsilon(-dhrt);
+          final double eP = epsilonP(-dhrt);
+          final double ePP = epsilonPP(-dhrt);
+          final double dPVdq0 = dht * p0 * dt * (eP - ePP);
+          final double dPVdq1 = dht * p0 * q0 / q1 * (t0 * eP + dt * ePP);
+          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+        } else {
+          tPV = dht / dhrt * ((t0 + dt / dhrt) * b0 - (t1 + dt / dhrt) * b1);
+          final double dPVdq0 = tPV / q0 * (1 / dht - 1 / dhrt) + dht / dhrt * ((t0 + dt / dhrt) * p0 - dt * (b0 - b1) / q0 / dhrt / dhrt);
+          final double dPVdq1 = -tPV / q1 * (1 / dht - 1 / dhrt) - dht / dhrt * ((t1 + dt / dhrt) * p1 - dt * (b0 - b1) / q1 / dhrt / dhrt);
+          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+        }
+        t0 = t1;
+      }
+      // TODO the Taylor expansions
+
+      pvSense += tPvSense;
+      ht0 = ht1;
+      rt0 = rt1;
+      p0 = p1;
+      q0 = q1;
+      b0 = b1;
+      dqdr0 = dqdr1;
+    }
+    return accRate * pvSense;
+  }
+
+  /**
+   * Compute the present value of the protection leg with a notional of 1, which is given by the integral 
+   * $\frac{1-R}{P(T_{v})} \int_{T_a} ^{T_b} P(t) \frac{dQ(t)}{dt} dt$ where $P(t)$ and $Q(t)$ are the discount and survival curves 
+   * respectively, $T_a$ and $T_b$ are the start and end of the protection respectively, $T_v$ is the valuation time (all measured 
+   * from $t = 0$, 'today') and $R$ is the recovery rate. 
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @return The value of the protection leg (on a unit notional) 
+   */
   public double protectionLeg(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
@@ -98,37 +286,35 @@ public class AnalyticCDSPricer {
 
     final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
 
-    double ht1 = creditCurve.getRT(integrationSchedule[0]);
-    double rt1 = yieldCurve.getRT(integrationSchedule[0]);
-    double s1 = Math.exp(-ht1);
-    double p1 = Math.exp(-rt1);
+    double ht0 = creditCurve.getRT(integrationSchedule[0]);
+    double rt0 = yieldCurve.getRT(integrationSchedule[0]);
+    double b0 = Math.exp(-ht0 - rt0); // risky discount factor
+
     double pv = 0.0;
     final int n = integrationSchedule.length;
     for (int i = 1; i < n; ++i) {
 
-      final double ht0 = ht1;
-      final double rt0 = rt1;
-      final double p0 = p1;
-      final double s0 = s1;
+      final double ht1 = creditCurve.getRT(integrationSchedule[i]);
+      final double rt1 = yieldCurve.getRT(integrationSchedule[i]);
+      final double b1 = Math.exp(-ht1 - rt1);
 
-      ht1 = creditCurve.getRT(integrationSchedule[i]);
-      rt1 = yieldCurve.getRT(integrationSchedule[i]);
-      s1 = Math.exp(-ht1);
-      p1 = Math.exp(-rt1);
       final double dht = ht1 - ht0;
       final double drt = rt1 - rt0;
       final double dhrt = dht + drt;
 
-      // this is equivalent to the ISDA code without explicitly calculating the time step - it also handles the limit
+      // The formula has been modified from ISDA (but is equivalent) to avoid log(exp(x)) and explicitly calculating the time
+      // step - it also handles the limit
       double dPV;
       if (Math.abs(dhrt) < 1e-5) {
-        dPV = dht * (1 - dhrt * (0.5 - dhrt / 6)) * p0 * s0;
+        dPV = dht * b0 * epsilon(-dhrt);
       } else {
-        dPV = dht / dhrt * (p0 * s0 - p1 * s1);
+        dPV = (b0 - b1) * dht / dhrt;
       }
 
       pv += dPV;
-
+      ht0 = ht1;
+      rt0 = rt1;
+      b0 = b1;
     }
     pv *= cds.getLGD();
 
@@ -139,142 +325,126 @@ public class AnalyticCDSPricer {
     return pv;
   }
 
-  private double[] getIntegrationsPoints(final double start, final double end, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+  /**
+   * The sensitivity of the PV of the protection leg to the zero hazard rate of a given node (knot) of the credit curve. 
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param creditCurveNode The credit curve node 
+   * @return  sensitivity (on a unit notional) 
+   * @deprecated not tested 
+   */
+  @Deprecated
+  public double protectionLegCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+    ArgumentChecker.notNull(cds, "null cds");
+    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
+    ArgumentChecker.notNull(creditCurve, "null creditCurve");
+    ArgumentChecker.isTrue(creditCurveNode >= 0 && creditCurveNode < creditCurve.getNumberOfKnots(), "creditCurveNode out of range");
+    if ((creditCurveNode != 0 && cds.getProtectionEnd() <= creditCurve.getTimeAtIndex(creditCurveNode - 1))
+        || (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
+      return 0.0; // can't have any sensitivity in this case
+    }
 
-    double[] set1 = truncateSetExclusive(start, end, yieldCurve.getKnotTimes());
-    double[] set2 = truncateSetExclusive(start, end, creditCurve.getKnotTimes());
-    final int n1 = set1.length;
-    final int n2 = set2.length;
-    final int n = n1 + n2;
-    double[] set = new double[n];
-    System.arraycopy(set1, 0, set, 0, n1);
-    System.arraycopy(set2, 0, set, n1, n2);
-    Arrays.sort(set);
+    final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
 
-    double[] temp = new double[n + 2];
-    temp[0] = start;
-    int pos = 0;
-    for (int i = 0; i < n; i++) {
-      if (different(temp[pos], set[i])) {
-        temp[++pos] = set[i];
+    double t = integrationSchedule[0];
+    double ht0 = creditCurve.getRT(t);
+    double rt0 = yieldCurve.getRT(t);
+    double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
+    double q0 = Math.exp(-ht0);
+    double p0 = Math.exp(-rt0);
+    // double pv = 0.0;
+    double pvSense = 0.0;
+    final int n = integrationSchedule.length;
+    for (int i = 1; i < n; ++i) {
+
+      t = integrationSchedule[i];
+      final double ht1 = creditCurve.getRT(t);
+      final double dqdr1 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
+      final double rt1 = yieldCurve.getRT(t);
+      final double q1 = Math.exp(-ht1);
+      final double p1 = Math.exp(-rt1);
+
+      if (dqdr0 == 0.0 && dqdr1 == 0.0) {
+        continue;
       }
-    }
-    if (different(temp[pos], end)) {
-      pos++;
-    }
-    temp[pos] = end; // add the end point (this may replace the last entry in temp if that is not significantly different)
 
-    final int resLength = pos + 1;
-    if (resLength == n + 2) {
-      return temp; // everything was unique
-    }
+      final double dht = ht1 - ht0;
+      final double drt = rt1 - rt0;
+      final double dhrt = dht + drt;
 
-    double[] res = new double[resLength];
-    System.arraycopy(temp, 0, res, 0, resLength);
-    return res;
+      double dPVSense;
+      if (Math.abs(dhrt) < 1e-5) {
+        final double theta = epsilon(-dhrt); // 1 - dhrt * (0.5 - dhrt / 6);
+        final double thetaPrime = epsilonP(-dhrt);
+        final double dPVdq0 = p0 * ((1 + dht) * theta + dht * thetaPrime);
+        final double dPVdq1 = -p0 * q0 / q1 * (theta + dht * thetaPrime);
+        dPVSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+      } else {
+        final double temp1 = drt / dhrt * (p0 * q0 - p1 * q1);
+        dPVSense = ((p0 * dht + temp1 / q0) * dqdr0 - (p1 * dht + temp1 / q1) * dqdr1) / dhrt;
+      }
+
+      // pv += dPV;
+      pvSense += dPVSense;
+
+      ht0 = ht1;
+      dqdr0 = dqdr1;
+      rt0 = rt1;
+      p0 = p1;
+      q0 = q1;
+
+    }
+    pvSense *= cds.getLGD();
+
+    // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
+    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+
+    pvSense /= df;
+
+    return pvSense;
   }
 
-  private boolean different(final double a, final double b) {
-    return Math.abs(a - b) > TOL;
+  private static double epsilon(final double x) {
+    if (Math.abs(x) > 1e-10) {
+      return Math.expm1(x) / x;
+    }
+    double sum = COEFF1[0];
+    final int n = COEFF1.length;
+    for (int i = 1; i < n; i++) {
+      sum = COEFF1[i] + x * sum;
+    }
+    return sum;
   }
 
-  /**
-   * Truncates an array of doubles so it contains only the values between lower and upper, plus the values of lower and higher (as the first
-   * and last entry respectively). If no values met this criteria an array just containing lower and upper is returned. If the first (last) 
-   * entry of set is too close to lower (upper) - defined by TOL - the first (last) entry of set is replaced by lower (upper).
-   * @param lower The lower value
-   * @param upper The upper value
-   * @param set The numbers must be sorted in ascending order
-   * @return the truncated array 
-   */
-  private double[] truncateSetInclusive(final double lower, final double upper, final double[] set) {
-    // this is private, so assume inputs are fine
-    double[] temp = truncateSetExclusive(lower, upper, set);
-    final int n = temp.length;
-    if (n == 0) {
-      return new double[] {lower, upper};
-    }
-    boolean addLower = different(lower, temp[0]);
-    boolean addUpper = different(upper, temp[n - 1]);
-    if (!addLower && !addUpper) { // replace first and last entries of set
-      temp[0] = lower;
-      temp[n - 1] = upper;
-      return temp;
+  private static double epsilonP(final double x) {
+
+    if (Math.abs(x) > 1e-10) {
+      return ((x - 1) * Math.expm1(x) + x) / x / x;
     }
 
-    int m = n + (addLower ? 1 : 0) + (addUpper ? 1 : 0);
-    double[] res = new double[m];
-    System.arraycopy(temp, 0, res, (addLower ? 1 : 0), n);
-    res[0] = lower;
-    res[m - 1] = upper;
-
-    return res;
+    double sum = COEFF2[0];
+    final int n = COEFF2.length;
+    for (int i = 1; i < n; i++) {
+      sum = COEFF2[i] + x * sum;
+    }
+    return sum;
   }
 
-  /**
-   * Truncates an array of doubles so it contains only the values between lower and upper exclusive. If no values met this criteria an 
-   * empty array is returned 
-   * @param lower The lower value
-   * @param upper The upper value
-   * @param set The numbers must be sorted in ascending order
-   * @return the truncated array 
-   */
-  private double[] truncateSetExclusive(final double lower, final double upper, final double[] set) {
-    // this is private, so assume inputs are fine
+  private static double epsilonPP(final double x) {
 
-    final int n = set.length;
-    if (upper < set[0] || lower > set[n - 1]) {
-      return new double[0];
+    if (Math.abs(x) > 1e-10) {
+      final double x2 = x * x;
+      final double x3 = x * x2;
+      return (Math.expm1(x) * (x2 - 2 * x + 2) + x2 - 2 * x) / x3;
     }
 
-    int lIndex;
-    if (lower < set[0]) {
-      lIndex = 0;
-    } else {
-      int temp = Arrays.binarySearch(set, lower);
-      lIndex = temp >= 0 ? temp + 1 : -(temp + 1);
+    double sum = COEFF3[0];
+    final int n = COEFF3.length;
+    for (int i = 1; i < n; i++) {
+      sum = COEFF3[i] + x * sum;
     }
-
-    int uIndex;
-    if (upper > set[n - 1]) {
-      uIndex = n;
-    } else {
-      int temp = Arrays.binarySearch(set, lIndex, n, upper);
-      uIndex = temp >= 0 ? temp : -(temp + 1);
-    }
-
-    final int m = uIndex - lIndex;
-    if (m == n) {
-      return set;
-    }
-
-    double[] trunc = new double[m];
-    System.arraycopy(set, lIndex, trunc, 0, m);
-    return trunc;
+    return sum;
   }
 
-  private double[] leftTruncate(final double lower, final double[] set) {
-    // this is private, so assume inputs are fine
-    final int n = set.length;
-    if (n == 0) {
-      return set;
-    }
-    if (lower < set[0]) {
-      return set;
-    }
-    if (lower >= set[n - 1]) {
-      return new double[0];
-    }
-
-    int index = Arrays.binarySearch(set, lower);
-    final int chop = index >= 0 ? index + 1 : -(index + 1);
-    double[] res;
-    if (chop == 0) {
-      res = set;
-    } else {
-      res = new double[n - chop];
-      System.arraycopy(set, chop, res, 0, n - chop);
-    }
-    return res;
-  }
 }

@@ -475,12 +475,20 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return defaultCurrencyPairInfo("AUD", "KRW");
   }
 
+  protected CurrencyPairInfo chfJpyCurrencyPairInfo() {
+    return defaultCurrencyPairInfo("CHF", "JPY");
+  }
+
   protected CurrencyPairInfo eurBrlCurrencyPairInfo() {
     return defaultCurrencyPairInfo("EUR", "BRL");
   }
 
   protected CurrencyPairInfo eurChfCurrencyPairInfo() {
     return defaultCurrencyPairInfo("EUR", "CHF");
+  }
+
+  protected CurrencyPairInfo eurGbpCurrencyPairInfo() {
+    return defaultCurrencyPairInfo("EUR", "GBP");
   }
 
   protected CurrencyPairInfo eurJpyCurrencyPairInfo() {
@@ -569,8 +577,10 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
   protected void setDefaultCurrencyPairInfo() {
     setCurrencyPairInfo(Pair.of("AUD", "KRW"), audKrwCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("CHF", "JPY"), chfJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "BRL"), eurBrlCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "CHF"), eurChfCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("EUR", "GBP"), eurGbpCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "TRY"), eurTryCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("JPY", "KRW"), jpyKrwCurrencyPairInfo());
@@ -689,7 +699,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return getRepository(defaults);
   }
 
-  protected void setXCcySwapFunctionDefaults(final CurrencyInfo i, FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
+  protected void setXCcySwapFunctionDefaults(final CurrencyInfo i, final FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveCalculationConfig(i.getCurveName("model/xccyswap"));
   }
 
@@ -820,12 +830,12 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected FunctionConfigurationSource forexDigitalFunctions() {
-    final com.opengamma.financial.analytics.model.forex.option.callspreadblack.CallSpreadBlackFunctions.Defaults defaults = 
+    final com.opengamma.financial.analytics.model.forex.option.callspreadblack.CallSpreadBlackFunctions.Defaults defaults =
         new com.opengamma.financial.analytics.model.forex.option.callspreadblack.CallSpreadBlackFunctions.Defaults();
     setForexDigitalDefaults(defaults);
     return getRepository(defaults);
   }
-  
+
   protected void setForwardCurveDefaults(final CurrencyInfo i, final ForwardFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/curve/forward"));
     defaults.setDiscountingCurve(i.getCurveName("model/curve/forward/discounting"));
@@ -876,7 +886,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     }));
   }
 
-  protected void setFutureFunctionCalculators(FutureFunctions.Calculators calculators) {
+  protected void setFutureFunctionCalculators(final FutureFunctions.Calculators calculators) {
     calculators.setClosingPriceField(getMark2MarketField());
   }
 
@@ -1150,9 +1160,9 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), forexDigitalFunctions(), cdsFunctions(), 
-        deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), 
-        forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(), 
+    return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), forexDigitalFunctions(), cdsFunctions(),
+        deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(),
+        forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(),
         pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions(), xCcySwapFunctions());
   }
 

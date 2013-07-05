@@ -152,6 +152,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Curve containing (time, price index) pairs.
+   */
+  public static final String PRICE_INDEX_CURVE = "PriceIndexCurve";
+  /**
    * Hazard rate curve for credit instruments.
    */
   public static final String HAZARD_RATE_CURVE = "HazardRateCurve";

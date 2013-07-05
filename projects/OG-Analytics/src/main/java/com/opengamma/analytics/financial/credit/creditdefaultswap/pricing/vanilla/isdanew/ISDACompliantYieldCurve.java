@@ -10,12 +10,22 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
  */
 public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
-  /**
-   * @param t
-   * @param r
-   */
-  public ISDACompliantYieldCurve(double[] t, double[] r) {
+  public ISDACompliantYieldCurve(final double[] t, final double[] r) {
     super(t, r);
+  }
+
+  public ISDACompliantYieldCurve(final ISDACompliantCurve from) {
+    super(from);
+  }
+
+  @Override
+  public ISDACompliantYieldCurve withRates(final double[] r) {
+    return new ISDACompliantYieldCurve(super.withRates(r));
+  }
+
+  @Override
+  public ISDACompliantYieldCurve withRate(final double rate, final int index) {
+    return new ISDACompliantYieldCurve(super.withRate(rate, index));
   }
 
 }

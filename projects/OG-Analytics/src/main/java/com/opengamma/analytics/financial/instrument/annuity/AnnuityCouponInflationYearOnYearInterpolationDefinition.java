@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 public class AnnuityCouponInflationYearOnYearInterpolationDefinition extends AnnuityCouponDefinition<CouponInflationYearOnYearInterpolationDefinition> {
 
   /**
-   * Constructor from a list of Ibor-like coupons.
+   * Constructor from a list of inflation year on year coupons.
    * @param payments The InflationYearOnYearMonthly coupons.
   
    */

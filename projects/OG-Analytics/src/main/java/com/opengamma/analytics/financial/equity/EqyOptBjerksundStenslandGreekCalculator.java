@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity;
@@ -51,10 +51,10 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     final GreekResultCollection result = new GreekResultCollection();
     result.put(Greek.DELTA, greeks[1]);
     result.put(Greek.DUAL_DELTA, greeks[2]);
-    result.put(Greek.RHO, greeks[3]);
-    result.put(Greek.CARRY_RHO, greeks[4]);
-    result.put(Greek.THETA, greeks[5]);
-    result.put(Greek.VEGA, greeks[6]);
+    result.put(Greek.RHO, greeks[3] / 100.);
+    result.put(Greek.CARRY_RHO, greeks[4] / 100.);
+    result.put(Greek.THETA, -greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
     result.put(Greek.GAMMA, pdg[2]);
     return result;
@@ -75,10 +75,10 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     final GreekResultCollection result = new GreekResultCollection();
     result.put(Greek.DELTA, greeks[1]);
     result.put(Greek.DUAL_DELTA, greeks[2]);
-    result.put(Greek.RHO, greeks[3]);
-    result.put(Greek.CARRY_RHO, greeks[4]);
-    result.put(Greek.THETA, greeks[5]);
-    result.put(Greek.VEGA, greeks[6]);
+    result.put(Greek.RHO, greeks[3] / 100.);
+    result.put(Greek.CARRY_RHO, greeks[4] / 100.);
+    result.put(Greek.THETA, -greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
     result.put(Greek.GAMMA, pdg[2]);
     return result;
@@ -99,10 +99,10 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     final GreekResultCollection result = new GreekResultCollection();
     result.put(Greek.DELTA, greeks[1]);
     result.put(Greek.DUAL_DELTA, greeks[2]);
-    result.put(Greek.RHO, greeks[3]);
-    result.put(Greek.CARRY_RHO, greeks[4]);
-    result.put(Greek.THETA, greeks[5]);
-    result.put(Greek.VEGA, greeks[6]);
+    result.put(Greek.RHO, greeks[3] / 100.);
+    result.put(Greek.CARRY_RHO, greeks[4] / 100.);
+    result.put(Greek.THETA, -greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
     result.put(Greek.GAMMA, pdg[2]);
     return result;

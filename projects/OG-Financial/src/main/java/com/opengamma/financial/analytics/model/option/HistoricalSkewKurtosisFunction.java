@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.option;
@@ -37,9 +37,10 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
- * 
+ *
  *
  */
+@Deprecated
 public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final TimeSeriesReturnCalculator _returnCalculator;

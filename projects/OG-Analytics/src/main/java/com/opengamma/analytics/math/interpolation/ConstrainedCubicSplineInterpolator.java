@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -134,6 +135,62 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
     return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
+  @Override
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+    ArgumentChecker.notNull(xValues, "xValues");
+    ArgumentChecker.notNull(yValues, "yValues");
+
+    ArgumentChecker.isTrue(xValues.length == yValues.length, "(xValues length = yValues length) should be true");
+    ArgumentChecker.isTrue(xValues.length > 1, "Data points should be >= 2");
+
+    final int nDataPts = xValues.length;
+
+    for (int i = 0; i < nDataPts; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(xValues[i]), "xValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(xValues[i]), "xValues containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(yValues[i]), "yValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
+    }
+
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = i + 1; j < nDataPts; ++j) {
+        ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
+      }
+    }
+
+    final double[] intervals = _solver.intervalsCalculator(xValues);
+    final double[] slopes = _solver.slopesCalculator(yValues, intervals);
+    final double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
+    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(slopes, slopeSensitivity);
+    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValues, intervals, slopes, slopeSensitivity, firstWithSensitivity);
+
+    for (int k = 0; k < nDataPts; k++) {
+      DoubleMatrix2D m = resMatrix[k];
+      final int rows = m.getNumberOfRows();
+      final int cols = m.getNumberOfColumns();
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          ArgumentChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+        }
+      }
+    }
+
+    final DoubleMatrix2D coefMatrix = resMatrix[0];
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      double ref = 0.;
+      for (int j = 0; j < 4; ++j) {
+        ref += coefMatrix.getData()[i][j] * Math.pow(intervals[i], 3 - j);
+      }
+      final double bound = Math.abs(ref) + Math.abs(yValues[i + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValues[i + 1]);
+      ArgumentChecker.isTrue(Math.abs(ref - yValues[i + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
+    }
+    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
+    System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
+    final int nCoefs = coefMatrix.getNumberOfColumns();
+
+    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+  }
+
   private double[] firstDerivativeCalculator(final double[] slopes) {
     final int nData = slopes.length + 1;
     double[] res = new double[nData];
@@ -147,4 +204,48 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
     return res;
   }
 
+  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] slopes, final double[][] slopeSensitivity) {
+    final int nData = slopes.length + 1;
+    final double[] first = new double[nData];
+    final double[][] sense = new double[nData][nData];
+    DoubleMatrix1D[] res = new DoubleMatrix1D[nData + 1];
+
+    for (int i = 1; i < nData - 1; ++i) {
+      final double sign = Math.signum(slopes[i - 1]) * Math.signum(slopes[i]);
+      if (sign <= 0.) {
+        first[i] = 0.;
+      } else {
+        first[i] = 2. * slopes[i] * slopes[i - 1] / (slopes[i] + slopes[i - 1]);
+      }
+      if (sign < 0.) {
+        Arrays.fill(sense[i], 0.);
+      } else {
+        for (int k = 0; k < nData; ++k) {
+          if (Math.abs(slopes[i] + slopes[i - 1]) == 0.) {
+            Arrays.fill(sense[i], 0.);
+          } else {
+            if (sign == 0.) {
+              sense[i][k] = (slopes[i] * slopes[i] * slopeSensitivity[i - 1][k] + slopes[i - 1] * slopes[i - 1] * slopeSensitivity[i][k]) / (slopes[i] + slopes[i - 1]) /
+                  (slopes[i] + slopes[i - 1]);
+            } else {
+              sense[i][k] = 2. * (slopes[i] * slopes[i] * slopeSensitivity[i - 1][k] + slopes[i - 1] * slopes[i - 1] * slopeSensitivity[i][k]) / (slopes[i] + slopes[i - 1]) /
+                  (slopes[i] + slopes[i - 1]);
+            }
+          }
+        }
+      }
+      res[i + 1] = new DoubleMatrix1D(sense[i]);
+    }
+    first[0] = 1.5 * slopes[0] - 0.5 * first[1];
+    first[nData - 1] = 1.5 * slopes[nData - 2] - 0.5 * first[nData - 2];
+    res[0] = new DoubleMatrix1D(first);
+    for (int k = 0; k < nData; ++k) {
+      sense[0][k] = 1.5 * slopeSensitivity[0][k] - 0.5 * sense[1][k];
+      sense[nData - 1][k] = 1.5 * slopeSensitivity[nData - 2][k] - 0.5 * sense[nData - 2][k];
+    }
+    res[1] = new DoubleMatrix1D(sense[0]);
+    res[nData] = new DoubleMatrix1D(sense[nData - 1]);
+
+    return res;
+  }
 }

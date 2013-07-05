@@ -62,13 +62,24 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Calculates the yield curve node sensitivities of a swaption using the Black method with no volatility modelling assumptions.
+ * The implied volatility is read directly from the market data system. Note that this function produces the sensitivities with
+ * respect to a single, named curve.
+ * <p>
+ * Produces a result for {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES} using {@link InstrumentSensitivityCalculator}
+ * with {@link PresentValueCurveSensitivityBlackCalculator}
  */
 public class SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBasicBlackCurveSpecificFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction.class);
+  /** The node sensitivity calculator */
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivityBlackCalculator.getInstance());
+  /** The instrument sensitivity calculator */
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
 
+  /**
+   * Sets {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES} as the result.
+   */
   public SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
