@@ -88,7 +88,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
           if (ts != null) {
             bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
           } else {
-            s_logger.warn("Could not get historical time series for {}", ids);
+            s_logger.info("Could not get historical time series for {}", ids);
           }
           if (node instanceof PointsCurveNodeWithIdentifier) {
             final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
@@ -98,7 +98,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
             if (ts != null) {
               bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
             } else {
-              s_logger.warn("Could not get historical time series for {}", ids);
+              s_logger.info("Could not get historical time series for {}", ids);
             }
           }
           if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
@@ -123,7 +123,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
             final HistoricalTimeSeries priceIndexSeries = bundleForCurve.get(dataField, ids);
             if (priceIndexSeries != null) {
               if (priceIndexSeries.getTimeSeries().isEmpty()) {
-                s_logger.warn("Could for get historical time series for {}", ids);
+                s_logger.info("Could for get historical time series for {}", ids);
               } else {
                 bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
               }
