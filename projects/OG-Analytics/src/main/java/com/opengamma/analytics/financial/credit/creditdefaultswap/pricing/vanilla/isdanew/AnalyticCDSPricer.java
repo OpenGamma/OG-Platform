@@ -19,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class AnalyticCDSPricer {
 
+  // Coefficients for the Taylor expansion of (e^x-1)/x and its first two derivatives
   private static final double[] COEFF1 = new double[] {1 / 24., 1 / 6., 1 / 2., 1};
   private static final double[] COEFF2 = new double[] {1 / 144., 1 / 30., 1 / 8., 1 / 3., 1 / 2.};
   private static final double[] COEFF3 = new double[] {1 / 168., 1 / 36., 1 / 10., 1 / 4., 1 / 3.};
@@ -45,12 +46,22 @@ public class AnalyticCDSPricer {
    */
   public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread) {
     // TODO check for any repeat calculations
-    final double rpv01 = rpv01(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
     final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
     return proLeg - fractionalSpread * rpv01;
   }
 
-  public double rpv01(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
+  /**
+   * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis 
+   * points divided by 10,000) 
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param cleanOrDirty Clean or dirty price 
+   * @return 10,000 times the RPV01 (on a notional of 1)
+   */
+  public double pvPremiumLegPerUnitSpread(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
@@ -88,14 +99,14 @@ public class AnalyticCDSPricer {
   }
 
   /**
-   * The sensitivity of the RPV01 to the zero hazard rate of a given node (knot) of the credit curve. 
+   * The sensitivity (on a unit notional) of the (scaled) RPV01 to the zero hazard rate of a given node (knot) of the credit curve. 
    * @param cds analytic description of a CDS traded at a certain time 
    * @param yieldCurve The yield (or discount) curve  
    * @param creditCurve the credit (or survival) curve 
    * @param creditCurveNode The credit curve node 
    * @return  sensitivity (on a unit notional) 
    */
-  public double rpv01CreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+  public double pvPremiumLegCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
@@ -164,7 +175,6 @@ public class AnalyticCDSPricer {
         } else {
           tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
         }
-        throw new com.opengamma.analytics.math.MathException();
       } else {
         // This is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
         // This is the correct term plus dht*t0/dhrt*(b0-b1) which is an error
@@ -221,7 +231,6 @@ public class AnalyticCDSPricer {
       final double drt = rt1 - rt0;
       final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
 
-      double tPV;
       double tPvSense;
       // TODO once the maths is written up in a white paper, check these formula again, since tests again finite difference
       // could miss some subtle error
@@ -243,7 +252,6 @@ public class AnalyticCDSPricer {
           final double dPVdq1 = w3 / q1 * (w4 + w2 * (b1 * (1 + dhrt) - w5));
           tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
         }
-        throw new com.opengamma.analytics.math.MathException();
       } else {
         // this is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
         final double t1 = t - accStart + 1 / 730.0;
@@ -256,7 +264,7 @@ public class AnalyticCDSPricer {
           final double dPVdq0 = p0 * ((1 + dhrt) * w1 - dht * w2);
           final double dPVdq1 = b0 / q1 * (-w1 + dht * w2);
           tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
-         
+
         } else {
           final double w1 = dt / dhrt;
           final double w2 = dht / dhrt;
@@ -269,7 +277,6 @@ public class AnalyticCDSPricer {
         }
         t0 = t1;
       }
-      // TODO the Taylor expansions
 
       pvSense += tPvSense;
       ht0 = ht1;

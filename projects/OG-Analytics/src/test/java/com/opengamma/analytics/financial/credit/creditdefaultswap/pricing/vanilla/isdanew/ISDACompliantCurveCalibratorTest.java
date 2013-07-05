@@ -94,7 +94,7 @@ public class ISDACompliantCurveCalibratorTest {
     // System.out.println();
 
     for (int i = 0; i < n; i++) {
-      double rpv01 = PRICER.calculateRPV01(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, YIELD_CURVE, hc, protectionStart, PriceType.CLEAN);
+      double rpv01 = PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, YIELD_CURVE, hc, protectionStart, PriceType.CLEAN);
       double proLeg = PRICER.calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDates[i], YIELD_CURVE, hc, recovery, protectionStart);
       double pv = 1e7 * (proLeg - coupons[i] * rpv01);
       assertEquals(0.0, pv, 1e-8); // on a notional of 1e7
