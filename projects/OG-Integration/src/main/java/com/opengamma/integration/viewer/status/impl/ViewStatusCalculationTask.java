@@ -67,6 +67,91 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> {
   
+  private final class ViewStatusResultListener extends AbstractViewResultListener {
+    private final CountDownLatch _latch;
+    private final PerViewStatusResult _statusResult;
+    private final ViewDefinition _viewDefinition;
+    private AtomicLong _count = new AtomicLong(0);
+
+    private ViewStatusResultListener(CountDownLatch latch, PerViewStatusResult statusResult, ViewDefinition viewDefinition) {
+      _latch = latch;
+      _statusResult = statusResult;
+      _viewDefinition = viewDefinition;
+    }
+
+    @Override
+    public UserPrincipal getUser() {
+      return _user;
+    }
+
+    @Override
+    public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+      s_logger.error("View definition compiled");
+      CompiledViewCalculationConfiguration compiledCalculationConfiguration = compiledViewDefinition.getCompiledCalculationConfiguration(DEFAULT_CALC_CONFIG);
+      Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = compiledCalculationConfiguration.getTerminalOutputSpecifications();
+      for (ValueSpecification valueSpec : terminalOutputs.keySet()) {
+        ComputationTargetType computationTargetType = valueSpec.getTargetSpecification().getType();
+        if (isValidTargetType(computationTargetType)) {
+          UniqueId uniqueId = valueSpec.getTargetSpecification().getUniqueId();
+          String currency = getCurrency(uniqueId, computationTargetType);
+          if (currency != null) {
+            _statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency, computationTargetType.getName()), ViewStatus.NO_VALUE);
+          } else {
+            s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", uniqueId, computationTargetType);
+          }
+        }
+      }
+    }
+
+    @Override
+    public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
+      s_logger.debug("View definition {} failed to initialize", _viewDefinition);
+      try {
+        processGraphFailResult(_statusResult);
+      } finally {
+        _latch.countDown();
+      }
+    }
+
+    public void cycleStarted(ViewCycleMetadata cycleInfo) {
+      s_logger.debug("Cycle started");
+    }
+
+    @Override
+    public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+      s_logger.debug("Cycle execution failed", exception);
+    }
+
+    @Override
+    public void processCompleted() {
+      s_logger.debug("Process completed");
+    }
+
+    @Override
+    public void processTerminated(boolean executionInterrupted) {
+      s_logger.debug("Process terminated");
+    }
+
+    @Override
+    public void clientShutdown(Exception e) {
+      s_logger.debug("Client shutdown");
+    }
+
+    @Override
+    public void cycleFragmentCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+      s_logger.debug("cycle fragment completed");
+    }
+
+    @Override
+    public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
+      s_logger.debug("cycle {} completed", _count.get());
+      if (_count.getAndIncrement() > 5) {
+        processStatusResult(fullResult, _statusResult);
+        _latch.countDown();
+      }
+    }
+  }
+
   private static final String MIXED_CURRENCY = "MIXED_CURRENCY";
   private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusCalculationTask.class);
   
@@ -113,84 +198,9 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
     final ViewClient client = viewProcessor.createViewClient(_user);
 
     final CountDownLatch latch = new CountDownLatch(1);
+    client.setResultListener(new ViewStatusResultListener(latch, statusResult, viewDefinition));
     client.attachToViewProcess(viewDefinition.getUniqueId(), ExecutionOptions.infinite(_marketDataSpecification));
-    client.setResultListener(new AbstractViewResultListener() {
-
-      private AtomicLong _count = new AtomicLong(0);
-
-      @Override
-      public UserPrincipal getUser() {
-        return _user;
-      }
-
-      @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-        s_logger.error("View definition compiled");
-        CompiledViewCalculationConfiguration compiledCalculationConfiguration = compiledViewDefinition.getCompiledCalculationConfiguration(DEFAULT_CALC_CONFIG);
-        Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = compiledCalculationConfiguration.getTerminalOutputSpecifications();
-        for (ValueSpecification valueSpec : terminalOutputs.keySet()) {
-          ComputationTargetType computationTargetType = valueSpec.getTargetSpecification().getType();
-          if (isValidTargetType(computationTargetType)) {
-            UniqueId uniqueId = valueSpec.getTargetSpecification().getUniqueId();
-            String currency = getCurrency(uniqueId, computationTargetType);
-            if (currency != null) {
-              statusResult.put(new ViewStatusKeyBean(_securityType, valueSpec.getValueName(), currency, computationTargetType.getName()), ViewStatus.NO_VALUE);
-            } else {
-              s_logger.error("Discarding result as NULL return as Currency for id: {} targetType:{}", uniqueId, computationTargetType);
-            }
-          }
-        }
-      }
-
-      @Override
-      public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-        s_logger.debug("View definition {} failed to initialize", viewDefinition);
-        try {
-          processGraphFailResult(statusResult);
-        } finally {
-          latch.countDown();
-        }
-      }
-
-      public void cycleStarted(ViewCycleMetadata cycleInfo) {
-        s_logger.debug("Cycle started");
-      }
-
-      @Override
-      public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
-        s_logger.debug("Cycle execution failed", exception);
-      }
-
-      @Override
-      public void processCompleted() {
-        s_logger.debug("Process completed");
-      }
-
-      @Override
-      public void processTerminated(boolean executionInterrupted) {
-        s_logger.debug("Process terminated");
-      }
-
-      @Override
-      public void clientShutdown(Exception e) {
-        s_logger.debug("Client shutdown");
-      }
-
-      @Override
-      public void cycleFragmentCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-        s_logger.debug("cycle fragment completed");
-      }
-
-      @Override
-      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
-        s_logger.debug("cycle {} completed", _count.get());
-        if (_count.getAndIncrement() > 5) {
-          processStatusResult(fullResult, statusResult);
-          latch.countDown();
-        }
-      }
-    });
-
+   
     try {
       s_logger.info("main thread waiting");
       if (!latch.await(30, TimeUnit.SECONDS)) {
@@ -328,5 +338,5 @@ public class ViewStatusCalculationTask implements Callable<PerViewStatusResult> 
       return !(computedValue.getValue() instanceof MissingValue);
     }
   }
-
+  
 }
