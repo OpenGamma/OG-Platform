@@ -13,13 +13,17 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolationWithMargin;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthlyWithMargin;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationYearOnYearInterpolationDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationYearOnYearInterpolationWithMarginDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationYearOnYearMonthlyDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationYearOnYearMonthlyWithMarginDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyDiscountingMethod;
@@ -89,6 +93,15 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
    */
   private static final CouponInflationYearOnYearInterpolationDiscountingMethod METHOD_YEAR_ON_YEAR_INTERPOLATION = new CouponInflationYearOnYearInterpolationDiscountingMethod();
   /**
+   * Pricing method for year on year coupon with monthly and with margin reference index.
+   */
+  private static final CouponInflationYearOnYearMonthlyWithMarginDiscountingMethod METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN = new CouponInflationYearOnYearMonthlyWithMarginDiscountingMethod();
+  /**
+   * Pricing method for year on year coupon with interpolated and with margin reference index.
+   */
+  private static final CouponInflationYearOnYearInterpolationWithMarginDiscountingMethod METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN =
+      new CouponInflationYearOnYearInterpolationWithMarginDiscountingMethod();
+  /**
    * Pricing method for coupon fixed compounding.
    */
   private static final CouponFixedCompoundingDiscountingMethod METHOD_CPN_FIXED_COMPOUNDING = CouponFixedCompoundingDiscountingMethod.getInstance();
@@ -129,6 +142,17 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
   @Override
   public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
     return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValueCurveSensitivity(coupon, inflation);
+  }
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMargin coupon, final InflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN.presentValueCurveSensitivity(coupon, inflation);
+  }
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMargin coupon,
+      final InflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN.presentValueCurveSensitivity(coupon, inflation);
   }
 
   //-----     Coupon fix    ------

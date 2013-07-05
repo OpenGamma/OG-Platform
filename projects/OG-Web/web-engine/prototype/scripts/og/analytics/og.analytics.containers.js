@@ -13,23 +13,32 @@ $.register_module({
                     containers[panel] = new GadgetsContainer('.OG-layout-analytics-', panel)
                         .init()
                         .on('del', function (index) {
-                            if (move) move = analytics.url.move({panel: panel, index: index}, move), null;
-                            else analytics.url.remove(panel, index);
+                            if (move) {
+                                move = analytics.url.move({panel: panel, index: index}, move), null;
+                            } else {
+                                analytics.url.remove(panel, index);
+                            }
                         })
                         .on('drop', function (params, source) {
                             move = ~panels.indexOf(source) && {panel: panel, params: params};
                             if (!move) analytics.url.add(panel, params);
                             return false;
                         })
-                        .on('swap', function (params, index) {analytics.url.swap(panel, params, index);})
+                        .on('swap', function (params, index) {
+                            analytics.url.swap(panel, params, index);
+                        })
                         .on('launch', analytics.url.launch);
                 });
                 delete containers.initialize;
             }
         };
         var highlight_handler = function (source, row, col, event_type) {
-            if (!analytics.grid) return;
-            if (Object.equals(source, analytics.grid.source)) return analytics.grid.highlight(row, col, event_type);
+            if (!analytics.grid) {
+                return;
+            }
+            if (Object.equals(source, analytics.grid.source)) {
+                return analytics.grid.highlight(row, col, event_type);
+            }
             analytics.grid.highlight();
         }
         containers.on = og.common.events.on;

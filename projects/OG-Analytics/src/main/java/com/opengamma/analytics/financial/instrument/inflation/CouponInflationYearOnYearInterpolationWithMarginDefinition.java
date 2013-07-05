@@ -10,7 +10,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolationWithMargin;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -246,7 +245,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
   }
 
   @Override
-  public CouponInflationYearOnYearInterpolation toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CouponInflationYearOnYearInterpolationWithMargin toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -263,7 +262,8 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
     final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
     final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
     final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
+    return new CouponInflationYearOnYearInterpolationWithMargin(_factor, getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime,
+        naturalPaymentStartTime,
         referenceEndTime,
         naturalPaymentEndTime, _payNotional, _weightStart, _weightEnd);
   }

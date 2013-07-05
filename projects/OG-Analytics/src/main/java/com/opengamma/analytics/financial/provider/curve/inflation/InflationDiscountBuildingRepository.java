@@ -31,6 +31,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -230,6 +231,14 @@ public class InflationDiscountBuildingRepository {
       final String[][] curveNames, final double[][] parametersGuess, final InflationProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
       final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+    ArgumentChecker.notNull(instruments, "instruments");
+    ArgumentChecker.notNull(curveGenerators, "curve generators");
+    ArgumentChecker.notNull(curveNames, "curve names");
+    ArgumentChecker.notNull(parametersGuess, "parameters guess");
+    ArgumentChecker.notNull(knownData, "known data");
+    ArgumentChecker.notNull(inflationMap, "inflation map");
+    ArgumentChecker.notNull(calculator, "calculator");
+    ArgumentChecker.notNull(sensitivityCalculator, "sensitivity calculator");
     final int nbUnits = curveGenerators.length;
     final InflationProviderDiscount knownSoFarData = knownData.copy();
     final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();

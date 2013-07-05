@@ -19,7 +19,7 @@ import freemarker.template.Template;
 /**
  * View status result producer
  */
-public class ViewStatusResultProducer {  
+public class ViewStatusResultProducer {
   /**
    * Produce view result with the given aggregation parameters
    * 
