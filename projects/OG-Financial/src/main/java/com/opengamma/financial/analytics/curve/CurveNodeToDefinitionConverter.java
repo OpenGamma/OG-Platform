@@ -145,7 +145,8 @@ public class CurveNodeToDefinitionConverter {
           final boolean isEOM = depositConvention.isIsEOM();
           final DayCount dayCount = depositConvention.getDayCount();
           final int daysToSettle = depositConvention.getDaysToSettle();
-          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, startPeriod.plusDays(daysToSettle), businessDayConvention, calendar);
+          final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, daysToSettle, calendar);
+          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar);
           final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityPeriod, businessDayConvention, calendar, isEOM);
           final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
           return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);

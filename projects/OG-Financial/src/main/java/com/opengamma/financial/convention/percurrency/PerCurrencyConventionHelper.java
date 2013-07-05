@@ -14,6 +14,7 @@ import com.opengamma.util.money.Currency;
  */
 public class PerCurrencyConventionHelper {
   public static final String DEPOSIT = "Deposit";
+  public static final String DEPOSIT_ON = "DepositON";
   public static final String LIBOR = "Libor";
   public static final String JIBOR = "Jibor";
   public static final String FRA = "FRA";
